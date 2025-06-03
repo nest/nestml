@@ -27,15 +27,19 @@ from quantities.quantity import get_conversion_factor
 
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
+from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.symbols.predefined_types import PredefinedTypes
+from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.transformers.transformer import Transformer
@@ -57,24 +61,42 @@ class NonDimensionalisationVisitor(ASTVisitor):
         super().__init__()
         self.preferred_prefix = preferred_prefix
 
-    def get_conversion_factor_to_desired(self, from_unit_str, to_unit_str, to_unit_base_unit):
-        try:
-            from_unit = u.Unit(from_unit_str)
+    PREFIX_FACTORS = {
+        'Y': 1e24,   # yotta
+        'Z': 1e21,   # zetta
+        'E': 1e18,   # exa
+        'P': 1e15,   # peta
+        'T': 1e12,   # tera
+        'G': 1e9,    # giga
+        'M': 1e6,    # mega
+        'k': 1e3,    # kilo
+        'h': 1e2,    # hecto
+        'da': 1e1,   # deca
+        '': 1.0,     # no prefix
+        '1': 1.0,     # no prefix
+        'd': 1e-1,   # deci
+        'c': 1e-2,   # centi
+        'm': 1e-3,   # milli
+        'u': 1e-6,   # micro (μ)
+        'n': 1e-9,   # nano
+        'p': 1e-12,  # pico
+        'f': 1e-15,  # femto
+        'a': 1e-18,  # atto
+        'z': 1e-21,  # zepto
+        'y': 1e-24,  # yocto
+    }
 
-            # If to_unit_str is "1", interpret it as the base unit of the same physical type
-            if to_unit_str == "1":
-                physical_type = from_unit.physical_type
-                # Get canonical base unit for that physical type
-                to_unit = physical_type._physical_type_id[0][0]
-            else:
-                # Target unit is desired prefix concatenated with base unit for corresponding physical type
-                to_unit = u.Unit(to_unit_str+str(to_unit_base_unit))
+    def get_conversion_factor_to_si(self, from_unit_str):
+        r"""
+        Return the conversion factor from the unit we have in the NESTML file to SI units.
+        """
 
-            # Compute the scale factor (no value, just unit scaling)
-            return from_unit.to(to_unit)
+        from_unit = u.Unit(from_unit_str)
+        scale = from_unit.si.scale
 
-        except:
-            raise ValueError(f"Invalid unit")
+        # to_scale = NonDimensionalisationVisitor.PREFIX_FACTORS[to_prefix_str]
+
+        return scale
 
     def visit_variable(self, node: ASTVariable) -> None:
         print("In visit_variable("+str(node)+")")
@@ -87,15 +109,49 @@ class NonDimensionalisationVisitor(ASTVisitor):
         # grab the prefix for this variable
         # XXX TODO
 
-
         # find the corresponding desired prefix
         # XXX TODO
-        if node.get_type_symbol() is None: # add check if node name can be interpreted as astropy unit
-            print("The preferred prefix for:"+str(u.get_physical_type(u.Unit(node.name)))+"is: "+self.preferred_prefix[str(u.get_physical_type(u.Unit(node.name)))])
-            desired_prefix = self.preferred_prefix[str(u.get_physical_type(u.Unit(node.name)))]
-            to_unit_base_unit = u.get_physical_type(u.Unit(node.name))._unit
-            conversion_factor = self.get_conversion_factor_to_desired(node.name, desired_prefix, to_unit_base_unit)
-            new_expression_string = "*"+str(conversion_factor)
+        if node.get_type_symbol() is None:
+            # print("The preferred prefix for:"+str(u.get_physical_type(u.Unit(node.name)))+"is: "+self.preferred_prefix[str(u.get_physical_type(u.Unit(node.name)))])
+            # desired_prefix = self.preferred_prefix[str(u.get_physical_type(u.Unit(node.name)))]
+
+            if isinstance(node.get_parent(), ASTSimpleExpression):
+                if node.get_parent().is_numeric_literal():
+                    # something like ``42 mA``. This is a ASTSimpleExpression. Remove the unit and replace with conversion factor
+                    conversion_factor = self.get_conversion_factor_to_si(node.name)
+                    parent_node = node.get_parent()
+                    parent_node.numeric_literal *= conversion_factor
+                    parent_node.variable = None
+                    parent_node.type = PredefinedTypes.get_real_type()
+                    # parent_node.get_children().remove(node)
+                else:
+                    # something like ``I_foo``
+                    conversion_factor = 42
+                    # conversion_factor = self.PREFIX_FACTORS[self.preferred_prefix[str(u.get_physical_type(u.Unit(node.name)))]] # XXX TODO
+
+                    new_sub_node_lhs = ASTSimpleExpression(numeric_literal=conversion_factor)
+                    new_sub_node_rhs = ASTSimpleExpression(variable=node)
+                    new_sub_node = ASTExpression(binary_operator=ASTArithmeticOperator(is_times_op=True), lhs=new_sub_node_lhs, rhs=new_sub_node_rhs)
+                    new_node = ASTExpression(is_encapsulated=True, expression=new_sub_node)
+
+                    parent_node = node.get_parent()
+                    assert parent_node.is_variable()
+
+                    grandparent_node = parent_node.get_parent()
+                    if isinstance(grandparent_node, ASTExpression):
+                        if grandparent_node.lhs == parent_node:
+                            grandparent_node.lhs = new_node
+                        else:
+                            assert grandparent_node.rhs == parent_node
+                            grandparent_node.rhs = new_node
+                    else:
+                        raise Exception("This case has not yet been implemented!")
+
+                    import pdb;pdb.set_trace()
+
+            else:
+                raise Exception("This case has not yet been implemented!")
+
         # multiply by the right conversion factor into the expression
         # XXX TODO
 
@@ -217,8 +273,15 @@ class NonDimensionalisationTransformer(Transformer):
     def transform_(self, model: Union[ASTNode, Sequence[ASTNode]]) -> Union[ASTNode, Sequence[ASTNode]]:
         transformed_model = model.clone()
 
+        transformed_model.accept(ASTParentVisitor())
+
         visitor = NonDimensionalisationVisitor(self.get_option("quantity_to_preferred_prefix"))
         transformed_model.accept(visitor)
+
+        print("--------------------------------")
+        print("model after transformation:")
+        print("--------------------------------")
+        print(transformed_model)
 
         return transformed_model
 
