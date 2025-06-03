@@ -59,10 +59,6 @@ class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
         if function_name == PredefinedFunctions.RANDOM_UNIFORM:
             raise Exception("rng functions not yet implemented")
 
-        if function_name == PredefinedFunctions.EMIT_SPIKE:
-            return 'neuron_recording_record_bit(SPIKE_RECORDING_BITFIELD, neuron_index);\n' \
-                   'send_spike(timer_count, time, neuron_index)'
-
         return super().print_function_call(node)
 
     def _print_function_call_format_string(self, function_call: ASTFunctionCall) -> str:
