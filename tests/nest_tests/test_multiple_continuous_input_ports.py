@@ -18,6 +18,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+import os
+
 import nest
 import numpy as np
 
@@ -29,7 +31,9 @@ class TestMultipleInputPorts:
     Tests multiple continuous input ports in NEST.
     """
     def test_multiple_continuous_input_ports(self):
-        generate_nest_target(input_path="resources/multiple_input_currents_neuron.nestml",
+        input_path = os.path.join(os.path.realpath(os.path.join(
+            os.path.dirname(__file__), "resources", "multiple_input_currents_neuron.nestml")))
+        generate_nest_target(input_path=input_path,
                              target_path="target",
                              logging_level="INFO",
                              suffix="_nestml")
