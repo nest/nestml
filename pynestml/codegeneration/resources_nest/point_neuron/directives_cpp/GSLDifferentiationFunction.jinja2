@@ -8,7 +8,7 @@ extern "C" inline int {{neuronName}}_dynamics{% if ast.get_args() | length > 0 %
   assert( pnode );
   const {{neuronName}}& node = *( reinterpret_cast< {{neuronName}}* >( pnode ) );
 {%- for port in neuron.get_continuous_input_ports()  %}
-  constexpr int {{ port.get_symbol_name().upper() }} = aeif_cond_alpha_two_comp_neuron::{{ port.get_symbol_name().upper() }};
+  constexpr int {{ port.get_symbol_name().upper() }} = {{ neuronName }}::{{ port.get_symbol_name().upper() }};
 {%- endfor  %}
 
   // ode_state[] here is---and must be---the state vector supplied by the integrator,
