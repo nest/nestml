@@ -774,7 +774,7 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%-             set var_ast = utils.get_variable_by_name(astnode, variable_name)%}
 {%-             set var_symbol = var_ast.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)%}
 {%-             if use_gap_junctions %}
-    const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp_ = {{ printer.print(update_expr) | replace("B_." + gap_junction_port + "_grid_sum_", "(B_." + gap_junction_port + "_grid_sum_ + __I_gap)") }};
+    const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp_ = {{ printer.print(update_expr) | replace("B_.continuous_inputs_grid_sum_[" + gap_junction_port.upper() + "]", "(B_.continuous_inputs_grid_sum_[" + gap_junction_port.upper() + "] + __I_gap)") }};
 {%-             else %}
     const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp_ = {{ printer.print(update_expr) }};
 {%-             endif %}
@@ -879,13 +879,16 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%- if has_continuous_input %}
 {%-     if use_gap_junctions %}
 {%  for inputPort in neuron.get_continuous_input_ports() %}
-    if ( called_from_wfr_update )
+    for (long i = 0; i < MAX_CONTINUOUS_INPUT; ++i)
     {
-      B_.{{ inputPort.name }}_grid_sum_ = get_{{ inputPort.name }}().get_value_wfr_update(lag);
-    }
-    else
-    {
-      B_.{{ inputPort.name }}_grid_sum_ = get_{{ inputPort.name }}().get_value(lag);
+        if ( called_from_wfr_update )
+        {
+          get_continuous_inputs_grid_sum_()[i] = get_continuous_inputs_()[i].get_value_wfr_update(lag);
+        }
+        else
+        {
+          get_continuous_inputs_grid_sum_()[i] = get_continuous_inputs_()[i].get_value(lag);
+        }
     }
 {%- endfor %}
 {%-     else %}
