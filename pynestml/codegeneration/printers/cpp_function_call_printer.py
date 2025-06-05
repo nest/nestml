@@ -83,6 +83,9 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         """
         function_name = function_call.get_name()
 
+        if function_name == PredefinedFunctions.HEAVISIDE:
+            return '({!s} > 0)'
+
         if function_name == PredefinedFunctions.CLIP:
             # the arguments of this function must be swapped and are therefore [v_max, v_min, v]
             return 'std::min({2!s}, std::max({1!s}, {0!s}))'
@@ -91,6 +94,9 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
             return 'std::max({!s}, {!s})'
 
         if function_name == PredefinedFunctions.MIN:
+            return 'std::min({!s}, {!s})'
+
+        if function_name == 'Min':
             return 'std::min({!s}, {!s})'
 
         if function_name == PredefinedFunctions.ABS:
