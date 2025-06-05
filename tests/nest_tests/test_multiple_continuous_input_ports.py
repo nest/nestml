@@ -41,7 +41,7 @@ class TestMultipleInputPorts:
         nest.resolution = 0.1
         nest.Install("nestmlmodule")
         neuron = nest.Create("multiple_input_currents_neuron_nestml")
-        continuous_inputs = neuron.get("continuous_inputs")
+        continuous_inputs = nest.GetStatus(neuron, "continuous_inputs")[0]
 
         dc1 = nest.Create("dc_generator", params={"amplitude": 150})
         nest.Connect(dc1, neuron, syn_spec={'receptor_type': continuous_inputs["I_1"]})
