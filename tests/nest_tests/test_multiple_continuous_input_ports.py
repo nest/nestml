@@ -41,12 +41,12 @@ class TestMultipleInputPorts:
         nest.resolution = 0.1
         nest.Install("nestmlmodule")
         neuron = nest.Create("multiple_input_currents_neuron_nestml")
-        continuous_inputs = nest.GetStatus(neuron, "continuous_inputs")[0]
+        continuous_inputs = neuron.get("continuous_inputs")
 
-        dc1 = nest.Create("dc_generator", params={"amplitude": 150})
+        dc1 = nest.Create("dc_generator", params={"amplitude": 150.0})
         nest.Connect(dc1, neuron, syn_spec={'receptor_type': continuous_inputs["I_1"]})
 
-        dc2 = nest.Create("dc_generator", params={"amplitude": 225})
+        dc2 = nest.Create("dc_generator", params={"amplitude": 225.0})
         nest.Connect(dc2, neuron, syn_spec={'receptor_type': continuous_inputs["I_2"]})
 
         # multimeter{
@@ -55,8 +55,8 @@ class TestMultipleInputPorts:
 
         nest.Simulate(10.)
 
-        v_m1 = mm.get("events")["V_m1"]
-        v_m2 = mm.get("events")["V_m2"]
+        v_m1 = nest.GetStatus(mm, "events")[0]["V_m1"]
+        v_m2 = nest.GetStatus(mm, "events")[0]["V_m2"]
 
         np.testing.assert_allclose(v_m1[-1], 2370)
         np.testing.assert_allclose(v_m2[-1], 1767.5)
