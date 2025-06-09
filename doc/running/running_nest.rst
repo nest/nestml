@@ -195,7 +195,7 @@ In synapse models, precisely two spike event attributes are supported: a synapti
 Generating code for plastic synapses
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When NESTML is invoked to generate code for plastic synapses, the code generator needs to know which neuron model the synapses will be connected to, so that it can generate fast C++ code for the neuron and the synapse that is mutually dependent at runtime. These pairs can be specified as a list of two-element dictionaries of the form :python:`{"neuron": "neuron_model_name", "synapse": "synapse_model_name"}`\ , for example:
+When NESTML is invoked to generate code for plastic synapses, the code generator needs to know which neuron model the synapses will be connected to, so that it can generate fast C++ code for the neuron and the synapse that is mutually dependent at runtime. These pairs can be specified as a list of two-element dictionaries of the form :py:`{"neuron": "neuron_model_name", "synapse": "synapse_model_name"}`, for example:
 
 .. code-block:: python
 
