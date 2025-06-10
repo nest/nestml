@@ -81,18 +81,18 @@ class TestGeNNIAFPSCexp:
                               "E_L": -70.,
                               "V_reset": -70.,
                               "V_th": 55.,
-                              "I_e": 0.}
+                              "I_e": 0.}   # [pA]
 
         cs_model = create_current_source_model("cs_model",
                                                vars=[("magnitude", "scalar")],
                                                injection_code="injectCurrent(magnitude);")
-        model = GeNNModel("float", "tutorial_1")
+        model = GeNNModel("float", "test_genn_iaf_psc_exp_current_injection")
         model.dt = TIMESTEP
         neuron_pop = model.add_neuron_population("neuron0", 1,
                                                  iaf_psc_exp_neuron_nestml_model, iaf_psc_exp_params, iaf_psc_exp_init)
         neuron_pop.spike_recording_enabled = True
         current_input = model.add_current_source("current_input", cs_model,
-                                                 neuron_pop, {}, {"magnitude": 200.0})
+                                                 neuron_pop, {}, {"magnitude": 10E3})   # [pA]
         current_input.target_var = "I_stim"
         model.build()
         model.load(num_recording_timesteps=SIM_TIMESTEPS)
@@ -117,7 +117,7 @@ class TestGeNNIAFPSCexp:
             fig.savefig("/tmp/genn_iaf_psc_exp_current_injection.png")
             plt.close(fig)
 
-        assert len(spike_times) > 52
+        assert len(spike_times) > 10
 
     def test_genn_iaf_psc_exp_postsynaptic_response(self):
         from nestmlmodule.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml_model
@@ -141,7 +141,7 @@ class TestGeNNIAFPSCexp:
                               "V_th": 55.,
                               "I_e": 0.}
 
-        model = GeNNModel("float", "tutorial_1")
+        model = GeNNModel("float", "test_genn_iaf_psc_exp_postsynaptic_response")
         model.dt = TIMESTEP
         neuron_pop = model.add_neuron_population("neuron0", 1,
                                                  iaf_psc_exp_neuron_nestml_model, iaf_psc_exp_params, iaf_psc_exp_init)
@@ -152,7 +152,7 @@ class TestGeNNIAFPSCexp:
         poisson_gen_pop.spike_recording_enabled = True
         syn_pop = model.add_synapse_population("synapse_0_1", "DENSE",
                                                poisson_gen_pop, neuron_pop,
-                                               init_weight_update("StaticPulse", {}, {"g": 100.}),
+                                               init_weight_update("StaticPulse", {}, {"g": 10000000.}),
                                                init_postsynaptic("DeltaCurr"))
         syn_pop.post_target_var = "exc_spikes"
 

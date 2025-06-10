@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Dict, Mapping, Optional
+from typing import Any, Dict, List, Mapping, Optional, Tuple
 
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
@@ -37,6 +37,9 @@ from pynestml.codegeneration.printers.python_expression_printer import PythonExp
 from pynestml.codegeneration.printers.python_stepping_function_function_call_printer import PythonSteppingFunctionFunctionCallPrinter
 from pynestml.codegeneration.printers.python_stepping_function_variable_printer import PythonSteppingFunctionVariablePrinter
 from pynestml.codegeneration.python_code_generator_utils import PythonCodeGeneratorUtils
+from pynestml.meta_model.ast_assignment import ASTAssignment
+from pynestml.meta_model.ast_input_port import ASTInputPort
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.codegeneration.printers.python_type_symbol_printer import PythonTypeSymbolPrinter
@@ -45,7 +48,9 @@ from pynestml.codegeneration.printers.python_function_call_printer import Python
 from pynestml.codegeneration.printers.python_variable_printer import PythonVariablePrinter
 from pynestml.codegeneration.printers.python_simple_expression_printer import PythonSimpleExpressionPrinter
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_on_condition_block import ASTOnConditionBlock
+from pynestml.utils.model_parser import ModelParser
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
@@ -132,26 +137,24 @@ class GeNNCodeGenerator(NESTCodeGenerator):
                                                                                                       function_call_printer=self._gsl_function_call_printer))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
 
-
-
-
-
-
         # Python printers
         self._py_variable_printer = GeNNDerivedVariablePrinter(expression_printer=None, with_origin=True, with_vector_parameter=True)
         self._py_function_call_printer = PythonFunctionCallPrinter(None)
         self._py_function_call_printer_no_origin = PythonFunctionCallPrinter(None)
 
         self._py_expr_printer = PythonExpressionPrinter(simple_expression_printer=PythonSimpleExpressionPrinter(variable_printer=self._py_variable_printer,
-                                                                                                        constant_printer=self._constant_printer,
-                                                                                                        function_call_printer=self._py_function_call_printer))
+                                                                                                                constant_printer=self._constant_printer,
+                                                                                                                function_call_printer=self._py_function_call_printer))
         self._py_variable_printer._expression_printer = self._py_expr_printer
         self._py_function_call_printer._expression_printer = self._py_expr_printer
         self._genn_derived_params_printer = PythonStandalonePrinter(expression_printer=self._py_expr_printer)
 
+    def create_ode_toolbox_indict(self, neuron: ASTModel, kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
+        odetoolbox_indict = super().create_ode_toolbox_indict(neuron, kernel_buffers)
+        odetoolbox_indict["options"]["propagators_prefix"] = "P"    # GeNN does not support variable names that start with an underscore; hence, override the default "__P"
+        odetoolbox_indict["options"]["output_timestep_symbol"] = "dt"
 
-
-
+        return odetoolbox_indict
 
     def _get_model_namespace(self, astnode: ASTModel) -> Dict:
         namespace = super()._get_model_namespace(astnode)
@@ -185,3 +188,8 @@ class GeNNCodeGenerator(NESTCodeGenerator):
                 return condition_block
 
         raise Exception("Could not find an onCondition block in the NESTML model \"" + astnode.name + "\" that contains the membrane potential variable \"" + self.get_option("membrane_potential_variable") + "\". Please check the GeNN code generator option \"membrane_potential_variable\"")
+
+    def analyse_neuron(self, neuron: ASTModel) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment], List[ASTOdeEquation], List[ASTOdeEquation]]:
+        # timestep symbol in GeNN is "dt" rather than "__h"
+        neuron.add_to_internals_block(ModelParser.parse_declaration('dt ms = resolution()'), index=0)
+        return super().analyse_neuron(neuron)

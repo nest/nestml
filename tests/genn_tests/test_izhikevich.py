@@ -164,14 +164,14 @@ class TestGeNNIzhikevich:
         spike_times, spike_ids = neuron_pop.spike_recording_data[0]
 
         if TEST_PLOTS:
-            fig, ax = plt.subplots(figsize=(5,1.5))
+            fig, ax = plt.subplots(figsize=(5, 1.5))
 
             ax.scatter(spike_times, spike_ids, s=1)
             ax.set_ylabel("Neuron ID")
             ax.set_xlim((0, SIM_TIMESTEPS * TIMESTEP))
             fig.tight_layout()
 
-            fig.savefig("/tmp/genn_izhikevich_postsynaptic_response.png",dpi=300)
+            fig.savefig("/tmp/genn_izhikevich_postsynaptic_response.png", dpi=300)
             plt.close(fig)
 
         assert len(spike_times) > 10

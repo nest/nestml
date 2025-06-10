@@ -898,6 +898,14 @@ class NESTCodeGenerator(CodeGenerator):
 
         return namespace
 
+    def create_ode_toolbox_indict(self, neuron: ASTModel, kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
+        odetoolbox_indict = ASTUtils.transform_ode_and_kernels_to_json(neuron, neuron.get_parameters_blocks(), kernel_buffers, printer=self._ode_toolbox_printer)
+        odetoolbox_indict["options"] = {}
+        odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
+        odetoolbox_indict["options"]["simplify_expression"] = self.get_option("simplify_expression")
+
+        return odetoolbox_indict
+
     def ode_toolbox_analysis(self, neuron: ASTModel, kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
         """
         Prepare data for ODE-toolbox input format, invoke ODE-toolbox analysis via its API, and return the output.
@@ -911,9 +919,8 @@ class NESTCodeGenerator(CodeGenerator):
             # no equations defined -> no changes to the neuron
             return None, None
 
-        odetoolbox_indict = ASTUtils.transform_ode_and_kernels_to_json(neuron, neuron.get_parameters_blocks(), kernel_buffers, printer=self._ode_toolbox_printer)
-        odetoolbox_indict["options"] = {}
-        odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
+        odetoolbox_indict = self.create_ode_toolbox_indict(neuron, kernel_buffers)
+
         odetoolbox_indict["options"]["simplify_expression"] = self.get_option("simplify_expression")
         disable_analytic_solver = self.get_option("solver") != "analytic"
         solver_result = odetoolbox.analysis(odetoolbox_indict,

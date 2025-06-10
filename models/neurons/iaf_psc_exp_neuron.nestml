@@ -86,8 +86,8 @@ model iaf_psc_exp_neuron:
         I_syn_exc' = -I_syn_exc / tau_syn_exc
         I_syn_inh' = -I_syn_inh / tau_syn_inh
         V_m' = -(V_m - E_L) / tau_m + (I_syn_exc - I_syn_inh + I_e + I_stim) / C_m
-        refr_qwefwqeft' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
-wqef
+        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
+
     parameters:
         C_m pF = 250 pF           # Capacitance of the membrane
         tau_m ms = 10 ms          # Membrane time constant

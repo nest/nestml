@@ -131,7 +131,7 @@ class GeNNDerivedVariablePrinter(PythonVariablePrinter):
     def _print(self, variable, symbol, with_origin: bool = True) -> str:
         variable_name = PythonVariablePrinter._print_python_name(variable.get_complete_name())
 
-        if variable_name == "__h":
+        if variable_name in ["dt", "__h"]:
             return "dt"
 
         if variable.is_delay_variable():
