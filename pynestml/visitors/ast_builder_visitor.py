@@ -88,13 +88,18 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         is_encapsulated = left_parenthesis and True if ctx.rightParentheses is not None else False
         base = self.visit(ctx.base) if ctx.base is not None else None
         is_pow = True if ctx.powOp is not None else False
+        exponent = None
+        exponent_num = None
+        exponent_den = None
         try:
             exponent = float(str(ctx.exponent.getText())) if ctx.exponent is not None else None
         except BaseException:
             try:
-                exponent = float(ctx.exponent.num.text) / float(ctx.exponent.den.text)
+                exponent_num = float(ctx.exponent.num.text)
+                exponent_den = float(ctx.exponent.den.text)
             except BaseException:
-                exponent = None
+                exponent_num = None
+                exponent_den = None
         if ctx.unitlessLiteral is not None:
             lhs = int(str(ctx.unitlessLiteral.text))
         else:
@@ -105,7 +110,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         unit = str(ctx.unit.text) if ctx.unit is not None else None
         return ASTNodeFactory.create_ast_unit_type(is_encapsulated=is_encapsulated, compound_unit=compound_unit,
                                                    base=base, is_pow=is_pow,
-                                                   exponent=exponent, lhs=lhs, rhs=rhs, is_div=is_div,
+                                                   exponent=exponent, exponent_num=exponent_num, exponent_den=exponent_den, lhs=lhs, rhs=rhs, is_div=is_div,
                                                    is_times=is_times, unit=unit, source_position=create_source_pos(ctx))
 
     # Visit a parse tree produced by PyNESTMLParser#rhs.
