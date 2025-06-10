@@ -31,11 +31,6 @@ class ASTUnitType(ASTNode):
     ASTUnitType. Represents an unit datatype. It can be a plain datatype as 'mV' or a
     complex data type as 'mV/s'
 
-    unitType : leftParentheses='(' unitType rightParentheses=')'
-               | base=unitType powOp='**' exponent=UNSIGNED_INTEGER
-               | left=unitType (timesOp='*' | divOp='/') right=unitType
-               | unitlessLiteral=UNSIGNED_INTEGER divOp='/' right=unitType
-               | unit=NAME;
     Attributes:
         # encapsulated or not
         is_encapsulated = False
