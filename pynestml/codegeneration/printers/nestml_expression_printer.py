@@ -36,9 +36,6 @@ class NESTMLExpressionPrinter(ExpressionPrinter):
 
     def print(self, node: ASTNode) -> str:
         if isinstance(node, ASTExpression):
-            if node.get_implicit_conversion_factor() and not node.get_implicit_conversion_factor() == 1:
-                return "(" + str(node.get_implicit_conversion_factor()) + " * (" + self.print_expression(node) + "))"
-
             return self.print_expression(node)
 
         if isinstance(node, ASTArithmeticOperator):
