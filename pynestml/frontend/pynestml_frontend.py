@@ -356,7 +356,7 @@ def generate_spinnaker_target(input_path: Union[str, Sequence[str]], target_path
     """
     generate_target(input_path, target_platform="spinnaker", target_path=target_path,
                     install_path=install_path,
-                    logging_level=logging_level, store_log=store_log, suffix=suffix, dev=dev,
+                    logging_level=logging_level, module_name=module_name, store_log=store_log, suffix=suffix, dev=dev,
                     codegen_opts=codegen_opts)
 
 
