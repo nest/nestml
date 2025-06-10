@@ -90,10 +90,10 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         is_pow = True if ctx.powOp is not None else False
         try:
             exponent = float(str(ctx.exponent.getText())) if ctx.exponent is not None else None
-        except:
+        except BaseException:
             try:
                 exponent = float(ctx.exponent.num.text) / float(ctx.exponent.den.text)
-            except:
+            except BaseException:
                 exponent = None
         if ctx.unitlessLiteral is not None:
             lhs = int(str(ctx.unitlessLiteral.text))
