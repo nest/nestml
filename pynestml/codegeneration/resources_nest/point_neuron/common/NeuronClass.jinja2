@@ -70,7 +70,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "{{ neuronName }}.h"
 
 // uncomment the next line to enable printing of detailed debug information
-#define DEBUG
+// #define DEBUG
 
 {%  if state_vars_that_need_continuous_buffering | length > 0 %}
 {%-     if continuous_state_buffering_method == "continuous_time_buffer" %}
@@ -193,54 +193,58 @@ namespace nest
 
 {{ neuronName }}::Buffers_::Buffers_({{ neuronName }} &n):
   logger_(n)
-{%- if neuron.get_spike_input_ports()|length > 0 %}
 {%- for inputPortSymbol in neuron.get_spike_input_ports() %}
 {%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name.split(".")[0]) %}
 {%-     if inputPortSymbol.has_vector_parameter() %}
 {%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
 {%-         for i in range(size)  %}
 {%-             if inputPort.get_parameters() %}
+{%-                 if inputPort.get_parameters() | length > 1 %}
+                        {{ raise('Neuron models in NEST Simulator only support one spike event attribute ("weight")') }}
+{%-                 endif %}
 {%-                 for parameter in inputPort.get_parameters() %}
-{%- if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
-{#-     linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
+{%-                     if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
+{#-                         linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
   , spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_( nest::RingBuffer() )
   , spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_( 0. )
-{%- else %}
-{%-     if attributes_spiking_input_port_necessary %}
-{#-     generic input port: use lists of spike events for each buffer slot #}
+{%-                     else %}
+{%-                         if attributes_spiking_input_port_necessary %}
+{#-                             generic input port: use lists of spike events for each buffer slot #}
   , spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_( nest::VectorRingBuffer() )
-{%-     endif %}
-{%- endif %}
+{%-                         endif %}
+{%-                     endif %}
 {%-                 endfor %}
 {%-             endif %}
 {%-         endfor %}
 {%-     else %}
+{%-         if inputPort.get_parameters() | length > 1 %}
+                {{ raise('Neuron models in NEST Simulator only support one spike event attribute ("weight")') }}
+{%-         endif %}
 {%-         for parameter in inputPort.get_parameters() %}
-{%- if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
-{#-     linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
+{%-             if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
+{#-                 linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
   , spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_( nest::RingBuffer() )
   , spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_( 0. )
-{%- else %}
-{%-     if attributes_spiking_input_port_necessary %}
-{#-     generic input port: use lists of spike events for each buffer slot #}
+{%-             else %}
+{%-                 if attributes_spiking_input_port_necessary %}
+{#-                     generic input port: use lists of spike events for each buffer slot #}
   , spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_( nest::VectorRingBuffer() )
-{%-     endif %}
-{%- endif %}
+{%-                 endif %}
+{%-             endif %}
 {%-         endfor %}
-{%- if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
-{#-     linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
+{%-         if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
+{#-             linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
   , spike_input_{{ inputPort.name }}_( nest::RingBuffer() )
   , spike_input_{{ inputPort.name }}_grid_sum_( 0. )
-{%- else %}
-{#-     generic input port: use lists of spike events for each buffer slot #}
-{%-     if attributes_spiking_input_port_necessary %}
+{%-         else %}
+{#-             generic input port: use lists of spike events for each buffer slot #}
+{%-             if attributes_spiking_input_port_necessary %}
   , spike_input_{{ inputPort.name }}_( nest::VectorRingBuffer() )
-{%-     endif %}
-{%- endif %}
+{%-             endif %}
+{%-         endif %}
   , spike_input_{{ inputPort.name }}_n_spikes_received_( nest::RingBuffer() )
 {%-     endif %}
 {%- endfor %}
-{%- endif %}
 {%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
   , __s( nullptr ), __c( nullptr ), __e( nullptr )
@@ -252,59 +256,59 @@ namespace nest
 
 {{ neuronName }}::Buffers_::Buffers_(const Buffers_ &, {{ neuronName }} &n):
   logger_(n)
-{%- if neuron.get_spike_input_ports()|length > 0 %}
-{%- for inputPortSymbol in neuron.get_spike_input_ports() %}
-{%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name.split(".")[0]) %}
-{%-     if inputPortSymbol.has_vector_parameter() %}
-{%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
-{%-         for i in range(size)  %}
-{%-             if inputPort.get_parameters() %}
-{%-                 for parameter in inputPort.get_parameters() %}
-
-{%- if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
-{#-     linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
+{%- if neuron.get_spike_input_ports() | length > 0 %}
+{%-     for inputPortSymbol in neuron.get_spike_input_ports() %}
+{%-         set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name.split(".")[0]) %}
+{%-         if inputPortSymbol.has_vector_parameter() %}
+{%-             set size = utils.get_numeric_vector_size(inputPortSymbol) %}
+{%-             for i in range(size)  %}
+{%-                 if inputPort.get_parameters() %}
+{%-                     if inputPort.get_parameters() | length > 1 %}
+                            {{ raise('Neuron models in NEST Simulator only support one spike event attribute ("weight")') }}
+{%-                     endif %}
+{%-                     for parameter in inputPort.get_parameters() %}
+{%-                         if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
+{#-                             linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
   , spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_( nest::RingBuffer() )
   , spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_( 0. )
-{%- else %}
-{#-     generic input port: use lists of spike events for each buffer slot #}
-{%-     if attributes_spiking_input_port_necessary %}
+{%-                         else %}
+{#-                             generic input port: use lists of spike events for each buffer slot #}
+{%-                             if attributes_spiking_input_port_necessary %}
   , spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_( nest::VectorRingBuffer() )
-{%-     endif %}
-{%- endif %}
-{%-                 endfor %}
-{%-             else %}
-  ?????????????
+{%-                             endif %}
+{%-                         endif %}
+{%-                     endfor %}
+{%-                 endif %}
+{%-             endfor %}
+{%-         else %}
+{%-             if inputPort.get_parameters() | length > 1 %}
+                    {{ raise('Neuron models in NEST Simulator only support one spike event attribute ("weight")') }}
 {%-             endif %}
-{%-         endfor %}
-{%-     else %}
-{%-         for parameter in inputPort.get_parameters() %}
-
-
-
-{%- if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
-{#-     linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
+{%-             for parameter in inputPort.get_parameters() %}
+{%-                 if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
+{#-                     linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
   , spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_( nest::RingBuffer() )
   , spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_( 0. )
-{%- else %}
-{#-     generic input port: use lists of spike events for each buffer slot #}
-{%-     if attributes_spiking_input_port_necessary %}
+{%-                 else %}
+{#-                     generic input port: use lists of spike events for each buffer slot #}
+{%-                     if attributes_spiking_input_port_necessary %}
   , spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_( nest::VectorRingBuffer() )
-{%-     endif %}
-{%- endif %}
-{%-         endfor %}
-{%- if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
-{#-     linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
+{%-                     endif %}
+{%-                 endif %}
+{%-             endfor %}
+{%-             if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
+{#-                 linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
   , spike_input_{{ inputPort.name }}_( nest::RingBuffer() )
   , spike_input_{{ inputPort.name }}_grid_sum_( 0. )
-{%- else %}
-{#-     generic input port: use lists of spike events for each buffer slot #}
-{%-     if attributes_spiking_input_port_necessary %}
+{%-             else %}
+{#-                 generic input port: use lists of spike events for each buffer slot #}
+{%-                 if attributes_spiking_input_port_necessary %}
   , spike_input_{{ inputPort.name }}_( nest::VectorRingBuffer() )
-{%-     endif %}
-{%- endif %}
+{%-                 endif %}
+{%-             endif %}
   , spike_input_{{ inputPort.name }}_n_spikes_received_( nest::RingBuffer() )
-{%-     endif %}
-{%- endfor %}
+{%-         endif %}
+{%-     endfor %}
 {%- endif %}
 {%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
@@ -516,6 +520,9 @@ void {{ neuronName }}::init_buffers_()
 {%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
 {%-         for i in range(size)  %}
 {%-             if inputPort.get_parameters() %}
+{%-                 if inputPort.get_parameters() | length > 1 %}
+                        {{ raise('Neuron models in NEST Simulator only support one spike event attribute ("weight")') }}
+{%-                 endif %}
 {%-                 for parameter in inputPort.get_parameters() %}
   B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_.clear();
 {%-                 endfor %}
@@ -526,6 +533,9 @@ void {{ neuronName }}::init_buffers_()
   B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_n_spikes_received_.clear();
 {%-         endfor %}
 {%-     else %}
+{%-         if inputPort.get_parameters() | length > 1 %}
+                {{ raise('Neuron models in NEST Simulator only support one spike event attribute ("weight")') }}
+{%-         endif %}
 {%-         for parameter in inputPort.get_parameters() %}
   B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_.clear();
 {%-         endfor %}
@@ -833,6 +843,9 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
 {%-         for i in range(size)  %}
 {%-             if inputPort.get_parameters() %}
+{%-                 if inputPort.get_parameters() | length > 1 %}
+                        {{ raise('Neuron models in NEST Simulator only support one spike event attribute ("weight")') }}
+{%-                 endif %}
 {%-                 for parameter in inputPort.get_parameters() %}
 {%-                     if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
 {#-                         linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
@@ -846,6 +859,9 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%-             endif %}
 {%-         endfor %}
 {%-     else %}
+{%-         if inputPort.get_parameters() | length > 1 %}
+                {{ raise('Neuron models in NEST Simulator only support one spike event attribute ("weight")') }}
+{%-         endif %}
 {%-         for parameter in inputPort.get_parameters() %}
 {%-             if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
 {#-                 linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
@@ -1014,22 +1030,11 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%-     endif %}
 {%- endfor %}
 
-
-
-
-
-
-
-
-
-
-
     /**
      * clear spike buffers at end of timestep (all spikes have been processed at this point)
     **/
 
-{#- if neuron.get_on_receive_blocks() | length == 0 and neuron.get_spike_input_ports() |length > 0 #}
-{%- if neuron.get_spike_input_ports() |length > 0 %}
+{%- if neuron.get_spike_input_ports() | length > 0 %}
 {%- for inputPortSymbol in neuron.get_spike_input_ports() %}
 {%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name.split(".")[0]) %}
 
@@ -1039,6 +1044,9 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
 {%-         for i in range(size)  %}
 {%-             if inputPort.get_parameters() %}
+{%-                 if inputPort.get_parameters() | length > 1 %}
+                        {{ raise('Neuron models in NEST Simulator only support one spike event attribute ("weight")') }}
+{%-                 endif %}
 {%-                 for parameter in inputPort.get_parameters() %}
     std::vector< double >& __spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_list = B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_.get_list(lag);
   __spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_list.clear();
@@ -1046,16 +1054,17 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%-             endif %}
 {%-         endfor %}
 {%-     else %}
+{%-         if inputPort.get_parameters() | length > 1 %}
+                {{ raise('Neuron models in NEST Simulator only support one spike event attribute ("weight")') }}
+{%-         endif %}
 {%-         for parameter in inputPort.get_parameters() %}
     std::vector< double >& __spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_list = B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_.get_list(lag);
   __spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_list.clear();
 {%-         endfor %}
-
 {%-         if attributes_spiking_input_port_necessary %}
     std::vector< double >& __spike_input_{{ inputPort.name }}_list = B_.spike_input_{{ inputPort.name }}_.get_list(lag);
     __spike_input_{{ inputPort.name }}_list.clear();
 {%-         endif %}
-
 {%-     endif %}
 {%- endif %}
 
@@ -1172,45 +1181,6 @@ std::cout << "[neuron " << this << "] Writing history at time " << nest::Time(ne
 
   return wfr_tol_exceeded;
 {%- endif %}
-
-
-
-
-
-/*
-{%- if neuron.get_spike_input_ports()|length > 0 %}
-{%- for inputPortSymbol in neuron.get_spike_input_ports() %}
-{%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name.split(".")[0]) %}
-{%-     if inputPortSymbol.has_vector_parameter() %}
-{%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
-{%-         for i in range(size)  %}
-{%-             if inputPort.get_parameters() %}
-{%-                 for parameter in inputPort.get_parameters() %}
-  B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_.clear();
-  // , spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_( 0. )
-{%-                 endfor %}
-{%-             endif %}
-{%-         endfor %}
-{%-     else %}
-{%-         for parameter in inputPort.get_parameters() %}
-  B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_.clear();
-  //, spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_( 0. )
-{%-         endfor %}
-{%-         if attributes_spiking_input_port_necessary %}
-  B_.spike_input_{{ inputPort.name }}_.clear();
-{%-         endif %}
-  //, spike_input_{{ inputPort.name }}_n_spikes_received_grid_sum_( 0. )
-{%-     endif %}
-{%- endfor %}
-{%- endif %}
-*/
-
-
-
-
-
-
-
 }
 
 {%- if state_vars_that_need_continuous_buffering | length > 0 %}
@@ -1315,6 +1285,9 @@ void {{ neuronName }}::handle(nest::SpikeEvent &e)
 {%-         endif %}
   {
 {%-         if spike_in_port.get_parameters() %}
+{%-             if spike_in_port.get_parameters() | length > 1 %}
+                    {{ raise('Neuron models in NEST Simulator only support one spike event attribute ("weight")') }}
+{%-             endif %}
 {%-             for attribute in spike_in_port.get_parameters() %}
 {%-                 if spike_in_port_name in linear_time_invariant_spiking_input_ports %}
 {#-     linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
@@ -1402,12 +1375,18 @@ void
 {%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
 {%-         for i in range(size)  %}
 {%-             if inputPort.get_parameters() %}
+{%-                 if inputPort.get_parameters() | length > 1 %}
+                        {{ raise('Neuron models in NEST Simulator only support one spike event attribute ("weight")') }}
+{%-                 endif %}
 {%-                 for parameter in inputPort.get_parameters() %}
     const double __spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }} = B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_;
 {%-                 endfor %}
 {%-             endif %}
 {%-         endfor %}
 {%-     else %}
+{%-         if inputPort.get_parameters() | length > 1 %}
+                {{ raise('Neuron models in NEST Simulator only support one spike event attribute ("weight")') }}
+{%-         endif %}
 {%-         for parameter in inputPort.get_parameters() %}
     const double __spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }} = B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_;
 {%-         endfor %}
@@ -1434,6 +1413,9 @@ void
 {%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
 {%-         for i in range(size)  %}
 {%-             if inputPort.get_parameters() %}
+{%-                 if inputPort.get_parameters() | length > 1 %}
+                        {{ raise('Neuron models in NEST Simulator only support one spike event attribute ("weight")') }}
+{%-                 endif %}
 {%-                 for parameter in inputPort.get_parameters() %}
   std::vector< double >& __spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_list = B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_.get_list(lag);
   std::vector< double >::iterator __spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_list_iterator = __spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_list.begin();
@@ -1442,6 +1424,9 @@ void
 {%-         endfor %}
 {%-     else %}
 {%-         for parameter in inputPort.get_parameters() %}
+{%-             if inputPort.get_parameters() | length > 1 %}
+                    {{ raise('Neuron models in NEST Simulator only support one spike event attribute ("weight")') }}
+{%-             endif %}
   std::vector< double >& __spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_list = B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_.get_list(lag);
   std::vector< double >::iterator __spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_list_iterator = __spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_list.begin();
 {%-         endfor %}
@@ -1460,12 +1445,18 @@ void
 {%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
 {%-         for i in range(size)  %}
 {%-             if inputPort.get_parameters() %}
+{%-                 if inputPort.get_parameters() | length > 1 %}
+                        {{ raise('Neuron models in NEST Simulator only support one spike event attribute ("weight")') }}
+{%-                 endif %}
 {%-                 for parameter in inputPort.get_parameters() %}
     const double __spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }} = *__spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_list_iterator;
 {%-                 endfor %}
 {%-             endif %}
 {%-         endfor %}
 {%-     else %}
+{%-         if inputPort.get_parameters() | length > 1 %}
+                {{ raise('Neuron models in NEST Simulator only support one spike event attribute ("weight")') }}
+{%-         endif %}
 {%-         for parameter in inputPort.get_parameters() %}
     const double __spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }} = *__spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_list_iterator;
 {%-         endfor %}
@@ -1493,12 +1484,18 @@ void
 {%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
 {%-         for i in range(size)  %}
 {%-             if inputPort.get_parameters() %}
+{%-                 if inputPort.get_parameters() | length > 1 %}
+                        {{ raise('Neuron models in NEST Simulator only support one spike event attribute ("weight")') }}
+{%-                 endif %}
 {%-                 for parameter in inputPort.get_parameters() %}
     ++__spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_list_iterator;
 {%-                 endfor %}
 {%-             endif %}
 {%-         endfor %}
 {%-     else %}
+{%-         if inputPort.get_parameters() | length > 1 %}
+                {{ raise('Neuron models in NEST Simulator only support one spike event attribute ("weight")') }}
+{%-         endif %}
 {%-         for parameter in inputPort.get_parameters() %}
     ++__spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_list_iterator;
 {%-         endfor %}
@@ -1509,17 +1506,24 @@ void
   }
 /*
   // clear the processed spike events from the list
+  // this can be skipped as reading the spikes into the buffer (using ``get_value(lag)`` automatically clears the list)
 
 {%-     if inputPortSymbol.has_vector_parameter() %}
 {%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
 {%-         for i in range(size)  %}
 {%-             if inputPort.get_parameters() %}
+{%-                 if inputPort.get_parameters() | length > 1 %}
+                        {{ raise('Neuron models in NEST Simulator only support one spike event attribute ("weight")') }}
+{%-                 endif %}
 {%-                 for parameter in inputPort.get_parameters() %}
   __spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_list.clear();
 {%-                 endfor %}
 {%-             endif %}
 {%-         endfor %}
 {%-     else %}
+{%-         if inputPort.get_parameters() | length > 1 %}
+                {{ raise('Neuron models in NEST Simulator only support one spike event attribute ("weight")') }}
+{%-         endif %}
 {%-         for parameter in inputPort.get_parameters() %}
   __spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_list.clear();
 {%-         endfor %}
@@ -1696,12 +1700,6 @@ void
 {%-     for _, spike_update in post_spike_updates.items() %}
     {{ printer.print(utils.get_variable_by_name(astnode, spike_update.get_variable().get_complete_name())) }} += 1.;
 {%-     endfor %}
-
-    /**
-     * updates due to spiking input ports that appear on the right-hand side of equations (but not inside convolutions)
-    **/
-
-    // sorry, this is not supported yet! See https://github.com/nest/nestml/pull/1050
 
     /**
      * push back history

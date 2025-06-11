@@ -20,13 +20,8 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.cocos.co_co import CoCo
-from pynestml.meta_model.ast_declaration import ASTDeclaration
-from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_model import ASTModel
-from pynestml.meta_model.ast_variable import ASTVariable
-from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
-from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor

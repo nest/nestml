@@ -19,7 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_model import ASTModel

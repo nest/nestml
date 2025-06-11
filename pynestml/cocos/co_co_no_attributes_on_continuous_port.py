@@ -19,16 +19,10 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
-
 from pynestml.cocos.co_co import CoCo
-from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_model import ASTModel
-from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
-from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class CoCoNoAttributesOnContinuousPort(CoCo):

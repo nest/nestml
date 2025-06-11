@@ -28,10 +28,13 @@ import nest
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
-import matplotlib
-import matplotlib.pyplot as plt
+try:
+    import matplotlib
+    import matplotlib.pyplot as plt
 
-TEST_PLOTS = True
+    TEST_PLOTS = True
+except BaseException:
+    TEST_PLOTS = False
 
 
 def get_model_doc_title(model_fname: str):

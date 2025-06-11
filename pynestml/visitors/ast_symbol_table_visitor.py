@@ -471,14 +471,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
             node.get_vector_parameter().update_scope(node.get_scope())
             node.get_vector_parameter().accept(self)
 
-            # if ASTUtils.vector_parameter_is_variable(node.get_vector_parameter()):
-            #     symbol = VariableSymbol(element_reference=node, scope=node.get_scope(), name=node.get_name(),
-            #                             block_type=BlockType.INPUT, vector_parameter=node.get_size_parameter(),
-            #                             is_predefined=False, is_inline_expression=False, is_recordable=False,
-            #                             type_symbol=type_symbol, variable_type=VariableType.BUFFER)
-            #     symbol.set_comment(node.get_comment())
-            #     node.get_scope().add_symbol(symbol)
-
             if isinstance(node.get_vector_parameter(), ASTParameter):
                 # vector parameter is a declaration
                 symbol = VariableSymbol(element_reference=node,
