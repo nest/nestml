@@ -19,11 +19,12 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 
 from copy import copy
 
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.symbol_table.scope import Scope
 from pynestml.symbols.type_symbol import TypeSymbol
 
@@ -43,7 +44,7 @@ class ASTVariable(ASTNode):
     """
 
     def __init__(self, name, differential_order=0, type_symbol: Optional[str] = None,
-                 vector_parameter: Optional[str] = None, is_homogeneous: bool = False, delay_parameter: Optional[str] = None, *args, **kwargs):
+                 vector_parameter: Optional[Union[str, ASTParameter]] = None, is_homogeneous: bool = False, delay_parameter: Optional[str] = None, attribute: Optional[str] = None, *args, **kwargs):
         r"""
         Standard constructor.
         :param name: the name of the variable
@@ -53,6 +54,7 @@ class ASTVariable(ASTNode):
         :param type_symbol: the type of the variable
         :param vector_parameter: the vector parameter of the variable
         :param delay_parameter: the delay value to be used in the differential equation
+        :param attribute: the attribute (using the dot notation, for example, ``variable.attribute``)
         """
         super(ASTVariable, self).__init__(*args, **kwargs)
         assert isinstance(differential_order, int), \
@@ -67,6 +69,7 @@ class ASTVariable(ASTNode):
         self.vector_parameter = vector_parameter
         self.is_homogeneous = is_homogeneous
         self.delay_parameter = delay_parameter
+        self.attribute = attribute
 
     def clone(self):
         r"""
@@ -77,6 +80,7 @@ class ASTVariable(ASTNode):
                            type_symbol=self.type_symbol,
                            vector_parameter=self.vector_parameter,
                            delay_parameter=self.delay_parameter,
+                           attribute=self.attribute,
                            # ASTNode common attriutes:
                            source_position=self.get_source_position(),
                            scope=self.scope,
@@ -96,6 +100,13 @@ class ASTVariable(ASTNode):
         :return: the name of the variable.
         """
         return self.name
+
+    def get_attribute(self) -> str:
+        r"""
+        Returns the attribute of the variable.
+        :return: the attribute of the variable.
+        """
+        return self.attribute
 
     def set_name(self, name: str) -> None:
         """
@@ -125,6 +136,9 @@ class ASTVariable(ASTNode):
         Returns the complete name, consisting of the name and the differential order.
         :return: the complete name.
         """
+        if self.attribute:
+            return self.get_name() + "." + self.attribute + '\'' * self.get_differential_order()
+
         return self.get_name() + '\'' * self.get_differential_order()
 
     def get_name_of_lhs(self) -> str:
@@ -134,6 +148,7 @@ class ASTVariable(ASTNode):
         """
         if self.get_differential_order() > 0:
             return self.get_name() + '\'' * (self.get_differential_order() - 1)
+
         return self.get_name()
 
     def get_type_symbol(self) -> TypeSymbol:
@@ -220,4 +235,4 @@ class ASTVariable(ASTNode):
         if not isinstance(other, ASTVariable):
             return False
 
-        return self.get_name() == other.get_name() and self.get_differential_order() == other.get_differential_order()
+        return self.get_name() == other.get_name() and self.get_differential_order() == other.get_differential_order() and self.attribute == other.attribute
