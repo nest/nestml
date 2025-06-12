@@ -102,7 +102,11 @@ class ASTDataTypeVisitor(ASTVisitor):
             node.set_type_symbol(node.compound_unit.get_type_symbol())
         elif node.is_pow:
             base_symbol = node.base.get_type_symbol()
-            exponent = node.exponent
+            if node.exponent:
+                exponent = node.exponent
+            else:
+                assert node.exponent_num is not None and node.exponent_den is not None
+                exponent = node.exponent_num / node.exponent_den
             astropy_unit = base_symbol.astropy_unit ** exponent
             res = handle_unit(astropy_unit)
             node.set_type_symbol(res)

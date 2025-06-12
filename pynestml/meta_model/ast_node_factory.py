@@ -343,6 +343,8 @@ class ASTNodeFactory:
                              base=None,  # type: ASTUnitType
                              is_pow=False,  # type: bool
                              exponent=None,  # type: int
+                             exponent_num=None,  # type: float
+                             exponent_den=None,  # type: float
                              lhs=None,  # type: Union(ASTUnitType,int)
                              rhs=None,  # type: ASTUnitType
                              is_div=False,  # type: bool
@@ -350,7 +352,7 @@ class ASTNodeFactory:
                              unit=None,  # type: str
                              source_position=None  # type: ASTSourceLocation
                              ):  # type: (...) -> ASTUnitType
-        return ASTUnitType(is_encapsulated, compound_unit, base, is_pow, exponent, lhs, rhs, is_div,
+        return ASTUnitType(is_encapsulated, compound_unit, base, is_pow, exponent, exponent_num, exponent_den, lhs, rhs, is_div,
                            is_times, unit, source_position=source_position)
 
     @classmethod
