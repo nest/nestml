@@ -67,7 +67,7 @@ class TestSpiNNakerIafPscExp:
         exc_input = "exc_spikes"
         membranePot = "V_m"
         synapticRsp = "I_syn_exc"
-#!! run_time 150
+
         # Set the run time of the execution
         run_time = 1500
 #!! timestep 0.1
@@ -87,6 +87,7 @@ class TestSpiNNakerIafPscExp:
         spike_times = [1, 5, 100]
 
         p.setup(time_step)
+        p.set_number_of_synapse_cores(iaf_psc_exp_neuron_nestml, 0)    # Fix an issue with new feature in the main code, where sPyNNaker is trying to determine whether to use a split core model where neurons and synapses are on separate cores, or a single core model where they are processed on the same core. In the older code, this was a more manual decision, but in the main code it is happening automatically unless overridden.  This is particularly true when you use the 0.1ms timestep, where it will be attempting to keep to real-time execution by using split cores.
 
         spikeArray = {"spike_times": spike_times}
         excitation = p.Population(

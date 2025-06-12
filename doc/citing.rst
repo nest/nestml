@@ -9,6 +9,8 @@ In general, please cite the software release that you are using. In case you wis
 Software releases
 -----------------
 
+Charl Linssen, Pooja N. Babu, Bernhard Rumpe and Abigail Morrison (2025). **NESTML 8.0.1.** Zenodo. `doi:10.5281/zenodo.15292719 <https://doi.org/10.5281/zenodo.15292719>`_.
+
 Charl Linssen, Pooja N. Babu, Younes Bouhadjar, Leander Ewert, Willem Wybo, Melissa Lober, Florian Feller, Bernhard Rumpe and Abigail Morrison (2024). **NESTML 8.0.0.** Zenodo. `doi:10.5281/zenodo.12191059 <https://doi.org/10.5281/zenodo.12191059>`_.
 
 Charl A.P. Linssen, Pooja N. Babu, Bernhard Rumpe and Abigail Morrison (2024). **NESTML 7.0.1.** Zenodo. `doi:10.5281/zenodo.10966350 <https://doi.org/10.5281/zenodo.10966350>`_.
@@ -30,6 +32,8 @@ Konstantin Perun, Philip Traeder, Jochen Martin Eppler, Dimitri Plotnikov, Tammo
 
 Scientific publications
 -----------------------
+
+Charl Linssen, Pooja N. Babu, Jochen M. Eppler, Luca Koll, Bernhard Rumpe and Abigail Morrison (2025) **NESTML: a generic modeling language and code generation tool for the simulation of spiking neural networks with advanced plasticity rules.** Front. Neuroinform. `doi:10.3389/fninf.2025.1544143 <https://doi.org/10.3389/fninf.2025.1544143>`_.
 
 Inga Blundell, Dimitri Plotnikov, Jochen Martin Eppler and Abigail Morrison (2018) **Automatically selecting a suitable integration scheme for systems of differential equations in neuron models.** Front. Neuroinform. `doi:10.3389/fninf.2018.00050 <https://doi.org/10.3389/fninf.2018.00050>`_.
 
