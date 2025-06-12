@@ -151,6 +151,10 @@ class SpiNNakerCodeGenerator(CodeGenerator):
     codegen_cpp: Optional[NESTCodeGenerator] = None
 
     _default_options = {
+
+        "delay_variable": {},
+        "weight_variable": {},
+
         "neuron_synapse_pairs": [],
         "templates": {
             "path": os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources_spinnaker"))),
@@ -180,6 +184,12 @@ class SpiNNakerCodeGenerator(CodeGenerator):
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super().__init__(options)
+
+        print("HALLO aus spinnaker code gen init")
+        print(options)
+
+
+
 
         options_cpp = copy.deepcopy(NESTCodeGenerator._default_options)
         options_cpp["neuron_synapse_pairs"] = self._options["neuron_synapse_pairs"]
