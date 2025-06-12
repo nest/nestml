@@ -76,15 +76,7 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
                                                                 "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private", "protected", "public", "register", "reinterpret_cast", "requires", "return", "short", "signed", "sizeof", "static", "static_assert", "static_cast", "struct", "switch", "template", "this", "thread_local", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"]})
         transformers.append(variable_name_rewriter)
 
-    if target_name.upper() in ["SPINNAKER"]:
-        from pynestml.transformers.synapse_remove_post_port import SynapseRemovePostPortTransformer
-
-        # co-generate neuron and synapse
-        synapse_post_neuron_co_generation = SynapseRemovePostPortTransformer()
-        options = synapse_post_neuron_co_generation.set_options(options)
-        transformers.append(synapse_post_neuron_co_generation)
-
-    if target_name.upper() == "NEST":
+    if target_name.upper() in ["NEST", "SPINNAKER"]:
         from pynestml.transformers.synapse_post_neuron_transformer import SynapsePostNeuronTransformer
 
         # co-generate neuron and synapse
