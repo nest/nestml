@@ -151,6 +151,10 @@ class SpiNNakerCodeGenerator(CodeGenerator):
     codegen_cpp: Optional[NESTCodeGenerator] = None
 
     _default_options = {
+
+        "delay_variable": {},
+        "weight_variable": {},
+
         "neuron_synapse_pairs": [],
         "templates": {
             "path": os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources_spinnaker"))),
@@ -181,7 +185,17 @@ class SpiNNakerCodeGenerator(CodeGenerator):
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super().__init__(options)
 
+        print("HALLO aus spinnaker code gen init")
+        print(options)
+
+
+
+
         options_cpp = copy.deepcopy(NESTCodeGenerator._default_options)
+        options_cpp["delay_variable"] = self._options["delay_variable"]
+        options_cpp["weight_variable"] = self._options["weight_variable"]
+
+
         options_cpp["neuron_synapse_pairs"] = self._options["neuron_synapse_pairs"]
         options_cpp["templates"]["model_templates"]["neuron"] = [fname for fname in
                                                                  self._options["templates"]["model_templates"]["neuron"]
@@ -205,14 +219,37 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         options_py["nest_version"] = "<not available>"
         options_py["templates"]["module_templates"] = []
         options_py["templates"]["path"] = self._options["templates"]["path"]
+
+        options_py["delay_variable"] = self._options["delay_variable"]
+        options_py["weight_variable"] = self._options["weight_variable"]
+
         self.codegen_py = CustomPythonStandaloneCodeGenerator(options_py)
+
+    def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
+        ret = super().set_options(options)
+        self.codegen_cpp.set_options(options)
+
+        return ret
+
 
     def generate_code(self, models: Sequence[ASTModel]) -> None:
         for model in models:
             cloned_model = model.clone()
             cloned_model.accept(ASTSymbolTableVisitor())
+            if "paired_neuron" in dir(model):
+                cloned_model.paired_neuron = model.paired_neuron
+                cloned_model.spiking_post_port_names = model.spiking_post_port_names
+                cloned_model.post_port_names = model.post_port_names
+            if "vt_port_names" in dir(model):
+                cloned_model.vt_port_names = model.vt_port_names
             self.codegen_cpp.generate_code([cloned_model])
 
             cloned_model = model.clone()
             cloned_model.accept(ASTSymbolTableVisitor())
+            if "paired_neuron" in dir(model):
+                cloned_model.paired_neuron = model.paired_neuron
+                cloned_model.spiking_post_port_names = model.spiking_post_port_names
+                cloned_model.post_port_names = model.post_port_names
+            if "vt_port_names" in dir(model):
+                cloned_model.vt_port_names = model.vt_port_names
             self.codegen_py.generate_code([cloned_model])
