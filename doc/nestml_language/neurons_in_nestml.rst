@@ -37,12 +37,12 @@ The spiking input ports are declared without a data type, whereas the continuous
 Integrating current input
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The current port symbol (here, `I_stim`) is available as a variable and can be used in expressions, e.g.:
+The current port symbol (here, ``I_stim``) is available as a variable and can be used in expressions, e.g.:
 
 .. code-block:: nestml
 
    equations
-       V_m' = -V_m/tau_m + ... + I_stim
+       V_m' = -V_m / tau_m + ... + I_stim / C_m
 
    input:
        I_stim pA <- continuous
