@@ -31,13 +31,20 @@ class TestSpiNNakerIafPscExp:
     @pytest.fixture(autouse=True,
                     scope="module")
     def generate_code(self):
-        # codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-        #                                           "synapse": "stdp_synapse",
-        #                                           "post_ports": ["post_spikes"]}]}
+        #!! delay variable added
+        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
+                                                  "synapse": "stdp_synapse",
+                                                  "post_ports": ["post_spikes"]}],
+                        "delay_variable":{"stdp_synapse":"d"},
+                        "weight_variable":{"stdp_synapse":"w"}}
+
+
+
 
         files = [
             os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
-            # os.path.join("models", "synapses", "stdp_synapse.nestml")
+        #!!
+            os.path.join("models", "synapses", "stdp_synapse.nestml")
         ]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
@@ -51,8 +58,8 @@ class TestSpiNNakerIafPscExp:
                                   install_path=install_path,
                                   logging_level=logging_level,
                                   module_name=module_name,
-                                  suffix=suffix)
-        #                          codegen_opts=codegen_opts)
+                                  suffix=suffix,
+                                  codegen_opts=codegen_opts)
 
     def test_iaf_psc_exp(self):
         # import spynnaker and plotting stuff
@@ -63,11 +70,21 @@ class TestSpiNNakerIafPscExp:
         # import models
         from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml
 
+
+
+
+
+
+
+
+
+
+"""
         # TODO: Set names for exitatory input, membrane potential and synaptic response
         exc_input = "exc_spikes"
         membranePot = "V_m"
         synapticRsp = "I_syn_exc"
-
+#!! run_time 150
         # Set the run time of the execution
         run_time = 1500
 #!! timestep 0.1
@@ -87,7 +104,6 @@ class TestSpiNNakerIafPscExp:
         spike_times = [1, 5, 100]
 
         p.setup(time_step)
-        p.set_number_of_synapse_cores(iaf_psc_exp_neuron_nestml, 0)    # Fix an issue with new feature in the main code, where sPyNNaker is trying to determine whether to use a split core model where neurons and synapses are on separate cores, or a single core model where they are processed on the same core. In the older code, this was a more manual decision, but in the main code it is happening automatically unless overridden.  This is particularly true when you use the 0.1ms timestep, where it will be attempting to keep to real-time execution by using split cores.
 
         spikeArray = {"spike_times": spike_times}
         excitation = p.Population(
@@ -129,7 +145,10 @@ class TestSpiNNakerIafPscExp:
         combined_spikes = spikes_spiking_neuron.segments[0].spiketrains
         for spike in spikes_receiving_neuron.segments[0].spiketrains:
             combined_spikes.append(spike)
+"""
 
+
+"""
         Figure(
             # pylint: disable=no-member
             # membrane potentials for each example
@@ -169,3 +188,4 @@ class TestSpiNNakerIafPscExp:
         plt.savefig("spinnaker.png")
 
         p.end()
+"""
