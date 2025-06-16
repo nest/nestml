@@ -38,8 +38,10 @@ from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.transformers.transformer import Transformer
@@ -101,8 +103,11 @@ class NonDimensionalisationVisitor(ASTVisitor):
     def visit_variable(self, node: ASTVariable) -> None:
         print("In visit_variable("+str(node)+")")
         if node.get_type_symbol():
-            print("The unit is: "+str(node.get_type_symbol().unit.unit))
-            print("The quantity is: "+str(node.get_type_symbol().unit.unit.physical_type))
+            if(isinstance(node.get_type_symbol(), RealTypeSymbol)):
+                print("\tReal number, no unit\n")
+            elif (isinstance(node.get_type_symbol(), UnitTypeSymbol)):
+                print("The unit is: "+str(node.get_type_symbol().unit.unit))
+                print("The quantity is: "+str(node.get_type_symbol().unit.unit.physical_type))
 
         # import pdb;pdb.set_trace()
 
@@ -147,7 +152,6 @@ class NonDimensionalisationVisitor(ASTVisitor):
                     else:
                         raise Exception("This case has not yet been implemented!")
 
-                    import pdb;pdb.set_trace()
 
             else:
                 raise Exception("This case has not yet been implemented!")
@@ -164,7 +168,14 @@ class NonDimensionalisationVisitor(ASTVisitor):
     def visit_simple_expression(self, node):
         if node.get_numeric_literal() is not None:
             print("Numeric literal: " + str(node.get_numeric_literal()))
-            print("\tUnit: " + str(node.type.unit.unit))
+            if(isinstance(node.type, RealTypeSymbol)):
+                print("\tReal number, no unit\n")
+            elif (isinstance(node.type, UnitTypeSymbol)):
+                print("\tUnit: " + str(node.type.unit.unit))
+            elif (isinstance(node.type, IntegerTypeSymbol)):
+                print("\tInteger type number, no unit\n")
+            else:
+                raise Exception("Node type is neither RealTypeSymbol nor UnitTypeSymbol")
             return
 
         super().visit_simple_expression(node)
