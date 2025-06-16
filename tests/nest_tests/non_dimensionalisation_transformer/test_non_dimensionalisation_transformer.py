@@ -32,50 +32,12 @@ class TestNonDimensionalisationTransformer:
 
     r"""
 
-    CASE 1:
-
-        >>>>> in combination with preferred prefix for CONDUCTANCE = nano
-        >>>>> in combination with preferred prefix for CURRENT = milli
-        >>>>> in combination with preferred prefix for VOLTAGE = M (megavolt)
-
-        I_foo A = 42 mA
-        V_3 V = I_foo / 5 nS
-
-            ---> we expect I_foo to be 42 mA
-            ---> we expect "float I_foo" to be 42
-
-            ---> we expect V_3 to be 8.4 MV
-            ---> we expect "float V_3 = 8.4"
 
 
-    CASE 2:
-
-        >>>>> in combination with preferred prefix for CONDUCTANCE = nano
-        >>>>> in combination with preferred prefix for CURRENT = 1 (ampere)
-        >>>>> in combination with preferred prefix for VOLTAGE = M (megavolt)
-
-        I_foo A = 42 mA
-        V_3 V = I_foo / 5 nS
-
-            ---> we expect I_foo to be 42 mA
-            ---> we expect "float I_foo" to be 0.042
-
-            ---> we expect V_3 to be 8.4 MV
-            ---> we expect "float V_3 = 8.4"
-
-
-
-        For each variable and for each numeric literal: multiply by its preferred prefix; then result will be in SI units!
-
-        V_3 V = I_foo / 5 nS
-              = (42 * 1E-3) / (5 * 1E-9)   # in Volt
-              = 8.4E6  # in Volt
-
-        Then divide the whole thing by preferred prefix of left-hand side variable, in this case, Mega (1E6):
-
-              = 8.4E6 / 1E6
-              = 8.4
-
+    ### test_giga - test_atto
+    These tests will check if the standardized metric prefixes in the range of Giga- to Atto- can be resolved.
+    The prefixes Deci- and Deca- are probably little used in a neuroscience context.
+    The test for Femto- includes the use of a combined physical type, the "magnetic field strength".
 
     """
 
@@ -93,6 +55,22 @@ class TestNonDimensionalisationTransformer:
                              module_name=module_name,
                              suffix=suffix,
                              codegen_opts=codegen_opts)
+
+    def generate_code_metric_prefixes(self, codegen_opts=None):
+        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "test_metric_prefix_transformation.nestml")))
+        target_path = "target"
+        logging_level = "DEBUG"
+        module_name = "nestmlmodule"
+        suffix = "_nestml"
+
+        nest.set_verbosity("M_ALL")
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level=logging_level,
+                             module_name=module_name,
+                             suffix=suffix,
+                             codegen_opts=codegen_opts)
+
 
     @pytest.mark.parametrize("preffered_prefix", ["1", "m"])
     def test_non_dimensionalisation_transformer(self, preffered_prefix: str):
@@ -174,9 +152,9 @@ class TestNonDimensionalisationTransformer:
 
 
     def test_real_factor_in_stateblock(self):
-        """
+        r"""
         This test checks if state block expressions with
-        a RHS with a unit being multiplied by a real factor
+        a RHS with a unit being multiplied by a real factor and
         a LHS with type 'real'
         will get processed correctly
         """
@@ -255,7 +233,7 @@ class TestNonDimensionalisationTransformer:
         np.testing.assert_allclose(V_m_init, -65)  # should be -65 mV
         np.testing.assert_allclose(I_spike_test, 60)  # should be 60 pA
 
-        lhs_expression_after_transformation = "I_spike_test real"
+        lhs_expression_after_transformation = "Inline I_spike_test real"
         rhs_after_expression = "1e12 *((30.0 * 1e-9) * ((-V_m_init * 1e-3) / 130e3) * exp((((-80 * 1e-3)) - ((-20 * 1e-3))) / (3000 * 1e-6)))"
 
 
@@ -360,7 +338,7 @@ class TestNonDimensionalisationTransformer:
                                                          "time": "f",
                                                          }
                         }
-        self.generate_code(codegen_opts)
+        self.generate_code_metric_prefixes(codegen_opts)
 
         nest.ResetKernel()
         nest.Install("nestmlmodule")
@@ -519,15 +497,15 @@ class TestNonDimensionalisationTransformer:
 
         nrn = nest.Create("non_dimensionalisation_transformer_test_neuron_nestml")
         mm = nest.Create("multimeter")
-        nest.SetStatus(mm, {"record_from": ["para_deca"]})
+        nest.SetStatus(mm, {"record_from": ["para_deci"]})
 
         nest.Connect(mm, nrn)
 
         nest.Simulate(10.)
 
-        para_deca = mm.get("events")["para_deca"]
+        para_deci = mm.get("events")["para_deca"]
 
-        np.testing.assert_allclose(para_deca, 80)  # should be 80 mol
+        np.testing.assert_allclose(para_deci, 80)  # should be 80 mol
 
 
     def test_centi(self):
