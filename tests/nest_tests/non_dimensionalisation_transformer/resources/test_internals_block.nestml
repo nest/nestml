@@ -1,0 +1,6 @@
+model non_dimensionalisation_transformer_test_internals_block_neuron:
+    parameters:
+        V_m_init mV = -50 mV     # Initial membrane potential
+
+    internals:
+        alpha_m_init real = 2 * ( ((V_m_init / mV)  + 40.))
