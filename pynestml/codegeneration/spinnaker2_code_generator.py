@@ -222,7 +222,7 @@ class Spinnaker2CodeGenerator(CodeGenerator):
         super().__init__(options)
 
         options_cpp = copy.deepcopy(NESTCodeGenerator._default_options)
-        options_cpp["neuron_synapse_pairs"] = self._options["neuron_synapse_pairs"]
+        # options_cpp["neuron_synapse_pairs"] = self._options["neuron_synapse_pairs"]
         options_cpp["templates"]["model_templates"]["neuron"] = [fname for fname in
                                                                  self._options["templates"]["model_templates"]["neuron"]
                                                                  if ((fname.endswith(".h.jinja2") or fname.endswith(".c.jinja2") or fname.endswith(".ld.jinja2")

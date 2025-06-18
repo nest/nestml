@@ -49,7 +49,7 @@ class {{neuronName}}Application(BaseApplication):
         synapse_type=1,
         target=8,
     )
-    profiling = True
+    profiling = False
 
     # here the default parameters from .nestml
     # and the internal parameters with evaluated, numerical values have to be printed
@@ -57,6 +57,8 @@ class {{neuronName}}Application(BaseApplication):
         {%- for parameter in neuron.parameter_value_dict | sort(attribute="0|int") %}
             "{{ parameter }}": {{ neuron.parameter_value_dict[parameter] | float }},
         {%- endfor %}
+        "calculation_timestep_in_s": 10.0,
+        "weight_scaling_factor": 0.0,
     }
 
     propagators = {
@@ -65,12 +67,12 @@ class {{neuronName}}Application(BaseApplication):
         {%- endfor %}
     }
 
-    max_atoms_per_core = 32
-    splittable = False
+    max_atoms_per_core = 48
+    splittable = True
     recordables = ["spikes", "v", "v_last", "time_done"]
     # fixed addresses
-    neuron_params_addr = ByteAddr(0xDC00)
-    data_spec_addr = ByteAddr(0x10000)  # until 0x10080
+    neuron_params_addr = ByteAddr(0xE400)
+    data_spec_addr = ByteAddr(0x10200)
     log_addr = ByteAddr(0x1B000)
     data_spec_max_size = 16  # in words
 
@@ -78,7 +80,7 @@ class {{neuronName}}Application(BaseApplication):
         app_name =  "{{neuronName}}"
         BaseApplication.__init__(self, name=app_name)
 
-    def calculate_propagator_expressions(self, default_parameters, propagators, pop_slice):
+    def calculate_propagator_expressions(self, default_parameters, propagators, user_params):
         """
         Calculate propagator expressions with support for both single values and lists of values.
 
@@ -91,7 +93,7 @@ class {{neuronName}}Application(BaseApplication):
             Dictionary of propagator expressions with parameters substituted
         """
         # Get user parameters
-        user_parameters = pop_slice.pop.params
+        user_parameters = user_params
         user_parameters_has_lists = any(isinstance(value, list) for value in user_parameters.values())
         # Create updated parameters dictionary
         updated_parameters = {}
@@ -99,6 +101,9 @@ class {{neuronName}}Application(BaseApplication):
             if key in user_parameters:
                 if user_parameters_has_lists:
                     updated_parameters[key] = list(map(str, user_parameters[key]))
+                else:
+
+                    updated_parameters[key] = str(user_parameters[key])
             else:
                 updated_parameters[key] = str(default_parameters[key])
 
@@ -116,7 +121,7 @@ class {{neuronName}}Application(BaseApplication):
                             if isinstance(value, list)]
 
             if not list_lengths:
-                return self.calculate_propagator_expressions(default_parameters, propagators, pop_slice)
+                return self.calculate_propagator_expressions(default_parameters, propagators, user_params)
 
             if len(set(list_lengths)) > 1:
                 raise ValueError("All parameter lists must have the same length")
@@ -245,7 +250,8 @@ class {{neuronName}}Application(BaseApplication):
         if isinstance(name_value_dict, list):
             all_raw_data = []
             for single_dict in name_value_dict:
-                del single_dict['__h']
+                del single_dict['calculation_timestep_in_s']
+                del single_dict['weight_scaling_factor']
                 values = list(single_dict.values())
                 float32_array = np.array(values, dtype=np.float32)
                 raw_data = np.frombuffer(float32_array.data, dtype=np.uint32)
@@ -253,7 +259,8 @@ class {{neuronName}}Application(BaseApplication):
             return [item for sublist in all_raw_data for item in sublist]
         else:
             n_neurons = pop_slice.pop.size
-            del name_value_dict['__h']
+            del name_value_dict['calculation_timestep_in_s']
+            del name_value_dict['weight_scaling_factor']
             values = list(name_value_dict.values())
             copy = values.copy()
             values.extend(copy * (n_neurons - 1))
@@ -273,16 +280,18 @@ class {{neuronName}}Application(BaseApplication):
         if debug:
             add_log_memory_region(config, self.log_addr, 4000)
 
-        calculation_timestep_in_s = pop_slice.pop.get_calculation_timestep_in_s()
-        # calculation_timestep_in_s = 0.001
-        self.default_parameters["__h"] = 0.001  # float(calculation_timestep_in_s)
-        weight_scaling_factor = pop_slice.pop.get_weight_scaling_factor()
+        neuron_params = pop_slice.pop.params
+        weight_scaling_factor = neuron_params.get("weight_scaling_factor", self.default_parameters["weight_scaling_factor"])
+        calculation_timestep_in_s = neuron_params.get("calculation_timestep_in_s", self.default_parameters["calculation_timestep_in_s"])
+        for propagator_expr in self.propagators:
+            if "__h" in self.propagators[propagator_expr]:
+                self.propagators[propagator_expr] = self.propagators[propagator_expr].replace("__h", "calculation_timestep_in_s")
 
         #####################
         # neuron parameters #
         #####################
-        neuron_params = pop_slice.pop.params
-        propagator_expressions = self.calculate_propagator_expressions(default_parameters=self.default_parameters, propagators=self.propagators, pop_slice=pop_slice)
+
+        propagator_expressions = self.calculate_propagator_expressions(default_parameters=self.default_parameters, propagators=self.propagators, user_params=neuron_params)
         evaluated_expression = self.evaluate_propagator_expressions(propagator_expressions)
         neuron_params_raw = self.convert_calculated_propagators_to_raw_data(evaluated_expression, pop_slice)
 

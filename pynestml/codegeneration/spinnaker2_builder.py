@@ -121,6 +121,13 @@ class SpiNNaker2Builder(Builder):
                                           cwd=target_path)
             except:
                 pass
-
+            try:
+                for name in os.listdir(old_cwd):
+                    if name.startswith("nestml_python_target_"):
+                        subprocess.check_call(["rm", "-rf", os.path.join(old_cwd, name)],
+                                              stderr=subprocess.STDOUT,
+                                              shell=shell)
+            except Exception as e:
+                print(f"Error deleting temporary directories: {e}")
         finally:
             os.chdir(old_cwd)

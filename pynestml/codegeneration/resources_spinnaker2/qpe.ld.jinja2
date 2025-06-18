@@ -144,7 +144,6 @@ SECTIONS
 
   /* custom sections */
   .mySegment1 0x10000(NOLOAD) : {KEEP(*(.myDataSpecSection))}
-  .mySegment2 0x10040(NOLOAD) : {KEEP(*(.myRoutingTableSection))}
   .mySegment3 0x1b000(NOLOAD) : {KEEP(*(.myLogInfoSection))}
-  .mySegment4 0xdc00(NOLOAD) : {KEEP(*(.myNeuronParamsSection))}
+  .mySegment4 0xe400(NOLOAD) : {KEEP(*(.myNeuronParamsSection))}
 }
