@@ -220,11 +220,12 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         self.codegen_py = CustomPythonStandaloneCodeGenerator(options_py)
 
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
+        import copy
+        options_copy = copy.deepcopy(options)
+        options_copy2 = copy.deepcopy(options)
         ret = super().set_options(options)
-        self.codegen_cpp.set_options(options)
-#!!
-        self.codegen_py.set_options(options)
-
+        self.codegen_cpp.set_options(options_copy)
+        self.codegen_py.set_options(options_copy2)
 
         return ret
 

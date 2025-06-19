@@ -264,6 +264,96 @@ bool synapse_dynamics_process_plastic_synapses(
     return true;
 }
 
+
+
+
+
+
+
+
+
+
+
+//---------------------------------------
+// STDP weight dependence functions
+//---------------------------------------
+static inline weight_state_t weight_get_initial(
+        weight_t weight, index_t synapse_type) {
+
+    s1615 s1615_weight = kbits(weight << weight_shift[synapse_type]);
+    return (weight_state_t) {
+{%- for variable_symbol in synapse.get_state_symbols() %}
+{%-     if variable_symbol.get_symbol_name() == synapse_weight_variable %}
+{%-         set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+    // special case for weight variable
+        .{{ printer_no_origin.print(variable) }} = s1615_weight,
+{%-     endif %}
+{%- endfor %}
+        .weight_shift = weight_shift[synapse_type],
+        .parameter = &plasticity_weight_region_data[synapse_type]
+    };
+}
+
+// TAG: GENERATE
+static inline weight_state_t weight_one_term_apply_depression(
+        weight_state_t state, int32_t depression) {
+    return state;
+}
+
+// TAG: GENERATE
+static inline weight_state_t weight_one_term_apply_potentiation(
+        weight_state_t state, int32_t potentiation) {
+    return state;
+}
+
+//---------------------------------------
+static inline weight_t weight_get_final(weight_state_t state) {
+
+    // TODO: Perform operations to get the final weight from the intermediate
+    // state, taking into account all potentiation and depression
+    // Note: it is recommended to do a single complex operation here rather
+    // than one for each potentiation or depression if possible
+{%- for variable_symbol in synapse.get_state_symbols() %}
+{%-     if variable_symbol.get_symbol_name() == synapse_weight_variable %}
+{%-         set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+    // special case for weight variable
+    return (weight_t)(bitsk(state.{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()))}}) >> state.weight_shift);
+{%-     endif %}
+{%- endfor %}
+}
+
+//---------------------------------------
+__attribute__((unused)) // Marked unused as only used sometimes
+static void weight_decay(weight_state_t *state, int32_t decay) {
+    // state->weight = mul_accum_fixed(state->weight, decay);
+
+    // TODO: Decay the weight inside the state
+}
+
+//---------------------------------------
+__attribute__((unused)) // Marked unused as only used sometimes
+static accum weight_get_update(weight_state_t state) {
+{%- for variable_symbol in synapse.get_state_symbols() %}
+{%-     if variable_symbol.get_symbol_name() == synapse_weight_variable %}
+{%-         set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+    // special case for weight variable
+    return state.{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()))}};
+{%-     endif %}
+{%- endfor %}
+}
+
+static inline post_trace_t timing_get_initial_post_trace(void) {
+    return ZERO;
+}
+
+
+
+
+
+/*****
+UNRELEVANT AT THE MOMENT
+*****/
+
 bool synapse_dynamics_find_neuron(
         uint32_t id, synaptic_row_t row, weight_t *weight, uint16_t *delay,
         uint32_t *offset, uint32_t *synapse_type) {
@@ -336,4 +426,32 @@ bool synapse_dynamics_add_neuron(uint32_t id, synaptic_row_t row,
     // Increment FP
     fixed_region->num_plastic++;
     return true;
+}
+
+
+
+
+/**********
+PRINTS
+**********/
+
+void synapse_dynamics_print_plastic_synapses(
+        synapse_row_plastic_data_t *plastic_region_data,
+        synapse_row_fixed_part_t *fixed_region,
+        uint32_t *ring_buffer_to_input_buffer_left_shifts) {
+
+}
+
+//---------------------------------------
+//! \brief Get the axonal delay
+//! \param[in] x: The packed plastic synapse control word
+//! \return the axonal delay
+static inline index_t sparse_axonal_delay(uint32_t x) {
+#if 1
+    // No axonal delay, ever
+    __use(x);
+    return 0;
+#else
+    return (x >> synapse_delay_index_type_bits) & SYNAPSE_AXONAL_DELAY_MASK;
+#endif
 }
