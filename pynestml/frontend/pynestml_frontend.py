@@ -430,6 +430,7 @@ def get_parsed_models() -> List[ASTModel]:
     if not type(nestml_files) is list:
         nestml_files = [nestml_files]
 
+
     for nestml_file in nestml_files:
         parsed_unit = ModelParser.parse_file(nestml_file)
         if parsed_unit:
