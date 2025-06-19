@@ -1,6 +1,7 @@
 model test_metric_prefix_transformation_neuron:
     parameters:
-        para_atto aH = 40 aH
+        para_test real = 30
+        para_atto aH = 40aH
         para_giga Ohm = 0.5 GOhm
         para_mega Hz = 1.1 * 3MHz
         para_kilo W = 2 kW
@@ -10,7 +11,7 @@ model test_metric_prefix_transformation_neuron:
         para_centi m = 67 cm
         para_milli V = 4 mV
         para_micro S = 2 uS
-        para_nano F = 11 nF  # this outputs 1.1000000000000001e-08 TODO investigate where 1 at the end comes from
+        para_nano F = 11 nF
         para_pico H = 3 pH
         # para_femto A / m = 77 fA / m  # this causes problems as unit division on the LHS is not allowed currently in the initial parsing
         # para_atto as = 40 as # This causes problems as the string 'as' is not being added to the predefined units as it is not in dir(u.si), probably because of conflict with python keyword 'as' used in imports

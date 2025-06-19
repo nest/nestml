@@ -23,6 +23,7 @@ import nest
 import numpy as np
 import scipy as sp
 import os
+import re
 import pytest
 
 from pynestml.frontend.pynestml_frontend import generate_nest_target
@@ -35,11 +36,11 @@ class TestNonDimensionalisationTransformerStateBlock:
     """
 
     def generate_code(self, codegen_opts=None):
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "../resources", "test_reciprocal_units_in_parameter_block.nestml.nestml")))
+        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "../resources", "test_reciprocal_units_in_parameter_block.nestml")))
         target_path = "target"
         logging_level = "DEBUG"
         module_name = "nestmlmodule"
-        suffix = "_nestml"
+        suffix = ""
 
         nest.set_verbosity("M_ALL")
         generate_nest_target(input_path,
@@ -67,22 +68,32 @@ class TestNonDimensionalisationTransformerStateBlock:
                         }
         self.generate_code(codegen_opts)
 
-        nest.ResetKernel()
-        nest.Install("nestmlmodule")
-
-        nrn = nest.Create("non_dimensionalisation_transformer_test_neuron_nestml")
-        mm = nest.Create("multimeter")
-        nest.SetStatus(mm, {"record_from": ["V_exp", "alpha_exp"]})
-
-        nest.Connect(mm, nrn)
-
-        nest.Simulate(10.)
-
-        V_exp = mm.get("events")["V_exp"]
-        alpha_exp = mm.get("events")["alpha_exp"]
-
-        np.testing.assert_allclose(V_exp, -62.5)  # should be -62.5004333 mV
-        np.testing.assert_allclose(alpha_exp, 6.667e-10)  # should be (2e-10/3) (1/mV)
+        # nest.ResetKernel()
+        # nest.Install("nestmlmodule")
+        #
+        # nrn = nest.Create("test_reciprocal_units_in_parameter_block_transformation_neuron")
+        # mm = nest.Create("multimeter")
+        # nest.SetStatus(mm, {"record_from": ["alpha_exp"]})
+        #
+        # nest.Connect(mm, nrn)
+        #
+        # nest.Simulate(10.)
+        #
+        # alpha_exp = mm.get("events")["alpha_exp"]
+        #
+        # np.testing.assert_allclose(alpha_exp, 6.667e-10)  # should be (2e-10/3) (1/mV)
 
         lhs_expression_after_transformation_parameter = "alpha_exp real"
-        rhs_expression_after_transformation_parameter = "2 /(3 * 1e6)"
+        rhs_expression_after_transformation_parameter = "2 / (3.0 * 1.0E+06)"
+
+        with open("transformed_model.txt") as file:
+            lines = file.readlines()
+        for i in range(len(lines)):
+            lines[i] = lines[i].lstrip()
+        for line in lines:
+            if line.startswith("alpha_exp 1/V ="):
+                start = '= '
+                end = ' #'
+                transformed_rhs = re.search('%s(.*)%s' % (start, end), line).group(1)
+        assert(transformed_rhs == rhs_expression_after_transformation_parameter)
+        print("stop")

@@ -29,6 +29,7 @@ from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
+from pynestml.meta_model.ast_data_type import ASTDataType
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_expression import ASTExpression
@@ -62,6 +63,7 @@ class NonDimensionalisationVisitor(ASTVisitor):
     def __init__(self, preferred_prefix: Dict[str, str]):
         super().__init__()
         self.preferred_prefix = preferred_prefix
+        self.variable_original_metric_prefix_dict = dict()
 
     PREFIX_FACTORS = {
         'Y': 1e24,   # yotta
@@ -101,6 +103,10 @@ class NonDimensionalisationVisitor(ASTVisitor):
         return scale
 
     def visit_variable(self, node: ASTVariable) -> None:
+        # TODO here the type needs to be changed to "real" and the name kept
+        # TODO if the parent node of the variable is a declaration, the original metric prefix should be written to a dict{variable_name:original_metric_prefix}
+        # TODO this prefix can then be propagated to the expressions where the variable_name is used
+        # TODO ??? parameters block comes after equations block though, so dict can only be built after ???
         print("In visit_variable("+str(node)+")")
         if node.get_type_symbol():
             if(isinstance(node.get_type_symbol(), RealTypeSymbol)):
@@ -108,6 +114,26 @@ class NonDimensionalisationVisitor(ASTVisitor):
             elif (isinstance(node.get_type_symbol(), UnitTypeSymbol)):
                 print("The unit is: "+str(node.get_type_symbol().unit.unit))
                 print("The quantity is: "+str(node.get_type_symbol().unit.unit.physical_type))
+
+                parent_node = node.get_parent()
+                if isinstance(node, ASTVariable):
+                    # TODO this is more complicated as the RHS of a Declaration can be a larger expression
+                    # TODO to find the true unit the RHS has to be iterated over and a "unit equation" constructed for internal use
+                    # TODO example param_test = 5Ohm + 1.4 * 3.3 * 2 V / 4 A -> "unit equation" = Ohm + (V / A)
+                    #  -> then Astropy evaluation can take over "unit equation" = Ohm + Ohm = Ohm
+                    #  -> so {param_test: Ohm} needs to be added to dict
+                    original_metric_prefix = f"{self.get_conversion_factor_to_si(node.get_parent().expression.variable.name):.1E}"
+                    self.variable_original_metric_prefix_dict[parent_node.variables[0].name] = original_metric_prefix
+
+                new_node_type = RealTypeSymbol()
+                new_variable = ASTVariable(name=node.name, type_symbol=new_node_type)
+                new_data_type = ASTDataType(is_real=True, type_symbol=new_node_type)
+
+                if isinstance(parent_node, ASTDeclaration):
+                    parent_node.variables[0] = new_variable
+                    parent_node.data_type = new_data_type
+                    pass
+
 
         # import pdb;pdb.set_trace()
 
@@ -123,12 +149,28 @@ class NonDimensionalisationVisitor(ASTVisitor):
             if isinstance(node.get_parent(), ASTSimpleExpression):
                 if node.get_parent().is_numeric_literal():
                     # something like ``42 mA``. This is a ASTSimpleExpression. Remove the unit and replace with conversion factor
-                    conversion_factor = self.get_conversion_factor_to_si(node.name)
-                    parent_node = node.get_parent()
-                    parent_node.numeric_literal *= conversion_factor
-                    parent_node.variable = None
-                    parent_node.type = PredefinedTypes.get_real_type()
-                    # parent_node.get_children().remove(node)
+                    # conversion_factor = self.get_conversion_factor_to_si(node.name)
+                    # parent_node = node.get_parent()
+                    # parent_node.numeric_literal *= conversion_factor  # TODO this performs floating point arithmetic and leads to inaccuracies
+                    # parent_node.variable = None
+                    # parent_node.type = PredefinedTypes.get_real_type()
+                    # # parent_node.get_children().remove(node)
+
+                    # conversion_factor = f"{self.get_conversion_factor_to_si(node.name):.1E}"
+                    # parent_node = node.get_parent()
+                    # numeric_literal = parent_node.get_numeric_literal()
+                    # lhs_expression = ASTSimpleExpression(numeric_literal=float(numeric_literal))
+                    # rhs_expression = ASTSimpleExpression(string=str(conversion_factor))
+                    # new_sub_node = ASTExpression(is_encapsulated=False,
+                    #                              binary_operator=ASTArithmeticOperator(is_times_op=True),
+                    #                              lhs=lhs_expression, rhs=rhs_expression, scope=node.get_scope())
+                    # new_node = ASTExpression(is_encapsulated=True, expression=new_sub_node, scope=node.get_scope())
+                    #
+                    #
+                    # if isinstance(parent_node, ASTExpression):
+                    #     parent_node.rhs = new_node
+                    #     pass
+                    pass
                 else:
                     # something like ``I_foo``
                     conversion_factor = 42
@@ -171,7 +213,23 @@ class NonDimensionalisationVisitor(ASTVisitor):
             if(isinstance(node.type, RealTypeSymbol)):
                 print("\tReal number, no unit\n")
             elif (isinstance(node.type, UnitTypeSymbol)):
+                # the expression 3 MV is a SimpleExpression for example
                 print("\tUnit: " + str(node.type.unit.unit))
+                conversion_factor = f"{self.get_conversion_factor_to_si(node.variable.name):.1E}"
+                numeric_literal = node.get_numeric_literal()
+                lhs_expression = ASTSimpleExpression(numeric_literal=float(numeric_literal))
+                rhs_expression = ASTSimpleExpression(string=str(conversion_factor))
+                new_sub_node = ASTExpression(is_encapsulated=False, binary_operator=ASTArithmeticOperator(is_times_op=True), lhs=lhs_expression, rhs=rhs_expression, scope=node.get_scope())
+                new_node = ASTExpression(is_encapsulated=True, expression=new_sub_node, scope=node.get_scope())
+
+                parent_node = node.get_parent()
+                if isinstance(parent_node, ASTExpression):
+                    parent_node.rhs = new_node
+                    pass
+                if isinstance(parent_node, ASTDeclaration):
+                    parent_node.expression = new_node
+                pass
+
             elif (isinstance(node.type, IntegerTypeSymbol)):
                 print("\tInteger type number, no unit\n")
             else:
@@ -278,6 +336,8 @@ class NonDimensionalisationTransformer(Transformer):
         }
     }
 
+
+
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super(Transformer, self).__init__(options)
 
@@ -286,13 +346,17 @@ class NonDimensionalisationTransformer(Transformer):
 
         transformed_model.accept(ASTParentVisitor())
 
+
         visitor = NonDimensionalisationVisitor(self.get_option("quantity_to_preferred_prefix"))
         transformed_model.accept(visitor)
+        transformed_model.accept(ASTSymbolTableVisitor())
 
         print("--------------------------------")
         print("model after transformation:")
         print("--------------------------------")
         print(transformed_model)
+        with open("transformed_model.txt", "a") as f:
+            f.write(str(transformed_model))
 
         return transformed_model
 
