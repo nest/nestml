@@ -48,10 +48,8 @@ class ASTPowerVisitor(ASTVisitor):
 
         if base_type.is_instance_of(UnitTypeSymbol):
             node.type = self.try_to_calculate_resulting_unit(node)
-            return
         else:
             node.type = base_type ** exponent_type
-            return
 
     def try_to_calculate_resulting_unit(self, expr):
         base_type = expr.get_lhs().type
