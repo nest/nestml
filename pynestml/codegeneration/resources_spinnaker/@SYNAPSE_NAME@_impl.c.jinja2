@@ -530,7 +530,7 @@ static inline weight_state_t weight_get_initial(
     s1615 s1615_weight = kbits(weight << weight_shift[synapse_type]);
     return (weight_state_t) {
 {%- for variable_symbol in synapse.get_state_symbols() %}
-{%-     if variable_symbol.variable_symbol.get_symbol_name() == synapse_weight_variable %}
+{%-     if variable_symbol.get_symbol_name() == synapse_weight_variable %}
 {%-         set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
     // special case for weight variable
         .{{ printer_no_origin.print(variable) }} = s1615_weight,
@@ -561,7 +561,7 @@ static inline weight_t weight_get_final(weight_state_t state) {
     // Note: it is recommended to do a single complex operation here rather
     // than one for each potentiation or depression if possible
 {%- for variable_symbol in synapse.get_state_symbols() %}
-{%-     if variable_symbol.variable_symbol.get_symbol_name() == synapse_weight_variable %}
+{%-     if variable_symbol.get_symbol_name() == synapse_weight_variable %}
 {%-         set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
     // special case for weight variable
     return (weight_t)(bitsk(state.{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()))}}) >> state.weight_shift);
@@ -581,7 +581,7 @@ static void weight_decay(weight_state_t *state, int32_t decay) {
 __attribute__((unused)) // Marked unused as only used sometimes
 static accum weight_get_update(weight_state_t state) {
 {%- for variable_symbol in synapse.get_state_symbols() %}
-{%-     if variable_symbol.variable_symbol.get_symbol_name() == synapse_weight_variable %}
+{%-     if variable_symbol.get_symbol_name() == synapse_weight_variable %}
 {%-         set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
     // special case for weight variable
     return state.{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()))}};

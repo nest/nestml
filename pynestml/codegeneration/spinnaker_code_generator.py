@@ -185,12 +185,6 @@ class SpiNNakerCodeGenerator(CodeGenerator):
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super().__init__(options)
 
-        print("HALLO aus spinnaker code gen init")
-        print(options)
-
-
-
-
         options_cpp = copy.deepcopy(NESTCodeGenerator._default_options)
         options_cpp["delay_variable"] = self._options["delay_variable"]
         options_cpp["weight_variable"] = self._options["weight_variable"]
@@ -226,8 +220,12 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         self.codegen_py = CustomPythonStandaloneCodeGenerator(options_py)
 
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
+        import copy
+        options_copy = copy.deepcopy(options)
+        options_copy2 = copy.deepcopy(options)
         ret = super().set_options(options)
-        self.codegen_cpp.set_options(options)
+        self.codegen_cpp.set_options(options_copy)
+        self.codegen_py.set_options(options_copy2)
 
         return ret
 
