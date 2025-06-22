@@ -37,7 +37,8 @@ class TestNonDimensionalisationTransformerStateBlock:
     """
 
     def generate_code(self, codegen_opts=None):
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "../resources", "test_real_factor_in_stateblock.nestml")))
+        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "../resources", "test_real_factor_in_state"
+                                                                                                           "_block.nestml")))
         target_path = "target"
         logging_level = "DEBUG"
         module_name = "nestmlmodule"

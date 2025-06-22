@@ -1,13 +1,14 @@
 model test_function_call_in_equation_block_transformation_neuron:
     state:
-        V_m = -70 mV
-        I_foo A = 20 pA
+        V_m V = -70 mV
 
     equations:
-        V_m' = (V_m / tau_m) / ((I_foo * (1+exp(alpha_exp * V_m_init)))/ C_exp_0)
+        V_m' = V_m / (tau_m * (1 + exp(alpha_exp * V_m_init)))
 
     parameters:
         V_m_init mV = -65 mV     # test potential
-        C_exp_0 F = 150pF        # test capacitance
-        tau_m = 2 ms             # test time constant
-        alpha_exp = 2 /(3 MV)    # test factor
+        tau_m s = 2 ms             # test time constant
+        alpha_exp 1/V = 2 /(3 MV)    # test factor
+
+    update:
+        integrate_odes()

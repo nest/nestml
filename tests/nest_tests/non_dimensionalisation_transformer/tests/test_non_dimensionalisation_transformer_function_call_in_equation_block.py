@@ -69,7 +69,7 @@ class TestNonDimensionalisationTransformerEqationBlock:
         nest.ResetKernel()
         nest.Install("nestmlmodule")
 
-        nrn = nest.Create("non_dimensionalisation_transformer_test_neuron_nestml")
+        nrn = nest.Create("test_function_call_in_equation_block_transformation_neuron")
         mm = nest.Create("multimeter")
         nest.SetStatus(mm, {"record_from": ["V_m_der'"]})
 
@@ -81,5 +81,8 @@ class TestNonDimensionalisationTransformerEqationBlock:
 
         assert V_m_der[10] == -456.471e-3  # should be -456.471 (mV) @ 10ms
 
+        # after transformation: V_m real =
+        # v_m_declaration_rhs_after_transformation="1.0e3 * (-70 * 1.0E-3)"
+
         lhs_expression_after_transformation = "V_exp_der' real"
-        rhs_expression_after_transformation = "1e-3 * (((V_m * 1e-3)/ (tau_m * 1e-3)) / (((I_foo * 1e-12) * (1 + exp((alpha_exp * 1e-6) * (V_m_init * 1e-3)))) / (C_exp_0 * 1e-12)))"
+        rhs_expression_after_transformation = "1e3 * (((V_m * 1e-3)/ (tau_m * 1e-3)) / (((I_foo * 1e-12) * (1 + exp((alpha_exp * 1e-6) * (V_m_init * 1e-3)))) / (C_exp_0 * 1e-12)))"

@@ -25,25 +25,25 @@ from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 
 # Adjusted parameters for practical simulation (using SI units: V, A, F, s)
+import numpy as np
+
 params = {
     'V_m_init': -65e-3,      # Initial membrane potential (V)
-    'C_exp_0': 150e-12,      # Capacitance (F)
+    'C_exp_0': 150e-12,      # Capacitance (F) — no longer used directly in ODE
     'tau_m': 2e-3,           # Time constant (s)
     'alpha_exp': 2 / (3e6),  # Exponential factor (per V)
-    'I_foo': 200e-12         # Constant current: 200 pA
+    'I_foo': 200e-12         # Constant current: 200 pA — no longer used directly in ODE
 }
 
 # Initial state
 V_m0 = -70e-3  # Initial membrane potential (V)
 
-# Compute the constant denominator term
-denom = params['I_foo'] * (1 + np.exp(params['alpha_exp'] * params['V_m_init']))
-# Compute the coefficient k for the ODE: dV_m/dt = k * V_m
-k = params['C_exp_0'] / (params['tau_m'] * denom)
+# Precompute nonlinear time scaling factor (dimensionless)
+nonlinear_scaling = 1 + np.exp(params['alpha_exp'] * params['V_m_init'])
 
-# ODE function
+# ODE function, dimensionally correct: dV_m/dt in V/s
 def neuron_ode(t, V_m):
-    return k * V_m
+    return V_m / (params['tau_m'] * nonlinear_scaling)
 
 # Time span for simulation (0 to 20 ms)
 t_span = (0, 0.02)  # 20 ms in seconds
