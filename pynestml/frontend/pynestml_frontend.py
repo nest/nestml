@@ -61,7 +61,7 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
     if options is None:
         options = {}
 
-    if target_name.upper() in ["NEST", "PYTHON_STANDALONE", "NEST_COMPARTMENTAL", "NEST_DESKTOP"]:
+    if target_name.upper() in ["NEST", "SPINNAKER", "PYTHON_STANDALONE", "NEST_COMPARTMENTAL", "NEST_DESKTOP"]:
         from pynestml.transformers.add_timestep_to_internals_transformer import AddTimestepToInternalsTransformer
 
         add_timestep_to_internals_transformer = AddTimestepToInternalsTransformer()

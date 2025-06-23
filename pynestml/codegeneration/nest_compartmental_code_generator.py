@@ -402,6 +402,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             neuron, parameters_block, kernel_buffers)
         odetoolbox_indict["options"] = {}
         odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
+        odetoolbox_indict["options"]["simplify_expression"] = self.get_option("simplify_expression")
+
         return odetoolbox_indict
 
     def ode_solve_analytically(self, neuron: ASTModel, parameters_block: ASTBlockWithVariables, kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
@@ -412,7 +414,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             odetoolbox_indict,
             disable_stiffness_check=True,
             preserve_expressions=self.get_option("preserve_expressions"),
-            simplify_expression=self.get_option("simplify_expression"),
             log_level=FrontendConfiguration.logging_level)
 
         analytic_solver = None
@@ -461,7 +462,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 disable_stiffness_check=True,
                 disable_analytic_solver=True,
                 preserve_expressions=self.get_option("preserve_expressions"),
-                simplify_expression=self.get_option("simplify_expression"),
                 log_level=FrontendConfiguration.logging_level)
             numeric_solvers = [
                 x for x in solver_result if x["solver"].startswith("numeric")]
