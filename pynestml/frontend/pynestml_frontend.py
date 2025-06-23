@@ -86,7 +86,7 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
 
     if target_name.upper() in ["SPINNAKER2"]:
         pass
-        from pynestml.transformers.spinnaker2_unit_transformer import Spinnaker2UnitTransformer
+        # from pynestml.transformers.spinnaker2_unit_transformer import Spinnaker2UnitTransformer
 
         # unit_transformer = Spinnaker2UnitTransformer()
         # transformers.append(unit_transformer)
