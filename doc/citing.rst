@@ -33,6 +33,8 @@ Konstantin Perun, Philip Traeder, Jochen Martin Eppler, Dimitri Plotnikov, Tammo
 Scientific publications
 -----------------------
 
+Charl Linssen, Pooja N. Babu, Jochen M. Eppler, Luca Koll, Bernhard Rumpe and Abigail Morrison (2025) **NESTML: a generic modeling language and code generation tool for the simulation of spiking neural networks with advanced plasticity rules.** Front. Neuroinform. `doi:10.3389/fninf.2025.1544143 <https://doi.org/10.3389/fninf.2025.1544143>`_.
+
 Inga Blundell, Dimitri Plotnikov, Jochen Martin Eppler and Abigail Morrison (2018) **Automatically selecting a suitable integration scheme for systems of differential equations in neuron models.** Front. Neuroinform. `doi:10.3389/fninf.2018.00050 <https://doi.org/10.3389/fninf.2018.00050>`_.
 
 Konstantin Perun, Bernhard Rumpe, Dimitri Plotnikov, Guido Trensch, Jochen Martin Eppler, Inga Blundell and Abigail Morrison (2018). **Reengineering NestML with Python and MontiCore** (Version 2.4). Zenodo. `doi:10.5281/zenodo.1319653 <http://doi.org/10.5281/zenodo.1319653>`_.
