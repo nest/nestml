@@ -118,14 +118,14 @@ class TestCompartmentalConcmech(unittest.TestCase):
         nest.SetKernelStatus(dict(resolution=.1))
         nest.Install("cm_stdp_module.so")
 
-        measuring_spike = sim_time-1
+        measuring_spike = sim_time - 1
         pre_spike_times = [pre_spike, measuring_spike]
         post_spike_times = [post_spike]
 
         external_input_pre = nest.Create("spike_generator", params={"spike_times": pre_spike_times})
         external_input_post = nest.Create("spike_generator", params={"spike_times": post_spike_times})
         pre_neuron = nest.Create("parrot_neuron")
-        post_neuron = nest.Create('multichannel_test_model_nestml')#, params={"tau_minus": 10.0})
+        post_neuron = nest.Create('multichannel_test_model_nestml')
 
         params = {'C_m': 10.0, 'g_C': 0.0, 'g_L': 1.5, 'e_L': -70.0}
         post_neuron.compartments = [
@@ -135,7 +135,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
         if model_case == "nestml":
             post_neuron.receptors = [
                 {"comp_idx": 0, "receptor_type": "AMPA"},
-                {"comp_idx": 0, "receptor_type": "AMPA_stdp_synapse_nestml", "params": {'w': 10.0, "tau_r_AMPA": 0.000000001, "tau_d_AMPA": 0.0003}}#, "tau_tr_post": 10.0}}
+                {"comp_idx": 0, "receptor_type": "AMPA_stdp_synapse_nestml", "params": {'w': 10.0, "tau_r_AMPA": 0.000000001, "tau_d_AMPA": 0.0003}}
             ]
             mm = nest.Create('multimeter', 1, {
                 'record_from': ['v_comp0', 'w1', 'AMPA0', 'AMPA_stdp_synapse_nestml1', 'pre_trace1',
@@ -170,8 +170,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
                     "synapse_model": "stdp_synapse_rec",
                     "delay": 0.1,
                     "weight": 10.0,
-                    "receptor_type": 1,
-                    #"tau_minus": 10.0,
+                    "receptor_type": 1
                 },
             )
         nest.Connect(mm, post_neuron)
@@ -199,19 +198,18 @@ class TestCompartmentalConcmech(unittest.TestCase):
 
         sim_time = 50
         resolution = 20
-        sim_time = int(sim_time/resolution)*resolution
+        sim_time = int(sim_time / resolution) * resolution
 
         sp_td = []
         for i in range(1, resolution):
-            pre_spike = i * sim_time/resolution
-            post_spike = sim_time/2
-            sp_td.append(pre_spike-post_spike)
+            pre_spike = i * sim_time / resolution
+            post_spike = sim_time / 2
+            sp_td.append(pre_spike - post_spike)
             rec_nest_runs.append(self.run_model("nest", pre_spike, post_spike, sim_time))
             rec_nestml_runs.append(self.run_model("nestml", pre_spike, post_spike, sim_time))
 
         fig, axs = plt.subplots(2)
 
-        intensity = 3
         for i in range(len(rec_nest_runs)):
             if i == 0:
                 nest_l = "nest"
