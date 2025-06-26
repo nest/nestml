@@ -184,7 +184,7 @@ For more information, see the :doc:`Active dendrite tutorial </tutorials/active_
 Multiple input ports
 ^^^^^^^^^^^^^^^^^^^^
 
-If there is more than one line specifying a `spike` or `continuous` port with the same sign, a neuron with multiple receptor types is created. For example, say that we define three spiking input ports as follows:
+If there is more than one line specifying a `spike` or `continuous` port with the same sign, a neuron with multiple receptor types is created. For example, say that we define three spiking input ports and two conitnuous currents as follows:
 
 .. code-block:: nestml
 
@@ -192,8 +192,10 @@ If there is more than one line specifying a `spike` or `continuous` port with th
        spikes1 <- spike
        spikes2 <- spike
        spikes3 <- spike
+       I_stim1 <- continuous
+       I_stim2 <- continuous
 
-For the sake of keeping the example simple, we assign a decaying exponential-kernel postsynaptic response to each input port, each with a different time constant:
+For the sake of keeping the example simple, we assign a decaying exponential-kernel postsynaptic response to each spiking input port, each with a different time constant and the continuous currents added to say, membrane potential of soma (``V_m``) and distal (``V_md``) parts of the neuron:
 
 .. code-block:: nestml
 
@@ -202,7 +204,8 @@ For the sake of keeping the example simple, we assign a decaying exponential-ker
        kernel I_kernel2 = exp(-t / tau_syn2)
        kernel I_kernel3 = -exp(-t / tau_syn3)
        inline I_syn pA = (convolve(I_kernel1, spikes1) - convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3)) * pA
-       V_m' = -(V_m - E_L) / tau_m + I_syn / C_m
+       V_m' = -(V_m - E_L) / tau_m + (I_syn + I_stim1) / C_m
+       V_d' = -(V_d - E_Ld) / tau_md + I_stim2 / C_m
 
 
 Multiple input ports with vectors
