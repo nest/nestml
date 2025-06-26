@@ -89,18 +89,19 @@ class TestCompartmentalIAF:
 
         sg1 = nest.Create('spike_generator', 1, {'spike_times': [1., 2., 3., 4.]})
 
-        nest.Connect(sg1, cm, syn_spec={'synapse_model': 'static_synapse', 'weight': 1000.0, 'delay': 0.5, 'receptor_type': 0})
+        nest.Connect(sg1, cm, syn_spec={'synapse_model': 'static_synapse', 'weight': 2000.0, 'delay': 0.5, 'receptor_type': 0})
 
         mm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'leak0', 'refr0'], 'interval': .1})
 
         nest.Connect(mm, cm)
 
+        sr = nest.Create('spike_recorder')
+
+        nest.Connect(cm, sr)
+
         nest.Simulate(10.)
 
         res = nest.GetStatus(mm, 'events')[0]
-
-        step_time_delta = res['times'][1] - res['times'][0]
-        data_array_index = int(200 / step_time_delta)
 
         fig, axs = plt.subplots(3)
 
@@ -116,7 +117,8 @@ class TestCompartmentalIAF:
         axs[1].legend()
         axs[2].legend()
 
-        plt.show()
         plt.savefig("cm_iaf_test.png")
 
-        # assert res['c_Ca0'][data_array_index] == expected_conc, ("the concentration (left) is not as expected (right). (" + str(res['c_Ca0'][data_array_index]) + "!=" + str(expected_conc) + ")")
+        events_dist = nest.GetStatus(sr)[0]['events']
+
+        assert list(events_dist["times"]) == [1.5, 6.7], "Spike times are not as expected!"

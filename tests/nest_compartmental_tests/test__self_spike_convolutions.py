@@ -80,7 +80,7 @@ class TestSelfSpikeConvolutions:
         cm = nest.Create('self_spikes_convolutions_nestml')
 
         cm.compartments = [
-            {"parent_idx": -1}
+            {"parent_idx": -1, "params": {"w_bap": 1.}}
         ]
 
         cm.receptors = [
@@ -147,5 +147,3 @@ class TestSelfSpikeConvolutions:
         axs[7].legend()
 
         plt.savefig("self_spike_convolutions.png")
-
-        plt.show()

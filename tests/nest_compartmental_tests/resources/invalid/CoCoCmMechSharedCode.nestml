@@ -1,5 +1,7 @@
 model CoCoCmSharedCode:
     state:
+        v_comp real = 0.
+
         shared_state real = 0.
         exclusive_state1 real = 0.
         exclusive_state2 real = 0.

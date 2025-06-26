@@ -5,12 +5,12 @@ model self_spikes_convolutions:
         concentration real = 0.0
 
     parameters:
-        w_bap real = 1.0
+        w_bap real = 0.0
         e_bap real = 0.0
 
-        g_norm_bap real = 0.0
-        tau_r_bap real = 0.0
-        tau_d_bap real = 0.0
+        g_norm_bap real = 1.0
+        tau_r_bap real = .2
+        tau_d_bap real = 3.
 
     equations:
         # double exponential conductance profile to implement backpropagating action potential
