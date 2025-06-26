@@ -22,7 +22,9 @@ import os
 
 import nest
 import numpy as np
+import pytest
 
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
@@ -31,6 +33,8 @@ class TestVectorsSynapse:
     Checks if the vector variables in a synapse model are declared, initialized, and accessed properly.
     """
 
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                        reason="This test does not support NEST 2")
     def test_vectors_synapse(self):
         files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
                  os.path.join("tests", "nest_tests", "resources", "vectors_test_synapse.nestml")]
