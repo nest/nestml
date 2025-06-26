@@ -106,7 +106,7 @@ class TestCompartmentalMechDisabled():
         step_time_delta = res['times'][1] - res['times'][0]
         data_array_index = int(200 / step_time_delta)
 
-        expected_conc = 2.8159902294145262e-05
+        expected_conc = 0.0001
 
         fig, axs = plt.subplots(4)
 

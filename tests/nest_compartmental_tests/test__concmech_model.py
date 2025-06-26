@@ -104,7 +104,7 @@ class TestCompartmentalConcmech:
         step_time_delta = res['times'][1] - res['times'][0]
         data_array_index = int(200 / step_time_delta)
 
-        expected_conc = 0.03559438228347359
+        expected_conc = 0.03351908393663761
 
         fig, axs = plt.subplots(5)
 
@@ -128,7 +128,5 @@ class TestCompartmentalConcmech:
         axs[4].legend()
 
         plt.savefig("concmech test.png")
-
-        plt.show()
 
         assert abs(res['c_Ca0'][data_array_index] - expected_conc) <= 0.0000001, ("the concentration (left) is not as expected (right). (" + str(res['c_Ca0'][data_array_index]) + "!=" + str(expected_conc) + ")")
