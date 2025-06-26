@@ -323,12 +323,11 @@ inline size_t
 inline size_t
 {{neuronSpecificFileNamesCmSyns["main"]}}::handles_test_event( CurrentEvent&, size_t receptor_type )
 {
-  // if get_compartment returns nullptr, raise the error
-  if ( not c_tree_.get_compartment( long( receptor_type ), c_tree_.get_root(), 0 ) )
+  if ( ( receptor_type < 0 ) or ( receptor_type >= static_cast< size_t >( syn_buffers_.size() ) ) )
   {
     std::ostringstream msg;
-    msg << "Valid current receptor ports for " << get_name() << " are in ";
-    msg << "[" << 0 << ", " << c_tree_.get_size() << "[";
+    msg << "Valid spike receptor ports for " << get_name() << " are in ";
+    msg << "[" << 0 << ", " << syn_buffers_.size() << "[";
     throw UnknownPort( receptor_type, msg.str() );
   }
   return receptor_type;

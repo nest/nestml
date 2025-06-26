@@ -67,7 +67,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
 
         nest.ResetKernel()
         nest.SetKernelStatus(dict(resolution=.1))
-        if False:
+        if True:
             generate_nest_compartmental_target(
                 input_path=[neuron_input_path, synapse_input_path],
                 target_path=target_path,
