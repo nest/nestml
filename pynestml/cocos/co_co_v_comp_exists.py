@@ -26,9 +26,6 @@ from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.messages import Messages
 from pynestml.utils.logger import Logger, LoggingLevel
 
-import traceback
-
-
 class CoCoVCompDefined(CoCo):
     """
     This class represents a constraint condition which ensures that variable v_comp has been

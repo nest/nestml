@@ -31,8 +31,11 @@ from pynestml.utils.port_signal_type import PortSignalType
 
 
 class ASTGlobalInformationCollector(object):
-    """This class contains all basic mechanism information collection. Further collectors may be implemented to collect
-    further information for specific mechanism types (example: ASTReceptorInformationCollector)"""
+    """
+    This file is part of the compartmental code generation process.
+
+    Collects information about parts of the code that are relevant within the update or OnReceive(self_spike) blocks.
+    """
     collector_visitor = None
     synapse = None
 

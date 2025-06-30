@@ -35,6 +35,11 @@ from odetoolbox import analysis
 
 
 class ReceptorProcessing(MechanismProcessing):
+    """
+    This file is part of the compartmental code generation process.
+
+    Receptor mechanism specific processing.
+    """
     mechType = "receptor"
 
     def __init__(self, params):

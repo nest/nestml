@@ -13,18 +13,6 @@ set_spiketime(nest::Time::step(origin.get_steps() + lag + 1));
 nest::SpikeEvent se;
 nest::kernel().event_delivery_manager.send(*this, se, lag);
 {%- else %}
-{#-     weight and delay parameters given -- emit_spike() called from within synapse #}
-{#-
-set_delay( {{ printer.print(ast.get_args()[1]) }} );
-const long __delay_steps = nest::Time::delay_ms_to_steps( get_delay() );
-set_delay_steps(__delay_steps);
-e.set_receiver( *__target );
-e.set_weight( {{ printer.print(ast.get_args()[0]) }} );
-// use accessor functions (inherited from Connection< >) to obtain delay in steps and rport
-e.set_delay_steps( get_delay_steps() );
-e.set_rport( get_rport() );
-e();
-#}
 s_val[{{ printer.std_vector_parameter }}] = {{ printer.print(ast.get_args()[0]) }};
 {%- endif %}
 

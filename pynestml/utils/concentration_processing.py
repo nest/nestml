@@ -27,8 +27,12 @@ import re
 
 
 class ConcentrationProcessing(MechanismProcessing):
-    """The default Processing ignores the root expression when solving the odes which in case of the concentration
-    mechanism is a ode that needs to be solved. This is added here."""
+    """
+    This file is part of the compartmental code generation process.
+
+    The default Processing ignores the root expression when solving the odes which in case of the concentration
+    mechanism is a ode that needs to be solved. This is added here.
+    """
     mechType = "concentration"
 
     def __init__(self, params):

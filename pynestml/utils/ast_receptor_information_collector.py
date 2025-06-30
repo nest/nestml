@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from _collections import defaultdict
+from collections import defaultdict
 import copy
 
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
@@ -30,9 +30,9 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 class ASTReceptorInformationCollector(ASTVisitor):
     """
-    for each inline expression inside the equations block,
-    collect all synapse relevant information
+    This file is part of the compartmental code generation process.
 
+    Collect all synapse relevant information.
     """
 
     def __init__(self):

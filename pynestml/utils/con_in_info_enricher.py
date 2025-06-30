@@ -27,9 +27,13 @@ import sympy
 
 
 class ConInInfoEnricher(MechsInfoEnricher):
-    """Class extends MechsInfoEnricher by the computation of the inline derivative. This hasn't been done in the
+    """
+    This file is part of the compartmental code generation process.
+
+    Class extends MechsInfoEnricher by the computation of the inline derivative. This hasn't been done in the
     channel processing because it would cause a circular dependency through the coco checks used by the ModelParser
-    which we need to use."""
+    which we need to use.
+    """
     def __init__(self, params):
         super(MechsInfoEnricher, self).__init__(params)
 

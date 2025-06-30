@@ -47,9 +47,11 @@ from pynestml.utils.messages import Messages
 
 
 class SynapseProcessing:
-    """Manages the collection of basic information necesary for all types of mechanisms and uses the
-    collect_information_for_specific_mech_types interface that needs to be implemented by the specific mechanism type
-    processing classes"""
+    """
+    This file is part of the compartmental code generation process.
+
+    Synapse information processing.
+    """
 
     # used to keep track of whenever check_co_co was already called
     # see inside check_co_co

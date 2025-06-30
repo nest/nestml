@@ -116,6 +116,18 @@ class PredefinedFunctions:
         cls.name2function[name] = symbol
 
     @classmethod
+    def __register_heaviside_function(cls):
+        """
+        Registers the heaviside function. This function returns 0 for negative input and otherwise 1.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_real_type())
+        symbol = FunctionSymbol(name=cls.HEAVISIDE, param_types=params,
+                                return_type=PredefinedTypes.get_real_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.HEAVISIDE] = symbol
+
+    @classmethod
     def __register_time_steps_function(cls):
         """
         Registers the time-resolution.

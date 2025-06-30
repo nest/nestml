@@ -55,6 +55,8 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 class MechsInfoEnricher:
     """
+    This file is part of the compartmental code generation process.
+
     Adds information collection that can't be done in the processing class since that is used in the cocos.
     Here we use the ModelParser which would lead to a cyclic dependency.
     """

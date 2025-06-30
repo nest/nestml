@@ -177,6 +177,12 @@ Application
 This feature has been implemented with the implementation of IAF behaviour or backpropagation in mind. For examples see these model files:
 `cm_iaf_psc_exp_dend_neuron.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/cm_iaf_psc_exp_dend_neuron.nestml>`_
 
+Synapses
+--------
+We have also changed the way synapses may interact with the neuron. The background to this is that NESTML STDP-synapse models are always co-generated with the postsynaptic neuron model to communicate certain variables, such as the postsynaptic spike trace. We found this to be insufficient; instead, the synapse models are fully integrated with the receptor mechanisms of the neuron. This enables the user to access any receptor variables and other mechanism values within the synapse model by simply declaring them as states in the synapse model, without requiring further assignments. Another result of this merge is that all ODE equations in the synapse model are implicitly continuously integrated at each timestep, making unnecessary the calls to integrate_odes().
+
+An example of such a model is implemented here:
+`third_factor_stdp_synapse.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/third_factor_stdp_synapse.nestml>`_
 Technical Notes
 ---------------
 

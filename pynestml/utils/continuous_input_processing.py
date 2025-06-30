@@ -27,6 +27,9 @@ from collections import defaultdict
 
 
 class ContinuousInputProcessing(MechanismProcessing):
+    """
+    This file is part of the compartmental code generation process.
+    """
     mechType = "continuous_input"
 
     def __init__(self, params):

@@ -24,8 +24,13 @@ from pynestml.utils.mechs_info_enricher import MechsInfoEnricher
 
 
 class ConcInfoEnricher(MechsInfoEnricher):
-    """Just created for consistency with the rest of the mechanism generation process. No more than the base-class
-    enriching needs to be done"""
+    """
+    This file is part of the compartmental code generation process.
+
+    Class extends MechsInfoEnricher by the computation of the inline derivative. This hasn't been done in the
+    channel processing because it would cause a circular dependency through the coco checks used by the ModelParser
+    which we need to use.
+    """
     def __init__(self, params):
         super(MechsInfoEnricher, self).__init__(params)
 

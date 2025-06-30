@@ -33,6 +33,8 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 class RecsInfoEnricher(MechsInfoEnricher):
     """
+    This file is part of the compartmental code generation process.
+
     input: a neuron after ODE-toolbox transformations
 
     the kernel analysis solves all kernels at the same time

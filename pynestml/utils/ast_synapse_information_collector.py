@@ -29,8 +29,11 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class ASTSynapseInformationCollector(object):
-    """This class contains all basic mechanism information collection. Further collectors may be implemented to collect
-    further information for specific mechanism types (example: ASTReceptorInformationCollector)"""
+    """
+    This file is part of the compartmental code generation process.
+
+    Additional parsing of ODE solutions and collection of updated information from the AST.
+    """
     collector_visitor = None
     synapse = None
 
