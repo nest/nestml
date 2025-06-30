@@ -1,37 +1,57 @@
-"""
-wb_cond_multisyn - Wang-Buzsaki model with multiple synapses
-############################################################
-
-Description
-+++++++++++
-
-wb_cond_multisyn is an implementation of a modified Hodkin-Huxley model.
-
-Spike detection is done by a combined threshold-and-local-maximum search: if
-there is a local maximum above a certain threshold of the membrane potential,
-it is considered a spike.
-
-AMPA, NMDA, GABA_A, and GABA_B conductance-based synapses with
-beta-function (difference of two exponentials) time course.
-
-References
-++++++++++
-
-.. [1] Wang, X.J. and Buzsaki, G., (1996) Gamma oscillation by synaptic
-       inhibition in a hippocampal interneuronal network model. Journal of
-       Neuroscience, 16(20), pp.6402-6413.
-
-See also
-++++++++
-
-wb_cond_multisyn
-"""
+# wb_cond_multisyn - Wang-Buzsaki model with multiple synapses
+# ############################################################
+# 
+# Description
+# +++++++++++
+# 
+# wb_cond_multisyn is an implementation of a modified Hodkin-Huxley model.
+# 
+# Spike detection is done by a combined threshold-and-local-maximum search: if
+# there is a local maximum above a certain threshold of the membrane potential,
+# it is considered a spike.
+# 
+# AMPA, NMDA, GABA_A, and GABA_B conductance-based synapses with
+# beta-function (difference of two exponentials) time course.
+# 
+# References
+# ++++++++++
+# 
+# .. [1] Wang, X.J. and Buzsaki, G., (1996) Gamma oscillation by synaptic
+#        inhibition in a hippocampal interneuronal network model. Journal of
+#        Neuroscience, 16(20), pp.6402-6413.
+# 
+# See also
+# ++++++++
+# 
+# wb_cond_multisyn
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+# 
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
 model wb_cond_multisyn_neuron:
     state:
         V_m mV = -65. mV # Membrane potential
         V_m_old mV = E_L    # Membrane potential at previous timestep for threshold check
         refr_t ms = 0 ms    # Refractory period timer
-        is_refractory boolean = false
 
         Inact_h real = alpha_h_init / ( alpha_h_init + beta_h_init )    # Inactivation variable h for Na
         Act_n real = alpha_n_init / (alpha_n_init + beta_n_init)  # Activation variable n for K
@@ -59,6 +79,7 @@ model wb_cond_multisyn_neuron:
         Inact_h' = ( alpha_h(V_m) * ( 1 - Inact_h ) - beta_h(V_m) * Inact_h ) / ms # h-variable
         Act_n' = ( alpha_n(V_m) * ( 1 - Act_n ) - beta_n(V_m) * Act_n ) / ms # n-variable
         V_m' = ( -( I_Na + I_K + I_L ) + I_e + I_stim + I_syn ) / C_m
+        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
 
 
         #############
@@ -138,22 +159,12 @@ model wb_cond_multisyn_neuron:
         spike
 
     update:
-        if is_refractory:
-            refr_t -= resolution()
-
         V_m_old = V_m
-        integrate_odes()
+        integrate_odes()    # in this model, V_m is always integrated, regardless of refractory state
 
-    onCondition(not is_refractory and V_m > V_Tr and V_m_old > V_m):
-        # threshold crossing and maximum
+    onCondition(refr_t <= 0 ms and V_m > V_Tr and V_m_old > V_m):        # if neuron is not refractory, threshold crossing and maximum
         refr_t = refr_T    # start of the refractory period
-        is_refractory = true
         emit_spike()
-
-    onCondition(is_refractory and refr_t <= resolution() / 2):
-        # end of refractory period
-        refr_t = 0 ms
-        is_refractory = false
 
     function compute_synapse_constant(Tau_1 ms, Tau_2 ms, g_peak nS) real:
         # Factor used to account for the missing 1/((1/Tau_2)-(1/Tau_1)) term

@@ -23,7 +23,7 @@ from __future__ import annotations
 
 from typing import Any, List, Optional, Mapping
 
-from pynestml.meta_model.ast_block import ASTBlock
+from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_node import ASTNode
 
@@ -33,14 +33,14 @@ class ASTOnConditionBlock(ASTNode):
     This class is used to store a declaration of an onCondition block
     """
 
-    def __init__(self, block: ASTBlock, cond_expr: ASTExpression, const_parameters: Optional[Mapping] = None, *args, **kwargs):
+    def __init__(self, stmts_body: ASTStmtsBody, cond_expr: ASTExpression, const_parameters: Optional[Mapping] = None, *args, **kwargs):
         r"""
         Standard constructor.
-        :param block: a block of definitions.
+        :param stmts_body: a body of statements.
         :param source_position: the position of this element in the source file.
         """
         super(ASTOnConditionBlock, self).__init__(*args, **kwargs)
-        self.block = block
+        self.stmts_body = stmts_body
         self.cond_expr = cond_expr
         self.const_parameters = const_parameters
         if self.const_parameters is None:
@@ -52,7 +52,7 @@ class ASTOnConditionBlock(ASTNode):
 
         :return: new AST node instance
         """
-        dup = ASTOnConditionBlock(block=self.block.clone(),
+        dup = ASTOnConditionBlock(stmts_body=self.stmts_body.clone(),
                                   cond_expr=self.cond_expr,
                                   const_parameters=self.const_parameters,
                                   # ASTNode common attributes:
@@ -68,12 +68,12 @@ class ASTOnConditionBlock(ASTNode):
     def get_const_parameters(self):
         return self.const_parameters
 
-    def get_block(self) -> ASTBlock:
+    def get_stmts_body(self) -> ASTStmtsBody:
         r"""
-        Returns the block of definitions.
-        :return: the block
+        Returns the body of statements.
+        :return: the body of statements
         """
-        return self.block
+        return self.stmts_body
 
     def get_cond_expr(self) -> str:
         r"""
@@ -91,8 +91,8 @@ class ASTOnConditionBlock(ASTNode):
         if self.cond_expr:
             children.append(self.cond_expr)
 
-        if self.get_block():
-            children.append(self.get_block())
+        if self.get_stmts_body():
+            children.append(self.get_stmts_body())
 
         return children
 
@@ -103,4 +103,4 @@ class ASTOnConditionBlock(ASTNode):
         if not isinstance(other, ASTOnConditionBlock):
             return False
 
-        return self.get_block().equals(other.get_block()) and self.cond_expr == other.cond_expr
+        return self.get_stmts_body().equals(other.get_stmts_body()) and self.cond_expr == other.cond_expr

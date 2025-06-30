@@ -18,11 +18,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from abc import ABCMeta, abstractmethod
 
 from pynestml.symbols.symbol import Symbol
 from pynestml.utils.logger import Logger, LoggingLevel
-from pynestml.utils.messages import Messages
 
 
 class TypeSymbol(Symbol):
@@ -198,6 +198,7 @@ class TypeSymbol(Symbol):
 
     def binary_operation_not_defined_error(self, _operator, _other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
+        from pynestml.utils.messages import Messages
         result = ErrorTypeSymbol()
         code, message = Messages.get_binary_operation_not_defined(
             lhs=self.print_nestml_type(), operator=_operator, rhs=_other.print_nestml_type())
@@ -208,6 +209,7 @@ class TypeSymbol(Symbol):
     def unary_operation_not_defined_error(self, _operator):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         result = ErrorTypeSymbol()
+        from pynestml.utils.messages import Messages
         code, message = Messages.get_unary_operation_not_defined(_operator,
                                                                  self.print_symbol())
         Logger.log_message(code=code, message=message, error_position=self.referenced_object.get_source_position(),
@@ -226,6 +228,7 @@ class TypeSymbol(Symbol):
         return result
 
     def warn_implicit_cast_from_to(self, _from, _to):
+        from pynestml.utils.messages import Messages
         code, message = Messages.get_implicit_cast_rhs_to_lhs(_to.print_symbol(), _from.print_symbol())
         Logger.log_message(code=code, message=message,
                            error_position=self.get_referenced_object().get_source_position(),

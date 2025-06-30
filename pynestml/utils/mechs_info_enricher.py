@@ -24,10 +24,11 @@ from collections import defaultdict
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.utils.ast_utils import ASTUtils
-from pynestml.utils.model_parser import ModelParser
+from pynestml.utils.ast_vector_parameter_setter_and_printer_factory import ASTVectorParameterSetterAndPrinterFactory
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+from pynestml.utils.ast_utils import ASTUtils
+from pynestml.utils.model_parser import ModelParser
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
@@ -57,33 +58,6 @@ class MechsInfoEnricher:
                     solution_transformed["states"] = defaultdict()
                     solution_transformed["propagators"] = defaultdict()
 
-                    for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index]["initial_values"].items():
-                        variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
-                                                                                                  SymbolKind.VARIABLE)
-
-                        expression = ModelParser.parse_expression(rhs_str)
-                        # pretend that update expressions are in "equations" block,
-                        # which should always be present, as synapses have been
-                        # defined to get here
-                        expression.update_scope(neuron.get_equations_blocks()[0].get_scope())
-                        expression.accept(ASTSymbolTableVisitor())
-
-                        update_expr_str = ode_info["ode_toolbox_output"][ode_solution_index]["update_expressions"][
-                            variable_name]
-                        update_expr_ast = ModelParser.parse_expression(
-                            update_expr_str)
-                        # pretend that update expressions are in "equations" block,
-                        # which should always be present, as differential equations
-                        # must have been defined to get here
-                        update_expr_ast.update_scope(
-                            neuron.get_equations_blocks()[0].get_scope())
-                        update_expr_ast.accept(ASTSymbolTableVisitor())
-
-                        solution_transformed["states"][variable_name] = {
-                            "ASTVariable": variable,
-                            "init_expression": expression,
-                            "update_expression": update_expr_ast,
-                        }
                     for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index]["propagators"].items():
                         prop_variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
                                                                                                        SymbolKind.VARIABLE)
@@ -117,6 +91,36 @@ class MechsInfoEnricher:
                                         and internal_declaration.get_expression().get_function_call().callee_name == \
                                         PredefinedFunctions.TIME_RESOLUTION:
                                     mechanism_info["time_resolution_var"] = variable
+
+                    for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index]["initial_values"].items():
+                        variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
+                                                                                                  SymbolKind.VARIABLE)
+
+                        expression = ModelParser.parse_expression(rhs_str)
+                        # pretend that update expressions are in "equations" block,
+                        # which should always be present, as synapses have been
+                        # defined to get here
+                        expression.update_scope(neuron.get_equations_blocks()[0].get_scope())
+                        expression.accept(ASTSymbolTableVisitor())
+
+                        update_expr_str = ode_info["ode_toolbox_output"][ode_solution_index]["update_expressions"][
+                            variable_name]
+                        update_expr_ast = ModelParser.parse_expression(
+                            update_expr_str)
+                        # pretend that update expressions are in "equations" block,
+                        # which should always be present, as differential equations
+                        # must have been defined to get here
+                        update_expr_ast.update_scope(
+                            neuron.get_scope())
+                        update_expr_ast.accept(ASTParentVisitor())
+                        update_expr_ast.accept(ASTSymbolTableVisitor())
+                        neuron.accept(ASTSymbolTableVisitor())
+
+                        solution_transformed["states"][variable_name] = {
+                            "ASTVariable": variable,
+                            "init_expression": expression,
+                            "update_expression": update_expr_ast,
+                        }
 
                     mechanism_info["ODEs"][ode_var_name]["transformed_solutions"].append(solution_transformed)
 

@@ -1,0 +1,139 @@
+# iaf_psc_exp_nonlineardendrite_neuron
+# ####################################
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+model iaf_psc_exp_nonlineardendrite_neuron:
+
+    state:
+        V_m mV = 0 mV         # membrane potential in mV
+        dAP_trace pA = 0 pA             # dAP trace
+        active_dendrite boolean = false
+        active_dendrite_readout real = 0.    # an extra readout is included so the state can be recorded in NEST; see https://github.com/nest/nestml/issues/986
+        dAP_counts integer = 0
+        ref_counts integer = 0
+        I_dend pA = 0 pA
+        I_dend$ pA/ms = 0 pA/ms
+
+    equations:
+        # exponential shaped postsynaptic current kernel
+        kernel I_kernel1 = exp(-1/tau_syn1*t)
+
+        # alpha shaped postsynaptic current kernel
+        I_dend' = I_dend$ - I_dend / tau_syn2
+        I_dend$' = -I_dend$ / tau_syn2
+
+        # exponential shaped postsynaptic current kernel
+        kernel I_kernel3 = exp(-1/tau_syn3*t)
+
+        # diff. eq. for membrane potential
+        inline I_syn pA = convolve(I_kernel1, I_1) * pA - convolve(I_kernel3, I_3) * pA + I_e
+        V_m' = -(V_m - E_L)/tau_m + (I_syn + I_dend) / C_m
+
+        # diff. eq. for dAP trace
+        dAP_trace' = -evolve_dAP_trace * dAP_trace / tau_h
+
+    parameters:
+        C_m pF = 250 pF                # capacitance of the membrane
+        tau_m ms = 20 ms               # membrane time constant
+        tau_syn1 ms = 10 ms            # time constant of synaptic current, port 1
+        tau_syn2 ms = 10 ms            # time constant of synaptic current, port 2
+        tau_syn3 ms = 10 ms            # time constant of synaptic current, port 3
+        tau_h ms = 400 ms              # time constant of the dAP trace
+        V_th mV = 25 mV                # spike threshold
+        V_reset mV = 0 mV              # reset voltage
+        E_L mV = 0mV                   # resting potential.
+        evolve_dAP_trace real = 1      # set to 0 to stop integrating dAP_trace
+        I_e pA = 0pA                   # external current.
+
+        # dendritic action potential
+        theta_dAP pA = 60 pA                            # current threshold for a dendritic action potential
+        I_p pA = 250 pA                                 # current clamp value for I_dAP during a dendritic action potential
+        tau_dAP ms = 60 ms                              # time window over which the dendritic current clamp is active
+        dAP_timeout_ticks integer = steps(tau_dAP)
+
+        # refractory parameters
+        t_ref ms = 10 ms                                # refractory period
+        ref_timeout_ticks integer = steps(t_ref)
+
+        I_dend_incr pA/ms = pA * exp(1) / tau_syn2
+
+
+    input:
+        I_1 <- spike
+        I_2 <- spike
+        I_3 <- spike
+
+    output:
+        spike
+
+    onReceive(I_2):
+        I_dend$ += I_2 * s * I_dend_incr
+
+    update:
+        # solve ODEs
+        integrate_odes()
+
+        # current-threshold, emit a dendritic action potential
+        if I_dend > theta_dAP or active_dendrite:
+            if dAP_counts == 0:
+
+                if active_dendrite == false:
+                    # starting dAP
+                    dAP_trace += 1 pA
+                    active_dendrite = true
+                    active_dendrite_readout = 1.
+                    I_dend = I_p
+                    dAP_counts = dAP_timeout_ticks
+                else:
+                    # ending dAP
+                    I_dend = 0 pA
+                    active_dendrite = false
+                    active_dendrite_readout = 0.
+
+                    # the following assignment to I_dend$ reproduces a bug in the original implementation. It is included here to replicate the results of the original model
+                    c1 real = -resolution() * exp(-resolution() / tau_syn2) / tau_syn2**2
+                    c2 real = (-resolution() + tau_syn2) * exp(-resolution() / tau_syn2) / tau_syn2
+                    I_dend$ = I_p * c1 / (1 - c2) / ms
+
+            else:
+                dAP_counts -= 1
+                I_dend = I_p
+
+        # threshold crossing and refractoriness
+        if ref_counts == 0:
+            if V_m > V_th:
+                emit_spike()
+                ref_counts = ref_timeout_ticks
+                V_m = V_reset
+                dAP_counts = 0
+                I_dend = 0 pA
+                active_dendrite = false
+                active_dendrite_readout = 0.
+        else:
+            ref_counts -= 1
+            V_m = V_reset
+            active_dendrite = false
+            active_dendrite_readout = 0.
+            dAP_counts = 0
+            I_dend = 0 pA
+

@@ -1,0 +1,101 @@
+# stdsp_synapse - Synapse model for spike-timing dependent plasticity with postsynaptic third-factor modulation
+# #############################################################################################################
+# 
+# Description
+# +++++++++++
+# 
+# References
+# ++++++++++
+# 
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+# 
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+model stdsp_synapse:
+    state:
+        permanence real = 1.
+        t_last_pre_spike ms = 0 ms
+        pre_trace real = 0.
+        w real = 100.    # dummy synaptic weight
+
+    parameters:
+        d ms = 1 ms    # Synaptic transmission delay
+
+        tau_pre_trace ms = 80 ms
+        lambda_h real = 1.
+        zt pA = 1 pA
+        lambda_plus real = .01
+        lambda_minus real = 1.
+        Wmax real = 100.
+        permanence_max real = 100.
+        permanence_min real = 0.
+        dt_min ms = 4 ms
+        dt_max ms = 100 ms
+
+        permanence_threshold real = 10.
+
+        Wmin real = 0.
+
+    equations:
+        pre_trace' = -pre_trace / tau_pre_trace
+
+    input:
+        pre_spikes <- spike
+        post_spikes <- spike
+        dAP_trace pA <- continuous
+
+    output:
+        spike(weight real, delay ms)
+
+    onReceive(post_spikes):
+        time_since_last_spike ms = t - t_last_pre_spike
+
+        if time_since_last_spike < dt_max and time_since_last_spike > dt_min:
+            # facilitation
+            norm_perm real = permanence / permanence_max + lambda_plus * pre_trace
+            permanence = min(norm_perm * permanence_max, permanence_max)
+
+            # homeostasis
+            permanence += lambda_h * (zt - dAP_trace) / pA * permanence_max
+            permanence = min(permanence, permanence_max)
+            permanence = max(permanence, permanence_min)
+
+    onReceive(pre_spikes):
+        t_last_pre_spike = t
+
+        pre_trace += 1.
+
+        # depress synapse
+        permanence -= lambda_minus * permanence_max
+        permanence = max(permanence, permanence_min)
+
+        if permanence > permanence_threshold:
+            # set a dummy "weight" so the weight can be recorded
+            w = Wmax
+
+            # deliver spike to postsynaptic partner
+            emit_spike(w, d)
+        else:
+            # set a dummy "weight" so the weight can be recorded
+            w = 0.
+
+    update:
+        # solve ODEs
+        integrate_odes()

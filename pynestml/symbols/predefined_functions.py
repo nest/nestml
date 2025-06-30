@@ -18,6 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from typing import Mapping
 
 from pynestml.symbols.function_symbol import FunctionSymbol
@@ -30,6 +31,7 @@ class PredefinedFunctions:
     """
 
     TIME_RESOLUTION = "resolution"
+    TIME_TIMESTEP = "timestep"
     TIME_STEPS = "steps"
     EMIT_SPIKE = "emit_spike"
     PRINT = "print"
@@ -71,6 +73,7 @@ class PredefinedFunctions:
         """
         cls.name2function = {}
         cls.__register_time_resolution_function()
+        cls.__register_timestep_function()
         cls.__register_time_steps_function()
         cls.__register_emit_spike_function()
         cls.__register_print_function()
@@ -352,6 +355,16 @@ class PredefinedFunctions:
                                 return_type=PredefinedTypes.get_type("ms"),
                                 element_reference=None, is_predefined=True, scope=None)
         cls.name2function[cls.TIME_RESOLUTION] = symbol
+
+    @classmethod
+    def __register_timestep_function(cls):
+        """
+        Registers the time timestep() function.
+        """
+        symbol = FunctionSymbol(name=cls.TIME_TIMESTEP, param_types=list(),
+                                return_type=PredefinedTypes.get_type("ms"),
+                                element_reference=None, is_predefined=True, scope=None)
+        cls.name2function[cls.TIME_TIMESTEP] = symbol
 
     @classmethod
     def __register_exp1_function(cls):

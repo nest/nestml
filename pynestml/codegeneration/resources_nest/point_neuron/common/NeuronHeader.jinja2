@@ -45,7 +45,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *  You should have received a copy of the GNU General Public License
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Generated from NESTML at time: {{now}}
+ *  Generated from NESTML {{ nestml_version }} at time: {{ now }}
 **/
 #ifndef {{neuronName.upper()}}
 #define {{neuronName.upper()}}
@@ -97,6 +97,9 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 // Includes from sli:
 #include "dictdatum.h"
 
+// uncomment the next line to enable printing of detailed debug information
+// #define DEBUG
+
 namespace nest
 {
 namespace {{names_namespace}}
@@ -116,6 +119,9 @@ namespace {{names_namespace}}
     const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
 {%- endfor %}
 {%- endif %}
+
+    const Name gsl_abs_error_tol("gsl_abs_error_tol");
+    const Name gsl_rel_error_tol("gsl_rel_error_tol");
 }
 }
 
@@ -162,39 +168,81 @@ extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% e
 
 {%- if paired_synapse is defined %}
 
-// entry in the spiking history
-class histentry__{{neuronName}}
+/**
+ * entry in the spiking history
+**/
+class histentry__{{ neuronName }}
 {
 public:
-  histentry__{{neuronName}}( double t,
-{%- for var in purely_numeric_state_variables_moved|sort%}
-double {{var}},
-{%- endfor %}
-{%- for var in analytic_state_variables_moved|sort%}
-double {{var}},
-{%- endfor %}
-size_t access_counter )
-  : t_( t )
+  histentry__{{ neuronName }}( double t
+      , size_t access_counter
 {%- for var in purely_numeric_state_variables_moved|sort %}
-  , {{var}}_( {{var}} )
+      , double {{ var }}
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
-  , {{var}}_( {{var}} )
+      , double {{ var }}
 {%- endfor %}
+{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
+{%-     for state_var in state_vars_that_need_continuous_buffering | sort %}
+      , double {{ state_var }}
+{%-     endfor %}
+{%- endif %}
+  )
+  : t_( t )
   , access_counter_( access_counter )
+{%- for var in (purely_numeric_state_variables_moved + analytic_state_variables_moved) | sort %}
+  , {{ var }}_( {{ var }} )
+{%- endfor %}
+{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
+{%-     for state_var in state_vars_that_need_continuous_buffering | sort %}
+  , {{ state_var }}_( {{ state_var }} )
+{%-     endfor %}
+{%- endif %}
   {
   }
 
   double t_;              //!< point in time when spike occurred (in ms)
-{%- for var in purely_numeric_state_variables_moved|sort %}
-   double {{var}}_;
-{%- endfor %}
-{%- for var in analytic_state_variables_moved|sort %}
-   double {{var}}_;
-{%- endfor %}
   size_t access_counter_; //!< access counter to enable removal of the entry, once all neurons read it
-};
 
+{%- for var in (purely_numeric_state_variables_moved + analytic_state_variables_moved) | sort %}
+  double {{ var }}_;
+
+{%-     set inline = utils.get_inline_expression_by_constructed_rhs_name(paired_synapse_original_model, var) %}
+{%-     if inline and utils.inline_aliases_convolution(inline) %}
+  double get_{{ inline.get_variable_name() + "__for_" + paired_synapse_original_model.get_name() }}() const     // getter for an inline expression
+{%-     else %}
+  double get_{{ var }}() const
+{%-     endif %}
+  {
+    return {{ var }}_;
+  }
+
+{%- endfor %}
+
+{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+  double {{ state_var }}_;
+{%-     endfor %}
+{%- endif %}
+};
+{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
+
+class continuous_variable_histentry_{{ neuronName }}
+{
+public:
+  continuous_variable_histentry_{{ neuronName }}( double t,
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+      double {{ state_var }}{% if not loop.last %}, {% endif %}
+{%-     endfor %} );
+
+  double t_;              //!< point in time for history entry
+  size_t access_counter_;
+
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+  double {{ state_var }};
+{%-     endfor %}
+};
+{%- endif %}
 {%- endif %}
 
 /* BeginDocumentation
@@ -321,12 +369,9 @@ public:
   // support for spike archiving
 
   /**
-   * \fn void get_history(long t1, long t2,
-   * std::deque<Archiver::histentry__>::iterator* start,
-   * std::deque<Archiver::histentry__>::iterator* finish)
-   * return the spike times (in steps) of spikes which occurred in the range
-   * (t1,t2].
-   * XXX: two underscores to differentiate it from nest::Node::get_history()
+   * Return the spike times (in steps) of spikes which occurred in the range (t1,t2].
+   *
+   * Two underscores in the name to differentiate it from nest::Node::get_history().
    */
   void get_history__( double t1,
     double t2,
@@ -340,20 +385,38 @@ public:
    * with t > t_first_read.
    */
   void register_stdp_connection( double t_first_read, double delay );
+
+{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
+
+  /**
+   * write_continuous_variable_history
+  **/
+  void write_continuous_variable_history(nest::Time const &t,
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+      const double {{ state_var }}{% if not loop.last %}, {% endif %}
+{%-     endfor %});
+
+  void get_continuous_variable_history( double t1,
+    double t2,
+    std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* start,
+    std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* finish );
+
+  std::deque< continuous_variable_histentry_{{ neuronName }} > continuous_variable_history_;
+{%- endif %}
 {%- endif %}
 {%- if neuron.get_state_symbols()|length > 0 %}
   // -------------------------------------------------------------------------
   //   Getters/setters for state block
   // -------------------------------------------------------------------------
 
-{% filter indent(2, True) -%}
-{%- for variable_symbol in neuron.get_state_symbols() %}
-{%-     if not is_delta_kernel(neuron.get_kernel_by_name(variable_symbol.name)) %}
-{%-         set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-         include "directives_cpp/MemberVariableGetterSetter.jinja2" %}
-{%     endif %}
-{% endfor %}
-{%- endfilter %}
+{%      filter indent(2, True) -%}
+{%-         for variable_symbol in neuron.get_state_symbols() %}
+{%-             if not is_delta_kernel(neuron.get_kernel_by_name(variable_symbol.name)) %}
+{%-                 set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-                 include "directives_cpp/MemberVariableGetterSetter.jinja2" %}
+{%              endif %}
+{%          endfor %}
+{%-     endfilter %}
 {%- endif %}
 
 {%- if neuron.get_parameter_symbols()|length > 0 %}
@@ -361,46 +424,59 @@ public:
   //   Getters/setters for parameters
   // -------------------------------------------------------------------------
 
-{% filter indent(2, True) -%}
-{%- for variable_symbol in neuron.get_parameter_symbols() %}
-{%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     include "directives_cpp/MemberVariableGetterSetter.jinja2" %}
+{%      filter indent(2, True) -%}
+{%-         for variable_symbol in neuron.get_parameter_symbols() %}
+{%-             set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-             include "directives_cpp/MemberVariableGetterSetter.jinja2" %}
 
-{% endfor %}
-{%- endfilter %}
+{%          endfor %}
+{%-     endfilter %}
 {%- endif %}
 
-{%- if neuron.get_internal_symbols()|length > 0 %}
+{%-  if neuron.get_internal_symbols() | length > 0 %}
   // -------------------------------------------------------------------------
   //   Getters/setters for internals
   // -------------------------------------------------------------------------
 
-{% filter indent(2, True) -%}
-{%- for variable_symbol in neuron.get_internal_symbols() %}
-{%-     with variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-         include "directives_cpp/MemberVariableGetterSetter.jinja2" %}
-
-{%-     endwith %}
-{% endfor %}
-{%- endfilter %}
+{%      filter indent(2, True) -%}
+{%-         for variable_symbol in neuron.get_internal_symbols() %}
+{%-             with variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-                 include "directives_cpp/MemberVariableGetterSetter.jinja2" %}
+{%-             endwith %}
+{%          endfor %}
+{%-     endfilter %}
 {%- endif %}
+
 {%- if paired_synapse is defined %}
 
-  /* getters/setters for variables transferred from synapse */
+  // -------------------------------------------------------------------------
+  //   Getters/setters for variables transferred from synapse
+  // -------------------------------------------------------------------------
 
-{%- for var in transferred_variables %}
-  double get_{{var}}( double t, const bool before_increment = true );
-{%- endfor %}
+{%-     for var in transferred_variables %}
+  double get_{{ var }}( double t, const bool before_increment = true );
+{%-     endfor %}
+
+{%-     if state_vars_that_need_continuous_buffering | length > 0 %}
+
+  // -------------------------------------------------------------------------
+  //   Getters/setters for variables that need continuous time buffering
+  // -------------------------------------------------------------------------
+
+{%-         for var in state_vars_that_need_continuous_buffering %}
+  double get_{{ var }}( double t, const bool before_increment = true );
+{%-         endfor %}
+{%-     endif %}
 {%- endif %}
 
   // -------------------------------------------------------------------------
   //   Methods corresponding to event handlers
   // -------------------------------------------------------------------------
 
-{% filter indent(2, True) -%}
-{%- for blk in neuron.get_on_receive_blocks() %}
-    void on_receive_block_{{ blk.get_port_name() }}();
-{%- endfor %}
+{%  filter indent(2, True) -%}
+{%-     for blk in neuron.get_on_receive_blocks() %}
+    void on_receive_block_{{ blk.get_port_name() }}(nest::Time const &origin, const long lag);
+{%-     endfor %}
 {%- endfilter %}
 
   // -------------------------------------------------------------------------
@@ -451,7 +527,7 @@ private:
   std::deque< histentry__{{neuronName}} > history_;
 
   // cache for initial values
-{%- for var in transferred_variables %}
+{%- for var in transferred_variables + state_vars_that_need_continuous_buffering %}
   double {{var}}__iv;
 {%- endfor %}
 
@@ -581,7 +657,8 @@ private:
 {%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
 
-    double __gsl_error_tol;
+    double __gsl_abs_error_tol;
+    double __gsl_rel_error_tol;
 {%-     endif %}
 {%- endif %}
 
@@ -790,7 +867,8 @@ private:
   // -------------------------------------------------------------------------
   //   Getters/setters for inline expressions
   // -------------------------------------------------------------------------
-{% filter indent(2, True) -%}
+
+{%  filter indent(2, True) -%}
 {%- for equations_block in neuron.get_equations_blocks() %}
 {%-     for inline_expr in equations_block.get_inline_expressions() %}
 {%-         set variable = ast_node_factory.create_ast_variable(inline_expr.get_variable_name(), differential_order=0, scope=inline_expr.scope) %}
@@ -818,7 +896,7 @@ private:
   //   Function declarations
   // -------------------------------------------------------------------------
 
-{% filter indent(2) -%}
+{%  filter indent(2) -%}
 {%- for function in neuron.get_functions() %}
 {{ function_declaration.FunctionDeclaration(function, "") }};
 {%- endfor %}
@@ -1002,9 +1080,13 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const
   (*__d)[nest::names::recordables] = recordablesMap_.get_list();
 {%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
-  def< double >(__d, nest::names::gsl_error_tol, P_.__gsl_error_tol);
-  if ( P_.__gsl_error_tol <= 0. ){
-    throw nest::BadProperty( "The gsl_error_tol must be strictly positive." );
+  def< double >(__d, nest::{{ neuronName }}_names::gsl_abs_error_tol, P_.__gsl_abs_error_tol);
+  if ( P_.__gsl_abs_error_tol <= 0. ){
+    throw nest::BadProperty( "The gsl_abs_error_tol must be strictly positive." );
+  }
+  def< double >(__d, nest::{{ neuronName }}_names::gsl_rel_error_tol, P_.__gsl_rel_error_tol);
+  if ( P_.__gsl_rel_error_tol < 0. ){
+    throw nest::BadProperty( "The gsl_rel_error_tol must be zero or positive." );
   }
 {%-     endif %}
 {%- endif %}
@@ -1062,10 +1144,15 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d)
 
 {% if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
-  updateValue< double >(__d, nest::names::gsl_error_tol, P_.__gsl_error_tol);
-  if ( P_.__gsl_error_tol <= 0. )
+  updateValue< double >(__d, nest::{{ neuronName }}_names::gsl_abs_error_tol, P_.__gsl_abs_error_tol);
+  if ( P_.__gsl_abs_error_tol <= 0. )
   {
-    throw nest::BadProperty( "The gsl_error_tol must be strictly positive." );
+    throw nest::BadProperty( "The gsl_abs_error_tol must be strictly positive." );
+  }
+  updateValue< double >(__d, nest::{{ neuronName }}_names::gsl_rel_error_tol, P_.__gsl_rel_error_tol);
+  if ( P_.__gsl_rel_error_tol < 0. )
+  {
+    throw nest::BadProperty( "The gsl_rel_error_tol must be zero or positive." );
   }
 {%-     endif %}
 {%- endif %}

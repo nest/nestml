@@ -23,6 +23,7 @@ from pynestml.utils.mechs_info_enricher import MechsInfoEnricher
 
 
 class ConcInfoEnricher(MechsInfoEnricher):
-    """Just created for consistency. No more than the base-class enriching needs to be done"""
+    """Just created for consistency with the rest of the mechanism generation process. No more than the base-class
+    enriching needs to be done"""
     def __init__(self, params):
         super(MechsInfoEnricher, self).__init__(params)

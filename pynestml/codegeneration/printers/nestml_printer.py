@@ -19,11 +19,20 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional, Union
+
+from pynestml.codegeneration.printers import nest_variable_printer
+from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.model_printer import ModelPrinter
+from pynestml.codegeneration.printers.nest_variable_printer import NESTVariablePrinter
+from pynestml.codegeneration.printers.nestml_expression_printer import NESTMLExpressionPrinter
+from pynestml.codegeneration.printers.nestml_function_call_printer import NESTMLFunctionCallPrinter
+from pynestml.codegeneration.printers.nestml_simple_expression_printer import NESTMLSimpleExpressionPrinter
+from pynestml.codegeneration.printers.nestml_variable_printer import NESTMLVariablePrinter
+from pynestml.codegeneration.printers.variable_printer import VariablePrinter
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_bit_operator import ASTBitOperator
-from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
 from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
@@ -38,25 +47,26 @@ from pynestml.meta_model.ast_function import ASTFunction
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
+from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
-from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
-from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
-from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_on_condition_block import ASTOnConditionBlock
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
-from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
+from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
+from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
 from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_unit_type import ASTUnitType
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
@@ -74,34 +84,45 @@ class NESTMLPrinter(ModelPrinter):
     def __init__(self):
         self.indent = 0
 
+        self._expression_printer = NESTMLExpressionPrinter(simple_expression_printer=None)
+        self._constant_printer = ConstantPrinter()
+        self._function_call_printer = NESTMLFunctionCallPrinter(expression_printer=self._expression_printer)
+        self._variable_printer = NESTMLVariablePrinter(expression_printer=self._expression_printer)
+        self._simple_expression_printer = NESTMLSimpleExpressionPrinter(variable_printer=self._variable_printer, function_call_printer=self._function_call_printer, constant_printer=self._constant_printer)
+        self._expression_printer._simple_expression_printer = self._simple_expression_printer
+
     def print_model(self, node: ASTModel) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
-        self.inc_indent()
         ret += "model " + node.get_name() + ":" + print_sl_comment(node.in_comment)
         ret += "\n" + self.print(node.get_body())
-        self.dec_indent()
         return ret
 
-    def print_arithmetic_operator(celf, node: ASTArithmeticOperator) -> str:
-        if node.is_times_op:
-            return " * "
+    def print_constant(self, const: Union[str, float, int]) -> str:
+        return self._constant_printer.print_constant(const)
 
-        if node.is_div_op:
-            return " / "
+    def print_function_call(self, node: ASTFunctionCall) -> str:
+        return self._function_call_printer.print_function_call(node)
 
-        if node.is_modulo_op:
-            return " % "
+    def print_variable(self, node: ASTVariable) -> str:
+        return self._variable_printer.print_variable(node)
 
-        if node.is_plus_op:
-            return " + "
+    def print_simple_expression(self, node: ASTSimpleExpression) -> str:
+        return self._simple_expression_printer.print_simple_expression(node)
 
-        if node.is_minus_op:
-            return " - "
+    def print_expression(self, node: ASTExpression) -> str:
+        return self._expression_printer.print_expression(node)
 
-        if node.is_pow_op:
-            return " ** "
+    def print_arithmetic_operator(self, node: ASTArithmeticOperator) -> str:
+        return self._expression_printer.print_arithmetic_operator(node)
 
-        raise RuntimeError("(PyNestML.ArithmeticOperator.Print) Arithmetic operator not specified.")
+    def print_unary_operator(self, node: ASTUnaryOperator) -> str:
+        return self._expression_printer.print_unary_operator(node)
+
+    def print_comparison_operator(self, node: ASTComparisonOperator) -> str:
+        return self._expression_printer.print_comparison_operator(node)
+
+    def print_logical_operator(self, node: ASTLogicalOperator) -> str:
+        return self._expression_printer.print_logical_operator(node)
 
     def print_assignment(self, node: ASTAssignment) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
@@ -138,21 +159,16 @@ class NESTMLPrinter(ModelPrinter):
 
         raise RuntimeError("Unknown bit operator")
 
-    def print_block(self, node: ASTBlock) -> str:
+    def print_stmts_body(self, node: ASTStmtsBody) -> str:
         ret = ""
-        self.inc_indent()
         for stmt in node.stmts:
             ret += self.print(stmt)
-
-        self.dec_indent()
 
         return ret
 
     def print_block_with_variables(self, node: ASTBlockWithVariables) -> str:
-        temp_indent = self.indent
-        self.inc_indent()
-        ret = print_ml_comments(node.pre_comments, temp_indent, False)
-        ret += print_n_spaces(temp_indent)
+        ret = print_ml_comments(node.pre_comments, self.indent, False)
+        ret += print_n_spaces(self.indent)
         if node.is_state:
             ret += "state"
         elif node.is_parameters:
@@ -162,40 +178,20 @@ class NESTMLPrinter(ModelPrinter):
             ret += "internals"
         ret += ":" + print_sl_comment(node.in_comment) + "\n"
         if node.get_declarations() is not None:
+            self.inc_indent()
             for decl in node.get_declarations():
                 ret += self.print(decl)
-        self.dec_indent()
+            self.dec_indent()
+
         return ret
 
     def print_model_body(self, node: ASTModelBody) -> str:
+        self.inc_indent()
         ret = ""
         for elem in node.body_elements:
             ret += self.print(elem)
+        self.dec_indent()
         return ret
-
-    def print_comparison_operator(self, node: ASTComparisonOperator) -> str:
-        if node.is_lt:
-            return " < "
-
-        if node.is_le:
-            return " <= "
-
-        if node.is_eq:
-            return " == "
-
-        if node.is_ne:
-            return " != "
-
-        if node.is_ne2:
-            return " <> "
-
-        if node.is_ge:
-            return " >= "
-
-        if node.is_gt:
-            return " > "
-
-        raise RuntimeError("(PyNestML.ComparisonOperator.Print) Type of comparison operator not specified!")
 
     def print_compound_stmt(self, node: ASTCompoundStmt) -> str:
         if node.is_if_stmt():
@@ -257,11 +253,20 @@ class NESTMLPrinter(ModelPrinter):
         return ret
 
     def print_elif_clause(self, node: ASTElifClause) -> str:
-        return (print_n_spaces(self.indent) + "elif " + self.print(node.get_condition())
-                + ":\n" + self.print(node.get_block()))
+        ret = print_n_spaces(self.indent) + "elif " + self.print(node.get_condition()) + ":\n"
+        self.inc_indent()
+        ret += self.print(node.get_stmts_body())
+        self.dec_indent()
+
+        return ret
 
     def print_else_clause(self, node: ASTElseClause) -> str:
-        return print_n_spaces(self.indent) + "else:\n" + self.print(node.get_block())
+        ret = print_n_spaces(self.indent) + "else:\n"
+        self.inc_indent()
+        ret += self.print(node.get_stmts_body())
+        self.dec_indent()
+
+        return ret
 
     def print_equations_block(self, node: ASTEquationsBlock) -> str:
         temp_indent = self.indent
@@ -274,39 +279,23 @@ class NESTMLPrinter(ModelPrinter):
         self.dec_indent()
         return ret
 
-    def print_expression(self, node: ASTExpression) -> str:
-        ret = ""
-        if node.is_expression():
-            if node.is_encapsulated:
-                ret += "("
-            if node.is_logical_not:
-                ret += "not "
-            if node.is_unary_operator():
-                ret += self.print(node.get_unary_operator())
-            ret += self.print(node.get_expression())
-            if node.is_encapsulated:
-                ret += ")"
-        elif node.is_compound_expression():
-            ret += self.print(node.get_lhs())
-            ret += self.print(node.get_binary_operator())
-            ret += self.print(node.get_rhs())
-        elif node.is_ternary_operator():
-            ret += self.print(node.get_condition()) + "?" + self.print(
-                node.get_if_true()) + ":" + self.print(node.get_if_not())
-        return ret
-
     def print_for_stmt(self, node: ASTForStmt) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         ret += print_n_spaces(self.indent)
         ret += ("for " + node.get_variable() + " in " + self.print(node.get_start_from()) + "..."
                 + self.print(node.get_end_at()) + " step "
                 + str(node.get_step()) + ":" + print_sl_comment(node.in_comment) + "\n")
-        ret += self.print(node.get_block())
+        self.inc_indent()
+        ret += self.print(node.get_stmts_body())
+        self.dec_indent()
         return ret
+
+    def print_function_call(self, node: ASTFunctionCall) -> str:
+        return self._function_call_printer.print_function_call(node)
 
     def print_function(self, node: ASTFunction) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent)
-        ret += "function " + node.get_name() + "("
+        ret += print_n_spaces(self.indent) + "function " + node.get_name() + "("
         if node.has_parameters():
             for par in node.get_parameters():
                 ret += self.print(par)
@@ -314,23 +303,19 @@ class NESTMLPrinter(ModelPrinter):
         if node.has_return_type():
             ret += " " + self.print(node.get_return_type())
         ret += ":" + print_sl_comment(node.in_comment) + "\n"
-        ret += self.print(node.get_block()) + "\n"
-        return ret
-
-    def print_function_call(self, node: ASTFunctionCall) -> str:
-        ret = str(node.get_name()) + "("
-        for i in range(0, len(node.get_args())):
-            ret += self.print(node.get_args()[i])
-            if i < len(node.get_args()) - 1:  # in the case that it is not the last arg, print also a comma
-                ret += ","
-        ret += ")"
+        self.inc_indent()
+        ret += self.print(node.get_stmts_body()) + "\n"
+        self.dec_indent()
         return ret
 
     def print_if_clause(self, node: ASTIfClause) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent)
         ret += print_n_spaces(self.indent) + "if " + self.print(node.get_condition()) + ":"
         ret += print_sl_comment(node.in_comment) + "\n"
-        ret += self.print(node.get_block())
+        self.inc_indent()
+        ret += self.print(node.get_stmts_body())
+        self.dec_indent()
+
         return ret
 
     def print_if_stmt(self, node: ASTIfStmt) -> str:
@@ -341,6 +326,7 @@ class NESTMLPrinter(ModelPrinter):
         if node.get_else_clause() is not None:
             ret += self.print(node.get_else_clause())
         ret += print_n_spaces(self.indent) + "\n"
+
         return ret
 
     def print_input_block(self, node: ASTInputBlock) -> str:
@@ -378,15 +364,6 @@ class NESTMLPrinter(ModelPrinter):
         if node.is_excitatory:
             return "excitatory"
         return ""
-
-    def print_logical_operator(self, node: ASTLogicalOperator) -> str:
-        if node.is_logical_and:
-            return " and "
-
-        if node.is_logical_or:
-            return " or "
-
-        raise Exception("Unknown logical operator")
 
     def print_compilation_unit(self, node: ASTNestMLCompilationUnit) -> str:
         ret = ""
@@ -431,6 +408,14 @@ class NESTMLPrinter(ModelPrinter):
         ret += print_n_spaces(self.indent) + "output:\n"
         ret += print_n_spaces(self.indent + 4)
         ret += "spike" if node.is_spike() else "continuous"
+        if node.get_attributes():
+            ret += "("
+            for i, attr in enumerate(node.get_attributes()):
+                ret += self.print(attr)
+                if i < len(node.get_attributes()) - 1:
+                    ret += ", "
+
+            ret += ")"
         ret += print_sl_comment(node.in_comment)
         ret += "\n"
         return ret
@@ -442,33 +427,6 @@ class NESTMLPrinter(ModelPrinter):
         ret = print_n_spaces(self.indent)
         ret += "return " + (self.print(node.get_expression()) if node.has_expression() else "")
         return ret
-
-    def print_simple_expression(self, node: ASTSimpleExpression) -> str:
-        if node.is_function_call():
-            return self.print(node.function_call)
-
-        if node.is_boolean_true:
-            return "true"
-
-        if node.is_boolean_false:
-            return "false"
-
-        if node.is_inf_literal:
-            return "inf"
-
-        if node.is_numeric_literal():
-            if node.variable is not None:
-                return str(node.numeric_literal) + self.print(node.variable)
-
-            return str(node.numeric_literal)
-
-        if node.is_variable():
-            return self.print_variable(node.get_variable())
-
-        if node.is_string():
-            return node.get_string()
-
-        raise RuntimeError("Simple rhs at %s not specified!" % str(node.get_source_position()))
 
     def print_small_stmt(self, node: ASTSmallStmt) -> str:
         if node.is_assignment():
@@ -491,18 +449,6 @@ class NESTMLPrinter(ModelPrinter):
 
         return self.print(node.compound_stmt)
 
-    def print_unary_operator(self, node: ASTUnaryOperator) -> str:
-        if node.is_unary_plus:
-            return "+"
-
-        if node.is_unary_minus:
-            return "-"
-
-        if node.is_unary_tilde:
-            return "~"
-
-        raise RuntimeError("Type of unary operator not specified!")
-
     def print_unit_type(self, node: ASTUnitType) -> str:
         if node.is_encapsulated:
             return "(" + self.print(node.compound_unit) + ")"
@@ -511,49 +457,48 @@ class NESTMLPrinter(ModelPrinter):
             return self.print(node.base) + "**" + str(node.exponent)
 
         if node.is_arithmetic_expression():
-            t_lhs = (
-                self.print(node.get_lhs()) if isinstance(node.get_lhs(), ASTUnitType) else str(node.get_lhs()))
+            t_lhs = self.print(node.get_lhs()) if isinstance(node.get_lhs(), ASTUnitType) else str(node.get_lhs())
             if node.is_times:
                 return t_lhs + "*" + self.print(node.get_rhs())
-            else:
-                return t_lhs + "/" + self.print(node.get_rhs())
+
+            return t_lhs + "/" + self.print(node.get_rhs())
 
         return node.unit
 
     def print_on_receive_block(self, node: ASTOnReceiveBlock) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         ret += print_n_spaces(self.indent) + "onReceive(" + node.port_name + "):" + print_sl_comment(node.in_comment) + "\n"
-        ret += self.print(node.get_block())
+        self.inc_indent()
+        ret += self.print(node.get_stmts_body())
+        self.dec_indent()
+
         return ret
 
     def print_on_condition_block(self, node: ASTOnConditionBlock) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         ret += print_n_spaces(self.indent) + "onCondition(" + self.print(node.get_cond_expr()) + "):" + print_sl_comment(node.in_comment) + "\n"
-        ret += self.print(node.get_block())
+        self.inc_indent()
+        ret += self.print(node.get_stmts_body())
+        self.dec_indent()
+
         return ret
 
     def print_update_block(self, node: ASTUpdateBlock):
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         ret += print_n_spaces(self.indent) + "update:" + print_sl_comment(node.in_comment) + "\n"
-        ret += self.print(node.get_block())
-        return ret
-
-    def print_variable(self, node: ASTVariable):
-        ret = node.name
-
-        if node.get_vector_parameter():
-            ret += "[" + self.print(node.get_vector_parameter()) + "]"
-
-        for i in range(1, node.differential_order + 1):
-            ret += "'"
-
+        self.inc_indent()
+        ret += self.print(node.get_stmts_body())
+        self.dec_indent()
         return ret
 
     def print_while_stmt(self, node: ASTWhileStmt) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         ret += (print_n_spaces(self.indent) + "while " + self.print(node.get_condition())
                 + ":" + print_sl_comment(node.in_comment) + "\n")
-        ret += self.print(node.get_block())
+        self.inc_indent()
+        ret += self.print(node.get_stmts_body())
+        self.dec_indent()
+
         return ret
 
     def inc_indent(self):
@@ -572,20 +517,23 @@ def print_ml_comments(comments, indent=0, newline=False) -> str:
         return ""
     ret = ""
     for comment in comments:
-        if "\"\"\"" in comment:
-            return comment + "\n"
+        if comment.lstrip() == "":
+            ret += "# \n"
+
         for c_line in comment.splitlines(True):
             if c_line == "\n":
                 ret += print_n_spaces(indent) + "#" + "\n"
                 continue
-            elif c_line.lstrip() == "":
-                continue
+
             ret += print_n_spaces(indent)
             if c_line[len(c_line) - len(c_line.lstrip())] != "#":
-                ret += "#"
+                ret += "# "
+
             ret += c_line + "\n"
+
         if len(comment.splitlines(True)) > 1:
             ret += print_n_spaces(indent)
+
     if len(comments) > 0 and newline:
         ret += "\n"
 

@@ -1,44 +1,64 @@
-"""
-iaf_cond_exp_sfa_rr - Conductance based leaky integrate-and-fire model with spike-frequency adaptation and relative refractory mechanisms
-#########################################################################################################################################
-
-Description
-+++++++++++
-
-iaf_cond_exp_sfa_rr is an implementation of a spiking neuron using integrate-and-fire dynamics with conductance-based
-synapses, with additional spike-frequency adaptation and relative refractory mechanisms as described in [2]_, page 166.
-
-Incoming spike events induce a post-synaptic change of conductance modelled by an exponential function. The exponential
-function is normalised such that an event of weight 1.0 results in a peak current of 1 nS.
-
-Outgoing spike events induce a change of the adaptation and relative refractory conductances by q_sfa and q_rr,
-respectively. Otherwise these conductances decay exponentially with time constants tau_sfa and tau_rr, respectively.
-
-
-References
-++++++++++
-
-.. [1] Meffin H, Burkitt AN, Grayden DB (2004). An analytical
-       model for the large, fluctuating synaptic conductance state typical of
-       neocortical neurons in vivo. Journal of Computational Neuroscience,
-       16:159-175.
-       DOI: https://doi.org/10.1023/B:JCNS.0000014108.03012.81
-.. [2] Dayan P, Abbott LF (2001). Theoretical neuroscience: Computational and
-       mathematical modeling of neural systems. Cambridge, MA: MIT Press.
-       https://pure.mpg.de/pubman/faces/ViewItemOverviewPage.jsp?itemId=item_3006127
-
-
-See also
-++++++++
-
-aeif_cond_alpha, aeif_cond_exp, iaf_chxk_2008
-"""
+# iaf_cond_exp_sfa_rr - Conductance based leaky integrate-and-fire model with spike-frequency adaptation and relative refractory mechanisms
+# #########################################################################################################################################
+# 
+# Description
+# +++++++++++
+# 
+# iaf_cond_exp_sfa_rr is an implementation of a spiking neuron using integrate-and-fire dynamics with conductance-based
+# synapses, with additional spike-frequency adaptation and relative refractory mechanisms as described in [2]_, page 166.
+# 
+# Incoming spike events induce a post-synaptic change of conductance modelled by an exponential function. The exponential
+# function is normalised such that an event of weight 1.0 results in a peak current of 1 nS.
+# 
+# Outgoing spike events induce a change of the adaptation and relative refractory conductances by q_sfa and q_rr,
+# respectively. Otherwise these conductances decay exponentially with time constants tau_sfa and tau_rr, respectively.
+# 
+# 
+# References
+# ++++++++++
+# 
+# .. [1] Meffin H, Burkitt AN, Grayden DB (2004). An analytical
+#        model for the large, fluctuating synaptic conductance state typical of
+#        neocortical neurons in vivo. Journal of Computational Neuroscience,
+#        16:159-175.
+#        DOI: https://doi.org/10.1023/B:JCNS.0000014108.03012.81
+# .. [2] Dayan P, Abbott LF (2001). Theoretical neuroscience: Computational and
+#        mathematical modeling of neural systems. Cambridge, MA: MIT Press.
+#        https://pure.mpg.de/pubman/faces/ViewItemOverviewPage.jsp?itemId=item_3006127
+# 
+# 
+# See also
+# ++++++++
+# 
+# aeif_cond_alpha, aeif_cond_exp, iaf_chxk_2008
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+# 
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
 model iaf_cond_exp_sfa_rr_neuron:
 
     state:
         V_m mV = E_L # membrane potential
         refr_t ms = 0 ms          # Refractory period timer
-        is_refractory boolean = false
         g_sfa nS = 0 nS     # inputs from the sfa conductance
         g_rr nS = 0 nS      # inputs from the rr conductance
 
@@ -56,6 +76,7 @@ model iaf_cond_exp_sfa_rr_neuron:
         inline I_rr pA = g_rr * ( V_m - E_rr )
 
         V_m' = ( -I_L + I_e + I_stim - I_syn_exc - I_syn_inh - I_sfa - I_rr ) / C_m
+        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
 
     parameters:
         V_th mV = -57.0 mV       # Threshold potential
@@ -87,23 +108,17 @@ model iaf_cond_exp_sfa_rr_neuron:
         spike
 
     update:
-        if is_refractory:
-            # neuron is absolute refractory, do not evolve ODEs
-            refr_t -= resolution()
+        if refr_t > 0 ms:
+            # neuron is absolute refractory
+            integrate_odes(refr_t)
         else:
-            # neuron not refractory, so evolve all ODEs
-            integrate_odes()
+            # neuron not refractory
+            integrate_odes(V_m, g_rr, g_sfa)
 
-    onCondition(not is_refractory and V_m >= V_th): # threshold crossing
+    onCondition(refr_t <= 0 ms and V_m >= V_th): # threshold crossing
         # threshold crossing
         refr_t = refr_T    # start of the refractory period
-        is_refractory = true
         V_m = V_reset
         g_sfa += q_sfa
         g_rr += q_rr
         emit_spike()
-
-    onCondition(is_refractory and refr_t <= resolution() / 2):
-        # end of refractory period
-        refr_t = 0 ms
-        is_refractory = false

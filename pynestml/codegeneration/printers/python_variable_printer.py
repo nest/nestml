@@ -68,11 +68,26 @@ class PythonVariablePrinter(VariablePrinter):
         """
         assert isinstance(variable, ASTVariable)
 
+        # print external variables (such as a variable in the synapse that needs to call the getter method on the postsynaptic partner)
         if isinstance(variable, ASTExternalVariable):
-            raise Exception("Python-standalone target does not support synapses")
+            _name = str(variable)
+            if variable.get_alternate_name():
+                if not variable._altscope:
+                    # get the value from the postsynaptic partner continuous-time buffer (for post_connected_continuous_input_ports); this has been buffered in a local temp variable starting with "__"
+                    return variable.get_alternate_name()
+
+                # get the value from the postsynaptic partner (without time specified)
+                # the disadvantage of this approach is that the time the value is to be obtained is not explicitly specified, so we will actually get the value at the end of the min_delay timestep
+                return "__target.get_" + variable.get_alternate_name() + "()"
+
+            # grab the value from the postsynaptic spiking history buffer
+            return "start.get_" + _name + "()"
 
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
             return "math.e"
+
+        if variable.get_name() == PredefinedVariables.PI_CONSTANT:
+            return "math.pi"
 
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         if symbol is None:
