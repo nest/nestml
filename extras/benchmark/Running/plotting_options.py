@@ -2,12 +2,7 @@ import matplotlib.pyplot as plt
 
 # Plotting options
 
-# plt.style.use('tableau-colorblind10')
 palette = plt.get_cmap("tab10")
-
-# def palette(x):
-#     return plt.rcParams['axes.prop_cycle'].by_key()['color'][x]
-
 
 plt.rcParams['axes.grid'] = True
 
