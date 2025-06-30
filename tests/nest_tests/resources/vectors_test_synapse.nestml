@@ -1,0 +1,24 @@
+# vectors_test_synapse
+# ####################
+#
+model vectors_test_synapse:
+    state:
+        ca_buffer[buffer_size] real = 0
+        index integer = 0
+        w real = 1    # Synaptic weight
+
+    parameters:
+        buffer_size integer = 10
+        d ms = 1 ms    # Synaptic transmission delay
+
+    input:
+        pre_spikes <- spike
+
+    output:
+        spike(weight real, delay ms)
+
+    onReceive(pre_spikes):
+        i real = t
+        index = i
+        ca_buffer[index] = 2
+        emit_spike(w, d)
