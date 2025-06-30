@@ -19,6 +19,17 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+This python script runs a benchmark of balanced excitatory and inhibitory network using NESTML-generated vs NEST in-built neuron and synapse models.
+The script uses the jinja templating mechanism to generate sbatch scripts to run the simulations on multiple compute nodes with MPI.
+Separate sbatch scripts are generated for strong and weak scaling, with correspoding graphs measuring the relative performance of simulations with NESTML-generated vs NEST in-built models.
+The neuron model used in the script is ``aeif_psc_alpha_neuron`` and the synapse model is ``stdp_synapse``. The balanced network is constructed and simulated using the python script ``brunel_alpha_nest.py``.
+
+Usage:
+.. code-block:: Python
+    python benchmark.py --enable_mpi
+"""
+
 import argparse
 import datetime
 import jinja2

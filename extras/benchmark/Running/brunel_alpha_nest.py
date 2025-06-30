@@ -26,14 +26,17 @@ Random balanced network (alpha synapses) connected with NEST
 This script simulates an excitatory and an inhibitory population on
 the basis of the network used in [1]_.
 
-In contrast to ``brunel-alpha-numpy.py``, this variant uses NEST's builtin
-connection routines to draw the random connections instead of NumPy.
-
 When connecting the network, customary synapse models are used, which
 allow for querying the number of created synapses. Using spike
 recorders, the average firing rates of the neurons in the populations
 are established. The building as well as the simulation time of the
-network are recorded.
+network are recorded, along with excitatory rate, inhibitory rate, and coefficient of variation.
+
+The script also receives arguments  specifying the neuron and synapse model to use,
+the number of nodes to run on, the network scale determining the order of neurons in the network,
+and the number of threads used to run the simulation on a single node.
+
+This script is internally called from ``benchmark.py`` which runs the benchmark for different node configurations.
 
 References
 ~~~~~~~~~~
