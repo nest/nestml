@@ -49,7 +49,6 @@ References
 # should be imported before nest.
 
 import time
-import sys
 import matplotlib.pyplot as plt
 import nest
 import nest.raster_plot
@@ -59,14 +58,116 @@ import json
 import argparse
 import os
 
-
-
+from plotting_options import *
 
 
 
 
 ###############################################################################
-# Helper functions 
+# Plotting functions
+
+
+def _histogram(a, bins=10, bin_range=None, normed=False):
+    """Calculate histogram for data.
+
+    Parameters
+    ----------
+    a : list
+        Data to calculate histogram for
+    bins : int, optional
+        Number of bins
+    bin_range : TYPE, optional
+        Range of bins
+    normed : bool, optional
+        Whether distribution should be normalized
+
+    Raises
+    ------
+    ValueError
+    """
+    from numpy import asarray, concatenate, iterable, linspace, sort
+
+    a = asarray(a).ravel()
+
+    if bin_range is not None:
+        mn, mx = bin_range
+        if mn > mx:
+            raise ValueError("max must be larger than min in range parameter")
+
+    if not iterable(bins):
+        if bin_range is None:
+            bin_range = (a.min(), a.max())
+        mn, mx = [mi + 0.0 for mi in bin_range]
+        if mn == mx:
+            mn -= 0.5
+            mx += 0.5
+        bins = linspace(mn, mx, bins, endpoint=False)
+    else:
+        if (bins[1:] - bins[:-1] < 0).any():
+            raise ValueError("bins must increase monotonically")
+
+    # best block size probably depends on processor cache size
+    block = 65536
+    n = sort(a[:block]).searchsorted(bins)
+    for i in range(block, a.size, block):
+        n += sort(a[i : i + block]).searchsorted(bins)
+    n = concatenate([n, [len(a)]])
+    n = n[1:] - n[:-1]
+
+    if normed:
+        db = bins[1] - bins[0]
+        return 1.0 / (a.size * db) * n, bins
+    else:
+        return n, bins
+
+
+def raster_plot_from_device(detec, path, fname_snip, hist_binwidth=10.):
+
+    ev = detec.get("events")
+    ts, node_ids = ev["times"], ev["senders"]
+
+    if not len(ts):
+        raise Exception("No events recorded!")
+
+    xlabel = "Time (ms)"
+    ylabel = "Neuron ID"
+
+    color_marker = "."
+    color_bar = "blue"
+    color_edge = "black"
+
+    plt.figure(figsize=(6, 4))
+
+    ax1 = plt.axes([0.1, 0.3, 0.85, 0.6])
+    plotid = plt.plot(ts, node_ids, color_marker)
+    plt.ylabel(ylabel)
+    plt.xticks([])
+    xlim = plt.xlim()
+
+    plt.axes([0.1, 0.1, 0.85, 0.17])
+    t_bins = np.arange(np.amin(ts), np.amax(ts), float(hist_binwidth))
+    n, _ = _histogram(ts, bins=t_bins)
+    num_neurons = len(np.unique(node_ids))
+    heights = 1000 * n / (hist_binwidth * num_neurons)
+
+    plt.bar(t_bins, heights, width=hist_binwidth, color=color_bar, edgecolor=color_edge)
+    plt.yticks([int(x) for x in np.linspace(0.0, int(max(heights) * 1.1) + 5, 4)])
+    plt.ylabel("Rate [spikes/s]")
+    plt.xlabel(xlabel)
+    plt.xlim(xlim)
+    plt.axes(ax1)
+
+    plt.draw()
+
+    plt.tight_layout()
+    plt.savefig(f"{path}/raster_plot_{fname_snip}.png")
+    plt.savefig(f"{path}/raster_plot_{fname_snip}.pdf")
+    plt.close()
+
+
+
+###############################################################################
+# Helper functions
 
 def convert_np_arrays_to_lists(obj):
     if isinstance(obj, dict):
@@ -120,23 +221,23 @@ def get_vmpeak(since=0.0):
 def compute_cv(spike_train):
     """
     Compute the coefficient of variation (CV) for a single spike train.
-    
+
     Parameters:
     spike_train (list or numpy array): Timestamps of spikes in the spike train.
-    
+
     Returns:
     float: Coefficient of variation (CV) of the inter-spike intervals.
     """
     # Calculate inter-spike intervals (ISI)
     isi = np.diff(spike_train)
-    
+
     # Calculate mean and standard deviation of ISI
     mean_isi = np.mean(isi)
     std_isi = np.std(isi)
-    
+
     # Calculate coefficient of variation
     cv = std_isi / mean_isi
-    
+
     return cv
 
 def compute_cv_for_neurons(spike_trains):
@@ -151,7 +252,7 @@ def compute_cv_for_neurons(spike_trains):
 def plot_interspike_intervals(spike_times_list, path, fname_snip=""):
     """
     Plots the distribution of interspike intervals given a list of lists of spike times.
-    
+
     Parameters:
     spike_times_list (list of lists): Each inner list contains spike times for one neuron or trial.
     """
@@ -160,15 +261,17 @@ def plot_interspike_intervals(spike_times_list, path, fname_snip=""):
     for spike_times in spike_times_list:
         intervals = np.diff(spike_times)
         interspike_intervals.extend(intervals)
-    
+
     # Plot the distribution of interspike intervals
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(6, 4))
     plt.hist(interspike_intervals, bins=30, edgecolor='black', alpha=0.75)
     plt.xlabel('Interspike Interval (ms)')
     plt.ylabel('Frequency')
-    plt.title('Distribution of Interspike Intervals')
     plt.grid(True)
+    plt.tight_layout()
     plt.savefig(f"{path}/isi_distribution_" + fname_snip + ".png")
+    plt.savefig(f"{path}/isi_distribution_" + fname_snip + ".pdf")
+    plt.close()
 
     np.savetxt(f"{path}/isi_distribution_" + fname_snip + "_isi_list.txt", interspike_intervals)
 
@@ -187,10 +290,10 @@ parser = argparse.ArgumentParser(description='Run a simulation with NEST')
 parser.add_argument('--benchmarkPath', type=str, default='', help='Path to the nest installation')
 parser.add_argument('--simulated_neuron', type=str, default='iaf_psc_alpha_neuron_Nestml', help='Name of the model to use')
 parser.add_argument('--network_scale', type=int, default=2500, help='Number of neurons to use')
-parser.add_argument('--nodes', type=int, default=2, required=False, help='Number of compute nodes to use')
-parser.add_argument('--threads', type=int, default=4, help='Number of threads to use')
+parser.add_argument('--nodes', type=int, default=1, required=False, help='Number of compute nodes to use')
+parser.add_argument('--threads', type=int, default=1, help='Number of threads to use')
 parser.add_argument('--iteration', type=int, help='iteration number used for the benchmark')
-parser.add_argument('--rng_seed', type=int, help='random seed')
+parser.add_argument('--rng_seed', type=int, help='random seed', default=123)
 args = parser.parse_args()
 
 
@@ -215,7 +318,7 @@ def ComputePSPnorm(tauMem, CMem, tauSyn):
 
 
 nest.ResetKernel()
-nest.local_num_threads = parser.parse_args().threads
+nest.local_num_threads = args.threads
 
 
 ###############################################################################
@@ -228,7 +331,7 @@ startbuild = time.time()
 ###############################################################################
 # Assigning the simulation parameters to variables.
 
-dt = 0.1  # the resolution in ms
+dt = 0.01  # the resolution in ms  -- note that in NEST, aeif models internally use .01 ms timestep; use same value for consistency!
 simtime = 1000.0  # Simulation time in ms
 delay = 1.5  # synaptic delay in ms
 
@@ -362,7 +465,7 @@ try:
     nest.Install("nestmlmodule")
 except:
     pass
-nest.Install("nestmlOptimizedmodule")
+#nest.Install("nestmlOptimizedmodule")
 nest.Install("nestmlplasticmodule")
 nest.Install("nestmlnocomodule")
 print("Building network")
@@ -582,19 +685,20 @@ if args.benchmarkPath != "":
     if not os.path.exists(path):
         os.makedirs(path)
 
-    fname_snip = f"[simulated_neuron={args.simulated_neuron}]_[network_scale={args.network_scale}]_[iteration={args.iteration}]_[nodes={args.nodes}]_[rank={nest.Rank()}]"
+    fname_snip = f"[simulated_neuron={args.simulated_neuron}]_[network_scale={args.network_scale}]_[iteration={args.iteration}]_[nodes={args.nodes}]_[threads={args.threads}]_[rank={nest.Rank()}]"
 
     with open(f"{path}/timing_{fname_snip}.json", "w") as f:
         json.dump(status, f, indent=4)
         f.close()
 
-    nest.raster_plot.from_device(espikes, hist=True)
-    plt.savefig(f"{path}/raster_plot_{fname_snip}.png")
-    plt.close()
+    #nest.raster_plot.from_device(espikes, hist=True, title="", figsize=(6, 4))
+    raster_plot_from_device(espikes, path, fname_snip)
 
     fig, ax = plt.subplots()
     ax.plot(e_mm.get()["events"]["times"], e_mm.get()["events"]["V_m"])
+    plt.tight_layout()
     plt.savefig(f"{path}/V_m_{fname_snip}.png")
+    plt.savefig(f"{path}/V_m_{fname_snip}.pdf")
     plt.close()
 
     plot_interspike_intervals(exc_spikes, path, fname_snip=fname_snip)
