@@ -1,0 +1,12 @@
+model multiple_input_currents_neuron:
+    state:
+        V_m1 mV = 0 mV
+        V_m2 mV = -10 mV
+
+    input:
+        I_1 pA <- continuous
+        I_2 pA <- continuous
+
+    update:
+        V_m1 += I_1 / 5 nS
+        V_m2 += I_2 / 10 nS
