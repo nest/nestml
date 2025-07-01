@@ -1,0 +1,6 @@
+{#
+  Generates C++ statements that update the delay variables
+  @param variable VariableSymbol
+#}
+    DV_.delayed_{{ variable_symbol.get_symbol_name() }} [DV_.delayed_{{ variable_symbol.get_symbol_name() }}_idx] = {{ nest_codegen_utils.print_symbol_origin(variable_symbol, variable) % printer_no_origin.print(variable) }};
+    DV_.delayed_{{ variable_symbol.get_symbol_name() }}_idx = (DV_.delayed_{{ variable_symbol.get_symbol_name() }}_idx + 1) % DV_.delay_{{ variable_symbol.get_symbol_name() }}_steps;
