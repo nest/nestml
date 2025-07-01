@@ -35,6 +35,7 @@ __all__ = [
     'ast_line_operation_visitor.py',
     'ast_logical_not_visitor.py',
     'ast_numeric_literal_visitor.py',
+    'ast_parent_visitor',
     'ast_parent_aware_visitor.py',
     'ast_parentheses_visitor.py',
     'ast_power_visitor.py',

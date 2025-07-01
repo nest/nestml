@@ -30,7 +30,7 @@ def clone_numeric_literal(numeric_literal):
         # Python basic type
         return numeric_literal
 
-    if type(numeric_literal) in [np.int, np.int8, np.int16, np.int32, np.int64]:
+    if type(numeric_literal) in [np.int8, np.int16, np.int32, np.int64, np.float64]:
         # NumPy types
         return numeric_literal.copy()
 

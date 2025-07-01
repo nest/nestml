@@ -1,0 +1,12 @@
+
+#ifndef _NEURON_MODEL_H_
+#define _NEURON_MODEL_H_
+#include "common/neuron-typedefs.h"
+#include "s2app.h"
+
+typedef struct neuron_impl_t* neuron_pointer_t;
+typedef struct neuron_params_t neuron_params_t;
+
+void neuron_model_print_parameters(restrict neuron_pointer_t neuron);
+
+#endif // _NEURON_MODEL_H_

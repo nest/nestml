@@ -7,14 +7,20 @@ target/
 build/
 buildNest/
 venv/
-spinnaker-install/
+tests/spinnaker_tests/bak/spinnaker-install/
 spinnaker-target/
 report/
 reports/
 nestml-*/
 *.egg-info
 stash/
-
+tests/spinnaker2_tests/spinnaker2-install
+tests/spinnaker2_tests/spinnaker2-target
+tests/spinnaker_tests/report
+tests/spinnaker_tests/spinnaker-install
+tests/spinnaker_tests/spinnaker-target
+tests/nest_tests/target_*/
+tests/spinnaker2_tests/nestml_*/
 
 __*
 

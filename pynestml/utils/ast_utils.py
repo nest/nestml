@@ -26,6 +26,8 @@ import sympy
 
 import odetoolbox
 
+from astropy import units as u
+
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
@@ -1569,6 +1571,58 @@ class ASTUtils:
                         return var
         return None
 
+    @staticmethod
+    def _to_base_value_from_string(quantity_str):
+        local_dict = {'u': u}
+        quantity = eval(quantity_str, {"__builtins__": {}}, local_dict)
+        canonical_unit = u.get_physical_type(quantity.unit)._unit
+        # Return the SI base value and unit name
+        return quantity.si.value, str(canonical_unit)
+
+
+    # @classmethod
+    # def generate_updated_state_dict(cls, neuron: ASTModel, parameter_value_dict: dict) -> dict:
+    #     state_block = neuron.get_state_blocks()[0]
+    #     updated_state_dict = {}
+    #     for declarations in state_block.get_declarations():
+    #         if isinstance(declarations.expression, ASTSimpleExpression) and declarations.expression.numeric_literal == None:
+    #             if declarations.expression.variable.name in parameter_value_dict:
+    #                 updated_state_dict[declarations.variables[0]] = parameter_value_dict[declarations.expression.variable.name]
+    #             pass
+    #         if isinstance(declarations.expression, ASTSimpleExpression) and declarations.expression.numeric_literal != None:
+    #             expr = str(declarations.expression.numeric_literal) + '* u.' + declarations.expression.variable.name
+    #             float_value_in_si, unit_in_si = cls._to_base_value_from_string(cls, expr)
+    #             declarations.expression.numeric_literal = float_value_in_si
+    #             updated_state_dict[declarations.variables[0]] = float_value_in_si
+    #
+    #     return updated_state_dict
+
+    @classmethod
+    def generate_updated_state_dict(cls, initial_values: dict, parameter_value_dict: dict) -> dict:
+        updated_state_dict = {}
+        for key, value in initial_values.items():
+            if value in parameter_value_dict:
+                updated_state_dict[key] = float(parameter_value_dict[value])
+            else:
+                updated_state_dict[key] = float(value)
+        return updated_state_dict
+
+    # @classmethod
+    # def get_propagators_as_math_expressions(cls, neuron: ASTNode, parameters: dict) -> dict:
+    #     propagators_as_math_expressions = {}
+    #     propagator_expressions = neuron.analytic_solver["propagators"]
+    #     for propagator_expression in propagator_expressions:
+    #         # propagator_expressions[propagator_expression] = propagator_expressions[propagator_expression].replace(
+    #         #     '__h', str(1))
+    #         # for symbol, value in parameters.items():
+    #         #     propagator_expressions[propagator_expression] = propagator_expressions[propagator_expression].replace(symbol, str(value))
+    #         #     propagators_as_math_expressions.update({propagator_expression: propagator_expressions[propagator_expression]})
+    #         propagators_as_math_expressions[propagator_expression] = propagator_expressions[propagator_expression]
+    #     return propagators_as_math_expressions
+    #
+    # # @classmethod
+    # # def
+
     @classmethod
     def get_internal_by_name(cls, node: ASTModel, var_name: str) -> ASTDeclaration:
         """
@@ -2255,6 +2309,18 @@ class ASTUtils:
                 equations_block.get_declarations().remove(decl)
 
         return decl_to_remove
+
+    @classmethod
+    def add_timestep_symbol(cls, model: ASTModel) -> None:
+        """
+        Add timestep variable to the internals block
+        """
+        from pynestml.utils.model_parser import ModelParser
+        assert model.get_initial_value(
+            "__h") is None, "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
+        assert not "__h" in [sym.name for sym in model.get_internal_symbols(
+        )], "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
+        model.add_to_internals_block(ModelParser.parse_declaration('__h ms = resolution()'), index=0)
 
     @classmethod
     def generate_kernel_buffers(cls, model: ASTModel, equations_block: Union[ASTEquationsBlock, List[ASTEquationsBlock]]) -> Mapping[ASTKernel, ASTInputPort]:

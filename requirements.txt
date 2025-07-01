@@ -7,4 +7,4 @@ setuptools
 Jinja2 >= 2.10
 typing;python_version<"3.5"
 astropy
-odetoolbox >= 2.5.8
+odetoolbox >= 2.5.9

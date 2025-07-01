@@ -46,7 +46,7 @@ from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 
 def get_known_targets():
-    targets = ["NEST", "NEST_compartmental", "python_standalone", "autodoc", "pretty_render", "spinnaker", "NEST_DESKTOP", "none"]
+    targets = ["NEST", "NEST_compartmental", "python_standalone", "autodoc", "pretty_render", "spinnaker", "spinnaker2", "NEST_DESKTOP", "none"]
     targets = [s.upper() for s in targets]
     return targets
 
@@ -61,7 +61,7 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
     if options is None:
         options = {}
 
-    if target_name.upper() in ["NEST", "PYTHON_STANDALONE", "NEST_COMPARTMENTAL", "NEST_DESKTOP"]:
+    if target_name.upper() in ["SPINNAKER2", "NEST", "SPINNAKER", "PYTHON_STANDALONE", "NEST_COMPARTMENTAL", "NEST_DESKTOP"]:
         from pynestml.transformers.add_timestep_to_internals_transformer import AddTimestepToInternalsTransformer
 
         add_timestep_to_internals_transformer = AddTimestepToInternalsTransformer()
@@ -83,6 +83,13 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         synapse_post_neuron_co_generation = SynapseRemovePostPortTransformer()
         options = synapse_post_neuron_co_generation.set_options(options)
         transformers.append(synapse_post_neuron_co_generation)
+
+    if target_name.upper() in ["SPINNAKER2"]:
+        pass
+        # from pynestml.transformers.spinnaker2_unit_transformer import Spinnaker2UnitTransformer
+
+        # unit_transformer = Spinnaker2UnitTransformer()
+        # transformers.append(unit_transformer)
 
     if target_name.upper() == "NEST":
         from pynestml.transformers.synapse_post_neuron_transformer import SynapsePostNeuronTransformer
@@ -152,6 +159,10 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         from pynestml.codegeneration.spinnaker_code_generator import SpiNNakerCodeGenerator
         return SpiNNakerCodeGenerator(options)
 
+    if target_name.upper() == "SPINNAKER2":
+        from pynestml.codegeneration.spinnaker2_code_generator import Spinnaker2CodeGenerator
+        return Spinnaker2CodeGenerator(options)
+
     if target_name.upper() == "NONE":
         # dummy/null target: user requested to not generate any code (for instance, when just doing validation of a model)
         code, message = Messages.get_no_code_generated()
@@ -176,6 +187,12 @@ def builder_from_target_name(target_name: str, options: Optional[Mapping[str, An
     if target_name.upper() == "SPINNAKER":
         from pynestml.codegeneration.spinnaker_builder import SpiNNakerBuilder
         builder = SpiNNakerBuilder(options)
+        remaining_options = builder.set_options(options)
+        return builder, remaining_options
+
+    if target_name.upper() == "SPINNAKER2":
+        from pynestml.codegeneration.spinnaker2_builder import SpiNNaker2Builder
+        builder = SpiNNaker2Builder(options)
         remaining_options = builder.set_options(options)
         return builder, remaining_options
 
@@ -362,6 +379,37 @@ def generate_spinnaker_target(input_path: Union[str, Sequence[str]], target_path
         A dictionary containing additional options for the target code generator.
     """
     generate_target(input_path, target_platform="spinnaker", target_path=target_path,
+                    install_path=install_path,
+                    logging_level=logging_level, store_log=store_log, suffix=suffix, dev=dev,
+                    codegen_opts=codegen_opts)
+
+def generate_spinnaker2_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None, install_path: Optional[str] = None,
+                              logging_level="ERROR", module_name: str = "nestmlmodule", store_log: bool=False,
+                              suffix: str="", dev: bool=False, codegen_opts: Optional[Mapping[str, Any]]=None):
+    r"""Generate and build code for the SpiNNaker target.
+
+    Parameters
+    ----------
+    input_path : str **or** Sequence[str]
+        Path to the NESTML file(s) or to folder(s) containing NESTML files to convert to NEST code.
+    target_path : str, optional (default: append "target" to `input_path`)
+        Path to the generated C++ code and install files.
+    install_path
+        Path to the directory where the generated code will be installed.
+    logging_level : str, optional (default: "ERROR")
+        Sets which level of information should be displayed duing code generation (among "ERROR", "WARNING", "INFO", or "NO").
+    module_name : str, optional (default: "nestmlmodule")
+        The name of the generated Python module.
+    store_log : bool, optional (default: False)
+        Whether the log should be saved to file.
+    suffix : str, optional (default: "")
+        A suffix string that will be appended to the name of all generated models.
+    dev : bool, optional (default: False)
+        Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
+    codegen_opts : Optional[Mapping[str, Any]]
+        A dictionary containing additional options for the target code generator.
+    """
+    generate_target(input_path, target_platform="spinnaker2", target_path=target_path,
                     install_path=install_path,
                     logging_level=logging_level, store_log=store_log, suffix=suffix, dev=dev,
                     codegen_opts=codegen_opts)

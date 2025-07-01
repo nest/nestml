@@ -54,6 +54,9 @@ class TestSpiNNakerIafPscExp:
                                   suffix=suffix)
         #                          codegen_opts=codegen_opts)
 
+    def test_generate_code(self):
+        self.generate_code()
+
     def test_iaf_psc_exp(self):
         # import spynnaker and plotting stuff
         import pyNN.spiNNaker as p
@@ -61,12 +64,12 @@ class TestSpiNNakerIafPscExp:
         import matplotlib.pyplot as plt
 
         # import models
-        from python_models8.neuron.builds.iaf_psc_exp_nestml import iaf_psc_exp_nestml
+        from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml
 
         # TODO: Set names for exitatory input, membrane potential and synaptic response
         exc_input = "exc_spikes"
         membranePot = "V_m"
-        synapticRsp = "I_kernel_exc__X__exc_spikes"
+        synapticRsp = "I_syn_exc"
 
         # Set the run time of the execution
         run_time = 150
@@ -87,20 +90,21 @@ class TestSpiNNakerIafPscExp:
         spike_times = [1, 5, 100]
 
         p.setup(time_step)
+        p.set_number_of_synapse_cores(iaf_psc_exp_neuron_nestml, 0)    # Fix an issue with new feature in the main code, where sPyNNaker is trying to determine whether to use a split core model where neurons and synapses are on separate cores, or a single core model where they are processed on the same core. In the older code, this was a more manual decision, but in the main code it is happening automatically unless overridden.  This is particularly true when you use the 0.1ms timestep, where it will be attempting to keep to real-time execution by using split cores.
 
         spikeArray = {"spike_times": spike_times}
         excitation = p.Population(
             n_neurons, p.SpikeSourceArray(**spikeArray), label="input")
 
         spiking_neuron = p.Population(
-            n_neurons, iaf_psc_exp_nestml(), label="iaf_psc_exp_nestml_spiking")
+            n_neurons, iaf_psc_exp_neuron_nestml(), label="iaf_psc_exp_neuron_nestml_spiking")
         p.Projection(
             excitation, spiking_neuron,
             p.OneToOneConnector(), receptor_type=exc_input,
             synapse_type=p.StaticSynapse(weight=weight))
 
         receiving_neuron = p.Population(
-            n_neurons, iaf_psc_exp_nestml(), label="iaf_psc_exp_nestml_receiving")
+            n_neurons, iaf_psc_exp_neuron_nestml(), label="iaf_psc_exp_neuron_nestml_receiving")
         p.Projection(
             spiking_neuron, receiving_neuron,
             p.OneToOneConnector(), receptor_type=exc_input,

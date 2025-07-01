@@ -21,6 +21,9 @@
 
 from typing import List, Optional
 
+import astropy.units as u
+from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_on_condition_block import ASTOnConditionBlock
@@ -46,7 +49,7 @@ class ASTModel(ASTNode):
     This class is used to stuff common to neurons and synapses
     """
 
-    def __init__(self, name: str, body: ASTModelBody, artifact_name=None, *args, **kwargs):
+    def __init__(self, name: str, body: ASTModelBody, artifact_name=None, file_path=None, *args, **kwargs):
         """
         Standard constructor.
 
@@ -68,6 +71,7 @@ class ASTModel(ASTNode):
         self.name = name
         self.body = body
         self.artifact_name = artifact_name
+        self.file_path = file_path  # add file path to ast model as it's needed for use of python_standalone_target_tools with SpiNNaker2
 
     def clone(self):
         """
@@ -79,6 +83,7 @@ class ASTModel(ASTNode):
         dup = ASTModel(name=self.name,
                        body=self.body.clone(),
                        artifact_name=self.artifact_name,
+                       file_path=self.file_path,
                        # ASTNode common attributes:
                        source_position=self.source_position,
                        scope=self.scope,
@@ -532,6 +537,45 @@ class ASTModel(ASTNode):
                         return decl.get_expression()
 
         return None
+
+    def _to_base_value_from_string(self,quantity_str):
+        local_dict = {'u': u}
+        quantity = eval(quantity_str, {"__builtins__": {}}, local_dict)
+        canonical_unit = u.get_physical_type(quantity.unit)._unit
+        # Return the SI base value and unit name
+        return quantity.si.value, str(canonical_unit)
+
+
+    def get_parameter_value_dict(self) -> dict:
+        """
+        Generates a dict which maps the initial parameter values to their variable names from the parameters section
+        :param node: the neuron or synapse containing the parameter
+        :return: a dict {"parameter_names": initial_values}
+        """
+        parameters_block = self.get_parameters_blocks()[0]
+        parameter_value_dict = {}
+        for declarations in parameters_block.get_declarations():
+            if isinstance(declarations.expression, ASTSimpleExpression):
+                # declarations.variables[0].astropy_unit = None
+                # declarations.data_type = ' real'
+                if ((declarations.expression.numeric_literal.real != None) and hasattr(declarations.expression.variable, 'name')):
+                    expr = str(declarations.expression.numeric_literal) + '* u.' + declarations.expression.variable.name
+                    float_value_in_si, unit_in_si = self._to_base_value_from_string(expr)
+                    declarations.expression.numeric_literal = float_value_in_si
+                    parameter_value_dict[declarations.variables[0].name] = float_value_in_si
+                    declarations.expression.variable.name = unit_in_si
+                    pass
+
+            if isinstance(declarations.expression, ASTExpression):
+                expr = str(declarations.expression.unary_operator) + str(
+                    declarations.expression.expression.numeric_literal) + '* u.' + declarations.expression.expression.variable.name
+                float_value_in_si, unit_in_si = self._to_base_value_from_string(expr)
+                declarations.expression.expression.numeric_literal = abs(float_value_in_si)
+                parameter_value_dict[declarations.variables[0].name] = float_value_in_si
+                declarations.expression.expression.variable.name = unit_in_si
+                pass
+
+        return parameter_value_dict
 
     def has_delay_variables(self) -> bool:
         """

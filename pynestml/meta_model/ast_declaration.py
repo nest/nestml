@@ -135,6 +135,14 @@ class ASTDeclaration(ASTNode):
         """
         return self.variables
 
+    def set_variables(self, _variables):
+        """
+        Sets set of left-hand side variables.
+        :type: list(ASTVariables)
+        """
+        self.variables = _variables
+
+
     def get_decorators(self):
         """
         """
@@ -147,6 +155,13 @@ class ASTDeclaration(ASTNode):
         :rtype: ASTDataType
         """
         return self.data_type
+
+    def set_data_type(self, data_type):
+        """
+        Sets the data type.
+        :type: ASTDataType
+        """
+        self.data_type = data_type
 
     def has_size_parameter(self) -> bool:
         """
