@@ -278,6 +278,11 @@ jobs:
         run: |
           pytest -s -o log_cli=true -o log_cli_level="DEBUG" tests/nest_tests/nest_integration_test.py
 
+      # Install Python dependencies
+      - name: Python dependencies
+        run: |
+          python -m pip install --upgrade pygame
+
       # Run IPython/Jupyter notebooks
       - name: Run Jupyter notebooks
         if: ${{ matrix.nest_branch == 'master' }}
