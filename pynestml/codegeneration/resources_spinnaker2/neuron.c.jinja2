@@ -33,8 +33,9 @@ bool neuron_initialise() {
 {#        neuron_params_t* neuron_params = &neuron_params_array[neuron_index];#}
         neuron_pointer_t neuron = &neuron_array[neuron_index];
         neuron_state_t* state = &neuron->state;
-        {%- for statevar in neuron.updated_state_dict %}
-            state->{{ statevar }} = {{ neuron.updated_state_dict[statevar] }};
+        {% set updated_state_dict = utils.generate_updated_state_dict(initial_values, neuron.get_parameter_value_dict()) %}
+        {%- for name, value in updated_state_dict | dictsort %}
+            state->{{ name }} = {{ value }};
         {%- endfor %}
     }
 
@@ -47,14 +48,16 @@ void print_neuron_params() {
     for (index_t neuron_index = 0; neuron_index < n_used_neurons; neuron_index++) {
         neuron_params_t* neuron_params = &neuron_params_array[neuron_index];
 
-        {%- for  parameter in neuron.parameter_value_dict %}
-            log_info("%u:  {{ parameter }}=%i\n",
-            neuron_index,(int32_t) (f2ui(neuron_params->{{  parameter }})));
+        {%- for  name, value in neuron.get_parameter_value_dict() | dictsort %}
+            log_info("%u:  {{ name }}=%i\n",
+            neuron_index,(int32_t) (f2ui(neuron_params->{{  name }})));
         {%- endfor %}
-        {%- for  propagator in propagators_as_math_expressions %}
-            log_info("%u:  {{ propagator }}=%i\n",
-            neuron_index,(int32_t) (f2ui(neuron_params->{{  propagator }})));
+{% if uses_analytic_solver == True %}
+        {%- for  name, value in propagators | dictsort %}
+            log_info("%u:  {{ name }}=%i\n",
+            neuron_index,(int32_t) (f2ui(neuron_params->{{  name }})));
         {%- endfor %}
+{%- endif  %}
     }
 }
 

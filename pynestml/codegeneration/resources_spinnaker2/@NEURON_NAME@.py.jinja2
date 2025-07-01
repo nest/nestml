@@ -54,16 +54,20 @@ class {{neuronName}}Application(BaseApplication):
     # here the default parameters from .nestml
     # and the internal parameters with evaluated, numerical values have to be printed
     default_parameters = {
-        {%- for parameter in neuron.parameter_value_dict | sort(attribute="0|int") %}
-            "{{ parameter }}": {{ neuron.parameter_value_dict[parameter] | float }},
-        {%- endfor %}
+    {% set p = neuron.get_parameter_value_dict() | dictsort %}
+    {%- for name, value in p %}
+        "{{ name }}": {{ value | float }},
+    {%- endfor %}
+{#        {%- for parameter in neuron.get_parameter_value_dict() %}#}
+{#            "{{ parameter }}": {{ neuron.get_parameter_value_dict()[parameter] | float }},#}
+{#        {%- endfor %}#}
         "calculation_timestep_in_s": 10.0,
         "weight_scaling_factor": 0.0,
     }
 
     propagators = {
-        {%- for propagator in propagators_as_math_expressions | sort(attribute="0|int") %}
-            "{{ propagator }}": "{{ propagators_as_math_expressions[propagator] }}",
+        {%- for name, value in propagators | dictsort %}
+            "{{ name }}": "{{ value }}",
         {%- endfor %}
     }
 
@@ -77,7 +81,7 @@ class {{neuronName}}Application(BaseApplication):
     data_spec_max_size = 16  # in words
 
     def __init__(self):
-        app_name =  "{{neuronName}}"
+        app_name =  "{{ neuronName }}"
         BaseApplication.__init__(self, name=app_name)
 
     def calculate_propagator_expressions(self, default_parameters, propagators, user_params):
