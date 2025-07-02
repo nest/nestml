@@ -4,7 +4,11 @@
 # Description
 # +++++++++++
 #
-# stdp_synapse is a synapse with spike-timing dependent plasticity (as defined in [1]_). Here the weight dependence exponent can be set separately for potentiation and depression. Examples:
+# stdp_synapse is a synapse with spike-timing dependent plasticity (as defined in [1]_). Here the weight dependence exponent can be set separately for potentiation and depression.
+# This compartmental modification removes the call to integrate_odes() since, in the compartmental case, integration is
+# done implicitly at every timestep because the synapse is merged with the post synaptic receptor.
+#
+# Examples:
 #
 # =================== ==== =============================
 # Multiplicative STDP [2]_ mu_plus = mu_minus = 1
