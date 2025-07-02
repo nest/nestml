@@ -18,7 +18,7 @@
 {%- endif %}
 
 {%- if analytic_state_variables_ | length > 0 %}
-// analytic solver: integrating state variables (first step): {% for variable_name in analytic_state_variables_ %}{{ variable_name }}, {% endfor %}
+// analytic solver: integrating state variables (first step): {% for variable_name in analytic_state_variables_ %}{{ variable_name }}{% if not loop.last %}, {% endif %}{% endfor %}
 {%-     include "directives_cpp/AnalyticIntegrationStep_begin.jinja2" %}
 {%- endif %}
 {%- endif %}
@@ -30,7 +30,7 @@
 {%-         set numeric_state_variables_to_be_integrated = utils.filter_variables_list(numeric_state_variables_to_be_integrated, ast.get_args()) %}
 {%-     endif %}
 {%-     if numeric_state_variables_to_be_integrated | length > 0 %}
-// numeric solver: integrating state variables: {% for variable_name in numeric_state_variables_to_be_integrated %}{{ variable_name }}, {% endfor %}
+// numeric solver: integrating state variables: {% for variable_name in numeric_state_variables_to_be_integrated %}{{ variable_name }}{% if not loop.last %}, {% endif %}{% endfor %}
 
 {%-         if analytic_state_variables_from_convolutions | length > 0 %}
 // solver step should update state of convolutions internally, but not change ode_state[] pertaining to convolutions; convolution integration should be independent of integrate_odes() calls
@@ -57,7 +57,7 @@ const double {{ variable_name }}__orig = {{ printer.print(utils.get_state_variab
 
 {%- if uses_analytic_solver %}
 {%- if analytic_state_variables_ | length > 0 %}
-// analytic solver: integrating state variables (second step): {% for variable_name in analytic_state_variables_ %}{{ variable_name }}, {% endfor %}
+// analytic solver: integrating state variables (second step): {% for variable_name in analytic_state_variables_ %}{{ variable_name }}{% if not loop.last %}, {% endif %}{% endfor %}
 
 {%-     include "directives_cpp/AnalyticIntegrationStep_end.jinja2" %}
 {%- endif %}
