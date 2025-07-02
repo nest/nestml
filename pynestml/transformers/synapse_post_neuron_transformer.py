@@ -46,10 +46,16 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class SynapsePostNeuronTransformer(Transformer):
-    r"""In a (pre neuron, synapse, post neuron) tuple, process (synapse, post_neuron) to move all variables that are only triggered by postsynaptic events to the postsynaptic neuron."""
+    r"""In a (pre neuron, synapse, post neuron) tuple, process (synapse, post_neuron) to move all variables that are only triggered by postsynaptic events to the postsynaptic neuron.
+
+    Options:
+
+    - **strictly_synaptic_vars**: a mapping from synapse name (as a string) to a list of state variables. These variables will not be moved from synapse to neuron during code generation.
+    """
 
     _default_options = {
-        "neuron_synapse_pairs": []
+        "neuron_synapse_pairs": [],
+        "strictly_synaptic_vars": {}
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
@@ -63,6 +69,9 @@ class SynapsePostNeuronTransformer(Transformer):
 
             if "weight_variable" in options:
                 self._options["weight_variable"] = options["weight_variable"].copy()
+
+            if "strictly_synaptic_vars" in options:
+                self._options["strictly_synaptic_vars"] = options["strictly_synaptic_vars"].copy()
 
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
         r"""Set options. "Eats off" any options that it knows how to set, and returns the rest as "unhandled" options."""
@@ -283,6 +292,10 @@ class SynapsePostNeuronTransformer(Transformer):
         # exclude certain variables from being moved:
         # exclude any variable assigned to in any block that is not connected to a postsynaptic port
         strictly_synaptic_vars = ["t"]      # "seed" this with the predefined variable t
+
+        if self.option_exists("strictly_synaptic_vars") and removesuffix(synapse.get_name(), FrontendConfiguration.suffix) in self.get_option("strictly_synaptic_vars").keys() and self.get_option("strictly_synaptic_vars")[removesuffix(synapse.get_name(), FrontendConfiguration.suffix)]:
+            strictly_synaptic_vars.append(self.get_option("strictly_synaptic_vars")[removesuffix(synapse.get_name(), FrontendConfiguration.suffix)])
+
         if self.option_exists("delay_variable") and removesuffix(synapse.get_name(), FrontendConfiguration.suffix) in self.get_option("delay_variable").keys() and self.get_option("delay_variable")[removesuffix(synapse.get_name(), FrontendConfiguration.suffix)]:
             strictly_synaptic_vars.append(self.get_option("delay_variable")[removesuffix(synapse.get_name(), FrontendConfiguration.suffix)])
 
