@@ -24,6 +24,7 @@ from __future__ import annotations
 from typing import Any, Dict, Sequence, Mapping, Optional, Union
 
 from quantities.quantity import get_conversion_factor
+from scipy.stats import reciprocal
 
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
@@ -33,6 +34,7 @@ from pynestml.meta_model.ast_data_type import ASTDataType
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node import ASTNode
@@ -56,6 +58,8 @@ from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 import astropy.units as u
+import re
+
 class NonDimVis(ASTVisitor):
     def __init__(self, preferred_prefix: Dict[str, str]):
         super().__init__()
@@ -87,22 +91,6 @@ class NonDimVis(ASTVisitor):
         'y': 1e-24,  # yocto
     }
 
-class AddReciprocalOfPreferredPrefixVisitor(NonDimVis):
-    def __init__(self, preferred_prefix: Dict[str, str]):
-        super().__init__(preferred_prefix)
-        # self.preferred_prefix = preferred_prefix
-
-    def visit_variable(self, node: ASTVariable) -> None:
-        print("here!")
-
-
-
-class NonDimensionalisationVisitor(NonDimVis):
-
-    def __init__(self, preferred_prefix: Dict[str, str]):
-        super().__init__(preferred_prefix)
-
-
     def get_conversion_factor_to_si(self, from_unit_str):
         r"""
         Return the conversion factor from the unit we have in the NESTML file to SI units.
@@ -114,6 +102,145 @@ class NonDimensionalisationVisitor(NonDimVis):
         # to_scale = NonDimensionalisationVisitor.PREFIX_FACTORS[to_prefix_str]
 
         return scale
+
+class NonDimensionalisationVarToRealTypeVisitor(NonDimVis):
+    def __init__(self, preferred_prefix: Dict[str, str]):
+        super().__init__(preferred_prefix)
+
+    def visit_variable(self, node: ASTVariable):
+        if (isinstance(node.get_type_symbol(), RealTypeSymbol) or isinstance(node.get_type_symbol(), UnitTypeSymbol)):
+            if(isinstance(node.get_type_symbol(), RealTypeSymbol)):
+                print("\tReal number, no unit\n")
+            elif (isinstance(node.get_type_symbol(), UnitTypeSymbol)):
+                print("The unit is: "+str(node.get_type_symbol().unit.unit))
+                print("The quantity is: "+str(node.get_type_symbol().unit.unit.physical_type))
+
+                parent_node = node.get_parent()
+                new_node_type = RealTypeSymbol()
+                # new_variable = ASTVariable(name=node.name, type_symbol=new_node_type)
+                new_variable = ASTVariable(name=node.name, type_symbol=node.get_type_symbol(), scope=node.get_scope())
+                new_data_type = ASTDataType(is_real=True, type_symbol=new_node_type, scope=node.get_scope())
+                # new_data_type = ASTDataType(type_symbol=node.get_type_symbol())
+
+                if isinstance(parent_node, ASTDeclaration):
+                    parent_node.variables[0] = new_variable
+                    parent_node.data_type = new_data_type
+                    pass
+
+
+
+class NonDimensionalisationDeclarationVisitor(NonDimVis):
+    def __init__(self, preferred_prefix: Dict[str, str], model):
+        super().__init__(preferred_prefix)
+        self.model = model
+
+    def visit_declaration(self, node: ASTVariable) -> None:
+        # get preferred prefix that declaring variable has
+        if str(node.data_type.type_symbol.astropy_unit.physical_type) is not "unknown":
+            variable_physical_type_string = str(node.data_type.type_symbol.astropy_unit.physical_type)
+            preferred_prefix_this_node_string = f"{self.PREFIX_FACTORS[self.preferred_prefix[variable_physical_type_string]]:.1E}"
+            # modify the node.expression to include the metric prefix as a factor in scientific notation on the lhs
+            cloned_node = node.clone()
+            lhs_expression = ASTSimpleExpression(string=preferred_prefix_this_node_string, scope=node.get_scope())
+            rhs_expression = node.expression
+            new_sub_node = ASTExpression(is_encapsulated=False,
+                                         binary_operator=ASTArithmeticOperator(is_times_op=True),
+                                         lhs=lhs_expression, rhs=rhs_expression, scope=node.get_scope())
+            cloned_node.expression = ASTExpression(is_encapsulated=True, expression=new_sub_node, scope=node.get_scope())
+
+
+            for declaration in node.get_parent().declarations:
+                if declaration.variables[0].name == node.variables[0].name:
+                    declaration.expression = cloned_node.expression
+        pass
+
+
+    @staticmethod
+    def _derivate_regex(var_names:list)->re:
+        # escaped = map(re.escape, var_names)
+        pattern = rf"^({'|'.join(map(re.escape, var_names))})('+)?$"
+        return re.compile(pattern)
+
+    def visit_ode_equation(self, node: ASTOdeEquation):
+        # insert inverse of preferred prefix conversion factor for LHS on rhs
+        var_names = [str(obj) for obj in ASTUtils.all_variables_defined_in_block(self.model.get_state_blocks()+self.model.get_parameters_blocks())]
+        regex = self._derivate_regex(var_names)
+        corresponding_non_diff_variable = regex.match(node.lhs.name).group()
+        corresponding_non_diff_variable_physical_type_string = str(ASTUtils.get_variable_by_name(self.model, corresponding_non_diff_variable).type_symbol.astropy_unit.physical_type)
+        reciprocal_preferred_prefix_this_node_string = f"{1/self.PREFIX_FACTORS[self.preferred_prefix[corresponding_non_diff_variable_physical_type_string]]:.1E}"
+        cloned_node = node.clone()
+        lhs_expression = ASTSimpleExpression(string=reciprocal_preferred_prefix_this_node_string, scope=node.get_scope())
+        rhs_expression = ASTExpression(is_encapsulated=True, expression=node.rhs)
+        new_sub_node = ASTExpression(is_encapsulated=False,
+                                     binary_operator=ASTArithmeticOperator(is_times_op=True),
+                                     lhs=lhs_expression, rhs=rhs_expression, scope=node.get_scope())
+        cloned_node.rhs = ASTExpression(is_encapsulated=True, expression=new_sub_node, scope=node.get_scope())
+        for declaration in node.get_parent().declarations:
+            if declaration.lhs.name == node.lhs.name:
+                declaration.rhs = cloned_node.rhs
+        pass
+
+
+class NonDimensionalisationVariableVisitor(NonDimVis):
+    def __init__(self, preferred_prefix: Dict[str, str]):
+        super().__init__(preferred_prefix)
+
+    def visit_variable(self, node: ASTVariable) -> None:
+        # TODO here the type needs to be changed to "real" and the name kept
+        # TODO if the parent node of the variable is a declaration, the original metric prefix should be written to a dict{variable_name:original_metric_prefix}
+        # TODO this prefix can then be propagated to the expressions where the variable_name is used
+        # TODO ??? parameters block comes after equations block though, so dict can only be built after ???
+        print("In visit_variable("+str(node)+")")
+        if (isinstance(node.get_type_symbol(), RealTypeSymbol) or isinstance(node.get_type_symbol(), UnitTypeSymbol)):
+            if(isinstance(node.get_type_symbol(), RealTypeSymbol)):
+                print("\tReal number, no unit\n")
+            elif (isinstance(node.get_type_symbol(), UnitTypeSymbol)):
+                print("The unit is: "+str(node.get_type_symbol().unit.unit))
+                print("The quantity is: "+str(node.get_type_symbol().unit.unit.physical_type))
+
+                # parent_node = node.get_parent()
+                # # new_node_type = RealTypeSymbol()
+                # # new_variable = ASTVariable(name=node.name, type_symbol=new_node_type)
+                # new_variable = ASTVariable(name=node.name, type_symbol=node.get_type_symbol())
+                # # new_data_type = ASTDataType(is_real=True, type_symbol=new_node_type)
+                # # new_data_type = ASTDataType(type_symbol=node.get_type_symbol())
+                #
+                # if isinstance(parent_node, ASTDeclaration):
+                #     parent_node.variables[0] = new_variable
+                #     # parent_node.data_type = new_data_type
+                #     pass
+
+
+
+        # find the corresponding desired prefix
+        # XXX TODO
+        if not ((isinstance(node.get_type_symbol(), RealTypeSymbol)) or (isinstance(node.get_type_symbol(), UnitTypeSymbol)) or (node.get_type_symbol() is None)):
+            if isinstance(node.get_parent(), ASTOdeEquation):
+                pass
+            elif (isinstance(node, ASTVariable) and node.get_parent().variable.name == node.get_name() and node.get_parent().numeric_literal == None):
+                # Then the variable encountered is something like mV, without a numeric literal in front, e.g. (4 + 3) * mV
+                conversion_factor = f"{super().get_conversion_factor_to_si(node.get_name()):.1E}"
+                parent_node = node.get_parent()
+                grandparent_node = parent_node.get_parent()
+                rhs_expression = ASTSimpleExpression(string=str(conversion_factor), scope=node.get_scope())
+                if grandparent_node.binary_operator is not None:
+                    grandparent_node.rhs = rhs_expression
+                pass
+            # print("The preferred prefix for:"+str(u.get_physical_type(u.Unit(node.name)))+"is: "+self.preferred_prefix[str(u.get_physical_type(u.Unit(node.name)))])
+            # desired_prefix = self.preferred_prefix[str(u.get_physical_type(u.Unit(node.name)))]
+        else:
+            pass
+            # raise Exception("This case has not yet been implemented!")
+
+
+
+class NonDimensionalisationSimpleExpressionVisitor(NonDimVis):
+
+    def __init__(self, preferred_prefix: Dict[str, str], model):
+        super().__init__(preferred_prefix)
+        self.model = model
+
+
 
     # def visit_variable(self, node: ASTVariable) -> None:
     #     # TODO here the type needs to be changed to "real" and the name kept
@@ -241,7 +368,7 @@ class NonDimensionalisationVisitor(NonDimVis):
                 # the expression 3 MV is a SimpleExpression for example
                 parent_node = node.get_parent()
                 print("\tUnit: " + str(node.type.unit.unit))
-                conversion_factor = f"{self.get_conversion_factor_to_si(node.variable.name):.1E}"
+                conversion_factor = f"{super().get_conversion_factor_to_si(node.variable.name):.1E}"
                 numeric_literal = node.get_numeric_literal()
 
 
@@ -289,6 +416,46 @@ class NonDimensionalisationVisitor(NonDimVis):
             else:
                 raise Exception("Node type is neither RealTypeSymbol nor UnitTypeSymbol")
             return
+        if node.function_call is None:
+            if node.get_numeric_literal() is None:
+                # get physical type of node
+                if isinstance(node.type, UnitTypeSymbol):
+                    if str(node.type.astropy_unit.physical_type) is not 'unknown':
+                        variable_physical_type_string = str(node.type.astropy_unit.physical_type)
+                        # get reciprocal of preferred prefix for this node
+                        reciprocal_preferred_prefix_this_node_string = f"{1/self.PREFIX_FACTORS[self.preferred_prefix[variable_physical_type_string]]:.1E}"
+                        # create a new sub node that multiplies the variable with the reciprocal of the preferred prefix
+                        lhs_expression = node.clone()
+                        rhs_expression = ASTSimpleExpression(string=reciprocal_preferred_prefix_this_node_string, scope=node.get_scope())
+                        new_sub_node = ASTExpression(is_encapsulated=False, binary_operator=ASTArithmeticOperator(is_times_op=True),
+                                                             lhs=lhs_expression, rhs=rhs_expression, scope=node.get_scope())
+                        # create new node encapsulating multiplication
+                        parent_node = node.get_parent()
+                        new_node = ASTExpression(is_encapsulated=True, expression=new_sub_node, scope=node.get_scope(),
+                                                         unary_operator=parent_node.unary_operator)
+                        # attach new node to parent node
+                        if node == parent_node.lhs:
+                            if parent_node.binary_operator is not None:
+                                parent_node.binary_operator = parent_node.binary_operator
+                                parent_node.lhs = new_node
+                                parent_node.rhs = parent_node.rhs
+                                pass
+                            elif parent_node.binary_operator is None:
+                                parent_node.rhs = None
+                                parent_node.expression = new_node
+                                parent_node.unary_operator = None
+                            print("here")
+                        if node == parent_node.rhs:
+                            if parent_node.binary_operator is not None:
+                                parent_node.binary_operator = parent_node.binary_operator
+                                parent_node.rhs = new_node
+                                parent_node.lhs = parent_node.lhs
+                                pass
+                            elif parent_node.binary_operator is None:
+                                parent_node.rhs = None
+                                parent_node.expression = new_node
+                                parent_node.unary_operator = None
+                            print("there")
 
         super().visit_simple_expression(node)
         # super().visit_simple_expression(node.get_parent())
@@ -308,54 +475,6 @@ class NonDimensionalisationVisitor(NonDimVis):
     def visit_declaration(self, node: ASTDeclaration):
         # XXX TODO: insert conversion factor for LHS
         pass
-
-    # @classmethod
-    # def get_factor(cls, unit: units.UnitBase) -> float:
-    #     """
-    #     Gives a factor for a given unit that transforms it to a "neuroscience" scale. If the given unit is not listed as a neuroscience unit, the factor is 1.
-
-    #     :param unit: an astropy unit
-    #     :type unit: IrreducibleUnit or Unit or CompositeUnit
-    #     :return: a factor to that unit, converting it to "neuroscience" scales.
-    #     """
-
-    #     # check if it is dimensionless, thus only a prefix
-    #     if unit.physical_type == 'dimensionless':
-    #         return unit.si
-
-    #     # otherwise check if it is one of the base units
-    #     target_unit = None
-    #     if unit.physical_type == 'electrical conductance':
-    #         target_unit = units.nS
-
-    #     if unit.physical_type == 'electrical resistance':
-    #         target_unit = units.Gohm
-
-    #     if unit.physical_type == 'time':
-    #         target_unit = units.ms
-
-    #     if unit.physical_type == 'electrical capacitance':
-    #         target_unit = units.pF
-
-    #     if unit.physical_type == 'electrical potential':
-    #         target_unit = units.mV
-
-    #     if unit.physical_type == 'electrical current':
-    #         target_unit = units.pA
-
-    #     if target_unit is not None:
-    #         return (unit / target_unit).si.scale
-
-    #     if unit == unit.bases[0] and len(unit.bases) == 1:
-    #         # this case means that we stuck in a recursive definition
-    #         # just return the factor 1.0
-    #         return 1.0
-
-    #     # now if it is not a base unit, it has to be a combined one, e.g. s**2, decompose it
-    #     factor = 1.0
-    #     for i in range(0, len(unit.bases)):
-    #         factor *= cls.get_factor(unit.bases[i]) ** unit.powers[i]
-    #     return factor
 
 
 
@@ -399,12 +518,16 @@ class NonDimensionalisationTransformer(Transformer):
     def transform_(self, model: Union[ASTNode, Sequence[ASTNode]]) -> Union[ASTNode, Sequence[ASTNode]]:
         transformed_model = model.clone()
 
+        variable_visitor = NonDimensionalisationVariableVisitor(self.get_option("quantity_to_preferred_prefix"))
+        simple_expression_visitor = NonDimensionalisationSimpleExpressionVisitor(self.get_option("quantity_to_preferred_prefix"), model)
+        declaration_visitor = NonDimensionalisationDeclarationVisitor(self.get_option("quantity_to_preferred_prefix"), model)
+        var_to_real_type_visitor = NonDimensionalisationVarToRealTypeVisitor(self.get_option("quantity_to_preferred_prefix"))
         # transformed_model.accept(ASTSymbolTableVisitor())
         transformed_model.accept(ASTParentVisitor())
-
-
-        visitor = NonDimensionalisationVisitor(self.get_option("quantity_to_preferred_prefix"))
-        transformed_model.accept(visitor)
+        transformed_model.accept(variable_visitor)
+        transformed_model.accept(simple_expression_visitor)
+        transformed_model.accept(declaration_visitor)
+        transformed_model.accept(var_to_real_type_visitor)
         transformed_model.accept(ASTSymbolTableVisitor())
 
         print("--------------------------------")
