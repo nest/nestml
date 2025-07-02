@@ -16,7 +16,7 @@ Please see the unit tests in https://github.com/nest/nestml/tree/master/tests/ge
 Generating code
 ~~~~~~~~~~~~~~~
 
-1. Install GeNN
+1. Install GeNN (see the GeNN documentation [GeNNRtD]_ for instructions).
 
 2. Run the tests:
 

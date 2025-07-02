@@ -7,10 +7,6 @@
 {%-         set update_expr = update_expressions[variable_name] %}
 {%-         set var_ast = utils.get_variable_by_name(astnode, variable_name)%}
 {%-         set var_symbol = var_ast.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)%}
-{%-         if use_gap_junctions %}
-const scalar {{variable_name}}__tmp = {{ printer.print(update_expr) | replace("B_." + gap_junction_port + "_grid_sum_", "(B_." + gap_junction_port + "_grid_sum_ + __I_gap)") }};
-{%-         else %}
 const scalar {{variable_name}}__tmp = {{ printer.print(update_expr) }};
-{%-         endif %}
 {%-     endfor %}
 {%- endif %}
