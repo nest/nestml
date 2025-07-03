@@ -188,36 +188,22 @@ class CppExpressionPrinter(ExpressionPrinter):
         """
         op = node.get_binary_operator()
 
-#!!
- #       import pdb
-  #      pdb.set_trace()
-
- #       if str(node.get_binary_operator()) == " ** ":
-  #          import pdb
-   #         pdb.set_trace()
-
-
         lhs = self.print(node.get_lhs())
         rhs = self.print(node.get_rhs())
 
-
         if op.is_pow_op:
-#!!
-            return "pow(" + lhs + "," + rhs + ")"
-            # make a dummy ASTFunctionCall so we can delegate this to the FunctionCallPrinter
-#            dummy_ast_function_call: ASTFunctionCall = ASTNodeFactory.create_ast_function_call(callee_name="pow", args=(node.get_lhs(), node.get_rhs()), source_position=ASTSourceLocation.get_added_source_position())
- #           return self._simple_expression_printer._function_call_printer.print(dummy_ast_function_call)
-
-#        lhs = self.print(node.get_lhs())
- #       rhs = self.print(node.get_rhs())
+            # TODO: make a dummy ASTFunctionCall so we can delegate this to the FunctionCallPrinter
+            return "(expk(" + rhs + " * logk(" + lhs + ")))"
 
         if op.is_plus_op:
             return lhs + " + " + rhs
 
         if op.is_minus_op:
             return lhs + " - " + rhs
+
         if op.is_times_op:
             return lhs + " * " + rhs
+
         if op.is_div_op:
             return lhs + " / " + rhs
 
