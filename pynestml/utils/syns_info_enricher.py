@@ -49,9 +49,6 @@ class SynsInfoEnricher:
     Additionally we require information about the paired synapses mechanism to confirm what dependencies are actually existent in the synapse.
     """
 
-    def __init__(self):
-        pass
-
     @classmethod
     def enrich_with_additional_info(cls, synapse: ASTModel, syns_info: dict, chan_info: dict, recs_info: dict,
                                     conc_info: dict, con_in_info: dict):

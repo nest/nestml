@@ -21,14 +21,11 @@
 import copy
 from collections import defaultdict
 
-from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
-
-from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
-
-from pynestml.meta_model.ast_kernel import ASTKernel
-
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.symbols.predefined_units import PredefinedUnits
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
