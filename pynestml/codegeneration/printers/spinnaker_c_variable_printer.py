@@ -42,14 +42,12 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
     r"""
     Variable printer for C syntax and the Spinnaker API.
     """
-#!! parameter added for variable special case
     def __init__(self, expression_printer: ExpressionPrinter, with_origin: bool = True, with_vector_parameter: bool = True, variables_special_cases: Optional[Dict[str, str]] = None) -> None:
         super().__init__(expression_printer)
         self.with_origin = with_origin
         self.with_vector_parameter = with_vector_parameter
         self._state_symbols = []
 
-#!!
         self.variables_special_cases = variables_special_cases
 
 
@@ -64,7 +62,13 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
         assert isinstance(variable, ASTVariable)
 
         if isinstance(variable, ASTExternalVariable):
-            return variable.name + "________EXT" # XXX REMOVE THIS LINE
+#!!
+#            import pdb
+#            pdb.set_trace()
+
+
+            return "state->post_trace"
+#            return variable.name + "________EXT" # XXX REMOVE THIS LINE
             raise Exception("SpiNNaker does not suport external variables")
 
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
