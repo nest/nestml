@@ -25,7 +25,6 @@ from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-
 class ASTGlobalInformationCollector(object):
     """
     This file is part of the compartmental code generation process.
