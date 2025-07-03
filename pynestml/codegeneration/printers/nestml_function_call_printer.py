@@ -33,7 +33,7 @@ class NESTMLFunctionCallPrinter(FunctionCallPrinter):
         for i in range(0, len(node.get_args())):
             ret += self._expression_printer.print(node.get_args()[i])
             if i < len(node.get_args()) - 1:  # in the case that it is not the last arg, print also a comma
-                ret += ","
+                ret += ", "
 
         ret += ")"
 
