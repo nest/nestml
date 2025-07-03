@@ -213,18 +213,18 @@ nest::CompTree{{cm_unique_suffix}}::add_compartment( const long parent_index, co
   if( comp_param_copy->known( "{{variable_type}}" ) ) comp_param_copy->remove("{{variable_type}}");
   {%- endfor %}
 {%- endfor %}
-{%- for synapse_name, synapse_info in syns_info.items() %}
-  {%- for variable_type, variable_info in synapse_info["Parameters"].items() %}
+{%- for receptor_name, receptor_info in recs_info.items() %}
+  {%- for variable_type, variable_info in receptor_info["Parameters"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
   if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
   {%- endfor %}
 {%- endfor %}
-{%- for synapse_name, synapse_info in syns_info.items() %}
-  {%- for variable_type, variable_info in synapse_info["States"].items() %}
+{%- for receptor_name, receptor_info in recs_info.items() %}
+  {%- for variable_type, variable_info in receptor_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
   if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
   {%- endfor %}
-  {%- for variable_type, variable_info in synapse_info["ODEs"].items() %}
+  {%- for variable_type, variable_info in receptor_info["ODEs"].items() %}
   if( comp_param_copy->known( "{{variable_type}}" ) ) comp_param_copy->remove("{{variable_type}}");
   {%- endfor %}
 {%- endfor %}
@@ -243,6 +243,18 @@ nest::CompTree{{cm_unique_suffix}}::add_compartment( const long parent_index, co
   if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
   {%- endfor %}
 {%- endfor %}
+//global vars
+  {%- for variable_type, variable_info in global_info["Parameters"].items() %}
+      {%- set variable = variable_info["ASTVariable"] %}
+  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  {%- endfor %}
+  {%- for variable_type, variable_info in global_info["ODEs"].items() %}
+  if( comp_param_copy->known( "{{variable_type}}" ) ) comp_param_copy->remove("{{variable_type}}");
+  {%- endfor %}
+  {%- for variable_type, variable_info in global_info["States"].items() %}
+      {%- set variable = variable_info["ASTVariable"] %}
+  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  {%- endfor %}
 
   if(!comp_param_copy->empty()){
     std::string msg = "Following parameters are invalid: ";
@@ -440,7 +452,7 @@ nest::CompTree{{cm_unique_suffix}}::set_leafs()
 }
 
 /**
- * Initializes pointers for the spike buffers for all synapse receptors
+ * Initializes pointers for the spike buffers for all receptor receptors
  */
 void
 nest::CompTree{{cm_unique_suffix}}::set_syn_buffers( std::vector< RingBuffer >& syn_buffers )

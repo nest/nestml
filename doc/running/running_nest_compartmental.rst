@@ -19,7 +19,7 @@ Writing a compartmental NESTML model
 Defining the membrane potential variable
 ----------------------------------------
 
-One variable in the model represents the local membrane potential in a compartment. By default, it is called ``v_comp``. (This name is defined in the compartmental code generator options as the ``compartmental_variable_name`` option.). This variable needs to be defined as a state in any compartmental model to be referenced in the equations describing channels and synapses.
+One variable in the model represents the local membrane potential in a compartment. By default, it is called ``v_comp``. (This name is defined in the compartmental code generator options as the ``compartmental_variable_name`` option.) This variable needs to be defined as a state in any compartmental model to be referenced in the equations describing channels and receptors.
 
 .. code-block:: nestml
     
@@ -113,12 +113,12 @@ The only difference here is that the equation that is marked with the ``@mechani
 
 For a complete example, please see `concmech.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/concmech.nestml>`_ and its associated unit test, `test__concmech_model.py <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/test__concmech_model.py>`_.
 
-Synapse description
+Receptor description
 -------------------
 
-Here synapse models are based on convolutions over a buffer of incoming spikes. This means that the equation for the
+Here receptor models are based on convolutions over a buffer of incoming spikes. This means that the equation for the
 current-contribution must contain a convolve() call and a description of the kernel used for that convolution is needed.
-The descriptor for synapses is ``@mechanism::receptor``.
+The descriptor for receptors is ``@mechanism::receptor``.
 
 .. code-block:: nestml
 
@@ -160,8 +160,29 @@ For a complete example, please see `continuous_test.nestml <https://github.com/n
 Mechanism interdependence
 -------------------------
 
-Above examples of explicit interdependence inbetween concentration and channel models where already described. Note that it is not necessary to describe the basic interaction inherent through the contribution to the overall current of the compartment. During a simulation step all currents of channels and synapses are added up and contribute to the change of the membrane potential (v_comp) in the next timestep. Thereby one must only express a dependence explicitly if the mechanism depends on the activity of a specific channel- or synapse-type amongst multiple in a given compartment or some concentration.
+Above examples of explicit interdependence inbetween concentration and channel models were already described. Note that it is not necessary to describe the basic interaction inherent through the contribution to the overall current of the compartment. During a simulation step all currents of channels and receptors are added up and contribute to the change of the membrane potential (v_comp) in the next timestep. Thereby one must only express a dependence explicitly if the mechanism depends on the activity of a specific channel- or receptor-type amongst multiple in a given compartment or some concentration.
 
+General compartment scripting
+-----------------------------
+Update block
+~~~~~~~~~~~~~
+Even though the intended focus of the compartmental feature is the usage of the above mechanisms whose influence on the compartment and overall neurons is implicit, it is still possible to use the ``update`` block. The ``update`` block does not control the overall behaviour of the neuron but its computation may support the behaviour of mechanisms within a compartment. All states occuring inside of the ``update`` block or within the called functions and inlines etc. become part of a general computation block that is always executed once for each compartment. These states may be used by the mechanisms. The ODEs owned by the update block are still integrated automatically and ``integrate_odes()`` shall not be used in this context.
+
+onReceive(self_spikes)
+~~~~~~~~~~~~~~~~~~~~~~~
+We also introduce a new special case of the ``onReceive`` block with the compartmental feature-specific variable ``self_spikes``, which is just a boolean that is true if and only if the neuron has spiked in the last timestep. The code within this block is only executed if the neuron spikes (somatic). Otherwise, the same rules as for the ``update`` block apply.
+
+Application
+~~~~~~~~~~~~
+This feature has been implemented with the implementation of IAF behaviour or backpropagation in mind. For examples see these model files:
+`cm_iaf_psc_exp_dend_neuron.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/cm_iaf_psc_exp_dend_neuron.nestml>`_
+
+Synapses
+--------
+We have also changed the way synapses may interact with the neuron. The background to this is that NESTML STDP-synapse models are always co-generated with the postsynaptic neuron model to communicate certain variables, such as the postsynaptic spike trace. We found this to be insufficient; instead, the synapse models are fully integrated with the receptor mechanisms of the neuron. This enables the user to access any receptor variables and other mechanism values within the synapse model by simply declaring them as states in the synapse model, without requiring further assignments. Another result of this merge is that all ODE equations in the synapse model are implicitly continuously integrated at each timestep, making unnecessary the calls to integrate_odes().
+
+An example of such a model is implemented here:
+`third_factor_stdp_synapse.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/third_factor_stdp_synapse.nestml>`_
 Technical Notes
 ---------------
 
