@@ -76,15 +76,7 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
                                                                 "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private", "protected", "public", "register", "reinterpret_cast", "requires", "return", "short", "signed", "sizeof", "static", "static_assert", "static_cast", "struct", "switch", "template", "this", "thread_local", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"]})
         transformers.append(variable_name_rewriter)
 
-    if target_name.upper() in ["SPINNAKER"]:
-        from pynestml.transformers.synapse_remove_post_port import SynapseRemovePostPortTransformer
-
-        # co-generate neuron and synapse
-        synapse_post_neuron_co_generation = SynapseRemovePostPortTransformer()
-        options = synapse_post_neuron_co_generation.set_options(options)
-        transformers.append(synapse_post_neuron_co_generation)
-
-    if target_name.upper() == "NEST":
+    if target_name.upper() in ["NEST", "SPINNAKER"]:
         from pynestml.transformers.synapse_post_neuron_transformer import SynapsePostNeuronTransformer
 
         # co-generate neuron and synapse
@@ -114,6 +106,7 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
     """Static factory method that returns a new instance of a child class of CodeGenerator"""
     assert target_name.upper() in get_known_targets(
     ), "Unknown target platform requested: \"" + str(target_name) + "\""
+
 
     if target_name.upper() == "NEST":
         from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
@@ -437,6 +430,7 @@ def get_parsed_models() -> List[ASTModel]:
     if not type(nestml_files) is list:
         nestml_files = [nestml_files]
 
+
     for nestml_file in nestml_files:
         parsed_unit = ModelParser.parse_file(nestml_file)
         if parsed_unit:
@@ -482,6 +476,14 @@ def process() -> bool:
     # initialise code generator
     code_generator = code_generator_from_target_name(FrontendConfiguration.get_target_platform())
     unused_opts_codegen = code_generator.set_options(FrontendConfiguration.get_codegen_opts())
+
+
+#!!
+    #give spinnaker code generator codegen_cpp and codegen_py codegenopts
+    #if FrontendConfiguration.get_target_platform().upper() in ["SPINNAKER"]:
+     #   print("HALLO test")
+      #  code_generator.codegen_cpp.set_options(FrontendConfiguration.get_codegen_opts())
+
 
     # initialise builder
     _builder, unused_opts_builder = builder_from_target_name(FrontendConfiguration.get_target_platform(),

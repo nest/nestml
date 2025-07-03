@@ -519,6 +519,16 @@ class ASTUtils:
         return model
 
     @classmethod
+    def remove_empty_equations_blocks(cls, model: ASTModel) -> None:
+        equations_blocks_to_remove = []
+        for equation_block in model.get_equations_blocks():
+            if not equation_block.get_declarations():
+                equations_blocks_to_remove.append(equation_block)
+
+        for equations_block_to_remove in equations_blocks_to_remove:
+            model.get_body().get_body_elements().remove(equations_block_to_remove)
+
+    @classmethod
     def contains_convolve_call(cls, variable: VariableSymbol) -> bool:
         """
         Indicates whether the declaring rhs of this variable symbol has a convolve() in it.
