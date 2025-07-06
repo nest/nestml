@@ -74,7 +74,7 @@ class TestNonDimensionalisationTransformerStateBlock:
         # nrn = nest.Create("test_reciprocal_units_in_parameter_block_transformation_neuron")
         # mm = nest.Create("multimeter")
         # nest.SetStatus(mm, {"record_from": ["alpha_exp"]})
-        #
+        # nrn.get("alpha_exp") or neuron.alpha_exp
         # nest.Connect(mm, nrn)
         #
         # nest.Simulate(10.)

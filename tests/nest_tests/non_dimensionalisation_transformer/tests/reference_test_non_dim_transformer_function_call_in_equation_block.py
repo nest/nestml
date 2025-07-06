@@ -24,44 +24,56 @@ import numpy as np
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 
-# Adjusted parameters for practical simulation (using SI units: V, A, F, s)
-import numpy as np
-
+# parameters (SI)
 params = {
-    'V_m_init': -65e-3,      # Initial membrane potential (V)
-    'C_exp_0': 150e-12,      # Capacitance (F) — no longer used directly in ODE
-    'tau_m': 2e-3,           # Time constant (s)
-    'alpha_exp': 2 / (3e6),  # Exponential factor (per V)
-    'I_foo': 200e-12         # Constant current: 200 pA — no longer used directly in ODE
+    "tau_m": 12.85e-3,          # membrane time constant (s)
+    "alpha_exp": 2 / 70e9,      # exponential factor (1/V)
+    "V_rest": -65e-3            # resting potential (V)
 }
 
-# Initial state
-V_m0 = -70e-3  # Initial membrane potential (V)
+V_m0 = -70e-3                   # start 5mV below rest
 
-# Precompute nonlinear time scaling factor (dimensionless)
-nonlinear_scaling = 1 + np.exp(params['alpha_exp'] * params['V_m_init'])
+tau_eff = params["tau_m"] * (1 + np.exp(params["alpha_exp"] *
+                                        params["V_rest"]))
 
-# ODE function, dimensionally correct: dV_m/dt in V/s
-def neuron_ode(t, V_m):
-    return V_m / (params['tau_m'] * nonlinear_scaling)
+# ODE
+def neuron_ode(t, v):
+    return -v / tau_eff
 
-# Time span for simulation (0 to 20 ms)
-t_span = (0, 0.02)  # 20 ms in seconds
-t_eval = np.linspace(t_span[0], t_span[1], 500)
+# simulation: 0–50ms
+t_span = (0.0, 0.05)            # s
+t_eval = np.linspace(*t_span, 1001)
 
-# Solve the ODE
-sol = solve_ivp(neuron_ode, t_span, [V_m0], t_eval=t_eval)
+sol = solve_ivp(neuron_ode, t_span, [V_m0],
+                t_eval=t_eval, rtol=1e-9, atol=1e-12)
 
-# Convert results to mV and ms for plotting
-V_m_mV = sol.y[0] * 1e3  # Convert V to mV
-time_ms = sol.t * 1e3     # Convert s to ms
+# checkpoints
+check_times_ms = np.array([25, 50])          # ms
+check_idx = [np.argmin(np.abs(t_eval * 1e3 - ct)) for ct in check_times_ms]
+check_vm_mV = sol.y[0, check_idx] * 1e3      # mV
 
-# Plotting
-plt.figure(figsize=(10, 6))
-plt.plot(time_ms, V_m_mV, 'b-', linewidth=2)
-plt.title('Reference for Non-Dimensionalisation-Transformer test_exp_in_equationblock')
-plt.xlabel('Time (ms)')
-plt.ylabel('Membrane Potential (mV)')
-plt.grid(True, linestyle='--', alpha=0.7)
-plt.show()
+# plot
+plt.figure(figsize=(8, 5))
+
+# membrane‑potential trace
+plt.plot(t_eval * 1e3, sol.y[0] * 1e3, label="numeric (solve_ivp)")
+
+# vertical bars at checkpoints
+plt.plot(check_times_ms, check_vm_mV, "x", markersize=9,
+         markeredgewidth=2, label="checkpoints")
+
+# annotate bars with their values
+for t, v in zip(check_times_ms, check_vm_mV):
+    offset = 2 if v > 0 else -2
+    plt.text(t, v + offset, f"{v:+.2f}mV",
+             ha="center", va="bottom" if v > 0 else "top",
+             fontsize=9)
+
+plt.xlabel("Time (ms)")
+plt.ylabel("Membrane potential (mV)")
+plt.title("50ms leak‑decay reference trace with bar checkpoints")
+plt.grid(alpha=0.6, linestyle="--")
+plt.legend()
+plt.tight_layout()
+plt.savefig("reference_test_non_dim_transformer_function_call_in_equation_block.png")
 print('test')

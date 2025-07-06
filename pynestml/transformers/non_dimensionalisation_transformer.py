@@ -135,7 +135,7 @@ class NonDimensionalisationVarToRealTypeVisitor(NonDimVis):
 
 class NonDimensionalisationPreferredPrefixFactorOnRhsVisitor(NonDimVis):
     r"""
-    This visitor inserts the value of the preferred prefix in scientific notation as a factor for the old encapsulated RHS expression for declarations and ODE equations
+    This visitor inserts the inverse value of the preferred prefix in scientific notation as a factor for the old encapsulated RHS expression for declarations and ODE equations
     E.g.: V_m V = -70 * 1.0E-03, preferred prefix of mili for 'electric potential' -> V_m V = (1.0E+03 * (-70.0 * 1.0E-0.3))
     """
     def __init__(self, preferred_prefix: Dict[str, str], model):
@@ -143,23 +143,29 @@ class NonDimensionalisationPreferredPrefixFactorOnRhsVisitor(NonDimVis):
         self.model = model
 
     def visit_declaration(self, node: ASTVariable) -> None:
+
         # get preferred prefix that declaring variable has
-        if str(node.data_type.type_symbol.astropy_unit.physical_type) is not "unknown":
-            variable_physical_type_string = str(node.data_type.type_symbol.astropy_unit.physical_type)
-            preferred_prefix_this_node_string = f"{1/self.PREFIX_FACTORS[self.preferred_prefix[variable_physical_type_string]]:.1E}"
-            # modify the node.expression to include the metric prefix as a factor in scientific notation on the lhs
-            cloned_node = node.clone()
-            lhs_expression = ASTSimpleExpression(string=preferred_prefix_this_node_string, scope=node.get_scope())
-            rhs_expression = node.expression
-            new_sub_node = ASTExpression(is_encapsulated=False,
-                                         binary_operator=ASTArithmeticOperator(is_times_op=True),
-                                         lhs=lhs_expression, rhs=rhs_expression, scope=node.get_scope())
-            cloned_node.expression = ASTExpression(is_encapsulated=True, expression=new_sub_node, scope=node.get_scope())
+        if not node.data_type.is_real:
+            if str(node.data_type.type_symbol.astropy_unit.physical_type) is not "unknown":
+                if node.variables[0].name != "__h":
+                    for physical_type_string in self.preferred_prefix:
+                        if physical_type_string in str(node.data_type.type_symbol.astropy_unit.physical_type):
+                            variable_physical_type_string = physical_type_string
+                    # variable_physical_type_string = str(node.data_type.type_symbol.astropy_unit.physical_type)
+                    inverse_preferred_prefix_this_node_string = f"{1/self.PREFIX_FACTORS[self.preferred_prefix[variable_physical_type_string]]:.1E}"
+                    # modify the node.expression to include the metric prefix as a factor in scientific notation on the lhs
+                    cloned_node = node.clone()
+                    lhs_expression = ASTSimpleExpression(string=inverse_preferred_prefix_this_node_string, scope=node.get_scope())
+                    rhs_expression = node.expression
+                    new_sub_node = ASTExpression(is_encapsulated=False,
+                                                 binary_operator=ASTArithmeticOperator(is_times_op=True),
+                                                 lhs=lhs_expression, rhs=rhs_expression, scope=node.get_scope())
+                    cloned_node.expression = ASTExpression(is_encapsulated=True, expression=new_sub_node, scope=node.get_scope())
 
 
-            for declaration in node.get_parent().declarations:
-                if declaration.variables[0].name == node.variables[0].name:
-                    declaration.expression = cloned_node.expression
+                    for declaration in node.get_parent().declarations:
+                        if declaration.variables[0].name == node.variables[0].name:
+                            declaration.expression = cloned_node.expression
         pass
 
 
@@ -170,14 +176,14 @@ class NonDimensionalisationPreferredPrefixFactorOnRhsVisitor(NonDimVis):
         return re.compile(pattern)
 
     def visit_ode_equation(self, node: ASTOdeEquation):
-        # insert inverse of preferred prefix conversion factor for LHS on rhs
+        # insert preferred prefix conversion factor for LHS on rhs
         var_names = [str(obj) for obj in ASTUtils.all_variables_defined_in_block(self.model.get_state_blocks()+self.model.get_parameters_blocks())]
         regex = self._derivate_regex(var_names)
         corresponding_non_diff_variable = regex.match(node.lhs.name).group()
         corresponding_non_diff_variable_physical_type_string = str(ASTUtils.get_variable_by_name(self.model, corresponding_non_diff_variable).type_symbol.astropy_unit.physical_type)
-        reciprocal_preferred_prefix_this_node_string = f"{1/self.PREFIX_FACTORS[self.preferred_prefix[corresponding_non_diff_variable_physical_type_string]]:.1E}"
+        inverse_preferred_prefix_this_node_string = f"{1/self.PREFIX_FACTORS[self.preferred_prefix[corresponding_non_diff_variable_physical_type_string]]:.1E}"
         cloned_node = node.clone()
-        lhs_expression = ASTSimpleExpression(string=reciprocal_preferred_prefix_this_node_string, scope=node.get_scope())
+        lhs_expression = ASTSimpleExpression(string=inverse_preferred_prefix_this_node_string, scope=node.get_scope())
         rhs_expression = ASTExpression(is_encapsulated=True, expression=node.rhs)
         new_sub_node = ASTExpression(is_encapsulated=False,
                                      binary_operator=ASTArithmeticOperator(is_times_op=True),
@@ -273,11 +279,11 @@ class NonDimensionalisationSimpleExpressionVisitor(NonDimVis):
                 if isinstance(node.type, UnitTypeSymbol):
                     if str(node.type.astropy_unit.physical_type) is not 'unknown':
                         variable_physical_type_string = str(node.type.astropy_unit.physical_type)
-                        # get reciprocal of preferred prefix for this node
-                        reciprocal_preferred_prefix_this_node_string = f"{1/self.PREFIX_FACTORS[self.preferred_prefix[variable_physical_type_string]]:.1E}"
+                        # get preferred prefix for this node
+                        preferred_prefix_this_node_string = f"{self.PREFIX_FACTORS[self.preferred_prefix[variable_physical_type_string]]:.1E}"
                         # create a new sub node that multiplies the variable with the reciprocal of the preferred prefix
                         lhs_expression = node.clone()
-                        rhs_expression = ASTSimpleExpression(string=reciprocal_preferred_prefix_this_node_string, scope=node.get_scope())
+                        rhs_expression = ASTSimpleExpression(string=preferred_prefix_this_node_string, scope=node.get_scope())
                         new_sub_node = ASTExpression(is_encapsulated=False, binary_operator=ASTArithmeticOperator(is_times_op=True),
                                                              lhs=lhs_expression, rhs=rhs_expression, scope=node.get_scope())
                         # create new node encapsulating multiplication
