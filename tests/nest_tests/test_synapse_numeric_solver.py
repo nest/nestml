@@ -22,11 +22,15 @@ import os
 
 import matplotlib.pyplot as plt
 import nest
+import pytest
 
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_target, generate_nest_target
 import numpy as np
 
 
+@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                    reason="This test does not support NEST 2")
 class TestSynapseNumericSolver:
     """
     Tests a synapse with non-linear dynamics requiring a numeric solver for ODEs.

@@ -67,6 +67,9 @@ class GSLVariablePrinter(CppVariablePrinter):
                 # ode_state[] here is---and must be---the state vector supplied by the integrator, not the state vector in the node, node.S_.ode_state[].
                 return "ode_state[State_::" + CppVariablePrinter._print_cpp_name(variable.get_complete_name()) + "]"
 
+        if symbol.is_input():
+            return "node.B_." + self._print_buffer_value(variable)
+
         return self._print(variable, symbol, with_origin=self.with_origin)
 
     def _print_delay_variable(self, variable: ASTVariable) -> str:
