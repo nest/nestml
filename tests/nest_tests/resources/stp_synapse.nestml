@@ -1,0 +1,38 @@
+model stp_synapse:
+    input:
+        pre_spikes <- spike
+    
+    output:
+        spike(weight real, delay ms)
+    
+    state:
+        w real = 1 / U_0                  # synaptic (baseline) weight
+        x real = 1.                  # fraction of available resources after neurotransmitter depletion
+        u real = U_0                  # utilization parameter: fraction of available resources ready for use (release probability)
+        U real = U_0                 # increment of u produced by a spike
+    
+    parameters:
+        d ms = 1 ms                 # synaptic transmission delay
+        U_0 real = 0.25             # basal release probability
+        K_A real = 0.0375           # controls how fast the baseline release probability increases with the activity
+        tau_D ms = 300 ms           # depression time constant
+        tau_F ms = 1500 ms          # facilitation time constant
+        tau_A ms = 20000 ms         # augmentation time constant
+        tau_filter ms = 50 ms       # filtered spike train time constant
+
+    equations:
+        x' = (1. - x) / tau_D
+        u' = (U - u) / tau_F
+        U' = (U_0 - U) / tau_A
+    
+    onReceive(pre_spikes):
+        x -= u * x
+        u += U * (1. - u)
+        U += K_A * (1. - U)
+
+        w_effective real = w * x * u
+
+        emit_spike(w_effective, d)
+
+    update:
+        integrate_odes()
