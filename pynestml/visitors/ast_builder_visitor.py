@@ -92,13 +92,20 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         exponent_num = None
         exponent_den = None
         try:
-            exponent = float(str(ctx.exponent.getText())) if ctx.exponent is not None else None
+            if ctx.exponent.UNSIGNED_INTEGER():
+                exponent = int(str(ctx.exponent.getText()))
+            elif ctx.exponent.FLOAT():
+                exponent = float(str(ctx.exponent.getText()))
+            else:
+                ctx.exponent = None
+
             try:
                 exponent_is_negative = True if ctx.exponent.negative is not None else False
                 if exponent_is_negative:
                     exponent = -exponent
             except BaseException:
                 pass
+
         except BaseException:
             try:
                 exponent_num = float(ctx.exponent.num.text)
@@ -112,14 +119,17 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             except BaseException:
                 exponent_num = None
                 exponent_den = None
+
         if ctx.unitlessLiteral is not None:
             lhs = int(str(ctx.unitlessLiteral.text))
         else:
             lhs = self.visit(ctx.left) if ctx.left is not None else None
+
         is_times = True if ctx.timesOp is not None else False
         is_div = True if ctx.divOp is not None else False
         rhs = self.visit(ctx.right) if ctx.right is not None else None
         unit = str(ctx.unit.text) if ctx.unit is not None else None
+
         return ASTNodeFactory.create_ast_unit_type(is_encapsulated=is_encapsulated, compound_unit=compound_unit,
                                                    base=base, is_pow=is_pow,
                                                    exponent=exponent, exponent_num=exponent_num, exponent_den=exponent_den, lhs=lhs, rhs=rhs, is_div=is_div,

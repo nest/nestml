@@ -177,6 +177,14 @@ class TestCoCos:
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'fractional_unit_negative_exponent_expr.nestml'))
         assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) > 0
 
+    def test_valid_float_unit_negative_exponent_expr(self):
+        model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')), 'float_unit_negative_exponent_expr.nestml'))
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 0
+
+    def test_invalid_float_unit_negative_exponent_expr(self):
+        model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'float_unit_negative_exponent_expr.nestml'))
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) > 0
+
     def test_invalid_names_of_neurons_unique(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoMultipleNeuronsWithEqualName.nestml'))
         assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 2

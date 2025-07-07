@@ -456,8 +456,8 @@ class NESTMLPrinter(ModelPrinter):
         if node.is_pow:
             s = self.print(node.base) + "**"
             if node.exponent is not None:
-                s += str(int(node.exponent))
-
+                # ``node.exponent`` is either a float or an int
+                s += str(node.exponent)
             else:
                 assert node.exponent_num is not None and node.exponent_den is not None
                 if node.exponent_num < 0:

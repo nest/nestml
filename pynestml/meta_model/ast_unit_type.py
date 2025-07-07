@@ -33,24 +33,6 @@ class ASTUnitType(ASTNode):
     This class stores information regarding unit types and their properties.
     ASTUnitType. Represents an unit datatype. It can be a plain datatype as 'mV' or a
     complex data type as 'mV/s'
-
-    Attributes:
-        # encapsulated or not
-        is_encapsulated = False
-        compound_unit = None
-        # pow rhs
-        base = None
-        is_pow = False
-        exponent = None
-        # arithmetic combination case
-        lhs = None
-        is_times = False
-        is_div = False
-        rhs = None
-        # simple case, just a name
-        unit = None
-        # the corresponding symbol
-        type_symbol = None
     """
 
     def __init__(self, is_encapsulated: bool = False, compound_unit: Optional[ASTUnitType] = None, base: Optional[ASTUnitType] = None, is_pow: bool = False, exponent: Optional[Union[int, float]] = None, exponent_num: Optional[float] = None, exponent_den: Optional[float] = None, lhs: Optional[Union[ASTUnitType, int]] = None, rhs: Optional[ASTUnitType] = None, is_div: bool = False, is_times: bool = False, _unit: Optional[str] = None, type_symbol: Optional[TypeSymbol] = None, *args, **kwargs):

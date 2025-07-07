@@ -1,11 +1,11 @@
-# fractional_unit_negative_exponent_expr.nestml
-# #############################################
+# float_unit_negative_exponent_expr.nestml
+# ########################################
 #
 #
 # Description
 # +++++++++++
 #
-# This model is used to test fractional negative exponents in physical units.
+# This model is used to test floating point negative exponents in physical units.
 #
 #
 # Copyright statement
@@ -28,9 +28,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
-model fractional_unit_negative_exponent_neuron:
+model float_unit_negative_exponent_neuron:
     parameters:
-        foo ns**-(1/2) = 42 ns**-(1/2)
+        foo ns**-0.5 = 42 ns**-.5
 
     state:
-        bar 1/ns**2 = foo**2
+        bar 1/ns = foo**2
