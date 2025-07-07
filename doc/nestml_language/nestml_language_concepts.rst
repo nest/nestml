@@ -242,7 +242,7 @@ is equivalent to
 Type and unit checks
 ~~~~~~~~~~~~~~~~~~~~
 
-NESTML checks type correctness of all expressions. This also applies to assignments, declarations with an initialization and function calls. Conversion of ``integer``\ s to ``real``\ s is allowed. A conversion between ``unit``-typed and ``real``-typed variables is also allowed. However, these conversions are reported as warnings. No conversion is allowed between numeric types and Boolean or string types.
+NESTML checks type correctness of all expressions. This also applies to assignments, declarations with an initialization, ODEs, and function calls. Conversion of ``integer``\ s to ``real``\ s is allowed. A conversion between ``unit``-typed and ``real``-typed variables is also allowed. However, these conversions are reported as warnings. No conversion is allowed between numeric types and Boolean or string types.
 
 
 Basic elements of the embedded programming language
