@@ -61,7 +61,6 @@ class GeNNCodeGenerator(NESTCodeGenerator):
     Options:
 
     - **neuron_models**: List of neuron model names. Instructs the code generator that models with these names are neuron models.
-    - **synapse_models**: List of synapse model names. Instructs the code generator that models with these names are synapse models.
     - **preserve_expressions**: Set to True, or a list of strings corresponding to individual variable names, to disable internal rewriting of expressions, and return same output as input expression where possible. Only applies to variables specified as first-order differential equations. (This parameter is passed to ODE-toolbox.)
     - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
     - **templates**: Path containing jinja templates used to generate code.
@@ -70,6 +69,7 @@ class GeNNCodeGenerator(NESTCodeGenerator):
             - **neuron**: A list of neuron model jinja templates.
         - **module_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to generating the module/package.
     - **solver**: A string identifying the preferred ODE solver. ``"analytic"`` for propagator solver preferred; fallback to numeric solver in case ODEs are not analytically solvable. Use ``"numeric"`` to disable analytic solver.
+    - **membrane_potential_variable**: A string identifying a variable in the model that corresponds to the membrane potential of the neuron. This is needed because GeNN treats the membrane potential in a specific way (through dedicated getters and setters).
     """
 
     _default_options = {
@@ -83,8 +83,6 @@ class GeNNCodeGenerator(NESTCodeGenerator):
             "module_templates": []
         },
         "solver": "analytic",
-        "numeric_solver": "rk45",
-        "neuron_synapse_pairs": [],
         "membrane_potential_variable": "V_m"
     }
 
