@@ -460,7 +460,9 @@ class NESTMLPrinter(ModelPrinter):
 
             else:
                 assert node.exponent_num is not None and node.exponent_den is not None
-                s += "(" + str(int(node.exponent_num)) + "/" + str(int(node.exponent_den)) + ")"
+                if node.exponent_num < 0:
+                    s += "-"
+                s += "(" + str(int(abs(node.exponent_num))) + "/" + str(int(node.exponent_den)) + ")"
 
             return s
 

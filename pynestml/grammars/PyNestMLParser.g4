@@ -43,7 +43,7 @@ parser grammar PyNestMLParser;
   /**
    * ASTUnitType. Represents an unit data type. It can be a plain data type as 'mV' or a complex data type as 'mV/s'
   **/
-  unitTypeExponent : leftParentheses=LEFT_PAREN num=UNSIGNED_INTEGER divOp=FORWARD_SLASH den=UNSIGNED_INTEGER rightParentheses=RIGHT_PAREN
+  unitTypeExponent : (negative=MINUS?) leftParentheses=LEFT_PAREN num=UNSIGNED_INTEGER divOp=FORWARD_SLASH den=UNSIGNED_INTEGER rightParentheses=RIGHT_PAREN
                    | ( PLUS | MINUS )? (UNSIGNED_INTEGER | FLOAT);
 
   unitType : leftParentheses=LEFT_PAREN compoundUnit=unitType rightParentheses=RIGHT_PAREN

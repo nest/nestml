@@ -93,10 +93,22 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         exponent_den = None
         try:
             exponent = float(str(ctx.exponent.getText())) if ctx.exponent is not None else None
+            try:
+                exponent_is_negative = True if ctx.exponent.negative is not None else False
+                if exponent_is_negative:
+                    exponent = -exponent
+            except BaseException:
+                pass
         except BaseException:
             try:
                 exponent_num = float(ctx.exponent.num.text)
                 exponent_den = float(ctx.exponent.den.text)
+                try:
+                    exponent_is_negative = True if ctx.exponent.negative is not None else False
+                    if exponent_is_negative:
+                        exponent_num = -exponent_num
+                except BaseException:
+                    pass
             except BaseException:
                 exponent_num = None
                 exponent_den = None
