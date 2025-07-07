@@ -62,8 +62,8 @@ class TestSynapseNumericSolver:
         duration = spike_count * step
         sim_time = duration + 11_000
 
-        spike_times = (([i * step for i in range(1, spike_count + 1)] # 10 spikes at 50Hz
-                       + [duration + 500])  # then 500ms after
+        spike_times = (([i * step for i in range(1, spike_count + 1)]  # 10 spikes at 50Hz
+                        + [duration + 500])  # then 500ms after
                        + [duration + 10_000])  # then 10s after
 
         # parameters for the spike generator (spike train injector)
