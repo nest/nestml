@@ -14,7 +14,6 @@ extern "C" inline int {{modelName}}_dynamics{% if ast.get_args() | length > 0 %}
   assert( pnode );
   const {{neuronName}}& node = *( reinterpret_cast< {{neuronName}}* >( pnode ) );
 {%- else %}
-  typedef nest::State_ State_;
   // get access to node so we can almost work as in a member function
   assert( pnode );
   const Parameters_& node = *( reinterpret_cast< Parameters_* >( pnode ) );
