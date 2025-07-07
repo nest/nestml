@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# test_spinnaker_iaf_psc_exp.py
+# test_spinnaker_balanced_network.py
 #
 # This file is part of NEST.
 #
@@ -22,8 +22,13 @@
 import os
 import numpy as np
 import pytest
+import matplotlib.pyplot as plt
+
+import pyNN.spiNNaker as p
+from pyNN.utility.plotting import Figure, Panel
 
 from pynestml.frontend.pynestml_frontend import generate_spinnaker_target
+
 
 def compute_cv(spike_train):
     """
@@ -37,14 +42,14 @@ def compute_cv(spike_train):
     """
     # Calculate inter-spike intervals (ISI)
     isi = np.diff(spike_train)
-    
+
     # Calculate mean and standard deviation of ISI
     mean_isi = np.mean(isi)
     std_isi = np.std(isi)
-    
+
     # Calculate coefficient of variation
     cv = std_isi / mean_isi
-    
+
     return cv
 
 def compute_cv_for_neurons(spike_trains):
@@ -56,21 +61,15 @@ def compute_cv_for_neurons(spike_trains):
     return np.mean(cvs)
 
 
-class TestSpiNNakerIafPscExp:
+class TestSpiNNakerBalancedNetwork:
     """SpiNNaker code generation tests"""
 
     @pytest.fixture(autouse=True,
                     scope="module")
     def generate_code(self):
 
-#        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp"}]}
-#                                                      "synapse": "stdp",
-#                                                      "post_ports": ["post_spikes"]}]}
-
-
         files = [
-            os.path.join("models", "neurons", "iaf_psc_exp.nestml"),
-#            os.path.join("models", "synapses", "stdp_synapse.nestml")
+            os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
             ]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
@@ -85,17 +84,11 @@ class TestSpiNNakerIafPscExp:
                                   logging_level=logging_level,
                                   module_name=module_name,
                                   suffix=suffix)
-#                                  codegen_opts=codegen_opts)
 
-    def test_iaf_psc_exp(self):
-
-        # import spynnaker and plotting stuff
-        import pyNN.spiNNaker as p
-        from pyNN.utility.plotting import Figure, Panel
-        import matplotlib.pyplot as plt
+    def test_balanced_network(self):
 
         # import models
-        from python_models8.neuron.builds.iaf_psc_exp_nestml import iaf_psc_exp_nestml
+        from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml
 
         dt = 0.1 # the resolution in ms
         simtime = 10000.0 # Simulation time in ms
@@ -116,7 +109,7 @@ class TestSpiNNakerIafPscExp:
         neuron_params = {
         "C_m": 0.7,
         "tau_m": tauMem,
-        "t_ref": 2.0,
+        "refr_T": 2.0,
         "E_L": 0.0,
         "V_reset": 0.0,
         "V_th": theta,
@@ -128,33 +121,34 @@ class TestSpiNNakerIafPscExp:
         nu_th = theta / (J * CE * tauMem)
         nu_ex = eta * nu_th
         p_rate = 1000.0 * nu_ex * CE
+
         p.setup(dt)
-        nodes_ex = p.Population(NE, iaf_psc_exp_nestml(**neuron_params))
-        nodes_in = p.Population(NI, iaf_psc_exp_nestml(**neuron_params))
-        noise = p.Population(20, p.SpikeSourcePoisson(rate=p_rate),
-                             label="expoisson", seed=3)
-        noise.record("spikes")
+        p.set_number_of_synapse_cores(iaf_psc_exp_neuron_nestml, 0)    # Fix an issue with new feature in the main code, where sPyNNaker is trying to determine whether to use a split core model where neurons and synapses are on separate cores, or a single core model where they are processed on the same core. In the older code, this was a more manual decision, but in the main code it is happening automatically unless overridden.  This is particularly true when you use the 0.1ms timestep, where it will be attempting to keep to real-time execution by using split cores.
+        nodes_ex = p.Population(NE, iaf_psc_exp_neuron_nestml(**neuron_params))
+        nodes_in = p.Population(NI, iaf_psc_exp_neuron_nestml(**neuron_params))
+        ext_stim = p.Population(20, p.SpikeSourcePoisson(rate=p_rate), label="expoisson", seed=3)
+        ext_stim.record("spikes")
         nodes_ex.record("spikes")
         nodes_in.record("spikes")
-        exc_conn = p.FixedTotalNumberConnector(CE)
-        inh_conn = p.FixedTotalNumberConnector(CI)
-        #p.Projection(nodes_ex, nodes_ex, exc_conn, receptor_type="exc_spikes", synapse_type=p.StaticSynapse(weight=J_ex, delay=delay))
-        #p.Projection(nodes_ex, nodes_in, exc_conn, receptor_type="exc_spikes", synapse_type=p.StaticSynapse(weight=J_ex, delay=delay))
-        #p.Projection(nodes_in, nodes_ex, inh_conn, receptor_type="inh_spikes", synapse_type=p.StaticSynapse(weight=J_in, delay=delay))
-        #p.Projection(nodes_in, nodes_in, inh_conn, receptor_type="inh_spikes", synapse_type=p.StaticSynapse(weight=J_in, delay=delay))
-        #p.Projection(noise, nodes_ex, exc_conn, receptor_type="exc_spikes", synapse_type=p.StaticSynapse(weight=J_ex, delay=delay))
-        #p.Projection(noise, nodes_in, exc_conn, receptor_type="exc_spikes", synapse_type=p.StaticSynapse(weight=J_ex, delay=delay))
+        exc_conn = p.FixedNumberPreConnector(CE)
+        inh_conn = p.FixedNumberPreConnector(CI)
+        ext_conn = p.FixedProbabilityConnector(0.01)
+        p.Projection(nodes_ex, nodes_ex, exc_conn, receptor_type="exc_spikes", synapse_type=p.StaticSynapse(weight=J_ex, delay=delay))
+        p.Projection(nodes_ex, nodes_in, exc_conn, receptor_type="exc_spikes", synapse_type=p.StaticSynapse(weight=J_ex, delay=delay))
+        p.Projection(nodes_in, nodes_ex, inh_conn, receptor_type="inh_spikes", synapse_type=p.StaticSynapse(weight=J_in, delay=delay))
+        p.Projection(nodes_in, nodes_in, inh_conn, receptor_type="inh_spikes", synapse_type=p.StaticSynapse(weight=J_in, delay=delay))
+        p.Projection(ext_stim, nodes_ex, ext_conn, receptor_type="exc_spikes", synapse_type=p.StaticSynapse(weight=J_ex, delay=delay))
+        p.Projection(ext_stim, nodes_in, ext_conn, receptor_type="exc_spikes", synapse_type=p.StaticSynapse(weight=J_ex, delay=delay))
 
         p.run(simtime=simtime)
-
 
         exc_spikes = nodes_ex.get_data("spikes")
         inh_spikes = nodes_in.get_data("spikes")
 
         print("CV = " + str(compute_cv_for_neurons(exc_spikes.segments[0].spiketrains)))
 
+        # raster plot of the presynaptic neuron spike times
         Figure(
-         # raster plot of the presynaptic neuron spike times
          Panel(exc_spikes.segments[0].spiketrains, xlabel="Time/ms",
          xticks=True,
          yticks=True, markersize=0.2, xlim=(0, simtime)),
