@@ -53,13 +53,11 @@ class TestGeNNIzhikevich:
         logging_level = "DEBUG"
         suffix = "_nestml"
         module_name = "nestmlmodule"
-        codegen_opts = {"numeric_solver": "forward-Euler"}
 
         generate_genn_target(input_path, target_path,
                              module_name=module_name,
                              logging_level=logging_level,
-                             suffix=suffix,
-                             codegen_opts=codegen_opts)
+                             suffix=suffix)
 
     def test_genn_izhikevich_current_injection(self):
         from nestmlmodule.izhikevich_neuron_nestml import izhikevich_neuron_nestml_model
