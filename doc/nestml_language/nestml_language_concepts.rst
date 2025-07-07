@@ -192,7 +192,7 @@ These unit symbols can be used to define physical quantites, for instance:
 
 .. code-block:: nestml
 
-   x N*S = 10 N * 22 Ohm / 0.5 V
+   x N/A = 10 N * 22 Ohm / 0.5 V
 
 Physical units can have at most one of the following magnitude prefixes:
 
