@@ -185,7 +185,7 @@ public:
 
 {%- if vt_ports is defined and vt_ports|length > 0  %}
       NodeCollectionDatum vt_datum;
-      if ( updateValue< NodeCollectionDatum >( d, names::volume_transmitter, vt_datum ) )
+      if ( updateValue< NodeCollectionDatum >( d, nest::names::volume_transmitter, vt_datum ) )
       {
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
         const size_t tid = nest::kernel().vp_manager.get_thread_id();
@@ -197,7 +197,7 @@ public:
 {%- else %}
         nest::Node* vt = nest::kernel().node_manager.get_node_or_proxy( ( *vt_datum )[ 0 ], tid );
 {%- endif %}
-        vt_ = dynamic_cast< volume_transmitter* >( vt );
+        vt_ = dynamic_cast< nest::volume_transmitter* >( vt );
         if ( vt_ == nullptr )
         {
           throw nest::BadProperty( "Neuromodulatory source must be volume transmitter" );
@@ -218,7 +218,7 @@ public:
 {%- endfor %}
 
 {%- if vt_ports is defined and vt_ports|length > 0  %}
-    volume_transmitter* vt_ = nullptr;
+    nest::volume_transmitter* vt_ = nullptr;
 
     inline long get_vt_node_id() const
     {
@@ -346,12 +346,12 @@ class {{synapseName}} : public nest::Connection< targetidentifierT >
 public:
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
   void trigger_update_weight( size_t t,
-    const std::vector< spikecounter >& vt_spikes,
+    const std::vector< nest::spikecounter >& vt_spikes,
     double t_trig,
     const {{synapseName}}CommonSynapseProperties& cp );
 {%- else %}
   void trigger_update_weight( thread t,
-    const std::vector< spikecounter >& vt_spikes,
+    const std::vector< nest::spikecounter >& vt_spikes,
     double t_trig,
     const {{synapseName}}CommonSynapseProperties& cp );
 {%- endif %}
@@ -505,7 +505,7 @@ public:
 
 {%- if vt_ports is defined and vt_ports|length > 0  %}
 {%-     set vt_port = vt_ports[0] %}
-  void process_{{ vt_port }}_spikes_( const std::vector< spikecounter >& vt_spikes,
+  void process_{{ vt_port }}_spikes_( const std::vector< nest::spikecounter >& vt_spikes,
       double t0,
       double t1,
       const {{synapseName}}CommonSynapseProperties& cp );
@@ -767,7 +767,7 @@ void get_entry_from_continuous_variable_history(double t,
 
 {%- if vt_ports is defined and vt_ports|length > 0  %}
   // get history of volume transmitter spikes
-  const std::vector< spikecounter >& vt_spikes = cp.vt_->deliver_spikes();
+  const std::vector< nest::spikecounter >& vt_spikes = cp.vt_->deliver_spikes();
 
 {%- endif %}
     // use accessor functions (inherited from Connection< >) to obtain delay and target
@@ -775,7 +775,7 @@ void get_entry_from_continuous_variable_history(double t,
     {{ paired_neuron_name }}* __target = static_cast< {{ paired_neuron_name }}* >(get_target(tid));
     assert(__target);
 {%- else %}
-    Node* __target = get_target( tid );
+    nest::Node* __target = get_target( tid );
 {%- endif %}
     const double __dendritic_delay = get_delay();
     const bool pre_before_post_update = {{pre_before_post_update}};
@@ -1052,7 +1052,7 @@ constexpr nest::ConnectionModelProperties {{synapseName}}< targetidentifierT >::
 {%- set vt_port = vt_ports[0] %}
 template < typename targetidentifierT >
 void
-{{synapseName}}< targetidentifierT >::process_{{vt_port}}_spikes_( const std::vector< spikecounter >& vt_spikes,
+{{synapseName}}< targetidentifierT >::process_{{vt_port}}_spikes_( const std::vector< nest::spikecounter >& vt_spikes,
     double t0,
     double t1,
     const {{synapseName}}CommonSynapseProperties& cp )
@@ -1467,12 +1467,12 @@ template < typename targetidentifierT >
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
 inline void
 {{synapseName}}< targetidentifierT >::trigger_update_weight( size_t t,
-  const std::vector< spikecounter >& vt_spikes,
+  const std::vector< nest::spikecounter >& vt_spikes,
   const double t_trig,
   const CommonPropertiesType& cp )
 {%- else %}
 {{synapseName}}< targetidentifierT >::trigger_update_weight( thread t,
-  const std::vector< spikecounter >& vt_spikes,
+  const std::vector< nest::spikecounter >& vt_spikes,
   const double t_trig,
   const CommonPropertiesType& cp )
 {%- endif %}
