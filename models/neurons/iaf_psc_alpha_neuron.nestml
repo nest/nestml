@@ -25,9 +25,10 @@
 # relevant measures analytically.
 # 
 # .. note::
-# If tau_m is very close to tau_syn_exc or tau_syn_inh, numerical problems
-# may arise due to singularities in the propagator matrics. If this is
-# the case, replace equal-valued parameters by a single parameter.
+#
+#    If tau_m is very close to tau_syn_exc or tau_syn_inh, numerical problems
+#    may arise due to singularities in the propagator matrics. If this is
+#    the case, replace equal-valued parameters by a single parameter.
 # 
 # For details, please see ``IAF_neurons_singularity.ipynb`` in
 # the NEST source code (``docs/model_details``).

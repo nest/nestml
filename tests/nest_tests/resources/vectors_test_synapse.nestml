@@ -1,6 +1,14 @@
-# -*- coding: utf-8 -*-
+# vectors_test_synapse
+# ####################
 #
-# __init__.py
+# Description
+# +++++++++++
+#
+# This model is used to test vector operations with NEST.
+#
+#
+# Copyright statement
+# +++++++++++++++++++
 #
 # This file is part of NEST.
 #
@@ -19,16 +27,24 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = "8.0.2-post-dev"
+model vectors_test_synapse:
+    state:
+        ca_buffer[buffer_size] real = 0
+        index integer = 0
+        w real = 1    # Synaptic weight
 
-__all__ = ['cocos',
-           'codegeneration',
-           'exceptions',
-           'frontend',
-           'generated',
-           'meta_model',
-           'symbols',
-           'symbol_table',
-           'transformers',
-           'utils',
-           'visitors']
+    parameters:
+        buffer_size integer = 10
+        d ms = 1 ms    # Synaptic transmission delay
+
+    input:
+        pre_spikes <- spike
+
+    output:
+        spike(weight real, delay ms)
+
+    onReceive(pre_spikes):
+        i real = t
+        index = i
+        ca_buffer[index] = 2
+        emit_spike(w, d)

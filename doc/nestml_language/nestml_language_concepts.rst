@@ -791,6 +791,7 @@ For any two valid numeric expressions ``x``, ``y``, boolean expressions ``b``,\ 
 | ``?:``                                         | Ternary operator (return ``x`` if ``b`` is true, ``y`` otherwise)  | ``b ? x : y``             |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
 
+
 Blocks
 ------
 
