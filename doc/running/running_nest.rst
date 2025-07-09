@@ -192,10 +192,10 @@ After generating and building the model code, a ``continuous_inputs`` entry is a
    continuous_inputs = nest.GetStatus(neuron, "continuous_inputs")[0]
 
    dc1 = nest.Create("dc_generator", params={"amplitude": 150.0})
-   nest.Connect(dc1, neuron, syn_spec={'receptor_type': continuous_inputs["I_1"]})
+   nest.Connect(dc1, neuron, syn_spec={'receptor_type': continuous_inputs["I_STIM1"]})
 
    dc2 = nest.Create("dc_generator", params={"amplitude": 225.0})
-   nest.Connect(dc2, neuron, syn_spec={'receptor_type': continuous_inputs["I_2"]})
+   nest.Connect(dc2, neuron, syn_spec={'receptor_type': continuous_inputs["I_STIM2"]})
 
 Note that the receptor ports for continuous input ports are numbered starting from 0.
 

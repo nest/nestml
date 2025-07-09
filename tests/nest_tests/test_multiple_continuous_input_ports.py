@@ -58,5 +58,7 @@ class TestMultipleInputPorts:
         v_m1 = nest.GetStatus(mm, "events")[0]["V_m1"]
         v_m2 = nest.GetStatus(mm, "events")[0]["V_m2"]
 
+        print(v_m1, v_m2)
+
         np.testing.assert_allclose(v_m1[-1], 2370)
         np.testing.assert_allclose(v_m2[-1], 1767.5)
