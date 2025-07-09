@@ -33,10 +33,10 @@ from pynestml.frontend.pynestml_frontend import generate_spinnaker_target
 def compute_cv(spike_train):
     """
     Compute the coefficient of variation (CV) for a single spike train.
-    
+
     Parameters:
     spike_train (list or numpy array): Timestamps of spikes in the spike train.
-    
+
     Returns:
     float: Coefficient of variation (CV) of the inter-spike intervals.
     """
@@ -51,6 +51,7 @@ def compute_cv(spike_train):
     cv = std_isi / mean_isi
 
     return cv
+
 
 def compute_cv_for_neurons(spike_trains):
     cvs = []
@@ -68,11 +69,9 @@ class TestSpiNNakerBalancedNetwork:
                     scope="module")
     def generate_code(self):
 
-        files = [
-            os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
-            ]
+        files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, s))) for s in files]
+             os.pardir, os.pardir, s))) for s in files]
         target_path = "spinnaker-target"
         install_path = "spinnaker-install"
         logging_level = "DEBUG"
@@ -90,34 +89,32 @@ class TestSpiNNakerBalancedNetwork:
         # import models
         from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml
 
-        dt = 0.1 # the resolution in ms
-        simtime = 10000.0 # Simulation time in ms
-        delay = 1.5 # synaptic delay in ms
-        g = 4.0 # ratio inhibitory weight/excitatory weight
-        eta = 2 # external rate relative to threshold rate
-        epsilon = 0.05 # connection probability
+        dt = 0.1    # the resolution in ms
+        simtime = 10000.0    # Simulation time in ms
+        delay = 1.5    # synaptic delay in ms
+        g = 4.0    # ratio inhibitory weight/excitatory weight
+        eta = 2    # external rate relative to threshold rate
+        epsilon = 0.05    # connection probability
         order = 2500
-        NE = 4 * order # number of excitatory neurons
-        NI = 1 * order # number of inhibitory neurons
-        N_neurons = NE + NI # number of neurons in total
-        CE = int(epsilon * NE) # number of excitatory synapses per neuron
-        CI = int(epsilon * NI) # number of inhibitory synapses per neuron
-        C_tot = int(CI + CE) # total number of synapses per neuron
-        tauMem = 20.0 # time constant of membrane potential in ms
-        theta = 20.0 # membrane threshold potential in mV
-        J = 0.1 # postsynaptic amplitude in mV
-        neuron_params = {
-        "C_m": 0.7,
-        "tau_m": tauMem,
-        "refr_T": 2.0,
-        "E_L": 0.0,
-        "V_reset": 0.0,
-        "V_th": theta,
-        "tau_syn_exc": 0.4,
-        "tau_syn_inh": 0.4,
-        }
-        J_ex = J # amplitude of excitatory postsynaptic current
-        J_in = -g * J_ex # amplitude of inhibitory postsynaptic current
+        NE = 4 * order    # number of excitatory neurons
+        NI = 1 * order    # number of inhibitory neurons
+        N_neurons = NE + NI    # number of neurons in total
+        CE = int(epsilon * NE)    # number of excitatory synapses per neuron
+        CI = int(epsilon * NI)    # number of inhibitory synapses per neuron
+        C_tot = int(CI + CE)    # total number of synapses per neuron
+        tauMem = 20.0    # time constant of membrane potential in ms
+        theta = 20.0    # membrane threshold potential in mV
+        J = 0.1    # postsynaptic amplitude in mV
+        neuron_params = {"C_m": 0.7,
+                         "tau_m": tauMem,
+                         "refr_T": 2.0,
+                         "E_L": 0.0,
+                         "V_reset": 0.0,
+                         "V_th": theta,
+                         "tau_syn_exc": 0.4,
+                         "tau_syn_inh": 0.4}
+        J_ex = J    # amplitude of excitatory postsynaptic current
+        J_in = -g * J_ex    # amplitude of inhibitory postsynaptic current
         nu_th = theta / (J * CE * tauMem)
         nu_ex = eta * nu_th
         p_rate = 1000.0 * nu_ex * CE
@@ -148,14 +145,19 @@ class TestSpiNNakerBalancedNetwork:
         print("CV = " + str(compute_cv_for_neurons(exc_spikes.segments[0].spiketrains)))
 
         # raster plot of the presynaptic neuron spike times
-        Figure(
-         Panel(exc_spikes.segments[0].spiketrains, xlabel="Time/ms",
-         xticks=True,
-         yticks=True, markersize=0.2, xlim=(0, simtime)),
-         # raster plot of the presynaptic neuron spike times
-         Panel(inh_spikes.segments[0].spiketrains, xlabel="Time/ms",
-         xticks=True,
-         yticks=True, markersize=0.2, xlim=(0, simtime)),
-        title="",)
+        Figure(Panel(exc_spikes.segments[0].spiketrains,
+                     xlabel="Time/ms",
+                     xticks=True,
+                     yticks=True,
+                     markersize=0.2,
+                     xlim=(0, simtime)),
+               # raster plot of the presynaptic neuron spike times
+               Panel(inh_spikes.segments[0].spiketrains,
+                     xlabel="Time/ms",
+                     xticks=True,
+                     yticks=True,
+                     markersize=0.2,
+                     xlim=(0, simtime)),
+               title="")
         plt.savefig("balanced_network.png")
         plt.savefig("balanced_network.pdf")
