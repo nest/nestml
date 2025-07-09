@@ -1570,7 +1570,7 @@ class ASTUtils:
         return None
 
     @classmethod
-    def get_internal_by_name(cls, node: ASTModel, var_name: str) -> ASTDeclaration:
+    def get_internal_decl_by_name(cls, node: ASTModel, var_name: str) -> ASTDeclaration:
         """
         Get the declaration based on the name of the internal parameter
         :param node: the neuron or synapse containing the parameter
