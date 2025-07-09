@@ -1,24 +1,24 @@
 # beta_function_with_inline_expression_neuron
 # ###########################################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # Used for testing processing of inline expressions.
-# 
-# 
+#
+#
 # Copyright
 # +++++++++
-# 
+#
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
-# 
+#
 # NEST is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # NEST is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -29,8 +29,8 @@
 model beta_function_with_inline_expression_neuron:
 
   parameters:
-    tau1 ms = 20 ms  ## decay time
-    tau2 ms = 10 ms  ## rise time
+    tau1 ms = 20 ms    # decay time
+    tau2 ms = 10 ms    # rise time
 
   state:
     x_ pA/ms = 0 pA/ms
@@ -41,12 +41,12 @@ model beta_function_with_inline_expression_neuron:
 
   equations:
     x' = x_ - x / tau2
-    x_' = - x_ / tau1
+    x_' = -x_ / tau1
 
     recordable inline z pA = x
 
   input:
-    weighted_input_spikes  <- spike
+    weighted_input_spikes  <- spike(weight pA)
 
   output:
     spike
@@ -55,4 +55,4 @@ model beta_function_with_inline_expression_neuron:
     integrate_odes()
 
   onReceive(weighted_input_spikes):
-    x_ += alpha * (1 / tau2 - 1 / tau1) * pA * weighted_input_spikes * s
+    x_ += alpha * (1 / tau2 - 1 / tau1) * weighted_input_spikes.weight
