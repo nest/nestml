@@ -132,7 +132,7 @@ void
 {%- if synapses %}
     // register synapses
 {%-   for synapse in synapses %}
-    nest::{{synapse.get_name()}}::register_connection_model< nest::{{synapse.get_name()}}::{{synapse.get_name()}} >( "{{synapse.get_name()}}" );
+    nest::register_connection_model< nest::{{synapse.get_name()}} >( "{{synapse.get_name()}}" );
 {%-   endfor %}
 {%- endif %}
 } // {{moduleName}}::init()
