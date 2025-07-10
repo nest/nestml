@@ -570,6 +570,13 @@ class SynapsePostNeuronTransformer(Transformer):
             ASTUtils.replace_with_external_variable(state_var, new_synapse, var_name_suffix, new_neuron.get_scope())
 
         #
+        #     remove newly added equation blocks again if they are empty
+        #
+
+        ASTUtils.remove_empty_equations_blocks(new_synapse)
+        ASTUtils.remove_empty_equations_blocks(new_neuron)
+
+        #
         #     rename neuron
         #
 

@@ -4,7 +4,7 @@ from spynnaker.pyNN.models.neuron.synapse_dynamics.synapse_dynamics_stdp import 
 from python_models8.neuron.builds.{{synapseName}}_timing import MyTimingDependence
 from python_models8.neuron.builds.{{synapseName}}_weight import MyWeightDependence
 
-class {{synapseName}}_synapse_impl(SynapseDynamicsSTDP):
+class {{synapseName}}(SynapseDynamicsSTDP):
 
     def __init__(self):
         super().__init__(

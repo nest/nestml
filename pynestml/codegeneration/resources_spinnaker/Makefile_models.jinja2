@@ -1,13 +1,18 @@
-MODELS = \
-{%- for neuron in neurons %}
-{{neuron.get_name()}}_impl \
-{%- endfor %}
-{%- for synapse in synapses %}
-{{synapse.get_name()}}_impl \
-{%- endfor %}
+#find all directories of synapse and neuron models
+IMPL_DIRS := $(wildcard *_impl)
 
-all:
-	for d in $(MODELS); do $(MAKE) -C $$d || exit $$?; done
+#run make in all model directories
+all: $(IMPL_DIRS)
+
+
+$(IMPL_DIRS):
+	$(MAKE) -C $@
+
 
 clean:
-	for d in $(MODELS); do $(MAKE) -C $$d clean || exit $$?; done
+	for dir in $(IMPL_DIRS); do \
+		$(MAKE) -C $$dir clean; \
+	done
+
+# declare all model directories as phony targets
+.PHONY: all clean $(IMPL_DIRS)
