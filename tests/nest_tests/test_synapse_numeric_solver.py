@@ -28,6 +28,15 @@ from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_target, generate_nest_target
 import numpy as np
 
+try:
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.ticker
+    import matplotlib.pyplot as plt
+    TEST_PLOTS = True
+except Exception:
+    TEST_PLOTS = False
+
 
 @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                     reason="This test does not support NEST 2")
@@ -106,30 +115,80 @@ class TestSynapseNumericSolver:
         data_vm = voltmeter.events
         data_sr = spike_recorder.events
 
-        fig, ax = plt.subplots(3, 1, sharex=True, figsize=(10, 15))
+        # TODO: add assertions
 
-        ax[0].vlines(data_sr["times"], 0, 1)
-        ax[0].set_xlim([0, sim_time])
-        ax[0].set_xlabel('Time (s)')
+        if TEST_PLOTS:
+            fig, ax = plt.subplots(3, 1, sharex=True, figsize=(10, 15))
 
-        ax[1].set_xlim([0, sim_time])
-        ax[1].set_ylim([0, 1])
-        ax[1].set_xlabel('Time (s)')
+            ax[0].vlines(data_sr["times"], 0, 1)
+            ax[0].set_xlim([0, sim_time])
+            ax[0].set_xlabel('Time (s)')
 
-        ax[1].plot(x, label='x')
-        ax[1].plot(u, label='u')
-        ax[1].plot(U, label='U')
-        ax[1].legend(loc='best')
+            ax[1].set_xlim([0, sim_time])
+            ax[1].set_ylim([0, 1])
+            ax[1].set_xlabel('Time (s)')
 
-        ax[2].set_xlim([0, sim_time])
-        ax[2].set_xlabel('Time (ms)')
+            ax[1].plot(x, label='x')
+            ax[1].plot(u, label='u')
+            ax[1].plot(U, label='U')
+            ax[1].legend(loc='best')
 
-        for ax_ in ax:
-            ax_.set_xlim([1., sim_time])
-            ax_.set_xscale('log')
+            ax[2].set_xlim([0, sim_time])
+            ax[2].set_xlabel('Time (ms)')
 
-        ax[2].plot(data_vm["times"], data_vm["V_m"])
+            for ax_ in ax:
+                ax_.set_xlim([1., sim_time])
+                ax_.set_xscale('log')
 
-        fig.tight_layout()
-        fig.savefig('synaug_numsim.pdf')
-        plt.show()
+            ax[2].plot(data_vm["times"], data_vm["V_m"])
+
+            fig.tight_layout()
+            fig.savefig('synaug_numsim.pdf')
+
+    def test_non_linear_synapse(self):
+        nest.ResetKernel()
+        nest.set_verbosity("M_WARNING")
+        dt = 0.1
+        nest.resolution = dt
+        sim_time = 8.0
+
+        files = ["models/neurons/iaf_psc_exp_neuron.nestml", "tests/nest_tests/resources/non_linear_synapse.nestml"]
+        input_paths = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+            os.pardir, os.pardir, s))) for s in files]
+        target_path = "target_nl"
+        modulename = "nl_syn_module"
+
+        generate_nest_target(input_path=input_paths,
+                             target_path=target_path,
+                             logging_level="INFO",
+                             suffix="_nestml",
+                             module_name=modulename,
+                             codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
+                                                                     "synapse": "non_linear_synapse"}],
+                                           "delay_variable": {"non_linear_synapse": "d"},
+                                           "weight_variable": {"non_linear_synapse": "w"}})
+        nest.Install(modulename)
+
+        neuron_model = "iaf_psc_exp_neuron_nestml__with_non_linear_synapse_nestml"
+        synapse_model = "non_linear_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
+
+        neuron = nest.Create(neuron_model)
+        sg = nest.Create("spike_generator", params={"spike_times": [3.0, 5.0, 7.0]})
+
+        nest.Connect(sg, neuron, syn_spec={"synapse_model": synapse_model})
+        connections = nest.GetConnections(source=sg, synapse_model=synapse_model)
+        x = []
+        y = []
+        z = []
+        w = []
+        sim_step_size = 1.
+        for i in np.arange(0., sim_time + 0.01, sim_step_size):
+            nest.Simulate(sim_step_size)
+            syn_stats = connections.get()  # nest.GetConnections()[2].get()
+            x += [syn_stats["x"]]
+            y += [syn_stats["y"]]
+            z += [syn_stats["z"]]
+            w += [syn_stats["w"]]
+
+        print(x, y, z, w)
+        # TODO: add assertions

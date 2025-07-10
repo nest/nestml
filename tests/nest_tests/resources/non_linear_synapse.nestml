@@ -1,0 +1,33 @@
+model non_linear_synapse:
+    state:
+        x real = 1.
+        y real = 1.
+        z real = 1.
+        w real = 0.
+        d ms = 1.0 ms
+
+    equations:
+        x' = (sigma * (y - x)) / ms
+        y' = (x * (rho - z) - y) / ms
+        z' = (x * y - beta * z) / ms
+
+    parameters:
+        sigma real = 10.
+        beta real = 8/3
+        rho real = 28
+
+    input:
+        pre_spikes <- spike
+
+    output:
+        spike(weight real, delay ms)
+
+    onReceive(pre_spikes):
+        x += 1
+        y += 1
+        z += 1
+        w += x * y / z
+        emit_spike(w, d)
+
+    update:
+        integrate_odes()
