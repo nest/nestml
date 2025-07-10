@@ -1,5 +1,7 @@
 #!/bin/bash -x
 
+# This bash script installs nest-simulator on JUSUF/JURECA with MPI enabled.
+
 ml Stages/2024 GCC Boost ParaStationMPI GSL jemalloc Python SciPy-Stack mpi4py CMake Autotools
 
 python3 -m pip install pytest-xdist pytest-timeout junitparser

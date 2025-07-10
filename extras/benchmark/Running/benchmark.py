@@ -22,7 +22,7 @@
 """
 This python script runs a benchmark of balanced excitatory and inhibitory network using NESTML-generated vs NEST in-built neuron and synapse models.
 The script uses the jinja templating mechanism to generate sbatch scripts to run the simulations on multiple compute nodes with MPI.
-Separate sbatch scripts are generated for strong and weak scaling, with correspoding graphs measuring the relative performance of simulations with NESTML-generated vs NEST in-built models.
+Separate sbatch scripts are generated for strong and weak scaling, with corresponding graphs measuring the relative performance of simulations with NESTML-generated vs NEST in-built models.
 The neuron model used in the script is ``aeif_psc_alpha_neuron`` and the synapse model is ``stdp_synapse``. The balanced network is constructed and simulated using the python script ``brunel_alpha_nest.py``.
 
 Usage:
@@ -78,30 +78,26 @@ BASELINENEURON = "aeif_psc_alpha"
 NEURONMODELS = [
     "aeif_psc_alpha_neuron_Nestml_Plastic__with_stdp_synapse_Nestml_Plastic",
     "aeif_psc_alpha_neuron_Nestml",
-    BASELINENEURON,
-    # "aeif_psc_alpha_neuron_Nestml_Plastic_noco__with_stdp_synapse_Nestml_Plastic_noco"
+    BASELINENEURON
 ]
 
 legend = {
     "aeif_psc_alpha_neuron_Nestml_Plastic__with_stdp_synapse_Nestml_Plastic": "NESTML",
     "aeif_psc_alpha_neuron_Nestml": "NESTML/NEST",
-    BASELINENEURON: "NEST",
-    # "aeif_psc_alpha_neuron_Nestml_Plastic_noco__with_stdp_synapse_Nestml_Plastic_noco": "NESTML neur, NESTML syn NOCO",
+    BASELINENEURON: "NEST"
 }
 
 colors = {
     BASELINENEURON: 0,
     "aeif_psc_alpha_neuron_Nestml_Plastic__with_stdp_synapse_Nestml_Plastic": 1,
-    "aeif_psc_alpha_neuron_Nestml": 2,
-    # "aeif_psc_alpha_neuron_Nestml_Plastic_noco__with_stdp_synapse_Nestml_Plastic_noco": 3
+    "aeif_psc_alpha_neuron_Nestml": 2
 }
 
 # MPI scaling
 DEBUG = True
 NUMTHREADS = 128  # Total number of threads per node
-NETWORKSCALES = np.logspace(3, math.log10(20000), 5, dtype=int)  # XXXXXXXXXXXX: was 10 points, max size 30000
 
-MPI_STRONG_SCALE_NEURONS = NETWORKSCALES[-1]
+MPI_STRONG_SCALE_NEURONS = 20000.  # the order of neurons in the Brunel network
 STRONGSCALINGFOLDERNAME = "timings_strong_scaling_mpi"
 
 # MPI Weak scaling
@@ -127,9 +123,8 @@ if enable_mpi:
 else:
     if short_sim:
         N_THREADS = np.logspace(math.log2(4), math.log2(32), num=2, base=2, dtype=int)
-        NETWORKSCALES = np.logspace(3, math.log10(20000), 2, dtype=int)
         ITERATIONS = 1
-        
+
 PATHTOSTARTFILE = os.path.join(current_dir, "start.sh")
 
 # output folder
@@ -397,7 +392,7 @@ def plot_scaling_data(sim_data_weak: dict, sim_data_strong: dict, file_prefix: s
         _ax.set_ylim(0.98, np.ceil(max_y * 100) / 100)
 
     for _ax in ax.flatten():
-        _ax.set_clip_on(False)	
+        _ax.set_clip_on(False)
 
     if args.enable_mpi:
         for _ax in ax[1, :]:
@@ -475,17 +470,8 @@ def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
             [(iteration_data["memory_benchmark"]["vmpeak"] / 1024 / 1024) for iteration_data in
              values[nodes].values()]) for nodes in x])
 
-        # print(rss, vmsize, vmpeak)
-
         x = np.array([int(val) for val in x], dtype=int)
         for _ax, abs_or_rel in zip(ax, ["abs", "rel"]):
-            #_ax.errorbar(x, rss, yerr=rss_std, color=palette(colors[neuron]), linestyle=linestyles["rss"], label=legend[neuron], ecolor='gray', capsize=2, linewidth=2, marker='o', markersize=4)
-
-        # line2 = ax_abs.errorbar(x, vmsize, yerr=vmsize_std, color=palette(colors[neuron]), linestyle=linestyles["vmsize"], label="vmsize",
-        #              ecolor='gray', capsize=2)
-        # line3 = ax_abs.errorbar(x, vmpeak, yerr=vmpeak_std, color=palette(colors[neuron]), linestyle=linestyles["vmpeak"], label="vmpeak",
-        #              ecolor='gray', capsize=2)
-
             baseline_rss = np.array([np.mean(
             [(iteration_data["memory_benchmark"]["rss"] / 1024 / 1024)  for iteration_data in
              sim_data[BASELINENEURON][nodes].values()]) for nodes in x])
@@ -502,15 +488,6 @@ def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
 
             if abs_or_rel == "abs":
                 _ax.set_yscale('log')
-
-        # line2 = ax_abs.errorbar(x, vmsize, yerr=vmsize_std, color=palette(colors[neuron]), linestyle=linestyles["vmsize"], label="vmsize", color='gray', capsize=2, linewidth=2)
-        # line3 = ax_abs.errorbar(x, vmpeak, yerr=vmpeak_std, color=palette(colors[neuron]), linestyle=linestyles["vmpeak"], label="vmpeak",ecolor='gray', capsize=2, linewidth=2)
-
-        # plot_lines.append([line1, line2, line3])
-
-    # Create a legend for the linestyles
-    # linestyle_legend = ax_abs.legend(plot_lines[0], list(linestyles.keys()), loc='upper left')
-    # ax_absplt.gca().add_artist(linestyle_legend)
 
     ax[0].legend(loc='upper left')
     ax[0].set_ylabel('Memory [GiB]')
@@ -734,6 +711,7 @@ def kolmogorov_smirnov_metric(p1, p2):
 
     return ks_metric
 
+
 def print_isi_distributions_ks_distance(neuron_models, data):
 
     for neuron_model1 in neuron_models:
@@ -744,8 +722,8 @@ def print_isi_distributions_ks_distance(neuron_models, data):
             all_isis2 = [isi for isis in data[neuron_model2]["isis"] for isi in isis]
             ks_statistic, p_value = scipy.stats.ks_2samp(all_isis1, all_isis2)
 
-
             print("For neuron model " + str(neuron_model1) + " and neuron model " + str(neuron_model2) + ", Kolmogorov-Smirnov (KS) distance = " + str(ks_distance) + ", KS statistic = " + str(ks_statistic) + ", p-value = " + str(p_value))
+
 
 def plot_isi_distributions(neuron_models, data):
     plt.figure(figsize=(6, 4))
@@ -753,7 +731,6 @@ def plot_isi_distributions(neuron_models, data):
     for neuron_model in neuron_models:
         plt.bar(data["bin_centers"], 100 * 2 * data[neuron_model]["counts_std"], data["bin_centers"][1] - data["bin_centers"][0], bottom=100 * (data[neuron_model]["counts_mean"] - data[neuron_model]["counts_std"]), alpha=.5, color=palette(colors[neuron_model]))
         plt.step(data["bin_edges"][:-1], 100 * data[neuron_model]["counts_mean"], label=legend[neuron_model], linewidth=2, alpha=.5, where="post", color=palette(colors[neuron_model]))
-        #plt.errorbar(data["bin_centers"], data[neuron_model]["counts_mean"], yerr=data[neuron_model]["counts_std"], fmt='o', color='black', capsize=5)
 
     plt.xlabel('ISI [ms]')
     plt.ylabel('Frequency of occurrence [%]')
@@ -761,7 +738,7 @@ def plot_isi_distributions(neuron_models, data):
     plt.subplots_adjust(left=0.2, right=.9, bottom=0.15, top=0.9)
     plt.legend()
 
-    plt.xlim(0, 160) # XXX hard-coded...
+    plt.xlim(0, 160)  # XXX hard-coded...
 
     plt.gca().spines['top'].set_visible(False)
     plt.gca().spines['right'].set_visible(False)
