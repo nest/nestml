@@ -27,6 +27,12 @@ from spynnaker.pyNN.models.neuron.implementations import AbstractNeuronImpl
 
 from spinn_utilities.overrides import overrides
 
+#!!
+import os
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
+
+
+
 class {{neuronName}}Impl(AbstractNeuronImpl):
 
     def __init__(self,
@@ -110,6 +116,16 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
     @property
     @overrides(AbstractNeuronImpl.binary_name)
     def binary_name(self):
+#!!
+#        import pdb
+ #       pdb.set_trace()
+
+#        install_path = FrontendConfiguration.get_install_path()
+ #       if os.path.isfile(os.path.join(install_path, "python_models8", "model_binaries", "iaf_psc_exp_neuron_nestml__with_stdp_synapse_nestml_impl_stdp_mad_my_timing_my_weight.aplx")):
+        #    pdb.set_trace()    
+  #          return "{{neuronName}}_impl_stdp_mad_my_timing_my_weight.aplx"
+
+
         return "{{neuronName}}_impl.aplx"
 
     @overrides(AbstractNeuronImpl.get_global_weight_scale)
