@@ -1397,7 +1397,7 @@ template < typename targetidentifierT >
 {%- for variable_symbol in synapse.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     if variable.get_name() != synapse_weight_variable and variable.get_name() != nest_codegen_opt_delay_variable %}
-  S_.{{ printer_no_origin.print(variable) }} = rhs.S_.{{ printer_no_origin.print(variable) }};
+    {{ nest_codegen_utils.print_symbol_origin(variable_symbol, variable) % printer_no_origin.print(variable) }} = rhs.{{ nest_codegen_utils.print_symbol_origin(variable_symbol, variable) % printer_no_origin.print(variable) }};
 {%-     endif %}
 {%- endfor %}
 
