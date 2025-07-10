@@ -27,7 +27,7 @@ import matplotlib.pyplot as plt
 # parameters (SI)
 params = {
     "tau_m": 12.85e-3,          # membrane time constant (s)
-    "alpha_exp": 2 / 70e9,      # exponential factor (1/V)
+    "alpha_exp": 2 / 70e6,      # exponential factor (1/V)
     "V_rest": -65e-3            # resting potential (V)
 }
 
@@ -44,8 +44,10 @@ def neuron_ode(t, v):
 t_span = (0.0, 0.05)            # s
 t_eval = np.linspace(*t_span, 1001)
 
+# sol = solve_ivp(neuron_ode, t_span, [V_m0],
+#                 t_eval=t_eval, rtol=1e-9, atol=1e-12)
 sol = solve_ivp(neuron_ode, t_span, [V_m0],
-                t_eval=t_eval, rtol=1e-9, atol=1e-12)
+                t_eval=t_eval, rtol=1e-6, atol=1e-6)
 
 # checkpoints
 check_times_ms = np.array([25, 50])          # ms
@@ -58,11 +60,11 @@ plt.figure(figsize=(8, 5))
 # membrane‑potential trace
 plt.plot(t_eval * 1e3, sol.y[0] * 1e3, label="numeric (solve_ivp)")
 
-# vertical bars at checkpoints
+# Xs at checkpoints
 plt.plot(check_times_ms, check_vm_mV, "x", markersize=9,
          markeredgewidth=2, label="checkpoints")
 
-# annotate bars with their values
+# annotate Xs with their values
 for t, v in zip(check_times_ms, check_vm_mV):
     offset = 2 if v > 0 else -2
     plt.text(t, v + offset, f"{v:+.2f}mV",

@@ -132,6 +132,28 @@ class NonDimensionalisationVarToRealTypeVisitor(NonDimVis):
                     pass
 
 
+    def visit_inline_expression(self, node):
+        # return super().visit_inline_expression(node)
+        if (isinstance(node.data_type.type_symbol, RealTypeSymbol) or isinstance(node.data_type.type_symbol, UnitTypeSymbol)):
+            if(isinstance(node.data_type.type_symbol, RealTypeSymbol)):
+                print("\tReal number, no unit\n")
+            elif (isinstance(node.data_type.type_symbol, UnitTypeSymbol)):
+                print("The unit is: "+str(node.data_type.type_symbol.unit.unit))
+                print("The quantity is: "+str(node.data_type.type_symbol.unit.unit.physical_type))
+
+                parent_node = node.get_parent()
+                new_node_type = RealTypeSymbol()
+                # new_variable = ASTVariable(name=node.name, type_symbol=node.get_type_symbol(), scope=node.get_scope())
+                new_data_type = ASTDataType(is_real=True, type_symbol=new_node_type, scope=node.get_scope())
+
+                if isinstance(parent_node, ASTEquationsBlock):
+                    for declaration in parent_node.declarations:
+                        if declaration.variable_name == node.variable_name:
+                            declaration.data_type = new_data_type
+        pass
+        
+
+
 
 class NonDimensionalisationPreferredPrefixFactorOnRhsVisitor(NonDimVis):
     r"""
@@ -146,7 +168,7 @@ class NonDimensionalisationPreferredPrefixFactorOnRhsVisitor(NonDimVis):
 
         # get preferred prefix that declaring variable has
         if not node.data_type.is_real:
-            if str(node.data_type.type_symbol.astropy_unit.physical_type) is not "unknown":
+            if str(node.data_type.type_symbol.astropy_unit.physical_type) != "unknown":
                 if node.variables[0].name != "__h":
                     for physical_type_string in self.preferred_prefix:
                         if physical_type_string in str(node.data_type.type_symbol.astropy_unit.physical_type):
@@ -181,7 +203,8 @@ class NonDimensionalisationPreferredPrefixFactorOnRhsVisitor(NonDimVis):
         regex = self._derivate_regex(var_names)
         corresponding_non_diff_variable = regex.match(node.lhs.name).group()
         corresponding_non_diff_variable_physical_type_string = str(ASTUtils.get_variable_by_name(self.model, corresponding_non_diff_variable).type_symbol.astropy_unit.physical_type)
-        inverse_preferred_prefix_this_node_string = f"{1/self.PREFIX_FACTORS[self.preferred_prefix[corresponding_non_diff_variable_physical_type_string]]:.1E}"
+        inverse_preferred_prefix_this_node_string = f"{(1.0E-3)*1/self.PREFIX_FACTORS[self.preferred_prefix[corresponding_non_diff_variable_physical_type_string]]:.1E}"
+        # inverse_preferred_prefix_this_node_string = f"{1:.1E}"
         cloned_node = node.clone()
         lhs_expression = ASTSimpleExpression(string=inverse_preferred_prefix_this_node_string, scope=node.get_scope())
         rhs_expression = ASTExpression(is_encapsulated=True, expression=node.rhs)
@@ -192,6 +215,29 @@ class NonDimensionalisationPreferredPrefixFactorOnRhsVisitor(NonDimVis):
         for declaration in node.get_parent().declarations:
             if declaration.lhs.name == node.lhs.name:
                 declaration.rhs = cloned_node.rhs
+        pass
+
+    def visit_inline_expression(self, node):
+        if not node.data_type.is_real:
+            if str(node.data_type.type_symbol.astropy_unit.physical_type) != "unknown":
+                for physical_type_string in self.preferred_prefix:
+                    if physical_type_string in str(node.data_type.type_symbol.astropy_unit.physical_type):
+                        variable_physical_type_string = physical_type_string
+                # variable_physical_type_string = str(node.data_type.type_symbol.astropy_unit.physical_type)
+                inverse_preferred_prefix_this_node_string = f"{1/self.PREFIX_FACTORS[self.preferred_prefix[variable_physical_type_string]]:.1E}"
+                # modify the node.expression to include the metric prefix as a factor in scientific notation on the lhs
+                cloned_node = node.clone()
+                lhs_expression = ASTSimpleExpression(string=inverse_preferred_prefix_this_node_string, scope=node.get_scope())
+                rhs_expression = node.expression
+                new_sub_node = ASTExpression(is_encapsulated=False,
+                                                binary_operator=ASTArithmeticOperator(is_times_op=True),
+                                                lhs=lhs_expression, rhs=rhs_expression, scope=node.get_scope())
+                cloned_node.expression = ASTExpression(is_encapsulated=True, expression=new_sub_node, scope=node.get_scope())
+                pass
+                for declaration in node.get_parent().declarations:
+                    if declaration.variable_name == node.variable_name:
+                        declaration.expression = cloned_node.expression
+        # return super().visit_inline_expression(node)
         pass
 
 
@@ -250,15 +296,18 @@ class NonDimensionalisationSimpleExpressionVisitor(NonDimVis):
                                              unary_operator=parent_node.unary_operator)
                     if parent_node.binary_operator is not None:
                         parent_node.binary_operator = parent_node.binary_operator
-                        parent_node.rhs = new_node
-                        pass
+                        if parent_node.rhs == node:
+                            parent_node.rhs = new_node
+                        elif parent_node.lhs == node:
+                            parent_node.lhs = new_node
+                        else:
+                            raise Exception("Node is neither lhs nor rhs of parent, possibly expression - should not execute until here.")
                     elif parent_node.binary_operator is None:
                         parent_node.rhs = None
                         parent_node.expression = new_node
                         parent_node.unary_operator = None
                     else:
                         raise Exception("This case is also possible and needs handling")
-                    pass
                 if isinstance(parent_node, ASTDeclaration):
                     new_sub_node = ASTExpression(is_encapsulated=False,
                                                  binary_operator=ASTArithmeticOperator(is_times_op=True),
@@ -277,7 +326,7 @@ class NonDimensionalisationSimpleExpressionVisitor(NonDimVis):
             if node.get_numeric_literal() is None:
                 # get physical type of node
                 if isinstance(node.type, UnitTypeSymbol):
-                    if str(node.type.astropy_unit.physical_type) is not 'unknown':
+                    if str(node.type.astropy_unit.physical_type) != 'unknown':
                         variable_physical_type_string = str(node.type.astropy_unit.physical_type)
                         # get preferred prefix for this node
                         preferred_prefix_this_node_string = f"{self.PREFIX_FACTORS[self.preferred_prefix[variable_physical_type_string]]:.1E}"
@@ -291,26 +340,33 @@ class NonDimensionalisationSimpleExpressionVisitor(NonDimVis):
                         new_node = ASTExpression(is_encapsulated=True, expression=new_sub_node, scope=node.get_scope(),
                                                          unary_operator=parent_node.unary_operator)
                         # attach new node to parent node
-                        if node == parent_node.lhs:
-                            if parent_node.binary_operator is not None:
-                                parent_node.binary_operator = parent_node.binary_operator
-                                parent_node.lhs = new_node
-                                parent_node.rhs = parent_node.rhs
-                                pass
-                            elif parent_node.binary_operator is None:
-                                parent_node.rhs = None
-                                parent_node.expression = new_node
-                                parent_node.unary_operator = None
-                        if node == parent_node.rhs:
-                            if parent_node.binary_operator is not None:
-                                parent_node.binary_operator = parent_node.binary_operator
-                                parent_node.rhs = new_node
-                                parent_node.lhs = parent_node.lhs
-                                pass
-                            elif parent_node.binary_operator is None:
-                                parent_node.rhs = None
-                                parent_node.expression = new_node
-                                parent_node.unary_operator = None
+                        if node.get_parent().unary_operator is not None:
+                            grandparent_node = parent_node.get_parent()
+                            if parent_node == grandparent_node.lhs:
+                                grandparent_node.lhs = new_node
+                            if parent_node == parent_node.rhs:
+                                grandparent_node.rhs = new_node
+                        else:
+                            if node == parent_node.lhs:
+                                if parent_node.binary_operator is not None:
+                                    parent_node.binary_operator = parent_node.binary_operator
+                                    parent_node.lhs = new_node
+                                    parent_node.rhs = parent_node.rhs
+                                    pass
+                                elif parent_node.binary_operator is None:
+                                    parent_node.rhs = None
+                                    parent_node.expression = new_node
+                                    parent_node.unary_operator = None
+                            if node == parent_node.rhs:
+                                if parent_node.binary_operator is not None:
+                                    parent_node.binary_operator = parent_node.binary_operator
+                                    parent_node.rhs = new_node
+                                    parent_node.lhs = parent_node.lhs
+                                    pass
+                                elif parent_node.binary_operator is None:
+                                    parent_node.rhs = None
+                                    parent_node.expression = new_node
+                                    parent_node.unary_operator = None
 
         super().visit_simple_expression(node)
 

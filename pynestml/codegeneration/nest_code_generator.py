@@ -311,12 +311,12 @@ class NESTCodeGenerator(CodeGenerator):
         for neuron in neurons:
             code, message = Messages.get_analysing_transforming_model(neuron.get_name())
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
-            spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars, analytic_solver  = self.analyse_neuron(neuron)  # , parameter_value_dict, updated_state_dict = self.analyse_neuron(neuron)
+            spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars = self.analyse_neuron(neuron)  # , parameter_value_dict, updated_state_dict = self.analyse_neuron(neuron)
             neuron.spike_updates = spike_updates
             neuron.post_spike_updates = post_spike_updates
             neuron.equations_with_delay_vars = equations_with_delay_vars
             neuron.equations_with_vector_vars = equations_with_vector_vars
-            neuron.analytic_solver = analytic_solver
+            # neuron.analytic_solver = analytic_solver
             # neuron.parameter_value_dict = parameter_value_dict
             # neuron.updated_state_dict = updated_state_dict
 

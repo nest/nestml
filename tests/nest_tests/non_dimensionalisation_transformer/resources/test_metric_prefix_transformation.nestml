@@ -1,6 +1,6 @@
 model test_metric_prefix_transformation_neuron:
     parameters:
-        para_test real = 30
+        para_femto A = 30fA
         para_atto aH = 40aH
         para_giga Ohm = 0.5 GOhm
         para_mega Hz = 1.1 * 3MHz

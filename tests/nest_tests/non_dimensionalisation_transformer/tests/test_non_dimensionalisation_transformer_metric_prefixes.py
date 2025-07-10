@@ -54,7 +54,7 @@ class TestNonDimensionalisationTransformer:
                              codegen_opts=codegen_opts)
 
 
-    @pytest.mark.parametrize("para_name, expected", [("para_giga", 500)]) #, ("para_mega", 3300), ("para_kilo", 0.002), ("para_hecto", 102.4), ("para_deca", 2300), ("para_deci", 80), ("para_centi", 6700), ("para_milli", 6700), ("para_micro", 0.002), ("para_nano", 0.011), ("para_pico", 0.003), ("para_femto", 77000), ("para_atto", 0.04)])
+    @pytest.mark.parametrize("para_name, expected", [("para_giga", 500) , ("para_mega", 3300), ("para_kilo", 0.002), ("para_hecto", 102.4), ("para_deca", 230), ("para_deci", 0.8), ("para_centi", 0.67), ("para_milli", 4), ("para_micro", 0.002), ("para_nano", 1.1e-8), ("para_pico", 0.003), ("para_femto", 30e-15), ("para_atto", 4e-8)])
     def test_metric_prefixes(self, para_name, expected):
         """
         This test checks if the transformer can deal with all metric prefixes in the range of Giga- to Atto- can be resolved and the corresponding factor found.
@@ -79,14 +79,15 @@ class TestNonDimensionalisationTransformer:
         nest.ResetKernel()
         nest.Install("nestmlmodule")
 
-        nrn = nest.Create("non_dimensionalisation_transformer_test_neuron_nestml")
+        nrn = nest.Create("test_metric_prefix_transformation_neuron_nestml")
         mm = nest.Create("multimeter")
-        nest.SetStatus(mm, {"record_from": [para_name]})
+        # nest.SetStatus(mm, {"record_from": [para_name]})
 
         nest.Connect(mm, nrn)
 
         nest.Simulate(10.)
 
-        para_nme = mm.get("events")[para_name]
+        res = nrn.get(para_name)
 
-        np.testing.assert_allclose(para_nme, expected)
+        np.testing.assert_allclose(res, expected)
+        pass
