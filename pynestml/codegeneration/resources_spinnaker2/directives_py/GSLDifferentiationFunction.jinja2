@@ -1,0 +1,36 @@
+{#
+  Creates scipy odeint implementation of the differentiation step for the system of ODEs.
+#}
+@staticmethod
+def dynamics{% if ast.get_args() | length > 0 %}_{{ utils.integrate_odes_args_str_from_function_call(ast) }}{% endif %}(t: float, ode_state: List[float], args: Tuple[Any]) -> List[float]:
+  r"""Numerical integrator stepping function for _integrate_odes{% if ast.get_args() | length > 0 %}_{{ utils.integrate_odes_args_str_from_function_call(ast) }}{% endif %}"""
+  # ode_state[] here is---and must be---the state vector supplied by the integrator, not the state vector in the node, node.S_.ode_state[].
+  node = args
+
+  dim: int = len(ode_state)
+  f = np.empty(dim, dtype=float)
+
+{%- for equations_block in neuron.get_equations_blocks() %}
+{%-   for ode in equations_block.get_declarations() %}
+{%-     for inline_expr in utils.get_inline_expression_symbols(ode) %}
+{%-       if not inline_expr.is_equation() %}
+{%-         set declaring_expr = inline_expr.get_declaring_expression() %}
+  {{ printer.print(utils.get_variable_by_name(astnode, inline_expr)) }} = {{ gsl_printer.print(declaring_expr) }}
+{%-       endif %}
+{%-     endfor %}
+{%-   endfor %}
+{%- endfor %}
+
+{%- set var_names = numeric_state_variables %}
+{%- if paired_synapse is defined %}
+{%-     set tmp = var_names.extend(numeric_state_variables_moved) %}
+{%- endif %}
+
+{%- for variable_name in var_names %}
+{%-     set update_expr = numeric_update_expressions[variable_name] %}
+{%-     set variable_symbol = astnode.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE) %}
+  f[node.S_.ode_state_variable_name_to_index["{{ variable_symbol.name }}"]] = {% if ast.get_args() | length > 0 %}{% if variable_name in utils.integrate_odes_args_strs_from_function_call(ast) + utils.all_convolution_variable_names(astnode) %}{{ gsl_printer.print(update_expr) }}{% else %}0{% endif %}{% else %}{{ gsl_printer.print(update_expr) }}{% endif %}
+
+{%- endfor %}
+
+  return f
