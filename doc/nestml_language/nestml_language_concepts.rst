@@ -38,91 +38,39 @@ Similar to Python, a single line can be split into multiple lines by using a bac
 Data types and physical units
 -----------------------------
 
-Data types define types of variables as well as parameters and return values of functions. NESTML provides the following primitive types and physical data types:
+Data types define types of variables, as well as parameters and return values of functions. NESTML provides the following primitive types and physical data types, which can both be used to indicate types.
 
 
 Primitive data types
 ~~~~~~~~~~~~~~~~~~~~
 
--  ``real`` corresponds to the ``double`` data type in C++. Example literals are: ``42.0``, ``-0.42``, ``.44``
--  ``integer`` corresponds to the ``long`` data type in C++. Example literals are: ``42``, ``-7``
--  ``boolean`` corresponds to the ``bool`` data type in C++. Its only literals are ``true`` and ``false``
--  ``string`` corresponds to the ``std::string`` data type in C++. Example literals are: ``"Bob"``, ``""``, ``"Hello World!"``
--  ``void`` corresponds to the ``void`` data type in C++. No literals are possible and this can only be used in the declaration of a function without a return value.
+-  ``real`` indicates a real number. Example literals are: ``42.0``, ``-0.42``, ``.44``
+-  ``integer`` indicates a natural number (signed integer). Example literals are: ``42``, ``-7``
+-  ``boolean`` indicates a Boolean value. Its only literals are ``true`` and ``false``
+-  ``string`` indicates a text string. Example literals are: ``"Bob"``, ``""``, ``"Hello World!"``
+-  ``void`` can only be used in the declaration of a function to indicate that it does not return a value.
 
 
 Physical units
 ~~~~~~~~~~~~~~
 
-A physical unit in NESTML can be either a simple physical unit or a complex physical unit. A simple physical unit is composed of an optional magnitude prefix and the name of the unit.
+A physical unit in NESTML can be either a base physical unit or a derived physical unit. The following table lists the seven base units as defined in `the SI standard <https://en.wikipedia.org/wiki/International_System_of_Units>`__.
 
-The following table lists seven base units, which can be used to specify any physical unit. This idea is based on `the SI units <https://en.wikipedia.org/wiki/International_System_of_Units>`__.
++-----------+--------+---------------------+
+| Name      | Symbol | Quantity            |
+|===========|========|=====================|
+| meter     | m      | length              |
+| kilogram  | kg     | mass                |
+| second    | s      | time                |
+| Ampère    | A      | electric current    |
+| Kelvin    | K      | temperature         |
+| mole      | mol    | amount of substance |
+| candela   | cd     | luminous intensity  |
++-----------+--------+---------------------+
 
-+-----------------------+-------------+------------------+
-| Quantity              | Unit Name   | NESTML/SI unit   |
-+=======================+=============+==================+
-| length                | meter       | m                |
-+-----------------------+-------------+------------------+
-| mass                  | kilogram    | kg               |
-+-----------------------+-------------+------------------+
-| time                  | second      | s                |
-+-----------------------+-------------+------------------+
-| electric current      | ampere      | A                |
-+-----------------------+-------------+------------------+
-| temperature           | kelvin      | K                |
-+-----------------------+-------------+------------------+
-| amount of substance   | mole        | mol              |
-+-----------------------+-------------+------------------+
-| luminous intensity    | candela     | cd               |
-+-----------------------+-------------+------------------+
+Any other physical unit can be expressed as a combination of these seven units. For this, the operators ``*`` (multiplication), ``/`` (division), ``**`` (power) and ``()`` (parentheses) can be used (see below for examples).
 
-Any other physical unit can be expressed as a combination of these seven units. These other units are called derived units. NESTML provides a concept for the derivation of new physical units, i.e., by combining simple units (consisting of a prefix and an SI unit), the user is able to create arbitrary physical units.
-
-Units can have at most one of the following magnitude prefixes:
-
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| Factor   | SI Name   | NESTML prefix   | Factor   | SI Name   | NESTML prefix   |
-+==========+===========+=================+==========+===========+=================+
-| 10^-1    | deci      | d               | 10^1     | deca      | da              |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-2    | centi     | c               | 10^2     | hecto     | h               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-3    | milli     | m               | 10^3     | kilo      | k               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-6    | micro     | u               | 10^6     | mega      | M               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-9    | nano      | n               | 10^9     | giga      | G               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-12   | pico      | p               | 10^12    | tera      | T               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-15   | femto     | f               | 10^15    | peta      | P               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-18   | atto      | a               | 10^18    | exa       | E               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-21   | zepto     | z               | 10^21    | zetta     | Z               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-24   | yocto     | y               | 10^24    | yotta     | Y               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-
-Simple physical units can be combined to complex units. For this, the operators , ``*`` (multiplication), ``/`` (division), ``**`` (power) and ``()`` (parenthesis) can be used. An example could be
-
-.. code-block:: nestml
-
-   mV*mV*nS**2/(mS*pA)
-
-Units of the form ``<unit> ** -1`` can also be expressed as ``1/<unit>``. For example
-
-.. code-block:: nestml
-
-   (ms*mV)**-1
-
-is equivalent to
-
-.. code-block:: nestml
-
-   1/(ms*mV)
-
-NESTML also supports the usage of named derived-units such as Newton, Henry or lux:
+NESTML also supports the usage of many named derived units such as Newton, Henry or lux. The following units are defined:
 
 .. list-table::
    :header-rows: 1
@@ -184,14 +132,14 @@ NESTML also supports the usage of named derived-units such as Newton, Henry or l
      - C/V
      - kg\ :sup:`−1`\ ⋅ m\ :sup:`−2`\ ⋅ s\ :sup:`4`\ ⋅ A\ :sup:`2`
    * - Ohm
-     - Ω
+     - Ohm
      - resistance, impedance, reactance
      - V/A
      - kg⋅(m\ :sup:`2`\ ) ⋅ (s\ :sup:`−3`\ ) ⋅(A\ :sup:`−2`\ )
    * - Siemens
      - S
      - electrical conductance
-     - Ω\ :sup:`−1`
+     - Ohm\ :sup:`−1`
      - (kg\ :sup:`−1`\ ) ⋅(m\ :sup:`−2`\ ) ⋅(s\ :sup:`3`\ ) ⋅ A\ :sup:`2`
    * - Weber
      - Wb
@@ -240,17 +188,61 @@ NESTML also supports the usage of named derived-units such as Newton, Henry or l
      - mol⋅(s\ :sup:`−1`\ )
 
 
-Here, except for Ohm, the symbol of the unit has to be used in the model, e.g.:
+These unit symbols can be used to define physical quantites, for instance:
 
 .. code-block:: nestml
 
-   x = 10 N * 22 Ohm / 0.5 V
+   x N/A = 10 N * 22 Ohm / 0.5 V
+
+Physical units can have at most one of the following magnitude prefixes:
+
++----------+-----------+-----------------+----------+-----------+-----------------+
+| Factor   | SI Name   | NESTML prefix   | Factor   | SI Name   | NESTML prefix   |
++==========+===========+=================+==========+===========+=================+
+| 10^-1    | deci      | d               | 10^1     | deca      | da              |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-2    | centi     | c               | 10^2     | hecto     | h               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-3    | milli     | m               | 10^3     | kilo      | k               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-6    | micro     | u               | 10^6     | mega      | M               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-9    | nano      | n               | 10^9     | giga      | G               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-12   | pico      | p               | 10^12    | tera      | T               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-15   | femto     | f               | 10^15    | peta      | P               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-18   | atto      | a               | 10^18    | exa       | E               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-21   | zepto     | z               | 10^21    | zetta     | Z               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-24   | yocto     | y               | 10^24    | yotta     | Y               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+
+For example, the following defines a possible unit:
+
+.. code-block:: nestml
+
+   mV*mV*nS**2/(mS*pA)
+
+Units of the form ``<unit>**-1`` can also be expressed as ``1/<unit>``. For example
+
+.. code-block:: nestml
+
+   (ms*mV)**-1
+
+is equivalent to
+
+.. code-block:: nestml
+
+   1/(ms*mV)
 
 
 Type and unit checks
 ~~~~~~~~~~~~~~~~~~~~
 
-NESTML checks type correctness of all expressions. This also applies to assignments, declarations with an initialization and function calls. NESTML supports conversion of ``integer``\ s to ``real``\ s. A conversion between ``unit``-typed and ``real``-typed variables is also possible. However, these conversions are reported as warnings. Finally, there is no conversion between numeric types and boolean or string types.
+NESTML checks type correctness of all expressions. This also applies to assignments, declarations with an initialization, ODEs, and function calls. Conversion of ``integer``\ s to ``real``\ s is allowed. A conversion between ``unit``-typed and ``real``-typed variables is also allowed. However, these conversions are reported as warnings. No conversion is allowed between numeric types and Boolean or string types.
 
 
 Basic elements of the embedded programming language
