@@ -560,7 +560,7 @@ def process() -> bool:
         store_log_to_file()
 
     # return a boolean indicating whether errors occurred
-    return len(Logger.get_all_messages_of_level(LoggingLevel.ERROR)) > 0
+    return len(Logger.get_messages(level=LoggingLevel.ERROR)) > 0
 
 
 def init_predefined():

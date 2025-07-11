@@ -59,7 +59,7 @@ class Logger:
     are printed.
 
     Attributes:
-        log       Stores all messages as received during the execution. Map from id (int) to node,type,message
+        log Stores all messages as received during the execution. The log is a map from ID (int) to a tuple: (artifact_name, current_node, log_level, code, error_position, message).
         curr_message A counter indicating the current message, this enables a sorting by the number of message
         logging_level Indicates messages of which level shall be printed to the screen.
         current_node The currently processed model. This enables to retrieve all messages belonging to a certain model
@@ -94,9 +94,11 @@ class Logger:
     @classmethod
     def get_log(cls) -> Mapping[int, Tuple[ASTNode, LoggingLevel, str]]:
         """
-        Returns the overall log of messages. The structure of the log is: (NODE, LEVEL, MESSAGE)
+        Returns the overall log of messages.
 
-        :return: mapping from id to ASTNode, log level and message.
+        The log is a map from ID (int) to a tuple: (artifact_name, current_node, log_level, code, error_position, message).
+
+        :return: the log
         """
         return cls.log
 
@@ -243,7 +245,7 @@ class Logger:
         cls.current_node = node
 
     @classmethod
-    def get_all_messages_of_level_and_or_node(cls, node: Union[ASTNode, str], level: LoggingLevel) -> List[Tuple[ASTNode, LoggingLevel, str]]:
+    def get_messages(cls, node: Optional[Union[ASTNode, str]] = None, level: Optional[LoggingLevel] = None, message_code: Optional[int] = None) -> List[Tuple[ASTNode, LoggingLevel, str]]:
         """
         Returns all messages which have a certain logging level, or have been reported for a certain node, or both.
 
@@ -264,44 +266,7 @@ class Logger:
 
         ret = list()
         for (artifactName, node_i, logLevel, code, errorPosition, message) in cls.log.values():
-            if (level == logLevel if level is not None else True) and (node if node is not None else True) and (node_artifact_name == artifactName if node is not None else True):
-                ret.append((node, logLevel, message))
-
-        return ret
-
-    @classmethod
-    def get_all_messages_of_level(cls, level: LoggingLevel) -> List[Tuple[ASTNode, LoggingLevel, str]]:
-        """
-        Returns all messages which have a certain logging level.
-
-        :param level: a logging level
-        :return: a list of messages with their levels.
-        """
-        if level is None:
-            return cls.get_log()
-
-        ret = list()
-        for (artifactName, node, logLevel, code, errorPosition, message) in cls.log.values():
-            if level == logLevel:
-                ret.append((node, logLevel, message))
-
-        return ret
-
-    @classmethod
-    def get_all_messages_of_node(cls, node: ASTNode) -> List[Tuple[ASTNode, LoggingLevel, str]]:
-        """
-        Returns all messages which have been reported for a certain node.
-
-        :param node: a single node instance
-        :return: a list of messages with their levels.
-        """
-        if node is None:
-            return cls.get_log()
-
-        ret = list()
-        for (artifactName, node_i, logLevel, code, errorPosition, message) in cls.log.values():
-            if (node_i == node if node is not None else True) and \
-                    (node.get_artifact_name() == artifactName if node is not None else True):
+            if (level == logLevel if level is not None else True) and (node if node is not None else True) and (node_artifact_name == artifactName if node is not None else True) and (code == message_code if message_code is not None else True):
                 ret.append((node, logLevel, message))
 
         return ret
@@ -314,7 +279,7 @@ class Logger:
         :param node: a single node instance.
         :return: True if errors detected, otherwise False
         """
-        return len(cls.get_all_messages_of_level_and_or_node(node, LoggingLevel.ERROR)) > 0
+        return len(cls.get_messages(node, LoggingLevel.ERROR)) > 0
 
     @classmethod
     def get_json_format(cls) -> str:

@@ -60,7 +60,7 @@ class TestCoCos:
                         os.path.dirname(__file__), 'resources',
                         'invalid')),
                 'CoCoCmVariablesDeclared.nestml'))
-        assert len(Logger.get_all_messages_of_level_and_or_node(
+        assert len(Logger.get_messages(
             model, LoggingLevel.ERROR)) == 6
 
     def test_valid_cm_variables_declared(self):
@@ -71,7 +71,7 @@ class TestCoCos:
                         os.path.dirname(__file__), 'resources',
                         'valid')),
                 'CoCoCmVariablesDeclared.nestml'))
-        assert len(Logger.get_all_messages_of_level_and_or_node(
+        assert len(Logger.get_messages(
             model, LoggingLevel.ERROR)) == 0
 
     # it is currently not enforced for the non-cm parameter block, but cm
@@ -84,7 +84,7 @@ class TestCoCos:
                         os.path.dirname(__file__), 'resources',
                         'invalid')),
                 'CoCoCmVariableHasRhs.nestml'))
-        assert len(Logger.get_all_messages_of_level_and_or_node(
+        assert len(Logger.get_messages(
             model, LoggingLevel.ERROR)) == 2
 
     def test_valid_cm_variable_has_rhs(self):
@@ -96,7 +96,7 @@ class TestCoCos:
                         os.path.dirname(__file__), 'resources',
                         'valid')),
                 'CoCoCmVariableHasRhs.nestml'))
-        assert len(Logger.get_all_messages_of_level_and_or_node(
+        assert len(Logger.get_messages(
             model, LoggingLevel.ERROR)) == 0
 
     # it is currently not enforced for the non-cm parameter block, but cm
@@ -109,7 +109,7 @@ class TestCoCos:
                         os.path.dirname(__file__), 'resources',
                         'invalid')),
                 'CoCoCmVcompExists.nestml'))
-        assert len(Logger.get_all_messages_of_level_and_or_node(
+        assert len(Logger.get_messages(
             model, LoggingLevel.ERROR)) == 4
 
     def test_valid_cm_v_comp_exists(self):
@@ -121,7 +121,7 @@ class TestCoCos:
                         os.path.dirname(__file__), 'resources',
                         'valid')),
                 'CoCoCmVcompExists.nestml'))
-        assert len(Logger.get_all_messages_of_level_and_or_node(
+        assert len(Logger.get_messages(
             model, LoggingLevel.ERROR)) == 0
 
     def _parse_and_validate_model(self, fname: str) -> Optional[str]:
