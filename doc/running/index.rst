@@ -67,6 +67,16 @@ Currently, the following target platforms are supported for code generation. Cli
 
       |pretty_render_logo|
 
+.. grid:: 2
+
+   .. grid-item-card::
+      :text-align: center
+      :class-title: sd-d-flex-row sd-align-minor-center
+
+      :doc:`GeNN </running/running_genn>`
+
+      |genn_logo|
+
 
 .. |nest_logo| image:: ../fig/nest-simulator-logo.png
    :width: 95px
@@ -87,6 +97,11 @@ Currently, the following target platforms are supported for code generation. Cli
    :width: 100px
    :height: 40px
    :target: running_pretty_render.html
+
+.. |genn_logo| image:: ../fig/genn-logo-thumbnail.png
+   :width: 100px
+   :height: 36px
+   :target: running_genn.html
 
 .. |nest_desktop_logo| image:: ../fig/nest-desktop.svg
    :width: 40px
