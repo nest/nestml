@@ -115,9 +115,9 @@ class CustomPythonStandaloneCodeGenerator(PythonStandaloneCodeGenerator):
         namespace["gsl_printer"] = self._gsl_printer
         namespace["neuronName"] = astnode.get_name()
         namespace["neuron"] = astnode
-        namespace["parameters"], namespace["state"] = PythonStandaloneTargetTools.get_neuron_parameters_and_state(astnode.file_path)
-        namespace["propagators_as_math_expressions"] = Spinnaker2TargetTools.get_propagators_as_math_expressions(
-            namespace["neuron"], namespace["parameters"])
+        # namespace["parameters"], namespace["state"] = PythonStandaloneTargetTools.get_neuron_parameters_and_state(astnode.file_path)
+        # namespace["propagators_as_math_expressions"] = Spinnaker2TargetTools.get_propagators_as_math_expressions(
+        #     namespace["neuron"], namespace["parameters"])
         return namespace
 
 
