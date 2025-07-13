@@ -137,12 +137,11 @@ class UnitTypeSymbol(TypeSymbol):
 
     def attempt_magnitude_cast(self, other):
         if self.differs_only_in_magnitude(other):
-            factor = UnitTypeSymbol.get_conversion_factor(other.astropy_unit, self.astropy_unit)
-            other.referenced_object.set_implicit_conversion_factor(factor)
-            code, message = Messages.get_implicit_magnitude_conversion(self, other, factor)
-            Logger.log_message(code=code, message=message,
-                               error_position=self.referenced_object.get_source_position(),
-                               log_level=LoggingLevel.INFO)
+            # factor = UnitTypeSymbol.get_conversion_factor(other.astropy_unit, self.astropy_unit)
+            # code, message = Messages.get_implicit_magnitude_conversion(self, other, factor)
+            # Logger.log_message(code=code, message=message,
+            #                    error_position=self.referenced_object.get_source_position(),
+            #                    log_level=LoggingLevel.INFO)
 
             return self
 

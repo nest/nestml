@@ -317,6 +317,7 @@ class NESTCodeGenerator(CodeGenerator):
             neuron.equations_with_delay_vars = equations_with_delay_vars
             neuron.equations_with_vector_vars = equations_with_vector_vars
             # neuron.analytic_solver = analytic_solver
+            # neuron.analytic_solver = analytic_solver
             # neuron.parameter_value_dict = parameter_value_dict
             # neuron.updated_state_dict = updated_state_dict
 

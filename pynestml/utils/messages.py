@@ -217,12 +217,6 @@ class Messages:
         return MessageCode.CONVOLVE_NEEDS_BUFFER_PARAMETER, message
 
     @classmethod
-    def get_implicit_magnitude_conversion(cls, lhs, rhs, conversion_factor):
-        message = 'Implicit magnitude conversion from %s to %s with factor %s ' % (
-            lhs.print_symbol(), rhs.print_symbol(), conversion_factor)
-        return MessageCode.IMPLICIT_CAST, message
-
-    @classmethod
     def get_function_call_implicit_cast(
             cls,
             arg_nr,

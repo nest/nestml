@@ -1,0 +1,6 @@
+model test_inline_expression_in_equation_block_transformation_neuron:
+    equations:
+        inline I_spike_test A = 30.0 nS * (-V_m_init / 130e3) * exp(((-80 mV) - (-20 mV)) / 3000 uV)
+
+    parameters:
+        V_m_init mV = -65 mV     # Initial membrane potential
