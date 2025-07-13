@@ -139,9 +139,11 @@ class NonDimensionalisationVarToRealTypeVisitor(NonDimVis):
             new_node_type = RealTypeSymbol()
             new_data_type = ASTDataType(is_real=True, type_symbol=new_node_type, scope=node.get_scope())
             parent_node = node.get_parent()
-            for inputportexpression in parent_node.input_definitions:
+            for index, inputportexpression in enumerate(parent_node.input_definitions):
                 if inputportexpression.name == node.name:
-                    inputportexpression.datatype = new_data_type
+                    new_node = node.clone()
+                    new_node.data_type = new_data_type
+                    parent_node.input_definitions[index] = new_node
         pass
 
 
