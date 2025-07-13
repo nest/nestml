@@ -424,7 +424,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         spike_updates, post_spike_updates = self.get_spike_update_expressions(neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
 
-        return spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars, analytic_solver  # , parameter_value_dict, updated_state_dict
+        return spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars# , analytic_solver  , parameter_value_dict, updated_state_dict
 
     def analyse_synapse(self, synapse: ASTModel) -> Dict[str, ASTAssignment]:
         """
