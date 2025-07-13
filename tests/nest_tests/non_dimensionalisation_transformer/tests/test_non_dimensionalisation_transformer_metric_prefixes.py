@@ -37,13 +37,28 @@ class TestNonDimensionalisationTransformer:
     The test for Femto- includes the use of a combined physical type, the "magnetic field strength".
 
     """
-
+    @pytest.fixture(scope="module", autouse=True)
     def generate_code_metric_prefixes(self, codegen_opts=None):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "../resources", "test_metric_prefix_transformation.nestml")))
         target_path = "target"
         logging_level = "DEBUG"
         module_name = "nestmlmodule"
         suffix = "_nestml"
+
+        codegen_opts = {"quantity_to_preferred_prefix": {"electrical potential": "m",  # needed for V_m_init and U_m
+                                                         "electrical current": "1",  # needed for currents not part of the test
+                                                         "electrical capacitance": "1",  # needed for caps not part of the test
+                                                         "electrical resistance": "M",
+                                                         "frequency": "k",
+                                                         "power": "M",
+                                                         "pressure": "k",
+                                                         "length": "1",
+                                                         "amount of substance": "1",
+                                                         "electrical conductance": "m",
+                                                         "inductance": "n",
+                                                         "time": "f",
+                                                         }
+        }
 
         nest.set_verbosity("M_ALL")
         generate_nest_target(input_path,
@@ -59,22 +74,6 @@ class TestNonDimensionalisationTransformer:
         """
         This test checks if the transformer can deal with all metric prefixes in the range of Giga- to Atto- can be resolved and the corresponding factor found.
         """
-        codegen_opts = {"quantity_to_preferred_prefix": {"electrical potential": "m",  # needed for V_m_init and U_m
-                                                         "electrical current": "1",  # needed for currents not part of the test
-                                                         "electrical capacitance": "1",  # needed for caps not part of the test
-                                                         "electrical resistance": "M",
-                                                         "frequency": "k",
-                                                         "power": "M",
-                                                         "pressure": "k",
-                                                         "length": "1",
-                                                         "amount of substance": "1",
-                                                         "electrical conductance": "m",
-                                                         "inductance": "n",
-                                                         "time": "f",
-                                                         }
-        }
-        self.generate_code_metric_prefixes(codegen_opts)
-        assert True
 
         nest.ResetKernel()
         nest.Install("nestmlmodule")
