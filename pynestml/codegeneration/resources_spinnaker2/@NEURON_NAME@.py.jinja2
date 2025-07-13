@@ -23,18 +23,17 @@
 import numpy as np
 import math
 import re
+from enum import Enum
 
 from spinnaker2.neuron_models.application import BaseApplication
 from spinnaker2.coordinates import ByteAddr, align_addr_to_next_multiple_of_other
-from spinnaker2.configuration import MemoryRegion, PEConfig
+from spinnaker2.configuration import MemoryRegion, PEConfig, MemoryHandler
 from spinnaker2.coordinates import ByteAddr
 from spinnaker2.mapper import SynapseWordSize, SynapseWordSpec
 from spinnaker2.neuron_models.application import BaseApplication
 from spinnaker2.neuron_models.common import (
     N_WORDS_MPT_ENTRY,
-    add_log_memory_region,
-    collect_routing_targets,
-    format_routing_targets,
+    format_routing_info,
 )
 
 
@@ -71,14 +70,44 @@ class {{neuronName}}Application(BaseApplication):
         {%- endfor %}
     }
 
-    max_atoms_per_core = 48
+    max_atoms_per_core = 10
     splittable = True
     recordables = ["spikes", "v", "v_last", "time_done"]
+
     # fixed addresses
-    neuron_params_addr = ByteAddr(0xE400)
-    data_spec_addr = ByteAddr(0x10200)
-    log_addr = ByteAddr(0x1B000)
-    data_spec_max_size = 16  # in words
+    # Lowest available address for the application: needs to be hand-tuned
+    # This needs to be aligned with the C code
+    # Error log is used before the data region is initialised
+    error_log_address = 0xE000
+    # Data region starts after the error log
+    first_address = 0xE900
+    # Start of the log memory region. This can be None to maximize memory usage
+    # Size of the log memory region. This can be None if log_address is None
+    log_size = 1000
+
+    # Size of the error log memory region. Need to match the C code !!
+    error_log_size = (first_address - error_log_address) // 4
+
+
+    # memory regions
+    # /!\ must be in the same order as on the hardware side (data_specification.h)
+
+    regions = Enum(
+        "regions",
+        [
+            "ROUTING_TABLE",
+            "TIMER_CONFIG",
+            "GLOBAL_PARAMS",
+            "MPT_INFO",
+            "MPT",
+            "SYN_ROW",
+            "NEURONS_PARAMS",
+            "SPIKE_RECORD",
+            "VOLTAGE_RECORD",
+            "TIME_DONE_RECORD",
+            "LOG",
+        ],
+    )
 
     def __init__(self):
         app_name =  "{{ neuronName }}"
@@ -273,16 +302,23 @@ class {{neuronName}}Application(BaseApplication):
             return raw_data.tolist()
 
 
-    def pe_config(self, pe, mapper, sim_cfg, debug=True):
+    def pe_config(self, pe, mapper, sim_cfg, debug=1):
         """
         return PE configuration for a given PE
         """
 
         config = PEConfig(pe, self.name, self.mem_file)
+        memory_handler = MemoryHandler(self.name, self.first_address)
         pop_slice = mapper.mapping.get_population_slice(pe)
 
-        if debug:
-            add_log_memory_region(config, self.log_addr, 4000)
+        assert (
+            ByteAddr(self.error_log_address) + self.error_log_size * 4
+        ) <= self.first_address, "Error logs overlap with data specification address"
+
+        # Add error log memory region
+        config.add_mem_region_to_read(
+            "error_log", MemoryRegion(ByteAddr(self.error_log_address).to_WordAddr(), self.error_log_size)
+        )
 
         neuron_params = pop_slice.pop.params
         weight_scaling_factor = neuron_params.get("weight_scaling_factor", self.default_parameters["weight_scaling_factor"])
@@ -298,32 +334,60 @@ class {{neuronName}}Application(BaseApplication):
         propagator_expressions = self.calculate_propagator_expressions(default_parameters=self.default_parameters, propagators=self.propagators, user_params=neuron_params)
         evaluated_expression = self.evaluate_propagator_expressions(propagator_expressions)
         neuron_params_raw = self.convert_calculated_propagators_to_raw_data(evaluated_expression, pop_slice)
+        memory_handler.add_mem_region(
+            name=self.regions.NEURONS_PARAMS.name,
+            index=self.regions.NEURONS_PARAMS.value,
+            data=neuron_params_raw,
+            size=len(neuron_params_raw),
+            send=True,
+            read=False,
+        )
+        timesteps_to_record = sim_cfg["n_simulation_ticks"]
+
+
 
         ################
         # routing info #
         ################
-        target_cores = mapper.routing_targets.get(pe, set())
-        tgt_qpes_and_pes = collect_routing_targets(target_cores)
-        n_targets = len(tgt_qpes_and_pes)
-        routing_targets_raw = format_routing_targets(tgt_qpes_and_pes)
+        n_targets, routing_targets_raw = format_routing_info(mapper, pe)
         key_offset = mapper.key_offsets[pe]
 
-        rt_addr = ByteAddr(self.data_spec_addr + self.data_spec_max_size * 4)
-        routing_targets_addr = ByteAddr(rt_addr + 3 * 4)  # start address of routing table
+        # Data and size is set later, but we need the start address now
+        memory_handler.add_mem_region(
+            name=self.regions.ROUTING_TABLE.name,
+            index=self.regions.ROUTING_TABLE.value,
+            size=None,
+            data=None,
+            send=True,
+            read=False,
+        )
+
+        routing_targets_addr = ByteAddr(
+            memory_handler.get_start_address(self.regions.ROUTING_TABLE.name) + 3 * 4
+        )  # start address of routing table
         rt_data = [
             key_offset,
             n_targets,
             routing_targets_addr,
         ] + routing_targets_raw
-        config.add_mem_data_to_send(rt_addr.to_WordAddr(), rt_data)
+        memory_handler.set_data(self.regions.ROUTING_TABLE.name, rt_data)
+        memory_handler.set_size(self.regions.ROUTING_TABLE.name, len(rt_data))
+
 
         ################
         # timer config #
         ################
-        timer_config_addr = align_addr_to_next_multiple_of_other(ByteAddr(rt_addr + len(rt_data) * 4), ByteAddr(0x10))
-        timer_config_addr = ByteAddr(timer_config_addr)
         sim_config = [sim_cfg["timer_period"], sim_cfg["n_simulation_ticks"]]
-        config.add_mem_data_to_send(timer_config_addr.to_WordAddr(), sim_config)
+
+        memory_handler.add_mem_region(
+            name=self.regions.TIMER_CONFIG.name,
+            index=self.regions.TIMER_CONFIG.value,
+            data=sim_config,
+            size=len(sim_config),
+            send=True,
+            read=False,
+        )
+
 
         #################
         # global params #
@@ -341,6 +405,9 @@ class {{neuronName}}Application(BaseApplication):
             record_v_last = "v_last" in pop_slice.pop.record
             record_v = 1 if record_v_all else 2 if record_v_last else 0
             time_done_flag = "time_done" in pop_slice.pop.record
+            log_size_list = list([self.log_size])
+            # log_size_array = np.array(log_size_list, dtype=np.float32)
+            # log_size_raw = np.frombuffer(log_size_array.data, dtype=np.uint32).tolist()
             global_params_raw = [
                 n_neurons,
                 int(record_spikes),
@@ -348,7 +415,9 @@ class {{neuronName}}Application(BaseApplication):
                 int(self.profiling),
                 int(time_done_flag),
                 calc_step_raw[0],
-                weight_scaling_factor_raw[0]
+                weight_scaling_factor_raw[0],
+                int(debug),
+                int(self.log_size)
             ]
 
         else:
@@ -365,123 +434,128 @@ class {{neuronName}}Application(BaseApplication):
                 int(self.profiling),
                 int(time_done_flag),
             ]
-        global_params_addr = align_addr_to_next_multiple_of_other(
-            ByteAddr(timer_config_addr + len(sim_config) * 4), ByteAddr(0x10)
+
+        memory_handler.add_mem_region(
+            name=self.regions.GLOBAL_PARAMS.name,
+            index=self.regions.GLOBAL_PARAMS.value,
+            data=global_params_raw,
+            size=len(global_params_raw),
+            send=True,
+            read=False,
         )
-        global_params_addr = ByteAddr(global_params_addr)
-        config.add_mem_data_to_send(global_params_addr.to_WordAddr(), global_params_raw)
+
 
         ############################################
         # master population table and synapse rows #
         ############################################
-
-        # Master population table info
-        mpt_info_addr = align_addr_to_next_multiple_of_other(
-            ByteAddr(global_params_addr + len(global_params_raw) * 4),
-            ByteAddr(0x10),
-        )
-        mpt_info_addr = ByteAddr(mpt_info_addr)
         mpt_info_len = 2
+        # Data is set later, but we need the start address now
+        memory_handler.add_mem_region(
+            name=self.regions.MPT_INFO.name,
+            index=self.regions.MPT_INFO.value,
+            data=None,
+            size=mpt_info_len,
+            send=True,
+            read=False,
+        )
 
-        # 1: estimate size of MPT
+
+
+        # Estimate size of MPT
         mpt_length = mapper.estimate_master_pop_table_length(pe)
-
-        mpt_addr = align_addr_to_next_multiple_of_other(ByteAddr(mpt_info_addr + mpt_info_len * 4), ByteAddr(0x10))
-        mpt_addr = ByteAddr(mpt_addr)
         mpt_n_bytes = mpt_length * N_WORDS_MPT_ENTRY * 4
 
-        syn_row_addr = align_addr_to_next_multiple_of_other(ByteAddr(mpt_addr + mpt_n_bytes), ByteAddr(0x10))
-        syn_row_addr = ByteAddr(syn_row_addr)
-
-        all_syn_rows_raw, pop_table_raw = mapper.synapse_rows_and_master_pop_table(pe, self.sw_spec, syn_row_addr)
-        syn_row_addr_end = ByteAddr(syn_row_addr + len(all_syn_rows_raw) * 4)
+        memory_handler.add_mem_region(
+            name=self.regions.MPT.name, index=self.regions.MPT.value, data=None, size=mpt_n_bytes, send=True, read=False
+        )
 
         # Master population table info
-        mpt_info_raw = [mpt_addr, mpt_length]
+        mpt_info_raw = [memory_handler.get_start_address(self.regions.MPT.name), mpt_length]
         assert len(mpt_info_raw) == mpt_info_len  # make sure that the addresses don't overlap
-        config.add_mem_data_to_send(mpt_info_addr.to_WordAddr(), mpt_info_raw)
+        memory_handler.set_data(self.regions.MPT_INFO.name, mpt_info_raw)
+
+        # Data and size are set later, but we need the start address now
+        memory_handler.add_mem_region(
+            name=self.regions.SYN_ROW.name,
+            index=self.regions.SYN_ROW.value,
+            data=None,
+            size=None,
+            send=True,
+            read=False,
+        )
+
+        all_syn_rows_raw, pop_table_raw = mapper.synapse_rows_and_master_pop_table(
+            pe=pe, sw_spec=self.sw_spec, syn_rows_start=memory_handler.get_start_address(self.regions.SYN_ROW.name)
+        )
+
+        memory_handler.set_data(self.regions.MPT.name, pop_table_raw)
+        memory_handler.set_data(self.regions.SYN_ROW.name, all_syn_rows_raw)
+        memory_handler.set_size(self.regions.SYN_ROW.name, len(all_syn_rows_raw))
+
 
         ###################
         # spike recording #
         ###################
-        if record_spikes:
-            SPIKE_RECORD_LENGTH = (self.max_atoms_per_core + 31) // 32 + 2
-            timesteps_to_record = sim_cfg["n_simulation_ticks"]
-            spike_recording_total_words = SPIKE_RECORD_LENGTH * timesteps_to_record
-            spike_record_addr = align_addr_to_next_multiple_of_other(syn_row_addr_end, ByteAddr(0x10))
-            spike_record_addr = ByteAddr(spike_record_addr)
-            config.add_mem_region_to_read(
-                "spike_record",
-                MemoryRegion(spike_record_addr.to_WordAddr(), spike_recording_total_words),
-            )
-            spike_record_addr_end = ByteAddr(spike_record_addr + spike_recording_total_words * 4)
-        else:
-            spike_record_addr = syn_row_addr_end
-            spike_record_addr_end = syn_row_addr_end
+        # Note that this takes the actual number of neurons, not the maximum number of atoms per core
+        SPIKE_RECORD_LENGTH = (n_neurons + 31) // 32 + 2
+        spike_recording_total_words = SPIKE_RECORD_LENGTH * timesteps_to_record
+        memory_handler.add_mem_region(
+            name=self.regions.SPIKE_RECORD.name,
+            index=self.regions.SPIKE_RECORD.value,
+            data=None,
+            size=spike_recording_total_words if record_spikes else 0,
+            send=False,
+            read=record_spikes,
+        )
+
 
         #####################
         # voltage recording #
         #####################
-        if record_v_all or record_v_last:
-            timesteps_to_record = sim_cfg["n_simulation_ticks"] if record_v_all else 1
-            voltage_record_addr = align_addr_to_next_multiple_of_other(spike_record_addr_end, ByteAddr(0x10))
-            voltage_record_addr = ByteAddr(voltage_record_addr)
-            # for each timestep: 1 word header + n_neurons*voltages
-            voltage_recording_total_words = (1 + n_neurons) * timesteps_to_record
-            config.add_mem_region_to_read(
-                "voltage_record", MemoryRegion(voltage_record_addr.to_WordAddr(), voltage_recording_total_words)
-            )
-            voltage_record_addr_end = ByteAddr(voltage_record_addr + voltage_recording_total_words * 4)
-        else:
-            voltage_record_addr = spike_record_addr_end
-            voltage_record_addr_end = spike_record_addr_end
+        voltage_recording_total_words = (1 + n_neurons) * (timesteps_to_record if record_v_all else 1)
+        memory_handler.add_mem_region(
+            name=self.regions.VOLTAGE_RECORD.name,
+            index=self.regions.VOLTAGE_RECORD.value,
+            data=None,
+            size=voltage_recording_total_words if record_v else 0,
+            send=False,
+            read=record_v,
+        )
+
 
         #######################
         # time done recording #
         #######################
+        memory_handler.add_mem_region(
+            name=self.regions.TIME_DONE_RECORD.name,
+            index=self.regions.TIME_DONE_RECORD.value,
+            data=None,
+            size=timesteps_to_record if time_done_flag else 0,
+            send=False,
+            read=time_done_flag,
+        )
 
-        if time_done_flag:
-            timesteps_to_record = sim_cfg["n_simulation_ticks"]
-            time_done_addr = align_addr_to_next_multiple_of_other(voltage_record_addr_end, ByteAddr(0x10))
-            time_done_addr = ByteAddr(time_done_addr)
-            config.add_mem_region_to_read(
-                "time_done_record",
-                MemoryRegion(time_done_addr.to_WordAddr(), timesteps_to_record),
-            )
-            time_done_addr_end = ByteAddr(time_done_addr + timesteps_to_record * 4)
 
-        else:
-            time_done_addr = voltage_record_addr
-            time_done_addr_end = voltage_record_addr_end
+        #######################
+        # Logs #
+        #######################
+        memory_handler.add_mem_region(
+            name=self.regions.LOG.name,
+            index=self.regions.LOG.value,
+            data=None,
+            size=self.log_size if debug else 0,
+            send=False,
+            read=debug,
+        )
 
-        if time_done_addr_end > self.log_addr:
-            raise MemoryError(
-                f"synapse rows too large in population {pop_slice.pop.name}: "
-                f"{hex(time_done_addr_end)}, {hex(self.log_addr)} "
-                f"by {time_done_addr_end- self.log_addr} byte"
-            )
 
-        ######################
-        # data specification #
-        ######################
-        data_spec = [
-            0xAD130AD6,  # magic_number
-            0x00010000,  # version
-            rt_addr,  # start of routing table
-            timer_config_addr,  # start of timer config
-            global_params_addr,  # start of global params
-            mpt_info_addr,  # master population table info address
-            syn_row_addr,  # start of synapse rows
-            self.neuron_params_addr,  # start of neuron params
-            spike_record_addr,  # start of spike records
-            voltage_record_addr,  # start of voltage records
-            time_done_addr,  # start of time_done records
-            self.log_addr,  # start of log (dummy)
-        ]
+        ################################
+        # data specification           #
+        # Define data to send and read #
+        ################################
+        memory_handler.freeze()
+        memory_handler.add_regions_to_config(config)
 
-        config.add_mem_data_to_send(self.data_spec_addr.to_WordAddr(), data_spec)
-        config.add_mem_data_to_send(mpt_addr.to_WordAddr(), pop_table_raw)
-        config.add_mem_data_to_send(syn_row_addr.to_WordAddr(), all_syn_rows_raw)
-        config.add_mem_data_to_send(self.neuron_params_addr.to_WordAddr(), neuron_params_raw)
+        pop_slice.memory_layout = memory_handler
 
         return config

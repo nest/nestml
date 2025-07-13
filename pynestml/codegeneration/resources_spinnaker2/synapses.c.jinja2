@@ -1,10 +1,10 @@
 #include "synapses.h"
 #include "global_params.h"
+#include {{ '<' }}spike_comms_common.h{{ '>' }}
 #include "neuron_model_{{ neuronName }}_impl.h"
 #include "spinn_log.h"
-
 static weight_t ring_buffers[RING_BUFFER_SIZE];
-input_t input_buffers[INPUT_BUFFER_SIZE];
+extern input_t input_buffers[INPUT_BUFFER_SIZE];
 
 extern neuron_params_t neuron_params_array[N_NEURONS];
 extern global_neuron_params_t global_neuron_params __attribute__((aligned(0x10)));
