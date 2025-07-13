@@ -1,11 +1,13 @@
 #pragma once
 
 struct global_params {
-    uint32_t n_used_neurons;  // number of neurons to generate
-    uint32_t record_spikes; // use like bool
-    uint32_t record_v; // 0: recording off, 1: record voltage in all timesteps, 2: record last voltage
-    uint32_t profiling; // use like bool
-    uint32_t record_time_done; // use like bool
-    REAL calc_step_raw;  // numerical value of '__h' in s, timestep used for ODE integration, e.g. 0.001 for 1ms steps
-    REAL weight_scaling_factor;  // scaling factor for 4 bit weights, e.g. 1e-9 for NanoAmpere
+    uint32_t n_used_neurons;        // number of neurons to generate
+    uint32_t record_spikes;         // use like bool
+    uint32_t record_v;              // 0: recording off, 1: record voltage in all timesteps, 2: record last voltage
+    uint32_t profiling;             // use like bool
+    uint32_t record_time_done;      // use like bool
+    REAL calc_step_raw;             // numerical value of '__h' in s, timestep used for ODE integration, e.g. 0.001 for 1ms steps
+    REAL weight_scaling_factor;     // scaling factor for 4 bit weights, e.g. 1e-9 for NanoAmpere
+    uint32_t debug;                 // use like bool
+    uint32_t log_size;              // size of log in words
 };

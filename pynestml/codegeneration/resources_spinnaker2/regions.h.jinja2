@@ -24,14 +24,15 @@
 
 //! DSG region identifiers
 typedef enum neuron_regions_e {
-    ROUTING_TABLE_REGION,       //!< routing table, 0
-    SIMULATION_REGION,          //!< simulation (tick & duration), 1
-    GLOBAL_PARAMS_REGION,       //!< global parameters, 2
-    POPULATION_TABLE_REGION,    //!< master population table; 3
-    SYNAPSE_ROWS_REGION,        //!< synaptic matrix; 4
-    NEURON_PARAMS_REGION,       //!< neuron parameters; 5
-    NEURON_RECORDING_REGION,    //!< spike recording; 6
-    VOLTAGE_RECORDING_REGION,   //!< voltage recording; 7
-    TIME_DONE_RECORDING_REGION, //!< time done recording; 8
-    LOG_INFO_REGION             //!< log_info start address; 9
+    ROUTING_TABLE_REGION,           // 0 routing table
+    SIMULATION_REGION,              // 1 (TIMER_CONFIG in Python)
+    GLOBAL_PARAMS_REGION,           // 2 global parameters
+    POPULATION_TABLE_REGION,        // 3 (MPT_INFO in Python for base address, MPT itself is separate)
+    POPULATION_TABLE_REGION_UNUSED, // Unused, but keeps numbering consistent for following
+    SYNAPSE_ROWS_REGION,            // 5 (SYN_ROW in Python)
+    NEURON_PARAMS_REGION,           // 6
+    SPIKE_RECORDING_REGION,         // 7 (SPIKE_RECORD in Python)
+    VOLTAGE_RECORDING_REGION,       // 8 (VOLTAGE_RECORD in Python)
+    TIME_DONE_RECORDING_REGION,     // 9 time done recording
+    LOG_INFO_REGION                 // 10 (LOG in Python)
 } regions_e;

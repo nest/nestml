@@ -1,20 +1,26 @@
 #include "neuron.h"
 #include "global_params.h"
 #include "simulation.h"
+#include <spike_comms_common.h>
 
 uint32_t n_neurons;
-extern input_t input_buffers[INPUT_BUFFER_SIZE];
+input_t input_buffers[INPUT_BUFFER_SIZE];
 neuron_impl_t neuron_array[N_NEURONS];
-neuron_params_t neuron_params_array[N_NEURONS] __attribute__((section(".myNeuronParamsSection")));
+
+// neurons params are initialized in main file
+extern neuron_params_t *neuron_params_array;
 global_neuron_params_t global_neuron_params;
-REAL weight_scaling_factor;
+//REAL weight_scaling_factor;
 
 // spike records for current timestep
 uint32_t spike_records[SPIKE_RECORD_LENGTH] __attribute__((aligned(0x10)));
 uint32_t spike_records_count[SPIKE_RECORD_COUNTER_LENGTH];
 
-extern uint32_t* spike_records_all_timesteps;
-extern uint32_t* voltage_records_all_timesteps;
+// spike records for all timesteps
+extern uint32_t *spike_records_all_timesteps;
+// voltage records for all timesteps
+extern uint32_t *voltage_records_all_timesteps;
+
 extern uint32_t systicks;
 extern uint32_t pe_id;
 extern uint32_t qpe_x;
@@ -23,14 +29,22 @@ extern volatile routing_info* routing_info_ptr;
 extern volatile struct global_params* global_params_ptr;
 extern simulation_config sim_config;
 
+uint32_t spike_record_length;
+uint32_t spike_record_counter_length;
+
 
 bool neuron_initialise() {
-    n_neurons = N_NEURONS;
-    clear_spike_record();
+    // n_neurons = N_NEURONS;
+    n_neurons = global_params_ptr->n_used_neurons;
 
+
+    spike_record_length = (n_neurons + 31) / 32 + 2;
+    spike_record_counter_length = (n_neurons + 31) / 32;
+
+    clear_spike_record();
     // neuron states
     for (index_t neuron_index = 0; neuron_index < n_neurons; neuron_index++) {
-{#        neuron_params_t* neuron_params = &neuron_params_array[neuron_index];#}
+
         neuron_pointer_t neuron = &neuron_array[neuron_index];
         neuron_state_t* state = &neuron->state;
         {% set updated_state_dict = utils.generate_updated_state_dict(initial_values, neuron.get_parameter_value_dict()) %}
@@ -43,7 +57,9 @@ bool neuron_initialise() {
 }
 
 void print_neuron_params() {
-    log_info("Neuron params:\n");
+    if (global_params_ptr->debug) {
+        log_info("Neuron params:\n");
+    }
     uint32_t n_used_neurons = global_params_ptr->n_used_neurons;
     for (index_t neuron_index = 0; neuron_index < n_used_neurons; neuron_index++) {
         neuron_params_t* neuron_params = &neuron_params_array[neuron_index];
@@ -66,9 +82,9 @@ void record_voltages() {
         *voltage_records_all_timesteps = systicks;
         voltage_records_all_timesteps++;
 
-        uint32_t n_used_neurons = global_params_ptr->n_used_neurons;
+//        uint32_t n_used_neurons = global_params_ptr->n_used_neurons;
         // neuron states
-        for (index_t neuron_index = 0; neuron_index < n_used_neurons; neuron_index++) {
+        for (index_t neuron_index = 0; neuron_index < n_neurons; neuron_index++) {
             *voltage_records_all_timesteps = f2ui(neuron_array[neuron_index].state.V_m);
             voltage_records_all_timesteps++;
         }
@@ -115,9 +131,17 @@ void neuron_do_timestep_update() {
         {%-     endfor %}
         {%-   endfilter %}
         {%- endif %}
+
+        // clear input buffers
+		input_buffers[_ex_offset(neuron_index)] = 0;
+		input_buffers[_in_offset(neuron_index)] = 0;
+
     neuron_check_and_spike(state, neuron_params, neuron_index);
     }
-    send_spike_record();
+    // only record spikes if record_spikes is 1
+    if (global_params_ptr->record_spikes == 1) {
+        send_spike_record();
+    }
     record_voltages();
 }
 
@@ -136,15 +160,16 @@ if ({{ printer.print(block.get_cond_expr()) }}){
     {%-     endfor %}
     {%-   endfilter %}
     {%- endif %}
-{#    record_spike(neuron_index);#}
-{#    log_info("spike should be recorded\n");#}
-{#    send_spikes_to_all_targets(routing_info_ptr->key_offset + neuron_index);#}
+    record_spike(neuron_index);
+    if (global_params_ptr->debug){
+        log_info("Neuron %u spiked at time %u\n", neuron_index, systicks);
+    }
+    send_spikes_to_all_targets(routing_info_ptr->key_offset + neuron_index);
     }
 }
 
 void record_spike(uint32_t neuron_id){
 	spike_records[neuron_id/32+2] |= 1 << ( neuron_id - neuron_id/32*32);
-	log_info("neuron id %u:  value=%i\n", neuron_id/32+2, spike_records[neuron_id/32+2]);
 	spike_records_count[neuron_id/32]++;
 }
 
@@ -153,22 +178,24 @@ void neuron_reset(){
 	clear_spike_record();
 }
 
+// dynamic spike record length
 void send_spike_record(){
     if (global_params_ptr->record_spikes) {
         spike_records[0]=pe_id;
         spike_records[1]=systicks;
-        for(uint32_t i = 0; i < SPIKE_RECORD_LENGTH; i++){
+        for(uint32_t i = 0; i < spike_record_length; i++){
             *spike_records_all_timesteps = spike_records[i];
             spike_records_all_timesteps++;
         }
     }
 }
 
+// dynamic spike record length
 void clear_spike_record(){
-	for (uint32_t i = 0; i < SPIKE_RECORD_LENGTH ; i++){
+	for (uint32_t i = 0; i < spike_record_length ; i++){
     spike_records[i]=0;
 	}
-	for (uint32_t i = 0 ; i < SPIKE_RECORD_COUNTER_LENGTH ; i++){
+	for (uint32_t i = 0 ; i < spike_record_counter_length ; i++){
 		spike_records_count[i]=0;
 	}
 }

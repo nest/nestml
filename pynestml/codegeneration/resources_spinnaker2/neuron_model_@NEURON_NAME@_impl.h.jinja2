@@ -23,7 +23,7 @@ typedef struct neuron_params_t {
         {{ declarations.get_domain_from_type(parameter.get_type_symbol()) }} {{ parameter.name }};
     {%- endfor %}
 {% if uses_numeric_solver == False %}
-    {%- for propagator in neuron.get_internal_symbols() %}
+    {%- for propagator in neuron.get_internal_symbols() |sort(attribute='name') %}
     {% if propagator.name != "__h" %}
         {{ declarations.get_domain_from_type(propagator.get_type_symbol()) }} {{ propagator.name }};
     {% endif %}

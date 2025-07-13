@@ -1,0 +1,369 @@
+#define USE_RECORD 1
+
+#include {{ '<' }}data_specification.h{{ '>' }}
+#include {{ '<' }}s2app.h{{ '>' }}
+#include {{ '<' }}spike_comms_common.h{{ '>' }}
+#include {{ '<' }}synch_helper.h{{ '>' }}
+// #include "common/neuron-typedefs.h"
+#include "{{ neuronName }}.h"
+#include "neuron.h"
+#include "param_defs.h"
+#include "population_table.h"
+#include "regions.h"
+#include "synapses.h"
+// #include "spike_processing.h"
+#include "global_params.h"
+#include "simulation.h"
+
+
+uint32_t pe_id;
+uint32_t qpe_x;
+uint32_t qpe_y;
+
+// static volatile uint32_t *status;
+// static volatile uint32_t *data = (uint32_t *) {{ neuronName|upper }}_DATA_BASE;
+
+static volatile uint32_t *log_info_data;
+
+// dummy array to reserve memory for data specification
+uint32_t data_specification[16] __attribute__((section(".myDataSpecSection")));
+
+// Error log buffer placed in the .myLogErrorSection by the linker
+volatile uint32_t log_error_data[LOG_ERROR_SIZE_IN_WORDS] __attribute__((section(".myLogErrorSection")));
+// LOG_ERROR_SIZE_IN_WORDS must match Python's error_log_size
+
+// data specification pointer
+data_specification_metadata_t *ds_regions;
+
+// spike records for all timesteps
+uint32_t *spike_records_all_timesteps;
+
+// voltage records for all timesteps
+uint32_t *voltage_records_all_timesteps;
+
+// time done records for all timesteps
+uint32_t *time_done_records_all_timesteps;
+
+// neuron params array
+neuron_params_t *neuron_params_array;
+
+volatile struct global_params *global_params_ptr;
+extern global_neuron_params_t global_neuron_params __attribute__((aligned(0x10)));
+
+volatile population_table_info *pop_table_info;
+volatile master_population_table_entry *master_population_table;
+
+static volatile uint32_t finished = 0;
+
+simulation_config sim_config;
+
+volatile uint32_t run = 1;
+volatile uint32_t multi_run = 1;
+volatile uint32_t iteration = 0;
+
+// Start the time at "-1" so that the first tick will be 0
+uint32_t systicks = UINT32_MAX;
+
+// Pointer to routing table
+volatile routing_info* routing_info_ptr;
+
+static void packet_received_callback(uint32_t key)
+{
+    // log_info("spike from key: %d,  processed in time step %d\n", key, systicks);
+
+    address_t row_address;
+    size_t n_bytes_to_transfer;
+    if (population_table_get_address(key, &row_address, &n_bytes_to_transfer)) {
+        // log_info("\tfound syn row at address 0x%x\n", row_address);
+
+        synaptic_row_t row = row_address;
+        synapses_process_synaptic_row(systicks, row);
+    } else {
+        log_info("\tno pop table entry found \n");
+    }
+}
+
+
+void timer_callback()
+{
+
+    systicks++;
+    if (systicks >= sim_config.n_simulation_ticks) {
+        timer[TIMER1_CTL] = 0;
+        finished = 1;
+        run = 0;
+        set_mask_feedthrough_irq(qpe_x, qpe_y, pe_id, 1 + 2);
+        return;
+    }
+    log_info("reached timer_callback()\n");
+    receive_spikes(packet_received_callback);
+    synapses_do_timestep_update(systicks);
+    neuron_do_timestep_update();
+
+    if ((global_params_ptr->profiling) && global_params_ptr->debug)
+
+        //        log_info("Profiling [%d]: %i, %i, %i, %i\n", systicks, t1, t2, t3, t4);
+
+        if (global_params_ptr->record_time_done == 1) {
+
+            if (systicks < sim_config.n_simulation_ticks) {
+
+                time_done_records_all_timesteps[systicks] = timer[TIMER1_VALUE];
+            }
+        }
+    // check if processing finished within systick
+    // If raw interrupt status register is true, it means that the timer already reached 0
+    if (timer[TIMER1_INT_STATUS] == 1) {
+
+        log_error("ERROR: Deadline missed in systick %i\n", systicks);
+    }
+}
+
+/**
+ * @brief Initialize logging system
+ *
+ * Requires global_params_ptr to be initialized first.
+ * Sets up the logging buffer and initializes logging functionality.
+ */
+
+void log_prepare(address_t region_address)
+{
+    log_info_data = (uint32_t *)region_address;
+    // init funtion requires size in bytes, also need to subtract 1 word for the count
+    log_init(log_info_data, (global_params_ptr->log_size - 1) * 4);
+}
+
+void error_log_prepare()
+{
+    // init function requires size in bytes, also need to subtract 1 word for the count
+    error_log_init(log_error_data, (LOG_ERROR_SIZE_IN_WORDS - 1) * 4);
+}
+
+void timer_init()
+{
+    timer[TIMER1_CTL] = 0;
+    timer[TIMER1_LOAD] = sim_config.timer_period; // TODO: decrease by 1?
+}
+
+void timer_start()
+{
+    timer[TIMER1_CTL] = 0xE2;
+    NVIC_SetPriority(Timer_Int1_IRQn, (1UL << __NVIC_PRIO_BITS) - 2UL);
+    NVIC_EnableIRQ(Timer_Int1_IRQn);
+}
+
+
+static inline bool initialise_common_regions(data_specification_metadata_t **ds_regions) {
+
+    // Get the address this core's DTCM data starts at from SRAM
+    //*ds_regions = data_specification_get_data_address();
+    *ds_regions = (data_specification_metadata_t*) {{ neuronName|upper }}_DATA_SPEC;
+
+    // Read the header
+    if (!data_specification_read_header(*ds_regions)) {
+        return false;
+    } else {
+
+        // Log what we have found
+        log_info("INFO LOGS: magic = %08x, version = %d.%d | Header read successfully\n", (*ds_regions)->magic_number,
+                 (*ds_regions)->version >> VERSION_SHIFT, (*ds_regions)->version & VERSION_MASK);
+        return true;
+    }
+}
+
+void print_routing_table()
+{
+    log_info("routing_info addr: %p\n", (void *)routing_info_ptr);
+    log_info("key_offset: %d\n", routing_info_ptr->key_offset);
+    log_info("n_routing_targets: %d\n", routing_info_ptr->n_routing_targets);
+
+    for (uint32_t i = 0; i < routing_info_ptr->n_routing_targets; ++i) {
+        routing_target tgt = routing_info_ptr->routing_targets[i];
+        log_info("\tchip_x=%d, chip_y=%d, qpe_x=%d, qpe_y=%d, pe=%d\n", tgt.chip_x, tgt.chip_y, tgt.qpe_x, tgt.qpe_y,
+                 tgt.pe);
+    }
+}
+
+void initialise_routing_table(address_t region_address)
+{
+    routing_info_ptr = (routing_info *)region_address;
+    // print_routing_table();
+}
+
+
+void initialise_population_table(address_t region_address)
+{
+    pop_table_info = (population_table_info *)region_address;
+
+    log_info("pop_table_info addr: 0x%x\n", &pop_table_info);
+    log_info("pop_table_info value: 0x%x\n", pop_table_info);
+    log_info("pop_table addr: 0x%x\n", region_address);
+    log_info("pop_table_info.address: 0x%x\n", pop_table_info->address);
+    log_info("pop_table_info.length: %d\n", pop_table_info->length);
+
+    population_table_initialise();
+    // print_population_table();
+}
+
+void initialise_simulation(address_t region_address)
+{
+    simulation_config *sim_config_ptr = (simulation_config *)region_address;
+    sim_config.timer_period = sim_config_ptr->timer_period;
+    sim_config.n_simulation_ticks = sim_config_ptr->n_simulation_ticks;
+}
+
+/**
+ * @brief Initialize global parameters without logging
+ *
+ * This function must be called before log_prepare() as it sets up values
+ * needed for logging initialization. Should not contain any logging calls.
+ *
+ * @param region_address Address of the global parameters region
+ */
+
+void initialise_global_params(address_t region_address)
+{
+    global_params_ptr = (struct global_params *)region_address;
+    global_neuron_params.calc_step_raw = global_params_ptr->calc_step_raw;
+    global_neuron_params.weight_scaling_factor = global_params_ptr->weight_scaling_factor;
+    if (global_params_ptr->debug) {
+        log_info("debug: %d\n", global_params_ptr->debug);
+        log_info("log_size: %d\n", global_params_ptr->log_size);
+        log_info("log address: 0x%x\n", data_specification_get_region(LOG_INFO_REGION, ds_regions));
+    }
+}
+
+/**
+ * @brief Log global parameters debug information
+ *
+ * Must be called after both initialise_global_params() and log_prepare().
+ * Contains all the logging statements for global parameters.
+ *
+ * @param region_address Address of the global parameters region
+ */
+void log_global_params(address_t region_address)
+{
+    if (global_params_ptr->debug) {
+        log_info("global params addr: 0x%x\n", region_address);
+        log_info("n_used_neurons: %d\n", global_params_ptr->n_used_neurons);
+        log_info("record_spikes: %d\n", global_params_ptr->record_spikes);
+        log_info("record_v: %d\n", global_params_ptr->record_v);
+        log_info("record_time_done: %d\n", global_params_ptr->record_time_done);
+        log_info("profiling: %d\n", global_params_ptr->profiling);
+        log_info("calc_step_raw: %d\n", f2ui(global_params_ptr->calc_step_raw));
+        log_info("weight_scaling_factor: %d\n", f2ui(global_params_ptr->weight_scaling_factor));
+        log_info("debug: %d\n", global_params_ptr->debug);
+        log_info("log_size: %d\n", global_params_ptr->log_size);
+    }
+}
+
+void reset_all()
+{
+    // disable FT IRQ 1 and enable FT IRQ 0
+    enable_mask_feedthrough_irq_0(qpe_x, qpe_y, pe_id);
+
+    // reset input buffer and neuron states
+    input_buffer_initialise();
+
+    neuron_initialise(); // reset neuron state variables
+
+    // reset pointers for spike and voltage recording
+    spike_records_all_timesteps = data_specification_get_region(SPIKE_RECORDING_REGION, ds_regions);
+    voltage_records_all_timesteps = data_specification_get_region(VOLTAGE_RECORDING_REGION, ds_regions);
+    time_done_records_all_timesteps = data_specification_get_region(TIME_DONE_RECORDING_REGION, ds_regions);
+
+    // reset systick
+    systicks = UINT32_MAX;
+
+    // reset logging
+    log_prepare(data_specification_get_region(LOG_INFO_REGION, ds_regions));
+
+    iteration++;
+    run = 1;
+
+    if (global_params_ptr->debug) {
+        log_info("reset_all()\n");
+    }
+}
+
+int main()
+{
+
+    qpe_x = (getMyPEID () >> 5)&0x7;
+    qpe_y = (getMyPEID () >> 2)&0x7;
+    pe_id = (getMyPEID ()     )&0x3;
+
+    finished = 0;
+    srand();
+
+    comms_init();
+    input_buffer_initialise();
+    error_log_prepare();
+    bool correct_init = initialise_common_regions(&ds_regions);
+
+    if (!correct_init) {
+        log_error("ERROR: Data specification not initialized correctly\n");
+        return 0xdeadbeef;
+    }
+
+    // global params
+    initialise_global_params(data_specification_get_region(GLOBAL_PARAMS_REGION, ds_regions));
+    log_prepare(data_specification_get_region(LOG_INFO_REGION, ds_regions));
+    if (global_params_ptr->debug) {
+        log_info("------ {{ neuronName }} APP ------\n");
+        log_info("PE ID: %d\n", pe_id);
+    }
+
+    // print global params
+
+    log_global_params(data_specification_get_region(GLOBAL_PARAMS_REGION, ds_regions));
+    if (global_params_ptr->debug) {
+        log_info("DATA_SPECIFICATION_BASE: 0x%x\n", ds_regions);
+    }
+    // routing table
+    address_t rt_region = data_specification_get_region(ROUTING_TABLE_REGION, ds_regions);
+    initialise_routing_table(rt_region);
+
+    // master population table
+    address_t mpt_region = data_specification_get_region(POPULATION_TABLE_REGION, ds_regions);
+    initialise_population_table(mpt_region);
+
+    // neuron params
+    neuron_params_array = (struct neuron_params_t *)data_specification_get_region(NEURON_PARAMS_REGION, ds_regions);
+    neuron_initialise();
+
+    // spike recording region
+    spike_records_all_timesteps = data_specification_get_region(SPIKE_RECORDING_REGION, ds_regions);
+    if (global_params_ptr->debug) {
+        log_info("spike_record_addr: 0x%x\n", spike_records_all_timesteps);
+    }
+
+    // voltage recording region
+    voltage_records_all_timesteps = data_specification_get_region(VOLTAGE_RECORDING_REGION, ds_regions);
+    // log_info("v_record_addr: 0x%x\n", &voltage_records_all_timesteps);
+
+    // time done recording region
+    time_done_records_all_timesteps = data_specification_get_region(TIME_DONE_RECORDING_REGION, ds_regions);
+    // log_info("time_done_record_addr: 0x%x\n", &time_done_records_all_timesteps);
+
+    //    // debug
+    //    log_info("test\n");
+    //    print_neuron_params();
+
+    // timer config
+    initialise_simulation(data_specification_get_region(SIMULATION_REGION, ds_regions));
+    timer_init();
+
+    // enable own feedthrough mask for IRQ 0 and 1
+    set_mask_feedthrough_irq(qpe_x, qpe_y, pe_id, 1 + 2);
+
+    NVIC_SetPriority(FT_INT_0_IRQn, (1UL << __NVIC_PRIO_BITS) - 2UL);
+    NVIC_EnableIRQ(FT_INT_0_IRQn);
+    NVIC_SetPriority(FT_INT_1_IRQn, (1UL << __NVIC_PRIO_BITS) - 2UL);
+    NVIC_EnableIRQ(FT_INT_1_IRQn);
+
+    while (run || multi_run) {
+        __WFI();
+    }
+    return 0xcafebabe;
+}

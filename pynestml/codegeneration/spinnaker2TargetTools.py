@@ -28,14 +28,11 @@ from pynestml.symbols.variable_symbol import BlockType
 
 class Spinnaker2TargetTools:
     @classmethod
-    def get_propagators_as_math_expressions(cls, neuron:ASTNode, parameters:dict) -> dict:
+    def get_propagators_as_math_expressions(cls,codegenerator, name) -> dict:
+        name = name
+        codegenerator = codegenerator
         propagators_as_math_expressions = {}
-        propagator_expressions = neuron.analytic_solver["propagators"]
+        propagator_expressions = codegenerator.analytic_solver[name]["propagators"]
         for propagator_expression in propagator_expressions:
-            # propagator_expressions[propagator_expression] = propagator_expressions[propagator_expression].replace(
-            #     '__h', str(1))
-            # for symbol, value in parameters.items():
-            #     propagator_expressions[propagator_expression] = propagator_expressions[propagator_expression].replace(symbol, str(value))
-            #     propagators_as_math_expressions.update({propagator_expression: propagator_expressions[propagator_expression]})
             propagators_as_math_expressions[propagator_expression] = propagator_expressions[propagator_expression]
         return propagators_as_math_expressions

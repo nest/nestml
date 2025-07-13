@@ -7,7 +7,7 @@
 
 #define PACKET_BUFFER_LENGTH 512
 #define PACKET_IN_WORDS 1
-#define N_NEURONS 48  // TODO: change this to whatever the default should be for generated models
+#define N_NEURONS 10  // TODO: change this to whatever the default should be for generated models
 #define INPUT_BUFFER_SIZE (1 << (SYNAPSE_TYPE_BITS + SYNAPSE_INDEX_BITS))
 #define RING_BUFFER_SIZE (1 << (SYNAPSE_DELAY_BITS + SYNAPSE_TYPE_BITS\
                                 + SYNAPSE_INDEX_BITS))
@@ -15,6 +15,5 @@
 #define SPIKE_RECORD_COUNTER_LENGTH (N_NEURONS+31)/32
 
 static volatile uint32_t* const timer = (uint32_t *) TIMER1_BASE;
-static volatile uint32_t* const comms = (uint32_t *) COMMS_BASE;
 
 #endif

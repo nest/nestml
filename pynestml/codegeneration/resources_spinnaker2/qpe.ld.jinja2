@@ -143,7 +143,7 @@ SECTIONS
 	.ARM.attributes 0 : { *( .ARM.attributes ) }
 
   /* custom sections */
-  .mySegment1 0x10200(NOLOAD) : {KEEP(*(.myDataSpecSection))}
-  .mySegment3 0x1b000(NOLOAD) : {KEEP(*(.myLogInfoSection))}
-  .mySegment4 0xe400(NOLOAD) : {KEEP(*(.myNeuronParamsSection))}
+
+  .mySegment2 0xe000 (NOLOAD) : {KEEP(*(.myLogErrorSection))}
+  .mySegment1 0xe900 (NOLOAD) : {KEEP(*(.myDataSpecSection))}
 }

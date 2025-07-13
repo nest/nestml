@@ -1,7 +1,12 @@
 LINKERSCRIPT = qpe.ld
-
 LIB_S2L = $(PREFIX_LIB_DIR)/s2-lib
 LIBRARIES += $(LIB_S2L)
 LIBS += -ls2
+LIB_SPIKE_COMMS = $(PREFIX_LIB_DIR)/spike-comms-lib
+LIBRARIES += $(LIB_SPIKE_COMMS)
+LIBS += -lspike-comms
+ROUTING_SETTINGS ?= MC_ROUTING SINGLE_CHIP=1
+DEFS += $(ROUTING_SETTINGS)
+$(info DEFS is: $(DEFS))
 #include ../Makefile.default.with_s2lib
-include $(S2SIM2LABAPP_ROOT_PATH)/chip/app-pe/s2app/Makefile.default  # has to be adjusted to point to default from any directory the generated code is placed in
+include ../Makefile.default
