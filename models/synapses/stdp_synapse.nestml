@@ -56,7 +56,7 @@
 #
 model stdp_synapse:
     state:
-        w real = 1    # Synaptic weight
+        w real = 1 [[w >= 0]]   # Synaptic weight
         pre_trace real = 0.
         post_trace real = 0.
 
@@ -69,11 +69,8 @@ model stdp_synapse:
         mu_plus real = 1            # weight dependence exponent for causal updates
         mu_minus real = 1           # weight dependence exponent for acausal updates
 
-        Wmax real = 100.            # maximum absolute value of synaptic weight
-        Wmin real = 0.              # minimum absolute value of synaptic weight
-
-    internals:
-        w_sign real = w / abs(w)   # sign of synaptic weight
+        Wmin real = 0. [[Wmin >= 0]]             # minimum absolute value of synaptic weight
+        Wmax real = 100. [[Wmax >= 0]]           # maximum absolute value of synaptic weight
 
     equations:
         pre_trace' = -pre_trace / tau_tr_pre
@@ -91,14 +88,14 @@ model stdp_synapse:
 
         # potentiate synapse
         w_ real = Wmax * (abs(w) / Wmax + (lambda * (1. - (abs(w) / Wmax))**mu_plus * pre_trace))
-        w = w_sign * min(Wmax, w_)
+        w = min(Wmax, w_)
 
     onReceive(pre_spikes):
         pre_trace += 1
 
         # depress synapse
         w_ real = Wmax * (abs(w) / Wmax - (alpha * lambda * (abs(w) / Wmax)**mu_minus * post_trace))
-        w = w_sign * max(Wmin, w_)
+        w = max(Wmin, w_)
 
         # deliver spike to postsynaptic partner
         emit_spike(w, d)
