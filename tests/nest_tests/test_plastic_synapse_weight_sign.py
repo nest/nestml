@@ -43,6 +43,8 @@ except Exception:
 synapse_model_names = ["stdp_synapse", "stdp_triplet_synapse"]   # TODO: nearest-neighbour STDP synapses cannot yet be tested using this protocol
 
 
+@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                    reason="This test does not support NEST 2")
 class TestPlasticSynapseWeightSign:
     r"""Test that the sign of the weight of plastic synapses never changes (negative stays negative, positive stays positive)"""
 
