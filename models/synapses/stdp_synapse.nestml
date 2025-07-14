@@ -1,3 +1,4 @@
+
 # stdp_synapse - Synapse model for spike-timing dependent plasticity
 # ##################################################################
 #
@@ -56,24 +57,21 @@
 #
 model stdp_synapse:
     state:
-        w real = 1.    # Synaptic weight (> 0 for excitatory and < 0 for inhibitory synapses)
+        w real = 1 [[w >= 0]]   # Synaptic weight
         pre_trace real = 0.
         post_trace real = 0.
 
     parameters:
         d ms = 1 ms    # Synaptic transmission delay
-        lambda      real =  0.01  # (dimensionless) learning rate for causal updates
-        alpha       real = 1      # relative learning rate for acausal firing
-        tau_tr_pre  ms   = 20 ms  # time constant of presynaptic trace
-        tau_tr_post ms   = 20 ms  # time constant of postsynaptic trace
-        mu_plus     real = 1      # weight dependence exponent for causal updates
-        mu_minus    real = 1      # weight dependence exponent for acausal updates
+        lambda real =  0.01         # (dimensionless) learning rate for causal updates
+        alpha real = 1              # relative learning rate for acausal firing
+        tau_tr_pre ms = 20 ms       # time constant of presynaptic trace
+        tau_tr_post ms = 20 ms      # time constant of postsynaptic trace
+        mu_plus real = 1            # weight dependence exponent for causal updates
+        mu_minus real = 1           # weight dependence exponent for acausal updates
 
-        Wmax        real = 100.     # maximum absolute value of synaptic weight
-        Wmin        real = 0.       # minimum absolute value of synaptic weight
-
-    internals:
-        w_sign real = w / abs(w)   # sign of synaptic weight
+        Wmin real = 0. [[Wmin >= 0]]             # minimum absolute value of synaptic weight
+        Wmax real = 100. [[Wmax >= 0]]           # maximum absolute value of synaptic weight
 
     equations:
         pre_trace' = -pre_trace / tau_tr_pre
@@ -89,18 +87,16 @@ model stdp_synapse:
     onReceive(post_spikes):
         post_trace += 1
 
-        println("post spike, w_sign = {w_sign}")
         # potentiate synapse
-        w_ real = Wmax * ( abs(w) / Wmax  + (lambda * ( 1. - ( abs(w) / Wmax ) )**mu_plus * pre_trace ))
-        w = w_sign * min(Wmax, w_)
+        w_ real = Wmax * (abs(w) / Wmax + (lambda * (1. - (abs(w) / Wmax))**mu_plus * pre_trace))
+        w = min(Wmax, w_)
 
     onReceive(pre_spikes):
         pre_trace += 1
-        println("pre spike, w_sign = {w_sign}")
 
         # depress synapse
-        w_ real = Wmax * ( abs(w) / Wmax  - ( alpha * lambda * ( abs(w) / Wmax )**mu_minus * post_trace ))
-        w = w_sign * max(Wmin, w_)
+        w_ real = Wmax * (abs(w) / Wmax - (alpha * lambda * (abs(w) / Wmax)**mu_minus * post_trace))
+        w = max(Wmin, w_)
 
         # deliver spike to postsynaptic partner
         emit_spike(w, d)
