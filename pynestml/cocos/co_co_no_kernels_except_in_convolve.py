@@ -22,11 +22,14 @@
 from typing import List
 
 from pynestml.cocos.co_co import CoCo
+from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
@@ -86,27 +89,47 @@ class KernelUsageVisitor(ASTVisitor):
             symbol = node.get_scope().resolve_to_symbol(kernelName, SymbolKind.VARIABLE)
             # if it is not a kernel just continue
             if symbol is None:
-                if not isinstance(node, ASTExternalVariable):
+                if not (isinstance(node, ASTExternalVariable) and node.get_alternate_name()):
                     code, message = Messages.get_no_variable_found(kernelName)
                     Logger.log_message(node=self.__neuron_node, code=code, message=message, log_level=LoggingLevel.ERROR)
+
                 continue
+
             if not symbol.is_kernel():
                 continue
+
             if node.get_complete_name() == kernelName:
-                parent = node.get_parent()
-                if parent is not None:
+                parent = node
+                correct = False
+                while parent is not None and not isinstance(parent, ASTModel):
+                    parent = parent.get_parent()
+                    assert parent is not None
+
+                    if isinstance(parent, ASTDeclaration):
+                        for lhs_var in parent.get_variables():
+                            if kernelName == lhs_var.get_complete_name():
+                                # kernel name appears on lhs of declaration, assume it is initial state
+                                correct = True
+                                parent = None    # break out of outer loop
+                                break
+
                     if isinstance(parent, ASTKernel):
-                        continue
-                    grandparent = parent.get_parent()
-                    if grandparent is not None and isinstance(grandparent, ASTFunctionCall):
-                        grandparent_func_name = grandparent.get_name()
-                        if grandparent_func_name == 'convolve':
-                            continue
-                code, message = Messages.get_kernel_outside_convolve(kernelName)
-                Logger.log_message(code=code,
-                                   message=message,
-                                   log_level=LoggingLevel.ERROR,
-                                   error_position=node.get_source_position())
+                        # kernel name is used inside kernel definition, e.g. for a node ``g``, it appears in ``kernel g'' = -1/tau**2 * g - 2/tau * g'``
+                        correct = True
+                        break
+
+                    if isinstance(parent, ASTFunctionCall):
+                        func_name = parent.get_name()
+                        if func_name == PredefinedFunctions.CONVOLVE:
+                            # kernel name is used inside convolve call
+                            correct = True
+
+                if not correct:
+                    code, message = Messages.get_kernel_outside_convolve(kernelName)
+                    Logger.log_message(code=code,
+                                       message=message,
+                                       log_level=LoggingLevel.ERROR,
+                                       error_position=node.get_source_position())
 
 
 class KernelCollectingVisitor(ASTVisitor):

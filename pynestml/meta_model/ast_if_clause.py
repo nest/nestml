@@ -22,19 +22,15 @@
 from typing import List
 
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
 
 
 class ASTIfClause(ASTNode):
-    """
-    This class is used to store a single if-clause.
-    Grammar:
-        ifClause : 'if' expr BLOCK_OPEN block;
-    Attributes:
-        condition = None
-        block = None
+    r"""
+    This class is used to store a single ``if``-clause.
     """
 
-    def __init__(self, condition, block, *args, **kwargs):
+    def __init__(self, condition, stmts_body: ASTStmtsBody, *args, **kwargs):
         """
         Standard constructor.
 
@@ -43,11 +39,10 @@ class ASTIfClause(ASTNode):
         :param condition: the condition of the block.
         :type condition: ASTExpression
         :param block: a block of statements.
-        :type block: ASTBlock
         """
         super(ASTIfClause, self).__init__(*args, **kwargs)
-        self.block = block
         self.condition = condition
+        self.stmts_body = stmts_body
 
     def clone(self):
         """
@@ -56,14 +51,14 @@ class ASTIfClause(ASTNode):
         :return: new AST node instance
         :rtype: ASTIfClause
         """
-        block_dup = None
-        if self.block:
-            block_dup = self.block.clone()
+        stmts_body_dup = None
+        if self.stmts_body:
+            stmts_body_dup = self.stmts_body.clone()
         condition_dup = None
         if self.condition:
             condition_dup = self.condition.clone()
         dup = ASTIfClause(condition=condition_dup,
-                          block=block_dup,
+                          stmts_body=stmts_body_dup,
                           # ASTNode common attributes:
                           source_position=self.source_position,
                           scope=self.scope,
@@ -76,19 +71,18 @@ class ASTIfClause(ASTNode):
 
     def get_condition(self):
         """
-        Returns the condition of the block.
+        Returns the condition of the if statement.
         :return: the condition.
         :rtype: ASTExpression
         """
         return self.condition
 
-    def get_block(self):
+    def get_stmts_body(self) -> ASTStmtsBody:
         """
-        Returns the block of statements.
-        :return: the block of statements.
-        :rtype: ASTBlock
+        Returns the body of statements.
+        :return: the body of statements.
         """
-        return self.block
+        return self.stmts_body
 
     def get_children(self) -> List[ASTNode]:
         r"""
@@ -100,8 +94,8 @@ class ASTIfClause(ASTNode):
         if self.get_condition():
             children.append(self.get_condition())
 
-        if self.get_block():
-            children.append(self.get_block())
+        if self.get_stmts_body():
+            children.append(self.get_stmts_body())
 
         return children
 
@@ -111,4 +105,4 @@ class ASTIfClause(ASTNode):
         """
         if not isinstance(other, ASTIfClause):
             return False
-        return self.get_condition().equals(other.get_condition()) and self.get_block().equals(other.get_block())
+        return self.get_condition().equals(other.get_condition()) and self.get_stmts_body().equals(other.get_stmts_body())

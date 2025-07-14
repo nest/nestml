@@ -52,7 +52,7 @@ class TestNestMathFunction:
         nrn = nest.Create("math_function_test_nestml")
         mm = nest.Create("multimeter")
 
-        nest.SetStatus(mm, {"record_from": ["x", "ln_state", "log10_state", "erf_state", "erfc_state", "ceil_state", "floor_state", "round_state", "abs_state"]})
+        nest.SetStatus(mm, {"record_from": ["x", "ln_state", "log10_state", "erf_state", "erfc_state", "ceil_state", "floor_state", "round_state", "abs_state", "cos_state", "sin_state", "tan_state"]})
 
         nest.Connect(mm, nrn)
 
@@ -68,6 +68,9 @@ class TestNestMathFunction:
             floor_state_ts = nest.GetStatus(mm, "events")[0]["floor_state"]
             round_state_ts = nest.GetStatus(mm, "events")[0]["round_state"]
             abs_state_ts = nest.GetStatus(mm, "events")[0]["abs_state"]
+            cos_state_ts = nest.GetStatus(mm, "events")[0]["cos_state"]
+            sin_state_ts = nest.GetStatus(mm, "events")[0]["sin_state"]
+            tan_state_ts = nest.GetStatus(mm, "events")[0]["tan_state"]
         else:
             timevec = mm.get("events")["x"]
             ln_state_ts = mm.get("events")["ln_state"]
@@ -78,6 +81,9 @@ class TestNestMathFunction:
             floor_state_ts = mm.get("events")["floor_state"]
             round_state_ts = mm.get("events")["round_state"]
             abs_state_ts = mm.get("events")["abs_state"]
+            cos_state_ts = mm.get("events")["cos_state"]
+            sin_state_ts = mm.get("events")["sin_state"]
+            tan_state_ts = mm.get("events")["tan_state"]
 
         ref_ln_state_ts = np.log(timevec - 1)
         ref_log10_state_ts = np.log10(timevec - 1)
@@ -87,6 +93,9 @@ class TestNestMathFunction:
         ref_floor_state_ts = np.floor((timevec - 1) / 10)
         ref_round_state_ts = np.round((timevec - 1) / 10)
         ref_abs_state_ts = np.abs(timevec - 1)
+        ref_cos_state_ts = np.cos(timevec - 1)
+        ref_sin_state_ts = np.sin(timevec - 1)
+        ref_tan_state_ts = np.tan(timevec - 1)
 
         np.testing.assert_allclose(ln_state_ts, ref_ln_state_ts)
         np.testing.assert_allclose(log10_state_ts, ref_log10_state_ts)
@@ -96,3 +105,6 @@ class TestNestMathFunction:
         np.testing.assert_allclose(floor_state_ts, ref_floor_state_ts)
         np.testing.assert_allclose(round_state_ts, ref_round_state_ts)
         np.testing.assert_allclose(abs_state_ts, ref_abs_state_ts)
+        np.testing.assert_allclose(cos_state_ts, ref_cos_state_ts)
+        np.testing.assert_allclose(sin_state_ts, ref_sin_state_ts)
+        np.testing.assert_allclose(tan_state_ts, ref_tan_state_ts)

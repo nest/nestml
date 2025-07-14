@@ -2,14 +2,14 @@
 
 #include <neuron/plasticity/stdp/weight_dependence/weight.h>
 
-// Only adds prototypes for weight depression and potentiation -> maybe remove 
+// Only adds prototypes for weight depression and potentiation -> maybe remove
 // TODO: Ensure this includes and implements the correct interface
 #include <neuron/plasticity/stdp/weight_dependence/weight_one_term.h>
 
 // Should be good at the moment
-// defines plastic_synapse_t -> plastic part of synapse 
+// defines plastic_synapse_t -> plastic part of synapse
 // similar to state for nestml, but that also contains pre and posttrace
-// TODO: Choose the required synapse structure 
+// TODO: Choose the required synapse structure
 #include <neuron/plasticity/stdp/synapse_structure/synapse_structure_weight_impl.h>
 #include <neuron/plasticity/stdp/timing_dependence/timing.h>
 
@@ -27,7 +27,7 @@ struct synapse_row_plastic_data_t {
 
 
 // Possibly irrelevant
-//static stdp_params params;  
+//static stdp_params params;
 
 extern uint32_t skipped_synapses;
 
@@ -173,10 +173,10 @@ static inline update_state_t timing_apply_post_spike(
         pre_trace_t last_pre_trace, uint32_t last_post_time,
         post_trace_t last_post_trace, update_state_t previous_state) {
 
-    // update_state_t == weight_state_t 
+    // update_state_t == weight_state_t
     update_state_t *state = &previous_state;
     const plasticity_weight_region_data_t* parameter = state->parameter;
-    
+
 
     uint32_t time_since_last_pre = time - last_pre_time;
     if (time_since_last_pre > 0) {
@@ -189,8 +189,8 @@ static inline update_state_t timing_apply_post_spike(
 //
 
 {%-         set dynamics = synapse.get_on_receive_block(post_port) %}
-{%-         with ast = dynamics.get_block() %}
-{%-             include "directives_cpp/Block.jinja2" %}
+{%-         with ast = dynamics.get_stmts_body() %}
+{%-             include "directives_cpp/StmtsBody.jinja2" %}
 {%-         endwith %}
 {%-     endfor %}
 {%- endif %}
@@ -210,7 +210,7 @@ static inline update_state_t timing_apply_pre_spike(
         uint32_t time, pre_trace_t trace, uint32_t last_pre_time,
         pre_trace_t last_pre_trace, uint32_t last_post_time,
         post_trace_t last_post_trace, update_state_t previous_state) {
-    
+
     update_state_t *state = &previous_state;
     const plasticity_weight_region_data_t* parameter = state->parameter;
     // Get time of event relative to last post-synaptic event
@@ -224,8 +224,8 @@ static inline update_state_t timing_apply_pre_spike(
 //
 
 {%-     set dynamics = synapse.get_on_receive_block(pre_port) %}
-{%-     with ast = dynamics.get_block() %}
-{%-         include "directives_cpp/Block.jinja2" %}
+{%-     with ast = dynamics.get_stmts_body() %}
+{%-         include "directives_cpp/StmtsBody.jinja2" %}
 {%-     endwith %}
 {%- endfor %}
 {%- endfilter %}
@@ -313,12 +313,12 @@ static inline final_state_t plasticity_update_synapse(
 
 
 
-// TAG: POST 
+// TAG: POST
 
 // Exponential decay of post spike
 
-// TAG: GENERATE 
-// Add 
+// TAG: GENERATE
+// Add
 static inline post_trace_t timing_decay_post(
         uint32_t time, uint32_t last_time, post_trace_t last_trace) {
     extern int16_lut *tau_minus_lookup;
@@ -339,7 +339,7 @@ static inline post_trace_t timing_decay_post(
 //! \return the updated post trace
 static inline post_trace_t timing_add_post_spike(
         uint32_t time, uint32_t last_time, post_trace_t last_trace) {
-    plasticity_weight_region_data_t* parameter =  &plasticity_weight_region_data[0];  
+    plasticity_weight_region_data_t* parameter =  &plasticity_weight_region_data[0];
 
     struct tmp_struct  {
         post_trace_t post_trace;
@@ -436,7 +436,7 @@ static inline pre_trace_t timing_add_pre_spike(
     } tmp = {.pre_trace = last_trace};
     struct tmp_struct *state = &tmp;
 
-    plasticity_weight_region_data_t* parameter =  &plasticity_weight_region_data[0];  
+    plasticity_weight_region_data_t* parameter =  &plasticity_weight_region_data[0];
     // update propagator based on deltatime
     int32_t temp__h = parameter->__h;
     parameter->__h = time - last_time;
@@ -480,11 +480,11 @@ bool synapse_dynamics_process_plastic_synapses(
     // Array of weights
     plastic_synapse_t *plastic_words = plastic_region_address->synapses;
 
-    // control_t = uint16_t 
+    // control_t = uint16_t
     const control_t *control_words = synapse_row_plastic_controls(fixed_region);
     size_t n_plastic_synapses = synapse_row_num_plastic_controls(fixed_region);
 
-    // This method is called on presynaptic event 
+    // This method is called on presynaptic event
     num_plastic_pre_synaptic_events += n_plastic_synapses;
 
     // Backup last presynaptic spike
@@ -498,7 +498,7 @@ bool synapse_dynamics_process_plastic_synapses(
 
     // Loop through plastic synapses
     for (; n_plastic_synapses > 0; n_plastic_synapses--) {
-        // Get control word, increment after 
+        // Get control word, increment after
         uint32_t control_word = *control_words++;
 
         plastic_words[0] = process_plastic_synapse(
@@ -530,12 +530,10 @@ static inline weight_state_t weight_get_initial(
     s1615 s1615_weight = kbits(weight << weight_shift[synapse_type]);
     return (weight_state_t) {
 {%- for variable_symbol in synapse.get_state_symbols() %}
-{%-     if variable_symbol.get_namespace_decorator("nest")|length > 0 %}
-    // special case for variable marked with @nest::weight decorator
-{%-         set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
-{%-         if nest_namespace_name == "weight" %}
-        .{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()))}} = s1615_weight,
-{%-         endif %}
+{%-     if variable_symbol.variable_symbol.get_symbol_name() == synapse_weight_variable %}
+{%-         set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+    // special case for weight variable
+        .{{ printer_no_origin.print(variable) }} = s1615_weight,
 {%-     endif %}
 {%- endfor %}
         .weight_shift = weight_shift[synapse_type],
@@ -562,13 +560,11 @@ static inline weight_t weight_get_final(weight_state_t state) {
     // state, taking into account all potentiation and depression
     // Note: it is recommended to do a single complex operation here rather
     // than one for each potentiation or depression if possible
-    {%- for variable_symbol in synapse.get_state_symbols() %}
-{%-     if variable_symbol.get_namespace_decorator("nest")|length > 0 %}
-    // special case for variable marked with @nest::weight decorator
-{%-         set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
-{%-         if nest_namespace_name == "weight" %}
+{%- for variable_symbol in synapse.get_state_symbols() %}
+{%-     if variable_symbol.variable_symbol.get_symbol_name() == synapse_weight_variable %}
+{%-         set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+    // special case for weight variable
     return (weight_t)(bitsk(state.{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()))}}) >> state.weight_shift);
-{%-         endif %}
 {%-     endif %}
 {%- endfor %}
 }
@@ -585,12 +581,10 @@ static void weight_decay(weight_state_t *state, int32_t decay) {
 __attribute__((unused)) // Marked unused as only used sometimes
 static accum weight_get_update(weight_state_t state) {
 {%- for variable_symbol in synapse.get_state_symbols() %}
-{%-     if variable_symbol.get_namespace_decorator("nest")|length > 0 %}
-    // special case for variable marked with @nest::weight decorator
-{%-         set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
-{%-         if nest_namespace_name == "weight" %}
+{%-     if variable_symbol.variable_symbol.get_symbol_name() == synapse_weight_variable %}
+{%-         set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+    // special case for weight variable
     return state.{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()))}};
-{%-         endif %}
 {%-     endif %}
 {%- endfor %}
 }

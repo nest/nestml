@@ -1,59 +1,79 @@
-"""
-hh_cond_exp_traub - Hodgkin-Huxley model for Brette et al (2007) review
-#######################################################################
-
-Description
-+++++++++++
-
-hh_cond_exp_traub is an implementation of a modified Hodgkin-Huxley model.
-
-This model was specifically developed for a major review of simulators [1]_,
-based on a model of hippocampal pyramidal cells by Traub and Miles [2]_.
-The key differences between the current model and the model in [2]_ are:
-
-- This model is a point neuron, not a compartmental model.
-- This model includes only I_Na and I_K, with simpler I_K dynamics than
-  in [2]_, so it has only three instead of eight gating variables;
-  in particular, all Ca dynamics have been removed.
-- Incoming spikes induce an instantaneous conductance change followed by
-  exponential decay instead of activation over time.
-
-This model is primarily provided as reference implementation for hh_coba
-example of the Brette et al (2007) review. Default parameter values are chosen
-to match those used with NEST 1.9.10 when preparing data for [1]_. Code for all
-simulators covered is available from ModelDB [3]_.
-
-Note: In this model, a spike is emitted if :math:`V_m >= V_T + 30` mV and
-:math:`V_m` has fallen during the current time step.
-
-To avoid that this leads to multiple spikes during the falling flank of a
-spike, it is essential to choose a sufficiently long refractory period.
-Traub and Miles used :math:`t_{ref} = 3` ms [2, p 118], while we used
-:math:`t_{ref} = 2` ms in [2]_.
-
-References
-++++++++++
-
-.. [1] Brette R et al. (2007). Simulation of networks of spiking neurons: A
-       review of tools and strategies. Journal of Computational Neuroscience
-       23:349-98. DOI: https://doi.org/10.1007/s10827-007-0038-6
-.. [2] Traub RD and Miles R (1991). Neuronal networks of the hippocampus.
-       Cambridge University Press, Cambridge UK.
-.. [3] http://modeldb.yale.edu/83319
-
-
-See also
-++++++++
-
-hh_psc_alpha
-"""
+# hh_cond_exp_traub - Hodgkin-Huxley model for Brette et al (2007) review
+# #######################################################################
+# 
+# Description
+# +++++++++++
+# 
+# hh_cond_exp_traub is an implementation of a modified Hodgkin-Huxley model.
+# 
+# This model was specifically developed for a major review of simulators [1]_,
+# based on a model of hippocampal pyramidal cells by Traub and Miles [2]_.
+# The key differences between the current model and the model in [2]_ are:
+# 
+# - This model is a point neuron, not a compartmental model.
+# - This model includes only I_Na and I_K, with simpler I_K dynamics than
+# in [2]_, so it has only three instead of eight gating variables;
+# in particular, all Ca dynamics have been removed.
+# - Incoming spikes induce an instantaneous conductance change followed by
+# exponential decay instead of activation over time.
+# 
+# This model is primarily provided as reference implementation for hh_coba
+# example of the Brette et al (2007) review. Default parameter values are chosen
+# to match those used with NEST 1.9.10 when preparing data for [1]_. Code for all
+# simulators covered is available from ModelDB [3]_.
+# 
+# Note: In this model, a spike is emitted if :math:`V_m >= V_T + 30` mV and
+# :math:`V_m` has fallen during the current time step.
+# 
+# To avoid that this leads to multiple spikes during the falling flank of a
+# spike, it is essential to choose a sufficiently long refractory period.
+# Traub and Miles used :math:`t_{ref} = 3` ms [2, p 118], while we used
+# :math:`t_{ref} = 2` ms in [2]_.
+# 
+# References
+# ++++++++++
+# 
+# .. [1] Brette R et al. (2007). Simulation of networks of spiking neurons: A
+#        review of tools and strategies. Journal of Computational Neuroscience
+#        23:349-98. DOI: https://doi.org/10.1007/s10827-007-0038-6
+# .. [2] Traub RD and Miles R (1991). Neuronal networks of the hippocampus.
+#        Cambridge University Press, Cambridge UK.
+# .. [3] http://modeldb.yale.edu/83319
+# 
+# 
+# See also
+# ++++++++
+# 
+# hh_psc_alpha
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+# 
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
 model hh_cond_exp_traub_neuron:
 
     state:
         V_m mV = E_L    #  Membrane potential
         V_m_old mV = E_L    #  Membrane potential at previous timestep
         refr_t ms = 0 ms    # Refractory period timer
-        is_refractory boolean = false
 
         Act_m real = alpha_m_init / ( alpha_m_init + beta_m_init )
         Act_h real = alpha_h_init / ( alpha_h_init + beta_h_init )
@@ -72,6 +92,7 @@ model hh_cond_exp_traub_neuron:
         inline I_syn_inh pA = convolve(g_inh, inh_spikes) * nS * ( V_m - E_inh )
 
         V_m' = ( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + I_e + I_stim ) / C_m
+        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
 
         # channel dynamics
         inline V_rel mV = V_m - V_T
@@ -123,18 +144,13 @@ model hh_cond_exp_traub_neuron:
     update:
         # Hodgkin-Huxley type model: ODEs are always integrated, regardless of refractory state
         V_m_old = V_m
-        integrate_odes()
+        if refr_t > 0 ms:
+            # neuron is absolute refractory
+            integrate_odes(V_m, Inact_n, Act_h, Act_m, refr_t)
+        else:
+            # neuron not refractory
+            integrate_odes(V_m, Inact_n, Act_h, Act_m)
 
-        if is_refractory:
-            # neuron is absolute refractory, decrease refractoriness timer
-            refr_t -= resolution()
-
-    onCondition(not is_refractory and V_m > V_T + 30 mV and V_m_old > V_m):
+    onCondition(refr_t <= 0 ms and V_m > V_T + 30 mV and V_m_old > V_m):
         refr_t = refr_T    # start of the refractory period
-        is_refractory = true
         emit_spike()
-
-    onCondition(is_refractory and refr_t <= resolution() / 2):
-        # end of refractory period
-        refr_t = 0 ms
-        is_refractory = false
