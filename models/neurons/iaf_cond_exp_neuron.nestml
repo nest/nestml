@@ -1,0 +1,102 @@
+# iaf_cond_exp - Simple conductance based leaky integrate-and-fire neuron model
+# #############################################################################
+# 
+# Description
+# +++++++++++
+# 
+# iaf_cond_exp is an implementation of a spiking neuron using IAF dynamics with
+# conductance-based synapses. Incoming spike events induce a post-synaptic change
+# of conductance modelled by an exponential function. The exponential function
+# is normalised such that an event of weight 1.0 results in a peak conductance of
+# 1 nS.
+# 
+# References
+# ++++++++++
+# 
+# .. [1] Meffin H, Burkitt AN, Grayden DB (2004). An analytical
+#        model for the large, fluctuating synaptic conductance state typical of
+#        neocortical neurons in vivo. Journal of Computational Neuroscience,
+#        16:159-175.
+#        DOI: https://doi.org/10.1023/B:JCNS.0000014108.03012.81
+# 
+# See also
+# ++++++++
+# 
+# iaf_psc_delta, iaf_psc_exp, iaf_cond_exp
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+# 
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+model iaf_cond_exp_neuron:
+
+    state:
+        V_m mV = E_L    # Membrane potential
+        refr_t ms = 0 ms    # Refractory period timer
+
+    equations:
+        kernel g_inh = exp(-t/tau_syn_inh) # inputs from the inh conductance
+        kernel g_exc = exp(-t/tau_syn_exc) # inputs from the exc conductance
+
+        inline I_syn_exc pA = convolve(g_exc, exc_spikes) * nS * ( V_m - E_exc )
+        inline I_syn_inh pA = convolve(g_inh, inh_spikes) * nS * ( V_m - E_inh )
+        inline I_leak pA = g_L * ( V_m - E_L )
+
+        V_m' = ( -I_leak - I_syn_exc - I_syn_inh + I_e + I_stim ) / C_m
+        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
+
+    parameters:
+        C_m pF = 250 pF         # Membrane capacitance
+        g_L nS = 16.6667 nS     # Leak conductance
+        E_L mV = -70 mV         # Leak reversal potential (aka resting potential)
+        refr_T ms = 2 ms        # Duration of refractory period
+        V_th mV = -55 mV        # Spike threshold potential
+        V_reset mV = -60 mV     # Reset potential
+
+        E_exc mV = 0 mV         # Excitatory reversal potential
+        E_inh mV = -85 mV       # Inhibitory reversal potential
+        tau_syn_exc ms = 0.2 ms # Synaptic time constant of excitatory synapse
+        tau_syn_inh ms = 2 ms   # Synaptic time constant of inhibitory synapse
+
+        # constant external input current
+        I_e pA = 0 pA
+
+    input:
+        exc_spikes <- excitatory spike
+        inh_spikes <- inhibitory spike
+        I_stim pA <- continuous
+
+    output:
+        spike
+
+    update:
+        if refr_t > 0 ms:
+            # neuron is absolute refractory, do not evolve V_m
+            integrate_odes(refr_t)
+        else:
+            # neuron not refractory
+            integrate_odes(V_m)
+
+    onCondition(refr_t <= 0 ms and V_m >= V_th):
+        # threshold crossing
+        refr_t = refr_T    # start of the refractory period
+        V_m = V_reset
+        emit_spike()

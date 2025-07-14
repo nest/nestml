@@ -1,0 +1,152 @@
+# hh_psc_alpha - Hodgkin-Huxley neuron model
+# ##########################################
+# 
+# Description
+# +++++++++++
+# 
+# hh_psc_alpha is an implementation of a spiking neuron using the Hodgkin-Huxley
+# formalism.
+# 
+# Incoming spike events induce a post-synaptic change of current modelled
+# by an alpha function. The alpha function is normalised such that an event of
+# weight 1.0 results in a peak current of 1 pA.
+# 
+# Spike detection is done by a combined threshold-and-local-maximum search: if
+# there is a local maximum above a certain threshold of the membrane potential,
+# it is considered a spike.
+# 
+# 
+# Problems/Todo
+# +++++++++++++
+# 
+# - better spike detection
+# - initial wavelet/spike at simulation onset
+# 
+# 
+# References
+# ++++++++++
+# 
+# .. [1] Gerstner W, Kistler W (2002). Spiking neuron models: Single neurons,
+#        populations, plasticity. New York: Cambridge University Press
+# .. [2] Dayan P, Abbott LF (2001). Theoretical neuroscience: Computational and
+#        mathematical modeling of neural systems. Cambridge, MA: MIT Press.
+#        https://pure.mpg.de/pubman/faces/ViewItemOverviewPage.jsp?itemId=item_3006127>
+# .. [3] Hodgkin AL and Huxley A F (1952). A quantitative description of
+#        membrane current and its application to conduction and excitation in
+#        nerve. The Journal of Physiology 117.
+#        DOI: https://doi.org/10.1113/jphysiol.1952.sp004764
+# 
+# 
+# See also
+# ++++++++
+# 
+# hh_cond_exp_traub
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+# 
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+model hh_psc_alpha_neuron:
+    state:
+        V_m mV = V_m_init    # Membrane potential
+        V_m_old mV = V_m_init    # Membrane potential at previous timestep for threshold check
+        refr_t ms = 0 ms    # Refractory period timer
+
+        Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )   # Activation variable m for Na
+        Inact_h real = alpha_h_init / ( alpha_h_init + beta_h_init )    # Inactivation variable h for Na
+        Act_n real =  alpha_n_init / ( alpha_n_init + beta_n_init ) # Activation variable n for K
+
+    equations:
+        # synapses: alpha functions
+        kernel K_syn_inh = (e/tau_syn_inh) * t * exp(-t/tau_syn_inh)
+        kernel K_syn_exc = (e/tau_syn_exc) * t * exp(-t/tau_syn_exc)
+
+        inline I_syn_exc pA = convolve(K_syn_exc, exc_spikes) * pA
+        inline I_syn_inh pA = convolve(K_syn_inh, inh_spikes) * pA
+        inline I_Na  pA = g_Na * Act_m * Act_m * Act_m * Inact_h * ( V_m - E_Na )
+        inline I_K   pA = g_K * Act_n * Act_n * Act_n * Act_n * ( V_m - E_K )
+        inline I_L   pA = g_L * ( V_m - E_L )
+
+        # Act_n
+        inline alpha_n real = ( 0.01 * ( V_m / mV + 55. ) ) / ( 1. - exp( -( V_m / mV + 55. ) / 10. ) )
+        inline beta_n  real = 0.125 * exp( -( V_m / mV + 65. ) / 80. )
+        Act_n' = ( alpha_n * ( 1 - Act_n ) - beta_n * Act_n ) / ms # n-variable
+
+        # Act_m
+        inline alpha_m real = ( 0.1 * ( V_m / mV + 40. ) ) / ( 1. - exp( -( V_m / mV + 40. ) / 10. ) )
+        inline beta_m  real = 4. * exp( -( V_m / mV + 65. ) / 18. )
+        Act_m' = ( alpha_m * ( 1 - Act_m ) - beta_m * Act_m ) / ms # m-variable
+
+        # Inact_h'
+        inline alpha_h real = 0.07 * exp( -( V_m / mV + 65. ) / 20. )
+        inline beta_h  real = 1. / ( 1. + exp( -( V_m / mV + 35. ) / 10. ) )
+        Inact_h' = ( alpha_h * ( 1 - Inact_h ) - beta_h * Inact_h ) / ms # h-variable
+
+        V_m' = ( -( I_Na + I_K + I_L ) + I_e + I_stim + I_syn_exc - I_syn_inh ) / C_m
+        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
+
+    parameters:
+        V_m_init mV = -65 mV     # Initial membrane potential
+        C_m pF = 100 pF          # Membrane Capacitance
+        g_Na nS = 12000 nS       # Sodium peak conductance
+        g_K nS = 3600 nS         # Potassium peak conductance
+        g_L nS = 30 nS           # Leak conductance
+        E_Na mV = 50 mV          # Sodium reversal potential
+        E_K mV = -77 mV          # Potassium reversal potential
+        E_L mV = -54.402 mV      # Leak reversal Potential (aka resting potential)
+        refr_T ms = 2 ms         # Duration of refractory period
+
+        tau_syn_exc ms = 0.2 ms  # Rise time of the excitatory synaptic alpha function
+        tau_syn_inh ms = 2 ms    # Rise time of the inhibitory synaptic alpha function
+
+        # constant external input current
+        I_e pA = 0 pA
+
+    internals:
+        alpha_n_init real = ( 0.01 * ( V_m_init / mV + 55. ) ) / ( 1. - exp( -( V_m_init / mV + 55. ) / 10. ) )
+        beta_n_init  real = 0.125 * exp( -( V_m_init / mV + 65. ) / 80. )
+        alpha_m_init real = ( 0.1 * ( V_m_init / mV + 40. ) ) / ( 1. - exp( -( V_m_init / mV + 40. ) / 10. ) )
+        beta_m_init  real = 4. * exp( -( V_m_init / mV + 65. ) / 18. )
+        alpha_h_init real = 0.07 * exp( -( V_m_init / mV + 65. ) / 20. )
+        beta_h_init  real = 1. / ( 1. + exp( -( V_m_init / mV + 35. ) / 10. ) )
+
+    input:
+        exc_spikes <- excitatory spike
+        inh_spikes <- inhibitory spike
+        I_stim pA <- continuous
+
+    output:
+        spike
+
+    update:
+        # Hodgkin-Huxley type model: ODEs are always integrated, regardless of refractory state
+        V_m_old = V_m
+        if refr_t > 0 ms:
+            # neuron is absolute refractory
+            integrate_odes(V_m, Inact_h, Act_n, Act_m, refr_t)
+        else:
+            # neuron not refractory
+            integrate_odes(V_m, Inact_h, Act_n, Act_m)
+
+    onCondition(refr_t <= 0 ms and V_m > 0 mV and V_m_old > V_m):
+        # threshold crossing and maximum
+        refr_t = refr_T    # start of the refractory period
+        emit_spike()

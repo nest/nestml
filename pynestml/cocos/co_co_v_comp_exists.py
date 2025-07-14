@@ -22,7 +22,7 @@
 from pynestml.cocos.co_co import CoCo
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
-from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.messages import Messages
 from pynestml.utils.logger import Logger, LoggingLevel
 
@@ -37,15 +37,12 @@ class CoCoVCompDefined(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, neuron: ASTNeuron):
+    def check_co_co(cls, neuron: ASTModel):
         """
         Checks if this coco applies for the handed over neuron.
         Models which are supposed to be compartmental but do not contain
         state variable called v_comp are not correct.
         :param neuron: a single neuron instance.
-        :param after_ast_rewrite: indicates whether this coco is checked
-            after the code generator has done rewriting of the abstract syntax tree.
-            If True, checks are not as rigorous. Use False where possible.
         """
         from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
 
@@ -75,6 +72,6 @@ class CoCoVCompDefined(CoCo):
         return False
 
     @classmethod
-    def log_error(cls, neuron: ASTNeuron, error_position, missing_variable_name):
+    def log_error(cls, neuron: ASTModel, error_position, missing_variable_name):
         code, message = Messages.get_v_comp_variable_value_missing(neuron.get_name(), missing_variable_name)
         Logger.log_message(error_position=error_position, node=neuron, log_level=LoggingLevel.ERROR, code=code, message=message)

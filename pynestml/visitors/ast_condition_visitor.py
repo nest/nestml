@@ -19,15 +19,12 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-rhs : condition=rhs '?' ifTrue=rhs ':' ifNot=rhs
-"""
+from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
-from pynestml.utils.error_strings import ErrorStrings
 from pynestml.utils.logger import Logger, LoggingLevel
-from pynestml.utils.messages import MessageCode
+from pynestml.utils.messages import MessageCode, Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
@@ -36,11 +33,10 @@ class ASTConditionVisitor(ASTVisitor):
     This visitor is used to derive the correct type of a ternary operator, i.e., of all its subexpressions.
     """
 
-    def visit_expression(self, node):
-        """
+    def visit_expression(self, node: ASTExpression):
+        r"""
         Visits an rhs consisting of the ternary operator and updates its type.
         :param node: a single rhs
-        :type node: ast_expression
         """
         condition = node.get_condition().type
         if_true = node.get_if_true().type
@@ -52,10 +48,10 @@ class ASTConditionVisitor(ASTVisitor):
 
         # Condition must be a bool
         if not condition.equals(PredefinedTypes.get_boolean_type()):
-            error_msg = ErrorStrings.message_ternary(self, node.get_source_position())
+            error_code, error_msg = Messages.get_ternary()
             node.type = ErrorTypeSymbol()
             Logger.log_message(message=error_msg, error_position=node.get_source_position(),
-                               code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
+                               code=error_code,
                                log_level=LoggingLevel.ERROR)
             return
 
@@ -68,11 +64,10 @@ class ASTConditionVisitor(ASTVisitor):
 
         # Both are units but not matching-> real WARN
         if isinstance(if_true, UnitTypeSymbol) and isinstance(if_not, UnitTypeSymbol):
-            error_msg = ErrorStrings.message_ternary_mismatch(self, if_true.print_symbol(), if_not.print_symbol(),
-                                                              node.get_source_position())
             node.type = PredefinedTypes.get_real_type()
+            error_code, error_msg = Messages.get_ternary_mismatch(if_true.print_symbol(), if_not.print_symbol())
             Logger.log_message(message=error_msg,
-                               code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
+                               code=error_code,
                                error_position=if_true.referenced_object.get_source_position(),
                                log_level=LoggingLevel.WARNING)
             return
@@ -84,11 +79,10 @@ class ASTConditionVisitor(ASTVisitor):
                 unit_type = if_true
             else:
                 unit_type = if_not
-            error_msg = ErrorStrings.message_ternary_mismatch(self, str(if_true), str(if_not),
-                                                              node.get_source_position())
             node.type = unit_type
+            error_code, error_msg = Messages.get_ternary_mismatch(str(if_true), str(if_not))
             Logger.log_message(message=error_msg,
-                               code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
+                               code=error_code,
                                error_position=if_true.referenced_object.get_source_position(),
                                log_level=LoggingLevel.WARNING)
             return
@@ -99,10 +93,9 @@ class ASTConditionVisitor(ASTVisitor):
             return
 
         # if we get here it is an error
-        error_msg = ErrorStrings.message_ternary_mismatch(self, str(if_true), str(if_not),
-                                                          node.get_source_position())
         node.type = ErrorTypeSymbol()
+        error_code, error_msg = Messages.get_ternary_mismatch(str(if_true), str(if_not))
         Logger.log_message(message=error_msg,
                            error_position=node.get_source_position(),
-                           code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
+                           code=error_code,
                            log_level=LoggingLevel.ERROR)

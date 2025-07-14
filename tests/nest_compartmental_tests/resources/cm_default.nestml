@@ -1,11 +1,32 @@
-"""
-Example compartmental model for NESTML
+# Example compartmental model for NESTML
+# 
+# Description
+# +++++++++++
+# Corresponds to standard compartmental model implemented in NEST.
+# 
+# 
+# Copyright statement
+# +++++++++++++++++++
+# 
+# This file is part of NEST.
+# 
+# Copyright (C) 2004 The NEST Initiative
+# 
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+# 
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-Description
-+++++++++++
-Corresponds to standard compartmental model implemented in NEST.
-"""
-neuron cm_default:
+#
+model cm_default:
 
     state:
 
@@ -15,11 +36,11 @@ neuron cm_default:
 
         ### ion channels ###
         # initial values state variables sodium channel
-        m_Na real = 0.0
-        h_Na real = 0.0
+        m_Na real = 0.01696863
+        h_Na real = 0.83381407
 
         # initial values state variables potassium channel
-        n_K real = 0.0
+        n_K real = 0.00014943
 
 
     parameters:

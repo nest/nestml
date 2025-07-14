@@ -17,6 +17,11 @@ Generating code
 
 1. Build the Apptainer image from https://github.com/nest/nestml/blob/master/extras/spinnaker-apptainer.def
 
+   .. code-block:: bash
+
+      apptainer build spinnaker-apptainer.sif spinnaker-apptainer.def 
+      apptainer overlay create --size 4096 spinnaker-overlay.img
+
 2. Run the Apptainer image:
 
    .. code-block:: bash
@@ -32,12 +37,13 @@ Generating code
       # need to create this directory first, otherwise it gets ignored in the PYTHONPATH!
       mkdir $HOME/nestml/spinnaker-install
 
+   It is recommended to create a new, empty target and install directory every time before generating the code.
+
 5. Run the test
 
    .. code-block:: bash
 
       PYTHONPATH=$HOME/nestml/spinnaker-install python3 -m pytest -s --pdb ./tests/spinnaker_tests/test_spinnaker_iaf_psc_exp.py
-
 
 
 Further reading

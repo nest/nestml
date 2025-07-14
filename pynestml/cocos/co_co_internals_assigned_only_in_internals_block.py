@@ -20,8 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.meta_model.ast_assignment import ASTAssignment
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_synapse import ASTSynapse
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.cocos.co_co import CoCo
 from pynestml.symbol_table.scope import ScopeType
 from pynestml.symbols.symbol import SymbolKind
@@ -38,13 +37,12 @@ class CoCoInternalsAssignedOnlyInInternalsBlock(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node):
+    def check_co_co(cls, node: ASTModel):
         """
         Ensures the coco for the handed over neuron.
         :param node: a single neuron instance.
-        :type node: ASTNeuron
         """
-        assert (node is not None and (isinstance(node, ASTNeuron) or isinstance(node, ASTSynapse))), \
+        assert (node is not None and isinstance(node, ASTModel)), \
             '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(node)
         visitor = InternalsAssignmentVisitor()
         visitor.neuron_ = node
@@ -61,7 +59,7 @@ class InternalsAssignmentVisitor(ASTVisitor):
         Checks the coco on the current node.
         :param node: a single node.
         """
-        internal = ASTUtils.get_internal_by_name(self.neuron_, node.get_variable().get_name())
+        internal = ASTUtils.get_internal_decl_by_name(self.neuron_, node.get_variable().get_name())
         if internal:
             code, message = Messages.get_assignment_not_allowed(node.get_variable().get_complete_name())
             Logger.log_message(error_position=node.get_source_position(),

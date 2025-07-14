@@ -44,7 +44,7 @@ except Exception:
 class TestGapJunctionGetSetWeight:
     r"""Test that getting and setting the gap junction weight works correctly"""
 
-    neuron_model = "iaf_psc_exp"
+    neuron_model = "iaf_psc_exp_neuron"
 
     @pytest.fixture(autouse=True)
     def generate_code(self):
@@ -81,13 +81,13 @@ class TestGapJunctionGetSetWeight:
         np.testing.assert_allclose(static_syn.weight, 42.)
         np.testing.assert_allclose(gap_syn.weight, 123.)
 
-        static_syn.weight += 3.14159
-        gap_syn.weight += 2.71828
+        static_syn.weight += np.pi
+        gap_syn.weight += np.e
 
-        np.testing.assert_allclose(static_syn.weight, 42. + 3.14159)
-        np.testing.assert_allclose(gap_syn.weight, 123. + 2.71828)
+        np.testing.assert_allclose(static_syn.weight, 42. + np.pi)
+        np.testing.assert_allclose(gap_syn.weight, 123. + np.e)
 
         nest.Simulate(10.)
 
-        np.testing.assert_allclose(static_syn.weight, 42. + 3.14159)
-        np.testing.assert_allclose(gap_syn.weight, 123. + 2.71828)
+        np.testing.assert_allclose(static_syn.weight, 42. + np.pi)
+        np.testing.assert_allclose(gap_syn.weight, 123. + np.e)

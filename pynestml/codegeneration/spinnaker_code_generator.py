@@ -19,42 +19,36 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import copy
-from typing import Sequence, Union, Optional, Mapping, Any
+from typing import Sequence, Optional, Mapping, Any
 
+import copy
 import os
 
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
 from pynestml.codegeneration.printers.cpp_printer import CppPrinter
-from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
-from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
-from pynestml.codegeneration.printers.unitless_c_simple_expression_printer import UnitlessCSimpleExpressionPrinter
 from pynestml.codegeneration.printers.c_simple_expression_printer import CSimpleExpressionPrinter
+from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.gsl_variable_printer import GSLVariablePrinter
+from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
+from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
+from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
+from pynestml.codegeneration.printers.python_expression_printer import PythonExpressionPrinter
+from pynestml.codegeneration.printers.python_standalone_printer import PythonStandalonePrinter
+from pynestml.codegeneration.printers.python_stepping_function_function_call_printer import PythonSteppingFunctionFunctionCallPrinter
+from pynestml.codegeneration.printers.python_stepping_function_variable_printer import PythonSteppingFunctionVariablePrinter
+from pynestml.codegeneration.printers.python_variable_printer import PythonVariablePrinter
 from pynestml.codegeneration.printers.spinnaker_c_function_call_printer import SpinnakerCFunctionCallPrinter
 from pynestml.codegeneration.printers.spinnaker_c_type_symbol_printer import SpinnakerCTypeSymbolPrinter
-from pynestml.codegeneration.printers.spinnaker_gsl_function_call_printer import SpinnakerGSLFunctionCallPrinter
 from pynestml.codegeneration.printers.spinnaker_c_variable_printer import SpinnakerCVariablePrinter
-from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
-from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
-from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-from pynestml.codegeneration.printers.python_expression_printer import PythonExpressionPrinter
-from pynestml.codegeneration.printers.python_simple_expression_printer import PythonSimpleExpressionPrinter
-from pynestml.codegeneration.printers.python_standalone_printer import PythonStandalonePrinter
-from pynestml.codegeneration.printers.python_stepping_function_function_call_printer import \
-    PythonSteppingFunctionFunctionCallPrinter
-from pynestml.codegeneration.printers.python_stepping_function_variable_printer import \
-    PythonSteppingFunctionVariablePrinter
-from pynestml.codegeneration.printers.python_variable_printer import PythonVariablePrinter
-from pynestml.codegeneration.python_standalone_code_generator import PythonStandaloneCodeGenerator
+from pynestml.codegeneration.printers.spinnaker_gsl_function_call_printer import SpinnakerGSLFunctionCallPrinter
 from pynestml.codegeneration.printers.spinnaker_python_function_call_printer import SpinnakerPythonFunctionCallPrinter
-from pynestml.codegeneration.printers.spinnaker_python_simple_expression_printer import \
-    SpinnakerPythonSimpleExpressionPrinter
+from pynestml.codegeneration.printers.spinnaker_python_simple_expression_printer import SpinnakerPythonSimpleExpressionPrinter
 from pynestml.codegeneration.printers.spinnaker_python_type_symbol_printer import SpinnakerPythonTypeSymbolPrinter
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_synapse import ASTSynapse
+from pynestml.codegeneration.python_standalone_code_generator import PythonStandaloneCodeGenerator
+from pynestml.meta_model.ast_model import ASTModel
+from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 
 class CustomNESTCodeGenerator(NESTCodeGenerator):
@@ -90,16 +84,16 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         self._gsl_function_call_printer = SpinnakerGSLFunctionCallPrinter(None)
 
         self._gsl_printer = CppExpressionPrinter(
-            simple_expression_printer=UnitlessCSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
-                                                                       constant_printer=self._constant_printer,
-                                                                       function_call_printer=self._gsl_function_call_printer))
+            simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
+                                                               constant_printer=self._constant_printer,
+                                                               function_call_printer=self._gsl_function_call_printer))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
 
         # ODE-toolbox printers
         self._ode_toolbox_variable_printer = ODEToolboxVariablePrinter(None)
         self._ode_toolbox_function_call_printer = ODEToolboxFunctionCallPrinter(None)
         self._ode_toolbox_printer = ODEToolboxExpressionPrinter(
-            simple_expression_printer=UnitlessCSimpleExpressionPrinter(
+            simple_expression_printer=CSimpleExpressionPrinter(
                 variable_printer=self._ode_toolbox_variable_printer,
                 constant_printer=self._constant_printer,
                 function_call_printer=self._ode_toolbox_function_call_printer))
@@ -138,11 +132,8 @@ class CustomPythonStandaloneCodeGenerator(PythonStandaloneCodeGenerator):
         self._nest_variable_printer_no_origin._expression_printer = self._printer_no_origin
         self._nest_function_call_printer_no_origin._expression_printer = self._printer_no_origin
 
-        self._nest_unitless_function_call_printer = SpinnakerPythonFunctionCallPrinter(None)
-
         # GSL printers
         self._gsl_variable_printer = PythonSteppingFunctionVariablePrinter(None)
-        print("In Python code generator: created self._gsl_variable_printer = " + str(self._gsl_variable_printer))
         self._gsl_function_call_printer = PythonSteppingFunctionFunctionCallPrinter(None)
         self._gsl_printer = PythonExpressionPrinter(simple_expression_printer=SpinnakerPythonSimpleExpressionPrinter(
             variable_printer=self._gsl_variable_printer,
@@ -188,7 +179,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
-        super().__init__("SpiNNaker", options)
+        super().__init__(options)
 
         options_cpp = copy.deepcopy(NESTCodeGenerator._default_options)
         options_cpp["neuron_synapse_pairs"] = self._options["neuron_synapse_pairs"]
@@ -203,7 +194,6 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         options_cpp["templates"]["module_templates"] = self._options["templates"]["module_templates"]
         options_cpp["templates"]["path"] = self._options["templates"]["path"]
         self.codegen_cpp = CustomNESTCodeGenerator(options_cpp)
-        self.codegen_cpp._target = "SpiNNaker"
 
         options_py = copy.deepcopy(PythonStandaloneCodeGenerator._default_options)
         options_py["templates"]["model_templates"]["neuron"] = [fname for fname in
@@ -216,21 +206,13 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         options_py["templates"]["module_templates"] = []
         options_py["templates"]["path"] = self._options["templates"]["path"]
         self.codegen_py = CustomPythonStandaloneCodeGenerator(options_py)
-        self.codegen_py._target = "SpiNNaker"
 
-    def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
-        cloned_models = []
+    def generate_code(self, models: Sequence[ASTModel]) -> None:
         for model in models:
             cloned_model = model.clone()
             cloned_model.accept(ASTSymbolTableVisitor())
-            cloned_models.append(cloned_model)
+            self.codegen_cpp.generate_code([cloned_model])
 
-        self.codegen_cpp.generate_code(cloned_models)
-
-        cloned_models = []
-        for model in models:
             cloned_model = model.clone()
             cloned_model.accept(ASTSymbolTableVisitor())
-            cloned_models.append(cloned_model)
-
-        self.codegen_py.generate_code(cloned_models)
+            self.codegen_py.generate_code([cloned_model])

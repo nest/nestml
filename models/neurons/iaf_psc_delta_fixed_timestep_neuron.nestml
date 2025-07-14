@@ -1,0 +1,99 @@
+# iaf_psc_delta_fixed_timestep - Current-based leaky integrate-and-fire neuron model with delta-kernel post-synaptic currents
+# ###########################################################################################################################
+# 
+# Description
+# +++++++++++
+# 
+# An implementation of a leaky integrate-and-fire model where the potential jumps on each spike arrival. The threshold crossing is followed by an absolute refractory period during which the membrane potential is clamped to the resting potential. Spikes arriving while the neuron is refractory are discarded.
+# 
+# The general framework for the consistent formulation of systems with neuron-like dynamics interacting by point events is described in [1]_.  A flow chart can be found in [2]_.
+# 
+# This model differs from ``iaf_psc_delta`` in that it assumes a fixed-timestep simulator, so the functions ``resolution()`` and ``steps()`` can be used.
+# 
+# 
+# References
+# ++++++++++
+# 
+# .. [1] Rotter S,  Diesmann M (1999). Exact simulation of
+#        time-invariant linear systems with applications to neuronal
+#        modeling. Biologial Cybernetics 81:381-402.
+#        DOI: https://doi.org/10.1007/s004220050570
+# .. [2] Diesmann M, Gewaltig M-O, Rotter S, & Aertsen A (2001). State
+#        space analysis of synchronous spiking in cortical neural
+#        networks. Neurocomputing 38-40:565-571.
+#        DOI: https://doi.org/10.1016/S0925-2312(01)00409-X
+# 
+# 
+# See also
+# ++++++++
+# 
+# iaf_psc_alpha, iaf_psc_exp
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+# 
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+model iaf_psc_delta_fixed_timestep_neuron:
+    state:
+        V_m mV = E_L     # Membrane potential
+        refr_counter integer = 0    # Refractory period timer
+
+    equations:
+        kernel K_delta = delta(t)
+        V_m' = -(V_m - E_L) / tau_m + (I_e + I_stim) / C_m
+
+    parameters:
+        tau_m   ms = 10 ms              # Membrane time constant
+        C_m     pF = 250 pF             # Capacity of the membrane
+        refr_T ms = 2 ms                # Duration of refractory period
+        E_L     mV = -70 mV             # Resting membrane potential
+        V_reset mV = -70 mV             # Reset potential of the membrane
+        V_th    mV = -55 mV             # Spike threshold
+
+        I_e pA = 0 pA                   # constant external input current
+
+    internals:
+        refr_counts integer = steps(refr_T)
+
+    input:
+        spikes <- spike
+        I_stim pA <- continuous
+
+    output:
+        spike
+
+    onReceive(spikes):
+        # discard spikes if neuron is refractory
+        if refr_counter == 0:
+            V_m += spikes * mV * s
+
+    update:
+        if refr_counter > 0:
+            # neuron is absolute refractory, do not evolve V_m
+            refr_counter -= 1
+        else:
+            # neuron not refractory, so evolve all ODEs (including V_m)
+            integrate_odes()
+
+    # threshold crossing and emitting a spike
+    onCondition(V_m >= V_th):
+        V_m = V_reset
+        refr_counter = refr_counts    # start of the refractory period
+        emit_spike()

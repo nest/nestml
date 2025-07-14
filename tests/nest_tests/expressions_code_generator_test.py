@@ -18,6 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 import os
 import unittest
 
@@ -63,10 +64,10 @@ class ExpressionsCodeGeneratorTest(unittest.TestCase):
         params.append(self.target_path)
         params.append('--dev')
         FrontendConfiguration.parse_config(params)
-        compilation_unit = ModelParser.parse_model(input_path)
+        compilation_unit = ModelParser.parse_file(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
+        nestCodeGenerator.generate_code(compilation_unit.get_model_list())
 
     def tearDown(self):
         import shutil

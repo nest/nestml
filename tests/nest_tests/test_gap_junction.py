@@ -23,6 +23,7 @@ import numpy as np
 import os
 import pytest
 import scipy
+import scipy.signal
 
 import nest
 
@@ -44,7 +45,7 @@ except Exception:
 class TestGapJunction:
     r"""Test code generation and perform simulations and numerical checks for gap junction support in linear and non-linear neuron models"""
 
-    @pytest.mark.parametrize("neuron_model", ["iaf_psc_exp", "aeif_cond_exp"])
+    @pytest.mark.parametrize("neuron_model", ["iaf_psc_exp_neuron", "aeif_cond_exp_neuron"])
     def test_gap_junction_effect_on_membrane_potential(self, neuron_model: str):
         self.generate_code(neuron_model)
         for wfr_interpolation_order in [0, 1, 3]:
@@ -58,12 +59,10 @@ class TestGapJunction:
         files = [os.path.join("models", "neurons", neuron_model + ".nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,
-                             logging_level="DEBUG",
+                             logging_level="WARNING",
                              module_name="nestml_gap_" + neuron_model + "_module",
                              suffix="_nestml",
                              codegen_opts=codegen_opts)
-
-        nest.Install("nestml_gap_" + neuron_model + "_module")
 
         return neuron_model
 
@@ -74,6 +73,7 @@ class TestGapJunction:
 
         nest.set_verbosity("M_ALL")
         nest.ResetKernel()
+        nest.Install("nestml_gap_" + neuron_model + "_module")
 
         nest.resolution = resolution
         nest.wfr_comm_interval = 2.         # [ms]

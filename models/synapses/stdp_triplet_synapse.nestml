@@ -1,0 +1,104 @@
+# stdp_triplet_synapse - Synapse type with triplet spike-timing dependent plasticity
+# ##################################################################################
+#
+# Description
+# +++++++++++
+#
+# A connection with spike time dependent plasticity accounting for spike triplet effects (as defined in [1]_).
+#
+# Nearest-neighbour variant of pre- and postsynaptic spike coupling.
+#
+# .. note::
+#
+#    See https://github.com/nest/nestml/issues/703 for a potential edge-case issue with this model.
+#
+#
+# References
+# ++++++++++
+# .. [1] Pfister JP, Gerstner W (2006). Triplets of spikes in a model
+#        of spike timing-dependent plasticity.  The Journal of Neuroscience
+#        26(38):9673-9682. DOI: https://doi.org/10.1523/JNEUROSCI.1425-06.2006
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+# 
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+model stdp_triplet_synapse:
+    state:
+        w nS = 1 nS   # Synaptic weight
+
+        tr_r1 real = 0.
+        tr_r2 real = 0.
+        tr_o1 real = 0.
+        tr_o2 real = 0.
+
+    parameters:
+        d ms = 1 ms     # Synaptic transmission delay
+
+        tau_plus ms = 16.8 ms  # time constant for tr_r1
+        tau_x ms = 101 ms  # time constant for tr_r2
+        tau_minus ms = 33.7 ms  # time constant for tr_o1
+        tau_y ms = 125 ms  # time constant for tr_o2
+
+        A2_plus real = 7.5e-10
+        A3_plus real = 9.3e-3
+        A2_minus real = 7e-3
+        A3_minus real = 2.3e-4
+
+        Wmax nS = 100 nS
+        Wmin nS = 0 nS
+
+    equations:
+        tr_r1' = -tr_r1 / tau_plus
+        tr_r2' = -tr_r2 / tau_x
+        tr_o1' = -tr_o1 / tau_minus
+        tr_o2' = -tr_o2 / tau_y
+
+    input:
+        pre_spikes <- spike
+        post_spikes <- spike
+
+    output:
+        spike(weight real, delay ms)
+
+    onReceive(post_spikes):
+        # potentiate synapse
+        w_ nS = w + tr_r1 * (A2_plus + A3_plus * tr_o2)
+        w = min(Wmax, w_)
+
+        # increment post trace values
+        tr_o1 += 1
+        tr_o2 += 1
+
+    onReceive(pre_spikes):
+        # depress synapse
+        w_ nS = w - tr_o1 * (A2_minus + A3_minus * tr_r2)
+        w = max(Wmin, w_)
+
+        # increment pre trace values
+        tr_r1 += 1
+        tr_r2 += 1
+
+        # deliver spike to postsynaptic partner
+        emit_spike(w, d)
+
+    update:
+        integrate_odes()

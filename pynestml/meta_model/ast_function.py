@@ -23,7 +23,7 @@ from typing import List, Optional
 
 from copy import copy
 
-from pynestml.meta_model.ast_block import ASTBlock
+from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
 from pynestml.meta_model.ast_data_type import ASTDataType
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_parameter import ASTParameter
@@ -54,7 +54,7 @@ class ASTFunction(ASTNode):
         type_symbol = None
     """
 
-    def __init__(self, name: str, parameters: List[ASTParameter], return_type: Optional[ASTDataType], block: ASTBlock, type_symbol=None, *args, **kwargs):
+    def __init__(self, name: str, parameters: List[ASTParameter], return_type: Optional[ASTDataType], stmts_body: ASTStmtsBody, type_symbol=None, *args, **kwargs):
         """
         Standard constructor.
 
@@ -63,13 +63,13 @@ class ASTFunction(ASTNode):
         :param name: the name of the defined function.
         :param parameters: (Optional) Set of parameters.
         :param return_type: (Optional) Return type.
-        :param block: a block of declarations.
+        :param stmts_body: a body of declarations.
         """
         super(ASTFunction, self).__init__(*args, **kwargs)
-        self.block = block
-        self.return_type = return_type
-        self.parameters = parameters
         self.name = name
+        self.parameters = parameters
+        self.return_type = return_type
+        self.stmts_body = stmts_body
         self.type_symbol = type_symbol
 
     def clone(self):
@@ -79,9 +79,9 @@ class ASTFunction(ASTNode):
         :return: new AST node instance
         :rtype: ASTFunction
         """
-        block_dup = None
-        if self.block:
-            block_dup = self.block.clone()
+        stmts_body_dup = None
+        if self.stmts_body:
+            stmts_body_dup = self.stmts_body.clone()
         return_type_dup = None
         if self.return_type:
             return_type_dup = self.return_type.clone()
@@ -90,7 +90,7 @@ class ASTFunction(ASTNode):
         dup = ASTFunction(name=self.name,
                           parameters=parameters_dup,
                           return_type=return_type_dup,
-                          block=block_dup,
+                          stmts_body=stmts_body_dup,
                           type_symbol=self.type_symbol,
                           # ASTNode common attributes:
                           source_position=self.source_position,
@@ -140,13 +140,12 @@ class ASTFunction(ASTNode):
         """
         return self.return_type
 
-    def get_block(self):
+    def get_stmts_body(self) -> ASTStmtsBody:
         """
-        Returns the block containing the definitions.
-        :return: the block of the definitions.
-        :rtype: ast_block
+        Returns the body containing the statements.
+        :return: the body
         """
-        return self.block
+        return self.stmts_body
 
     def get_type_symbol(self):
         """
@@ -164,52 +163,46 @@ class ASTFunction(ASTNode):
         """
         self.type_symbol = type_symbol
 
-    def get_parent(self, ast):
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
-        """
-        for param in self.get_parameters():
-            if param is ast:
-                return self
-            if param.get_parent(ast) is not None:
-                return param.get_parent(ast)
-        if self.has_return_type():
-            if self.get_return_type() is ast:
-                return self
-            if self.get_return_type().get_parent(ast) is not None:
-                return self.get_return_type().get_parent(ast)
-        if self.get_block() is ast:
-            return self
-        if self.get_block().get_parent(ast) is not None:
-            return self.get_block().get_parent(ast)
-        return None
+        children = []
+        children.extend(self.get_parameters())
 
-    def equals(self, other):
-        """
-        The equals method.
-        :param other: a different object.
-        :type other: object
-        :return: True if equal, otherwise False.
-        :rtype: bool
+        if self.has_return_type():
+            children.append(self.get_return_type())
+
+        if self.get_stmts_body():
+            children.append(self.get_stmts_body())
+
+        return children
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTFunction):
             return False
+
         if self.get_name() != other.get_name():
             return False
+
         if len(self.get_parameters()) != len(other.get_parameters()):
             return False
+
         my_parameters = self.get_parameters()
         your_parameters = other.get_parameters()
         for i in range(0, len(my_parameters)):
             if not my_parameters[i].equals(your_parameters[i]):
                 return False
+
         if self.has_return_type() + other.has_return_type() == 1:
             return False
+
         if (self.has_return_type() and other.has_return_type()
                 and not self.get_return_type().equals(other.get_return_type())):
             return False
-        return self.get_block().equals(other.get_block())
+
+        return self.get_stmts_body().equals(other.get_stmts_body())

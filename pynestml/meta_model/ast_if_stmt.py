@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List
+
 from pynestml.meta_model.ast_node import ASTNode
 
 
@@ -127,37 +129,25 @@ class ASTIfStmt(ASTNode):
         """
         return self.else_clause
 
-    def get_parent(self, ast):
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: ASTNode
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: Optional[ASTNode]
-        """
-        if self.get_if_clause() is ast:
-            return self
-        if self.get_if_clause().get_parent(ast) is not None:
-            return self.get_if_clause().get_parent(ast)
-        for elifClause in self.get_elif_clauses():
-            if elifClause is ast:
-                return self
-            if elifClause.get_parent(ast) is not None:
-                return elifClause.get_parent(ast)
-        if self.has_else_clause():
-            if self.get_else_clause() is ast:
-                return self
-            if self.get_else_clause().get_parent(ast) is not None:
-                return self.get_else_clause().get_parent(ast)
-        return None
+        children = []
+        if self.get_if_clause():
+            children.append(self.get_if_clause())
 
-    def equals(self, other):
-        """
-        The equals method.
-        :param other: a different object.
-        :type other: object
-        :return: True if equals, otherwise False.
-        :rtype: bool
+        children.extend(self.get_elif_clauses())
+
+        if self.has_else_clause():
+            children.append(self.get_else_clause())
+
+        return children
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTIfStmt):
             return False

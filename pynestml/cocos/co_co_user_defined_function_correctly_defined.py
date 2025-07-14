@@ -19,8 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_synapse import ASTSynapse
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.cocos.co_co import CoCo
@@ -52,9 +51,9 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
         """
         Checks the coco for the handed over node.
         :param _node: a single node instance.
-        :type _node: ASTNeuron or ASTSynapse
+        :type _node: ASTModel
         """
-        assert (_node is not None and (isinstance(_node, ASTNeuron) or isinstance(_node, ASTSynapse))), \
+        assert (_node is not None and (isinstance(_node, ASTModel))), \
             '(PyNestML.CoCo.FunctionCallsConsistent) No or wrong type of node provided (%s)!' % type(_node)
         cls.__nodeName = _node.get_name()
         for userDefinedFunction in _node.get_functions():
@@ -62,10 +61,10 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
             symbol = userDefinedFunction.get_scope().resolve_to_symbol(userDefinedFunction.get_name(),
                                                                        SymbolKind.FUNCTION)
             # first ensure that the block contains at least one statement
-            if symbol is not None and len(userDefinedFunction.get_block().get_stmts()) > 0:
+            if symbol is not None and len(userDefinedFunction.get_stmts_body().get_stmts()) > 0:
                 # now check that the last statement is a return
                 cls.__check_return_recursively(symbol.get_return_type(),
-                                               userDefinedFunction.get_block().get_stmts(), False)
+                                               userDefinedFunction.get_stmts_body().get_stmts(), False)
             # now if it does not have a statement, but uses a return type, it is an error
             elif symbol is not None and userDefinedFunction.has_return_type() and \
                     not symbol.get_return_type().equals(PredefinedTypes.get_void_type()):
@@ -136,19 +135,19 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                 # otherwise it is a compound stmt, thus check recursively
                 if stmt.is_if_stmt():
                     cls.__check_return_recursively(type_symbol,
-                                                   stmt.get_if_stmt().get_if_clause().get_block().get_stmts(),
+                                                   stmt.get_if_stmt().get_if_clause().get_stmts_body().get_stmts(),
                                                    ret_defined)
                     for else_ifs in stmt.get_if_stmt().get_elif_clauses():
-                        cls.__check_return_recursively(type_symbol, else_ifs.get_block().get_stmts(), ret_defined)
+                        cls.__check_return_recursively(type_symbol, else_ifs.get_stmts_body().get_stmts(), ret_defined)
                     if stmt.get_if_stmt().has_else_clause():
                         cls.__check_return_recursively(type_symbol,
-                                                       stmt.get_if_stmt().get_else_clause().get_block().get_stmts(),
+                                                       stmt.get_if_stmt().get_else_clause().get_stmts_body().get_stmts(),
                                                        ret_defined)
                 elif stmt.is_while_stmt():
-                    cls.__check_return_recursively(type_symbol, stmt.get_while_stmt().get_block().get_stmts(),
+                    cls.__check_return_recursively(type_symbol, stmt.get_while_stmt().get_stmts_body().get_stmts(),
                                                    ret_defined)
                 elif stmt.is_for_stmt():
-                    cls.__check_return_recursively(type_symbol, stmt.get_for_stmt().get_block().get_stmts(),
+                    cls.__check_return_recursively(type_symbol, stmt.get_for_stmt().get_stmts_body().get_stmts(),
                                                    ret_defined)
             # now, if a return statement has not been defined in the corresponding higher level block, we have
             # to ensure that it is defined here

@@ -18,7 +18,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
 import subprocess
 import sys
 import tempfile
@@ -63,7 +62,7 @@ try:
             nest_version = "v2.20.2"
     else:
         nest_version = "v" + nest.__version__
-        if nest_version.startswith("v3.5") or nest_version.startswith("v3.6"):
+        if nest_version.startswith("v3.5") or nest_version.startswith("v3.6") or nest_version.startswith("v3.7") or nest_version.startswith("v3.8"):
             if "post0.dev0" in nest_version:
                 nest_version = "master"
         else:
@@ -93,9 +92,12 @@ print(nest_version, file=sys.stderr)
             nest_version = stderr.decode("UTF-8").strip()
 
         if nest_version == "":
-            Logger.log_message(None, -1, "An error occurred while importing the `nest` module in Python. Please check your NEST installation-related environment variables and paths, or specify ``nest_version`` manually in the code generator options.", None, LoggingLevel.ERROR)
+            Logger.log_message(None, -1,
+                               "An error occurred while importing the `nest` module in Python. Please check your NEST installation-related environment variables and paths, or specify ``nest_version`` manually in the code generator options.",
+                               None, LoggingLevel.ERROR)
             sys.exit(1)
 
-        Logger.log_message(None, -1, "The NEST Simulator version was automatically detected as: " + nest_version, None, LoggingLevel.INFO)
+        Logger.log_message(None, -1, "The NEST Simulator version was automatically detected as: " + nest_version, None,
+                           LoggingLevel.INFO)
 
         return nest_version

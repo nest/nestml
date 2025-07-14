@@ -1,0 +1,124 @@
+# iaf_cond_exp_sfa_rr - Conductance based leaky integrate-and-fire model with spike-frequency adaptation and relative refractory mechanisms
+# #########################################################################################################################################
+# 
+# Description
+# +++++++++++
+# 
+# iaf_cond_exp_sfa_rr is an implementation of a spiking neuron using integrate-and-fire dynamics with conductance-based
+# synapses, with additional spike-frequency adaptation and relative refractory mechanisms as described in [2]_, page 166.
+# 
+# Incoming spike events induce a post-synaptic change of conductance modelled by an exponential function. The exponential
+# function is normalised such that an event of weight 1.0 results in a peak current of 1 nS.
+# 
+# Outgoing spike events induce a change of the adaptation and relative refractory conductances by q_sfa and q_rr,
+# respectively. Otherwise these conductances decay exponentially with time constants tau_sfa and tau_rr, respectively.
+# 
+# 
+# References
+# ++++++++++
+# 
+# .. [1] Meffin H, Burkitt AN, Grayden DB (2004). An analytical
+#        model for the large, fluctuating synaptic conductance state typical of
+#        neocortical neurons in vivo. Journal of Computational Neuroscience,
+#        16:159-175.
+#        DOI: https://doi.org/10.1023/B:JCNS.0000014108.03012.81
+# .. [2] Dayan P, Abbott LF (2001). Theoretical neuroscience: Computational and
+#        mathematical modeling of neural systems. Cambridge, MA: MIT Press.
+#        https://pure.mpg.de/pubman/faces/ViewItemOverviewPage.jsp?itemId=item_3006127
+# 
+# 
+# See also
+# ++++++++
+# 
+# aeif_cond_alpha, aeif_cond_exp, iaf_chxk_2008
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+# 
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+model iaf_cond_exp_sfa_rr_neuron:
+
+    state:
+        V_m mV = E_L # membrane potential
+        refr_t ms = 0 ms          # Refractory period timer
+        g_sfa nS = 0 nS     # inputs from the sfa conductance
+        g_rr nS = 0 nS      # inputs from the rr conductance
+
+    equations:
+        kernel g_inh = exp(-t/tau_syn_inh) # inputs from the inh conductance
+        kernel g_exc = exp(-t/tau_syn_exc) # inputs from the exc conductance
+
+        g_sfa' = -g_sfa / tau_sfa
+        g_rr' = -g_rr / tau_rr
+
+        inline I_syn_exc pA = convolve(g_exc, exc_spikes) * nS * ( V_m - E_exc )
+        inline I_syn_inh pA = convolve(g_inh, inh_spikes) * nS * ( V_m - E_inh )
+        inline I_L pA = g_L * ( V_m - E_L )
+        inline I_sfa pA = g_sfa * ( V_m - E_sfa )
+        inline I_rr pA = g_rr * ( V_m - E_rr )
+
+        V_m' = ( -I_L + I_e + I_stim - I_syn_exc - I_syn_inh - I_sfa - I_rr ) / C_m
+        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
+
+    parameters:
+        V_th mV = -57.0 mV       # Threshold potential
+        V_reset mV = -70.0 mV    # Reset potential
+        refr_T ms = .5 ms        # Duration of refractory period
+        g_L nS = 28.95 nS        # Leak conductance
+        C_m pF = 289.5 pF        # Membrane capacitance
+        E_exc mV = 0 mV          # Excitatory reversal potential
+        E_inh mV = -75.0 mV      # Inhibitory reversal potential
+        E_L mV = -70.0 mV        # Leak reversal potential (aka resting potential)
+        tau_syn_exc ms = 1.5 ms  # Synaptic time constant of excitatory synapse
+        tau_syn_inh ms = 10.0 ms # Synaptic time constant of inhibitory synapse
+        q_sfa nS = 14.48 nS      # Outgoing spike activated quantal spike-frequency adaptation conductance increase
+        q_rr nS = 3214.0 nS      # Outgoing spike activated quantal relative refractory conductance increase
+        tau_sfa ms = 110.0 ms    # Time constant of spike-frequency adaptation
+        tau_rr ms = 1.97 ms      # Time constant of the relative refractory mechanism
+        E_sfa mV = -70.0 mV      # spike-frequency adaptation conductance reversal potential
+        E_rr mV = -70.0 mV       # relative refractory mechanism conductance reversal potential
+
+        # constant external input current
+        I_e pA = 0 pA
+
+    input:
+        inh_spikes <- inhibitory spike
+        exc_spikes <- excitatory spike
+        I_stim pA <- continuous
+
+    output:
+        spike
+
+    update:
+        if refr_t > 0 ms:
+            # neuron is absolute refractory
+            integrate_odes(refr_t)
+        else:
+            # neuron not refractory
+            integrate_odes(V_m, g_rr, g_sfa)
+
+    onCondition(refr_t <= 0 ms and V_m >= V_th): # threshold crossing
+        # threshold crossing
+        refr_t = refr_T    # start of the refractory period
+        V_m = V_reset
+        g_sfa += q_sfa
+        g_rr += q_rr
+        emit_spike()

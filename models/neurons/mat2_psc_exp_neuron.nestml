@@ -1,0 +1,134 @@
+# mat2_psc_exp - Non-resetting leaky integrate-and-fire neuron model with exponential PSCs and adaptive threshold
+# ###############################################################################################################
+# 
+# Description
+# +++++++++++
+# 
+# mat2_psc_exp is an implementation of a leaky integrate-and-fire model
+# with exponential-kernel postsynaptic currents (PSCs). Thus, postsynaptic
+# currents have an infinitely short rise time.
+# 
+# The threshold is lifted when the neuron is fired and then decreases in a
+# fixed time scale toward a fixed level [3]_.
+# 
+# The threshold crossing is followed by a total refractory period
+# during which the neuron is not allowed to fire, even if the membrane
+# potential exceeds the threshold. The membrane potential is NOT reset,
+# but continuously integrated.
+# 
+# .. note::
+#
+#    If tau_m is very close to tau_syn_exc or tau_syn_inh, numerical problems
+#    may arise due to singularities in the propagator matrics. If this is
+#    the case, replace equal-valued parameters by a single parameter.
+# 
+#    For details, please see ``IAF_neurons_singularity.ipynb`` in
+#    the NEST source code (``docs/model_details``).
+# 
+# 
+# References
+# ++++++++++
+# 
+# .. [1] Rotter S and Diesmann M (1999). Exact simulation of
+#        time-invariant linear systems with applications to neuronal
+#        modeling. Biologial Cybernetics 81:381-402.
+#        DOI: https://doi.org/10.1007/s004220050570
+# .. [2] Diesmann M, Gewaltig M-O, Rotter S, Aertsen A (2001). State
+#        space analysis of synchronous spiking in cortical neural
+#        networks. Neurocomputing 38-40:565-571.
+#        DOI:https://doi.org/10.1016/S0925-2312(01)00409-X
+# .. [3] Kobayashi R, Tsubo Y and Shinomoto S (2009). Made-to-order
+#        spiking neuron model equipped with a multi-timescale adaptive
+#        threshold. Frontiers in Computuational Neuroscience 3:9.
+#        DOI: https://doi.org/10.3389/neuro.10.009.2009
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+# 
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+model mat2_psc_exp_neuron:
+    state:
+        V_th_alpha_1 mV = 0 mV # Two-timescale adaptive threshold
+        V_th_alpha_2 mV = 0 mV # Two-timescale adaptive threshold
+
+        V_m mV = E_L    # Absolute membrane potential
+        refr_t ms = 0 ms    # Refractory period timer
+
+    equations:
+        kernel I_kernel_inh = exp(-t/tau_syn_inh)
+        kernel I_kernel_exc = exp(-t/tau_syn_exc)
+
+        inline I_syn pA = convolve(I_kernel_exc, exc_spikes) * pA - convolve(I_kernel_inh, inh_spikes) * pA
+        V_m' = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
+        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
+
+    parameters:
+        tau_m        ms =     5 ms   # Membrane time constant
+        C_m          pF =   100 pF   # Capacitance of the membrane
+        refr_T       ms =     2 ms   # Duration of refractory period
+        E_L          mV =   -70 mV   # Resting potential
+        tau_syn_exc  ms =     1 ms   # Time constant of postsynaptic excitatory currents
+        tau_syn_inh  ms =     3 ms   # Time constant of postsynaptic inhibitory currents
+        tau_1        ms =    10 ms   # Short time constant of adaptive threshold
+        tau_2        ms =   200 ms   # Long time constant of adaptive threshold
+        alpha_1      mV =    37 mV   # Amplitude of short time threshold adaption [3]
+        alpha_2      mV =     2 mV   # Amplitude of long time threshold adaption [3]
+        omega        mV =    19 mV   # Resting spike threshold (absolute value, not relative to E_L)
+
+        # constant external input current
+        I_e pA = 0 pA
+
+    internals:
+        h ms = resolution()
+        P11th real = exp(-h / tau_1)
+        P22th real = exp(-h / tau_2)
+
+    input:
+        exc_spikes <- excitatory spike
+        inh_spikes <- inhibitory spike
+        I_stim pA <- continuous
+
+    output:
+        spike
+
+    update:
+        if refr_t > 0 ms:
+            # neuron is absolute refractory
+            integrate_odes(refr_t)
+        else:
+            # neuron not refractory
+
+            # evolve adaptive threshold
+            V_th_alpha_1 = V_th_alpha_1 * P11th
+            V_th_alpha_2 = V_th_alpha_2 * P22th
+
+            # evolve V_m
+            integrate_odes(V_m)
+
+    onCondition(refr_t <= 0 ms and V_m >= E_L + omega + V_th_alpha_1 + V_th_alpha_2):
+        # threshold crossing
+        refr_t = refr_T    # start of the refractory period
+
+        # procedure for adaptive potential
+        V_th_alpha_1 += alpha_1 # short time
+        V_th_alpha_2 += alpha_2 # long time
+
+        emit_spike()

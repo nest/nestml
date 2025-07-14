@@ -19,7 +19,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.meta_model.ast_block import ASTBlock
+from typing import List
+
+from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_node import ASTNode
 
@@ -34,19 +36,18 @@ class ASTWhileStmt(ASTNode):
         block = None
     """
 
-    def __init__(self, condition: ASTExpression, block: ASTBlock, *args, **kwargs):
+    def __init__(self, condition: ASTExpression, stmts_body: ASTStmtsBody, *args, **kwargs):
         """
         Standard constructor.
 
         Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
 
-        :param condition: the condition of the block.
+        :param condition: the condition of the ``while`` loop.
         :type condition: ASTExpression
-        :param block: a block of statements.
-        :type block: ASTBlock
+        :param stmts_body: a body of statements.
         """
         super(ASTWhileStmt, self).__init__(*args, **kwargs)
-        self.block = block
+        self.stmts_body = stmts_body
         self.condition = condition
 
     def clone(self):
@@ -56,13 +57,13 @@ class ASTWhileStmt(ASTNode):
         :return: new AST node instance
         :rtype: ASTWhileStmt
         """
-        block_dup = None
-        if self.block:
-            block_dup = self.block.clone()
+        stmts_body_dup = None
+        if self.stmts_body:
+            stmts_body_dup = self.stmts_body.clone()
         condition_dup = None
         if self.condition:
             condition_dup = self.condition.clone()
-        dup = ASTWhileStmt(block=block_dup,
+        dup = ASTWhileStmt(stmts_body=stmts_body_dup,
                            condition=condition_dup,
                            # ASTNode common attributes:
                            source_position=self.source_position,
@@ -82,40 +83,31 @@ class ASTWhileStmt(ASTNode):
         """
         return self.condition
 
-    def get_block(self):
+    def get_stmts_body(self) -> ASTStmtsBody:
         """
-        Returns the block of statements.
-        :return: the block of statements.
-        :rtype: ASTBlock
+        Returns the body of statements.
+        :return: the body of statements.
         """
-        return self.block
+        return self.stmts_body
 
-    def get_parent(self, ast):
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
-        """
-        if self.get_condition() is ast:
-            return self
-        if self.get_condition().get_parent(ast) is not None:
-            return self.get_condition().get_parent(ast)
-        if self.get_block() is ast:
-            return self
-        if self.get_block().get_parent(ast) is not None:
-            return self.get_block().get_parent(ast)
-        return None
+        children = []
+        if self.get_condition():
+            children.append(self.get_condition())
 
-    def equals(self, other):
-        """
-        The equals method.
-        :param other: a different object.
-        :type other: object
-        :return: True if equals, otherwise False.
-        :rtype: bool
+        if self.get_stmts_body():
+            children.append(self.get_stmts_body())
+
+        return children
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTWhileStmt):
             return False
-        return self.get_condition().equals(other.get_condition()) and self.get_block().equals(other.get_block())
+        return self.get_condition().equals(other.get_condition()) and self.get_stmts_body().equals(other.get_stmts_body())

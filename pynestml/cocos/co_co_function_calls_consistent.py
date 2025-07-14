@@ -21,8 +21,10 @@
 
 from pynestml.cocos.co_co import CoCo
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
-from pynestml.symbols.template_type_symbol import TemplateTypeSymbol
+from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.template_type_symbol import TemplateTypeSymbol
+from pynestml.symbols.variadic_type_symbol import VariadicTypeSymbol
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
@@ -40,7 +42,7 @@ class CoCoFunctionCallsConsistent(CoCo):
         """
         Checks the coco for the handed over neuron.
         :param node: a single neuron instance.
-        :type node: ASTNeuron
+        :type node: ASTModel
         """
         node.accept(FunctionCallConsistencyVisitor())
 
@@ -58,6 +60,7 @@ class FunctionCallConsistencyVisitor(ASTVisitor):
         :type node: ASTFunctionCall
         """
         func_name = node.get_name()
+
         if func_name == 'convolve':
             # check if the number of arguments is the same as in the symbol
             if len(node.get_args()) != 2:
@@ -82,8 +85,9 @@ class FunctionCallConsistencyVisitor(ASTVisitor):
                                code=code, message=message)
             return
 
-        # check if the number of arguments is the same as in the symbol
-        if len(node.get_args()) != len(symbol.get_parameter_types()):
+        # check if the number of arguments is the same as in the symbol; accept anything for variadic types
+        is_variadic: bool = len(symbol.get_parameter_types()) == 1 and isinstance(symbol.get_parameter_types()[0], VariadicTypeSymbol)
+        if (not is_variadic) and len(node.get_args()) != len(symbol.get_parameter_types()):
             code, message = Messages.get_wrong_number_of_args(str(node), len(symbol.get_parameter_types()),
                                                               len(node.get_args()))
             Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR,
@@ -99,6 +103,10 @@ class FunctionCallConsistencyVisitor(ASTVisitor):
                 code, message = Messages.get_type_could_not_be_derived(actual_arg)
                 Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR,
                                    error_position=actual_arg.get_source_position())
+                return
+
+            if isinstance(expected_type, VariadicTypeSymbol):
+                # variadic type symbol accepts anything
                 return
 
             if not actual_type.equals(expected_type) and not isinstance(expected_type, TemplateTypeSymbol):

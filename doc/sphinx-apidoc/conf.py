@@ -26,6 +26,7 @@ Readthedocs configuration file
 import os
 import pip
 import sys
+import datetime
 
 # pip.main(['install', 'Sphinx==1.5.6'])
 
@@ -85,6 +86,8 @@ for root, dirnames, filenames in os.walk(static_docs_dir):
     for filename in fnmatch.filter(filenames, '*.pdf'):
             matches.append(os.path.join(root, filename))
     for filename in fnmatch.filter(filenames, '*.png'):
+            matches.append(os.path.join(root, filename))
+    for filename in fnmatch.filter(filenames, '*.svg'):
             matches.append(os.path.join(root, filename))
     for filename in fnmatch.filter(filenames, '*.ipynb'):
             matches.append(os.path.join(root, filename))
@@ -158,8 +161,9 @@ templates_path = ['_templates']
 # source_suffix = '.rst'
 
 # General information about the project.
+current_year = datetime.datetime.now().year
 project = u'NESTML documentation'
-copyright = u'2004, nest-simulator'
+copyright = f'2004-{current_year}, licensed under the GNU General Public License (GPL) v2 or later'
 author = u'nest-simulator'
 
 
@@ -228,7 +232,7 @@ html_css_files = [
 htmlhelp_basename = 'NESTMLdoc'
 
 html_show_sphinx = False
-html_show_copyright = False
+html_show_copyright = True
 
 # This way works for ReadTheDocs
 # With this local 'make html' is broken!

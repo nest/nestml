@@ -19,7 +19,10 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List, Optional
+
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.utils.port_signal_type import PortSignalType
 
 
@@ -37,7 +40,7 @@ class ASTOutputBlock(ASTNode):
         type = None
     """
 
-    def __init__(self, o_type, *args, **kwargs):
+    def __init__(self, o_type, attributes: Optional[List[ASTParameter]], *args, **kwargs):
         """
         Standard constructor.
 
@@ -49,6 +52,7 @@ class ASTOutputBlock(ASTNode):
         assert isinstance(o_type, PortSignalType)
         super(ASTOutputBlock, self).__init__(*args, **kwargs)
         self.type = o_type
+        self.attributes = attributes
 
     def clone(self):
         """
@@ -58,6 +62,7 @@ class ASTOutputBlock(ASTNode):
         :rtype: ASTOutputBlock
         """
         dup = ASTOutputBlock(o_type=self.type,
+                             attributes=self.attributes,
                              # ASTNode common attributes:
                              source_position=self.source_position,
                              scope=self.scope,
@@ -82,23 +87,35 @@ class ASTOutputBlock(ASTNode):
         """
         return self.type is PortSignalType.CONTINUOUS
 
-    def get_parent(self, ast):
+    def get_attributes(self) -> List[ASTParameter]:
+        r"""
+        Returns the attributes of this node, if any.
+        :return: List of attributes of this node.
         """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
-        """
-        return None
+        if self.attributes is None:
+            return []
 
-    def equals(self, other) -> bool:
+        return self.attributes
+
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
-        The equals method.
-        :param other: a different object.
-        :type other: object
-        :return: True if equals, otherwise False.
+        return []
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTOutputBlock):
             return False
+
+        if bool(self.attributes) != bool(other.attributes):
+            return False
+
+        for attribute_self, attribute_other in zip(self.attributes, other.attributes):
+            if not attribute_self.equals(attribute_other):
+                return False
+
         return self.is_spike() == other.is_spike() and self.is_continuous() == other.is_continuous()

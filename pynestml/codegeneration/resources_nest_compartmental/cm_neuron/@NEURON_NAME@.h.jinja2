@@ -29,7 +29,7 @@
 #include "nest_types.h"
 #include "universal_data_logger.h"
 
-#include "{{neuronSpecificFileNamesCmSyns["compartmentcurrents"]}}.h"
+#include "{{neuronSpecificFileNamesCmSyns["neuroncurrents"]}}.h"
 #include "{{neuronSpecificFileNamesCmSyns["tree"]}}.h"
 
 namespace nest
@@ -222,7 +222,14 @@ See also
 
 NEURON simulator ;-D
 
-EndUserDocs*/
+EndUserDocs
+*/
+
+// Register the neuron model
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
+        or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
+void register_{{ neuronSpecificFileNamesCmSyns["main"] }}( const std::string& name );
+{%- endif %}
 
 class {{neuronSpecificFileNamesCmSyns["main"]}} : public ArchivingNode
 {
@@ -244,7 +251,7 @@ public:
   size_t handles_test_event( CurrentEvent&, size_t );
   size_t handles_test_event( DataLoggingRequest&, size_t );
 
-  void get_status( DictionaryDatum& ) const;
+  void get_status( DictionaryDatum& );
   void set_status( const DictionaryDatum& );
 
 private:

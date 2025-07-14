@@ -63,6 +63,9 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
             return "REAL_CONST(2.718282)"
 
+        if variable.get_name() == PredefinedVariables.PI_CONSTANT:
+            return "REAL_CONST(3.14159)"
+
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         if symbol is None:
             # test if variable name can be resolved to a type
@@ -76,7 +79,7 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
 
         vector_param = ""
         if self.with_vector_parameter and symbol.has_vector_parameter():
-            vector_param = "[" + self._print_vector_parameter_name_reference(variable) + "]"
+            vector_param = "[" + self._expression_printer.print(variable.get_vector_parameter()) + "]"
 
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
@@ -114,24 +117,6 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
 
         return ""
 
-    def _print_vector_parameter_name_reference(self, variable: ASTVariable) -> str:
-        """
-        Converts the vector parameter into SPINNAKER processable format
-        :param variable:
-        :return:
-        """
-        vector_parameter = variable.get_vector_parameter()
-        vector_parameter_var = vector_parameter.get_variable()
-        if vector_parameter_var:
-            vector_parameter_var.scope = variable.get_scope()
-
-            symbol = vector_parameter_var.get_scope().resolve_to_symbol(vector_parameter_var.get_complete_name(),
-                                                                        SymbolKind.VARIABLE)
-            if symbol and symbol.block_type == BlockType.LOCAL:
-                return symbol.get_symbol_name()
-
-        return self._expression_printer.print(vector_parameter)
-
     def _print_buffer_value(self, variable: ASTVariable) -> str:
         """
         Converts for a handed over symbol the corresponding name of the buffer to a SPINNAKER processable format.
@@ -145,7 +130,7 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
                 vector_parameter = ASTUtils.get_numeric_vector_size(variable)
                 var_name = var_name + "_" + str(vector_parameter)
 
-            return "input->inputs[" + var_name + " - MIN_SPIKE_RECEPTOR]"
+            return "input->inputs[" + var_name + "]"
 
         if variable_symbol.is_continuous_input_port():
             var_name = variable_symbol.get_symbol_name().upper()
@@ -153,7 +138,7 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
                 vector_parameter = ASTUtils.get_numeric_vector_size(variable)
                 var_name = var_name + "_" + str(vector_parameter)
 
-            return "input->inputs[" + var_name + " - MIN_SPIKE_RECEPTOR]"
+            return "input->inputs[" + var_name + "]"
 
         return variable_symbol.get_symbol_name() + '_grid_sum_'
 

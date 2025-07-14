@@ -27,6 +27,7 @@ import re
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.generated.PyNestMLParserVisitor import PyNestMLParserVisitor
+from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.utils.ast_source_location import ASTSourceLocation
@@ -48,23 +49,20 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     # Visit a parse tree produced by PyNESTMLParser#nestmlCompilationUnit.
     def visitNestMLCompilationUnit(self, ctx):
         # now process the actual model
-        neurons = list()
-        for child in ctx.neuron():
-            neurons.append(self.visit(child))
-        synapses = list()
-        for child in ctx.synapse():
-            synapses.append(self.visit(child))
+        models = list()
+        for child in ctx.model():
+            models.append(self.visit(child))
+
         # extract the name of the artifact from the context
         if hasattr(ctx.start.source[1], 'fileName'):
             artifact_name = ntpath.basename(ctx.start.source[1].fileName)
         else:
             artifact_name = 'parsed_from_string'
-        compilation_unit = ASTNodeFactory.create_ast_nestml_compilation_unit(list_of_neurons=neurons,
-                                                                             list_of_synapses=synapses,
+
+        compilation_unit = ASTNodeFactory.create_ast_nestml_compilation_unit(list_of_models=models,
                                                                              source_position=create_source_pos(ctx),
                                                                              artifact_name=artifact_name)
-        # first ensure certain properties of the neuron
-        CoCosManager.check_neuron_names_unique(compilation_unit)
+
         return compilation_unit
 
     # Visit a parse tree produced by PyNESTMLParser#datatype.
@@ -90,18 +88,51 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         is_encapsulated = left_parenthesis and True if ctx.rightParentheses is not None else False
         base = self.visit(ctx.base) if ctx.base is not None else None
         is_pow = True if ctx.powOp is not None else False
-        exponent = int(str(ctx.exponent.getText())) if ctx.exponent is not None else None
+        exponent = None
+        exponent_num = None
+        exponent_den = None
+        try:
+            if ctx.exponent.UNSIGNED_INTEGER():
+                exponent = int(str(ctx.exponent.getText()))
+            elif ctx.exponent.FLOAT():
+                exponent = float(str(ctx.exponent.getText()))
+            else:
+                ctx.exponent = None
+
+            try:
+                exponent_is_negative = True if ctx.exponent.negative is not None else False
+                if exponent_is_negative:
+                    exponent = -exponent
+            except BaseException:
+                pass
+
+        except BaseException:
+            try:
+                exponent_num = float(ctx.exponent.num.text)
+                exponent_den = float(ctx.exponent.den.text)
+                try:
+                    exponent_is_negative = True if ctx.exponent.negative is not None else False
+                    if exponent_is_negative:
+                        exponent_num = -exponent_num
+                except BaseException:
+                    pass
+            except BaseException:
+                exponent_num = None
+                exponent_den = None
+
         if ctx.unitlessLiteral is not None:
             lhs = int(str(ctx.unitlessLiteral.text))
         else:
             lhs = self.visit(ctx.left) if ctx.left is not None else None
+
         is_times = True if ctx.timesOp is not None else False
         is_div = True if ctx.divOp is not None else False
         rhs = self.visit(ctx.right) if ctx.right is not None else None
         unit = str(ctx.unit.text) if ctx.unit is not None else None
+
         return ASTNodeFactory.create_ast_unit_type(is_encapsulated=is_encapsulated, compound_unit=compound_unit,
                                                    base=base, is_pow=is_pow,
-                                                   exponent=exponent, lhs=lhs, rhs=rhs, is_div=is_div,
+                                                   exponent=exponent, exponent_num=exponent_num, exponent_den=exponent_den, lhs=lhs, rhs=rhs, is_div=is_div,
                                                    is_times=is_times, unit=unit, source_position=create_source_pos(ctx))
 
     # Visit a parse tree produced by PyNESTMLParser#rhs.
@@ -186,8 +217,8 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         elif (condition is not None) and (if_true is not None) and (if_not is not None):
             return ASTNodeFactory.create_ast_ternary_expression(condition=condition, if_true=if_true,
                                                                 if_not=if_not, source_position=source_pos)
-        else:
-            raise RuntimeError('Type of rhs @%s,%s not recognized!' % (ctx.start.line, ctx.start.column))
+
+        raise RuntimeError('Type of rhs @%s,%s not recognized!' % (ctx.start.line, ctx.start.column))
 
     # Visit a parse tree produced by PyNESTMLParser#simpleExpression.
     def visitSimpleExpression(self, ctx):
@@ -203,12 +234,13 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         is_inf = (True if ctx.isInf is not None else False)
         variable = (self.visit(ctx.variable()) if ctx.variable() is not None else None)
         string = (str(ctx.string.text) if ctx.string is not None else None)
-        return ASTNodeFactory.create_ast_simple_expression(function_call=function_call,
+        node = ASTNodeFactory.create_ast_simple_expression(function_call=function_call,
                                                            boolean_literal=boolean_literal,
                                                            numeric_literal=numeric_literal,
                                                            is_inf=is_inf, variable=variable,
                                                            string=string,
                                                            source_position=create_source_pos(ctx))
+        return node
 
     # Visit a parse tree produced by PyNESTMLParser#unaryOperator.
     def visitUnaryOperator(self, ctx):
@@ -325,13 +357,13 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         update_node_comments(kernel, self.__comments.visit(ctx))
         return kernel
 
-    # Visit a parse tree produced by PyNESTMLParser#block.
-    def visitBlock(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#stmtsBody
+    def visitStmtsBody(self, ctx):
         stmts = list()
         if ctx.stmt() is not None:
             for stmt in ctx.stmt():
                 stmts.append(self.visit(stmt))
-        block = ASTNodeFactory.create_ast_block(stmts=stmts, source_position=create_source_pos(ctx))
+        block = ASTNodeFactory.create_ast_stmts_body(stmts=stmts, source_position=create_source_pos(ctx))
         return block
 
     # Visit a parse tree produced by PyNESTMLParser#compound_Stmt.
@@ -390,15 +422,6 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         expression = self.visit(ctx.rhs) if ctx.rhs is not None else None
         invariant = self.visit(ctx.invariant) if ctx.invariant is not None else None
 
-        # print("Visiting variable \"" + str(str(ctx.NAME())) + "\"...")
-        # # check if this variable was decorated as homogeneous
-        # import pynestml.generated.PyNestMLLexer
-        # is_homogeneous = any([isinstance(ch, pynestml.generated.PyNestMLParser.PyNestMLParser.AnyDecoratorContext) \
-        #   and len(ch.getTokens(pynestml.generated.PyNestMLLexer.PyNestMLLexer.DECORATOR_HOMOGENEOUS)) > 0 \
-        #   for ch in ctx.parentCtx.children])
-        # if is_homogeneous:
-        #     print("\t----> is homogeneous")
-
         declaration = ASTNodeFactory.create_ast_declaration(is_recordable=is_recordable,
                                                             variables=variables,
                                                             data_type=data_type,
@@ -413,7 +436,8 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     # Visit a parse tree produced by PyNESTMLParser#returnStmt.
     def visitReturnStmt(self, ctx):
         ret_expression = self.visit(ctx.expression()) if ctx.expression() is not None else None
-        return ASTNodeFactory.create_ast_return_stmt(expression=ret_expression, source_position=create_source_pos(ctx))
+        node = ASTNodeFactory.create_ast_return_stmt(expression=ret_expression, source_position=create_source_pos(ctx))
+        return node
 
     # Visit a parse tree produced by PyNESTMLParser#ifStmt.
     def visitIfStmt(self, ctx):
@@ -430,7 +454,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     # Visit a parse tree produced by PyNESTMLParser#ifClause.
     def visitIfClause(self, ctx):
         condition = self.visit(ctx.expression()) if ctx.expression() is not None else None
-        block = self.visit(ctx.block()) if ctx.block() is not None else None
+        block = self.visit(ctx.stmtsBody()) if ctx.stmtsBody() is not None else None
         ret = ASTNodeFactory.create_ast_if_clause(condition=condition, block=block,
                                                   source_position=create_source_pos(ctx))
         update_node_comments(ret, self.__comments.visitStmt(ctx))
@@ -439,7 +463,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     # Visit a parse tree produced by PyNESTMLParser#elifClause.
     def visitElifClause(self, ctx):
         condition = self.visit(ctx.expression()) if ctx.expression() is not None else None
-        block = self.visit(ctx.block()) if ctx.block() is not None else None
+        block = self.visit(ctx.stmtsBody()) if ctx.stmtsBody() is not None else None
         node = ASTNodeFactory.create_ast_elif_clause(condition=condition, block=block,
                                                      source_position=create_source_pos(ctx))
         update_node_comments(node, self.__comments.visit(ctx))
@@ -447,7 +471,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#elseClause.
     def visitElseClause(self, ctx):
-        block = self.visit(ctx.block()) if ctx.block() is not None else None
+        block = self.visit(ctx.stmtsBody()) if ctx.stmtsBody() is not None else None
         node = ASTNodeFactory.create_ast_else_clause(block=block, source_position=create_source_pos(ctx))
         update_node_comments(node, self.__comments.visit(ctx))
         return node
@@ -464,7 +488,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             value = float(str(ctx.FLOAT()))
 
         step = step_scalar * value
-        block = self.visit(ctx.block()) if ctx.block() is not None else None
+        block = self.visit(ctx.stmtsBody()) if ctx.stmtsBody() is not None else None
         node = ASTNodeFactory.create_ast_for_stmt(variable=variable, start_from=start_from, end_at=end_at, step=step,
                                                   block=block, source_position=create_source_pos(ctx))
         update_node_comments(node, self.__comments.visit(ctx))
@@ -473,31 +497,27 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     # Visit a parse tree produced by PyNESTMLParser#whileStmt.
     def visitWhileStmt(self, ctx):
         cond = self.visit(ctx.expression()) if ctx.expression() is not None else None
-        block = self.visit(ctx.block()) if ctx.block() is not None else None
+        block = self.visit(ctx.stmtsBody()) if ctx.stmtsBody() is not None else None
         node = ASTNodeFactory.create_ast_while_stmt(condition=cond, block=block, source_position=create_source_pos(ctx))
         update_node_comments(node, self.__comments.visit(ctx))
         return node
 
-    # Visit a parse tree produced by PyNESTMLParser#neuron.
-    def visitNeuron(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#model.
+    def visitModel(self, ctx):
         name = str(ctx.NAME()) if ctx.NAME() is not None else None
-        body = self.visit(ctx.neuronBody()) if ctx.neuronBody() is not None else None
-        # after we have constructed the meta_model of the neuron,
-        # we can ensure some basic properties which should always hold
-        # we have to check if each type of block is defined at most once (except for function), and that input,output
-        # and update are defined once
+        body = self.visit(ctx.modelBody()) if ctx.modelBody() is not None else None
         if hasattr(ctx.start.source[1], 'fileName'):
             artifact_name = ntpath.basename(ctx.start.source[1].fileName)
         else:
             artifact_name = 'parsed from string'
-        neuron = ASTNodeFactory.create_ast_neuron(name=name + FrontendConfiguration.suffix, body=body, source_position=create_source_pos(ctx),
-                                                  artifact_name=artifact_name)
+        model = ASTNodeFactory.create_ast_model(name=name + FrontendConfiguration.suffix, body=body, source_position=create_source_pos(ctx),
+                                                artifact_name=artifact_name)
         # update the comments
-        update_node_comments(neuron, self.__comments.visit(ctx))
-        # in order to enable the logger to print correct messages set as the source the corresponding neuron
-        Logger.set_current_node(neuron)
+        update_node_comments(model, self.__comments.visit(ctx))
+        # in order to enable the logger to print correct messages set as the source the corresponding model
+        Logger.set_current_node(model)
 
-        return neuron
+        return model
 
     def visitNamespaceDecoratorNamespace(self, ctx):
         return str(ctx.NAME())
@@ -518,74 +538,20 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         else:
             return None
 
-    # Visit a parse tree produced by PyNESTMLParser#neuron.
-    def visitSynapse(self, ctx):
-        name = str(ctx.NAME()) if ctx.NAME() is not None else None
-        body = self.visit(ctx.synapseBody()) if ctx.synapseBody() is not None else None
-
-        # after we have constructed the meta_model of the neuron,
-        # we can ensure some basic properties which should always hold
-        # we have to check if each type of block is defined at most once (except for function), and that input,output
-        # and update are defined once
-        if hasattr(ctx.start.source[1], 'fileName'):
-            artifact_name = ntpath.basename(ctx.start.source[1].fileName)
-        else:
-            artifact_name = 'parsed from string'
-        synapse = ASTNodeFactory.create_ast_synapse(name=name + FrontendConfiguration.suffix, body=body, source_position=create_source_pos(ctx),
-                                                    artifact_name=artifact_name)
-
-        # update the comments
-        update_node_comments(synapse, self.__comments.visit(ctx))
-
-        # in order to enable the logger to print correct messages set as the source the corresponding synapse
-        Logger.set_current_node(synapse)
-
-        return synapse
-
-    # Visit a parse tree produced by PyNESTMLParser#neuronBody.
-    def visitNeuronBody(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#modelBody.
+    def visitModelBody(self, ctx):
         """
         Here, in order to ensure that the correct order of elements is kept, we use a method which inspects
         a list of elements and returns the one with the smallest source line.
         """
         body_elements = list()
         # visit all var_block children
-        if ctx.blockWithVariables() is not None:
-            for child in ctx.blockWithVariables():
-                body_elements.append(child)
-        if ctx.updateBlock() is not None:
-            for child in ctx.updateBlock():
-                body_elements.append(child)
-        if ctx.equationsBlock() is not None:
-            for child in ctx.equationsBlock():
-                body_elements.append(child)
-        if ctx.inputBlock() is not None:
-            for child in ctx.inputBlock():
-                body_elements.append(child)
-        if ctx.outputBlock() is not None:
-            for child in ctx.outputBlock():
-                body_elements.append(child)
-        if ctx.function() is not None:
-            for child in ctx.function():
-                body_elements.append(child)
-        elements = list()
-        while len(body_elements) > 0:
-            elem = get_next(body_elements)
-            elements.append(self.visit(elem))
-            body_elements.remove(elem)
-        body = ASTNodeFactory.create_ast_neuron_or_synapse_body(elements, create_source_pos(ctx))
-        return body
-
-    # Visit a parse tree produced by PyNESTMLParser#synapseBody.
-    def visitSynapseBody(self, ctx):
-        """
-        Here, in order to ensure that the correct order of elements is kept, we use a method which inspects
-        a list of elements and returns the one with the smallest source line.
-        """
-        body_elements = list()
         if ctx.onReceiveBlock() is not None:
             for child in ctx.onReceiveBlock():
                 body_elements.append(child)
+        if ctx.onConditionBlock() is not None:
+            for child in ctx.onConditionBlock():
+                body_elements.append(child)
         if ctx.blockWithVariables() is not None:
             for child in ctx.blockWithVariables():
                 body_elements.append(child)
@@ -609,7 +575,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             elem = get_next(body_elements)
             elements.append(self.visit(elem))
             body_elements.remove(elem)
-        body = ASTNodeFactory.create_ast_neuron_or_synapse_body(elements, create_source_pos(ctx))
+        body = ASTNodeFactory.create_ast_model_body(elements, create_source_pos(ctx))
         return body
 
     # Visit a parse tree produced by PyNESTMLParser#blockWithVariables.
@@ -632,7 +598,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         return ret
 
     def visitUpdateBlock(self, ctx):
-        block = self.visit(ctx.block()) if ctx.block() is not None else None
+        block = self.visit(ctx.stmtsBody()) if ctx.stmtsBody() is not None else None
         ret = ASTNodeFactory.create_ast_update_block(block=block, source_position=create_source_pos(ctx))
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret
@@ -713,13 +679,21 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     # Visit a parse tree produced by PyNESTMLParser#outputBuffer.
     def visitOutputBlock(self, ctx):
         source_pos = create_source_pos(ctx)
+        attributes: List[ASTParameter] = []
+        if ctx.parameter() is not None:
+            if type(ctx.parameter()) is list:
+                for par in ctx.parameter():
+                    attributes.append(self.visit(par))
+            else:
+                attributes.append(self.visit(ctx.parameter()))
+
         if ctx.isSpike is not None:
-            ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.SPIKE, source_position=source_pos)
+            ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.SPIKE, attributes=attributes, source_position=source_pos)
             update_node_comments(ret, self.__comments.visit(ctx))
             return ret
 
         if ctx.isContinuous is not None:
-            ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.CONTINUOUS, source_position=source_pos)
+            ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.CONTINUOUS, attributes=attributes, source_position=source_pos)
             update_node_comments(ret, self.__comments.visit(ctx))
             return ret
 
@@ -734,7 +708,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
                 parameters.append(self.visit(par))
         elif ctx.parameters() is not None:
             parameters.append(ctx.parameter())
-        block = self.visit(ctx.block()) if ctx.block() is not None else None
+        block = self.visit(ctx.stmtsBody()) if ctx.stmtsBody() is not None else None
         return_type = self.visit(ctx.returnType) if ctx.returnType is not None else None
         node = ASTNodeFactory.create_ast_function(name=name, parameters=parameters, block=block,
                                                   return_type=return_type, source_position=create_source_pos(ctx))
@@ -755,7 +729,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         return ASTNodeFactory.create_ast_stmt(small, compound, create_source_pos(ctx))
 
     def visitOnReceiveBlock(self, ctx):
-        block = self.visit(ctx.block()) if ctx.block() is not None else None
+        block = self.visit(ctx.stmtsBody()) if ctx.stmtsBody() is not None else None
         port_name = ctx.inputPortName.text
         const_parameters = {}
         for el in ctx.constParameter():
@@ -764,8 +738,21 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret
 
+    def visitOnConditionBlock(self, ctx):
+        block = self.visit(ctx.stmtsBody()) if ctx.stmtsBody() is not None else None
+        cond_expr: ASTExpression = self.visit(ctx.condition)
+        const_parameters = {}
+        for el in ctx.constParameter():
+            const_parameters[el.name.text] = el.value.text
+        ret = ASTNodeFactory.create_ast_on_condition_block(block=block, cond_expr=cond_expr, const_parameters=const_parameters, source_position=create_source_pos(ctx))
+        update_node_comments(ret, self.__comments.visit(ctx))
+        return ret
+
 
 def update_node_comments(node, comments):
+    if not comments:
+        return
+
     node.comment = comments[0]
     node.pre_comments = comments[1]
     node.in_comment = comments[2]

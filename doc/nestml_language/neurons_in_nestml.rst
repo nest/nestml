@@ -10,11 +10,11 @@ Modeling neurons in NESTML
 Writing the NESTML model
 ########################
 
-The top-level element of the model is ``neuron``, followed by a name. All other blocks appear inside of here.
+The top-level element of the model is ``model``, followed by a name. All other blocks appear inside of here.
 
 .. code-block:: nestml
 
-   neuron hodkin_huxley:
+   model hodkin_huxley_neuron:
        # [...]
 
 Neuronal interactions
@@ -74,38 +74,16 @@ It is equivalent if either both `inhibitory` and `excitatory` are given, or neit
      - ... should be negative. It is added to the buffer with non-negative magnitude :math:`-w`.
 
 
-The incoming spikes at the spiking input port are modelled as Dirac delta functions. The Dirac Delta function :math:`\delta(x)` is an impulsive function defined as zero at every value of :math:`x`, except for :math:`x=u`, and whose integral is equal to 1.
-
-.. math::
-
-   \int \delta(x - u) dx = 1
-
-The unit of the Dirac delta function follows from its definition:
-
-.. math::
-
-   f(0) = \int dx \delta(x) f(x)
-
-Here :math:`f(x)` is a continuous function of x. As the unit of the :math:`f()` is the same on both left- and right-hand side, the unit of :math:`dx \delta(x)` must be equal to 1.
-Therefore, the unit of :math:`\delta(x)` must be equal to the inverse of the unit of :math:`x`.
-
-In the context of neuroscience, the spikes are represented as events in time with a unit of :math:`s`. Consequently, the delta pulses will have a unit of inverse of time, :math:`1/s`.
-Therefore, all the incoming spikes defined in the input block will have an implicit unit of :math:`1/s`.
-
-Physical units such as millivolts (:math:`mV`) and nanoamperes (:math:`nA`) can be directly combined with the Dirac delta function to model an impulse with a physical quantity such as voltage or current.
-In such cases, the Dirac delta function is multiplied by the appropriate unit of the physical quantity, such as :math:`mV` or :math:`nA`, to obtain a quantity with units of volts or amperes, respectively.
-For example, the product of a Dirac delta function and millivolt (:math:`mV`) unit can be written as :math:`\delta(t) \text{mV}`. This can be interpreted as an impulse in voltage with a magnitude of one millivolt.
-
 
 Integrating current input
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The current port symbol (here, `I_stim`) is available as a variable and can be used in expressions, e.g.:
+The current port symbol (here, ``I_stim``) is available as a variable and can be used in expressions, e.g.:
 
 .. code-block:: nestml
 
    equations
-       V_m' = -V_m/tau_m + ... + I_stim
+       V_m' = -V_m / tau_m + ... + I_stim / C_m
 
    input:
        I_stim pA <- continuous
@@ -132,16 +110,32 @@ To model the effect that an arriving spike has on the state of the neuron, a con
                         &= \sum_{i=1}^N w_i \cdot f(t - t_i)
    \end{align*}
 
-For example, say there is a spiking input port defined named ``spikes``. A decaying exponential with time constant ``tau_syn`` is defined as postsynaptic kernel ``G``. Their convolution is expressed using the ``convolve(f, g)`` function, which takes a kernel and input port, respectively, as its arguments:
+For example, say there is a spiking input port defined named ``spikes``. A decaying exponential with time constant ``tau_syn`` is defined as postsynaptic kernel ``G``. Their convolution is expressed using the ``convolve()`` function, which takes a kernel and input port, respectively, as its arguments:
 
 .. code-block:: nestml
 
    equations:
-       kernel G = exp(-t/tau_syn)
-       V_m' = -V_m/tau_m + convolve(G, spikes)
+       kernel G = exp(-t / tau_syn)
+       inline I_syn pA = convolve(G, spikes) * pA
+       V_m' = -V_m / tau_m + I_syn / C_m
 
-By the definition of convolution, ``convolve(G, spikes)`` will have the unit of kernel ``G`` multiplied by the unit of ``spikes`` and unit of time, i.e., ``[G] * [spikes] * s``.
-Kernel functions in NESTML are always untyped and the unit of spikes is :math:`1/s` as discussed above. As a result, the unit of convolution is :math:`(1/s) * s`, an scalar quantity without a unit.
+Note that in this example, the intended physical unit (pA) was assigned by multiplying the scalar convolution result with the unit literal. By the definition of convolution, ``convolve(G, spikes)`` will have the unit of kernel ``G`` multiplied by the unit of ``spikes`` and unit of time, i.e., ``[G] * [spikes] * s``. Kernel functions in NESTML are always untyped and the unit of spikes is :math:`1/s` as discussed above. As a result, the unit of convolution is :math:`(1/s) * s`, a scalar quantity without a unit.
+
+The incoming spikes could have been equivalently handled with an ``onReceive`` event handler block:
+
+.. code-block:: nestml
+
+   state:
+       I_syn pA = 0 pA
+
+   equations:
+       I_syn' = -I_syn / tau_syn
+       V_m' = -V_m / tau_m + I_syn / C_m
+
+   onReceive(spikes):
+       I_syn += spikes * pA * s
+
+Note that in this example, the intended physical unit (pA) was assigned by multiplying the type of the input port ``spikes`` (which is 1/s) by pA·s, resulting in a unit of pA for ``I_syn``.
 
 
 (Re)setting synaptic integration state
@@ -245,11 +239,57 @@ Output
 ``emit_spike``: calling this function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
 
 
+Implementing refractoriness
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Generating code
-###############
+In order to model an absolute refractory state, in which the neuron cannot fire action potentials, different approaches can be used. In general, an extra parameter (say, ``refr_T``) is introduced, that defines the duration of the refractory period. A new state variable (say, ``refr_t``) can then act as a timer, counting the time of the refractory period that has already elapsed. The dynamics of ``refr_t`` could be specified in the ``update`` block, as follows:
 
-Co-generation of neuron and synapse
------------------------------------
+.. code-block:: nestml
 
-The ``update`` block in a NESTML model is translated into the ``update`` method in NEST.
+   update:
+       refr_t -= resolution()
+
+The test for refractoriness can then be added in the ``onCondition`` block as follows:
+
+.. code-block:: nestml
+
+   # if not refractory and threshold is crossed...
+   onCondition(refr_t <= 0 ms and V_m > V_th):
+       V_m = E_L    # Reset the membrane potential
+       refr_t = refr_T    # Start the refractoriness timer
+       emit_spike()
+
+The disadvantage of this method is that it requires a call to the ``resolution()`` function, which is only supported by fixed-timestep simulators. To write the model in a more generic way, the refractoriness timer can alternatively be expressed as an ODE:
+
+.. code-block:: nestml
+
+   equations:
+       refr_t' = -1 / s    # a timer counting back down to zero
+
+Typically, the membrane potential should remain clamped to the reset or leak potential during the refractory period. It depends on the intended behavior of the model whether the synaptic currents and conductances also continue to be integrated or whether they are reset, and whether incoming spikes during the refractory period are taken into account or ignored.
+
+In order to hold the membrane potential at the reset voltage during refractoriness, it can be simply excluded from the integration call:
+
+.. code-block:: nestml
+
+       I_syn' = ...
+       V_m' = ...
+       refr_t' = -1 / s    # Count down towards zero
+
+   update:
+       if refr_t > 0 ms:
+           # neuron is absolute refractory, do not evolve V_m
+           integrate_odes(I_syn, refr_t)
+       else:
+           # neuron not refractory
+           integrate_odes(I_syn, V_m)
+
+Note that in some cases, the finite resolution by which real numbers are expressed (as floating point numbers) in computers, can cause unexpected behaviors. If the simulation resolution is not exactly representable as a float (say, Δt = 0.1 ms) then it could be the case that after 20 simulation steps, the timer has not reached zero, but a very small value very close to zero (say, 0.00000001 ms), causing the refractory period to end only in the next timestep. If this kind of behavior is undesired, the simulation resolution and refractory period can be chosen as powers of two (which can be represented exactly as floating points), or a small "epsilon" value can be included in the comparison in the model:
+
+.. code-block:: nestml
+
+   parameters:
+       float_epsilon ms = 1E-9 ms
+
+   onCondition(refr_t <= float_epsilon ...):
+       # ...

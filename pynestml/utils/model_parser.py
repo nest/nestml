@@ -23,13 +23,15 @@ from typing import Tuple
 
 from antlr4 import CommonTokenStream, FileStream, InputStream
 from antlr4.error.ErrorStrategy import BailErrorStrategy, DefaultErrorStrategy
-from antlr4.error.ErrorListener import ConsoleErrorListener
+from antlr4.error.ErrorListener import ConsoleErrorListener, ErrorListener
+from antlr4.error.Errors import ParseCancellationException
 
+from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.generated.PyNestMLParser import PyNestMLParser
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
-from pynestml.meta_model.ast_block import ASTBlock
+from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
 from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
@@ -48,18 +50,16 @@ from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
-from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
+from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
-from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_unit_type import ASTUnitType
@@ -71,14 +71,16 @@ from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.error_listener import NestMLErrorListener
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
+from pynestml.visitors.assign_implicit_conversion_factors_visitor import AssignImplicitConversionFactorsVisitor
 from pynestml.visitors.ast_builder_visitor import ASTBuilderVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 
 class ModelParser:
     @classmethod
-    def parse_model(cls, file_path=None):
+    def parse_file(cls, file_path=None):
         """
         Parses a handed over model and returns the meta_model representation of it.
         :param file_path: the path to the file which shall be parsed.
@@ -87,7 +89,7 @@ class ModelParser:
         :rtype: ASTNestMLCompilationUnit
         """
         try:
-            input_file = FileStream(file_path)
+            input_file = FileStream(file_path, encoding='utf-8')
         except IOError:
             code, message = Messages.get_input_path_not_found(path=file_path)
             Logger.log_message(node=None, code=None, message=message,
@@ -99,7 +101,6 @@ class ModelParser:
         # create a lexer and hand over the input
         lexer = PyNestMLLexer()
         lexer.removeErrorListeners()
-        lexer.addErrorListener(ConsoleErrorListener())
         lexerErrorListener = NestMLErrorListener()
         lexer.addErrorListener(lexerErrorListener)
         lexer._errHandler = BailErrorStrategy()  # halt immediately on lexer errors
@@ -109,14 +110,18 @@ class ModelParser:
         stream = CommonTokenStream(lexer)
         stream.fill()
         if lexerErrorListener._error_occurred:
-            code, message = Messages.get_lexer_error()
+            error_location = ASTSourceLocation(lexerErrorListener.line,
+                                               lexerErrorListener.column,
+                                               lexerErrorListener.line,
+                                               lexerErrorListener.column)
+            code, message = Messages.get_lexer_error(lexerErrorListener.msg)
             Logger.log_message(node=None, code=None, message=message,
-                               error_position=None, log_level=LoggingLevel.ERROR)
+                               error_position=error_location, log_level=LoggingLevel.ERROR)
             return
+
         # parse the file
         parser = PyNestMLParser(None)
         parser.removeErrorListeners()
-        parser.addErrorListener(ConsoleErrorListener())
         parserErrorListener = NestMLErrorListener()
         parser.addErrorListener(parserErrorListener)
         # parser._errHandler = BailErrorStrategy()	# N.B. uncomment this line and the next to halt immediately on parse errors
@@ -124,27 +129,37 @@ class ModelParser:
         parser.setTokenStream(stream)
         compilation_unit = parser.nestMLCompilationUnit()
         if parserErrorListener._error_occurred:
-            code, message = Messages.get_parser_error()
+            error_location = ASTSourceLocation(parserErrorListener.line,
+                                               parserErrorListener.column,
+                                               parserErrorListener.line,
+                                               parserErrorListener.column)
+            code, message = Messages.get_parser_error(parserErrorListener.msg)
             Logger.log_message(node=None, code=None, message=message,
-                               error_position=None, log_level=LoggingLevel.ERROR)
+                               error_position=error_location, log_level=LoggingLevel.ERROR)
             return
 
         # create a new visitor and return the new AST
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
         ast = ast_builder_visitor.visit(compilation_unit)
 
+        # create links back from children in the tree to their parents
+        for model in ast.get_model_list():
+            model.parent_ = None   # root node has no parent
+            model.accept(ASTParentVisitor())
+
         # create and update the corresponding symbol tables
         SymbolTable.initialize_symbol_table(ast.get_source_position())
-        for neuron in ast.get_neuron_list():
-            neuron.accept(ASTSymbolTableVisitor())
-            SymbolTable.add_neuron_scope(neuron.get_name(), neuron.get_scope())
-        for synapse in ast.get_synapse_list():
-            synapse.accept(ASTSymbolTableVisitor())
-            SymbolTable.add_synapse_scope(synapse.get_name(), synapse.get_scope())
+        for model in ast.get_model_list():
+            model.accept(ASTSymbolTableVisitor())
+            SymbolTable.add_model_scope(model.get_name(), model.get_scope())
+            Logger.set_current_node(model)
+            model.accept(AssignImplicitConversionFactorsVisitor())
+            Logger.set_current_node(None)
 
         # store source paths
-        for neuron in ast.get_neuron_list():
-            neuron.file_path = file_path
+        for model in ast.get_model_list():
+            model.file_path = file_path
+
         ast.file_path = file_path
 
         return ast
@@ -190,14 +205,6 @@ class ModelParser:
         return ret
 
     @classmethod
-    def parse_block(cls, string):
-        # type: (str) -> ASTBlock
-        (builder, parser) = tokenize(string)
-        ret = builder.visit(parser.block())
-        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
-        return ret
-
-    @classmethod
     def parse_block_with_variables(cls, string):
         # type: (str) -> ASTBlockWithVariables
         (builder, parser) = tokenize(string)
@@ -206,9 +213,9 @@ class ModelParser:
         return ret
 
     @classmethod
-    def parse_neuron_or_synapse_body(cls, string: str) -> ASTNeuronOrSynapseBody:
+    def parse_model_body(cls, string: str) -> ASTModelBody:
         (builder, parser) = tokenize(string)
-        ret = builder.visit(parser.body())
+        ret = builder.visit(parser.modelBody())
         ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
 
@@ -341,18 +348,10 @@ class ModelParser:
         return ret
 
     @classmethod
-    def parse_neuron(cls, string):
-        # type: (str) -> ASTNeuron
+    def parse_model(cls, string):
+        # type: (str) -> ASTModel
         (builder, parser) = tokenize(string)
-        ret = builder.visit(parser.neuron())
-        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
-        return ret
-
-    @classmethod
-    def parse_synapse(cls, string):
-        # type: (str) -> ASTSynapse
-        (builder, parser) = tokenize(string)
-        ret = builder.visit(parser.synapse())
+        ret = builder.visit(parser.model())
         ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
 
@@ -460,6 +459,22 @@ class ModelParser:
         ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
 
+    @classmethod
+    def parse_stmts_body(cls, string):
+        # type: (str) -> ASTStmtsBody
+        (builder, parser) = tokenize(string)
+        ret = builder.visit(parser.stmtsBody())
+        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
+        return ret
+
+
+class BailConsoleErrorListener(ErrorListener):
+    """Print error message to the console as well as bail"""
+    def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
+        s = "line " + str(line) + ":" + str(column) + " " + msg
+        print(s)
+        raise ParseCancellationException(s)
+
 
 def tokenize(string: str) -> Tuple[ASTBuilderVisitor, PyNestMLParser]:
     lexer = PyNestMLLexer(InputStream(string))
@@ -467,7 +482,11 @@ def tokenize(string: str) -> Tuple[ASTBuilderVisitor, PyNestMLParser]:
     stream = CommonTokenStream(lexer)
     stream.fill()
     parser = PyNestMLParser(stream)
+
+    parser.addErrorListener(BailConsoleErrorListener())
+
     builder = ASTBuilderVisitor(stream.tokens)
+
     return builder, parser
 
 

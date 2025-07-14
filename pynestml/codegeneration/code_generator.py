@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Mapping, List, Optional, Sequence, Union
+from typing import Any, Dict, Mapping, List, Optional, Sequence
 
 import glob
 import os
@@ -33,8 +33,7 @@ from jinja2 import Environment, FileSystemLoader, Template, TemplateRuntimeError
 from pynestml.exceptions.invalid_path_exception import InvalidPathException
 from pynestml.exceptions.invalid_target_exception import InvalidTargetException
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_synapse import ASTSynapse
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
@@ -43,18 +42,11 @@ from pynestml.utils.with_options import WithOptions
 
 
 class CodeGenerator(WithOptions):
+    r"""Generate code for a given target platform."""
+
     _default_options: Mapping[str, Any] = {}
 
-    def __init__(self, target, options: Optional[Mapping[str, Any]] = None):
-        from pynestml.frontend.pynestml_frontend import get_known_targets
-
-        if not target.upper() in get_known_targets():
-            code, msg = Messages.get_unknown_target(target)
-            Logger.log_message(message=msg, code=code, log_level=LoggingLevel.ERROR)
-            self._target = ""
-            raise InvalidTargetException()
-
-        self._target = target
+    def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super(CodeGenerator, self).__init__(options)
 
         self._init_templates_list()
@@ -97,6 +89,9 @@ class CodeGenerator(WithOptions):
         if "module_templates" in self.get_option("templates"):
             module_templates = self.get_option("templates")["module_templates"]
             self._module_templates.extend(self._setup_template_env(module_templates, templates_root_dir))
+
+    def raise_helper(self, msg):
+        raise TemplateRuntimeError(msg)
 
     def _init_templates_list(self):
         self._model_templates: Mapping[str, List[Template]] = {}
@@ -148,11 +143,11 @@ class CodeGenerator(WithOptions):
         return _abs_template_paths
 
     @abstractmethod
-    def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
+    def generate_code(self, models: Sequence[ASTModel]) -> None:
         """the base class CodeGenerator does not generate any code"""
         pass
 
-    def generate_neurons(self, neurons: Sequence[ASTNeuron]) -> None:
+    def generate_neurons(self, neurons: Sequence[ASTModel]) -> None:
         """
         Generate code for the given neurons.
 
@@ -166,7 +161,7 @@ class CodeGenerator(WithOptions):
                 code, message = Messages.get_code_generated(neuron.get_name(), FrontendConfiguration.get_target_path())
                 Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
 
-    def generate_synapses(self, synapses: Sequence[ASTSynapse]) -> None:
+    def generate_synapses(self, synapses: Sequence[ASTModel]) -> None:
         """
         Generates code for a list of synapses.
         :param synapses: a list of synapses.
@@ -174,8 +169,6 @@ class CodeGenerator(WithOptions):
         from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
         for synapse in synapses:
-            if Logger.logging_level == LoggingLevel.INFO:
-                print("Generating code for the synapse {}.".format(synapse.get_name()))
             self.generate_synapse_code(synapse)
             code, message = Messages.get_code_generated(synapse.get_name(), FrontendConfiguration.get_target_path())
             Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
@@ -194,7 +187,6 @@ class CodeGenerator(WithOptions):
         """
         if not os.path.isdir(FrontendConfiguration.get_target_path()):
             os.makedirs(FrontendConfiguration.get_target_path())
-
         for _model_templ in model_templates:
             templ_file_name = os.path.basename(_model_templ.filename)
             if len(templ_file_name.split(".")) < 2:
@@ -219,19 +211,19 @@ class CodeGenerator(WithOptions):
             with open(rendered_templ_file_name, "w+") as f:
                 f.write(str(_file))
 
-    def generate_neuron_code(self, neuron: ASTNeuron) -> None:
+    def generate_neuron_code(self, neuron: ASTModel) -> None:
         self.generate_model_code(neuron.get_name(),
                                  model_templates=self._model_templates["neuron"],
                                  template_namespace=self._get_neuron_model_namespace(neuron),
                                  model_name_escape_string="@NEURON_NAME@")
 
-    def generate_synapse_code(self, synapse: ASTNeuron) -> None:
+    def generate_synapse_code(self, synapse: ASTModel) -> None:
         self.generate_model_code(synapse.get_name(),
                                  model_templates=self._model_templates["synapse"],
                                  template_namespace=self._get_synapse_model_namespace(synapse),
                                  model_name_escape_string="@SYNAPSE_NAME@")
 
-    def generate_module_code(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]) -> None:
+    def generate_module_code(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]) -> None:
         self.generate_model_code(FrontendConfiguration.get_module_name(),
                                  model_templates=self._module_templates,
                                  template_namespace=self._get_module_namespace(neurons, synapses),

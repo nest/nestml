@@ -19,30 +19,17 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Sequence
+from typing import Any, List, Sequence
 
-from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_kernel import ASTKernel
+from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 
 
 class ASTEquationsBlock(ASTNode):
     """
     This class is used to store an equations block.
-    ASTEquationsBlock a special function definition:
-       equations:
-           G = (e/tau_syn) * t * exp(-1/tau_syn*t)
-           V' = -1/Tau * V + 1/C_m * (convolve(G, spikes) + I_e + I_stim)
-     @attribute odeDeclaration Block with equations and differential equations.
-     Grammar:
-          equationsBlock:
-            'equations'
-            BLOCK_OPEN
-              (inlineExpression | odeEquation | kernel | NEWLINE)+
-            BLOCK_CLOSE;
-    Attributes:
-        declarations = None
     """
 
     def __init__(self, declarations, *args, **kwargs):
@@ -56,12 +43,18 @@ class ASTEquationsBlock(ASTNode):
         """
         assert (declarations is not None and isinstance(declarations, list)), \
             '(PyNestML.AST.EquationsBlock) No or wrong type of declarations provided (%s)!' % type(declarations)
+
+        if declarations is None:
+            declarations = []
+
         for decl in declarations:
-            assert (decl is not None and (isinstance(decl, ASTKernel)
-                                          or isinstance(decl, ASTOdeEquation)
-                                          or isinstance(decl, ASTInlineExpression))), \
+            assert decl is not None and (isinstance(decl, ASTKernel)
+                                         or isinstance(decl, ASTOdeEquation)
+                                         or isinstance(decl, ASTInlineExpression)), \
                 '(PyNestML.AST.EquationsBlock) No or wrong type of ode-element provided (%s)' % type(decl)
+
         super(ASTEquationsBlock, self).__init__(*args, **kwargs)
+
         self.declarations = declarations
 
     def clone(self):
@@ -89,24 +82,9 @@ class ASTEquationsBlock(ASTNode):
         """
         Returns the block of definitions.
         :return: the block
-        :rtype: list(ASTInlineExpression|ASTOdeEquation|ASTKernel)
+        :rtype: list(ASTInlineExpression|ASTOdeEquation)
         """
         return self.declarations
-
-    def get_parent(self, ast):
-        """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
-        """
-        for decl in self.get_declarations():
-            if decl is ast:
-                return self
-            if decl.get_parent(ast) is not None:
-                return decl.get_parent(ast)
-        return None
 
     def get_ode_equations(self) -> Sequence[ASTOdeEquation]:
         """
@@ -116,17 +94,6 @@ class ASTEquationsBlock(ASTNode):
         ret = list()
         for decl in self.get_declarations():
             if isinstance(decl, ASTOdeEquation):
-                ret.append(decl)
-        return ret
-
-    def get_kernels(self) -> Sequence[ASTKernel]:
-        """
-        Returns a list of all kernels in this block.
-        :return: a list of all kernels.
-        """
-        ret = list()
-        for decl in self.get_declarations():
-            if isinstance(decl, ASTKernel):
                 ret.append(decl)
         return ret
 
@@ -141,6 +108,17 @@ class ASTEquationsBlock(ASTNode):
                 ret.append(decl)
         return ret
 
+    def get_kernels(self) -> Sequence[ASTKernel]:
+        """
+        Returns a list of all kernels in this block.
+        :return: a list of all kernels.
+        """
+        ret = list()
+        for decl in self.get_declarations():
+            if isinstance(decl, ASTKernel):
+                ret.append(decl)
+        return ret
+
     def clear(self):
         """
         Deletes all declarations as stored in this block.
@@ -148,11 +126,16 @@ class ASTEquationsBlock(ASTNode):
         del self.declarations
         self.declarations = list()
 
-    def equals(self, other: Any) -> bool:
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
-        The equals method.
-        :param other: a different object.
-        :return: True if equal, otherwise False.
+        return self.get_declarations()
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTEquationsBlock):
             return False

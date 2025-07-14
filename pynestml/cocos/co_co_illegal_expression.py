@@ -18,13 +18,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 
-from pynestml.utils.ast_source_location import ASTSourceLocation
-from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.cocos.co_co import CoCo
+from pynestml.meta_model.ast_declaration import ASTDeclaration
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.predefined_types import PredefinedTypes
+from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.logging_helper import LoggingHelper
 from pynestml.utils.messages import Messages
@@ -42,7 +42,7 @@ class CoCoIllegalExpression(CoCo):
         """
         Ensures the coco for the handed over neuron.
         :param neuron: a single neuron instance.
-        :type neuron: ASTNeuron
+        :type neuron: ASTModel
         """
         neuron.accept(CorrectExpressionVisitor())
 

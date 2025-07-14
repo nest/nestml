@@ -1,36 +1,35 @@
-"""
-NestMLPrinterTest.nestml
-########################
-
-
-Description
-+++++++++++
-
-Test whether the NestML printer and beautifier works as intended.
-
-
-Copyright statement
-+++++++++++++++++++
-
-This file is part of NEST.
-
-Copyright (C) 2004 The NEST Initiative
-
-NEST is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 2 of the License, or
-(at your option) any later version.
-
-NEST is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-"""
-# neuron pre
-neuron aeif_cond_alpha_implicit:
+# NestMLPrinterTest.nestml
+# ########################
+# 
+# 
+# Description
+# +++++++++++
+# 
+# Test whether the NestML printer and beautifier works as intended.
+# 
+# 
+# Copyright statement
+# +++++++++++++++++++
+# 
+# This file is part of NEST.
+# 
+# Copyright (C) 2004 The NEST Initiative
+# 
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+# 
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+# model pre
+#
+model aeif_cond_alpha_implicit:
     # state pre
     state: # state in
         # state var decl pre
@@ -42,10 +41,6 @@ neuron aeif_cond_alpha_implicit:
         # inline pre
         inline V_bounded mV = min(0,1) # inline in
         # inline post
-
-        # kernel pre
-        kernel V_M'' = 1 # kernel in
-        # kernel post
 
         # ode pre
         V_m'= 1 # ode in

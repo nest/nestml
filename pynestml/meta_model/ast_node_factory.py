@@ -19,12 +19,12 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_bit_operator import ASTBitOperator
-from pynestml.meta_model.ast_block import ASTBlock
+from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
 from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
@@ -47,9 +47,10 @@ from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
+from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
+from pynestml.meta_model.ast_on_condition_block import ASTOnConditionBlock
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
@@ -57,7 +58,6 @@ from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
-from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_unit_type import ASTUnitType
@@ -100,9 +100,9 @@ class ASTNodeFactory:
         return ASTBitOperator(is_bit_and, is_bit_xor, is_bit_or, is_bit_shift_left, is_bit_shift_right, source_position=source_position)
 
     @classmethod
-    def create_ast_block(cls, stmts, source_position):
-        # type: (list(ASTSmallStmt|ASTCompoundStmt),ASTSourceLocation) -> ASTBlock
-        return ASTBlock(stmts, source_position=source_position)
+    def create_ast_stmts_body(cls, stmts, source_position):
+        # type: (list(ASTSmallStmt|ASTCompoundStmt),ASTSourceLocation) -> ASTStmtsBody
+        return ASTStmtsBody(stmts, source_position=source_position)
 
     @classmethod
     def create_ast_block_with_variables(cls, is_state=False, is_parameters=False, is_internals=False,
@@ -120,9 +120,13 @@ class ASTNodeFactory:
         return ASTOnReceiveBlock(block, port_name, const_parameters, source_position=source_position)
 
     @classmethod
-    def create_ast_neuron_or_synapse_body(cls, body_elements, source_position):
-        # type: (list,ASTSourceLocation) -> ASTNeuronOrSynapseBody
-        return ASTNeuronOrSynapseBody(body_elements, source_position=source_position)
+    def create_ast_on_condition_block(cls, block=None, cond_expr=None, const_parameters=None, source_position=None):
+        return ASTOnConditionBlock(block, cond_expr, const_parameters, source_position=source_position)
+
+    @classmethod
+    def create_ast_model_body(cls, body_elements, source_position):
+        # type: (list,ASTSourceLocation) -> ASTModelBody
+        return ASTModelBody(body_elements, source_position=source_position)
 
     @classmethod
     def create_ast_comparison_operator(cls, is_lt=False, is_le=False, is_eq=False, is_ne=False, is_ne2=False,
@@ -147,9 +151,9 @@ class ASTNodeFactory:
                                is_inline_expression: bool=False,
                                variables=None,  # type: list
                                data_type=None,  # type: ASTDataType
-                               size_parameter=None,  # type: str
-                               expression=None,  # type: Union(ASTSimpleExpression,ASTExpression)
-                               invariant=None,  # type: Union(ASTSimpleExpression,ASTExpression)
+                               size_parameter=None,  # type: Optional[Union[ASTSimpleExpression, ASTExpression]]
+                               expression=None,  # type: Optional[Union[ASTSimpleExpression, ASTExpression]]
+                               invariant=None,  # type: Optional[Union[ASTSimpleExpression, ASTExpression]]
                                source_position=None,  # type: ASTSourceLocation
                                decorators=None,  # type: list
                                ) -> ASTDeclaration:
@@ -158,12 +162,12 @@ class ASTNodeFactory:
 
     @classmethod
     def create_ast_elif_clause(cls, condition, block, source_position=None):
-        # type: (ASTExpression|ASTSimpleExpression,ASTBlock,ASTSourceLocation) -> ASTElifClause
+        # type: (ASTExpression|ASTSimpleExpression,ASTStmtsBody,ASTSourceLocation) -> ASTElifClause
         return ASTElifClause(condition, block, source_position=source_position)
 
     @classmethod
     def create_ast_else_clause(cls, block, source_position):
-        # type: (ASTBlock,ASTSourceLocation) -> ASTElseClause
+        # type: (ASTStmtsBody,ASTSourceLocation) -> ASTElseClause
         return ASTElseClause(block, source_position=source_position)
 
     @classmethod
@@ -218,24 +222,24 @@ class ASTNodeFactory:
                             start_from,  # type: Union(ASTSimpleExpression,ASTExpression)
                             end_at,  # type: Union(ASTSimpleExpression,ASTExpression)
                             step=0,  # type: float
-                            block=None,  # type: ASTBlock
+                            block=None,  # type: ASTStmtsBody
                             source_position=None  # type: ASTSourceLocation
                             ):  # type: (...) -> ASTForStmt
         return ASTForStmt(variable, start_from, end_at, step, block, source_position=source_position)
 
     @classmethod
     def create_ast_function(cls, name, parameters, return_type, block, source_position):
-        # type: (str,(None|list(ASTParameter)),(ASTDataType|None),ASTBlock,ASTSourceLocation) -> ASTFunction
+        # type: (str,(None|list(ASTParameter)),(ASTDataType|None),ASTStmtsBody,ASTSourceLocation) -> ASTFunction
         return ASTFunction(name, parameters, return_type, block, source_position=source_position)
 
     @classmethod
-    def create_ast_function_call(cls, callee_name, args, source_position):
+    def create_ast_function_call(cls, callee_name, args, source_position=None):
         # type: (str,(None|list(ASTExpression|ASTSimpleExpression)),ASTSourceLocation) -> ASTFunctionCall
         return ASTFunctionCall(callee_name, args, source_position=source_position)
 
     @classmethod
     def create_ast_if_clause(cls, condition, block, source_position):
-        # type: (ASTSimpleExpression|ASTExpression,ASTBlock,ASTSourceLocation) -> ASTIfClause
+        # type: (ASTSimpleExpression|ASTExpression,ASTStmtsBody,ASTSourceLocation) -> ASTIfClause
         return ASTIfClause(condition, block, source_position=source_position)
 
     @classmethod
@@ -265,22 +269,15 @@ class ASTNodeFactory:
         return ASTLogicalOperator(is_logical_and, is_logical_or, source_position=source_position)
 
     @classmethod
-    def create_ast_nestml_compilation_unit(cls, list_of_neurons, list_of_synapses, source_position: ASTSourceLocation, artifact_name: str) -> ASTNestMLCompilationUnit:
+    def create_ast_nestml_compilation_unit(cls, list_of_models, source_position: ASTSourceLocation, artifact_name: str) -> ASTNestMLCompilationUnit:
         instance = ASTNestMLCompilationUnit(artifact_name=artifact_name, source_position=source_position)
-        for i in list_of_neurons:
-            instance.add_neuron(i)
-        for i in list_of_synapses:
-            instance.add_synapse(i)
+        for i in list_of_models:
+            instance.add_model(i)
         return instance
 
     @classmethod
-    def create_ast_neuron(cls, name: str, body: ASTNeuronOrSynapseBody, source_position: ASTSourceLocation, artifact_name: str) -> ASTNeuron:
-        return ASTNeuron(name, body, artifact_name, source_position=source_position)
-
-    @classmethod
-    def create_ast_synapse(cls, name, body, source_position, artifact_name):
-        # type: (str,ASTNeuronOrSynapseBody,ASTSourceLocation,str) -> ASTSynapse
-        return ASTSynapse(name, body, artifact_name=artifact_name, source_position=source_position)
+    def create_ast_model(cls, name: str, body: ASTModelBody, source_position: ASTSourceLocation, artifact_name: str) -> ASTModel:
+        return ASTModel(name, body, artifact_name, source_position=source_position)
 
     @classmethod
     def create_ast_ode_equation(cls, lhs, rhs, source_position, decorators=None):
@@ -294,14 +291,12 @@ class ASTNodeFactory:
                                    is_recordable=is_recordable, source_position=source_position, decorators=decorators)
 
     @classmethod
-    def create_ast_kernel(cls, variables=None, expressions=None, source_position=None):
-        # type: (ASTVariable,ASTSimpleExpression|ASTExpression,ASTSourceLocation) -> ASTKernel
+    def create_ast_kernel(cls, variables=None, expressions=None, source_position=None) -> ASTKernel:
         return ASTKernel(variables, expressions, source_position=source_position)
 
     @classmethod
-    def create_ast_output_block(cls, s_type, source_position):
-        # type: (PortSignalType,ASTSourceLocation) -> ASTOutputBlock
-        return ASTOutputBlock(s_type, source_position=source_position)
+    def create_ast_output_block(cls, s_type: PortSignalType, attributes: Optional[List[ASTParameter]] = None, source_position: ASTSourceLocation = None) -> ASTOutputBlock:
+        return ASTOutputBlock(s_type, attributes=attributes, source_position=source_position)
 
     @classmethod
     def create_ast_parameter(cls, name, data_type, source_position):
@@ -343,24 +338,25 @@ class ASTNodeFactory:
 
     @classmethod
     def create_ast_unit_type(cls,
-                             is_encapsulated=False,  # type: bool
-                             compound_unit=None,  # type: ASTUnitType
-                             base=None,  # type: ASTUnitType
-                             is_pow=False,  # type: bool
-                             exponent=None,  # type: int
-                             lhs=None,  # type: Union(ASTUnitType,int)
-                             rhs=None,  # type: ASTUnitType
-                             is_div=False,  # type: bool
-                             is_times=False,  # type: bool
-                             unit=None,  # type: str
-                             source_position=None  # type: ASTSourceLocation
-                             ):  # type: (...) -> ASTUnitType
-        return ASTUnitType(is_encapsulated, compound_unit, base, is_pow, exponent, lhs, rhs, is_div,
+                             is_encapsulated: bool = False,
+                             compound_unit: Optional[ASTUnitType] = None,
+                             base: Optional[ASTUnitType] = None,
+                             is_pow: bool = False,
+                             exponent: Optional[Union[int, float]] = None,
+                             exponent_num: Optional[int] = None,
+                             exponent_den: Optional[int] = None,
+                             lhs: Optional[Union[ASTUnitType, int]] = None,
+                             rhs: Optional[Union[ASTUnitType, int]] = None,
+                             is_div: bool = False,
+                             is_times: bool = False,
+                             unit: Optional[str] = None,
+                             source_position: Optional[ASTSourceLocation] = None) -> ASTUnitType:
+        return ASTUnitType(is_encapsulated, compound_unit, base, is_pow, exponent, exponent_num, exponent_den, lhs, rhs, is_div,
                            is_times, unit, source_position=source_position)
 
     @classmethod
     def create_ast_update_block(cls, block, source_position):
-        # type: (ASTBlock,ASTSourceLocation) -> ASTUpdateBlock
+        # type: (ASTStmtsBody,ASTSourceLocation) -> ASTUpdateBlock
         return ASTUpdateBlock(block, source_position=source_position)
 
     @classmethod
@@ -374,7 +370,7 @@ class ASTNodeFactory:
     @classmethod
     def create_ast_while_stmt(cls,
                               condition,  # type: Union(ASTSimpleExpression,ASTExpression)
-                              block,  # type: ASTBlock
+                              block,  # type: ASTStmtsBody
                               source_position  # type: ASTSourceLocation
                               ):  # type: (...) -> ASTWhileStmt
         return ASTWhileStmt(condition, block, source_position=source_position)
