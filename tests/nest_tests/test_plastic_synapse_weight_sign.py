@@ -45,7 +45,7 @@ synapse_model_names = ["stdp_synapse"]#, "triplet_stdp_synapse", "stdp_nn_symm",
 class TestPlasticSynapseWeightSign:
     r"""Test that the sign of the weight of plastic synapses never changes (negative stays negative, positive stays positive)"""
 
-    neuron_model_name = "iaf_psc_exp"
+    neuron_model_name = "iaf_psc_exp_neuron"
 
     @pytest.fixture(autouse=True,
                     scope="module")
@@ -67,8 +67,6 @@ class TestPlasticSynapseWeightSign:
                              suffix="_nestml",
                              codegen_opts=codegen_opts)
 
-        nest.Install("nestmlmodule")
-
     @pytest.mark.parametrize("synapse_model_name", synapse_model_names)
     @pytest.mark.parametrize("test", ["potentiation", "depression"])
     def test_nest_stdp_synapse(self, synapse_model_name: str, test: str):
@@ -82,6 +80,7 @@ class TestPlasticSynapseWeightSign:
             post_spike_times = pre_spike_times - 10.
 
         nest.ResetKernel()
+        nest.Install("nestmlmodule")
 
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",
@@ -92,15 +91,15 @@ class TestPlasticSynapseWeightSign:
                                       "allow_offgrid_times": True})
 
         pre_neuron = nest.Create("parrot_neuron")
-        post_neuron = nest.Create(self.neuron_model_name)
+        post_neuron = nest.Create(self.neuron_model_name + "_nestml__with_" + synapse_model_name + "_nestml")
 
         nest.Connect(pre_sg, pre_neuron, syn_spec={"weight": 9999.})
         nest.Connect(post_sg, post_neuron, syn_spec={"weight": 9999.})
-        nest.Connect(pre_neuron, post_neuron, syn_spec={"synapse_model": synapse_model_name,
+        nest.Connect(pre_neuron, post_neuron, syn_spec={"synapse_model": synapse_model_name + "_nestml__with_" + self.neuron_model_name + "_nestml",
                                                         "weight": init_weight})
 
-        syn = nest.GetConnections(source=pre_neuron, synapse_model=synapse_model_name)
+        syn = nest.GetConnections(source=pre_neuron, synapse_model=synapse_model_name + "_nestml__with_" + self.neuron_model_name + "_nestml")
 
         nest.Simulate(100. + max(np.amax(pre_spike_times), np.amax(post_spike_times)))
 
-        assert np.sign(syn.weight) == 0.   # should not pass through zero
+        assert np.sign(syn.weight) == np.sign(init_weight)
