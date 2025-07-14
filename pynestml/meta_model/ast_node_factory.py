@@ -338,19 +338,20 @@ class ASTNodeFactory:
 
     @classmethod
     def create_ast_unit_type(cls,
-                             is_encapsulated=False,  # type: bool
-                             compound_unit=None,  # type: ASTUnitType
-                             base=None,  # type: ASTUnitType
-                             is_pow=False,  # type: bool
-                             exponent=None,  # type: int
-                             lhs=None,  # type: Union(ASTUnitType,int)
-                             rhs=None,  # type: ASTUnitType
-                             is_div=False,  # type: bool
-                             is_times=False,  # type: bool
-                             unit=None,  # type: str
-                             source_position=None  # type: ASTSourceLocation
-                             ):  # type: (...) -> ASTUnitType
-        return ASTUnitType(is_encapsulated, compound_unit, base, is_pow, exponent, lhs, rhs, is_div,
+                             is_encapsulated: bool = False,
+                             compound_unit: Optional[ASTUnitType] = None,
+                             base: Optional[ASTUnitType] = None,
+                             is_pow: bool = False,
+                             exponent: Optional[Union[int, float]] = None,
+                             exponent_num: Optional[int] = None,
+                             exponent_den: Optional[int] = None,
+                             lhs: Optional[Union[ASTUnitType, int]] = None,
+                             rhs: Optional[Union[ASTUnitType, int]] = None,
+                             is_div: bool = False,
+                             is_times: bool = False,
+                             unit: Optional[str] = None,
+                             source_position: Optional[ASTSourceLocation] = None) -> ASTUnitType:
+        return ASTUnitType(is_encapsulated, compound_unit, base, is_pow, exponent, exponent_num, exponent_den, lhs, rhs, is_div,
                            is_times, unit, source_position=source_position)
 
     @classmethod
