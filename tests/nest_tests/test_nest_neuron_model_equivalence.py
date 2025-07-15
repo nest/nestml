@@ -317,7 +317,7 @@ class TestNESTNeuronModelEquivalence:
                     _ax.legend(loc="upper right")
                     _ax.grid()
                 fig.suptitle("Rate: " + str(rate_testant[i]) + " Hz")
-                plt.savefig("/tmp/test_nest_neuron_model_equivalence_subthreshold_[" + nest_model_name + "]_[" + nestml_model_name + "]_[I_stim=" + str(I_stim) + "].png")
+                plt.savefig("/tmp/test_nest_neuron_model_fI_curve_[" + nest_model_name + "]_[" + nestml_model_name + "]_[I_stim=" + str(I_stim) + "].png")
                 plt.close(fig)
 
         if TEST_PLOTS:
