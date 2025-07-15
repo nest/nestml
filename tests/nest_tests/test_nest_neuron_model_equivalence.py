@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest_integration_test.py
+# test_nest_neuron_model_equivalence.py
 #
 # This file is part of NEST.
 #
@@ -45,7 +45,7 @@ def get_model_doc_title(model_fname: str):
 
 @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                     reason="This test does not support NEST 2")
-class TestNestIntegration:
+class TestNESTNeuronModelEquivalence:
 
     def generate_all_models(self):
         codegen_opts = {}
@@ -89,7 +89,7 @@ class TestNestIntegration:
                              suffix="_alt_int_nestml",
                              codegen_opts=alt_codegen_opts)
 
-    def test_nest_integration(self):
+    def test_nest_neuron_model_equivalence(self):
         self.generate_all_models()
         nest.Install("nestml_allmodels_module")
         nest.Install("nestml_alt_allmodels_module")
@@ -236,7 +236,7 @@ class TestNestIntegration:
                 for _ax in ax:
                     _ax.legend(loc="upper right")
                     _ax.grid()
-                plt.savefig("/tmp/nestml_nest_integration_test_pulse_[" + nest_model_name + "]_[" + nestml_model_name + "]_[I_stim=" + str(I_stim) + "].png")
+                plt.savefig("/tmp/test_nest_neuron_model_equivalence_pulse_[" + nest_model_name + "]_[" + nestml_model_name + "]_[I_stim=" + str(I_stim) + "].png")
                 plt.close(fig)
 
             np.testing.assert_allclose(Vms1, Vms2)
@@ -317,7 +317,7 @@ class TestNestIntegration:
                     _ax.legend(loc="upper right")
                     _ax.grid()
                 fig.suptitle("Rate: " + str(rate_testant[i]) + " Hz")
-                plt.savefig("/tmp/nestml_nest_integration_test_subthreshold_[" + nest_model_name + "]_[" + nestml_model_name + "]_[I_stim=" + str(I_stim) + "].png")
+                plt.savefig("/tmp/test_nest_neuron_model_equivalence_subthreshold_[" + nest_model_name + "]_[" + nestml_model_name + "]_[I_stim=" + str(I_stim) + "].png")
                 plt.close(fig)
 
         if TEST_PLOTS:
@@ -333,7 +333,7 @@ class TestNestIntegration:
                 _ax.grid()
                 _ax.set_ylabel("Firing rate [Hz]")
             ax[1].set_xlabel("$I_{inj}$ [pA]")
-            plt.savefig("/tmp/nestml_nest_integration_test_subthreshold_[" + nest_model_name + "]_[" + nestml_model_name + "].png")
+            plt.savefig("/tmp/test_nest_neuron_model_equivalence_subthreshold_[" + nest_model_name + "]_[" + nestml_model_name + "].png")
             plt.close(fig)
 
             for figsize, fname_snip in zip([(8, 5), (4, 3)], ["", "_small"]):
@@ -379,7 +379,7 @@ class TestNestIntegration:
                                      params={"spike_times": spike_times, "spike_weights": spike_weights})
         nest.Connect(spikegenerator, nest_neuron, syn_spec=syn_spec)
 
-        if len(nestml_neuron.get("receptor_types")) > 1:
+        if "receptor_types" in nestml_neuron.get().keys() and len(nestml_neuron.get("receptor_types")) > 1:
             # this NESTML neuron is written as having separate input ports for excitatory and inhibitory spikes
             syn_spec_nestml = syn_spec
             if syn_spec_nestml is None:
@@ -425,7 +425,7 @@ class TestNestIntegration:
             for _ax in ax:
                 _ax.legend(loc="upper right")
                 _ax.grid()
-            plt.savefig("/tmp/nestml_nest_integration_test_psc_[" + nest_model_name + "]_[" + nestml_model_name + "].png")
+            plt.savefig("/tmp/test_nest_neuron_model_equivalence_psc_[" + nest_model_name + "]_[" + nestml_model_name + "].png")
             plt.close(fig)
 
         np.testing.assert_allclose(ts1, ts2)
