@@ -245,7 +245,7 @@ class TestSynapseNumericSolver:
             y += [syn_stats["y"]]
             z += [syn_stats["z"]]
 
-        #TODO: Adjust tolerance
+        # TODO: Adjust tolerance
         np.testing.assert_allclose(x, x_expected, atol=1e-2, rtol=1e-2)
         np.testing.assert_allclose(y, y_expected, atol=1e-2, rtol=1e-2)
         np.testing.assert_allclose(z, z_expected, atol=1e-2, rtol=1e-2)
