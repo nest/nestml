@@ -23,9 +23,6 @@ model non_linear_synapse:
         spike(weight real, delay ms)
 
     onReceive(pre_spikes):
-        x += 1
-        y += 1
-        z += 1
         w += x * y / z
         emit_spike(w, d)
 
