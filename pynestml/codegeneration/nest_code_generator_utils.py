@@ -58,9 +58,6 @@ class NESTCodeGeneratorUtils:
         if variable_symbol.block_type == BlockType.INTERNALS:
             return "V_.%s"
 
-        if variable_symbol.block_type == BlockType.INPUT:
-            return "B_.%s"
-
         return ""
 
     @classmethod
