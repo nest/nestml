@@ -24,6 +24,7 @@ from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToo
 from pynestml.codegeneration.printers.spinnaker2_c_function_call_printer import Spinnaker2CFunctionCallPrinter
 from pynestml.codegeneration.printers.spinnaker_c_type_symbol_printer import SpinnakerCTypeSymbolPrinter
 from pynestml.codegeneration.printers.spinnaker2_c_variable_printer import Spinnaker2CVariablePrinter
+from pynestml.codegeneration.printers.spinnaker2_c_simple_expression_printer import Spinnaker2CSimpleExpressionPrinter
 from pynestml.codegeneration.printers.spinnaker_gsl_function_call_printer import SpinnakerGSLFunctionCallPrinter
 
 
@@ -69,9 +70,13 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         self._nest_function_call_printer_no_origin = Spinnaker2CFunctionCallPrinter(None)
 
         self._printer = CppExpressionPrinter(
-            simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
+            simple_expression_printer=Spinnaker2CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
                                                                constant_printer=self._constant_printer,
                                                                function_call_printer=self._nest_function_call_printer))
+        # self._printer = CppExpressionPrinter(
+        #     simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
+        #                                                        constant_printer=self._constant_printer,
+        #                                                        function_call_printer=self._nest_function_call_printer))
         self._nest_variable_printer._expression_printer = self._printer
         self._nest_function_call_printer._expression_printer = self._printer
         self._nest_printer = CppPrinter(expression_printer=self._printer)
@@ -79,9 +84,13 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         self._nest_variable_printer_no_origin = Spinnaker2CVariablePrinter(None, with_origin=False,
                                                                           with_vector_parameter=False)
         self._printer_no_origin = CppExpressionPrinter(
-            simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
+            simple_expression_printer=Spinnaker2CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
                                                                constant_printer=self._constant_printer,
                                                                function_call_printer=self._nest_function_call_printer_no_origin))
+        # self._printer_no_origin = CppExpressionPrinter(
+        #     simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
+        #                                                        constant_printer=self._constant_printer,
+        #                                                        function_call_printer=self._nest_function_call_printer_no_origin))
         self._nest_variable_printer_no_origin._expression_printer = self._printer_no_origin
         self._nest_function_call_printer_no_origin._expression_printer = self._printer_no_origin
 
@@ -90,14 +99,23 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         self._gsl_function_call_printer = SpinnakerGSLFunctionCallPrinter(None)
 
         self._gsl_printer = CppExpressionPrinter(
-            simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
+            simple_expression_printer=Spinnaker2CSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
                                                                constant_printer=self._constant_printer,
                                                                function_call_printer=self._gsl_function_call_printer))
+        # self._gsl_printer = CppExpressionPrinter(
+        #     simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
+        #                                                        constant_printer=self._constant_printer,
+        #                                                        function_call_printer=self._gsl_function_call_printer))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
 
         # ODE-toolbox printers
         self._ode_toolbox_variable_printer = ODEToolboxVariablePrinter(None)
         self._ode_toolbox_function_call_printer = ODEToolboxFunctionCallPrinter(None)
+        # self._ode_toolbox_printer = ODEToolboxExpressionPrinter(
+        #     simple_expression_printer=Spinnaker2CSimpleExpressionPrinter(
+        #         variable_printer=self._ode_toolbox_variable_printer,
+        #         constant_printer=self._constant_printer,
+        #         function_call_printer=self._ode_toolbox_function_call_printer))
         self._ode_toolbox_printer = ODEToolboxExpressionPrinter(
             simple_expression_printer=CSimpleExpressionPrinter(
                 variable_printer=self._ode_toolbox_variable_printer,
@@ -179,16 +197,13 @@ class Spinnaker2CodeGenerator(CodeGenerator):
             "path": os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources_spinnaker2"))),  #, os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources_spinnaker2/common"))), os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources_spinnaker2/synapse_types")))],
             "model_templates": {
                 "neuron":  ["@NEURON_NAME@.py.jinja2",
-                            # "@NEURON_NAME@.c.jinja2",
                             "main.c.jinja2",
                             "@NEURON_NAME@.h.jinja2",
-                            # "decay.h.jinja2",
                             "data_specification.h.jinja2",
                             "global_params.h.jinja2",
                             "neuron.c.jinja2",
                             "neuron.h.jinja2",
                             "neuron_model.h.jinja2",
-                            # "neuron_model_@NEURON_NAME@_impl.c.jinja2",
                             "neuron_model_@NEURON_NAME@_impl.h.jinja2",
                             "param_defs.h.jinja2",
                             "population_table.h.jinja2",
@@ -197,8 +212,6 @@ class Spinnaker2CodeGenerator(CodeGenerator):
                             "simulation.h.jinja2",
                             "maths-util.h.jinja2",
                             "neuron-typedefs.h.jinja2",
-                            # "spike_processing.c.jinja2",
-                            # "spike_processing.h.jinja2",
                             "qpe.ld.jinja2",
                             "qpe_isr.c.jinja2",
                             "synapse_row.h.jinja2",
@@ -206,14 +219,13 @@ class Spinnaker2CodeGenerator(CodeGenerator):
                             "synapses.h.jinja2",
                             "synapse_types.h.jinja2",
                             "synapse_types_exponential_impl.h.jinja2",
+                            "rk4.h.jinja2",
+                            "rk4.c.jinja2",
+                            "forward_euler.h.jinja2",
+                            "forward_euler.c.jinja2",
+                            "ode_solvers_common.h.jinja2",
                             ],
-                "synapse":  [
-    # "synapse_row.h.jinja2",
-                #             "synapses.c.jinja2",
-                #             "synapses.h.jinja2",
-                #             "synapse_types.h.jinja2",
-                #             "synapse_types_exponential_impl.h.jinja2",
-                             ],
+                "synapse":  [],  # add templates for synapse generation here
             },
             "module_templates": ["Makefile.jinja2",]
         }

@@ -42,6 +42,7 @@ from pynestml.symbols.variable_symbol import BlockType, VariableSymbol
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.utils.ast_source_location import ASTSourceLocation
+from pynestml.symbols.real_type_symbol import RealTypeSymbol
 
 
 class ASTModel(ASTNode):
@@ -555,6 +556,8 @@ class ASTModel(ASTNode):
         parameters_block = self.get_parameters_blocks()[0]
         parameter_value_dict = {}
         for declarations in parameters_block.get_declarations():
+
+
             if isinstance(declarations.expression, ASTSimpleExpression):
                 # declarations.variables[0].astropy_unit = None
                 # declarations.data_type = ' real'
@@ -566,14 +569,17 @@ class ASTModel(ASTNode):
                     declarations.expression.variable.name = unit_in_si
                     pass
 
-            if isinstance(declarations.expression, ASTExpression):
-                expr = str(declarations.expression.unary_operator) + str(
-                    declarations.expression.expression.numeric_literal) + '* u.' + declarations.expression.expression.variable.name
-                float_value_in_si, unit_in_si = self._to_base_value_from_string(expr)
-                declarations.expression.expression.numeric_literal = abs(float_value_in_si)
-                parameter_value_dict[declarations.variables[0].name] = float_value_in_si
-                declarations.expression.expression.variable.name = unit_in_si
-                pass
+            elif isinstance(declarations.expression, ASTExpression):
+                if isinstance(declarations.data_type.type_symbol, RealTypeSymbol):
+                    parameter_value_dict[declarations.variables[0]] = declarations.expression
+                else:
+                    expr = str(declarations.expression.unary_operator) + str(
+                        declarations.expression.expression.numeric_literal) + '* u.' + declarations.expression.expression.variable.name
+                    float_value_in_si, unit_in_si = self._to_base_value_from_string(expr)
+                    declarations.expression.expression.numeric_literal = abs(float_value_in_si)
+                    parameter_value_dict[declarations.variables[0].name] = float_value_in_si
+                    declarations.expression.expression.variable.name = unit_in_si
+                    pass
 
         return parameter_value_dict
 

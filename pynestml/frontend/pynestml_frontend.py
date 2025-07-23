@@ -86,8 +86,9 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
 
     if target_name.upper() in ["SPINNAKER2"]:
         pass
-        # from pynestml.transformers.spinnaker2_unit_transformer import Spinnaker2UnitTransformer
-
+        from pynestml.transformers.alternative_approach_transformer import AlternativeApproachTransformer
+        alternative_approach_transformer = AlternativeApproachTransformer()
+        transformers.append(alternative_approach_transformer)
         # unit_transformer = Spinnaker2UnitTransformer()
         # transformers.append(unit_transformer)
 
@@ -114,7 +115,7 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         options = synapse_post_neuron_co_generation.set_options(options)
         transformers.append(synapse_post_neuron_co_generation)
 
-    if target_name.upper() in ["NEST", "SPINNAKER2"]:
+    if target_name.upper() in ["SPINNAKER2"]:
         from pynestml.transformers.non_dimensionalisation_transformer import NonDimensionalisationTransformer
 
         non_dimensionalisation_transformer = NonDimensionalisationTransformer()

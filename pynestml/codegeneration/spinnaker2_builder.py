@@ -68,6 +68,7 @@ class SpiNNaker2Builder(Builder):
         generated_file_names_neuron_py = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "*.py") and not "impl.py" in fn and not "example" in fn]
         generated_file_names_synapse_types = [fn for fn in generated_file_names if fn in {'synapse_types.h', 'synapse_types_exponential_impl.h'}]
         generated_file_names_common = [fn for fn in generated_file_names if fn in {'maths-util.h', 'neuron-typedefs.h'}]
+        generated_file_names_ode_solvers = [fn for fn in generated_file_names if fn in {'ode_solvers_common.h', 'rk4.h', 'rk4.c', 'forward_euler.h', 'forward_euler.c'}]
 
         old_cwd = os.getcwd()
         try:

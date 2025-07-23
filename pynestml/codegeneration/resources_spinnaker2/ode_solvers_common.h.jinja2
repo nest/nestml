@@ -1,0 +1,56 @@
+#ifndef ODE_SOLVERS_COMMON_H
+#define ODE_SOLVERS_COMMON_H
+
+#include {{ '<' }} common-typedefs.h {{ '>' }}
+
+#define MAX_STATE_DIM {{ neuron.get_state_declarations()|length }} /* v, u for Izhikevich model, increase if needed */
+
+/**
+ * @typedef ode_rhs_t
+ * @brief Type for an ODE right-hand side function.
+ *
+ * Computes dy/dt = f(t, y) for a given system.
+ *
+ * @param t Current simulation time
+ * @param y Input state vector, length = dim
+ * @param dydt Output derivative vector, needs to have same length as y
+ * @param dim Number of state variables
+ * @param neuron_params Pointer to neuron parameters
+ */
+typedef void ode_rhs_t(
+    float t,
+    const float *y,
+    float *dydt,
+    uint8_t dim,
+    const void *neuron_params);
+
+/** Function pointer to a right-hand side function of an ODE. */
+typedef ode_rhs_t *ode_rhs_f;
+
+/**
+ * @typedef ode_solver_step_t
+ * @brief Type for a one-step ODE solver function
+ *
+ * Advances the solution from y(t) to y(t+h).
+ *
+ * @param f Right-hand side function (ODE)
+ * @param t Current time
+ * @param y Current state (input)
+ * @param h Step size
+ * @param dim State vector dimension
+ * @param neuron_params Pointer to neuron parameters
+ * @param y_out Output: y at t+h
+ */
+typedef void ode_solver_step_t(
+    ode_rhs_f f,
+    float t,
+    const float *y,
+    float h,
+    uint8_t dim,
+    const void *neuron_params,
+    float *y_out);
+
+/** Function pointer to a solver step function. */
+typedef ode_solver_step_t *ode_solver_step_f;
+
+#endif

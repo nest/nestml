@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Tuple
 from pynestml.codegeneration.printers.function_call_printer import FunctionCallPrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.symbols.predefined_functions import PredefinedFunctions
@@ -63,7 +64,13 @@ class Spinnaker2CFunctionCallPrinter(FunctionCallPrinter):
             return 'record_spike(neuron_index);\n' \
                    'send_spikes_to_all_targets(routing_info_ptr->key_offset + neuron_index)'
 
-        return super().print_function_call(node)
+
+        if ASTUtils.needs_arguments(node):
+            function_name = self._print_function_call_format_string(node)
+
+            return function_name.format(*self._print_function_call_argument_list(node))
+
+        return function_name
 
     def _print_function_call_format_string(self, function_call: ASTFunctionCall) -> str:
         r"""
@@ -83,7 +90,9 @@ class Spinnaker2CFunctionCallPrinter(FunctionCallPrinter):
 
         if function_name == PredefinedFunctions.CLIP:
             # the arguments of this function must be swapped and are therefore [v_max, v_min, v]
-            return 'MIN({2!s}, MAX({1!s}, {0!s}))'
+            # return 'MIN({2!s}, MAX({1!s}, {0!s}))'
+            raise Exception("Unsupported for now")
+
 
         if function_name == PredefinedFunctions.MAX:
             return 'MAX({!s}, {!s})'
@@ -92,52 +101,71 @@ class Spinnaker2CFunctionCallPrinter(FunctionCallPrinter):
             return 'MIN({!s}, {!s})'
 
         if function_name == PredefinedFunctions.EXP:
-            return 'expk({!s})'
+            return 'EXP({!s})'
 
         if function_name == PredefinedFunctions.LN:
-            return 'logk({!s})'
+            return 'LN({!s})'
 
         if function_name == PredefinedFunctions.POW:
-            return '(expk({1!s} * logk({0!s})))'
+            return 'POW({0!s}, {1!s})'
 
         if function_name == PredefinedFunctions.LOG10:
-            return '(kdivk(logk({!s}), REAL_CONST(2.303)))'
+            # return '(kdivk(logk({!s}), REAL_CONST(2.303)))'
+            raise Exception("Unsupported for now")
 
         if function_name == PredefinedFunctions.COS:
-            return 'cos({!s})'
+            # return 'cos({!s})'
+            raise Exception("Unsupported for now")
 
         if function_name == PredefinedFunctions.SIN:
-            return 'sin({!s})'
+            # return 'sin({!s})'
+            raise Exception("Unsupported for now")
 
         if function_name == PredefinedFunctions.TAN:
-            return 'tan({!s})'
+            # return 'tan({!s})'
+            raise Exception("Unsupported for now")
 
         if function_name == PredefinedFunctions.COSH:
-            return '(HALF * (expk({!s}) + expk(-{!s})))'
+            # return '(HALF * (expk({!s}) + expk(-{!s})))'
+            raise Exception("Unsupported for now")
 
         if function_name == PredefinedFunctions.SINH:
-            return '(HALF * (expk({!s}) - expk(-{!s})))'
+            # return '(HALF * (expk({!s}) - expk(-{!s})))'
+            raise Exception("Unsupported for now")
 
         if function_name == PredefinedFunctions.TANH:
-            return 'kdik((expk({!s}) - expk(-{!s})), (expk({!s}) + expk(-{!s})))'
+            # return 'kdik((expk({!s}) - expk(-{!s})), (expk({!s}) + expk(-{!s})))'
+            raise Exception("Unsupported for now")
 
         if function_name == PredefinedFunctions.ERF:
-            raise Exception("Erf not defined for spinnaker")
+            # raise Exception("Erf not defined for spinnaker")
+            raise Exception("Unsupported for now")
 
         if function_name == PredefinedFunctions.ERFC:
-            raise Exception("Erfc not defined for spinnaker")
+            # raise Exception("Erfc not defined for spinnaker")
+            raise Exception("Unsupported for now")
 
         if function_name == PredefinedFunctions.EXPM1:
-            raise Exception("Expm1 not defined for spinnaker")
+            # raise Exception("Expm1 not defined for spinnaker")
+            raise Exception("Unsupported for now")
 
         if function_name == PredefinedFunctions.PRINT:
             return 'log_info("%s", {!s})'
 
         if function_name == PredefinedFunctions.PRINTLN:
-            raise Exception("PRINTLN not defined for spinnaker2")
+            # raise Exception("PRINTLN not defined for spinnaker2")
+            raise Exception("Unsupported for now")
 
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
             return function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
 
         return function_name + '()'
+
+    def _print_function_call_argument_list(self, function_call: ASTFunctionCall) -> Tuple[str, ...]:
+        ret = []
+
+        for arg in function_call.get_args():
+            ret.append(self._expression_printer.print(arg))
+
+        return tuple(ret)

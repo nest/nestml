@@ -1,0 +1,28 @@
+#ifndef RK4_H
+#define RK4_H
+
+#include "ode_solvers_common.h"
+/**
+ * @brief Performs one Runge-Kutta 4th-order step
+ *
+ * Computes y(t + h) with rk4:
+ * y_out = y + h * (k1 + 2k2 + 2k3 + k4) / 6
+ *
+ * @param f Right-hand side function of the ODE - dy/dt = f(t, y)
+ * @param t Current time
+ * @param y Current state vector, length = dim
+ * @param h Step size
+ * @param dim Number of state variables
+ * @param neuron_params Pointer to neuron parameters
+ * @param y_out Output state vector at time t + h
+ */
+void rk4_step(
+    ode_rhs_f f,
+    float t,
+    const float *y,
+    float h,
+    uint8_t dim,
+    const void *neuron_params,
+    float *y_out);
+
+#endif

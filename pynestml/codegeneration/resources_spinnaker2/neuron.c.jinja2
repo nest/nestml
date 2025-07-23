@@ -47,11 +47,15 @@ bool neuron_initialise() {
 
         neuron_pointer_t neuron = &neuron_array[neuron_index];
         neuron_state_t* state = &neuron->state;
-        {% set updated_state_dict = utils.generate_updated_state_dict(initial_values, neuron.get_parameter_value_dict()) %}
-        {%- for name, value in updated_state_dict | dictsort %}
-            state->{{ name }} = {{ value }};
+        {%- for declaration in neuron.get_state_declarations() | sort(attribute='name') %} {#add state declarations#}
+            {{ printer.print(declaration.get_variables()[0]) }} = {{ printer.print(declaration.get_expression()) }};
         {%- endfor %}
     }
+{#        {% set updated_state_dict = utils.generate_updated_state_dict(initial_values, neuron.get_parameter_value_dict()) %}#}
+{#        {%- for name, value in updated_state_dict | dictsort %}#}
+{#            state->{{ name }} = {{ value }};#}
+{#        {%- endfor %}#}
+{#    }#}
 
     return true;
 }
@@ -63,19 +67,36 @@ void print_neuron_params() {
     uint32_t n_used_neurons = global_params_ptr->n_used_neurons;
     for (index_t neuron_index = 0; neuron_index < n_used_neurons; neuron_index++) {
         neuron_params_t* neuron_params = &neuron_params_array[neuron_index];
-
-        {%- for  name, value in neuron.get_parameter_value_dict() | dictsort %}
-            log_info("%u:  {{ name }}=%i\n",
-            neuron_index,(int32_t) (f2ui(neuron_params->{{  name }})));
+{#        {%- for  name, value in neuron.get_parameter_value_dict() | dictsort %}#}
+{#            log_info("%u:  {{ name }}=%i\n",#}
+{#            neuron_index,(int32_t) (f2ui(neuron_params->{{  name }})));#}
+{#        {%- endfor %}#}
+    {%- for  parameter in neuron.get_parameter_symbols()  | sort(attribute='name') %}
+            log_info("%u:  {{ parameter.name }}=%i\n",
+            neuron_index,(int32_t) (f2ui(neuron_params->{{  parameter.name }})));
         {%- endfor %}
-{% if uses_analytic_solver == True %}
-        {%- for  name, value in propagators | dictsort %}
-            log_info("%u:  {{ name }}=%i\n",
-            neuron_index,(int32_t) (f2ui(neuron_params->{{  name }})));
+{%- if uses_analytic_solver == True %}
+        {%- for propagator in neuron.get_internal_symbols() |sort(attribute='name') %}
+            {%- if propagator.name != '__h' %}
+            log_info("%u:  {{ propagator.name }}=%i\n",
+            neuron_index,(int32_t) (f2ui(neuron_params->{{  propagator.name }})));
+            {%- endif  %}
         {%- endfor %}
 {%- endif  %}
     }
 }
+
+{%- if uses_numeric_solver == True %}
+    void {{ neuronName }}_rhs(float t, const float *y, float *dydt, uint8_t dim, const void *neuron_params)
+    {
+    neuron_params_t *p = neuron_params;
+    (void) t;
+    (void) dim;
+    {% for  symbol in numerical_state_symbols %}
+    dydt[{{ loop.index0 }}] = {{ printer.print(numeric_update_expressions[symbol]) }}
+    {% endfor %}
+    }
+{%- endif  %}
 
 void record_voltages() {
     if (global_params_ptr->record_v == 1) { // record all voltages
@@ -164,7 +185,7 @@ if ({{ printer.print(block.get_cond_expr()) }}){
     if (global_params_ptr->debug){
         log_info("Neuron %u spiked at time %u\n", neuron_index, systicks);
     }
-    send_spikes_to_all_targets(routing_info_ptr->key_offset + neuron_index);
+{#    send_spikes_to_all_targets(routing_info_ptr->key_offset + neuron_index);#}
     }
 }
 

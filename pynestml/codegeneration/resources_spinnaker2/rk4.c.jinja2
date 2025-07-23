@@ -1,0 +1,39 @@
+#include "rk4.h"
+
+void rk4_step(
+    ode_rhs_f f,
+    float t,
+    const float *y,
+    float h,
+    uint8_t dim,
+    const void *neuron_params,
+    float *y_out)
+{
+    float k1[MAX_STATE_DIM], k2[MAX_STATE_DIM];
+    float k3[MAX_STATE_DIM], k4[MAX_STATE_DIM];
+    float y_temp[MAX_STATE_DIM];
+
+    /* k1 */
+    f(t, y, k1, dim, neuron_params);
+
+    /* k2 */
+    for (uint8_t i = 0; i < dim; ++i)
+        y_temp[i] = y[i] + 0.5f * h * k1[i];
+    f(t + 0.5f * h, y_temp, k2, dim, neuron_params);
+
+    /* k3 */
+    for (uint8_t i = 0; i < dim; ++i)
+        y_temp[i] = y[i] + 0.5f * h * k2[i];
+    f(t + 0.5f * h, y_temp, k3, dim, neuron_params);
+
+    /* k4 */
+    for (uint8_t i = 0; i < dim; ++i)
+        y_temp[i] = y[i] + h * k3[i];
+    f(t + h, y_temp, k4, dim, neuron_params);
+
+    /* combine */
+    for (uint8_t i = 0; i < dim; ++i)
+    {
+        y_out[i] = y[i] + h * (k1[i] + 2.0f * k2[i] + 2.0f * k3[i] + k4[i]) / 6.0f;
+    }
+}

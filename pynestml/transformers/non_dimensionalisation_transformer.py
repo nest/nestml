@@ -24,7 +24,7 @@ from __future__ import annotations
 from typing import Any, Dict, Sequence, Mapping, Optional, Union
 
 from quantities.quantity import get_conversion_factor
-from scipy.stats import reciprocal
+
 
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
@@ -234,7 +234,49 @@ class NonDimensionalisationPreferredPrefixFactorOnRhsVisitor(NonDimVis):
             return
         else:
             return
-            
+
+    def visit_on_receive_block(self, node):
+        # insert reciprocal of preferred prefix on RHS
+        if isinstance(node.stmts_body.stmts[0].small_stmt.assignment, ASTAssignment):
+            for state_declaration in self.model.get_state_blocks()[0].declarations:
+                if state_declaration.variables[0].name == node.stmts_body.stmts[0].small_stmt.assignment.lhs.name:
+                    corresponding_physical_type_string = str(state_declaration.variables[0].type_symbol.astropy_unit.physical_type)
+                    inverse_preferred_prefix_this_node_string = f"{1/self.PREFIX_FACTORS[self.preferred_prefix[corresponding_physical_type_string]]:.1E}"
+                    cloned_node = node.clone()
+                    lhs_expression = ASTSimpleExpression(
+                        numeric_literal=float(inverse_preferred_prefix_this_node_string), scope=node.get_scope())
+                    rhs_expression = ASTExpression(is_encapsulated=True, expression=node.stmts_body.stmts[0].small_stmt.assignment.rhs)
+                    new_sub_node = ASTExpression(is_encapsulated=False,
+                                                 binary_operator=ASTArithmeticOperator(is_times_op=True),
+                                                 lhs=lhs_expression, rhs=rhs_expression, scope=node.get_scope())
+                    cloned_node.stmts_body.stmts[0].small_stmt.assignment.rhs = ASTExpression(is_encapsulated=True, expression=new_sub_node,
+                                                    scope=node.get_scope())
+                    # # for on_receive_block in self.model.get_on_receive_blocks():
+                    # #     if on_receive_block.port_name == node.port_name:
+                    # #         on_receive_block.stmts_body.stmts[0].small_stmt.assignment.rhs = cloned_node.stmts_body.stmts[0].small_stmt.assignment.rhs
+                    # #         self.model.accept(ASTParentVisitor())
+                    # for i, on_receive_block in enumerate(self.model.get_on_receive_blocks()):
+                    #     if on_receive_block.port_name == node.port_name:
+                    #         self.model.get_on_receive_blocks()[i] = cloned_node
+                    #         # node = on_receive_block
+                    #         # return super().visit_on_receive_block(node)
+                    assignment = node.stmts_body.stmts[0].small_stmt.assignment
+                    inverse_value = float(inverse_preferred_prefix_this_node_string)
+
+                    new_rhs = ASTExpression(
+                        is_encapsulated=True,
+                        expression=ASTExpression(
+                            is_encapsulated=False,
+                            binary_operator=ASTArithmeticOperator(is_times_op=True),
+                            lhs=ASTSimpleExpression(numeric_literal=inverse_value, scope=node.get_scope()),
+                            rhs=ASTExpression(is_encapsulated=True, expression=assignment.rhs, scope=node.get_scope()),
+                            scope=node.get_scope()
+                        ),
+                        scope=node.get_scope()
+                    )
+
+                    assignment.rhs = new_rhs
+            pass
 
     def visit_inline_expression(self, node):
         if not node.data_type.is_real:
@@ -374,103 +416,111 @@ class NonDimensionalisationSimpleExpressionVisitor(NonDimVis):
             if node.get_numeric_literal() is None:
                 # get physical type of node
                 if isinstance(node.type, UnitTypeSymbol):
-                    if (self._is_valid_astropy_unit(node.variable.name) and 
-                        (node.get_parent().binary_operator is not None or node.get_parent().unary_operator is not None)):
-                        # This should be handled by visit_variable instead - return early
-                        return
-                    if not (hasattr(node.get_parent(), "type") and isinstance(node.get_parent().type, ErrorTypeSymbol)):
-                        if str(node.type.astropy_unit.physical_type) != 'unknown':
-                            for physical_type_string in self.preferred_prefix:
-                                if physical_type_string in str(node.type.astropy_unit.physical_type):
-                                    variable_physical_type_string = physical_type_string
-                            # variable_physical_type_string = str(node.type.astropy_unit.physical_type)
-                            # get preferred prefix for this node
-                            preferred_prefix_this_node_string = f"{self.PREFIX_FACTORS[self.preferred_prefix[variable_physical_type_string]]:.1E}"
-                            # create a new sub node that multiplies the variable with the reciprocal of the preferred prefix
-                            lhs_expression = node.clone()
-                            rhs_expression = ASTSimpleExpression(numeric_literal=float(preferred_prefix_this_node_string), scope=node.get_scope())
-                            new_sub_node = ASTExpression(is_encapsulated=False, binary_operator=ASTArithmeticOperator(is_times_op=True),
-                                                                lhs=lhs_expression, rhs=rhs_expression, scope=node.get_scope())
-                            parent_node = node.get_parent()
-                            if hasattr(parent_node, "unary_operator"):
-                                # create new node encapsulating multiplication
+                    if not "spikes" in node.variable.name:
+                        if (self._is_valid_astropy_unit(node.variable.name) and
+                                (
+                                        node.get_parent().binary_operator is not None or node.get_parent().unary_operator is not None)):
+                            # This should be handled by visit_variable instead - return early
+                            return
+                        if not (hasattr(node.get_parent(), "type") and isinstance(node.get_parent().type,
+                                                                                  ErrorTypeSymbol)):
+                            if str(node.type.astropy_unit.physical_type) != 'unknown':
+                                variable_physical_type_string = "test"
+                                for physical_type_string in self.preferred_prefix:
+                                    if physical_type_string in str(node.type.astropy_unit.physical_type):
+                                        variable_physical_type_string = physical_type_string
+                                # variable_physical_type_string = str(node.type.astropy_unit.physical_type)
+                                # get preferred prefix for this node
+                                preferred_prefix_this_node_string = f"{self.PREFIX_FACTORS[self.preferred_prefix[variable_physical_type_string]]:.1E}"
+                                # create a new sub node that multiplies the variable with the reciprocal of the preferred prefix
+                                lhs_expression = node.clone()
+                                rhs_expression = ASTSimpleExpression(
+                                    numeric_literal=float(preferred_prefix_this_node_string), scope=node.get_scope())
+                                new_sub_node = ASTExpression(is_encapsulated=False,
+                                                             binary_operator=ASTArithmeticOperator(is_times_op=True),
+                                                             lhs=lhs_expression, rhs=rhs_expression,
+                                                             scope=node.get_scope())
+                                parent_node = node.get_parent()
+                                if hasattr(parent_node, "unary_operator"):
+                                    # create new node encapsulating multiplication
 
-                                new_node = ASTExpression(is_encapsulated=True, expression=new_sub_node, scope=node.get_scope(),
-                                                            unary_operator=parent_node.unary_operator)
-                                # attach new node to parent node
-                                grandparent_node = parent_node.get_parent()
-                                if any(hasattr(parent_node, attr) for attr in ["lhs", "rhs"]):
-                                    if node == parent_node.lhs:
-                                        if parent_node.binary_operator is not None:
-                                            parent_node.binary_operator = parent_node.binary_operator
-                                            parent_node.lhs = new_node
-                                            parent_node.rhs = parent_node.rhs
+                                    new_node = ASTExpression(is_encapsulated=True, expression=new_sub_node,
+                                                             scope=node.get_scope(),
+                                                             unary_operator=parent_node.unary_operator)
+                                    # attach new node to parent node
+                                    grandparent_node = parent_node.get_parent()
+                                    if any(hasattr(parent_node, attr) for attr in ["lhs", "rhs"]):
+                                        if node == parent_node.lhs:
+                                            if parent_node.binary_operator is not None:
+                                                parent_node.binary_operator = parent_node.binary_operator
+                                                parent_node.lhs = new_node
+                                                parent_node.rhs = parent_node.rhs
+                                                return
+                                            elif parent_node.binary_operator is None:
+                                                parent_node.rhs = None
+                                                parent_node.expression = new_node
+                                                parent_node.unary_operator = None
+                                                return
+                                        if node == parent_node.rhs:
+                                            if parent_node.binary_operator is not None:
+                                                parent_node.binary_operator = parent_node.binary_operator
+                                                parent_node.rhs = new_node
+                                                parent_node.lhs = parent_node.lhs
+                                                return
+                                            elif parent_node.binary_operator is None:
+                                                parent_node.rhs = None
+                                                parent_node.expression = new_node
+                                                parent_node.unary_operator = None
+                                                return
+                                        if parent_node == grandparent_node.lhs:
+                                            grandparent_node.lhs = new_node
                                             return
-                                        elif parent_node.binary_operator is None:
-                                            parent_node.rhs = None
-                                            parent_node.expression = new_node
-                                            parent_node.unary_operator = None
+                                        if parent_node == parent_node.rhs:
+                                            grandparent_node.rhs = new_node
                                             return
-                                    if node == parent_node.rhs:
-                                        if parent_node.binary_operator is not None:
-                                            parent_node.binary_operator = parent_node.binary_operator
-                                            parent_node.rhs = new_node
-                                            parent_node.lhs = parent_node.lhs
-                                            return
-                                        elif parent_node.binary_operator is None:
-                                            parent_node.rhs = None
-                                            parent_node.expression = new_node
-                                            parent_node.unary_operator = None
-                                            return
-                                    if parent_node == grandparent_node.lhs:
-                                        grandparent_node.lhs = new_node
+                                    elif (parent_node == parent_node.expression):
+                                        parent_node.expression = new_node
                                         return
-                                    if parent_node == parent_node.rhs:
-                                        grandparent_node.rhs = new_node
+                                    else:
+                                        raise Exception("Parent node has no attribute lhs, rhs or expression.")
+                                elif not (hasattr(parent_node, "unary_operator")):
+                                    # create new node encapsulating multiplication
+                                    new_node = ASTExpression(is_encapsulated=True, expression=new_sub_node,
+                                                             scope=node.get_scope())
+                                    # attach new node to parent node
+                                    if any(hasattr(parent_node, attr) for attr in ["lhs", "rhs"]):
+                                        if node == parent_node.lhs:
+                                            if parent_node.binary_operator is not None:
+                                                parent_node.binary_operator = parent_node.binary_operator
+                                                parent_node.lhs = new_node
+                                                parent_node.rhs = parent_node.rhs
+                                                return
+                                            elif parent_node.binary_operator is None:
+                                                parent_node.rhs = None
+                                                parent_node.expression = new_node
+                                                parent_node.unary_operator = None
+                                                return
+                                        if node == parent_node.rhs:
+                                            if not hasattr(node, "binary_operator"):
+                                                parent_node.expression = new_node
+                                                return
+                                            elif parent_node.binary_operator is not None:
+                                                parent_node.binary_operator = parent_node.binary_operator
+                                                parent_node.rhs = new_node
+                                                parent_node.lhs = parent_node.lhs
+                                                return
+                                            elif parent_node.binary_operator is None:
+                                                parent_node.rhs = None
+                                                parent_node.expression = new_node
+                                                parent_node.unary_operator = None
+                                                return
+                                    elif (hasattr(parent_node, "expression")):
+                                        parent_node.expression = new_node
                                         return
-                                elif(parent_node == parent_node.expression):
-                                    parent_node.expression = new_node
-                                    return
-                                else:
-                                    raise Exception("Parent node has no attribute lhs, rhs or expression.")
-                            elif not (hasattr(parent_node, "unary_operator")):
-                                # create new node encapsulating multiplication
-                                new_node = ASTExpression(is_encapsulated=True, expression=new_sub_node, scope=node.get_scope())
-                                # attach new node to parent node
-                                if any(hasattr(parent_node, attr) for attr in ["lhs", "rhs"]):
-                                    if node == parent_node.lhs:
-                                        if parent_node.binary_operator is not None:
-                                            parent_node.binary_operator = parent_node.binary_operator
-                                            parent_node.lhs = new_node
-                                            parent_node.rhs = parent_node.rhs
-                                            return
-                                        elif parent_node.binary_operator is None:
-                                            parent_node.rhs = None
-                                            parent_node.expression = new_node
-                                            parent_node.unary_operator = None
-                                            return
-                                    if node == parent_node.rhs:
-                                        if not hasattr(node, "binary_operator"):
-                                            parent_node.expression = new_node
-                                            return
-                                        elif parent_node.binary_operator is not None:
-                                            parent_node.binary_operator = parent_node.binary_operator
-                                            parent_node.rhs = new_node
-                                            parent_node.lhs = parent_node.lhs
-                                            return
-                                        elif parent_node.binary_operator is None:
-                                            parent_node.rhs = None
-                                            parent_node.expression = new_node
-                                            parent_node.unary_operator = None
-                                            return
-                                elif(hasattr(parent_node, "expression")):
-                                    parent_node.expression = new_node
-                                    return
-                                else:
-                                    raise Exception("Parent node has no rhs or lhs.")
+                                    else:
+                                        raise Exception("Parent node has no rhs or lhs.")
 
         super().visit_simple_expression(node)
-
 
 class NonDimensionalisationTransformer(Transformer):
     r"""Remove all units from the model and replace them with real type.

@@ -51,24 +51,36 @@ class {{neuronName}}Application(BaseApplication):
     profiling = False
 
     # here the default parameters from .nestml
-    # and the internal parameters with evaluated, numerical values have to be printed
+    # and the internal parameters(if an analytical solver is used) have to be printed
     default_parameters = {
-    {% set p = neuron.get_parameter_value_dict() | dictsort %}
-    {%- for name, value in p %}
-        "{{ name }}": {{ value | float }},
-    {%- endfor %}
+        {%- for  parameter in neuron.get_parameter_symbols()  | sort(attribute='name') %}
+        "{{  parameter.name }}":{{ printer_no_origin.print(parameter.declaring_expression) }},
+        {%- endfor %}
+{#    {% set p = neuron.get_parameter_value_dict() | dictsort %}#}
+{#    {%- for name, value in p %}#}
+{#        "{{ name }}": {{ value | float }},#}
+{#    {%- endfor %}#}
 {#        {%- for parameter in neuron.get_parameter_value_dict() %}#}
 {#            "{{ parameter }}": {{ neuron.get_parameter_value_dict()[parameter] | float }},#}
 {#        {%- endfor %}#}
         "calculation_timestep_in_s": 10.0,
         "weight_scaling_factor": 0.0,
     }
-
+{%- if uses_analytic_solver %}
     propagators = {
-        {%- for name, value in propagators | dictsort %}
-            "{{ name }}": "{{ value }}",
+        {%- for propagator in neuron.get_internal_symbols() | sort(attribute='name') %}
+            {%- if propagator.name != '__h' %}
+            "{{ propagator.name }}": "{{ printer.print(propagator.declaring_expression) }}",
+            {%- endif  %}
         {%- endfor %}
     }
+{%- endif %}
+
+{#    propagators = {#}
+{#        {%- for name, value in propagators | dictsort %}#}
+{#            "{{ name }}": "{{ value }}",#}
+{#        {%- endfor %}#}
+{#    }#}
 
     max_atoms_per_core = 10
     splittable = True

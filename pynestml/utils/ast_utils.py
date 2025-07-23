@@ -1598,13 +1598,32 @@ class ASTUtils:
     #     return updated_state_dict
 
     @classmethod
+    def alternative_approach(cls, model):
+        from pynestml.transformers.transformer import Transformer
+        from pynestml.visitors.ast_visitor import ASTVisitor
+
+        cloned_model = model.clone()
+
+        alternative_approach_visitor = AlternativeApproachVisitor()
+
+        pass
+
+
+    @classmethod
     def generate_updated_state_dict(cls, initial_values: dict, parameter_value_dict: dict) -> dict:
         updated_state_dict = {}
-        for key, value in initial_values.items():
-            if value in parameter_value_dict:
-                updated_state_dict[key] = float(parameter_value_dict[value])
-            else:
-                updated_state_dict[key] = float(value)
+        for parameter_name, parameter_value in parameter_value_dict.items():
+            for initial_value_key, initial_value_value in initial_values.items():
+                if parameter_name.name in initial_value_value:
+                    updated_state_dict[initial_value_key] = parameter_value
+                else:
+                    updated_state_dict[initial_value_key] = initial_value_value
+                    pass
+        # for key, value in initial_values.items():
+        #     if value in parameter_value_dict:
+        #         updated_state_dict[key] = float(parameter_value_dict[value])
+        #     else:
+        #         updated_state_dict[key] = float(value)
         return updated_state_dict
 
     # @classmethod

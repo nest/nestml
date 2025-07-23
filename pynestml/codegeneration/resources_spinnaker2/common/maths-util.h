@@ -32,7 +32,7 @@ typedef float          UFRACT;
 #define LN( x )         log( x )
 #define ABS( x )        fabs(x)
 
-
+#define MIN( x, y )     MIN_HR(  (x), (y) )
 #define MAX( x, y )     MAX_HR(  (x), (y) )
 #define SIGN( x, y )    ( (macro_arg_1=(y)) >= ZERO ? ABS( x ) : -ABS( x ) )
 
