@@ -2636,15 +2636,77 @@ class ASTUtils:
             return astnode.get_initial_value(var)
 
         return "0"
-
-    @classmethod
     def find_parent_node_by_type(cls, node: ASTNode, type_to_find: Any) -> Optional[Any]:
         r"""Find the first parent of the given node that has the type ``type_to_find``. Return None if no parent with that type could be found."""
         _node = node.get_parent()
         while _node:
             if isinstance(_node, type_to_find):
                 return _node
-
             _node = _node.get_parent()
 
         return None
+
+    @classmethod
+    def get_first_spike_port_from_spike_updates(cls, neuron: ASTModel) -> ASTVariable:
+        # Get the first variable in the sorted spike update expressions list
+        for update_expr in dict(sorted(neuron.spike_updates.items())).values():
+            for expr in update_expr:
+                return expr.get_variable()
+        return None
+
+    @classmethod
+    def get_first_excitatory_port(cls, neuron: ASTModel) -> str:
+        for port in neuron.get_spike_input_ports():
+            if port.is_excitatory():
+                return port.get_symbol_name()
+
+        # There is no port marked excitatory, return the first port name
+        return neuron.get_spike_input_ports()[0].get_symbol_name()
+
+    @classmethod
+    def is_declaring_expression_parameter(cls, expr: ASTExpression) -> bool:
+        if isinstance(expr, ASTSimpleExpression):
+            if expr.is_variable():
+                symbol = expr.get_scope().resolve_to_symbol(expr.get_variable().get_name(), SymbolKind.VARIABLE)
+                if symbol and symbol.is_parameters():
+                    return True
+        return False
+
+    @classmethod
+    def is_declaring_expression_state_varible(cls, expr: ASTExpression) -> bool:
+        if isinstance(expr, ASTSimpleExpression):
+            if expr.is_variable():
+                symbol = expr.get_scope().resolve_to_symbol(expr.get_variable().get_name(), SymbolKind.VARIABLE)
+                if symbol and symbol.is_state():
+                    return True
+        return False
+
+    @classmethod
+    def get_integrate_odes_parent(cls, node: ASTFunctionCall) -> ASTNode:
+        assert isinstance(node, ASTFunctionCall)
+        if node.get_name() == PredefinedFunctions.INTEGRATE_ODES:
+            parent = node
+            while parent:
+                parent = parent.get_parent()
+
+                if isinstance(parent, ASTIfClause) or isinstance(parent, ASTElifClause) \
+                        or isinstance(parent, ASTElseClause):
+                    return parent
+
+                if isinstance(parent, ASTUpdateBlock):
+                    # integrate_odes() is not in any if-else blocks but rather directly in the update block
+                    return None
+
+        return None
+
+    @classmethod
+    def is_if_clause(cls, node):
+        return isinstance(node, ASTIfClause)
+
+    @classmethod
+    def is_elif_clause(cls, node):
+        return isinstance(node, ASTElifClause)
+
+    @classmethod
+    def is_else_clause(cls, node):
+        return isinstance(node, ASTElseClause)
