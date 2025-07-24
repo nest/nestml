@@ -422,8 +422,9 @@ class NonDimensionalisationSimpleExpressionVisitor(NonDimVis):
                                         node.get_parent().binary_operator is not None or node.get_parent().unary_operator is not None)):
                             # This should be handled by visit_variable instead - return early
                             return
-                        if not (hasattr(node.get_parent(), "type") and isinstance(node.get_parent().type,
-                                                                                  ErrorTypeSymbol)):
+                        # if not (hasattr(node.get_parent(), "type") and isinstance(node.get_parent().type,
+                        #                                                           ErrorTypeSymbol)):
+                        else:
                             if str(node.type.astropy_unit.physical_type) != 'unknown':
                                 variable_physical_type_string = "test"
                                 for physical_type_string in self.preferred_prefix:
@@ -431,6 +432,8 @@ class NonDimensionalisationSimpleExpressionVisitor(NonDimVis):
                                         variable_physical_type_string = physical_type_string
                                 # variable_physical_type_string = str(node.type.astropy_unit.physical_type)
                                 # get preferred prefix for this node
+                                if variable_physical_type_string == "test":
+                                    print('stop')
                                 preferred_prefix_this_node_string = f"{self.PREFIX_FACTORS[self.preferred_prefix[variable_physical_type_string]]:.1E}"
                                 # create a new sub node that multiplies the variable with the reciprocal of the preferred prefix
                                 lhs_expression = node.clone()

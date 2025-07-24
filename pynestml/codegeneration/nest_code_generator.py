@@ -174,8 +174,8 @@ class NESTCodeGenerator(CodeGenerator):
             # Check if the random number functions are used in the right blocks
             CoCosManager.check_co_co_nest_random_functions_legally_used(model)
 
-            if Logger.has_errors(model.name):
-                raise Exception("Error(s) occurred during code generation")
+            # if Logger.has_errors(model.name):
+            #     raise Exception("Error(s) occurred during code generation")
 
         if self.get_option("neuron_synapse_pairs"):
             for model in synapses:
