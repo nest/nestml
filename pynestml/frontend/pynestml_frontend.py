@@ -115,7 +115,7 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         options = synapse_post_neuron_co_generation.set_options(options)
         transformers.append(synapse_post_neuron_co_generation)
 
-    if target_name.upper() in ["SPINNAKER2"]:
+    if target_name.upper() in ["SPINNAKER2", "NEST"]:
         from pynestml.transformers.non_dimensionalisation_transformer import NonDimensionalisationTransformer
 
         non_dimensionalisation_transformer = NonDimensionalisationTransformer()
