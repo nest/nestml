@@ -72,14 +72,14 @@ void print_neuron_params() {
 {#            neuron_index,(int32_t) (f2ui(neuron_params->{{  name }})));#}
 {#        {%- endfor %}#}
     {%- for  parameter in neuron.get_parameter_symbols()  | sort(attribute='name') %}
-            log_info("%u:  {{ parameter.name }}=%i\n",
-            neuron_index,(int32_t) (f2ui(neuron_params->{{  parameter.name }})));
+            log_info("%u:  {{ parameter.name }}=%f\n",
+            neuron_index,(neuron_params->{{  parameter.name }}));
         {%- endfor %}
 {%- if uses_analytic_solver == True %}
         {%- for propagator in neuron.get_internal_symbols() |sort(attribute='name') %}
             {%- if propagator.name != '__h' %}
-            log_info("%u:  {{ propagator.name }}=%i\n",
-            neuron_index,(int32_t) (f2ui(neuron_params->{{  propagator.name }})));
+            log_info("%u:  {{ propagator.name }}=%f\n",
+            neuron_index,(neuron_params->{{  propagator.name }}));
             {%- endif  %}
         {%- endfor %}
 {%- endif  %}
@@ -106,7 +106,7 @@ void record_voltages() {
 //        uint32_t n_used_neurons = global_params_ptr->n_used_neurons;
         // neuron states
         for (index_t neuron_index = 0; neuron_index < n_neurons; neuron_index++) {
-            *voltage_records_all_timesteps = f2ui(neuron_array[neuron_index].state.V_m);
+            *voltage_records_all_timesteps = (neuron_array[neuron_index].state.V_m);
             voltage_records_all_timesteps++;
         }
     }
@@ -119,7 +119,7 @@ void record_voltages() {
             uint32_t n_used_neurons = global_params_ptr->n_used_neurons;
             // neuron states
             for (index_t neuron_index = 0; neuron_index < n_used_neurons; neuron_index++) {
-                *voltage_records_all_timesteps = f2ui(neuron_array[neuron_index].state.V_m);
+                *voltage_records_all_timesteps = (neuron_array[neuron_index].state.V_m);
                 voltage_records_all_timesteps++;
             }
         }
