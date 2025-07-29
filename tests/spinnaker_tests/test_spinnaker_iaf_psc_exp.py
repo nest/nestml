@@ -69,10 +69,10 @@ class TestSpiNNakerIafPscExp:
         synapticRsp = "I_syn_exc"
 
         # Set the run time of the execution
-        run_time = 150
-
+        run_time = 1500
+#!! timestep 0.1
         # Set the time step of the simulation in milliseconds
-        time_step = 0.1
+        time_step = 1
 
         # Set the number of neurons to simulate
         n_neurons = 1
