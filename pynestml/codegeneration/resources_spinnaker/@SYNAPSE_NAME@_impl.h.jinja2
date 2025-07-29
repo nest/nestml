@@ -79,8 +79,6 @@ typedef struct {
     {{type_symbol_printer.print(sym.type_symbol)}} {{sym.get_symbol_name()}};
 {%- endfor %}
 
-    // TODO: Put in all required parameters
-
 } plasticity_weight_region_data_t;
 
 //TODO: switch to fixed point
@@ -115,5 +113,8 @@ typedef struct my_timing_config {
 typedef struct stdp_params {
     //! The back-propagation delay, in basic simulation timesteps
     uint32_t backprop_delay;
+} stdp_params;
+*/
+  uint32_t backprop_delay;
 } stdp_params;
 */

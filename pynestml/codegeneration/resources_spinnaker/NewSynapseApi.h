@@ -45,8 +45,6 @@
 /*** WEIGHT DEPENDENCE ***/
 // API for weight implementation, independent of system
 #include <neuron/plasticity/stdp/weight_dependence/weight.h>
-// We can ommit this, adds API for depression and potentiation, independet of system
-#include <neuron/plasticity/stdp/weight_dependence/weight_one_term.h>
 
 
 /*** DATA STRUCTURES ***/
@@ -252,21 +250,6 @@ static inline weight_state_t weight_get_initial(
 
 }
 
-// Intermediate store depression
-// Called only by us
-static inline weight_state_t weight_one_term_apply_depression(
-        weight_state_t state, int32_t depression) {
-
-}
-
-// Intermediate store potentiation
-// Called only by us
-static inline weight_state_t weight_one_term_apply_potentiation(
-        weight_state_t state, int32_t potentiation) {
-
-
-}
-
 // Apply potentiation and depression to weight and return
 //Called only by us, weight_t not defined by us 
 static inline weight_t weight_get_final(weight_state_t new_state) {
@@ -320,6 +303,23 @@ static inline update_state_t timing_apply_post_spike(
         uint32_t time, post_trace_t trace, uint32_t last_pre_time,
         pre_trace_t last_pre_trace, uint32_t last_post_time,
         post_trace_t last_post_trace, update_state_t previous_state) {
+}
+
+//Called only by us 
+static post_trace_t timing_decay_post(
+        uint32_t time, uint32_t last_time, post_trace_t last_trace) {
+}
+_apply_post_spike(
+        uint32_t time, post_trace_t trace, uint32_t last_pre_time,
+        pre_trace_t last_pre_trace, uint32_t last_post_time,
+        post_trace_t last_post_trace, update_state_t previous_state) {
+}
+
+//Called only by us 
+static post_trace_t timing_decay_post(
+        uint32_t time, uint32_t last_time, post_trace_t last_trace) {
+}
+t previous_state) {
 }
 
 //Called only by us 

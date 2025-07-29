@@ -1,18 +1,5 @@
 #include "{{synapseName}}_impl.h"
 
-#include <neuron/plasticity/stdp/weight_dependence/weight.h>
-
-// Only adds prototypes for weight depression and potentiation -> maybe remove
-// TODO: Ensure this includes and implements the correct interface
-#include <neuron/plasticity/stdp/weight_dependence/weight_one_term.h>
-
-// Should be good at the moment
-// defines plastic_synapse_t -> plastic part of synapse
-// similar to state for nestml, but that also contains pre and posttrace
-// TODO: Choose the required synapse structure
-#include <neuron/plasticity/stdp/synapse_structure/synapse_structure_weight_impl.h>
-#include <neuron/plasticity/stdp/timing_dependence/timing.h>
-
 #include <neuron/plasticity/stdp/post_events.h>
 
 
@@ -545,6 +532,7 @@ static inline weight_state_t weight_get_initial(
     };
 }
 
+/*
 // TAG: GENERATE
 static inline weight_state_t weight_one_term_apply_depression(
         weight_state_t state, int32_t depression) {
@@ -556,6 +544,7 @@ static inline weight_state_t weight_one_term_apply_potentiation(
         weight_state_t state, int32_t potentiation) {
     return state;
 }
+*/
 
 //---------------------------------------
 static inline weight_t weight_get_final(weight_state_t state) {
@@ -705,5 +694,31 @@ static inline index_t sparse_axonal_delay(uint32_t x) {
     return 0;
 #else
     return (x >> synapse_delay_index_type_bits) & SYNAPSE_AXONAL_DELAY_MASK;
+#endif
+}
+ed plastic synapse control word
+//! \return the axonal delay
+static inline index_t sparse_axonal_delay(uint32_t x) {
+#if 1
+    // No axonal delay, ever
+    __use(x);
+    return 0;
+#else
+    return (x >> synapse_delay_index_type_bits) & SYNAPSE_AXONAL_DELAY_MASK;
+#endif
+}
+
+param[in] x: The packed plastic synapse control word
+//! \return the axonal delay
+static inline index_t sparse_axonal_delay(uint32_t x) {
+#if 1
+    // No axonal delay, ever
+    __use(x);
+    return 0;
+#else
+    return (x >> synapse_delay_index_type_bits) & SYNAPSE_AXONAL_DELAY_MASK;
+#endif
+}
+delay_index_type_bits) & SYNAPSE_AXONAL_DELAY_MASK;
 #endif
 }

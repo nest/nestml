@@ -1,7 +1,7 @@
 
 # -*- coding: utf-8 -*-
 #
-# test_spinnaker_iaf_psc_exp.py
+# test_spinnaker_stdp.py
 #
 # This file is part of NEST.
 #
@@ -26,7 +26,7 @@ import pytest
 from pynestml.frontend.pynestml_frontend import generate_spinnaker_target
 
 
-class TestSpiNNakerIafPscExp:
+class TestSpiNNakerSTDP:
     """SpiNNaker code generation tests"""
 
     @pytest.fixture(autouse=True,
@@ -60,7 +60,7 @@ class TestSpiNNakerIafPscExp:
                                   suffix=suffix,
                                   codegen_opts=codegen_opts)
 
-    def test_iaf_psc_exp(self):
+    def test_stdp(self):
         # import spynnaker and plotting stuff
         import pyNN.spiNNaker as p
         from pyNN.utility.plotting import Figure, Panel
@@ -69,23 +69,12 @@ class TestSpiNNakerIafPscExp:
 
         # import models
         from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml__with_stdp_synapse_nestml import iaf_psc_exp_neuron_nestml__with_stdp_synapse_nestml as iaf_psc_exp_neuron_nestml
-#        from python_models8.neuron.builds.stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml import stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml as stdp_synapse_nestml
-
-#!! synapse dynamics impl
         from python_models8.neuron.implementations.stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml_impl import stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestmlDynamics as stdp_synapse_nestml
 
         from python_models8.neuron.builds.stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml_timing import MyTimingDependence
         from python_models8.neuron.builds.stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml_weight import MyWeightDependence
 
-
-        #TODO neurons from synapse spynnaker remove this later
-        #TODO find good weight values
-
-
         p.setup(timestep=1.0)
-
-        p.set_number_of_neurons_per_core(iaf_psc_exp_neuron_nestml(), 100)
-
         exc_input = "exc_spikes"
 
         #inputs for pre and post synaptic neurons
@@ -96,7 +85,6 @@ class TestSpiNNakerIafPscExp:
         pre_spiking = p.Population(1, iaf_psc_exp_neuron_nestml(), label="pre_spiking")
         post_spiking = p.Population(1, iaf_psc_exp_neuron_nestml(), label="post_spiking")
 
-#!!
         #pre w 5 post w 7
         weight_pre = 3000
         weight_post = 6000
@@ -141,42 +129,15 @@ class TestSpiNNakerIafPscExp:
         #timing_rule = MyTimingDependence(my_depression_parameter=20.0, my_potentiation_parameter=20.0,A_plus=2, A_minus=2)
         #weight_rule = MyWeightDependence(w_max=10, w_min=0)
 
-        stdp_model = stdp_synapse_nestml()
-        stdp_projection = p.Projection(pre_spiking_neuron,post_spiking_neuron,p.OneToOneConnector(),synapse_type=stdp_model,receptor_type=exc_input)
+#        stdp_model = stdp_synapse_nestml()
+#        stdp_projection = p.Projection(pre_spiking_neuron,post_spiking_neuron,p.OneToOneConnector(),synapse_type=stdp_model,receptor_type=exc_input)
 
         #connecting inputs with spiking neuron populations
         pre_input2spiking = p.Projection(pre_input, pre_spiking, p.OneToOneConnector(), synapse_type=p.StaticSynapse(weight=weight_pre, delay=1),receptor_type=exc_input)
         post_input2spiking = p.Projection(post_input, post_spiking, p.OneToOneConnector(), synapse_type=p.StaticSynapse(weight=weight_post, delay=1),receptor_type=exc_input)
 
-
-
-
-
-
-
-
-
-        #weight and timing from our templates
- #       timing_rule = MyTimingDependence(my_depression_parameter=20.0, my_potentiation_parameter=20.0,A_plus=2, A_minus=2)
-  #      weight_rule = MyWeightDependence(w_max=10, w_min=0)
-
-#TODO use generated time and weight rules
-#standard spynnaker timing and weight rules
-        timing_rule = p.SpikePairRule(tau_plus=20.0, tau_minus=20.0,
-        A_plus=20, A_minus=20)
-
-        weight_rule = p.AdditiveWeightDependence(w_max=5, w_min=0)
-
-#TODO add weight to stdp model eg 2.5
-        stdp_model = stdp_synapse_nestml(timing_dependence=timing_rule,weight_dependence=weight_rule,weight=2.5, delay=1)
-
+        stdp_model = stdp_synapse_nestml(weight=2.5, delay=1, A_plus=1.1, A_minus=0.9)
         stdp_projection = p.Projection(pre_spiking,post_spiking,p.AllToAllConnector(),synapse_type=stdp_model,receptor_type=exc_input)
-
-
-
-
-
-#TODO fix simulation for generating stdp window plot
 
         #initialise lists for axis
         res_weights = []

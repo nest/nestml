@@ -167,13 +167,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
                            "Makefile_@NEURON_NAME@_impl.jinja2"],
                 "synapse": ["@SYNAPSE_NAME@_impl.c.jinja2",
                             "@SYNAPSE_NAME@_impl.h.jinja2",
-                            "@SYNAPSE_NAME@_timing_impl.h.jinja2",
-                            "@SYNAPSE_NAME@_timing_impl.c.jinja2",
-                            "@SYNAPSE_NAME@_weight_impl.h.jinja2",
-                            "@SYNAPSE_NAME@_weight_impl.c.jinja2",
                             "@SYNAPSE_NAME@.py.jinja2",
-                            "@SYNAPSE_NAME@_timing.py.jinja2",
-                            "@SYNAPSE_NAME@_weight.py.jinja2",
                             "@SYNAPSE_NAME@_impl.py.jinja2",
                             "Makefile_@SYNAPSE_NAME@_impl.jinja2"],
             },
@@ -245,6 +239,13 @@ class SpiNNakerCodeGenerator(CodeGenerator):
             cloned_model = model.clone()
             cloned_model.accept(ASTSymbolTableVisitor())
             if "paired_neuron" in dir(model):
+                cloned_model.paired_neuron = model.paired_neuron
+                cloned_model.spiking_post_port_names = model.spiking_post_port_names
+                cloned_model.post_port_names = model.post_port_names
+            if "vt_port_names" in dir(model):
+                cloned_model.vt_port_names = model.vt_port_names
+            self.codegen_py.generate_code([cloned_model])
+del):
                 cloned_model.paired_neuron = model.paired_neuron
                 cloned_model.spiking_post_port_names = model.spiking_post_port_names
                 cloned_model.post_port_names = model.post_port_names
