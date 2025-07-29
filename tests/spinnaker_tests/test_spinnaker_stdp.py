@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 #
 # test_spinnaker_iaf_psc_exp.py
@@ -31,7 +32,6 @@ class TestSpiNNakerIafPscExp:
     @pytest.fixture(autouse=True,
                     scope="module")
     def generate_code(self):
-        #!! delay variable added
         codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                   "synapse": "stdp_synapse",
                                                   "post_ports": ["post_spikes"]}],
@@ -43,7 +43,6 @@ class TestSpiNNakerIafPscExp:
 
         files = [
             os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
-        #!!
             os.path.join("models", "synapses", "stdp_synapse.nestml")
         ]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -70,51 +69,37 @@ class TestSpiNNakerIafPscExp:
 
         # import models
         from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml__with_stdp_synapse_nestml import iaf_psc_exp_neuron_nestml__with_stdp_synapse_nestml as iaf_psc_exp_neuron_nestml
-        from python_models8.neuron.builds.stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml import stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml as stdp_synapse_nestml
-#        from python_models8.neuron.builds.stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml_timing import MyTimingDependence
- #       from python_models8.neuron.builds.stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml_weight import MyWeightDependence
+#        from python_models8.neuron.builds.stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml import stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml as stdp_synapse_nestml
+
+#!! synapse dynamics impl
+        from python_models8.neuron.implementations.stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml_impl import stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestmlDynamics as stdp_synapse_nestml
+
+        from python_models8.neuron.builds.stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml_timing import MyTimingDependence
+        from python_models8.neuron.builds.stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml_weight import MyWeightDependence
 
 
-        # TODO: Set names for exitatory input, membrane potential and synaptic response
+        #TODO neurons from synapse spynnaker remove this later
+        #TODO find good weight values
+
+
+        p.setup(timestep=1.0)
+
+        p.set_number_of_neurons_per_core(iaf_psc_exp_neuron_nestml(), 100)
+
         exc_input = "exc_spikes"
-        membranePot = "V_m"
-        synapticRsp = "I_syn_exc"
 
-        # Set the run time of the execution
-        run_time = 1500
+        #inputs for pre and post synaptic neurons
+        pre_input = p.Population(1, p.SpikeSourceArray(spike_times=[0]), label="pre_input")
+        post_input = p.Population(1, p.SpikeSourceArray(spike_times=[0]), label="post_input")
 
-        # Set the time step of the simulation in milliseconds
-        time_step = 1
+        #pre and post synaptic spiking neuron populations
+        pre_spiking = p.Population(1, iaf_psc_exp_neuron_nestml(), label="pre_spiking")
+        post_spiking = p.Population(1, iaf_psc_exp_neuron_nestml(), label="post_spiking")
 
-        # Set the number of neurons to simulate
-        n_neurons = 1
-
-        # Set the i_offset current
-        i_offset = 0.0
-
-        # Set the weight of input spikes
-        weight = 2000
-
-        # Set the times at which to input a spike
-        pre_spike_times = [1, 5, 100]
-        post_spike_times = [1, 5, 100]
-
-        p.setup(time_step)
-
-        #pre and post excitation neurons
-        pre_spikeArray = {"spike_times": pre_spike_times}
-        pre_excitation = p.Population(
-            n_neurons, p.SpikeSourceArray(**pre_spikeArray), label="input")
-
-        post_spikeArray = {"spike_times": post_spike_times}
-        post_excitation = p.Population(
-            n_neurons, p.SpikeSourceArray(**post_spikeArray), label="input")
-
-        #pre and post spiking neuron populations which are connected later with stdp synapse
-        pre_spiking_neuron = p.Population(
-            n_neurons, iaf_psc_exp_neuron_nestml(), label="iaf_psc_exp_neuron_nestml_spiking")
-        post_spiking_neuron = p.Population(
-            n_neurons, iaf_psc_exp_neuron_nestml(), label="iaf_psc_exp_neuron_nestml_spiking")
+#!!
+        #pre w 5 post w 7
+        weight_pre = 3000
+        weight_post = 6000
 
 
         #connect exc populations with pre and post populations
@@ -159,77 +144,135 @@ class TestSpiNNakerIafPscExp:
         stdp_model = stdp_synapse_nestml()
         stdp_projection = p.Projection(pre_spiking_neuron,post_spiking_neuron,p.OneToOneConnector(),synapse_type=stdp_model,receptor_type=exc_input)
 
-
-
-
-#TODO rename/delete recording variables
-        """
-        spiking_neuron.record(["spikes"])
-        spiking_neuron.record([membranePot])
-        spiking_neuron.record([synapticRsp])
-
-        receiving_neuron.record(["spikes"])
-        receiving_neuron.record([membranePot])
-        receiving_neuron.record([synapticRsp])
-        """
+        #connecting inputs with spiking neuron populations
+        pre_input2spiking = p.Projection(pre_input, pre_spiking, p.OneToOneConnector(), synapse_type=p.StaticSynapse(weight=weight_pre, delay=1),receptor_type=exc_input)
+        post_input2spiking = p.Projection(post_input, post_spiking, p.OneToOneConnector(), synapse_type=p.StaticSynapse(weight=weight_post, delay=1),receptor_type=exc_input)
 
 
 
 
-        p.run(run_time)
-        """
-        # get v for each example
-        spikes_spiking_neuron = spiking_neuron.get_data("spikes")
-        v_spiking_neuron = spiking_neuron.get_data(membranePot)
-        i_syn_exc_spiking_neuron = spiking_neuron.get_data(synapticRsp)
 
-        spikes_receiving_neuron = receiving_neuron.get_data("spikes")
-        v_receiving_neuron = receiving_neuron.get_data(membranePot)
-        i_syn_exc_receiving_neuron = receiving_neuron.get_data(synapticRsp)
 
-        combined_spikes = spikes_spiking_neuron.segments[0].spiketrains
-        for spike in spikes_receiving_neuron.segments[0].spiketrains:
-            combined_spikes.append(spike)
-        """
 
-        """
 
-        Figure(
-            # pylint: disable=no-member
-            # membrane potentials for each example
 
-            Panel(combined_spikes,
-                  xlabel="Time (ms)",
-                  data_labels=["spikes"],
-                  yticks=True, xlim=(0, run_time), xticks=True),
+        #weight and timing from our templates
+ #       timing_rule = MyTimingDependence(my_depression_parameter=20.0, my_potentiation_parameter=20.0,A_plus=2, A_minus=2)
+  #      weight_rule = MyWeightDependence(w_max=10, w_min=0)
 
-            Panel(v_spiking_neuron.segments[0].filter(name=membranePot)[0],
-                  xlabel="Time (ms)",
-                  ylabel="Membrane potential (mV)",
-                  data_labels=[spiking_neuron.label],
-                  yticks=True, xlim=(0, run_time), xticks=True),
+#TODO use generated time and weight rules
+#standard spynnaker timing and weight rules
+        timing_rule = p.SpikePairRule(tau_plus=20.0, tau_minus=20.0,
+        A_plus=20, A_minus=20)
 
-            Panel(i_syn_exc_spiking_neuron.segments[0].filter(name=synapticRsp)[0],
-                  xlabel="Time (ms)",
-                  ylabel="Synaptic response",
-                  data_labels=[spiking_neuron.label],
-                  yticks=True, xlim=(0, run_time), xticks=True),
+        weight_rule = p.AdditiveWeightDependence(w_max=5, w_min=0)
 
-            Panel(v_receiving_neuron.segments[0].filter(name=membranePot)[0],
-                  xlabel="Time (ms)",
-                  ylabel="Membrane potential (mV)",
-                  data_labels=[receiving_neuron.label],
-                  yticks=True, xlim=(0, run_time), xticks=True),
+#TODO add weight to stdp model eg 2.5
+        stdp_model = stdp_synapse_nestml(timing_dependence=timing_rule,weight_dependence=weight_rule,weight=2.5, delay=1)
 
-            Panel(i_syn_exc_receiving_neuron.segments[0].filter(name=synapticRsp)[0],
-                  xlabel="Time (ms)",
-                  ylabel="Synaptic response",
-                  data_labels=[receiving_neuron.label],
-                  yticks=True, xlim=(0, run_time), xticks=True),
+        stdp_projection = p.Projection(pre_spiking,post_spiking,p.AllToAllConnector(),synapse_type=stdp_model,receptor_type=exc_input)
 
-            title="Generated: Two chained neurons",
-            annotations="Simulated with {}".format(p.name())
-        )
-        plt.savefig("spinnaker.png")
-        """
+
+
+
+
+#TODO fix simulation for generating stdp window plot
+
+        #initialise lists for axis
+        res_weights = []
+        spike_time_axis = []
+        #run time of the simulator
+        simtime = 400
+        #nr of iterations maxit has to be smaller than simtime
+        max_it = 200
+        #datapoints generated
+        points_gen = 5
+
+
+        #record spikes
+        pre_spiking.record(["spikes"])
+        post_spiking.record(["spikes"])
+
+
+        #TODO 100 300 funktioniert am besten
+        #größere differenz ist besser
+
+        pre_input.set(spike_times=[100,300])
+
+        import numpy as np
+        #calculate all data points
+        for t_post in np.linspace(0,max_it,points_gen):
+
+
+                post_input.set(spike_times=[t_post])
+
+                p.run(simtime)
+
+
+                #get weights for current run and append them into array
+                w_curr = stdp_projection.get("weight",format="float")
+                res_weights.append(w_curr[0][0])
+
+                p.reset()
+
+
+        pre_spike_times = []
+        post_spike_times = []
+
+
+
+
+        pre_neo = pre_spiking.get_data("spikes")
+
+        post_neo = post_spiking.get_data("spikes")
+
+        #get spike data and calculate axis
+        for i in range(0,points_gen):
+
+                pre_spikes = pre_neo.segments[i].spiketrains
+
+                post_spikes = post_neo.segments[i].spiketrains
+                #calculate x axis for plot
+
+                spike_time_axis.append(float(pre_spikes[0][0]-post_spikes[0][0]))
+                pre_spike_times.append(pre_spikes[0][0])
+                post_spike_times.append(post_spikes[0][0])
+
         p.end()
+
+
+        #for testing purposes
+        print("HALLO pre_spikes")
+        print(pre_spike_times)
+        print("HALLO post_spikes")
+        print(post_spike_times)
+        print("HALLO spike time axis")
+        print(spike_time_axis)
+        print("HALLO weights")
+        print(res_weights)
+
+
+        #format weight axis an substract 2.5 from every entry
+
+        weight_axis = [x - 2.5 for x in res_weights]
+
+
+        #PLOT
+        plt.plot(spike_time_axis, weight_axis,'.')
+        plt.xlabel("$t_{pre} - t_{post} [ms]$")
+        plt.ylabel("$\Delta w$")
+        plt.title("STDP-Window")
+        plt.grid(True)
+
+        plt.subplots_adjust(bottom=0.2)
+
+        plt.figtext(0.5, 0.05,
+                        r"$\tau_+ = 20ms,\tau_- = 20ms, A_+ = 0.5, A_- = 0.5$",
+                        ha='center',       # horizontal alignment
+                        va='bottom',       # vertical alignment
+                        fontsize=10,
+                        color='gray')
+
+
+
+        plt.savefig("plot.png")
