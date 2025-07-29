@@ -142,8 +142,8 @@ class TestUnitSystem:
 
         generate_target(input_path=os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')), 'DeclarationWithSameVariableNameAsUnit.nestml'), target_platform="NONE", logging_level="DEBUG")
 
-        assert len(Logger.get_all_messages_of_level_and_or_node("BlockTest", LoggingLevel.ERROR)) == 0
-        assert len(Logger.get_all_messages_of_level_and_or_node("BlockTest", LoggingLevel.WARNING)) == 3
+        assert len(Logger.get_messages("BlockTest", LoggingLevel.ERROR)) == 0
+        assert len(Logger.get_messages("BlockTest", LoggingLevel.WARNING)) == 3
 
     def test_expression_after_magnitude_conversion_in_standalone_function_call(self):
         model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')), 'FunctionCallWithDifferentButCompatibleUnits.nestml'))

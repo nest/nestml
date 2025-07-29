@@ -225,7 +225,7 @@ class TestIntegrateODEs:
             os.path.join(os.path.dirname(__file__), os.path.join("resources", "integrate_odes_test_params.nestml")))
         generate_target(input_path=fname, target_platform="NONE", logging_level="DEBUG")
 
-        assert len(Logger.get_all_messages_of_level_and_or_node("integrate_odes_test", LoggingLevel.ERROR)) == 2
+        assert len(Logger.get_messages("integrate_odes_test", LoggingLevel.ERROR)) == 2
 
     def test_integrate_odes_params2(self):
         r"""Test the integrate_odes() function, in particular with respect to non-existent parameter variables."""
@@ -234,7 +234,7 @@ class TestIntegrateODEs:
             os.path.join(os.path.dirname(__file__), os.path.join("resources", "integrate_odes_test_params2.nestml")))
         generate_target(input_path=fname, target_platform="NONE", logging_level="DEBUG")
 
-        assert len(Logger.get_all_messages_of_level_and_or_node("integrate_odes_test", LoggingLevel.ERROR)) == 2
+        assert len(Logger.get_messages("integrate_odes_test", LoggingLevel.ERROR)) == 2
 
     def test_integrate_odes_higher_order(self):
         r"""
