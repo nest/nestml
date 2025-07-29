@@ -157,8 +157,7 @@ class TestSpiNNakerIafPscExp:
         #weight_rule = MyWeightDependence(w_max=10, w_min=0)
 
         stdp_model = stdp_synapse_nestml()
-#TODO fix error of projection
-        #stdp_projection = p.Projection(pre_spiking_neuron,post_spiking_neuron,p.OneToOneConnector(),synapse_type=stdp_model,receptor_type=exc_input)
+        stdp_projection = p.Projection(pre_spiking_neuron,post_spiking_neuron,p.OneToOneConnector(),synapse_type=stdp_model,receptor_type=exc_input)
 
 
 
@@ -234,4 +233,3 @@ class TestSpiNNakerIafPscExp:
         plt.savefig("spinnaker.png")
         """
         p.end()
-
