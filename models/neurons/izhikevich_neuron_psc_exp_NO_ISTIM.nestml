@@ -1,0 +1,105 @@
+# izhikevich_neuron_psc_exp_NO_ISTIM - Izhikevich neuron model
+# ####################################
+# 
+# Description
+# +++++++++++
+# 
+# Implementation of the simple spiking neuron model introduced by Izhikevich [1]_. The dynamics are given by:
+# 
+# .. math::
+# 
+#    dV_{m}/dt &= 0.04 V_{m}^2 + 5 V_{m} + 140 - U_{m} + I\\
+#    dU_{m}/dt &= aaa (bbb V_{m} - U_{m})
+# 
+# 
+# .. math::
+# 
+#    &\text{if}\;\; V_{m} \geq V_{th}:\\
+#    &\;\;\;\; V_{m} \text{ is set to } ccc\\
+#    &\;\;\;\; U_{m} \text{ is incremented by } ddd\\
+#    & \, \\
+#    &V_{m} \text{ jumps on each spike arrival by the weight of the spike}
+# 
+# Incoming spikes cause an instantaneous jump in the membrane potential proportional to the strength of the synapse.
+# 
+# As published in [1]_, the numerics differs from the standard forward Euler technique in two ways:
+# 
+# 1) the new value of :math:`U_{m}` is calculated based on the new value of :math:`V_{m}`, rather than the previous value
+# 2) the variable :math:`V_{m}` is updated using a time step half the size of that used to update variable :math:`U_{m}`.
+# 
+# This model will instead be simulated using the numerical solver that is recommended by ODE-toolbox during code generation.
+# 
+# 
+# References
+# ++++++++++
+# 
+# .. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+# 
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+model izhikevich_neuron_psc_exp_NO_ISTIM:
+    state:
+        V_m V = V_m_init         # Membrane potential
+        U_m V = bbb * V_m_init   # Membrane potential recovery variable
+        I_syn_exc A = 0 pA       # exponentially decaying synaptic current
+        I_syn_inh A = 0 pA
+
+    equations:
+        V_m' = ( ( 0.04 * V_m * V_m / mV + 5.0 * V_m + 140mV - U_m ) / ms ) + (I_e + I_syn_exc - I_syn_inh) * GOhm / ms
+        U_m' = aaa*(bbb*V_m-U_m)
+        I_syn_exc' = -I_syn_exc / tau_syn_exc
+        I_syn_inh' = -I_syn_inh / tau_syn_inh
+
+    parameters:
+        aaa s**-1 = 0.02/ms   # describes time scale of recovery variable - technically this is in 1/ms
+        bbb real = 0.2         # sensitivity of recovery variable
+        ccc V = -65 mV        # after-spike reset value of V_m
+        ddd V = 8.0mV         # after-spike reset value of U_m
+        V_m_init V = -65 mV   # initial membrane potential
+        V_th V = 30 mV        # Threshold potential
+        tau_syn_exc s = 1ms   # Synaptic decay time constant added for post synaptic currents
+        tau_syn_inh s = 1ms   # Synaptic decay time constant added for post synaptic currents
+        # constant external input current
+        I_e A = 0 pA
+
+    input:
+        exc_spikes <- excitatory spike
+        inh_spikes <- inhibitory spike
+
+    output:
+        spike
+
+    update:
+        integrate_odes()
+
+    onReceive(exc_spikes):
+        I_syn_exc += exc_spikes
+
+    onReceive(inh_spikes):
+        I_syn_inh += inh_spikes
+
+    onCondition(V_m >= V_th):
+        # threshold crossing
+        V_m = ccc
+        U_m += ddd
+        emit_spike()
