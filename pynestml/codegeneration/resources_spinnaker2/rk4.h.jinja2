@@ -18,11 +18,11 @@
  */
 void rk4_step(
     ode_rhs_f f,
-    float t,
-    const float *y,
-    float h,
+    REAL t,
+    const REAL *y,
+    REAL h,
     uint8_t dim,
     const void *neuron_params,
-    float *y_out);
+    REAL *y_out);
 
 #endif

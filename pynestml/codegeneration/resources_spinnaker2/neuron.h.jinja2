@@ -18,7 +18,7 @@ void neuron_reset();
 
 void neuron_do_timestep_update();
 
-void neuron_check_and_spike(neuron_state_t* state, neuron_params_t* params, index_t neuron_index);
+void neuron_check_and_spike(neuron_impl_t *neuron, index_t neuron_index);
 
 void clear_spike_record();
 

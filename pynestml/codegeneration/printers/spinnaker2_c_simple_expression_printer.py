@@ -40,6 +40,6 @@ class Spinnaker2CSimpleExpressionPrinter(CSimpleExpressionPrinter):
             return str(node.get_numeric_literal()) + " * " + self._variable_printer.print(node.get_variable())
 
         if node.is_numeric_literal():
-            return str(node.get_numeric_literal())+"f"
+            return str(float(str(node.get_numeric_literal())))+"f"
 
         return super().print_simple_expression(node)

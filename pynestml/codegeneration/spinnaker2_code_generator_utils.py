@@ -38,16 +38,16 @@ class SPINNAKER2CodeGeneratorUtils:
             if numerical_state_symbols and variable_symbol.get_symbol_name() in numerical_state_symbols:
                 return  'NUMERICAL STATE SYMBOL'  #'S_.ode_state[State_::%s]'
 
-            return 'state->%s'
+            return 'neuron->state.%s'
 
         if variable_symbol.block_type == BlockType.PARAMETERS:
-            return 'neuron_params->%s'
+            return 'neuron->neuron_params->%s'
 
         if variable_symbol.block_type == BlockType.COMMON_PARAMETERS:
-            return 'neuron_params->%s'
+            return 'neuron->neuron_params->%s'
 
         if variable_symbol.block_type == BlockType.INTERNALS:  # and not variable_symbol.name == "__h":
-            return 'neuron_params->%s'
+            return 'neuron->neuron_params->%s'
 
 
         if variable_symbol.block_type == BlockType.INPUT:
@@ -55,47 +55,3 @@ class SPINNAKER2CodeGeneratorUtils:
 
         return ''
 
-    # @classmethod
-    # def get_propagators_as_python_expression(cls, propagators:dict) -> dict:
-    #     import math
-    #
-    #     # Define supported math functions and constants
-    #     safe_dict = {
-    #         # Basic math functions
-    #         'exp': math.exp,
-    #         'ln': math.log,
-    #         'log10': math.log10,
-    #         'pow': math.pow,
-    #         'sqrt': math.sqrt,
-    #         # Trigonometric functions
-    #         'sin': math.sin,
-    #         'cos': math.cos,
-    #         'tan': math.tan,
-    #         'asin': math.asin,
-    #         'acos': math.acos,
-    #         'atan': math.atan,
-    #         'atan2': math.atan2,
-    #         # Hyperbolic functions
-    #         'sinh': math.sinh,
-    #         'cosh': math.cosh,
-    #         'tanh': math.tanh,
-    #         # Math functions
-    #         'abs': abs,
-    #         'ceil': math.ceil,
-    #         'floor': math.floor,
-    #         'round': round,
-    #         'erf': math.erf,
-    #         'erfc': math.erfc,
-    #         # Constants
-    #         'e': math.e,
-    #         'pi': math.pi,
-    #         'inf': float('inf'),
-    #         '__h': '__h',
-    #     }
-    #
-    #     propagators_as_python_expressions = dict()
-    #     for key, expression in propagators.items():
-    #                      # Remove all function names from the expression before checking the pattern
-    #         result = eval(expression, {"__builtins__": {}}, safe_dict)
-    #         propagators_as_python_expressions[key] = result
-    #     pass

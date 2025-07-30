@@ -6,7 +6,7 @@
 
 // start rendered code for integrate_odes({{ ", ".join(utils.integrate_odes_args_strs_from_function_call(ast)) }})
 
-{%- if uses_analytic_solver %}
+{%- if uses_analytic_solver and not uses_numeric_solver %}
 {%  set analytic_state_variables_ = analytic_state_variables.copy() %}
 
 {%- if paired_synapse is defined %}
@@ -42,7 +42,8 @@ const double {{ variable_name }}__orig = {{ printer.print(utils.get_state_variab
 {%-             endfor %}
 {%-         endif %}
 
-{%-         include "directives_cpp/GSLIntegrationStep.jinja2" %}
+{#{%-         include "directives_cpp/GSLIntegrationStep.jinja2" %}#}
+{%-         include "directives_cpp/Spinnaker2IntegrationStep.jinja2" %}
 
 {%-         if analytic_state_variables_from_convolutions | length > 0 %}
 // restore the old values for convolutions
@@ -55,7 +56,7 @@ const double {{ variable_name }}__orig = {{ printer.print(utils.get_state_variab
 {%-     endif %}
 {%- endif %}
 
-{%- if uses_analytic_solver %}
+{%- if uses_analytic_solver and not uses_numeric_solver %}
 {%- if analytic_state_variables_ | length > 0 %}
 // analytic solver: integrating state variables (second step): {% for variable_name in analytic_state_variables_ %}{{ variable_name }}, {% endfor %}
 

@@ -1,7 +1,18 @@
 #include "neuron.h"
 #include "global_params.h"
 #include "simulation.h"
-#include <spike_comms_common.h>
+#include {{ "<" }}spike_comms_common.h{{ ">" }}
+{% if uses_numeric_solver %}
+    {% if "rk4" in numeric_solver %}
+#include "rk4.h"
+    {% elif "forward-Euler" in numeric_solver %}
+#include "forward_euler.h"
+    {% endif %}
+{% endif %}
+
+
+
+
 
 uint32_t n_neurons;
 input_t input_buffers[INPUT_BUFFER_SIZE];
@@ -10,7 +21,6 @@ neuron_impl_t neuron_array[N_NEURONS];
 // neurons params are initialized in main file
 extern neuron_params_t *neuron_params_array;
 global_neuron_params_t global_neuron_params;
-//REAL weight_scaling_factor;
 
 // spike records for current timestep
 uint32_t spike_records[SPIKE_RECORD_LENGTH] __attribute__((aligned(0x10)));
@@ -33,10 +43,9 @@ uint32_t spike_record_length;
 uint32_t spike_record_counter_length;
 
 
-bool neuron_initialise() {
-    // n_neurons = N_NEURONS;
+bool neuron_initialise()
+{
     n_neurons = global_params_ptr->n_used_neurons;
-
 
     spike_record_length = (n_neurons + 31) / 32 + 2;
     spike_record_counter_length = (n_neurons + 31) / 32;
@@ -45,8 +54,9 @@ bool neuron_initialise() {
     // neuron states
     for (index_t neuron_index = 0; neuron_index < n_neurons; neuron_index++) {
 
-        neuron_pointer_t neuron = &neuron_array[neuron_index];
-        neuron_state_t* state = &neuron->state;
+        neuron_impl_t *neuron = &neuron_array[neuron_index];
+        neuron->neuron_params = &neuron_params_array[neuron_index];
+
         {%- for declaration in neuron.get_state_declarations() | sort(attribute='name') %} {#add state declarations#}
             {{ printer.print(declaration.get_variables()[0]) }} = {{ printer.print(declaration.get_expression()) }};
         {%- endfor %}
@@ -66,20 +76,17 @@ void print_neuron_params() {
     }
     uint32_t n_used_neurons = global_params_ptr->n_used_neurons;
     for (index_t neuron_index = 0; neuron_index < n_used_neurons; neuron_index++) {
-        neuron_params_t* neuron_params = &neuron_params_array[neuron_index];
-{#        {%- for  name, value in neuron.get_parameter_value_dict() | dictsort %}#}
-{#            log_info("%u:  {{ name }}=%i\n",#}
-{#            neuron_index,(int32_t) (f2ui(neuron_params->{{  name }})));#}
-{#        {%- endfor %}#}
+        neuron_impl_t *neuron = &neuron_array[neuron_index];
+
     {%- for  parameter in neuron.get_parameter_symbols()  | sort(attribute='name') %}
             log_info("%u:  {{ parameter.name }}=%f\n",
-            neuron_index,(neuron_params->{{  parameter.name }}));
+            neuron_index,f2ui(neuron->neuron_params->{{  parameter.name }}));
         {%- endfor %}
 {%- if uses_analytic_solver == True %}
         {%- for propagator in neuron.get_internal_symbols() |sort(attribute='name') %}
             {%- if propagator.name != '__h' %}
             log_info("%u:  {{ propagator.name }}=%f\n",
-            neuron_index,(neuron_params->{{  propagator.name }}));
+            neuron_index,f2ui(neuron->neuron_params->{{  propagator.name }}));
             {%- endif  %}
         {%- endfor %}
 {%- endif  %}
@@ -87,13 +94,14 @@ void print_neuron_params() {
 }
 
 {%- if uses_numeric_solver == True %}
-    void {{ neuronName }}_rhs(float t, const float *y, float *dydt, uint8_t dim, const void *neuron_params)
+    void {{ neuronName }}_rhs(REAL t, const REAL *y, REAL *dydt, uint8_t dim, const void *pp)
     {
-    neuron_params_t *p = neuron_params;
+    neuron_impl_t *neuron = (neuron_impl_t *)pp;
+    (void) y;
     (void) t;
     (void) dim;
     {% for  symbol in numerical_state_symbols %}
-    dydt[{{ loop.index0 }}] = {{ printer.print(numeric_update_expressions[symbol]) }}
+    dydt[{{ loop.index0 }}] = {{ printer.print(numeric_update_expressions[symbol]) }};
     {% endfor %}
     }
 {%- endif  %}
@@ -102,11 +110,9 @@ void record_voltages() {
     if (global_params_ptr->record_v == 1) { // record all voltages
         *voltage_records_all_timesteps = systicks;
         voltage_records_all_timesteps++;
-
-//        uint32_t n_used_neurons = global_params_ptr->n_used_neurons;
         // neuron states
         for (index_t neuron_index = 0; neuron_index < n_neurons; neuron_index++) {
-            *voltage_records_all_timesteps = (neuron_array[neuron_index].state.V_m);
+            *voltage_records_all_timesteps = f2ui(neuron_array[neuron_index].state.V_m);
             voltage_records_all_timesteps++;
         }
     }
@@ -119,7 +125,7 @@ void record_voltages() {
             uint32_t n_used_neurons = global_params_ptr->n_used_neurons;
             // neuron states
             for (index_t neuron_index = 0; neuron_index < n_used_neurons; neuron_index++) {
-                *voltage_records_all_timesteps = (neuron_array[neuron_index].state.V_m);
+                *voltage_records_all_timesteps = f2ui(neuron_array[neuron_index].state.V_m);
                 voltage_records_all_timesteps++;
             }
         }
@@ -131,13 +137,12 @@ void neuron_do_timestep_update() {
     uint32_t n_used_neurons = global_params_ptr->n_used_neurons;
     for (index_t neuron_index = 0; neuron_index < n_used_neurons; neuron_index++) {
 
-        neuron_pointer_t neuron = &neuron_array[neuron_index];
-        neuron_params_t* neuron_params = &neuron_params_array[neuron_index];
-        neuron_state_t* state = &neuron->state;
-{#        neuron_input_t* input = &neuron->input;#}
+        neuron_impl_t *neuron = &neuron_array[neuron_index];
+
 {# GENERATE THIS!#}
-        state->I_syn_exc = synapse_types_get_excitatory_input(input_buffers, neuron_index);
-        state->I_syn_inh = synapse_types_get_inhibitory_input(input_buffers, neuron_index);
+        // get current inputs from buffers
+        REAL I_syn_exc_IN = synapse_types_get_excitatory_input(input_buffers, neuron_index);
+        REAL I_syn_inh_IN = synapse_types_get_inhibitory_input(input_buffers, neuron_index);
 {# GENERATE THIS!#}
         {%- if neuron.get_update_blocks() %}
         {%-   filter indent(8) %}
@@ -157,7 +162,7 @@ void neuron_do_timestep_update() {
 		input_buffers[_ex_offset(neuron_index)] = 0;
 		input_buffers[_in_offset(neuron_index)] = 0;
 
-    neuron_check_and_spike(state, neuron_params, neuron_index);
+    neuron_check_and_spike(neuron, neuron_index);
     }
     // only record spikes if record_spikes is 1
     if (global_params_ptr->record_spikes == 1) {
@@ -166,7 +171,7 @@ void neuron_do_timestep_update() {
     record_voltages();
 }
 
-void neuron_check_and_spike(neuron_state_t* state, neuron_params_t* neuron_params, index_t neuron_index) {  // onCondition block processing
+void neuron_check_and_spike(neuron_impl_t *neuron, index_t neuron_index) {  // onCondition block processing
     {%- if neuron.get_on_condition_blocks() %}
     {%-   filter indent(8) %}
     {%-     for block in neuron.get_on_condition_blocks() %}
@@ -185,7 +190,6 @@ if ({{ printer.print(block.get_cond_expr()) }}){
     if (global_params_ptr->debug){
         log_info("Neuron %u spiked at time %u\n", neuron_index, systicks);
     }
-{#    send_spikes_to_all_targets(routing_info_ptr->key_offset + neuron_index);#}
     }
 }
 

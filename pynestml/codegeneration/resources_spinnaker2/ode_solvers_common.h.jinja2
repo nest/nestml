@@ -1,9 +1,10 @@
 #ifndef ODE_SOLVERS_COMMON_H
 #define ODE_SOLVERS_COMMON_H
 
-#include {{ '<' }} common-typedefs.h {{ '>' }}
+#include {{ '<' }}common-typedefs.h{{ '>' }}
+#include "common/maths-util.h"
 
-#define MAX_STATE_DIM {{ neuron.get_state_declarations()|length }} /* v, u for Izhikevich model, increase if needed */
+#define MAX_STATE_DIM {{ neuron.get_state_declarations()|length }}
 
 /**
  * @typedef ode_rhs_t
@@ -18,9 +19,9 @@
  * @param neuron_params Pointer to neuron parameters
  */
 typedef void ode_rhs_t(
-    float t,
-    const float *y,
-    float *dydt,
+    REAL t,
+    const REAL *y,
+    REAL *dydt,
     uint8_t dim,
     const void *neuron_params);
 
@@ -43,12 +44,12 @@ typedef ode_rhs_t *ode_rhs_f;
  */
 typedef void ode_solver_step_t(
     ode_rhs_f f,
-    float t,
-    const float *y,
-    float h,
+    REAL t,
+    const REAL *y,
+    REAL h,
     uint8_t dim,
     const void *neuron_params,
-    float *y_out);
+    REAL *y_out);
 
 /** Function pointer to a solver step function. */
 typedef ode_solver_step_t *ode_solver_step_f;

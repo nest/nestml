@@ -95,7 +95,7 @@ void timer_callback()
         set_mask_feedthrough_irq(qpe_x, qpe_y, pe_id, 1 + 2);
         return;
     }
-    log_info("reached timer_callback()\n");
+    log_info("tick:%i\n", systicks);
     receive_spikes(packet_received_callback);
     synapses_do_timestep_update(systicks);
     neuron_do_timestep_update();
@@ -250,8 +250,8 @@ void log_global_params(address_t region_address)
         log_info("record_v: %d\n", global_params_ptr->record_v);
         log_info("record_time_done: %d\n", global_params_ptr->record_time_done);
         log_info("profiling: %d\n", global_params_ptr->profiling);
-        log_info("calc_step_raw: %d\n", f2ui(global_params_ptr->calc_step_raw));
-        log_info("weight_scaling_factor: %d\n", f2ui(global_params_ptr->weight_scaling_factor));
+        log_info("calc_step_raw: %f\n", f2ui(global_params_ptr->calc_step_raw));
+        log_info("weight_scaling_factor: %f\n", f2ui(global_params_ptr->weight_scaling_factor));
         log_info("debug: %d\n", global_params_ptr->debug);
         log_info("log_size: %d\n", global_params_ptr->log_size);
     }

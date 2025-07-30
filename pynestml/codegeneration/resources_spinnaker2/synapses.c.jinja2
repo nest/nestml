@@ -68,12 +68,15 @@ void synapses_do_timestep_update(uint32_t time) {
 
     uint32_t n_used_neurons = global_params_ptr->n_used_neurons;
     for (index_t neuron_index = 0; neuron_index < n_used_neurons; neuron_index++) {
-        neuron_params_t* neuron_params = &neuron_params_array[neuron_index];
+//        neuron_params_t* neuron_params = &neuron_params_array[neuron_index];#}
 
-        input_buffers[_ex_offset(neuron_index)] =
-            input_buffers[_ex_offset(neuron_index)] * neuron_params->__P__I_syn_exc__I_syn_exc;
-        input_buffers[_in_offset(neuron_index)] =
-            input_buffers[_in_offset(neuron_index)] * neuron_params->__P__I_syn_inh__I_syn_inh;
+//        input_buffers[_ex_offset(neuron_index)] =
+//           input_buffers[_ex_offset(neuron_index)] * neuron_params->__P__I_syn_exc__I_syn_exc;
+//        input_buffers[_in_offset(neuron_index)] =
+//            input_buffers[_in_offset(neuron_index)] * neuron_params->__P__I_syn_inh__I_syn_inh;
+
+        input_buffers[_ex_offset(neuron_index)] = 0;
+        input_buffers[_in_offset(neuron_index)] = 0;
 
         for (uint32_t synapse_type_index = 0;
             synapse_type_index < SYNAPSE_TYPE_COUNT; synapse_type_index++)

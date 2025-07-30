@@ -187,7 +187,7 @@ class Spinnaker2CodeGenerator(CodeGenerator):
     Code generator for Spinnaker 2
     """
 
-    _default_options = {
+    _default_options = {"numeric_solver": "",
         # "neuron_synapse_pairs": [
         #                         {"neuron": 'nestml/models/neurons/iaf_psc_exp_neuron.nestml',# "iaf_psc_exp_neuron",
         #                         "synapse": 'nestml/models/synapses/stdp_synapse.nestml',  #"stdp_synapse",
@@ -235,6 +235,8 @@ class Spinnaker2CodeGenerator(CodeGenerator):
         super().__init__(options)
 
         options_cpp = copy.deepcopy(NESTCodeGenerator._default_options)
+        options_cpp["solver"] = "analytic"
+        options_cpp["numeric_solver"] = 'forward-Euler'
         # options_cpp["neuron_synapse_pairs"] = self._options["neuron_synapse_pairs"]
         options_cpp["templates"]["model_templates"]["neuron"] = [fname for fname in
                                                                  self._options["templates"]["model_templates"]["neuron"]

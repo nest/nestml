@@ -10,7 +10,13 @@
 {%-         if use_gap_junctions %}
 const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp = {{ printer.print(update_expr) | replace("B_." + gap_junction_port + "_grid_sum_", "(B_." + gap_junction_port + "_grid_sum_ + __I_gap)") }};
 {%-         else %}
+                {% if variable_name == 'I_syn_exc' %}
+const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp = {{ printer.print(update_expr) }} + I_syn_exc_IN;
+                {% elif variable_name == 'I_syn_inh' %}
+const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp = {{ printer.print(update_expr) }} + I_syn_inh_IN;
+                {% else %}
 const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp = {{ printer.print(update_expr) }};
+                {% endif %}
 {%-         endif %}
 {%-     endfor %}
 {%- endif %}
