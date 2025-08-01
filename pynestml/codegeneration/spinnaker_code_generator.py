@@ -245,10 +245,3 @@ class SpiNNakerCodeGenerator(CodeGenerator):
             if "vt_port_names" in dir(model):
                 cloned_model.vt_port_names = model.vt_port_names
             self.codegen_py.generate_code([cloned_model])
-del):
-                cloned_model.paired_neuron = model.paired_neuron
-                cloned_model.spiking_post_port_names = model.spiking_post_port_names
-                cloned_model.post_port_names = model.post_port_names
-            if "vt_port_names" in dir(model):
-                cloned_model.vt_port_names = model.vt_port_names
-            self.codegen_py.generate_code([cloned_model])
