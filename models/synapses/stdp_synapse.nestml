@@ -1,4 +1,3 @@
-
 # stdp_synapse - Synapse model for spike-timing dependent plasticity
 # ##################################################################
 #
@@ -88,14 +87,16 @@ model stdp_synapse:
         post_trace += 1
 
         # potentiate synapse
-        w_ real = Wmax * (abs(w) / Wmax + (lambda * (1. - (abs(w) / Wmax))**mu_plus * pre_trace))
+        # note that w is at all times >= 0
+        w_ real = Wmax * (w / Wmax + (lambda * (1. - (w / Wmax))**mu_plus * pre_trace))
         w = min(Wmax, w_)
 
     onReceive(pre_spikes):
         pre_trace += 1
 
         # depress synapse
-        w_ real = Wmax * (abs(w) / Wmax - (alpha * lambda * (abs(w) / Wmax)**mu_minus * post_trace))
+        # note that w is at all times >= 0
+        w_ real = Wmax * (w / Wmax - (alpha * lambda * (w / Wmax)**mu_minus * post_trace))
         w = max(Wmin, w_)
 
         # deliver spike to postsynaptic partner
