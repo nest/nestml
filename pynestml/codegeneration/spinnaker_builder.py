@@ -250,14 +250,14 @@ class SpiNNakerBuilder(Builder):
             except subprocess.CalledProcessError:
                 pass
 
-            # Copy the synapse_build.mk file
-            if 1:#try:
-                subprocess.check_call(["cp", "-v", "synapse_build.mk", os.path.join(install_path, "c_models", "makefiles")],
+            # Copy the extra_synapse.mk file
+            try:
+                subprocess.check_call(["cp", "-v", "extra_synapse.mk", os.path.join(install_path, "c_models", "makefiles")],
                                       stderr=subprocess.STDOUT,
                                       shell=shell,
                                       cwd=target_path)
-#            except subprocess.CalledProcessError:
-#                pass
+            except subprocess.CalledProcessError:
+                pass
 
             # Copy the model Makefile
             for fn in generated_file_names_makefiles:

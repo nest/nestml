@@ -1,13 +1,10 @@
 #find all directories of synapse and neuron models
 IMPL_DIRS := $(wildcard *_impl)
 
-#run make in all model directories
-all: $(IMPL_DIRS)
-
-
-$(IMPL_DIRS):
-	$(MAKE) -C $@
-
+all:
+	for dir in $(IMPL_DIRS); do \
+		$(MAKE) -C $$dir; \
+	done
 
 clean:
 	for dir in $(IMPL_DIRS); do \
