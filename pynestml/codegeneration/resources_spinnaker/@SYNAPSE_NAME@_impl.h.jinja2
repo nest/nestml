@@ -2,24 +2,21 @@
 #ifndef {{synapseName.upper()}}_IMPL_H
 #define {{synapseName.upper()}}_IMPL_H
 
+#include <spin1_api.h>
+
 // Include generic plasticity maths functions
 #include <neuron/plasticity/stdp/maths.h>
 #include <neuron/plasticity/stdp/stdp_typedefs.h>
 #include <neuron/synapse_row.h>
 
+// Standard includes
+#include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
+
+// Include debug header for log_info etc
 #include <debug.h>
 
-#include "weight_one_term.h"
-
-#include <neuron/plasticity/stdp/synapse_structure/synapse_structure_weight_impl.h>
-#include "timing.h"
-#include <neuron/plasticity/stdp/weight_dependence/weight_one_term.h>
-
-
-
-
-
-// stuff from synapse_dynamics_stdp_common.h
 
 // Spinn_common includes
 #include <static-assert.h>
@@ -28,15 +25,98 @@
 #include <neuron/synapses.h>
 
 // Plasticity includes
-#include "maths.h"
-#include "post_events.h"
-
-#include "weight_dependence/weight.h"
-#include "timing_dependence/timing.h"
-#include <debug.h>
 #include <utils.h>
 #include <neuron/plasticity/synapse_dynamics.h>
-#include <stddef.h>
+
+
+
+// stuff from timing.h
+
+typedef struct post_trace_t {
+    int16_t post_tr;
+    uint32_t last_spike_time;
+} post_trace_t;
+
+//! The type of pre-spike traces
+typedef struct pre_trace_t {
+    int16_t pre_tr;
+} pre_trace_t;
+
+
+
+
+
+
+
+// stuff from post_events.h
+
+
+//---------------------------------------
+// Macros
+//---------------------------------------
+//! Maximum number of post-synaptic events supported
+#define MAX_POST_SYNAPTIC_EVENTS 16
+
+//---------------------------------------
+// Structures
+//---------------------------------------
+//! Trace history of post-synaptic events
+typedef struct {
+    //! Number of events stored (minus one)
+    uint32_t count_minus_one;
+    //! Event times
+    uint32_t times[MAX_POST_SYNAPTIC_EVENTS];
+    //! Event traces
+    post_trace_t traces[MAX_POST_SYNAPTIC_EVENTS];
+} post_event_history_t;
+
+//! Post event window description
+typedef struct {
+    //! The previous post-synaptic event trace
+    post_trace_t prev_trace;
+    //! The previous post-synaptic event time
+    uint32_t prev_time;
+    //! The next post-synaptic event trace
+    const post_trace_t *next_trace;
+    //! The next post-synaptic event time
+    const uint32_t *next_time;
+    //! The number of events
+    uint32_t num_events;
+    //! Whether the previous post-synaptic event is valid (based on time)
+    uint32_t prev_time_valid;
+} post_event_window_t;
+
+
+
+
+
+
+
+
+
+// stuff from weight.h (the PyNN/sPyNNaker component that contains the weight increment parameters)
+
+//! The configuration of the rule
+typedef struct {
+{%- for sym in synapse.get_parameter_symbols() %}
+    accum {{ sym.get_symbol_name() }};
+{%- endfor %}
+} plasticity_weight_region_data_t;
+
+//! The current state data for the rule
+typedef struct {
+{%- for sym in synapse.get_state_symbols() %}
+    accum {{ sym.get_symbol_name() }};
+{%- endfor %}
+    const plasticity_weight_region_data_t *weight_region;
+} plastic_synapse_t;
+
+
+
+
+
+// stuff from synapse_dynamics_stdp_common.h
+
 
 //---------------------------------------
 // Macros
@@ -122,7 +202,7 @@ static inline bool synapse_dynamics_stdp_init(
     stdp_params *sdram_params = (stdp_params *) *address;
     spin1_memcpy(params, sdram_params, sizeof(stdp_params));
 
-    // Load timing dependence data
+/*    // Load timing dependence data
     address_t weight_region_address = timing_initialise(
             (address_t) &sdram_params[1]);
     if (weight_region_address == NULL) {
@@ -139,6 +219,10 @@ static inline bool synapse_dynamics_stdp_init(
 
     // Update address to after the region just read
     *address = weight_result;
+*/
+    // Update address to after the region just read XXX: ????????
+    address += sizeof(stdp_params);
+
     return true;
 }
 
@@ -212,49 +296,6 @@ uint32_t synapse_dynamics_n_connections_in_row(synapse_row_fixed_part_t *fixed) 
 
 // stuff from post_events.h
 
-
-// Standard includes
-#include <stdbool.h>
-#include <stdint.h>
-
-// Include debug header for log_info etc
-#include <debug.h>
-
-//---------------------------------------
-// Macros
-//---------------------------------------
-//! Maximum number of post-synaptic events supported
-#define MAX_POST_SYNAPTIC_EVENTS 16
-
-//---------------------------------------
-// Structures
-//---------------------------------------
-//! Trace history of post-synaptic events
-typedef struct {
-    //! Number of events stored (minus one)
-    uint32_t count_minus_one;
-    //! Event times
-    uint32_t times[MAX_POST_SYNAPTIC_EVENTS];
-    //! Event traces
-    post_trace_t traces[MAX_POST_SYNAPTIC_EVENTS];
-} post_event_history_t;
-
-//! Post event window description
-typedef struct {
-    //! The previous post-synaptic event trace
-    post_trace_t prev_trace;
-    //! The previous post-synaptic event time
-    uint32_t prev_time;
-    //! The next post-synaptic event trace
-    const post_trace_t *next_trace;
-    //! The next post-synaptic event time
-    const uint32_t *next_time;
-    //! The number of events
-    uint32_t num_events;
-    //! Whether the previous post-synaptic event is valid (based on time)
-    uint32_t prev_time_valid;
-} post_event_window_t;
-
 //---------------------------------------
 // Inline functions
 //---------------------------------------
@@ -289,7 +330,7 @@ static inline post_event_history_t *post_events_init_buffers(
     for (uint32_t n = 0; n < n_neurons; n++) {
         // Add initial placeholder entry to buffer
         post_event_history[n].times[0] = 0;
-        post_event_history[n].traces[0] = timing_get_initial_post_trace();
+        post_event_history[n].traces[0] = (post_trace_t){.post_tr=0, .last_spike_time = 0};// timing_get_initial_post_trace();
         post_event_history[n].count_minus_one = 0;
     }
 
@@ -414,32 +455,6 @@ static inline void print_delayed_window_events(
 
 
 
-// stuff from weight_additive_one_term_impl.h
-
-//---------------------------------------
-// Structures
-//---------------------------------------
-//! The configuration of the rule
-typedef struct {
-    accum min_weight;     //!< Minimum weight
-    accum max_weight;     //!< Maximum weight
-
-    accum a2_plus;        //!< Scaling factor for weight delta on potentiation
-    accum a2_minus;       //!< Scaling factor for weight delta on depression
-} plasticity_weight_region_data_t;
-
-//! The current state data for the rule
-typedef struct {
-    accum weight; //!< The starting weight
-
-    uint32_t weight_shift; //!< Weight shift to S1615 version
-
-    //! Reference to the configuration data
-    const plasticity_weight_region_data_t *weight_region;
-} weight_state_t;
-
-
-
 //---------------------------------------
 // STDP weight dependence functions
 //---------------------------------------
@@ -449,41 +464,17 @@ typedef struct {
  * \param[in] synapse_type: The type of synapse involved
  * \return The initial weight state.
  */
-static inline weight_state_t weight_get_initial(
+static inline plastic_synapse_t weight_get_initial(
         weight_t weight, index_t synapse_type) {
-    extern plasticity_weight_region_data_t *plasticity_weight_region_data;
-    extern uint32_t *weight_shift;
+//    extern plasticity_weight_region_data_t *plasticity_weight_region_data;
+//    extern uint32_t *weight_shift;
 
-    accum s1615_weight = kbits(weight << weight_shift[synapse_type]);
-    return (weight_state_t) {
-        .weight = s1615_weight,
-        .weight_shift = weight_shift[synapse_type],
-        .weight_region = &plasticity_weight_region_data[synapse_type]
+    accum s1615_weight = weight; //kbits(weight << weight_shift[synapse_type]);
+    return (plastic_synapse_t) {
+        .w = s1615_weight,
+      ///  .weight_shift = weight_shift[synapse_type],
+      //  .weight_region = &plasticity_weight_region_data[synapse_type]
     };
-}
-
-//---------------------------------------
-//! \brief Apply the depression rule to the weight state
-//! \param[in] state: The weight state to update
-//! \param[in] a2_minus: The amount of depression to apply
-//! \return the updated weight state
-static inline weight_state_t weight_one_term_apply_depression(
-        weight_state_t state, int32_t a2_minus) {
-    state.weight -= mul_accum_fixed(state.weight_region->a2_minus, a2_minus);
-    state.weight = kbits(MAX(bitsk(state.weight), bitsk(state.weight_region->min_weight)));
-    return state;
-}
-
-//---------------------------------------
-//! \brief Apply the potentiation rule to the weight state
-//! \param[in] state: The weight state to update
-//! \param[in] a2_plus: The amount of potentiation to apply
-//! \return the updated weight state
-static inline weight_state_t weight_one_term_apply_potentiation(
-        weight_state_t state, int32_t a2_plus) {
-    state.weight += mul_accum_fixed(state.weight_region->a2_plus, a2_plus);
-    state.weight = kbits(MIN(bitsk(state.weight), bitsk(state.weight_region->max_weight)));
-    return state;
 }
 
 //---------------------------------------
@@ -492,49 +483,20 @@ static inline weight_state_t weight_one_term_apply_potentiation(
  * \param[in] state: The updated weight state
  * \return The new weight.
  */
-static inline weight_t weight_get_final(weight_state_t state) {
-    return (weight_t) (bitsk(state.weight) >> state.weight_shift);
+static inline weight_t weight_get_final(plastic_synapse_t state) {
+//    return (weight_t) (bitsk(state.weight) >> state.weight_shift);
+    return (weight_t) (bitsk(state.w) >> 16);
 }
 
-static inline void weight_decay(weight_state_t *state, int32_t decay) {
-    state->weight = mul_accum_fixed(state->weight, decay);
-}
 
-static inline accum weight_get_update(weight_state_t state) {
-    return state.weight;
+static inline accum weight_get_update(plastic_synapse_t state) {
+    return state.w;
 }
 
 
 
 // stuff from timing_pair_impl.h
 
-//---------------------------------------
-// Typedefines
-//---------------------------------------
-//! The type of post-spike traces
-typedef int16_t post_trace_t;
-//! The type of pre-spike traces
-typedef int16_t pre_trace_t;
-
-//---------------------------------------
-// Timing dependence inline functions
-//---------------------------------------
-//! \brief Get an initial post-synaptic timing trace
-//! \return the post trace
-static inline post_trace_t timing_get_initial_post_trace(void) {
-    return 0;
-}
-
-static inline post_trace_t timing_decay_post(
-        uint32_t time, uint32_t last_time, post_trace_t last_trace) {
-    extern int16_lut *tau_minus_lookup;
-    // Get time since last spike
-    uint32_t delta_time = time - last_time;
-
-    // Decay previous o1 and o2 traces
-    return (post_trace_t) STDP_FIXED_MUL_16X16(last_trace,
-            maths_lut_exponential_decay(delta_time, tau_minus_lookup));
-}
 
 //---------------------------------------
 //! \brief Add a post spike to the post trace
@@ -545,17 +507,39 @@ static inline post_trace_t timing_decay_post(
 static inline post_trace_t timing_add_post_spike(
         uint32_t time, uint32_t last_time, post_trace_t last_trace) {
 
-    // Decay previous o1 and o2 traces
-    int16_t decayed_o1_trace = timing_decay_post(time, last_time, last_trace);
+    log_info("In timing_add_post_spike()");
+/*
+    uint32_t delta_time = time - last_time;
 
-    // Add energy caused by new spike to trace
-    // **NOTE** o2 trace is pre-multiplied by a3_plus
-    int16_t new_o1_trace = decayed_o1_trace + STDP_FIXED_POINT_ONE;
+//    int16_t decayed_tr = timing_decay_post(time, last_time, last_trace);
+    int16_t decayed_tr = STDP_FIXED_MUL_16X16(last_trace.post_tr, maths_lut_exponential_decay(delta_time, tau_minus));
+    decayed_tr += STDP_FIXED_POINT_ONE;
 
-    // Return new pre- synaptic event with decayed trace values with energy
-    // for new spike added
-    return (post_trace_t) new_o1_trace;
+    return (post_trace_t){.post_tr=decayed_tr, .last_spike_time = time};
+*/
+    return (post_trace_t){.post_tr=0., .last_spike_time = time};
 }
+
+
+
+
+//---------------------------------------
+void synapse_dynamics_process_post_synaptic_event(
+        uint32_t time, index_t neuron_index) {
+    log_debug("Adding post-synaptic event to trace at time:%u", time);
+
+    // Add post-event
+    post_event_history_t *history = &post_event_history[neuron_index];
+    const uint32_t last_post_time = history->times[history->count_minus_one];
+    const post_trace_t last_post_trace =
+            history->traces[history->count_minus_one];
+
+
+
+    post_events_add(time, history,
+            timing_add_post_spike(time, last_post_time, last_post_trace));
+}
+
 
 //---------------------------------------
 //! \brief Add a pre spike to the pre trace
@@ -565,22 +549,19 @@ static inline post_trace_t timing_add_post_spike(
 //! \return the updated pre trace
 static inline pre_trace_t timing_add_pre_spike(
         uint32_t time, uint32_t last_time, pre_trace_t last_trace) {
-    extern int16_lut *tau_plus_lookup;
-    // Get time since last spike
+
+    log_info("In timing_add_pre_spike()");
+
+/*    // Get time since last spike
     uint32_t delta_time = time - last_time;
 
-    // Decay previous r1 and r2 traces
-    int32_t decayed_r1_trace = STDP_FIXED_MUL_16X16(last_trace,
-        maths_lut_exponential_decay(delta_time, tau_plus_lookup));
+    int32_t decayed_trace = STDP_FIXED_MUL_16X16(last_trace.pre_tr, maths_lut_exponential_decay(delta_time, tau_plus));
+    decayed_trace += STDP_FIXED_POINT_ONE;
 
-    // Add energy caused by new spike to trace
-    int32_t new_r1_trace = decayed_r1_trace + STDP_FIXED_POINT_ONE;
-
-    log_debug("\tdelta_time=%u, r1=%d\n", delta_time, new_r1_trace);
-
-    // Return new pre-synaptic event with decayed trace values with energy
-    // for new spike added
-    return (pre_trace_t) new_r1_trace;
+    log_debug("\tdelta_time=%u, r1=%d\n", delta_time, decayed_trace);
+    return (pre_trace_t){.pre_tr=decayed_trace};
+*/
+    return (pre_trace_t){.pre_tr=0.};
 }
 
 //---------------------------------------
@@ -593,22 +574,32 @@ static inline pre_trace_t timing_add_pre_spike(
 //! \param[in] last_post_trace: the trace of the last post-spike
 //! \param[in] previous_state: the state to update
 //! \return the updated state
-static inline update_state_t timing_apply_pre_spike(
+static inline plastic_synapse_t timing_apply_pre_spike(
         uint32_t time, UNUSED pre_trace_t trace, UNUSED uint32_t last_pre_time,
         UNUSED pre_trace_t last_pre_trace, uint32_t last_post_time,
-        post_trace_t last_post_trace, update_state_t previous_state) {
+        post_trace_t last_post_trace, plastic_synapse_t state) {
     extern int16_lut *tau_minus_lookup;
 
-    // Get time of event relative to last post-synaptic event
-    uint32_t time_since_last_post = time - last_post_time;
-    int32_t decayed_o1 = STDP_FIXED_MUL_16X16(last_post_trace,
-        maths_lut_exponential_decay(time_since_last_post, tau_minus_lookup));
+    log_debug("timing_apply_pre_spike()");
+#ifdef FOOBAR
+{%- for pre_port in pre_ports %}
 
-    log_debug("\t\t\ttime_since_last_post_event=%u, decayed_o1=%d\n",
-            time_since_last_post, decayed_o1);
+      /**
+       *  NESTML generated onReceive code block for presynaptic port "{{ pre_port }}" begins here!
+      **/
+{%      if synapse.get_on_receive_block(pre_port) %}
+{%-         set dynamics = synapse.get_on_receive_block(pre_port) %}
+{%-         with ast = dynamics.get_stmts_body() %}
+{%-             filter indent(6, True) %}
+{%-                 include "directives_cpp/StmtsBody.jinja2" %}
+{%-             endfilter %}
+{%-         endwith %}
+{%-     endif %}
+{%- endfor %}
 
+#endif
     // Apply depression to state (which is a weight_state)
-    return weight_one_term_apply_depression(previous_state, decayed_o1);
+    return state;//weight_one_term_apply_depression(previous_state, decayed_o1);
 }
 
 //---------------------------------------
@@ -621,26 +612,46 @@ static inline update_state_t timing_apply_pre_spike(
 //! \param[in] last_post_trace: the trace of the last post-spike
 //! \param[in] previous_state: the state to update
 //! \return the updated state
-static inline update_state_t timing_apply_post_spike(
+static inline plastic_synapse_t timing_apply_post_spike(
         uint32_t time, UNUSED post_trace_t trace, uint32_t last_pre_time,
         pre_trace_t last_pre_trace, UNUSED uint32_t last_post_time,
-        UNUSED post_trace_t last_post_trace, update_state_t previous_state) {
+        UNUSED post_trace_t last_post_trace, plastic_synapse_t previous_state) {
     extern int16_lut *tau_plus_lookup;
 
+    log_info("timing_apply_post_spike()");
+
+#ifdef FOOBAR
     // Get time of event relative to last pre-synaptic event
     uint32_t time_since_last_pre = time - last_pre_time;
     if (time_since_last_pre > 0) {
         int32_t decayed_r1 = STDP_FIXED_MUL_16X16(last_pre_trace,
             maths_lut_exponential_decay(time_since_last_pre, tau_plus_lookup));
 
-        log_debug("\t\t\ttime_since_last_pre_event=%u, decayed_r1=%d\n",
-                time_since_last_pre, decayed_r1);
+//        log_debug("\t\t\ttime_since_last_pre_event=%u, decayed_r1=%d\n",  time_since_last_pre, decayed_r1);
+{%- filter indent(6, True) %}
+{%- if post_ports is defined %}
+{%-     for post_port in spiking_post_ports %}
+/**
+ *  NESTML generated onReceive code block for postsynaptic port "{{ post_port }}" begins here!
+**/
+{%-         if synapse.get_on_receive_block(post_port) %}
+{%-             set dynamics = synapse.get_on_receive_block(post_port) %}
+{%-             with ast = dynamics.get_stmts_body() %}
+{%-                 include "directives_cpp/StmtsBody.jinja2" %}
+{%-             endwith %}
+{%-         endif %}
+{%-     endfor %}
+{%- endif %}
+{%- endfilter %}
+
 
         // Apply potentiation to state (which is a weight_state)
-        return weight_one_term_apply_potentiation(previous_state, decayed_r1);
+        return previous_state;//weight_one_term_apply_potentiation(previous_state, decayed_r1);
     } else {
         return previous_state;
     }
+#endif
+    return previous_state;
 }
 
 #endif // {{synapseName.upper()}}_IMPL_H

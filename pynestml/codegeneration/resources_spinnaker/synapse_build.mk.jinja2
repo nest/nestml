@@ -23,12 +23,6 @@ endif
 ifndef NEURAL_MODELLING_DIRS
     $(error NEURAL_MODELLING_DIRS is not set.  Please define NEURAL_MODELLING_DIRS (possibly by running "source setup" in the sPyNNaker folder))
 endif
-#Check NEURAL_MODELLING_DIRS
-MAKEFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
-CHECK_PATH := $(NEURAL_MODELLING_DIRS)/makefiles/synapse_only/synapse_build.mk
-ifneq ($(CHECK_PATH), $(MAKEFILE_PATH))
-    $(error Please check NEURAL_MODELLING_DIRS as based on that this file is at $(CHECK_PATH) when it is actually at $(MAKEFILE_PATH))
-endif
 
 # Set logging levels
 ifeq ($(SPYNNAKER_DEBUG), DEBUG)
@@ -95,28 +89,7 @@ else
     STDP_ENABLED = 0
     ifneq ($(SYNAPSE_DYNAMICS), $(SYNAPSE_DYNAMICS_STATIC))
         STDP_ENABLED = 1
-
-        ifndef TIMING_DEPENDENCE_H
-            $(error TIMING_DEPENDENCE_H is not set which is required when SYNAPSE_DYNAMICS ($(SYNAPSE_DYNAMICS_C)) != $(SYNAPSE_DYNAMICS_STATIC))
-        endif
-        ifndef WEIGHT_DEPENDENCE_H
-            $(error WEIGHT_DEPENDENCE_H is not set which is required when SYNAPSE_DYNAMICS ($(SYNAPSE_DYNAMICS_C)) != $(SYNAPSE_DYNAMICS_STATIC))
-        endif
     endif
-endif
-
-ifdef WEIGHT_DEPENDENCE
-    WEIGHT_DEPENDENCE_H := $(call replace_source_dirs,$(WEIGHT_DEPENDENCE_H))
-    WEIGHT_DEPENDENCE_C := $(call replace_source_dirs,$(WEIGHT_DEPENDENCE))
-    WEIGHT_DEPENDENCE := $(call strip_source_dirs,$(WEIGHT_DEPENDENCE))
-    WEIGHT_DEPENDENCE_O := $(BUILD_DIR)$(WEIGHT_DEPENDENCE:%.c=%.o)
-endif
-
-ifdef TIMING_DEPENDENCE
-    TIMING_DEPENDENCE_H := $(call replace_source_dirs,$(TIMING_DEPENDENCE_H))
-    TIMING_DEPENDENCE_C := $(call replace_source_dirs,$(TIMING_DEPENDENCE))
-    TIMING_DEPENDENCE := $(call strip_source_dirs,$(TIMING_DEPENDENCE))
-    TIMING_DEPENDENCE_O := $(BUILD_DIR)$(TIMING_DEPENDENCE:%.c=%.o)
 endif
 
 SYNGEN_ENABLED = 1
@@ -167,8 +140,7 @@ SOURCES = neuron/c_main_synapses.c \
           neuron/synapses.c \
           neuron/spike_processing_fast.c \
           neuron/population_table/population_table_$(POPULATION_TABLE_IMPL)_impl.c \
-          $(SYNAPSE_DYNAMICS) $(WEIGHT_DEPENDENCE) \
-          $(TIMING_DEPENDENCE) $(SYNAPTOGENESIS_DYNAMICS) \
+          $(SYNAPSE_DYNAMICS) $(SYNAPTOGENESIS_DYNAMICS) \
           $(PARTNER_SELECTION) $(FORMATION) $(ELIMINATION) $(OTHER_SOURCES_CONVERTED)
 
 include $(SPINN_DIRS)/make/local.mk
@@ -205,8 +177,7 @@ endif
 
 #STDP Build rules If and only if STDP used
 ifeq ($(STDP_ENABLED), 1)
-    STDP_INCLUDES:= -include $(WEIGHT_DEPENDENCE_H) -include $(TIMING_DEPENDENCE_H)
-    STDP_COMPILE = $(CC) -DLOG_LEVEL=$(PLASTIC_DEBUG) $(CFLAGS) -DSTDP_ENABLED=$(STDP_ENABLED) -DSYNGEN_ENABLED=$(SYNGEN_ENABLED) $(STDP_INCLUDES)
+    STDP_COMPILE = $(CC) -DLOG_LEVEL=$(PLASTIC_DEBUG) $(CFLAGS) -DSTDP_ENABLED=$(STDP_ENABLED) -DSYNGEN_ENABLED=$(SYNGEN_ENABLED)
 
     $(SYNAPSE_DYNAMICS_O): $(SYNAPSE_DYNAMICS_C)
 	# SYNAPSE_DYNAMICS_O stdp
@@ -235,17 +206,6 @@ else
 	$(DO_COMPILE) -o $@ $<
 
 endif
-
-$(WEIGHT_DEPENDENCE_O): $(WEIGHT_DEPENDENCE_C)
-	# WEIGHT_DEPENDENCE_O
-	-@mkdir -p $(dir $@)
-	$(CC) -DLOG_LEVEL=$(PLASTIC_DEBUG) $(CFLAGS) -o $@ $<
-
-$(TIMING_DEPENDENCE_O): $(TIMING_DEPENDENCE_C) $(WEIGHT_DEPENDENCE_H)
-	# TIMING_DEPENDENCE_O
-	-@mkdir -p $(dir $@)
-	$(CC) -DLOG_LEVEL=$(PLASTIC_DEBUG) $(CFLAGS) \
-	        -include $(WEIGHT_DEPENDENCE_H) -o $@ $<
 
 $(PARTNER_SELECTION_O): $(PARTNER_SELECTION_C)
 	# PARTNER_SELECTION_O

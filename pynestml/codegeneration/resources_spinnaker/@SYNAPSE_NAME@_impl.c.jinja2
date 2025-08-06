@@ -1,104 +1,5 @@
 
-
-
-
-// stuff from timing_pair_impl.c
-
-
-//---------------------------------------
-// Globals
-//---------------------------------------
-// Exponential lookup-tables
-//! Lookup table for &tau;<sup>+</sup> exponential decay
-int16_lut *tau_plus_lookup;
-//! Lookup table for &tau;<sup>-</sup> exponential decay
-int16_lut *tau_minus_lookup;
-
-//---------------------------------------
-// Functions
-//---------------------------------------
-address_t timing_initialise(address_t address) {
-
-    // Copy LUTs from following memory
-    address_t lut_address = address;
-    tau_plus_lookup = maths_copy_int16_lut(&lut_address);
-    tau_minus_lookup = maths_copy_int16_lut(&lut_address);
-
-    return lut_address;
-}
-
-
-
-
-
-
-// stuff from weight_additive_one_term_impl.c
-
-
-//---------------------------------------
-// Globals
-//---------------------------------------
-//! Global plasticity parameter data
-plasticity_weight_region_data_t *plasticity_weight_region_data;
-
-//! Plasticity multiply shift array, in DTCM
-uint32_t *weight_shift;
-
-//! \brief How the configuration data for additive_one_term is laid out in
-//!     SDRAM. The layout is an array of these.
-typedef struct {
-    accum min_weight;
-    accum max_weight;
-    accum a2_plus;
-    accum a2_minus;
-} additive_one_term_config_t;
-
-//---------------------------------------
-// Functions
-//---------------------------------------
-address_t weight_initialise(
-        address_t address, uint32_t n_synapse_types,
-        UNUSED uint32_t *ring_buffer_to_input_buffer_left_shifts) {
-    // Copy plasticity region data from address
-    // **NOTE** this seems somewhat safer than relying on sizeof
-    additive_one_term_config_t *config = (additive_one_term_config_t *) address;
-
-    plasticity_weight_region_data_t *dtcm_copy = plasticity_weight_region_data =
-            spin1_malloc(sizeof(plasticity_weight_region_data_t) * n_synapse_types);
-    if (dtcm_copy == NULL) {
-        log_error("Could not initialise weight region data");
-        return NULL;
-    }
-
-    weight_shift = spin1_malloc(sizeof(uint32_t) * n_synapse_types);
-    if (weight_shift == NULL) {
-        log_error("Could not initialise weight region data");
-        return NULL;
-    }
-
-    for (uint32_t s = 0; s < n_synapse_types; s++, config++) {
-        dtcm_copy[s].min_weight = config->min_weight;
-        dtcm_copy[s].max_weight = config->max_weight;
-        dtcm_copy[s].a2_plus = config->a2_plus;
-        dtcm_copy[s].a2_minus = config->a2_minus;
-
-        // Copy weight shift
-        weight_shift[s] = ring_buffer_to_input_buffer_left_shifts[s];
-
-        log_debug("\tSynapse type %u: Min weight:%k, Max weight:%k, A2+:%k, A2-:%k",
-                s, dtcm_copy[s].min_weight, dtcm_copy[s].max_weight,
-                dtcm_copy[s].a2_plus, dtcm_copy[s].a2_minus);
-    }
-
-    // Return end address of region
-    return (address_t) config;
-}
-
-
-
-
-
-
+#include "{{ synapseName }}_impl.h"
 
 
 
@@ -137,11 +38,11 @@ extern uint32_t skipped_synapses;
 //! \param[in] current_state: The current state
 //! \param[in] post_event_history: The history
 //! \return The new basic state of the synapse
-static inline final_state_t plasticity_update_synapse(
+static inline plastic_synapse_t plasticity_update_synapse(
         const uint32_t time,
         const uint32_t last_pre_time, const pre_trace_t last_pre_trace,
         const pre_trace_t new_pre_trace, const uint32_t delay_dendritic,
-        const uint32_t delay_axonal, update_state_t current_state,
+        const uint32_t delay_axonal, plastic_synapse_t current_state,
         const post_event_history_t *post_event_history) {
     // Apply axonal delay to time of last presynaptic spike
     const uint32_t delayed_last_pre_time = last_pre_time + delay_axonal;
@@ -196,7 +97,7 @@ static inline final_state_t plasticity_update_synapse(
     }
 
     // Return final synaptic word and weight
-    return synapse_structure_get_final_state(current_state);
+    return current_state;
 }
 
 bool synapse_dynamics_initialise(
@@ -244,11 +145,11 @@ void synapse_dynamics_print_plastic_synapses(
                 control_word, synapse_index_bits, synapse_type_mask);
 
         // Get weight
-        update_state_t update_state = synapse_structure_get_update_state(
+        plastic_synapse_t update_state = synapse_structure_get_update_state(
                 *plastic_words++, synapse_type);
-        final_state_t final_state = synapse_structure_get_final_state(
+        plastic_synapse_t final_state = synapse_structure_get_final_state(
                 update_state);
-        weight_t weight = synapse_structure_get_final_weight(final_state);
+        weight_t weight = 42;//synapse_structure_get_final_weight(final_state);
 
         log_debug("%08x [%3d: (w: %5u (=", control_word, i, weight);
         synapses_print_weight(
@@ -275,6 +176,10 @@ static inline index_t sparse_axonal_delay(uint32_t x) {
 #endif
 }
 
+
+#ifdef FOOBAR
+// XX THIS IS ALREADY IN THE HEADER FILE?!
+
 //---------------------------------------
 void synapse_dynamics_process_post_synaptic_event(
         uint32_t time, index_t neuron_index) {
@@ -288,38 +193,70 @@ void synapse_dynamics_process_post_synaptic_event(
     post_events_add(time, history,
             timing_add_post_spike(time, last_post_time, last_post_trace));
 }
-
+#endif
 //---------------------------------------
 static inline plastic_synapse_t process_plastic_synapse(
         uint32_t control_word, uint32_t last_pre_time, pre_trace_t last_pre_trace,
 		pre_trace_t new_pre_trace, weight_t *ring_buffers, uint32_t time,
 		uint32_t colour_delay, plastic_synapse_t synapse) {
-    fixed_stdp_synapse s = synapse_dynamics_stdp_get_fixed(control_word, time,
-            colour_delay);
+
+    log_info("In process_plastic_synapse()");
+
+    fixed_stdp_synapse s = synapse_dynamics_stdp_get_fixed(control_word, time, colour_delay);
 
 	// Create update state from the plastic synaptic word
-	update_state_t current_state = synapse_structure_get_update_state(
-	        synapse, s.type);
+	plastic_synapse_t current_state = 
+
+(plastic_synapse_t) {
+{%- for sym in synapse.get_state_symbols() %}
+    .{{ sym.get_symbol_name() }} = 2.71,
+{%- endfor %}
+    };
+
+//synapse_structure_get_update_state(synapse, s.type);
 
 	// Update the synapse state
 	uint32_t post_delay = s.delay_dendritic;
 	if (!params.backprop_delay) {
 		post_delay = 0;
 	}
-	final_state_t final_state = plasticity_update_synapse(
+
+	plastic_synapse_t final_state = plasticity_update_synapse(
 			time - colour_delay, last_pre_time, last_pre_trace, new_pre_trace,
 			post_delay, s.delay_axonal, current_state,
 			&post_event_history[s.index]);
 
+
+
+    /**
+     * Begin NESTML generated code for the update block
+    **/
+#ifdef FOOBAR
+{%- if synapse.get_update_blocks() %}
+{%-     filter indent(2) %}
+{%-         for block in synapse.get_update_blocks() %}
+{%-             set ast = block.get_stmts_body() %}
+{%-             if ast.print_comment('*')|length > 1 %}
+/*
+ {{ast.print_comment('*')}}
+ */
+{%-             endif %}
+{%-             include "directives_cpp/StmtsBody.jinja2" %}
+{%-         endfor %}
+{%-     endfilter %}
+{%- endif %}
+#endif
+
+
 	// Add weight to ring-buffer entry, but only if not too late
 	if (s.delay_axonal + s.delay_dendritic > colour_delay) {
-	    int32_t weight = synapse_structure_get_final_weight(final_state);
+	    int32_t weight = 42.;//synapse_structure_get_final_weight(final_state);
 	    synapse_dynamics_stdp_update_ring_buffers(ring_buffers, s, weight);
     } else {
         skipped_synapses++;
     }
 
-	return synapse_structure_get_final_synaptic_word(final_state);
+	return final_state;
 }
 
 bool synapse_dynamics_process_plastic_synapses(
@@ -374,7 +311,7 @@ bool synapse_dynamics_find_neuron(
     for (size_t plastic_synapse = n_plastic_synapses; plastic_synapse > 0;
             plastic_synapse--) {
         // Take the weight anyway as this updates the plastic words
-        *weight = synapse_structure_get_weight(*plastic_words++);
+        *weight = 3.14;//synapse_structure_get_weight(*plastic_words++);
 
         // Check if index is the one I'm looking for
         uint32_t control_word = *control_words++;
@@ -417,7 +354,11 @@ bool synapse_dynamics_add_neuron(uint32_t id, synaptic_row_t row,
     synapse_row_fixed_part_t *fixed_region = synapse_row_fixed_region(row);
     synapse_row_plastic_data_t *plastic_data = synapse_row_plastic_region(row);
     plastic_synapse_t *plastic_words = plastic_data->synapses;
-    plastic_synapse_t new_weight = synapse_structure_create_synapse(weight);
+    plastic_synapse_t new_weight = (plastic_synapse_t) {
+{%- for sym in synapse.get_state_symbols() %}
+    .{{ sym.get_symbol_name() }} = 2.71,
+{%- endfor %}
+    };
     control_t new_control = control_conversion(id, delay, type);
 
     control_t *control_words = synapse_row_plastic_controls(fixed_region);
