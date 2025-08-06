@@ -11,10 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 from __future__ import annotations
-import math
+
 from typing import Any, Iterable, List, Optional, Tuple, TYPE_CHECKING
 
+import math
 import numpy
 from numpy import floating, integer, uint8, uint16, uint32
 from numpy.typing import NDArray
@@ -23,10 +25,10 @@ from pyNN.standardmodels.synapses import StaticSynapse
 
 from spinn_utilities.overrides import overrides
 
+from spinn_front_end_common.interface.ds import DataType
 from spinn_front_end_common.interface.ds import DataSpecificationBase
 from spinn_front_end_common.utilities.constants import (
     BYTES_PER_WORD, BYTES_PER_SHORT)
-
 from spynnaker.pyNN.data import SpynnakerDataView
 from spynnaker.pyNN.exceptions import (
     SynapticConfigurationException, InvalidParameterType)
@@ -37,15 +39,11 @@ from spynnaker.pyNN.types import Weight_Delay_In_Types as _In_Types
 from spynnaker.pyNN.utilities.utility_calls import get_n_bits
 from spynnaker.pyNN.models.neuron.synapse_dynamics.types import (
     NUMPY_CONNECTORS_DTYPE)
-
 from spynnaker.pyNN.models.neuron.synapse_dynamics.abstract_plastic_synapse_dynamics import AbstractPlasticSynapseDynamics
 from spynnaker.pyNN.models.neuron.synapse_dynamics.abstract_synapse_dynamics_structural import (
     AbstractSynapseDynamicsStructural)
 from spynnaker.pyNN.models.neuron.synapse_dynamics.abstract_generate_on_machine import (
     AbstractGenerateOnMachine, MatrixGeneratorID)
-
-
-
 from spynnaker.pyNN.models.neuron.synapse_dynamics.synapse_dynamics_neuromodulation import SynapseDynamicsNeuromodulation
 from spynnaker.pyNN.models.neuron.synapse_dynamics.synapse_dynamics_weight_changable import SynapseDynamicsWeightChangable
 from spynnaker.pyNN.models.neuron.synapse_dynamics.synapse_dynamics_weight_changer import SynapseDynamicsWeightChanger
@@ -68,7 +66,7 @@ NEUROMODULATION_TARGETS = {
 }
 
 
-class {{synapseName}}Dynamics(
+class {{ synapseName }}Dynamics(
         AbstractPlasticSynapseDynamics,
         AbstractGenerateOnMachine):
     """
@@ -103,6 +101,7 @@ class {{synapseName}}Dynamics(
         :type pad_to_length: int or None
         :param bool backprop_delay:
         """
+        print("Initialising the synapse with weight = " + str(weight))
         if voltage_dependence is not None:
             raise NotImplementedError(
                 "Voltage dependence has not been implemented")
@@ -260,7 +259,7 @@ class {{synapseName}}Dynamics(
         spec.write_value(int(self.__backprop_delay))
 
         spec.write_value(
-                data=int(round(self._w)),
+                data=int(round(1.618)),  # XXX should be "self.state.w"
                 data_type=DataType.INT32)
                 
         if self.__neuromodulation:
@@ -297,7 +296,7 @@ class {{synapseName}}Dynamics(
         pp_size_bytes = (
             self._n_header_bytes +
             10 * # XXX TODO should be synapse_structure.get_n_half_words_per_connection() *
-             BYTES_PER_SHORT * n_connections))
+             BYTES_PER_SHORT * n_connections)
         # Neuromodulation synapses have the actual weight separately
         if self.__neuromodulation:
             pp_size_bytes += BYTES_PER_SHORT * n_connections
@@ -590,137 +589,3 @@ class {{synapseName}}Dynamics(
         # From Synapse-Centric Mapping of Cortical Models to the SpiNNaker
         # Neuromorphic Architecture
         return 1400000
-
-        return 1400000
-
-     # From Synapse-Centric Mapping of Cortical Models to the SpiNNaker
-        # Neuromorphic Architecture
-        return 1400000
-
-eturn 1400000
-
-turn 1400000
-
-morphic Architecture
-        return 1400000
-
-icSynapseDynamics.synapses_per_second)
-    def synapses_per_second(self) -> int:
-        # From Synapse-Centric Mapping of Cortical Models to the SpiNNaker
-        # Neuromorphic Architecture
-        return 1400000
-
-ric Mapping of Cortical Models to the SpiNNaker
-        # Neuromorphic Architecture
-        return 1400000
-
-      # From Synapse-Centric Mapping of Cortical Models to the SpiNNaker
-        # Neuromorphic Architecture
-        return 1400000
-
-re
-        return 1400000
-
- def synapses_per_second(self) -> int:
-        # From Synapse-Centric Mapping of Cortical Models to the SpiNNaker
-        # Neuromorphic Architecture
-        return 1400000
-
-aker
-        # Neuromorphic Architecture
-        return 1400000
-
-elf) -> int:
-        # From Synapse-Centric Mapping of Cortical Models to the SpiNNaker
-        # Neuromorphic Architecture
-        return 1400000
-
-cture
-        return 1400000
-
-pseDynamics.synapses_per_second)
-    def synapses_per_second(self) -> int:
-        # From Synapse-Centric Mapping of Cortical Models to the SpiNNaker
-        # Neuromorphic Architecture
-        return 1400000
-
-bstractPlasticSynapseDynamics.pad_to_length)
-    def pad_to_length(self) -> Optional[int]:
-        return self.__pad_to_length
-
-    @property
-    @overrides(AbstractPlasticSynapseDynamics.synapses_per_second)
-    def synapses_per_second(self) -> int:
-        # From Synapse-Centric Mapping of Cortical Models to the SpiNNaker
-        # Neuromorphic Architecture
-        return 1400000
-
-c Mapping of Cortical Models to the SpiNNaker
-        # Neuromorphic Architecture
-        return 1400000
-
-# Neuromorphic Architecture
-        return 1400000
-
-# Neuromorphic Architecture
-        return 1400000
-
-def is_split_core_capable(self) -> bool:
-        return True
-
-    @property
-    @overrides(AbstractPlasticSynapseDynamics.pad_to_length)
-    def pad_to_length(self) -> Optional[int]:
-        return self.__pad_to_length
-
-    @property
-    @overrides(AbstractPlasticSynapseDynamics.synapses_per_second)
-    def synapses_per_second(self) -> int:
-        # From Synapse-Centric Mapping of Cortical Models to the SpiNNaker
-        # Neuromorphic Architecture
-        return 1400000
-
-ker
-        # Neuromorphic Architecture
-        return 1400000
-
-gth
-
-    @property
-    @overrides(AbstractPlasticSynapseDynamics.synapses_per_second)
-    def synapses_per_second(self) -> int:
-        # From Synapse-Centric Mapping of Cortical Models to the SpiNNaker
-        # Neuromorphic Architecture
-        return 1400000
-
- Neuromorphic Architecture
-        return 1400000
-
-ength(self) -> Optional[int]:
-        return self.__pad_to_length
-
-    @property
-    @overrides(AbstractPlasticSynapseDynamics.synapses_per_second)
-    def synapses_per_second(self) -> int:
-        # From Synapse-Centric Mapping of Cortical Models to the SpiNNaker
-        # Neuromorphic Architecture
-        return 1400000
-
-ping of Cortical Models to the SpiNNaker
-        # Neuromorphic Architecture
-        return 1400000
-
-ynapses_per_second(self) -> int:
-        # From Synapse-Centric Mapping of Cortical Models to the SpiNNaker
-        # Neuromorphic Architecture
-        return 1400000
-
-n self.__pad_to_length
-
-    @property
-    @overrides(AbstractPlasticSynapseDynamics.synapses_per_second)
-    def synapses_per_second(self) -> int:
-        # From Synapse-Centric Mapping of Cortical Models to the SpiNNaker
-        # Neuromorphic Architecture
-        return 1400000
-

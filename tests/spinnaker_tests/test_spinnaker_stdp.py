@@ -71,9 +71,6 @@ class TestSpiNNakerSTDP:
         from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml__with_stdp_synapse_nestml import iaf_psc_exp_neuron_nestml__with_stdp_synapse_nestml as iaf_psc_exp_neuron_nestml
         from python_models8.neuron.implementations.stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml_impl import stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestmlDynamics as stdp_synapse_nestml
 
-        from python_models8.neuron.builds.stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml_timing import MyTimingDependence
-        from python_models8.neuron.builds.stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml_weight import MyWeightDependence
-
         p.setup(timestep=1.0)
         exc_input = "exc_spikes"
 
@@ -92,14 +89,14 @@ class TestSpiNNakerSTDP:
 
         #connect exc populations with pre and post populations
         p.Projection(
-            pre_excitation, pre_spiking_neuron,
+            pre_input, pre_spiking,
             p.OneToOneConnector(), receptor_type=exc_input,
-            synapse_type=p.StaticSynapse(weight=weight))
+            synapse_type=p.StaticSynapse(weight=weight_pre))
 
         p.Projection(
-            post_excitation, post_spiking_neuron,
+            post_input, post_spiking,
             p.OneToOneConnector(), receptor_type=exc_input,
-            synapse_type=p.StaticSynapse(weight=weight))
+            synapse_type=p.StaticSynapse(weight=weight_post))
 
 
 
@@ -123,27 +120,21 @@ class TestSpiNNakerSTDP:
 
 
 
-#TODO connect pre and post receiver neurons with stdp synapse
-
-        #timing and weight are fixed in stdp model
-        #timing_rule = MyTimingDependence(my_depression_parameter=20.0, my_potentiation_parameter=20.0,A_plus=2, A_minus=2)
-        #weight_rule = MyWeightDependence(w_max=10, w_min=0)
-
 #        stdp_model = stdp_synapse_nestml()
 #        stdp_projection = p.Projection(pre_spiking_neuron,post_spiking_neuron,p.OneToOneConnector(),synapse_type=stdp_model,receptor_type=exc_input)
 
         #connecting inputs with spiking neuron populations
-        pre_input2spiking = p.Projection(pre_input, pre_spiking, p.OneToOneConnector(), synapse_type=p.StaticSynapse(weight=weight_pre, delay=1),receptor_type=exc_input)
-        post_input2spiking = p.Projection(post_input, post_spiking, p.OneToOneConnector(), synapse_type=p.StaticSynapse(weight=weight_post, delay=1),receptor_type=exc_input)
+        #pre_input2spiking = p.Projection(pre_input, pre_spiking, p.OneToOneConnector(), synapse_type=p.StaticSynapse(weight=weight_pre, delay=1),receptor_type=exc_input)
+        #post_input2spiking = p.Projection(post_input, post_spiking, p.OneToOneConnector(), synapse_type=p.StaticSynapse(weight=weight_post, delay=1),receptor_type=exc_input)
 
-        stdp_model = stdp_synapse_nestml(weight=2.5, delay=1, A_plus=1.1, A_minus=0.9)
+        stdp_model = stdp_synapse_nestml() #weight=2.5, delay=1, A_plus=1.1, A_minus=0.9)
         stdp_projection = p.Projection(pre_spiking,post_spiking,p.AllToAllConnector(),synapse_type=stdp_model,receptor_type=exc_input)
 
         #initialise lists for axis
         res_weights = []
         spike_time_axis = []
         #run time of the simulator
-        simtime = 400
+        simtime = 1100
         #nr of iterations maxit has to be smaller than simtime
         max_it = 200
         #datapoints generated
@@ -158,13 +149,11 @@ class TestSpiNNakerSTDP:
         #TODO 100 300 funktioniert am besten
         #größere differenz ist besser
 
-        pre_input.set(spike_times=[100,300])
+        pre_input.set(spike_times=[100,1000])
 
         import numpy as np
         #calculate all data points
         for t_post in np.linspace(0,max_it,points_gen):
-
-
                 post_input.set(spike_times=[t_post])
 
                 p.run(simtime)
