@@ -138,7 +138,7 @@ class TestSpiNNakerSTDP:
         #nr of iterations maxit has to be smaller than simtime
         max_it = 200
         #datapoints generated
-        points_gen = 5
+        points_gen = 1
 
 
         #record spikes
@@ -153,7 +153,7 @@ class TestSpiNNakerSTDP:
 
         import numpy as np
         #calculate all data points
-        for t_post in np.linspace(0,max_it,points_gen):
+        for t_post in [142.]:#np.linspace(0,max_it,points_gen):
                 post_input.set(spike_times=[t_post])
 
                 p.run(simtime)

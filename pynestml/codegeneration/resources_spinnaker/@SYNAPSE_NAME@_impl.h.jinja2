@@ -197,7 +197,7 @@ static uint32_t plastic_saturation_count = 0;
 static inline bool synapse_dynamics_stdp_init(
         address_t *address, stdp_params *params, uint32_t n_synapse_types,
         uint32_t *ring_buffer_to_input_buffer_left_shifts) {
-
+    log_info("[NESTML synapse] synapse_dynamics_stdp_init()");
     // Load parameters
     stdp_params *sdram_params = (stdp_params *) *address;
     spin1_memcpy(params, sdram_params, sizeof(stdp_params));
@@ -244,6 +244,7 @@ static inline fixed_stdp_synapse synapse_dynamics_stdp_get_fixed(
     // Extract control-word components
     // **NOTE** cunningly, control word is just the same as lower
     // 16-bits of 32-bit fixed synapse so same functions can be used
+    log_info("[NESTML synapse] synapse_dynamics_stdp_get_fixed()");
     uint32_t delay_dendritic = synapse_row_sparse_delay(control_word,
             synapse_type_index_bits, synapse_delay_mask);
     uint32_t delay_axonal = 0;  //sparse_axonal_delay(control_word);
@@ -435,14 +436,14 @@ static inline void post_events_add(
 static inline void print_delayed_window_events(
         const post_event_history_t *post_event_history,
         uint32_t begin_time, uint32_t end_time, uint32_t delay_dendritic) {
-    log_info("     ##  printing post window  ##");
+    log_info("[NESTML synapse]      ##  printing post window  ##");
     post_event_window_t post_window = post_events_get_window_delayed(
             post_event_history, begin_time, end_time);
 
     while (post_window.num_events > 0) {
         const uint32_t delayed_post_time =
                 *post_window.next_time + delay_dendritic;
-        log_info("post spike: %u, time: %u, trace: %u",
+        log_info("[NESTML synapse] post spike: %u, time: %u, trace: %u",
                 post_window.num_events, delayed_post_time,
                 *post_window.next_trace);
 
@@ -469,6 +470,7 @@ static inline plastic_synapse_t weight_get_initial(
 //    extern plasticity_weight_region_data_t *plasticity_weight_region_data;
 //    extern uint32_t *weight_shift;
 
+    log_info("[NESTML synapse] weight_get_initial()");
     accum s1615_weight = weight; //kbits(weight << weight_shift[synapse_type]);
     return (plastic_synapse_t) {
         .w = s1615_weight,
@@ -507,7 +509,7 @@ static inline accum weight_get_update(plastic_synapse_t state) {
 static inline post_trace_t timing_add_post_spike(
         uint32_t time, uint32_t last_time, post_trace_t last_trace) {
 
-    log_info("In timing_add_post_spike()");
+    log_info("[NESTML synapse] In timing_add_post_spike()");
 /*
     uint32_t delta_time = time - last_time;
 
@@ -550,7 +552,7 @@ void synapse_dynamics_process_post_synaptic_event(
 static inline pre_trace_t timing_add_pre_spike(
         uint32_t time, uint32_t last_time, pre_trace_t last_trace) {
 
-    log_info("In timing_add_pre_spike()");
+    log_info("[NESTML synapse] In timing_add_pre_spike()");
 
 /*    // Get time since last spike
     uint32_t delta_time = time - last_time;
@@ -618,7 +620,7 @@ static inline plastic_synapse_t timing_apply_post_spike(
         UNUSED post_trace_t last_post_trace, plastic_synapse_t previous_state) {
     extern int16_lut *tau_plus_lookup;
 
-    log_info("timing_apply_post_spike()");
+    log_info("[NESTML synapse] timing_apply_post_spike()");
 
 #ifdef FOOBAR
     // Get time of event relative to last pre-synaptic event
