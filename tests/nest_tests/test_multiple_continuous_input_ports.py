@@ -58,7 +58,7 @@ class TestMultipleInputPorts:
         v_m1 = nest.GetStatus(mm, "events")[0]["V_m1"]
         v_m2 = nest.GetStatus(mm, "events")[0]["V_m2"]
 
-        print(v_m1, v_m2)
-
+        # Taking the delay into consideration, which is 1 ms by default (10 timesteps), and that we add the external current at the end of the update() function, i.e., after all the update statements are executed,
+        # plus, the multimeter records 90 values (out of 100 timesteps) due to the min_delay, the final value of v_m1 = (90-11)*150/5 = 2370. The same holds true for v_m2.
         np.testing.assert_allclose(v_m1[-1], 2370)
         np.testing.assert_allclose(v_m2[-1], 1767.5)
