@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Union
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Union
 
 import re
 import sympy
@@ -517,6 +517,16 @@ class ASTUtils:
         model.accept(ASTParentVisitor())
 
         return model
+
+    @classmethod
+    def remove_empty_equations_blocks(cls, model: ASTModel) -> None:
+        equations_blocks_to_remove = []
+        for equation_block in model.get_equations_blocks():
+            if not equation_block.get_declarations():
+                equations_blocks_to_remove.append(equation_block)
+
+        for equations_block_to_remove in equations_blocks_to_remove:
+            model.get_body().get_body_elements().remove(equations_block_to_remove)
 
     @classmethod
     def contains_convolve_call(cls, variable: VariableSymbol) -> bool:
@@ -2626,3 +2636,15 @@ class ASTUtils:
             return astnode.get_initial_value(var)
 
         return "0"
+
+    @classmethod
+    def find_parent_node_by_type(cls, node: ASTNode, type_to_find: Any) -> Optional[Any]:
+        r"""Find the first parent of the given node that has the type ``type_to_find``. Return None if no parent with that type could be found."""
+        _node = node.get_parent()
+        while _node:
+            if isinstance(_node, type_to_find):
+                return _node
+
+            _node = _node.get_parent()
+
+        return None
