@@ -72,7 +72,7 @@ model izhikevich_neuron_psc_exp_NO_ISTIM:
 
     parameters:
         aaa s**-1 = 0.02/ms   # describes time scale of recovery variable - technically this is in 1/ms
-        bbb real = 0.2         # sensitivity of recovery variable
+        bbb real = 0.2        # sensitivity of recovery variable
         ccc V = -65 mV        # after-spike reset value of V_m
         ddd V = 8.0mV         # after-spike reset value of U_m
         V_m_init V = -65 mV   # initial membrane potential
