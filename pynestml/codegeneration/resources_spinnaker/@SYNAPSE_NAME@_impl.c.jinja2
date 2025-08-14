@@ -1,6 +1,100 @@
 
 #include "{{ synapseName }}_impl.h"
 
+#define DEBUG
+
+
+
+
+
+
+
+
+// Define the number of fractional bits for the S16.15 format.
+#define FRACTIONAL_BITS 15
+
+// Define the number of decimal places to generate for the fractional part.
+// log10(2^15) is approx 4.5, so 5 digits is enough to show the precision.
+#define DECIMAL_PLACES 5
+
+/**
+ * @brief Converts a signed 16.15 fixed-point number to a string.
+ *
+ * This function converts a 32-bit integer representing an S16.15
+ * fixed-point number into a human-readable string format (e.g., "-123.45678").
+ * It does not use any floating-point arithmetic.
+ *
+ * @param fixed_val The S16.15 fixed-point number to convert.
+ * @param buffer A character buffer to store the resulting string. It should be
+ * large enough to hold the longest possible number.
+ * (e.g., "-32768.99998" plus a null terminator). A size of 15 is safe.
+ */
+void s1615_to_string(int32_t fixed_val, char* buffer) {
+    // Use an unsigned integer to handle the full range, including INT32_MIN,
+    // as -INT32_MIN cannot be represented by a positive int32_t.
+    uint32_t u_val;
+
+    // Handle the sign.
+    if (fixed_val < 0) {
+        *buffer++ = '-';
+        // Safely negate the value.
+        u_val = (uint32_t)-fixed_val;
+    } else {
+        u_val = (uint32_t)fixed_val;
+    }
+
+    // --- 1. Extract and print the integer part ---
+    uint32_t integer_part = u_val >> FRACTIONAL_BITS;
+
+    // To print the integer part without sprintf, we find the largest power of 10
+    // smaller than the number and print digits from left to right.
+    uint32_t power_of_10 = 1;
+    while (power_of_10 <= integer_part / 10 && power_of_10 < 10000) { // Max integer is 32768
+        power_of_10 *= 10;
+    }
+
+    // If the integer part is 0, we must print a '0'.
+    if (integer_part == 0) {
+        *buffer++ = '0';
+    } else {
+        // Print each digit of the integer part.
+        while (power_of_10 > 0) {
+            uint32_t digit = integer_part / power_of_10;
+            *buffer++ = digit + '0';
+            integer_part %= power_of_10;
+            power_of_10 /= 10;
+        }
+    }
+
+    // Add the decimal point.
+    *buffer++ = '.';
+
+    // --- 2. Extract and print the fractional part ---
+    // Create a mask for the fractional bits (2^15 - 1).
+    uint32_t fractional_mask = (1 << FRACTIONAL_BITS) - 1;
+    uint32_t fractional_part = u_val & fractional_mask;
+
+    // The fractional part is (fractional_part / 2^15).
+    // To get decimal digits, we repeatedly multiply by 10.
+    for (int i = 0; i < DECIMAL_PLACES; ++i) {
+        // Multiply by 10 to shift the next decimal digit into the integer position.
+        fractional_part *= 10;
+
+        // The digit is the new integer part of the fraction.
+        uint32_t digit = fractional_part >> FRACTIONAL_BITS;
+        *buffer++ = digit + '0';
+
+        // The remainder is the new fractional part.
+        fractional_part &= fractional_mask;
+    }
+
+    // Null-terminate the string.
+    *buffer = '\0';
+}
+
+
+
+
 
 
 
@@ -61,8 +155,8 @@ static inline plastic_synapse_t plasticity_update_synapse(
     post_event_window_t post_window = post_events_get_window_delayed(
             post_event_history, window_begin_time, window_end_time);
 
-    log_debug("\tPerforming deferred synapse update at time:%u", time);
-    log_debug("\t\tbegin_time:%u, end_time:%u - prev_time:%u (valid %u), num_events:%u",
+    log_debug("[NESTML synapse] \tPerforming deferred synapse update at time:%u", time);
+    log_debug("[NESTML synapse] \t\tbegin_time:%u, end_time:%u - prev_time:%u (valid %u), num_events:%u",
             window_begin_time, window_end_time, post_window.prev_time,
             post_window.prev_time_valid, post_window.num_events);
 
@@ -107,12 +201,37 @@ bool synapse_dynamics_initialise(
         address_t address, uint32_t n_neurons, uint32_t n_synapse_types,
         uint32_t *ring_buffer_to_input_buffer_left_shifts) {
 
+    char _string_buf[20];
 
-    log_info("[NESTML synapse] In synapse_dynamics_initialise()");
+    log_info("[NESTML synapse] In synapse_dynamics_initialise(n_neurons = %d, n_synapse_types = %d)", n_neurons, n_synapse_types);
 
-    if (!synapse_dynamics_stdp_init(&address, &params, n_synapse_types,
+    /*if (!synapse_dynamics_stdp_init(&address, &params, n_synapse_types,
                 ring_buffer_to_input_buffer_left_shifts)) {
         return false;
+    }*/
+
+
+    // Load parameters
+    plasticity_weight_region_data_t *config = (plasticity_weight_region_data_t *) address;
+    plasticity_weight_region_data_t *dtcm_copy = spin1_malloc(sizeof(plasticity_weight_region_data_t) * n_synapse_types);
+
+    if (dtcm_copy == NULL) {
+        log_error("Could not initialise weight region data");
+        return false;
+    }
+
+    for (uint32_t s = 0; s < n_synapse_types; s++, config++) {
+{%- for sym in synapse.get_parameter_symbols() %}
+        dtcm_copy[s].{{ sym.get_symbol_name() }} = config->{{ sym.get_symbol_name() }};
+#ifdef DEBUG
+//        log_info("\t[NESTML synapse] \tSynapse type %u: Parameter {{ sym.get_symbol_name() }}, Value: %k", s, dtcm_copy[s].{{ sym.get_symbol_name() }});
+        s1615_to_string(dtcm_copy[s].{{ sym.get_symbol_name() }}, _string_buf);
+        log_info("\t[NESTML synapse] \tSynapse type %u: Parameter {{ sym.get_symbol_name() }}, Raw value: %x, Decoded float value: %s", s, dtcm_copy[s].{{ sym.get_symbol_name() }}, _string_buf);
+#endif
+{%- endfor %}
+
+        // Copy weight shift
+        //weight_shift[s] = ring_buffer_to_input_buffer_left_shifts[s];
     }
 
     post_event_history = post_events_init_buffers(n_neurons);
