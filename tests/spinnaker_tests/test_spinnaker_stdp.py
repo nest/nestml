@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 #
 # test_spinnaker_stdp.py
@@ -73,6 +72,7 @@ class TestSpiNNakerSTDP:
 
         p.setup(timestep=1.0)
         exc_input = "exc_spikes"
+        inh_input = "inh_spikes"
 
         #inputs for pre and post synaptic neurons
         pre_input = p.Population(1, p.SpikeSourceArray(spike_times=[0]), label="pre_input")
@@ -127,8 +127,9 @@ class TestSpiNNakerSTDP:
         #pre_input2spiking = p.Projection(pre_input, pre_spiking, p.OneToOneConnector(), synapse_type=p.StaticSynapse(weight=weight_pre, delay=1),receptor_type=exc_input)
         #post_input2spiking = p.Projection(post_input, post_spiking, p.OneToOneConnector(), synapse_type=p.StaticSynapse(weight=weight_post, delay=1),receptor_type=exc_input)
 
-        stdp_model = stdp_synapse_nestml() #weight=2.5, delay=1, A_plus=1.1, A_minus=0.9)
-        stdp_projection = p.Projection(pre_spiking,post_spiking,p.AllToAllConnector(),synapse_type=stdp_model,receptor_type=exc_input)
+        stdp_model = stdp_synapse_nestml()
+        stdp_projection = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type=exc_input)
+        stdp_projection_inh = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type=inh_input)
 
         #initialise lists for axis
         res_weights = []

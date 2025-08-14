@@ -237,8 +237,7 @@ class {{ synapseName }}Dynamics(
         :rtype: int
         """
         n_parameters = {{ synapse.get_parameter_symbols() | length }}
-        #size = n_parameters * BYTES_PER_WORD * n_synapse_types
-        size = 10 * BYTES_PER_WORD * n_synapse_types
+        size = n_parameters * BYTES_PER_WORD * n_synapse_types
 
         if self.__neuromodulation:
             size += self.__neuromodulation.get_parameters_sdram_usage_in_bytes(
