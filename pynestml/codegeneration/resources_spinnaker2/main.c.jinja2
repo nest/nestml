@@ -11,7 +11,6 @@
 #include "population_table.h"
 #include "regions.h"
 #include "synapses.h"
-// #include "spike_processing.h"
 #include "global_params.h"
 #include "simulation.h"
 
@@ -348,7 +347,7 @@ int main()
 
     //    // debug
     //    log_info("test\n");
-    //    print_neuron_params();
+    print_neuron_params();
 
     // timer config
     initialise_simulation(data_specification_get_region(SIMULATION_REGION, ds_regions));

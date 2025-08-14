@@ -41,6 +41,7 @@ from spinnaker2.neuron_models.common import (
 
 
 class {{neuronName}}Application(BaseApplication):
+    app_name =  "{{ neuronName }}"
     sw_spec = SynapseWordSpec(
         word_size=SynapseWordSize.SIZE_16,
         weight=4,
@@ -66,15 +67,17 @@ class {{neuronName}}Application(BaseApplication):
         "calculation_timestep_in_s": 10.0,
         "weight_scaling_factor": 0.0,
     }
-{%- if uses_analytic_solver %}
+
     propagators = {
+        {%- if uses_analytic_solver and not uses_numeric_solver %}
         {%- for propagator in neuron.get_internal_symbols() | sort(attribute='name') %}
             {%- if propagator.name != '__h' %}
             "{{ propagator.name }}": "{{ printer.print(propagator.declaring_expression) }}",
             {%- endif  %}
         {%- endfor %}
+        {%- endif %}
     }
-{%- endif %}
+
 
 {#    propagators = {#}
 {#        {%- for name, value in propagators | dictsort %}#}
@@ -122,8 +125,7 @@ class {{neuronName}}Application(BaseApplication):
     )
 
     def __init__(self):
-        app_name =  "{{ neuronName }}"
-        BaseApplication.__init__(self, name=app_name)
+        super().__init__(self.app_name)
 
     def calculate_propagator_expressions(self, default_parameters, propagators, user_params):
         """

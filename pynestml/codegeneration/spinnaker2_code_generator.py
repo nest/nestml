@@ -35,7 +35,7 @@ from pynestml.codegeneration.printers.python_stepping_function_function_call_pri
 from pynestml.codegeneration.printers.python_stepping_function_variable_printer import PythonSteppingFunctionVariablePrinter
 from pynestml.codegeneration.printers.python_variable_printer import PythonVariablePrinter
 from pynestml.codegeneration.printers.spinnaker_python_function_call_printer import SpinnakerPythonFunctionCallPrinter
-from pynestml.codegeneration.printers.spinnaker_python_simple_expression_printer import SpinnakerPythonSimpleExpressionPrinter
+from pynestml.codegeneration.printers.spinnaker2_python_simple_expression_printer import SpinnakerPythonSimpleExpressionPrinter
 from pynestml.codegeneration.printers.spinnaker_python_type_symbol_printer import SpinnakerPythonTypeSymbolPrinter
 from pynestml.codegeneration.python_standalone_code_generator import PythonStandaloneCodeGenerator
 from pynestml.codegeneration.python_code_generator_utils import PythonCodeGeneratorUtils
@@ -231,13 +231,25 @@ class Spinnaker2CodeGenerator(CodeGenerator):
         }
     }
 
+    def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
+        if "solver" in options.keys():
+            self.codegen_cpp.set_options({"solver": options["solver"]})
+            self.codegen_py.set_options({"solver": options["solver"]})
+            options.pop("solver")
+
+        if "numeric_solver" in options.keys():
+            self.codegen_cpp.set_options({"numeric_solver": options["numeric_solver"]})
+            self.codegen_py.set_options({"numeric_solver": options["numeric_solver"]})
+            options.pop("numeric_solver")
+
+        ret = super().set_options(options)
+
+        return ret
+
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super().__init__(options)
 
         options_cpp = copy.deepcopy(NESTCodeGenerator._default_options)
-        options_cpp["solver"] = "analytic"
-        options_cpp["numeric_solver"] = 'forward-Euler'
-        # options_cpp["neuron_synapse_pairs"] = self._options["neuron_synapse_pairs"]
         options_cpp["templates"]["model_templates"]["neuron"] = [fname for fname in
                                                                  self._options["templates"]["model_templates"]["neuron"]
                                                                  if ((fname.endswith(".h.jinja2") or fname.endswith(".c.jinja2") or fname.endswith(".ld.jinja2")

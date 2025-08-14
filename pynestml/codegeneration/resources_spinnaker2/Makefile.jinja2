@@ -8,5 +8,7 @@ LIBS += -lspike-comms
 ROUTING_SETTINGS ?= MC_ROUTING SINGLE_CHIP=1
 DEFS += $(ROUTING_SETTINGS)
 $(info DEFS is: $(DEFS))
-#include ../Makefile.default.with_s2lib
-include ../Makefile.default
+# include ../Makefile.default
+# temporarily hardcoded:
+# include /home/weih/updated_pyspinnaker2/py-spinnaker2/src/spinnaker2/libs/chip/app-pe/s2app/Makefile.default
+include $(DEFAULT_MAKEFILE_PATH)/Makefile.default

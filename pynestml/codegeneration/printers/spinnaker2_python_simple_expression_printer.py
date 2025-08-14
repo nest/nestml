@@ -19,7 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from spinn_front_end_common.interface.ds import DataType
 
 from pynestml.codegeneration.printers.simple_expression_printer import SimpleExpressionPrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
@@ -79,7 +78,4 @@ class SpinnakerPythonSimpleExpressionPrinter(SimpleExpressionPrinter):
         return self.print_simple_expression(node)
 
     def print(self, node: ASTNode) -> str:
-        if node.get_implicit_conversion_factor() and not node.get_implicit_conversion_factor() == 1:
-            return "(" + str(node.get_implicit_conversion_factor()) + " * (" + self._print(node) + "))"
-
         return self._print(node)

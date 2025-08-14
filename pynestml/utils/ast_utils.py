@@ -609,6 +609,22 @@ class ASTUtils:
         model.accept(remove_state_var_from_integrate_odes_calls_visitor)
 
     @classmethod
+    def collect_integrate_odes(cls, model: ASTModel):
+
+        class CollectIntegrateOdesVisitor(ASTVisitor):
+            node_list = []
+
+            def visit_function_call(self, node):
+                if node.get_name() == PredefinedFunctions.INTEGRATE_ODES:
+                    self.node_list.append(node)
+
+
+        collect_integrate_odes_visitor = CollectIntegrateOdesVisitor()
+        model.accept(collect_integrate_odes_visitor)
+        return collect_integrate_odes_visitor.node_list
+
+
+    @classmethod
     def resolve_variables_to_expressions(cls, astnode, analytic_state_variables_moved):
         """receives a list of variable names (as strings) and returns a list of ASTExpressions containing each ASTVariable"""
         expressions = []
@@ -1640,7 +1656,41 @@ class ASTUtils:
     #     return propagators_as_math_expressions
     #
     # # @classmethod
-    # # def
+
+    # @classmethod
+    # def check_if_statevar_depends_on_spikes(cls, varname:str, neuron:ASTModel) -> str:
+    #     """
+    #     The helper method checks if the variable name, meant to be used with state variables, depends on a spike through an onReceive block
+    #     :param varname: string (state) variable name, e.g. I_syn_exc
+    #     :param neuron: the full neuron model AST
+    #     :return: string - returns the port name the state variable depends on, e.g. "exc_spikes"/ "inh_spikes" otherwise "no_dep" is returned
+    #     """
+    #     result_str=""
+    #     onRecieveBlocks = neuron.get_on_receive_blocks()
+    #     for onRecieveBlock in onRecieveBlocks:
+    #         if varname == onRecieveBlock.stmts_body.stmts[0].small_stmt.assignment.lhs.name:
+    #             return onRecieveBlock.port_name
+    #         else:
+    #             result_str = "no_dep"
+    #     return result_str
+    # pass
+
+    @classmethod
+    def check_if_statevar_depends_on_spikes(cls, varname:str, neuron:ASTModel) -> str:
+        """
+        The helper method checks if the variable name, meant to be used with state variables, depends on a spike through an onReceive block
+        :param varname: string (state) variable name, e.g. I_syn_exc
+        :param neuron: the full neuron model AST
+        :return: string - returns the port name the state variable depends on, e.g. "exc_spikes"/ "inh_spikes" otherwise "no_dep" is returned
+        """
+        result=[]
+        onRecieveBlocks = neuron.get_on_receive_blocks()
+        for onRecieveBlock in onRecieveBlocks:
+            if varname == onRecieveBlock.stmts_body.stmts[0].small_stmt.assignment.lhs.name:
+                result.append(onRecieveBlock.port_name)
+
+        return sorted(result)
+    pass
 
     @classmethod
     def get_internal_by_name(cls, node: ASTModel, var_name: str) -> ASTDeclaration:

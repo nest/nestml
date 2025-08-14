@@ -2,13 +2,13 @@
 #include "global_params.h"
 #include "simulation.h"
 #include {{ "<" }}spike_comms_common.h{{ ">" }}
-{% if uses_numeric_solver %}
-    {% if "rk4" in numeric_solver %}
+{%- if uses_numeric_solver %}
+    {%- if "rk4" in numeric_solver %}
 #include "rk4.h"
-    {% elif "forward-Euler" in numeric_solver %}
+    {%-elif "forward-Euler" in numeric_solver %}
 #include "forward_euler.h"
-    {% endif %}
-{% endif %}
+    {%- endif %}
+{%- endif %}
 
 
 
@@ -94,16 +94,24 @@ void print_neuron_params() {
 }
 
 {%- if uses_numeric_solver == True %}
-    void {{ neuronName }}_rhs(REAL t, const REAL *y, REAL *dydt, uint8_t dim, const void *pp)
-    {
-    neuron_impl_t *neuron = (neuron_impl_t *)pp;
-    (void) y;
-    (void) t;
-    (void) dim;
-    {% for  symbol in numerical_state_symbols %}
-    dydt[{{ loop.index0 }}] = {{ printer.print(numeric_update_expressions[symbol]) }};
-    {% endfor %}
-    }
+{% set integrate_odes_call_list = utils.collect_integrate_odes(neuron) %}
+{%- for call in  integrate_odes_call_list %}
+void {{ neuronName }}{% if call.get_args() | length > 0 %}_{{ utils.integrate_odes_args_str_from_function_call(call) }}_{% endif %}rhs(REAL t, const REAL *y, REAL *dydt, uint8_t dim, const void *pp)
+{
+neuron_impl_t *neuron = (neuron_impl_t *)pp;
+(void) y;
+(void) t;
+(void) dim;
+{%      set numeric_state_variables_to_be_integrated = numeric_state_variables + purely_numeric_state_variables_moved %}
+{%-     if call.get_args() | length > 0 %}
+{%-         set numeric_state_variables_to_be_integrated = utils.filter_variables_list(numeric_state_variables_to_be_integrated, call.get_args()) %}
+{%-     endif %}
+
+{%- for state_variable in numeric_state_variables_to_be_integrated %}
+dydt[{{ loop.index0 }}] = {{ printer.print(numeric_update_expressions[state_variable]) }};
+{%- endfor %}
+}
+{%- endfor %}
 {%- endif  %}
 
 void record_voltages() {
@@ -141,8 +149,8 @@ void neuron_do_timestep_update() {
 
 {# GENERATE THIS!#}
         // get current inputs from buffers
-        REAL I_syn_exc_IN = synapse_types_get_excitatory_input(input_buffers, neuron_index);
-        REAL I_syn_inh_IN = synapse_types_get_inhibitory_input(input_buffers, neuron_index);
+{#        REAL I_syn_exc_IN = synapse_types_get_excitatory_input(input_buffers, neuron_index);#}
+{#        REAL I_syn_inh_IN = synapse_types_get_inhibitory_input(input_buffers, neuron_index);#}
 {# GENERATE THIS!#}
         {%- if neuron.get_update_blocks() %}
         {%-   filter indent(8) %}
@@ -186,7 +194,7 @@ if ({{ printer.print(block.get_cond_expr()) }}){
     {%-     endfor %}
     {%-   endfilter %}
     {%- endif %}
-    record_spike(neuron_index);
+//    record_spike(neuron_index);
     if (global_params_ptr->debug){
         log_info("Neuron %u spiked at time %u\n", neuron_index, systicks);
     }

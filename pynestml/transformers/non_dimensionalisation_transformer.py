@@ -23,7 +23,6 @@ from __future__ import annotations
 
 from typing import Any, Dict, Sequence, Mapping, Optional, Union
 
-from quantities.quantity import get_conversion_factor
 
 
 from pynestml.cocos.co_cos_manager import CoCosManager
@@ -219,7 +218,7 @@ class NonDimensionalisationPreferredPrefixFactorOnRhsVisitor(NonDimVis):
         corresponding_non_diff_variable = regex.match(node.lhs.name).group()
         if hasattr(ASTUtils.get_variable_by_name(self.model, corresponding_non_diff_variable).type_symbol, "astropy_unit"):
             corresponding_non_diff_variable_physical_type_string = str(ASTUtils.get_variable_by_name(self.model, corresponding_non_diff_variable).type_symbol.astropy_unit.physical_type)
-            inverse_preferred_prefix_this_node_string = f"{(1.0E-3)*1/self.PREFIX_FACTORS[self.preferred_prefix[corresponding_non_diff_variable_physical_type_string]]:.1E}"
+            inverse_preferred_prefix_this_node_string = f"{1E-3*1/self.PREFIX_FACTORS[self.preferred_prefix[corresponding_non_diff_variable_physical_type_string]]:.1E}"
             # inverse_preferred_prefix_this_node_string = f"{1:.1E}"
             cloned_node = node.clone()
             lhs_expression = ASTSimpleExpression(numeric_literal=float(inverse_preferred_prefix_this_node_string), scope=node.get_scope())
@@ -230,53 +229,57 @@ class NonDimensionalisationPreferredPrefixFactorOnRhsVisitor(NonDimVis):
             cloned_node.rhs = ASTExpression(is_encapsulated=True, expression=new_sub_node, scope=node.get_scope())
             for declaration in node.get_parent().declarations:
                 if declaration.lhs.name == node.lhs.name:
+                    # declaration.rhs = new_sub_node
+                    declaration.rhs.type = RealTypeSymbol()
                     declaration.rhs = cloned_node.rhs
+            # node.rhs = new_sub_node
             return
-        else:
-            return
+        # else:
+        #     return
 
     def visit_on_receive_block(self, node):
         # insert reciprocal of preferred prefix on RHS
         if isinstance(node.stmts_body.stmts[0].small_stmt.assignment, ASTAssignment):
             for state_declaration in self.model.get_state_blocks()[0].declarations:
                 if state_declaration.variables[0].name == node.stmts_body.stmts[0].small_stmt.assignment.lhs.name:
-                    corresponding_physical_type_string = str(state_declaration.variables[0].type_symbol.astropy_unit.physical_type)
-                    inverse_preferred_prefix_this_node_string = f"{1/self.PREFIX_FACTORS[self.preferred_prefix[corresponding_physical_type_string]]:.1E}"
-                    cloned_node = node.clone()
-                    lhs_expression = ASTSimpleExpression(
-                        numeric_literal=float(inverse_preferred_prefix_this_node_string), scope=node.get_scope())
-                    rhs_expression = ASTExpression(is_encapsulated=True, expression=node.stmts_body.stmts[0].small_stmt.assignment.rhs)
-                    new_sub_node = ASTExpression(is_encapsulated=False,
-                                                 binary_operator=ASTArithmeticOperator(is_times_op=True),
-                                                 lhs=lhs_expression, rhs=rhs_expression, scope=node.get_scope())
-                    cloned_node.stmts_body.stmts[0].small_stmt.assignment.rhs = ASTExpression(is_encapsulated=True, expression=new_sub_node,
-                                                    scope=node.get_scope())
-                    # # for on_receive_block in self.model.get_on_receive_blocks():
-                    # #     if on_receive_block.port_name == node.port_name:
-                    # #         on_receive_block.stmts_body.stmts[0].small_stmt.assignment.rhs = cloned_node.stmts_body.stmts[0].small_stmt.assignment.rhs
-                    # #         self.model.accept(ASTParentVisitor())
-                    # for i, on_receive_block in enumerate(self.model.get_on_receive_blocks()):
-                    #     if on_receive_block.port_name == node.port_name:
-                    #         self.model.get_on_receive_blocks()[i] = cloned_node
-                    #         # node = on_receive_block
-                    #         # return super().visit_on_receive_block(node)
-                    assignment = node.stmts_body.stmts[0].small_stmt.assignment
-                    inverse_value = float(inverse_preferred_prefix_this_node_string)
+                    if not isinstance(state_declaration.variables[0].type_symbol, RealTypeSymbol):
+                        corresponding_physical_type_string = str(state_declaration.variables[0].type_symbol.astropy_unit.physical_type)
+                        inverse_preferred_prefix_this_node_string = f"{1/self.PREFIX_FACTORS[self.preferred_prefix[corresponding_physical_type_string]]:.1E}"
+                        cloned_node = node.clone()
+                        lhs_expression = ASTSimpleExpression(
+                            numeric_literal=float(inverse_preferred_prefix_this_node_string), scope=node.get_scope())
+                        rhs_expression = ASTExpression(is_encapsulated=True, expression=node.stmts_body.stmts[0].small_stmt.assignment.rhs)
+                        new_sub_node = ASTExpression(is_encapsulated=False,
+                                                     binary_operator=ASTArithmeticOperator(is_times_op=True),
+                                                     lhs=lhs_expression, rhs=rhs_expression, scope=node.get_scope())
+                        cloned_node.stmts_body.stmts[0].small_stmt.assignment.rhs = ASTExpression(is_encapsulated=True, expression=new_sub_node,
+                                                        scope=node.get_scope())
+                        # # for on_receive_block in self.model.get_on_receive_blocks():
+                        # #     if on_receive_block.port_name == node.port_name:
+                        # #         on_receive_block.stmts_body.stmts[0].small_stmt.assignment.rhs = cloned_node.stmts_body.stmts[0].small_stmt.assignment.rhs
+                        # #         self.model.accept(ASTParentVisitor())
+                        # for i, on_receive_block in enumerate(self.model.get_on_receive_blocks()):
+                        #     if on_receive_block.port_name == node.port_name:
+                        #         self.model.get_on_receive_blocks()[i] = cloned_node
+                        #         # node = on_receive_block
+                        #         # return super().visit_on_receive_block(node)
+                        assignment = node.stmts_body.stmts[0].small_stmt.assignment
+                        inverse_value = float(inverse_preferred_prefix_this_node_string)
 
-                    new_rhs = ASTExpression(
-                        is_encapsulated=True,
-                        expression=ASTExpression(
-                            is_encapsulated=False,
-                            binary_operator=ASTArithmeticOperator(is_times_op=True),
-                            lhs=ASTSimpleExpression(numeric_literal=inverse_value, scope=node.get_scope()),
-                            rhs=ASTExpression(is_encapsulated=True, expression=assignment.rhs, scope=node.get_scope()),
+                        new_rhs = ASTExpression(
+                            is_encapsulated=True,
+                            expression=ASTExpression(
+                                is_encapsulated=False,
+                                binary_operator=ASTArithmeticOperator(is_times_op=True),
+                                lhs=ASTSimpleExpression(numeric_literal=inverse_value, scope=node.get_scope()),
+                                rhs=ASTExpression(is_encapsulated=True, expression=assignment.rhs, scope=node.get_scope()),
+                                scope=node.get_scope()
+                            ),
                             scope=node.get_scope()
-                        ),
-                        scope=node.get_scope()
-                    )
+                        )
 
-                    assignment.rhs = new_rhs
-            pass
+                        assignment.rhs = new_rhs
+                pass
 
     def visit_inline_expression(self, node):
         if not node.data_type.is_real:
