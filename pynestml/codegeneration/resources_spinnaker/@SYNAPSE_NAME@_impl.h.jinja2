@@ -30,6 +30,12 @@
 
 
 
+
+
+
+
+
+
 // stuff from timing.h
 
 typedef struct post_trace_t {
@@ -103,14 +109,57 @@ typedef struct {
 {%- endfor %}
 } plasticity_weight_region_data_t;
 
+
+//! \brief Plastic synapse word
+// n.b.: this needs to add up together to exactly 32 bits
+// contains:
+// - a 16-bit weight
+// - ??? tr_pre
+// - ??? tr_post
+typedef struct synapse_word_t {
+    unsigned int w : 16;        //!< The weight
+    unsigned int pre_trace : 8; // pre trace
+    unsigned int post_trace : 8; // post trace
+} synapse_word_t;
+
+
+
+
+
+
+
+
 //! The current state data for the rule
 typedef struct {
 {%- for sym in synapse.get_state_symbols() %}
     accum {{ sym.get_symbol_name() }};
 {%- endfor %}
     const plasticity_weight_region_data_t *weight_region;
-} plastic_synapse_t;
+} synapse_state_t;
 
+
+
+
+
+
+// stuff from synapse_structure_...._impl.h
+
+//! \brief Get the update state from the synapse structure
+//! \param[in] synaptic_word: The plastic synapse data
+//! \param[in] synapse_type: What (supported) type of synapse is this?
+//! \return The update state
+static inline synapse_state_t synapse_structure_get_update_state(
+        synapse_word_t synaptic_word, index_t synapse_type) {
+    // Create update state, using weight dependance to initialise the weight
+    // state and copying other parameters from the synaptic word into 32-bit
+    // form
+    synapse_state_t update_state;
+{%- for sym in synapse.get_state_symbols() %}
+    update_state.{{ sym.get_symbol_name() }} = synaptic_word.{{ sym.get_symbol_name() }};
+{%- endfor %}
+
+    return update_state;
+}
 
 
 
@@ -433,16 +482,17 @@ static inline void print_delayed_window_events(
  * \param[in] synapse_type: The type of synapse involved
  * \return The initial weight state.
  */
-static inline plastic_synapse_t weight_get_initial(
+static inline synapse_word_t weight_get_initial(
         weight_t weight, index_t synapse_type) {
 //    extern plasticity_weight_region_data_t *plasticity_weight_region_data;
 //    extern uint32_t *weight_shift;
 
     log_info("[NESTML synapse] weight_get_initial()");
     accum s1615_weight = weight; //kbits(weight << weight_shift[synapse_type]);
-    return (plastic_synapse_t) {
+    return (synapse_word_t) {
         .w = s1615_weight,
-      ///  .weight_shift = weight_shift[synapse_type],
+        .pre_trace = 0,
+        .post_trace = 0
       //  .weight_region = &plasticity_weight_region_data[synapse_type]
     };
 }
@@ -453,15 +503,15 @@ static inline plastic_synapse_t weight_get_initial(
  * \param[in] state: The updated weight state
  * \return The new weight.
  */
-static inline weight_t weight_get_final(plastic_synapse_t state) {
-//    return (weight_t) (bitsk(state.weight) >> state.weight_shift);
+static inline weight_t weight_get_final(synapse_word_t state) {
     return (weight_t) (bitsk(state.w) >> 16);
 }
 
-
-static inline accum weight_get_update(plastic_synapse_t state) {
+/*
+static inline accum weight_get_update(synapse_word_t state) {
     return state.w;
 }
+*/
 
 
 
@@ -544,13 +594,16 @@ static inline pre_trace_t timing_add_pre_spike(
 //! \param[in] last_post_trace: the trace of the last post-spike
 //! \param[in] previous_state: the state to update
 //! \return the updated state
-static inline plastic_synapse_t timing_apply_pre_spike(
+static inline synapse_state_t timing_apply_pre_spike(
         uint32_t time, UNUSED pre_trace_t trace, UNUSED uint32_t last_pre_time,
         UNUSED pre_trace_t last_pre_trace, uint32_t last_post_time,
-        post_trace_t last_post_trace, plastic_synapse_t state) {
+        post_trace_t last_post_trace, synapse_state_t state) {
     extern int16_lut *tau_minus_lookup;
 
-    log_debug("timing_apply_pre_spike()");
+    log_info("[NESTML synapse] timing_apply_pre_spike()");
+    log_info("[NESTML synapse] \tRaw weight = %x; Pre tr = %x; Post tr = %x", state.w, state.pre_trace, state.post_trace);
+    state.w = 123;
+
 #ifdef FOOBAR
 {%- for pre_port in pre_ports %}
 
@@ -568,8 +621,7 @@ static inline plastic_synapse_t timing_apply_pre_spike(
 {%- endfor %}
 
 #endif
-    // Apply depression to state (which is a weight_state)
-    return state;//weight_one_term_apply_depression(previous_state, decayed_o1);
+    return state;
 }
 
 //---------------------------------------
@@ -582,22 +634,19 @@ static inline plastic_synapse_t timing_apply_pre_spike(
 //! \param[in] last_post_trace: the trace of the last post-spike
 //! \param[in] previous_state: the state to update
 //! \return the updated state
-static inline plastic_synapse_t timing_apply_post_spike(
+static inline synapse_word_t timing_apply_post_spike(
         uint32_t time, UNUSED post_trace_t trace, uint32_t last_pre_time,
         pre_trace_t last_pre_trace, UNUSED uint32_t last_post_time,
-        UNUSED post_trace_t last_post_trace, plastic_synapse_t previous_state) {
-    extern int16_lut *tau_plus_lookup;
+        UNUSED post_trace_t last_post_trace, synapse_word_t previous_state) {
 
     log_info("[NESTML synapse] timing_apply_post_spike()");
-
+    log_info("[NESTML synapse] \tRaw weight = %x", previous_state.w);
+    previous_state.w = 456;
 #ifdef FOOBAR
     // Get time of event relative to last pre-synaptic event
     uint32_t time_since_last_pre = time - last_pre_time;
     if (time_since_last_pre > 0) {
-        int32_t decayed_r1 = STDP_FIXED_MUL_16X16(last_pre_trace,
-            maths_lut_exponential_decay(time_since_last_pre, tau_plus_lookup));
 
-//        log_debug("\t\t\ttime_since_last_pre_event=%u, decayed_r1=%d\n",  time_since_last_pre, decayed_r1);
 {%- filter indent(6, True) %}
 {%- if post_ports is defined %}
 {%-     for post_port in spiking_post_ports %}
@@ -613,7 +662,6 @@ static inline plastic_synapse_t timing_apply_post_spike(
 {%-     endfor %}
 {%- endif %}
 {%- endfilter %}
-
 
         // Apply potentiation to state (which is a weight_state)
         return previous_state;//weight_one_term_apply_potentiation(previous_state, decayed_r1);

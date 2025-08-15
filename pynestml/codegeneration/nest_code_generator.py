@@ -603,11 +603,16 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace["continuous_post_ports"] = [v for v in post_ports if isinstance(v, tuple) or isinstance(v, list)]
 
             namespace["vt_ports"] = synapse.vt_port_names
-            namespace["pre_ports"] = list(set(all_input_port_names)
-                                          - set(namespace["post_ports"]) - set(namespace["vt_ports"]))
+            namespace["pre_ports"] = list(set(all_input_port_names) - set(namespace["post_ports"]) - set(namespace["vt_ports"]))
         else:
-            # separate (not neuron+synapse co-generated)
-            namespace["pre_ports"] = all_input_port_names
+            opts = FrontendConfiguration.get_codegen_opts()
+            if "neuron_synapse_pairs" in opts:
+                assert len(opts["neuron_synapse_pairs"]) == 1, "Only one pair supported for now!"
+                namespace["post_ports"] = opts["neuron_synapse_pairs"][0]["post_ports"]
+                namespace["pre_ports"] = list(set(all_input_port_names) - set(namespace["post_ports"]))
+            else:
+                # separate (not neuron+synapse co-generated)
+                namespace["pre_ports"] = all_input_port_names
 
         assert len(namespace["pre_ports"]) <= 1, "Synapses only support one spiking input port"
 

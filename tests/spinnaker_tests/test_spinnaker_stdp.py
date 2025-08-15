@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import numpy as np
 import pytest
 
 from pynestml.frontend.pynestml_frontend import generate_spinnaker_target
@@ -36,9 +37,6 @@ class TestSpiNNakerSTDP:
                                                   "post_ports": ["post_spikes"]}],
                         "delay_variable":{"stdp_synapse":"d"},
                         "weight_variable":{"stdp_synapse":"w"}}
-
-
-
 
         files = [
             os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
@@ -146,13 +144,8 @@ class TestSpiNNakerSTDP:
         pre_spiking.record(["spikes"])
         post_spiking.record(["spikes"])
 
-
-        #TODO 100 300 funktioniert am besten
-        #größere differenz ist besser
-
         pre_input.set(spike_times=[100,1000])
 
-        import numpy as np
         #calculate all data points
         for t_post in [142.]:#np.linspace(0,max_it,points_gen):
                 post_input.set(spike_times=[t_post])
@@ -162,6 +155,8 @@ class TestSpiNNakerSTDP:
 
                 #get weights for current run and append them into array
                 w_curr = stdp_projection.get("weight",format="float")
+                print("w_curr = " + str(w_curr))
+
                 res_weights.append(w_curr[0][0])
 
                 p.reset()
