@@ -2638,6 +2638,8 @@ class ASTUtils:
             return astnode.get_initial_value(var)
 
         return "0"
+
+    @classmethod
     def find_parent_node_by_type(cls, node: ASTNode, type_to_find: Any) -> Optional[Any]:
         r"""Find the first parent of the given node that has the type ``type_to_find``. Return None if no parent with that type could be found."""
         _node = node.get_parent()
