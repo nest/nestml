@@ -38,6 +38,7 @@
 # 
 # iaf_psc_alpha, aeif_psc_exp
 #
+
 model aeif_cond_alpha_alt_neuron:
 
     state:
