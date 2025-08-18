@@ -52,8 +52,7 @@ def get_known_targets():
     return targets
 
 
-def transformers_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Tuple[
-    Transformer, Dict[str, Any]]:
+def transformers_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Tuple[Transformer, Dict[str, Any]]:
     """Static factory method that returns a list of new instances of a child class of Transformers"""
     assert target_name.upper() in get_known_targets(
     ), "Unknown target platform requested: \"" + str(target_name) + "\""
@@ -63,7 +62,8 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
     if options is None:
         options = {}
 
-    if target_name.upper() in ["NEST", "SPINNAKER", "PYTHON_STANDALONE", "NEST_COMPARTMENTAL", "NEST_DESKTOP", "GENN", "NEST_GPU"]:
+    if target_name.upper() in ["NEST", "SPINNAKER", "PYTHON_STANDALONE", "NEST_COMPARTMENTAL", "NEST_DESKTOP", "GENN",
+                               "NEST_GPU"]:
         from pynestml.transformers.add_timestep_to_internals_transformer import AddTimestepToInternalsTransformer
 
         add_timestep_to_internals_transformer = AddTimestepToInternalsTransformer()
@@ -203,8 +203,7 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
     assert "Unknown code generator requested: " + target_name
 
 
-def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Tuple[
-    Builder, Dict[str, Any]]:
+def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Tuple[Builder, Dict[str, Any]]:
     r"""Static factory method that returns a new instance of a child class of Builder"""
 
     assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
