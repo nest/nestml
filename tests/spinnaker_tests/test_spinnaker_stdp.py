@@ -65,8 +65,11 @@ class TestSpiNNakerSTDP:
 
 
         # import models
-        from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml__with_stdp_synapse_nestml import iaf_psc_exp_neuron_nestml__with_stdp_synapse_nestml as iaf_psc_exp_neuron_nestml
-        from python_models8.neuron.implementations.stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml_impl import stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestmlDynamics as stdp_synapse_nestml
+        #from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml__with_stdp_synapse_nestml import iaf_psc_exp_neuron_nestml__with_stdp_synapse_nestml as iaf_psc_exp_neuron_nestml
+        #from python_models8.neuron.implementations.stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml_impl import stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestmlDynamics as stdp_synapse_nestml
+
+        from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml as iaf_psc_exp_neuron_nestml
+        from python_models8.neuron.implementations.stdp_synapse_nestml_impl import stdp_synapse_nestmlDynamics as stdp_synapse_nestml
 
         p.setup(timestep=1.0)
         exc_input = "exc_spikes"
@@ -155,7 +158,9 @@ class TestSpiNNakerSTDP:
 
                 #get weights for current run and append them into array
                 w_curr = stdp_projection.get("weight",format="float")
+                #post_tr_curr = stdp_projection.get("post_trace",format="float")
                 print("w_curr = " + str(w_curr))
+                #print("post_tr_curr = " + str(post_tr_curr))
 
                 res_weights.append(w_curr[0][0])
 
@@ -194,8 +199,7 @@ class TestSpiNNakerSTDP:
         print(post_spike_times)
         print("HALLO spike time axis")
         print(spike_time_axis)
-        print("HALLO weights")
-        print(res_weights)
+        print("weights after simulation: " + str(res_weights))
 
 
         #format weight axis an substract 2.5 from every entry
