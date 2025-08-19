@@ -528,6 +528,8 @@ static inline post_trace_t timing_add_post_spike(
         uint32_t time, uint32_t last_time, post_trace_t last_trace) {
 
     log_info("[NESTML synapse] In timing_add_post_spike()");
+    log_info("[NESTML synapse] \ttime = %d; last_time = %d", time, last_time);
+
 /*
     uint32_t delta_time = time - last_time;
 
@@ -598,11 +600,13 @@ static inline synapse_state_t timing_apply_pre_spike(
         uint32_t time, UNUSED pre_trace_t trace, UNUSED uint32_t last_pre_time,
         UNUSED pre_trace_t last_pre_trace, uint32_t last_post_time,
         post_trace_t last_post_trace, synapse_state_t state) {
-    extern int16_lut *tau_minus_lookup;
 
     log_info("[NESTML synapse] timing_apply_pre_spike()");
-    log_info("[NESTML synapse] \tRaw weight = %x; Pre tr = %x; Post tr = %x", state.w, state.pre_trace, state.post_trace);
-    state.w = 123;
+{%- for sym in synapse.get_state_symbols() %}
+    log_info("[NESTML synapse] \t{{ sym.get_symbol_name() }} = %x", state.{{ sym.get_symbol_name() }});
+{%- endfor %}
+
+    state.w = 999  ;
 
 #ifdef FOOBAR
 {%- for pre_port in pre_ports %}
