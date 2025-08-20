@@ -200,6 +200,13 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
       {%- endfor %}
       {%- endfor %}
 
+      {%- for variable_info in channel_info["SecondaryInlineExpressions"] %}
+        {%- if variable_info.is_recordable %}
+        {%- set variable = variable_info.variable_name %}
+      {{ variable }}.push_back(0);
+        {%- endif %}
+      {%- endfor %}
+
       self_spikes.push_back(false);
     }
 }
@@ -301,6 +308,13 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
           {%- endfor %}
           {%- endfor %}
 
+      {%- for variable_info in channel_info["SecondaryInlineExpressions"] %}
+        {%- if variable_info.is_recordable %}
+        {%- set variable = variable_info.variable_name %}
+            {{ variable }}.push_back(0);
+        {%- endif %}
+      {%- endfor %}
+
         self_spikes.push_back(false);
     }
 }
@@ -322,6 +336,19 @@ nest::{{ion_channel_name}}{{cm_unique_suffix}}::append_recordables(std::map< Nam
       }
   }
   if(!found_rec) ( *recordables )[ Name( std::string("{{variable.name}}") + std::to_string(compartment_idx))] = &zero_recordable;
+  {%- endfor %}
+  {%- for variable_info in channel_info["SecondaryInlineExpressions"] %}
+  {%- if variable_info.is_recordable %}
+  {%- set variable_name = variable_info.variable_name %}
+  found_rec = false;
+  for(size_t chan_id = 0; chan_id < neuron_{{ ion_channel_name }}_channel_count; chan_id++){
+      if(compartment_association[chan_id] == compartment_idx){
+        ( *recordables )[ Name( std::string("{{variable_name}}") + std::to_string(compartment_idx))] = &{{variable_name}}[chan_id];
+        found_rec = true;
+      }
+  }
+  if(!found_rec) ( *recordables )[ Name( std::string("{{variable_name}}") + std::to_string(compartment_idx))] = &zero_recordable;
+  {%- endif %}
   {%- endfor %}
   {% endwith %}
   found_rec = false;
@@ -409,6 +436,17 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{ion_channel_na
             i_val[i] = this->i_tot_{{ion_channel_name}}[i] - d_i_tot_dv[i] * v_comp[i];
         }
     f_update();
+
+    //update recordable inlines
+    for(std::size_t i = 0; i < neuron_{{ ion_channel_name }}_channel_count; i++){
+    {%- for variable_info in channel_info["SecondaryInlineExpressions"] %}
+        {%- if variable_info.is_recordable %}
+        {%- set variable = variable_info.variable_name %}
+        {%- set rhs_expression = variable_info.expression %}
+        {{ variable }}[i] = {{ vector_printer.print(rhs_expression, "i") }};
+        {%- endif %}
+    {%- endfor %}
+    }
 
     return std::make_pair(g_val, i_val);
 
@@ -550,6 +588,13 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
       {%- endfor %}
       {%- endfor %}
 
+      {%- for variable_info in concentration_info["SecondaryInlineExpressions"] %}
+        {%- if variable_info.is_recordable %}
+        {%- set variable = variable_info.variable_name %}
+      {{ variable }}.push_back(0);
+        {%- endif %}
+      {%- endfor %}
+
         self_spikes.push_back(false);
     }
 }
@@ -658,6 +703,13 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
       {%- endfor %}
       {%- endfor %}
 
+      {%- for variable_info in concentration_info["SecondaryInlineExpressions"] %}
+        {%- if variable_info.is_recordable %}
+        {%- set variable = variable_info.variable_name %}
+      {{ variable }}.push_back(0);
+        {%- endif %}
+      {%- endfor %}
+
         self_spikes.push_back(false);
     }
 }
@@ -679,6 +731,20 @@ nest::{{ concentration_name }}{{cm_unique_suffix}}::append_recordables(std::map<
       }
   }
   if(!found_rec) ( *recordables )[ Name( std::string("{{variable.name}}") + std::to_string(compartment_idx))] = &zero_recordable;
+  {%- endfor %}
+
+  {%- for variable_info in concentration_info["SecondaryInlineExpressions"] %}
+  {%- if variable_info.is_recordable %}
+  {%- set variable_name = variable_info.variable_name %}
+  found_rec = false;
+  for(size_t conc_id = 0; conc_id < neuron_{{ concentration_name }}_concentration_count; conc_id++){
+      if(compartment_association[chan_id] == compartment_idx){
+        ( *recordables )[ Name( std::string("{{variable_name}}") + std::to_string(compartment_idx))] = &{{variable_name}}[conc_id];
+        found_rec = true;
+      }
+  }
+  if(!found_rec) ( *recordables )[ Name( std::string("{{variable_name}}") + std::to_string(compartment_idx))] = &zero_recordable;
+  {%- endif %}
   {%- endfor %}
   {% endwith %}
     found_rec = false;
@@ -759,6 +825,17 @@ void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(std::vector< 
         }
 
     f_update();
+
+    //update recordable inlines
+    for(std::size_t i = 0; i < neuron_{{ concentration_name }}_concentration_count; i++){
+    {%- for variable_info in concentration_info["SecondaryInlineExpressions"] %}
+        {%- if variable_info.is_recordable %}
+        {%- set variable = variable_info.variable_name %}
+        {%- set rhs_expression = variable_info.expression %}
+        {{ variable }}[i] = {{ vector_printer.print(rhs_expression, "i") }};
+        {%- endif %}
+    {%- endfor %}
+    }
 }
 
 void nest::{{concentration_name}}{{cm_unique_suffix}}::f_update()
@@ -870,6 +947,13 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::new_receptor(std::size_t comp_
     {{internal_name}}.push_back(0);
   {%- endfor %}
 
+      {%- for variable_info in receptor_info["SecondaryInlineExpressions"] %}
+        {%- if variable_info.is_recordable %}
+        {%- set variable = variable_info.variable_name %}
+      {{ variable }}.push_back(0);
+        {%- endif %}
+      {%- endfor %}
+
     self_spikes.push_back(false);
 }
 
@@ -939,6 +1023,13 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::new_receptor(std::size_t comp_
     {{internal_name}}.push_back(0);
   {%- endfor %}
 
+      {%- for variable_info in receptor_info["SecondaryInlineExpressions"] %}
+        {%- if variable_info.is_recordable %}
+        {%- set variable = variable_info.variable_name %}
+      {{ variable }}.push_back(0);
+        {%- endif %}
+      {%- endfor %}
+
     self_spikes.push_back(false);
 }
 
@@ -951,6 +1042,21 @@ nest::{{receptor_name}}{{cm_unique_suffix}}::append_recordables(std::map< Name, 
         ( *recordables )[ Name( "{{convolution_info["kernel"]["name"]}}" + std::to_string(rec_idx[recs_id]) )] = &{{convolution}}[recs_id];
       }
   }
+
+  {%- for variable_info in receptor_info["SecondaryInlineExpressions"] %}
+  {%- if variable_info.is_recordable %}
+  {%- set variable_name = variable_info.variable_name %}
+  found_rec = false;
+  for(size_t recs_id = 0; recs_id < neuron_{{ receptor_name }}_receptor_count; recs_id++){
+      if(compartment_association[chan_id] == compartment_idx){
+        ( *recordables )[ Name( std::string("{{variable_name}}") + std::to_string(compartment_idx))] = &{{variable_name}}[recs_id];
+        found_rec = true;
+      }
+  }
+  if(!found_rec) ( *recordables )[ Name( std::string("{{variable_name}}") + std::to_string(compartment_idx))] = &zero_recordable;
+  {%- endif %}
+  {%- endfor %}
+
   {%- endfor %}
     for(size_t recs_id = 0; recs_id < neuron_{{ receptor_name }}_receptor_count; recs_id++){
       if(compartment_association[recs_id] == compartment_idx){
@@ -1061,6 +1167,17 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}
 
   f_update();
 
+    //update recordable inlines
+    for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
+    {%- for variable_info in receptor_info["SecondaryInlineExpressions"] %}
+        {%- if variable_info.is_recordable %}
+        {%- set variable = variable_info.variable_name %}
+        {%- set rhs_expression = variable_info.expression %}
+        {{ variable }}[i] = {{ vector_printer.print(rhs_expression, "i") }};
+        {%- endif %}
+    {%- endfor %}
+    }
+
   return std::make_pair(g_val, i_val);
 
 }
@@ -1145,6 +1262,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
     i_tot_{{receptor_name}}.push_back(0);
     compartment_association.push_back(comp_ass);
     syn_idx.push_back(syn_index);
+    delayed_spikes.push_back(TimerDeque(Time::get_resolution().get_ms()));
 
     {%- for pure_variable_name, variable_info in receptor_info["States"].items() %}
     // state variable {{pure_variable_name }}
@@ -1178,6 +1296,13 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
   {%- for internal_name, internal_declaration in receptor_info["internals_used_declared"] %}
     {{internal_name}}.push_back(0);
   {%- endfor %}
+
+      {%- for variable_info in receptor_info["SecondaryInlineExpressions"] %}
+        {%- if variable_info.is_recordable %}
+        {%- set variable = variable_info.variable_name %}
+      {{ variable }}.push_back(0);
+        {%- endif %}
+      {%- endfor %}
 
 
     //synapse components:
@@ -1234,6 +1359,11 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
     compartment_association.push_back(comp_ass);
     i_tot_{{receptor_name}}.push_back(0);
     syn_idx.push_back(syn_index);
+
+    if( receptor_params->known( "{{synapse_info["DelayVariable"]}}" ) )
+        delayed_spikes.push_back(TimerDeque(getValue< double >( receptor_params, "{{synapse_info["DelayVariable"]}}" )));
+
+    else delayed_spikes.push_back(TimerDeque(Time::get_resolution().get_ms()));
 
     {%- for pure_variable_name, variable_info in receptor_info["States"].items() %}
     // state variable {{pure_variable_name }}
@@ -1292,6 +1422,13 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
   {%- for internal_name, internal_declaration in receptor_info["internals_used_declared"] %}
     {{internal_name}}.push_back(0);
   {%- endfor %}
+
+      {%- for variable_info in receptor_info["SecondaryInlineExpressions"] %}
+        {%- if variable_info.is_recordable %}
+        {%- set variable = variable_info.variable_name %}
+      {{ variable }}.push_back(0);
+        {%- endif %}
+      {%- endfor %}
 
 
     //synapse components:
@@ -1359,6 +1496,21 @@ nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::append_recorda
       }
   }
   {%- endfor %}
+
+  {%- for variable_info in receptor_info["SecondaryInlineExpressions"] %}
+  {%- if variable_info.is_recordable %}
+  {%- set variable_name = variable_info.variable_name %}
+  found_rec = false;
+  for(size_t recs_id = 0; recs_id < neuron_{{ receptor_name }}_receptor_count; recs_id++){
+      if(compartment_association[chan_id] == compartment_idx){
+        ( *recordables )[ Name( std::string("{{variable_name}}") + std::to_string(compartment_idx))] = &{{variable_name}}[recs_id];
+        found_rec = true;
+      }
+  }
+  if(!found_rec) ( *recordables )[ Name( std::string("{{variable_name}}") + std::to_string(compartment_idx))] = &zero_recordable;
+  {%- endif %}
+  {%- endfor %}
+
     for(size_t recs_id = 0; recs_id < neuron_{{ receptor_name }}_receptor_count; recs_id++){
       if(compartment_association[recs_id] == compartment_idx){
         ( *recordables )[ Name( "{{receptor_name}}_{{synapse_name}}" + std::to_string(syn_idx[recs_id]) )] = &i_tot_{{receptor_name}}[recs_id];
@@ -1513,6 +1665,11 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}
       {%- endfor %}
     }
 
+    for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
+        // receive (potentially) delayed spikes
+        s_val[i] = delayed_spikes[i].tick();
+    }
+
     std::vector< double > g_val(neuron_{{ receptor_name }}_receptor_count, 0.);
     std::vector< double > i_val(neuron_{{ receptor_name }}_receptor_count, 0.);
     std::vector< double > d_i_tot_dv(neuron_{{ receptor_name }}_receptor_count, 0.);
@@ -1567,6 +1724,17 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}
     }
 
   f_update();
+
+    //update recordable inlines
+    for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
+    {%- for variable_info in receptor_info["SecondaryInlineExpressions"] %}
+        {%- if variable_info.is_recordable %}
+        {%- set variable = variable_info.variable_name %}
+        {%- set rhs_expression = variable_info.expression %}
+        {{ variable }}[i] = {{ vector_printer.print(rhs_expression, "i") }};
+        {%- endif %}
+    {%- endfor %}
+    }
 
   return std::make_pair(g_val, i_val);
 
@@ -1689,6 +1857,13 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::si
   {%- endfor %}
   {%- endfor %}
 
+      {%- for variable_info in continuous_info["SecondaryInlineExpressions"] %}
+        {%- if variable_info.is_recordable %}
+        {%- set variable = variable_info.variable_name %}
+      {{ variable }}.push_back(0);
+        {%- endif %}
+      {%- endfor %}
+
     self_spikes.push_back(false);
 }
 
@@ -1756,6 +1931,13 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::si
   {%- endfor %}
   {%- endfor %}
 
+      {%- for variable_info in continuous_info["SecondaryInlineExpressions"] %}
+        {%- if variable_info.is_recordable %}
+        {%- set variable = variable_info.variable_name %}
+      {{ variable }}.push_back(0);
+        {%- endif %}
+      {%- endfor %}
+
     self_spikes.push_back(false);
 }
 
@@ -1767,6 +1949,20 @@ nest::{{continuous_name}}{{cm_unique_suffix}}::append_recordables(std::map< Name
         ( *recordables )[ Name( "{{continuous_name}}" + std::to_string(continuous_idx[con_in_id]))] = &i_tot_{{continuous_name}}[con_in_id];
       }
     }
+
+  {%- for variable_info in continuous_info["SecondaryInlineExpressions"] %}
+  {%- if variable_info.is_recordable %}
+  {%- set variable_name = variable_info.variable_name %}
+  found_rec = false;
+  for(size_t con_in_id = 0; con_in_id < neuron_{{ continuous_name }}_continuous_input_count; con_in_id++){
+      if(compartment_association[chan_id] == compartment_idx){
+        ( *recordables )[ Name( std::string("{{variable_name}}") + std::to_string(compartment_idx))] = &{{variable_name}}[con_in_id];
+        found_rec = true;
+      }
+  }
+  if(!found_rec) ( *recordables )[ Name( std::string("{{variable_name}}") + std::to_string(compartment_idx))] = &zero_recordable;
+  {%- endif %}
+  {%- endfor %}
 }
 
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
@@ -1867,6 +2063,17 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{continuous_nam
   }
 
   f_update();
+
+    //update recordable inlines
+    for(std::size_t i = 0; i < neuron_{{ continuous_name }}_continuous_input_count; i++){
+    {%- for variable_info in continuous_info["SecondaryInlineExpressions"] %}
+        {%- if variable_info.is_recordable %}
+        {%- set variable = variable_info.variable_name %}
+        {%- set rhs_expression = variable_info.expression %}
+        {{ variable }}[i] = {{ vector_printer.print(rhs_expression, "i") }};
+        {%- endif %}
+    {%- endfor %}
+    }
 
   return std::make_pair(g_val, i_val);
 

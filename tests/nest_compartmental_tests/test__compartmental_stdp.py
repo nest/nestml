@@ -67,7 +67,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
 
         nest.ResetKernel()
         nest.SetKernelStatus(dict(resolution=.1))
-        if True:
+        if False:
             generate_nest_compartmental_target(
                 input_path=[neuron_input_path, synapse_input_path],
                 target_path=target_path,
@@ -135,7 +135,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
         if model_case == "nestml":
             post_neuron.receptors = [
                 {"comp_idx": 0, "receptor_type": "AMPA"},
-                {"comp_idx": 0, "receptor_type": "AMPA_stdp_synapse_nestml", "params": {'w': 10.0, "tau_r_AMPA": 0.000000001, "tau_d_AMPA": 0.0003}}
+                {"comp_idx": 0, "receptor_type": "AMPA_stdp_synapse_nestml", "params": {'w': 10.0, "tau_r_AMPA": 0.000000001, "tau_d_AMPA": 0.0003, "d": 1000}}
             ]
             mm = nest.Create('multimeter', 1, {
                 'record_from': ['v_comp0', 'w1', 'AMPA0', 'AMPA_stdp_synapse_nestml1', 'pre_trace1',
@@ -238,5 +238,6 @@ class TestCompartmentalConcmech(unittest.TestCase):
         plt.tight_layout()
 
         plt.savefig("compartmental_stdp.png")
+        plt.show()
 
         assert abs(max(diff_values)) <= 0.005, ("the maximum weight difference is too large! (" + str(max(diff_values)) + " > 0.005)")
