@@ -184,8 +184,8 @@ static inline synapse_word_t plasticity_update_synapse(
     post_event_window_t post_window = post_events_get_window_delayed(
             post_event_history, window_begin_time, window_end_time);
 
-    log_debug("[NESTML synapse] \tPerforming deferred synapse update at time:%u", time);
-    log_debug("[NESTML synapse] \t\tbegin_time:%u, end_time:%u - prev_time:%u (valid %u), num_events:%u",
+    log_info("[NESTML synapse] \tPerforming deferred synapse update at time:%u", time);
+    log_info("[NESTML synapse] \t\tbegin_time:%u, end_time:%u - prev_time:%u (valid %u), num_events:%u",
             window_begin_time, window_end_time, post_window.prev_time,
             post_window.prev_time_valid, post_window.num_events);
 
@@ -199,7 +199,7 @@ static inline synapse_word_t plasticity_update_synapse(
     while (post_window.num_events > 0) {
         const uint32_t delayed_post_time = *post_window.next_time + delay_dendritic;
 
-        log_debug("[NESTML synapse] \t\tApplying post-synaptic event at delayed time:%u, pre:%u\n", delayed_post_time, delayed_last_pre_time);
+        log_info("[NESTML synapse] \t\tApplying post-synaptic event at delayed time:%u, pre:%u\n", delayed_post_time, delayed_last_pre_time);
 
 
     /**
@@ -379,7 +379,7 @@ static inline synapse_word_t process_plastic_synapse(
 
     log_info("[NESTML synapse] In process_plastic_synapse()");
 
-    fixed_stdp_synapse s = synapse_dynamics_stdp_get_fixed(control_word, time, colour_delay);
+    fixed_{{ synapseName }} s = synapse_dynamics_stdp_get_fixed(control_word, time, colour_delay);
 
     uint32_t post_delay = s.delay_dendritic;
     if (!params.backprop_delay) {
@@ -403,10 +403,60 @@ static inline synapse_word_t process_plastic_synapse(
 
 	return (synapse_word_t) {
 {%- for sym in synapse.get_state_symbols() %}
-        .{{ sym.get_symbol_name() }} = 777,
+        .{{ sym.get_symbol_name() }} = 94,
 {%- endfor %}
     };
 }
+
+
+/**
+ * print low-level synaptic row data
+**/
+void print_low_level_synaptic_row_data(synapse_row_plastic_data_t *plastic_region_address,
+                                       synapse_row_fixed_part_t *fixed_region) {
+
+    synapse_word_t *plastic_words = plastic_region_address->synapses;
+    control_t *control_words = synapse_row_plastic_controls(fixed_region);
+
+    // Print out parsed data for static synapses
+    uint32_t *synaptic_words = synapse_row_fixed_weight_controls(fixed_region);
+    const uint32_t n_fixed_synapses = synapse_row_num_fixed_synapses(fixed_region);
+    log_info("[NESTML synapse] \tFixed-Fixed Region (%u synapses):", n_fixed_synapses);
+    for (size_t i = 0; i < n_fixed_synapses; ++i) {
+        uint32_t synaptic_word = *synaptic_words++;
+
+        uint32_t delay = synapse_row_sparse_delay(
+                synaptic_words, synapse_type_index_bits, synapse_delay_mask);
+        uint32_t type = synapse_row_sparse_type(
+                synaptic_word, synapse_index_bits, synapse_type_mask);
+        uint32_t neuron = synapse_row_sparse_index(
+                synaptic_word, synapse_index_mask);
+        log_info("[NESTML synapse] \t\tDelay %u, Synapse Type %u, Neuron %u", delay, type, neuron);
+    }
+
+    const size_t n_plastic_synapses = synapse_row_num_plastic_controls(fixed_region);
+
+    log_info("[NESTML synapse] \tPlastic region %u synapses:", n_plastic_synapses);
+    for (uint32_t i = 0; i < n_plastic_synapses; i++) {
+        // Get next control word (auto incrementing control word)
+        uint32_t control_word = *control_words++;
+        uint32_t synapse_type = synapse_row_sparse_type(control_word, synapse_index_bits, synapse_type_mask);
+
+        // Get weight
+        synapse_state_t update_state = synapse_structure_get_update_state(*plastic_words++, synapse_type);
+
+        log_info("[NESTML synapse] \t\tidx = %d; word = %08x; w = %5u; d = %2u, post neuron id = %3u", i, control_word, update_state.w, synapse_row_sparse_delay(control_word, synapse_type_index_bits, synapse_delay_mask), synapse_row_sparse_index(control_word, synapse_index_mask));
+/*        log_info("[NESTML synapse] \td: %2u, n = %3u)] - { %08x %08x }\n",
+                synapse_row_sparse_delay(control_word, synapse_type_index_bits, synapse_delay_mask),
+                synapse_row_sparse_index(control_word, synapse_index_mask),
+                synapse_delay_mask, synapse_type_index_bits);*/
+
+    }
+
+}
+
+
+
 
 bool synapse_dynamics_process_plastic_synapses(
         synapse_row_plastic_data_t *plastic_region_address,
@@ -421,12 +471,12 @@ bool synapse_dynamics_process_plastic_synapses(
     // Extract separate arrays of plastic synapses (from plastic region),
     // Control words (from fixed region) and number of plastic synapses
     synapse_word_t *plastic_words = plastic_region_address->synapses;
-    const control_t *control_words = synapse_row_plastic_controls(fixed_region);
-    size_t n_plastic_synapses = synapse_row_num_plastic_controls(fixed_region);
+    control_t *control_words = synapse_row_plastic_controls(fixed_region);
+    const size_t n_plastic_synapses = synapse_row_num_plastic_controls(fixed_region);
 
-    log_info("[NESTML synapse] \tn_plastic_synapses = %d", n_plastic_synapses);
+    log_info("[NESTML synapse] ------------------ \nPRINTING AAAAAAAAAAAAAAAAAAA");
+    print_low_level_synaptic_row_data(plastic_region_address, fixed_region);
 
-// XXX LEFTOFF: print low-level synaptic row data
 
 
     num_plastic_pre_synaptic_events += n_plastic_synapses;
@@ -439,14 +489,19 @@ bool synapse_dynamics_process_plastic_synapses(
     plastic_region_address->history.prev_time = time - colour_delay;
     plastic_region_address->history.prev_trace = timing_add_pre_spike(time - colour_delay, last_pre_time, last_pre_trace);
 
+    control_words = synapse_row_plastic_controls(fixed_region);
+    plastic_words = plastic_region_address->synapses;
+
     // Loop through plastic synapses
-    for (; n_plastic_synapses > 0; n_plastic_synapses--) {
+    for (size_t i = 0; i < n_plastic_synapses; ++i) {
         // Get next control word (auto incrementing)
         uint32_t control_word = *control_words++;
 
-        plastic_words[0] = process_plastic_synapse(control_word, last_pre_time, last_pre_trace, plastic_region_address->history.prev_trace, ring_buffers, time, colour_delay, plastic_words[0]);
-        plastic_words++;
+        plastic_words[i] = process_plastic_synapse(control_word, last_pre_time, last_pre_trace, plastic_region_address->history.prev_trace, ring_buffers, time, colour_delay, plastic_words[0]);
     }
+
+    log_info("[NESTML synapse] ------------------ \nPRINTING BBBBBBBBBBBBBB");
+    print_low_level_synaptic_row_data(plastic_region_address, fixed_region);
 
     *write_back = true;
 

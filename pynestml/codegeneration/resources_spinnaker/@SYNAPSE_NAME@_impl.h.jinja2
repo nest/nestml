@@ -50,7 +50,10 @@ typedef struct pre_trace_t {
 
 
 
-
+/**
+ * for a definition of the SpyNNaker "API", see:
+ * https://github.com/SpiNNakerManchester/sPyNNaker/blob/master/neural_modelling/src/neuron/plasticity/synapse_dynamics.h
+**/
 
 
 
@@ -215,14 +218,14 @@ typedef struct stdp_params {
     uint32_t backprop_delay;
 } stdp_params;
 
-typedef struct fixed_stdp_synapse {
+typedef struct fixed_{{ synapseName }} {
     uint32_t delay_dendritic;
     uint32_t delay_axonal;
     uint32_t type;
     uint32_t index;
     uint32_t type_index;
     uint32_t ring_buffer_index;
-} fixed_stdp_synapse;
+} fixed_{{ synapseName }};
 
 //! Configuration parameters
 static stdp_params params;
@@ -256,7 +259,7 @@ uint32_t synapse_dynamics_get_plastic_saturation_count(void) {
     return plastic_saturation_count;
 }
 
-static inline fixed_stdp_synapse synapse_dynamics_stdp_get_fixed(
+static inline fixed_{{ synapseName }} synapse_dynamics_stdp_get_fixed(
         uint32_t control_word, uint32_t time, uint32_t colour_delay) {
     // Extract control-word components
     // **NOTE** cunningly, control word is just the same as lower
@@ -267,13 +270,15 @@ static inline fixed_stdp_synapse synapse_dynamics_stdp_get_fixed(
     uint32_t delay_axonal = 0;  //sparse_axonal_delay(control_word);
     uint32_t type_index = synapse_row_sparse_type_index(control_word,
             synapse_type_index_mask);
-    return (fixed_stdp_synapse) {
+
+
+    log_info["NESTML synapse] \tdelay_dendritic = %d, delay_axonal = %d, type = %d, index = %d", delay_dendritic, delay_axonal, synapse_row_sparse_type(control_word, synapse_index_bits, synapse_type_mask), synapse_row_sparse_index(control_word, synapse_index_mask));
+
+    return (fixed_{{ synapseName }}) {
        .delay_dendritic = delay_dendritic,
        .delay_axonal = delay_axonal,
-       .type = synapse_row_sparse_type(
-                control_word, synapse_index_bits, synapse_type_mask),
-       .index = synapse_row_sparse_index(
-                control_word, synapse_index_mask),
+       .type = synapse_row_sparse_type(control_word, synapse_index_bits, synapse_type_mask),
+       .index = synapse_row_sparse_index(control_word, synapse_index_mask),
        .type_index = type_index,
        .ring_buffer_index = synapse_row_get_ring_buffer_index_combined(
                 (delay_axonal + delay_dendritic + time) - colour_delay, type_index,
@@ -282,7 +287,7 @@ static inline fixed_stdp_synapse synapse_dynamics_stdp_get_fixed(
 }
 
 static inline void synapse_dynamics_stdp_update_ring_buffers(
-        weight_t *ring_buffers, fixed_stdp_synapse s, int32_t weight) {
+        weight_t *ring_buffers, fixed_{{ synapseName }} s, int32_t weight) {
     uint32_t accumulation = ring_buffers[s.ring_buffer_index] + weight;
 
     uint32_t sat_test = accumulation & 0xFFFF0000;
