@@ -1,5 +1,5 @@
-# ode_toolbox_printer_test.nestml
-# ###############################
+# multiple_input_currents_neuron.nestml
+# #####################################
 #
 #
 # Description
@@ -28,19 +28,15 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-model ode_toolbox_printer_test:
+model multiple_input_currents_neuron:
     state:
-        I_syn pA**-1 = 0 pA**-1
-        foo ms**2 = (2 ms)**2
+        V_m1 mV = 0 mV
+        V_m2 mV = -10 mV
 
-    parameters:
-        tau_m ms = 42 ms
-        I_e pA**-1 = 0.1 pA**-1
-        rate s**-1 = 100 s**-1
-
-    equations:
-        I_syn' = (-I_syn + I_e) / tau_m
+    input:
+        I_1 pA <- continuous
+        I_2 pA <- continuous
 
     update:
-        integrate_odes()
-        foo += 0.1 ms**2
+        V_m1 += I_1 / 5 nS
+        V_m2 += I_2 / 10 nS

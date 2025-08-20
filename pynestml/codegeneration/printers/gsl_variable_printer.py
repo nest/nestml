@@ -25,7 +25,6 @@ from pynestml.codegeneration.printers.expression_printer import ExpressionPrinte
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
@@ -101,12 +100,11 @@ class GSLVariablePrinter(CppVariablePrinter):
                     var_name += "_" + str(variable.get_vector_parameter())
             return "spike_inputs_grid_sum_[node." + var_name + " - node.MIN_SPIKE_RECEPTOR]"
 
-        return variable_symbol.get_symbol_name() + '_grid_sum_'
+        assert variable_symbol.is_continuous_input_port()
+        return "continuous_inputs_grid_sum_[" + variable.get_name().upper() + "]"
 
     def _print(self, variable, symbol, with_origin: bool = True):
         variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
-
         if with_origin:
             return "node." + NESTCodeGeneratorUtils.print_symbol_origin(symbol, variable) % variable_name
-
         return "node." + variable_name
