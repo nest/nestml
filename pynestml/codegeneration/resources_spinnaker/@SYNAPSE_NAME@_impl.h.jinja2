@@ -157,8 +157,12 @@ static inline synapse_state_t synapse_structure_get_update_state(
     // state and copying other parameters from the synaptic word into 32-bit
     // form
     synapse_state_t update_state;
+    log_info("[NESTML synapse] synapse_structure_get_update_state()");
+
 {%- for sym in synapse.get_state_symbols() %}
     update_state.{{ sym.get_symbol_name() }} = synaptic_word.{{ sym.get_symbol_name() }};
+    log_info("[NESTML synapse] \t{{ sym.get_symbol_name() }} ====== %x ====== %x", synaptic_word.{{ sym.get_symbol_name() }}, update_state.{{ sym.get_symbol_name() }});
+//    log_info("[NESTML synapse] \t{{ sym.get_symbol_name() }} ====== %x", synaptic_word.{{ sym.get_symbol_name() }});
 {%- endfor %}
 
     return update_state;
@@ -264,7 +268,7 @@ static inline fixed_{{ synapseName }} synapse_dynamics_stdp_get_fixed(
     // Extract control-word components
     // **NOTE** cunningly, control word is just the same as lower
     // 16-bits of 32-bit fixed synapse so same functions can be used
-    log_info("[NESTML synapse] synapse_dynamics_stdp_get_fixed()");
+//    log_info("[NESTML synapse] synapse_dynamics_stdp_get_fixed()");
     uint32_t delay_dendritic = synapse_row_sparse_delay(control_word,
             synapse_type_index_bits, synapse_delay_mask);
     uint32_t delay_axonal = 0;  //sparse_axonal_delay(control_word);
@@ -272,7 +276,7 @@ static inline fixed_{{ synapseName }} synapse_dynamics_stdp_get_fixed(
             synapse_type_index_mask);
 
 
-    log_info["NESTML synapse] \tdelay_dendritic = %d, delay_axonal = %d, type = %d, index = %d", delay_dendritic, delay_axonal, synapse_row_sparse_type(control_word, synapse_index_bits, synapse_type_mask), synapse_row_sparse_index(control_word, synapse_index_mask));
+//    log_info("[NESTML synapse] \tdelay_dendritic = %d, delay_axonal = %d, type = %d, index = %d", delay_dendritic, delay_axonal, synapse_row_sparse_type(control_word, synapse_index_bits, synapse_type_mask), synapse_row_sparse_index(control_word, synapse_index_mask));
 
     return (fixed_{{ synapseName }}) {
        .delay_dendritic = delay_dendritic,
@@ -458,17 +462,17 @@ static inline void post_events_add(
 static inline void print_delayed_window_events(
         const post_event_history_t *post_event_history,
         uint32_t begin_time, uint32_t end_time, uint32_t delay_dendritic) {
-    log_info("[NESTML synapse]      ##  printing post window  ##");
+//    log_info("[NESTML synapse]      ##  printing post window  ##");
     post_event_window_t post_window = post_events_get_window_delayed(
             post_event_history, begin_time, end_time);
 
     while (post_window.num_events > 0) {
         const uint32_t delayed_post_time =
                 *post_window.next_time + delay_dendritic;
-        log_info("[NESTML synapse] post spike: %u, time: %u, trace: %u",
+/*        log_info("[NESTML synapse] post spike: %u, time: %u, trace: %u",
                 post_window.num_events, delayed_post_time,
                 *post_window.next_trace);
-
+*/
         post_window = post_events_next(post_window);
     }
 }
@@ -492,7 +496,7 @@ static inline synapse_word_t weight_get_initial(
 //    extern plasticity_weight_region_data_t *plasticity_weight_region_data;
 //    extern uint32_t *weight_shift;
 
-    log_info("[NESTML synapse] weight_get_initial()");
+//    log_info("[NESTML synapse] weight_get_initial()");
     accum s1615_weight = weight; //kbits(weight << weight_shift[synapse_type]);
     return (synapse_word_t) {
         .w = s1615_weight,
