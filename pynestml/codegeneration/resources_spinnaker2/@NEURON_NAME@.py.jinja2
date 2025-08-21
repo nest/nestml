@@ -146,7 +146,7 @@ class {{neuronName}}Application(BaseApplication):
         updated_parameters = {}
         for key in default_parameters:
             if key in user_parameters:
-                if user_parameters_has_lists:
+                if isinstance(user_parameters[key], list):
                     updated_parameters[key] = list(map(str, user_parameters[key]))
                 else:
 
