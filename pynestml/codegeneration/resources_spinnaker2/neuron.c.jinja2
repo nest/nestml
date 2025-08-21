@@ -99,16 +99,16 @@ void print_neuron_params() {
 void {{ neuronName }}{% if call.get_args() | length > 0 %}_{{ utils.integrate_odes_args_str_from_function_call(call) }}_{% endif %}rhs(REAL t, const REAL *y, REAL *dydt, uint8_t dim, const void *pp)
 {
 neuron_impl_t *neuron = (neuron_impl_t *)pp;
-(void) y;
 (void) t;
 (void) dim;
+
 {%      set numeric_state_variables_to_be_integrated = numeric_state_variables + purely_numeric_state_variables_moved %}
 {%-     if call.get_args() | length > 0 %}
 {%-         set numeric_state_variables_to_be_integrated = utils.filter_variables_list(numeric_state_variables_to_be_integrated, call.get_args()) %}
 {%-     endif %}
 
 {%- for state_variable in numeric_state_variables_to_be_integrated %}
-dydt[{{ loop.index0 }}] = {{ printer.print(numeric_update_expressions[state_variable]) }};
+dydt[{{ loop.index0 }}] = {{ utils.replace_statevars_with_yIndex(printer.print(numeric_update_expressions[state_variable]), numeric_state_variables_to_be_integrated) }};
 {%- endfor %}
 }
 {%- endfor %}

@@ -623,6 +623,14 @@ class ASTUtils:
         model.accept(collect_integrate_odes_visitor)
         return collect_integrate_odes_visitor.node_list
 
+    @classmethod
+    def replace_statevars_with_yIndex(cls, expression_str:str, variables:list[str]) -> str:
+        return re.sub(
+            r"neuron->state\.(\w+)",
+            lambda m: f"y[{variables.index(m.group(1))}]" if m.group(1) in variables else m.group(0),
+            expression_str
+        )
+
 
     @classmethod
     def resolve_variables_to_expressions(cls, astnode, analytic_state_variables_moved):
