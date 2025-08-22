@@ -119,7 +119,12 @@ class TestCompartmentalConcmech(unittest.TestCase):
         nest.Install("cm_stdp_module.so")
 
         measuring_spike = sim_time - 1
-        pre_spike_times = [pre_spike, measuring_spike]
+        #pre_spike_times = [pre_spike]
+        #if model_case == "nest":
+        if measuring_spike > pre_spike:
+            pre_spike_times = [pre_spike, measuring_spike]
+        else:
+            pre_spike_times = [measuring_spike, pre_spike]
         post_spike_times = [post_spike]
 
         external_input_pre = nest.Create("spike_generator", params={"spike_times": pre_spike_times})
@@ -134,33 +139,33 @@ class TestCompartmentalConcmech(unittest.TestCase):
 
         if model_case == "nestml":
             post_neuron.receptors = [
-                {"comp_idx": 0, "receptor_type": "AMPA"},
-                {"comp_idx": 0, "receptor_type": "AMPA_stdp_synapse_nestml", "params": {'w': 10.0, "tau_r_AMPA": 0.000000001, "tau_d_AMPA": 0.0003, "d": 1000}}
+                #{"comp_idx": 0, "receptor_type": "AMPA"},
+                {"comp_idx": 0, "receptor_type": "AMPA_stdp_synapse_nestml", "params": {'w': 10.0, "d": 0.1, "tau_tr_pre": 40, "tau_tr_post": 40}}
             ]
             mm = nest.Create('multimeter', 1, {
-                'record_from': ['v_comp0', 'w1', 'AMPA0', 'AMPA_stdp_synapse_nestml1', 'pre_trace1',
-                                'post_trace1'], 'interval': .1})
+                'record_from': ['v_comp0', 'w0', 'AMPA_stdp_synapse_nestml0', 'pre_trace0', #'AMPA0',
+                                'post_trace0'], 'interval': .1})
         elif model_case == "nest":
             post_neuron.receptors = [
-                {"comp_idx": 0, "receptor_type": "AMPA"},
-                {"comp_idx": 0, "receptor_type": "AMPA", "params": {"tau_r_AMPA": 0.000000001, "tau_d_AMPA": 0.0003}}
+                #{"comp_idx": 0, "receptor_type": "AMPA"},
+                {"comp_idx": 0, "receptor_type": "AMPA", "params": {}}
             ]
             mm = nest.Create('multimeter', 1, {
-                'record_from': ['v_comp0', 'AMPA0', 'AMPA1'], 'interval': .1})
+                'record_from': ['v_comp0', 'AMPA0'], 'interval': .1})
 
         nest.Connect(external_input_pre, pre_neuron, "one_to_one",
                      syn_spec={'synapse_model': 'static_synapse', 'weight': 2.0, 'delay': 0.1})
-        nest.Connect(external_input_post, post_neuron, "one_to_one",
-                     syn_spec={'synapse_model': 'static_synapse', 'weight': 5.0, 'delay': 0.1, 'receptor_type': 0})
+        # nest.Connect(external_input_post, post_neuron, "one_to_one",
+        #              syn_spec={'synapse_model': 'static_synapse', 'weight': 5.0, 'delay': 0.1, 'receptor_type': 0})
         if model_case == "nestml":
             nest.Connect(pre_neuron, post_neuron, "one_to_one",
-                         syn_spec={'synapse_model': 'static_synapse', 'weight': 0.0001, 'delay': 0.1, 'receptor_type': 1})
+                         syn_spec={'synapse_model': 'static_synapse', 'weight': 1.0, 'delay': 0.1, 'receptor_type': 0})
         elif model_case == "nest":
             wr = nest.Create("weight_recorder")
             nest.CopyModel(
                 "stdp_synapse",
                 "stdp_synapse_rec",
-                {"weight_recorder": wr[0], "receptor_type": 1},
+                {"weight_recorder": wr[0], "receptor_type": 0, 'weight': 1.0},
             )
             nest.Connect(
                 pre_neuron,
@@ -170,7 +175,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
                     "synapse_model": "stdp_synapse_rec",
                     "delay": 0.1,
                     "weight": 10.0,
-                    "receptor_type": 1
+                    "receptor_type": 0
                 },
             )
         nest.Connect(mm, post_neuron)
@@ -182,10 +187,11 @@ class TestCompartmentalConcmech(unittest.TestCase):
         if model_case == "nest":
             recorded["weight"] = nest.GetStatus(wr, "events")[0]["weights"]
             recorded["w_times"] = nest.GetStatus(wr, "events")[0]["times"]
+            #print(recorded["weight"])
         elif model_case == "nestml":
-            recorded["weight"] = res['w1']
-            recorded["pre_trace"] = res['pre_trace1']
-            recorded["post_trace"] = res['post_trace1']
+            recorded["weight"] = res['w0']
+            recorded["pre_trace"] = res['pre_trace0']
+            recorded["post_trace"] = res['post_trace0']
 
         recorded["times"] = res['times']
         recorded["v_comp"] = res['v_comp0']
@@ -196,7 +202,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
         rec_nest_runs = list()
         rec_nestml_runs = list()
 
-        sim_time = 50
+        sim_time = 40
         resolution = 20
         sim_time = int(sim_time / resolution) * resolution
 

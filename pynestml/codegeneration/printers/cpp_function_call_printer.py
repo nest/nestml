@@ -93,7 +93,7 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         if function_name == PredefinedFunctions.MAX:
             return 'std::max({!s}, {!s})'
 
-        if function_name == PredefinedFunctions.MIN:
+        if function_name == PredefinedFunctions.MIN or function_name == "Min":
             return 'std::min({!s}, {!s})'
 
         if function_name == PredefinedFunctions.ABS:
