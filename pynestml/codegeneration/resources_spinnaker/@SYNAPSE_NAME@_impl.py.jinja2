@@ -17,7 +17,11 @@ from __future__ import annotations
 from typing import Any, Iterable, List, Optional, Tuple, TYPE_CHECKING
 
 import math
-import numpy
+
+from math import exp # XXX how to support all NESTML functions that can be used in the initiialisation of parameters and internals?
+
+import numpy 
+import numpy as np
 from numpy import floating, integer, uint8, uint16, uint32
 from numpy.typing import NDArray
 
@@ -66,6 +70,31 @@ NEUROMODULATION_TARGETS = {
 }
 
 
+
+def float_to_s15_16(x: float) -> int:
+    """Converts a float to a Q15.16 fixed-point 32-bit integer.
+
+    The S15.16 format uses 1 sign bit, 15 integer bits, and 16
+    fractional bits.
+
+    Args:
+        float_val: The floating-point number to convert.
+
+    Returns:
+        The 32-bit signed integer representing the fixed-point number.
+    """
+
+    sign_bit: int = 1 if np.sign(x) == -1 else 0
+    integer_bits: int = int(np.abs(x))
+    fractional_bits: int = int((np.abs(x) - int(np.abs(x))) * 2**16)
+
+    fixp_x: int = (sign_bit << 31) + (integer_bits << 16) + fractional_bits
+
+    return fixp_x
+
+
+
+
 class {{ synapseName }}Dynamics(
         AbstractPlasticSynapseDynamics,
         AbstractGenerateOnMachine):
@@ -74,7 +103,7 @@ class {{ synapseName }}Dynamics(
     Spike Timing Dependent Plasticity (STDP) rule.
     """
 
-    __slots__ = (
+    """__slots__ = (
         # Fraction of delay that is dendritic (instead of axonal or synaptic)
         "__dendritic_delay_fraction",
         # The neuromodulation instance if enabled
@@ -82,7 +111,15 @@ class {{ synapseName }}Dynamics(
         # padding to add to a synaptic row for synaptic rewiring
         "__pad_to_length",
         # Whether to use back-propagation delay or not
-        "__backprop_delay")
+        "__backprop_delay")"""
+
+
+    def _init_nestml_model_variables(self):
+        timestep = 1.   # XXX: hard-coded for now!
+        self._nestml_model_variables = {}
+{%- for sym in synapse.get_parameter_symbols() + synapse.get_internal_symbols() %}
+        self._nestml_model_variables["{{ sym.get_symbol_name() }}"] = {{ printer.print(sym.get_declaring_expression()) }}  # type: {{ sym.get_type_symbol().print_symbol() }}
+{%- endfor %}
 
     def __init__(
             self, 
@@ -110,6 +147,8 @@ class {{ synapseName }}Dynamics(
         self.__pad_to_length = pad_to_length
         self.__backprop_delay = backprop_delay
         self.__neuromodulation: Optional[SynapseDynamicsNeuromodulation] = None
+
+        self._init_nestml_model_variables()
 
         if self.__dendritic_delay_fraction != 1.0:
             raise NotImplementedError("All delays must be dendritic!")
@@ -262,10 +301,11 @@ class {{ synapseName }}Dynamics(
         # Switch focus to the region:
         spec.switch_write_focus(region)
 
-{%- for sym in synapse.get_parameter_symbols() %}
+{%- for sym in synapse.get_parameter_symbols() + synapse.get_internal_symbols() %}
         # write value for parameter "{{ sym.get_symbol_name() }}"
+        print("XXXXXXXXX writing value for parameter {{ sym.get_symbol_name() }} ======= " + str(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]) + " ==== encoded --> " + str(float_to_s15_16(self._nestml_model_variables["{{ sym.get_symbol_name() }}"])))
         spec.write_value(
-                data=int(i),  # XXX should be actual data
+                data=float_to_s15_16(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]), # int(i),  # XXX should be actual data; use int(i) for testing
                 data_type=DataType.INT32)
         i += 1
 {%- endfor %}

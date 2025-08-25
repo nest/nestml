@@ -1,3 +1,46 @@
+{#-
+@SYNAPSE_NAME@_impl.h.jinja2
+----------------------------
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#}
+/**
+ *  {{ synapseName }}.h
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Generated from NESTML {{ nestml_version }} at time: {{ now }}
+**/
 
 #ifndef {{synapseName.upper()}}_IMPL_H
 #define {{synapseName.upper()}}_IMPL_H
@@ -35,6 +78,25 @@
 
 
 
+// all parameters are externally linked (XXX: into DTCM memory?)
+/**
+ * parameters from the NESTML model
+**/
+
+{%- for sym in synapse.get_parameter_symbols() %}
+extern accum {{ sym.get_symbol_name() }};
+{%- endfor %}
+
+/**
+ * internals from the NESTML model
+**/
+
+{%- for sym in synapse.get_internal_symbols() %}
+extern accum {{ sym.get_symbol_name() }};
+{%- endfor %}
+
+
+
 
 // stuff from timing.h
 
@@ -54,6 +116,14 @@ typedef struct pre_trace_t {
  * for a definition of the SpyNNaker "API", see:
  * https://github.com/SpiNNakerManchester/sPyNNaker/blob/master/neural_modelling/src/neuron/plasticity/synapse_dynamics.h
 **/
+
+
+
+
+
+
+
+
 
 
 
@@ -107,29 +177,32 @@ typedef struct {
 
 //! The configuration of the rule
 typedef struct {
+    // parameters
 {%- for sym in synapse.get_parameter_symbols() %}
+    accum {{ sym.get_symbol_name() }};
+{%- endfor %}
+
+    // internals
+{%- for sym in synapse.get_internal_symbols() %}
     accum {{ sym.get_symbol_name() }};
 {%- endfor %}
 } plasticity_weight_region_data_t;
 
 
 //! \brief Plastic synapse word
-// n.b.: this needs to add up together to exactly 32 bits
-// contains:
-// - a 16-bit weight
-// - ??? tr_pre
-// - ??? tr_post
+// n.b.: this should be a multiple of 32 bits. Bit packing can be used, e.g.
+//
+//    unsigned int w : 16;        //!< The weight
+//    unsigned int pre_trace : 8; // pre trace
+//    unsigned int post_trace : 8; // post trace
+//
 typedef struct synapse_word_t {
-    unsigned int w : 16;        //!< The weight
-    unsigned int pre_trace : 8; // pre trace
-    unsigned int post_trace : 8; // post trace
+{%- for sym in synapse.get_state_symbols() %}
+    uint32_t {{ sym.get_symbol_name() }};        // 32 bits by default for every state variable; the actual number is encoded as S1615
+{%- endfor %}
 } synapse_word_t;
 
-
-
-
-
-
+const size_t plastic_synapse_word_stride = {{ synapse.get_state_symbols() | length }};
 
 
 //! The current state data for the rule
@@ -316,6 +389,7 @@ static inline control_t control_conversion(
 uint32_t synapse_dynamics_n_connections_in_row(synapse_row_fixed_part_t *fixed) {
     return synapse_row_num_plastic_controls(fixed);
 }
+
 
 
 
@@ -562,13 +636,9 @@ void synapse_dynamics_process_post_synaptic_event(
     // Add post-event
     post_event_history_t *history = &post_event_history[neuron_index];
     const uint32_t last_post_time = history->times[history->count_minus_one];
-    const post_trace_t last_post_trace =
-            history->traces[history->count_minus_one];
+    const post_trace_t last_post_trace = history->traces[history->count_minus_one];
 
-
-
-    post_events_add(time, history,
-            timing_add_post_spike(time, last_post_time, last_post_trace));
+    post_events_add(time, history, timing_add_post_spike(time, last_post_time, last_post_trace));
 }
 
 
@@ -615,7 +685,7 @@ static inline synapse_state_t timing_apply_pre_spike(
     log_info("[NESTML synapse] \t{{ sym.get_symbol_name() }} = %x", state.{{ sym.get_symbol_name() }});
 {%- endfor %}
 
-    state.w = 999  ;
+    state.w = 999;
 
 #ifdef FOOBAR
 {%- for pre_port in pre_ports %}

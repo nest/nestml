@@ -1,4 +1,3 @@
-
 #include "{{ synapseName }}_impl.h"
 
 #define DEBUG
@@ -11,85 +10,62 @@
 
 
 // Define the number of fractional bits for the S16.15 format.
-#define FRACTIONAL_BITS 15
-
-// Define the number of decimal places to generate for the fractional part.
-// log10(2^15) is approx 4.5, so 5 digits is enough to show the precision.
-#define DECIMAL_PLACES 5
+#define FRACTIONAL_BITS 16
 
 /**
- * @brief Converts a signed 16.15 fixed-point number to a string.
+ * @brief Converts a 32-bit Q15.16 fixed-point number to a decimal string.
  *
- * This function converts a 32-bit integer representing an S16.15
- * fixed-point number into a human-readable string format (e.g., "-123.45678").
- * It does not use any floating-point arithmetic.
+ * This function extracts the sign, integer, and fractional parts of the Q15.16
+ * number without using floating-point arithmetic. It then constructs a string
+ * representation.
  *
- * @param fixed_val The S16.15 fixed-point number to convert.
- * @param buffer A character buffer to store the resulting string. It should be
- * large enough to hold the longest possible number.
- * (e.g., "-32768.99998" plus a null terminator). A size of 15 is safe.
+ * @param q_num The 32-bit Q15.16 fixed-point number.
+ * @param buffer A character buffer to store the resulting string.
+ * @param buffer_size The size of the buffer.
  */
-void s1615_to_string(int32_t fixed_val, char* buffer) {
-    // Use an unsigned integer to handle the full range, including INT32_MIN,
-    // as -INT32_MIN cannot be represented by a positive int32_t.
-    uint32_t u_val;
-
-    // Handle the sign.
-    if (fixed_val < 0) {
-        *buffer++ = '-';
-        // Safely negate the value.
-        u_val = (uint32_t)-fixed_val;
-    } else {
-        u_val = (uint32_t)fixed_val;
+void q15_16_to_string(int32_t q_num, char *buffer, size_t buffer_size) {
+#ifdef FOOBAR
+    if (buffer == NULL || buffer_size == 0) {
+        return;
     }
 
-    // --- 1. Extract and print the integer part ---
-    uint32_t integer_part = u_val >> FRACTIONAL_BITS;
-
-    // To print the integer part without sprintf, we find the largest power of 10
-    // smaller than the number and print digits from left to right.
-    uint32_t power_of_10 = 1;
-    while (power_of_10 <= integer_part / 10 && power_of_10 < 10000) { // Max integer is 32768
-        power_of_10 *= 10;
+    // Determine the sign and work with the absolute value for calculations.
+    // The sign bit is the MSB (bit 31)
+    int is_negative = (q_num < 0);
+    if (is_negative) {
+        q_num = -q_num;
     }
 
-    // If the integer part is 0, we must print a '0'.
-    if (integer_part == 0) {
-        *buffer++ = '0';
-    } else {
-        // Print each digit of the integer part.
-        while (power_of_10 > 0) {
-            uint32_t digit = integer_part / power_of_10;
-            *buffer++ = digit + '0';
-            integer_part %= power_of_10;
-            power_of_10 /= 10;
-        }
+    // Extract the integer part by right-shifting by 16 bits.
+    // The integer part occupies bits 16 to 30 (15 bits)
+    int32_t integer_part = q_num >> 16;
+
+    // Extract the fractional part by masking the lower 16 bits.
+    // The fractional part occupies bits 0 to 15 (16 bits)
+    int32_t fractional_part = q_num & 0xFFFF;
+
+    // To convert the fractional part to a decimal string without floats, we
+    // treat it as a fraction of 2^16 (65536).
+    // For example, if the fractional part is 32768, the value is 32768/65536 = 0.5.
+    // To get a decimal string with, say, 5 digits, we multiply by 10^5 and
+    // then divide by 65536, using a 64-bit integer to avoid overflow.
+    // The fractional part will be (fractional_part * 100000) / 65536.
+    int64_t decimal_fraction = ((int64_t)fractional_part * 100000 + 32768) >> 16;
+    // We add 32768 (0.5 * 65536) for rounding before the bit shift, which is
+    // equivalent to division. This is a common fixed-point rounding technique.
+
+    // Start printing the string.
+    char *ptr = buffer;
+    if (is_negative) {
+        *ptr++ = '-';
     }
 
-    // Add the decimal point.
-    *buffer++ = '.';
+    // Print the integer part.
+    ptr += snprintf(ptr, buffer_size - (ptr - buffer), "%d.", integer_part);
 
-    // --- 2. Extract and print the fractional part ---
-    // Create a mask for the fractional bits (2^15 - 1).
-    uint32_t fractional_mask = (1 << FRACTIONAL_BITS) - 1;
-    uint32_t fractional_part = u_val & fractional_mask;
-
-    // The fractional part is (fractional_part / 2^15).
-    // To get decimal digits, we repeatedly multiply by 10.
-    for (int i = 0; i < DECIMAL_PLACES; ++i) {
-        // Multiply by 10 to shift the next decimal digit into the integer position.
-        fractional_part *= 10;
-
-        // The digit is the new integer part of the fraction.
-        uint32_t digit = fractional_part >> FRACTIONAL_BITS;
-        *buffer++ = digit + '0';
-
-        // The remainder is the new fractional part.
-        fractional_part &= fractional_mask;
-    }
-
-    // Null-terminate the string.
-    *buffer = '\0';
+    // Print the fractional part with leading zeros to maintain precision.
+    snprintf(ptr, buffer_size - (ptr - buffer), "%05lld", (long long)decimal_fraction);
+#endif
 }
 
 
@@ -106,8 +82,25 @@ void s1615_to_string(int32_t fixed_val, char* buffer) {
 
 
 
-// stuff from synapse_dynamics_stdp_mad_impl.c
 
+
+
+
+/**
+ * parameters from the NESTML model
+**/
+
+{%- for sym in synapse.get_parameter_symbols() %}
+accum {{ sym.get_symbol_name() }};
+{%- endfor %}
+
+/**
+ * internals from the NESTML model
+**/
+
+{%- for sym in synapse.get_internal_symbols() %}
+accum {{ sym.get_symbol_name() }};
+{%- endfor %}
 
 
 
@@ -121,6 +114,9 @@ struct synapse_row_plastic_data_t {
 
 extern uint32_t skipped_synapses;
 
+
+#ifdef FOOBAR
+// XXX CAP LEFOFF -- disabled this
 //---------------------------------------
 //! \brief Synapse update loop core
 //! \param[in] time: The current time
@@ -129,14 +125,14 @@ extern uint32_t skipped_synapses;
 //! \param[in] new_pre_trace: The new pre-trace
 //! \param[in] delay_dendritic: The dendritic delay for the synapse
 //! \param[in] delay_axonal: The axonal delay for the synapse
-//! \param[in] current_state: The current state
+//! \param[in] state: The current state
 //! \param[in] post_event_history: The history
 //! \return The new basic state of the synapse
 static inline synapse_word_t plasticity_update_synapse(
         const uint32_t time,
         const uint32_t last_pre_time, const pre_trace_t last_pre_trace,
         const pre_trace_t new_pre_trace, const uint32_t delay_dendritic,
-        const uint32_t delay_axonal, synapse_state_t current_state,
+        const uint32_t delay_axonal, synapse_state_t state,
         const post_event_history_t *post_event_history) {
 
     log_info("[NESTML synapse] in plasticity_update_synapse()");
@@ -151,23 +147,22 @@ static inline synapse_word_t plasticity_update_synapse(
 */
 
 {%- for sym in synapse.get_state_symbols() %}
-    current_state.{{ sym.get_symbol_name() }} = 8624;
-    log_info("[NESTML synapse]\tstate[{{ sym.get_symbol_name() }}] = %d", current_state.{{ sym.get_symbol_name() }} );
+    state.{{ sym.get_symbol_name() }} = 8624;
+    log_info("[NESTML synapse]\tstate[{{ sym.get_symbol_name() }}] = %d", state.{{ sym.get_symbol_name() }} );
 {%- endfor %}
 
 
     // Return final synaptic word and weight (encode synapse_state_t into synapse_word_t)
     return (synapse_word_t) {
 {%- for sym in synapse.get_state_symbols() %}
-    .{{ sym.get_symbol_name() }} = current_state.{{ sym.get_symbol_name() }},
+    .{{ sym.get_symbol_name() }} = state.{{ sym.get_symbol_name() }},
 {%- endfor %}
     };
 
-#ifdef FOOBAR
     // Update the synapse state
 
 {%- for sym in synapse.get_state_symbols() %}
-    current_state.{{ sym.get_symbol_name() }} = 2.71;
+    state.{{ sym.get_symbol_name() }} = 271;
 {%- endfor %}
 
     // Apply axonal delay to time of last presynaptic spike
@@ -222,14 +217,14 @@ static inline synapse_word_t plasticity_update_synapse(
 
 
         // POST SPIKE EVENT HANDLER BE HERE
-        // current_state = timing_apply_post_spike(..........
+        // state = timing_apply_post_spike(..........
 
         // Go onto next event
         post_window = post_events_next(post_window);
     }
 
 {%- for sym in synapse.get_state_symbols() %}
-    log_info("[NESTML synapse] \t{{ sym.get_symbol_name() }} = %x", current_state.{{ sym.get_symbol_name() }});
+    log_info("[NESTML synapse] \t{{ sym.get_symbol_name() }} = %x", state.{{ sym.get_symbol_name() }});
 {%- endfor %}
 /*
     // Apply spike to state only if there has been a post spike ever
@@ -237,19 +232,19 @@ static inline synapse_word_t plasticity_update_synapse(
         const uint32_t delayed_last_post = post_window.prev_time + delay_dendritic;
         log_debug("\t\tApplying pre-synaptic event at time:%u last post time:%u\n",
                 delayed_pre_time, delayed_last_post);
-        current_state = timing_apply_pre_spike(
+        state = timing_apply_pre_spike(
                 delayed_pre_time, new_pre_trace, delayed_last_pre_time, last_pre_trace,
-                delayed_last_post, post_window.prev_trace, current_state);
+                delayed_last_post, post_window.prev_trace, state);
     }
 */
     // Return final synaptic word and weight (encode synapse_state_t into synapse_word_t)
     return (synapse_word_t) {
 {%- for sym in synapse.get_state_symbols() %}
-    .{{ sym.get_symbol_name() }} = current_state.{{ sym.get_symbol_name() }},
+    .{{ sym.get_symbol_name() }} = state.{{ sym.get_symbol_name() }},
 {%- endfor %}
     };
-#endif
 }
+#endif
 
 bool synapse_dynamics_initialise(
         address_t address, uint32_t n_neurons, uint32_t n_synapse_types,
@@ -269,17 +264,14 @@ bool synapse_dynamics_initialise(
     }
 
     for (uint32_t s = 0; s < n_synapse_types; s++, config++) {
-{%- for sym in synapse.get_parameter_symbols() %}
+{%- for sym in synapse.get_parameter_symbols() + synapse.get_internal_symbols() %}
         dtcm_copy[s].{{ sym.get_symbol_name() }} = config->{{ sym.get_symbol_name() }};
 #ifdef DEBUG
 //        log_info("\t[NESTML synapse] \tSynapse type %u: Parameter {{ sym.get_symbol_name() }}, Value: %k", s, dtcm_copy[s].{{ sym.get_symbol_name() }});
-        s1615_to_string(dtcm_copy[s].{{ sym.get_symbol_name() }}, _string_buf);
+        q15_16_to_string(dtcm_copy[s].{{ sym.get_symbol_name() }}, _string_buf, 20);
         log_info("\t[NESTML synapse] \tSynapse type %u: Parameter {{ sym.get_symbol_name() }}, Raw value: %x, Decoded float value: %s", s, dtcm_copy[s].{{ sym.get_symbol_name() }}, _string_buf);
 #endif
 {%- endfor %}
-
-        // Copy weight shift
-        //weight_shift[s] = ring_buffer_to_input_buffer_left_shifts[s];
     }
 
     post_event_history = post_events_init_buffers(n_neurons);
@@ -303,8 +295,6 @@ void synapse_dynamics_print_plastic_synapses(
     __use(plastic_region_data);
     __use(fixed_region);
     __use(ring_buffer_to_input_buffer_left_shifts);
-
-
 }
 
 //---------------------------------------
@@ -322,24 +312,8 @@ static inline index_t sparse_axonal_delay(uint32_t x) {
 }
 
 
-#ifdef FOOBAR
-// XX THIS IS ALREADY IN THE HEADER FILE?!
 
-//---------------------------------------
-void synapse_dynamics_process_post_synaptic_event(
-        uint32_t time, index_t neuron_index) {
-    log_debug("Adding post-synaptic event to trace at time:%u", time);
 
-    // Add post-event
-    post_event_history_t *history = &post_event_history[neuron_index];
-    const uint32_t last_post_time = history->times[history->count_minus_one];
-    const post_trace_t last_post_trace =
-            history->traces[history->count_minus_one];
-    post_events_add(time, history,
-            timing_add_post_spike(time, last_post_time, last_post_trace));
-}
-#endif
-//---------------------------------------
 static inline synapse_word_t process_plastic_synapse(
         uint32_t control_word, uint32_t last_pre_time, pre_trace_t last_pre_trace,
 		pre_trace_t new_pre_trace, weight_t *ring_buffers, uint32_t time,
@@ -354,29 +328,49 @@ static inline synapse_word_t process_plastic_synapse(
         post_delay = 0;
     }
 
-	synapse_state_t current_state = synapse_structure_get_update_state(synapse_word, s.type);
+	synapse_state_t state = synapse_structure_get_update_state(synapse_word, s.type);
 
     log_info("[NESTML synapse] \tCurrent state:");
 {%- for sym in synapse.get_state_symbols() %}
-    log_info("[NESTML synapse] \t\t{{ sym.get_symbol_name() }} = 0x%x\n", current_state.{{ sym.get_symbol_name() }});
+    log_info("[NESTML synapse] \t\t{{ sym.get_symbol_name() }} = 0x%x\n", state.{{ sym.get_symbol_name() }});
 {%- endfor %}
 
-	/*synapse_word_t final_state = plasticity_update_synapse(
-			time - colour_delay, last_pre_time, last_pre_trace, new_pre_trace,
-			post_delay, s.delay_axonal, current_state,
-			&post_event_history[s.index]);*/
+    /**
+     * Begin NESTML generated code for the update block
+    **/
+
+{%- if synapse.get_update_blocks() %}
+{%-     filter indent(2) %}
+{%-         for block in synapse.get_update_blocks() %}
+{%-             set ast = block.get_stmts_body() %}
+{%-             if ast.print_comment('*')|length > 1 %}
+/*
+ {{ast.print_comment('*')}}
+ */
+{%-             endif %}
+{%-             include "directives_cpp/StmtsBody.jinja2" %}
+{%-         endfor %}
+{%-     endfilter %}
+{%- endif %}
+
+    /**
+     * End NESTML generated code for the update block
+    **/
 
 	// Add weight to ring-buffer entry, but only if not too late
 	if (s.delay_axonal + s.delay_dendritic > colour_delay) {
-	    int32_t weight = 42.;//synapse_structure_get_final_weight(final_state);
+	    int32_t weight = state.w;   // XXX: the variable name ``w`` is hard-coded here
 	    synapse_dynamics_stdp_update_ring_buffers(ring_buffers, s, weight);
     } else {
         skipped_synapses++;
     }
 
+
+// pack the current state into a word
+// TODO: spin this off into a separate function
 synapse_word_t new_synapse_word = (synapse_word_t) {
 {%- for sym in synapse.get_state_symbols() %}
-        .{{ sym.get_symbol_name() }} = 63,
+        .{{ sym.get_symbol_name() }} = state.{{ sym.get_symbol_name() }},
 {%- endfor %}
     };
 
@@ -404,25 +398,22 @@ void print_low_level_synaptic_row_data(synapse_row_plastic_data_t *plastic_regio
     for (size_t i = 0; i < n_fixed_synapses; ++i) {
         uint32_t synaptic_word = *synaptic_words++;
 
-        uint32_t delay = synapse_row_sparse_delay(
-                synaptic_words, synapse_type_index_bits, synapse_delay_mask);
-        uint32_t type = synapse_row_sparse_type(
-                synaptic_word, synapse_index_bits, synapse_type_mask);
-        uint32_t neuron = synapse_row_sparse_index(
-                synaptic_word, synapse_index_mask);
+        uint32_t delay = synapse_row_sparse_delay(synaptic_words, synapse_type_index_bits, synapse_delay_mask);
+        uint32_t type = synapse_row_sparse_type(synaptic_word, synapse_index_bits, synapse_type_mask);
+        uint32_t neuron = synapse_row_sparse_index(synaptic_word, synapse_index_mask);
         log_info("[NESTML synapse] \t\tDelay %u, Synapse Type %u, Neuron %u", delay, type, neuron);
     }
 
     const size_t n_plastic_synapses = synapse_row_num_plastic_controls(fixed_region);
 
     log_info("[NESTML synapse] \tPlastic region %u synapses:", n_plastic_synapses);
-    for (uint32_t i = 0; i < n_plastic_synapses; i++) {
+    for (uint32_t i = 0; i < n_plastic_synapses; ++i) {
         // Get next control word (auto incrementing control word)
         uint32_t control_word = *(control_words + i);
         uint32_t synapse_type = synapse_row_sparse_type(control_word, synapse_index_bits, synapse_type_mask);
 
         // Get state
-        const synapse_word_t data_word = *(plastic_words + i);
+        const synapse_word_t data_word = *(plastic_words + i * plastic_synapse_word_stride);
         synapse_state_t update_state = synapse_structure_get_update_state(data_word, synapse_type);
 
         log_info("[NESTML synapse] \t\tidx = %d; control word = %08x; data word = %08x; w = %5u; pre_trace = %d; post_trace = %d; d = %2u, post neuron id = %3u", i, control_word, data_word, update_state.w, update_state.pre_trace, update_state.post_trace, synapse_row_sparse_delay(control_word, synapse_type_index_bits, synapse_delay_mask), synapse_row_sparse_index(control_word, synapse_index_mask));
@@ -454,7 +445,7 @@ bool synapse_dynamics_process_plastic_synapses(
     control_t *control_words = synapse_row_plastic_controls(fixed_region);
     const size_t n_plastic_synapses = synapse_row_num_plastic_controls(fixed_region);
 
-    log_info("[NESTML synapse] ------------------ AAAAAAAAAAAAAAAAAAA");
+//    log_info("[NESTML synapse] ------------------ AAAAAAAAAAAAAAAAAAA");
     print_low_level_synaptic_row_data(plastic_region_address, fixed_region);
 
 
@@ -477,26 +468,28 @@ bool synapse_dynamics_process_plastic_synapses(
         // Get next control word (auto incrementing)
         uint32_t control_word = *(control_words + i);
 
-        log_info("[NESTML synapse] old plastic word[%d] = %x\n", i, plastic_words[i]);
-        plastic_words[i] = process_plastic_synapse(control_word, last_pre_time, last_pre_trace, plastic_region_address->history.prev_trace, ring_buffers, time, colour_delay, plastic_words[0]);
-        log_info("[NESTML synapse] new plastic word[%d] = %x\n", i, plastic_words[i]);
+//        log_info("[NESTML synapse] old plastic word[%d] = %x\n", i, plastic_words[i * plastic_synapse_word_stride]);
+        plastic_words[i * plastic_synapse_word_stride] = process_plastic_synapse(control_word, last_pre_time, last_pre_trace, plastic_region_address->history.prev_trace, ring_buffers, time, colour_delay, plastic_words[0]);
+//        log_info("[NESTML synapse] new plastic word[%d] = %x\n", i, plastic_words[i * plastic_synapse_word_stride]);
 
     }
 
-    log_info("[NESTML synapse] ------------------ BBBBBBBBBBBBBB");
-    print_low_level_synaptic_row_data(plastic_region_address, fixed_region);
+//    log_info("[NESTML synapse] ------------------ BBBBBBBBBBBBBB");
+//    print_low_level_synaptic_row_data(plastic_region_address, fixed_region);
 
     *write_back = true;
 
     return true;
 }
 
+
+#ifdef FOOBAR
 bool synapse_dynamics_find_neuron(
         uint32_t id, synaptic_row_t row, weight_t *weight, uint16_t *delay,
         uint32_t *offset, uint32_t *synapse_type) {
 
 
-   log_info("[NESTML synapse] In synapse_dynamics_find_neuron()");
+//   log_info("[NESTML synapse] In synapse_dynamics_find_neuron()");
 
 
    synapse_row_fixed_part_t *fixed_region = synapse_row_fixed_region(row);
@@ -553,7 +546,7 @@ bool synapse_dynamics_add_neuron(uint32_t id, synaptic_row_t row,
 
 
 
-    log_info("[NESTML synapse] In synapse_dynamics_add_neuron()");
+  //  log_info("[NESTML synapse] In synapse_dynamics_add_neuron()");
 
 
     synapse_row_fixed_part_t *fixed_region = synapse_row_fixed_region(row);
@@ -580,3 +573,6 @@ bool synapse_dynamics_add_neuron(uint32_t id, synaptic_row_t row,
     fixed_region->num_plastic++;
     return true;
 }
+#endif
+
+
