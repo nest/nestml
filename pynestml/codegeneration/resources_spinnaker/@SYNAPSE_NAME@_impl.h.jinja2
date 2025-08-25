@@ -72,6 +72,9 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include <neuron/plasticity/synapse_dynamics.h>
 
 
+// fixed-point math functions from spinn_common
+#include "log.h"
+#include "stdfix-exp.h"
 
 
 
@@ -116,6 +119,9 @@ typedef struct pre_trace_t {
  * for a definition of the SpyNNaker "API", see:
  * https://github.com/SpiNNakerManchester/sPyNNaker/blob/master/neural_modelling/src/neuron/plasticity/synapse_dynamics.h
 **/
+
+
+
 
 
 
@@ -315,6 +321,75 @@ static uint32_t num_plastic_pre_synaptic_events = 0;
 
 //! Count of times that the plastic math became saturated
 static uint32_t plastic_saturation_count = 0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+synapse_state_t synapse_word_to_state_t(const synapse_word_t const *synapse_word, const size_t synapse_word_len) {
+    return (synapse_state_t) {
+{%- for sym in synapse.get_state_symbols() %}
+       .{{ sym.get_symbol_name() }} = synapse_word->{{ sym.get_symbol_name() }},
+{%- endfor %}    
+    };
+}
+
+
+void state_t_to_synapse_word(const synapse_state_t state, synapse_word_t *synapse_word, const size_t synapse_word_len) {
+{%- for sym in synapse.get_state_symbols() %}
+    synapse_word->{{ sym.get_symbol_name() }} = state.{{ sym.get_symbol_name() }};
+{%- endfor %}    
+}
+
+
+
+
+/*
+synapse_state_t synapse_word_to_state_t(const size_t const *synapse_word, const size_t synapse_word_len) {
+    return (synapse_state_t) {
+{%- for sym in synapse.get_state_symbols() %}
+       .{{ sym.get_symbol_name() }} = *(synapse_word + {{ loop.index0 }}),
+{%- endfor %}    
+    };
+}
+
+
+void state_t_to_synapse_word(const synapse_state_t state, size_t *synapse_word, const size_t synapse_word_len) {
+{%- for sym in synapse.get_state_symbols() %}
+    *(synapse_word + {{ loop.index0 }}) = state.{{ sym.get_symbol_name() }};
+{%- endfor %}    
+}
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* PRIVATE FUNCTIONS */
 
@@ -643,29 +718,6 @@ void synapse_dynamics_process_post_synaptic_event(
 
 
 //---------------------------------------
-//! \brief Add a pre spike to the pre trace
-//! \param[in] time: the time of the spike
-//! \param[in] last_time: the time of the previous spike update
-//! \param[in] last_trace: the pre trace to update
-//! \return the updated pre trace
-static inline pre_trace_t timing_add_pre_spike(
-        uint32_t time, uint32_t last_time, pre_trace_t last_trace) {
-
-    log_info("[NESTML synapse] In timing_add_pre_spike()");
-
-/*    // Get time since last spike
-    uint32_t delta_time = time - last_time;
-
-    int32_t decayed_trace = STDP_FIXED_MUL_16X16(last_trace.pre_tr, maths_lut_exponential_decay(delta_time, tau_plus));
-    decayed_trace += STDP_FIXED_POINT_ONE;
-
-    log_debug("\tdelta_time=%u, r1=%d\n", delta_time, decayed_trace);
-    return (pre_trace_t){.pre_tr=decayed_trace};
-*/
-    return (pre_trace_t){.pre_tr=0.};
-}
-
-//---------------------------------------
 //! \brief Apply a pre-spike timing rule state update
 //! \param[in] time: the current time
 //! \param[in] trace: the current pre-spike trace
@@ -685,9 +737,6 @@ static inline synapse_state_t timing_apply_pre_spike(
     log_info("[NESTML synapse] \t{{ sym.get_symbol_name() }} = %x", state.{{ sym.get_symbol_name() }});
 {%- endfor %}
 
-    state.w = 999;
-
-#ifdef FOOBAR
 {%- for pre_port in pre_ports %}
 
       /**
@@ -703,7 +752,6 @@ static inline synapse_state_t timing_apply_pre_spike(
 {%-     endif %}
 {%- endfor %}
 
-#endif
     return state;
 }
 

@@ -147,7 +147,7 @@ class TestSpiNNakerSTDP:
         pre_spiking.record(["spikes"])
         post_spiking.record(["spikes"])
 
-        pre_input.set(spike_times=[100,1000])
+        pre_input.set(spike_times=[100, 110, 120, 1000])
 
         #calculate all data points
         for t_post in [142.]:#np.linspace(0,max_it,points_gen):
