@@ -120,6 +120,7 @@ class NESTCodeGenerator(CodeGenerator):
 
     """
 
+
     _default_options = {
         "neuron_parent_class": "ArchivingNode",
         "neuron_parent_class_include": "archiving_node.h",
@@ -253,12 +254,16 @@ class NESTCodeGenerator(CodeGenerator):
         return ret
 
     def generate_synapse_code(self, synapse: ASTModel) -> None:
+
         # special case for delay variable
         synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
 
         self._check_delay_variable_codegen_opt(synapse)
+#!! this causes error that set is not scriptable
+#        variables_special_cases = {self.get_option("delay_variable")[synapse_name_stripped]: "get_delay()"}
 
-        variables_special_cases = {self.get_option("delay_variable")[synapse_name_stripped]: "get_delay()"}
+        variables_special_cases = {"delay_variable":self.get_option("delay_variable")}
+
         self._nest_variable_printer.variables_special_cases = variables_special_cases
         self._nest_variable_printer_no_origin.variables_special_cases = variables_special_cases
 
@@ -484,11 +489,18 @@ class NESTCodeGenerator(CodeGenerator):
 
             return
 
-        if not (synapse_name_stripped in self.get_option("delay_variable").keys() and ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped])):
-            code, message = Messages.get_delay_variable_not_found(variable_name=self.get_option("delay_variable")[synapse_name_stripped])
-            Logger.log_message(synapse, code, message, None, LoggingLevel.ERROR)
+#!!
+#not sure if this is even needed..
 
-            return
+#
+#        if not (synapse_name_stripped in self.get_option("delay_variable").keys() and ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped])):
+#            code, message = Messages.get_delay_variable_not_found(variable_name=self.get_option("delay_variable")[synapse_name_stripped])
+#            Logger.log_message(synapse, code, message, None, LoggingLevel.ERROR)
+
+#            return
+
+
+
 
     def _get_model_namespace(self, astnode: ASTModel) -> Dict:
         namespace = {}
@@ -591,11 +603,16 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace["continuous_post_ports"] = [v for v in post_ports if isinstance(v, tuple) or isinstance(v, list)]
 
             namespace["vt_ports"] = synapse.vt_port_names
-            namespace["pre_ports"] = list(set(all_input_port_names)
-                                          - set(namespace["post_ports"]) - set(namespace["vt_ports"]))
+            namespace["pre_ports"] = list(set(all_input_port_names) - set(namespace["post_ports"]) - set(namespace["vt_ports"]))
         else:
-            # separate (not neuron+synapse co-generated)
-            namespace["pre_ports"] = all_input_port_names
+            opts = FrontendConfiguration.get_codegen_opts()
+            if "neuron_synapse_pairs" in opts:
+                assert len(opts["neuron_synapse_pairs"]) == 1, "Only one pair supported for now!"
+                namespace["post_ports"] = opts["neuron_synapse_pairs"][0]["post_ports"]
+                namespace["pre_ports"] = list(set(all_input_port_names) - set(namespace["post_ports"]))
+            else:
+                # separate (not neuron+synapse co-generated)
+                namespace["pre_ports"] = all_input_port_names
 
         assert len(namespace["pre_ports"]) <= 1, "Synapses only support one spiking input port"
 
