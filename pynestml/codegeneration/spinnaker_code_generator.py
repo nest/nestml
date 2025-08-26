@@ -27,10 +27,12 @@ import os
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
+from pynestml.codegeneration.printers.spinnaker_cpp_expression_printer import SpiNNakerCppExpressionPrinter
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
 from pynestml.codegeneration.printers.cpp_printer import CppPrinter
 from pynestml.codegeneration.printers.c_simple_expression_printer import CSimpleExpressionPrinter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
+from pynestml.codegeneration.printers.spinnaker_constant_printer import SpiNNakerConstantPrinter
 from pynestml.codegeneration.printers.gsl_variable_printer import GSLVariablePrinter
 from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
 from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
@@ -56,7 +58,7 @@ from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 class CustomNESTCodeGenerator(NESTCodeGenerator):
     def setup_printers(self, for_neuron: bool = True):
-        self._constant_printer = ConstantPrinter()
+        self._constant_printer = SpiNNakerConstantPrinter()
 
         # C/Spinnaker API printers
         self._type_symbol_printer = SpinnakerCTypeSymbolPrinter()
@@ -70,7 +72,13 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         self._nest_function_call_printer = SpinnakerCFunctionCallPrinter(None)
         self._nest_function_call_printer_no_origin = SpinnakerCFunctionCallPrinter(None)
 
-        self._printer = CppExpressionPrinter(
+        if for_neuron:
+            self._printer = CppExpressionPrinter(
+            simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
+                                                               constant_printer=self._constant_printer,
+                                                               function_call_printer=self._nest_function_call_printer))
+        else:
+            self._printer = SpiNNakerCppExpressionPrinter(
             simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
                                                                constant_printer=self._constant_printer,
                                                                function_call_printer=self._nest_function_call_printer))
@@ -80,10 +88,16 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
 
         self._nest_variable_printer_no_origin = SpinnakerCVariablePrinter(None, with_origin=False,
                                                                           with_vector_parameter=False)
-        self._printer_no_origin = CppExpressionPrinter(
-            simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
-                                                               constant_printer=self._constant_printer,
-                                                               function_call_printer=self._nest_function_call_printer_no_origin))
+        if for_neuron:
+            self._printer_no_origin = CppExpressionPrinter(
+                simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
+                                                                   constant_printer=self._constant_printer,
+                                                                   function_call_printer=self._nest_function_call_printer_no_origin))
+        else:
+            self._printer_no_origin = SpiNNakerCppExpressionPrinter(
+                simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
+                                                                   constant_printer=self._constant_printer,
+                                                                   function_call_printer=self._nest_function_call_printer_no_origin))
         self._nest_variable_printer_no_origin._expression_printer = self._printer_no_origin
         self._nest_function_call_printer_no_origin._expression_printer = self._printer_no_origin
 
@@ -91,7 +105,13 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         self._gsl_variable_printer = GSLVariablePrinter(None)
         self._gsl_function_call_printer = SpinnakerGSLFunctionCallPrinter(None)
 
-        self._gsl_printer = CppExpressionPrinter(
+        if for_neuron:
+            self._gsl_printer = CppExpressionPrinter(
+            simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
+                                                               constant_printer=self._constant_printer,
+                                                               function_call_printer=self._gsl_function_call_printer))
+        else:
+            self._gsl_printer = SpiNNakerCppExpressionPrinter(
             simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
                                                                constant_printer=self._constant_printer,
                                                                function_call_printer=self._gsl_function_call_printer))

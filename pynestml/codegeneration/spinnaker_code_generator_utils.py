@@ -69,17 +69,20 @@ class SPINNAKERCodeGeneratorUtils:
 
         if variable_symbol.block_type == BlockType.PARAMETERS:
             # parameters are global variables
-            return '%s'
-            #return 'parameter->%s'
+            #return '%s'
+            #return 'state.weight_region->%s'
+            return 'plasticity_weight_region_data->%s'
 
         if variable_symbol.block_type == BlockType.COMMON_PARAMETERS:
+            return 'plasticity_weight_region_data->%s'
             # parameters are global variables
-            return '%s'
+            #return 'state.weight_region->%s'
             #return 'parameter->%s'
 
         if variable_symbol.block_type == BlockType.INTERNALS:
+            return 'plasticity_weight_region_data->%s'
             # parameters are global variables
-            return '%s'
+            #return 'state.weight_region->%s'
             #return 'parameter->%s'
 
         if variable_symbol.block_type == BlockType.INPUT:

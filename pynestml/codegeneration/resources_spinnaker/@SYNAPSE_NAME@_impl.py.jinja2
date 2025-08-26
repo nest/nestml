@@ -86,9 +86,9 @@ def float_to_s15_16(x: float) -> int:
 
     sign_bit: int = 1 if np.sign(x) == -1 else 0
     integer_bits: int = int(np.abs(x))
-    fractional_bits: int = int((np.abs(x) - int(np.abs(x))) * 2**16)
+    fractional_bits: int = int((np.abs(x) - int(np.abs(x))) * 2**15)
 
-    fixp_x: int = (sign_bit << 31) + (integer_bits << 16) + fractional_bits
+    fixp_x: int = (sign_bit << 31) + (integer_bits << 15) + fractional_bits
 
     return fixp_x
 

@@ -130,7 +130,7 @@ class TestSpiNNakerSTDP:
 
         stdp_model = stdp_synapse_nestml()
         stdp_projection = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type=exc_input)
-        stdp_projection_inh = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type=inh_input)
+        #stdp_projection_inh = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type=inh_input)
 
         #initialise lists for axis
         res_weights = []

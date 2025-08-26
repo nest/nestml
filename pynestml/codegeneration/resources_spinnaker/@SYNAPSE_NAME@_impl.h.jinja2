@@ -82,22 +82,24 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
 // all parameters are externally linked (XXX: into DTCM memory?)
-/**
- * parameters from the NESTML model
-**/
+
+typedef struct {
+    /**
+     * parameters from the NESTML model
+    **/
 
 {%- for sym in synapse.get_parameter_symbols() %}
-extern accum {{ sym.get_symbol_name() }};
+    accum {{ sym.get_symbol_name() }};
 {%- endfor %}
 
-/**
- * internals from the NESTML model
-**/
+    /**
+     * internals from the NESTML model
+    **/
 
 {%- for sym in synapse.get_internal_symbols() %}
-extern accum {{ sym.get_symbol_name() }};
+    accum {{ sym.get_symbol_name() }};
 {%- endfor %}
-
+} plasticity_weight_region_data_t;
 
 
 
@@ -177,24 +179,6 @@ typedef struct {
 
 
 
-
-
-// stuff from weight.h (the PyNN/sPyNNaker component that contains the weight increment parameters)
-
-//! The configuration of the rule
-typedef struct {
-    // parameters
-{%- for sym in synapse.get_parameter_symbols() %}
-    accum {{ sym.get_symbol_name() }};
-{%- endfor %}
-
-    // internals
-{%- for sym in synapse.get_internal_symbols() %}
-    accum {{ sym.get_symbol_name() }};
-{%- endfor %}
-} plasticity_weight_region_data_t;
-
-
 //! \brief Plastic synapse word
 // n.b.: this should be a multiple of 32 bits. Bit packing can be used, e.g.
 //
@@ -216,6 +200,8 @@ typedef struct {
 {%- for sym in synapse.get_state_symbols() %}
     accum {{ sym.get_symbol_name() }};
 {%- endfor %}
+
+    //! Reference to the configuration data
     const plasticity_weight_region_data_t *weight_region;
 } synapse_state_t;
 
@@ -237,6 +223,10 @@ static inline synapse_state_t synapse_structure_get_update_state(
     // form
     synapse_state_t update_state;
     log_info("[NESTML synapse] synapse_structure_get_update_state()");
+
+
+    extern plasticity_weight_region_data_t *plasticity_weight_region_data;
+    update_state.weight_region = &plasticity_weight_region_data[synapse_type];
 
 {%- for sym in synapse.get_state_symbols() %}
     update_state.{{ sym.get_symbol_name() }} = synaptic_word.{{ sym.get_symbol_name() }};
@@ -339,7 +329,8 @@ synapse_state_t synapse_word_to_state_t(const synapse_word_t const *synapse_word
     return (synapse_state_t) {
 {%- for sym in synapse.get_state_symbols() %}
        .{{ sym.get_symbol_name() }} = synapse_word->{{ sym.get_symbol_name() }},
-{%- endfor %}    
+{%- endfor %}
+       .weight_region = NULL
     };
 }
 
@@ -714,93 +705,6 @@ void synapse_dynamics_process_post_synaptic_event(
     const post_trace_t last_post_trace = history->traces[history->count_minus_one];
 
     post_events_add(time, history, timing_add_post_spike(time, last_post_time, last_post_trace));
-}
-
-
-//---------------------------------------
-//! \brief Apply a pre-spike timing rule state update
-//! \param[in] time: the current time
-//! \param[in] trace: the current pre-spike trace
-//! \param[in] last_pre_time: the time of the last pre-spike
-//! \param[in] last_pre_trace: the trace of the last pre-spike
-//! \param[in] last_post_time: the time of the last post-spike
-//! \param[in] last_post_trace: the trace of the last post-spike
-//! \param[in] previous_state: the state to update
-//! \return the updated state
-static inline synapse_state_t timing_apply_pre_spike(
-        uint32_t time, UNUSED pre_trace_t trace, UNUSED uint32_t last_pre_time,
-        UNUSED pre_trace_t last_pre_trace, uint32_t last_post_time,
-        post_trace_t last_post_trace, synapse_state_t state) {
-
-    log_info("[NESTML synapse] timing_apply_pre_spike()");
-{%- for sym in synapse.get_state_symbols() %}
-    log_info("[NESTML synapse] \t{{ sym.get_symbol_name() }} = %x", state.{{ sym.get_symbol_name() }});
-{%- endfor %}
-
-{%- for pre_port in pre_ports %}
-
-      /**
-       *  NESTML generated onReceive code block for presynaptic port "{{ pre_port }}" begins here!
-      **/
-{%      if synapse.get_on_receive_block(pre_port) %}
-{%-         set dynamics = synapse.get_on_receive_block(pre_port) %}
-{%-         with ast = dynamics.get_stmts_body() %}
-{%-             filter indent(6, True) %}
-{%-                 include "directives_cpp/StmtsBody.jinja2" %}
-{%-             endfilter %}
-{%-         endwith %}
-{%-     endif %}
-{%- endfor %}
-
-    return state;
-}
-
-//---------------------------------------
-//! \brief Apply a post-spike timing rule state update
-//! \param[in] time: the current time
-//! \param[in] trace: the current post-spike trace
-//! \param[in] last_pre_time: the time of the last pre-spike
-//! \param[in] last_pre_trace: the trace of the last pre-spike
-//! \param[in] last_post_time: the time of the last post-spike
-//! \param[in] last_post_trace: the trace of the last post-spike
-//! \param[in] previous_state: the state to update
-//! \return the updated state
-static inline synapse_word_t timing_apply_post_spike(
-        uint32_t time, UNUSED post_trace_t trace, uint32_t last_pre_time,
-        pre_trace_t last_pre_trace, UNUSED uint32_t last_post_time,
-        UNUSED post_trace_t last_post_trace, synapse_word_t previous_state) {
-
-    log_info("[NESTML synapse] timing_apply_post_spike()");
-    log_info("[NESTML synapse] \tRaw weight = %x", previous_state.w);
-    previous_state.w = 456;
-#ifdef FOOBAR
-    // Get time of event relative to last pre-synaptic event
-    uint32_t time_since_last_pre = time - last_pre_time;
-    if (time_since_last_pre > 0) {
-
-{%- filter indent(6, True) %}
-{%- if post_ports is defined %}
-{%-     for post_port in spiking_post_ports %}
-/**
- *  NESTML generated onReceive code block for postsynaptic port "{{ post_port }}" begins here!
-**/
-{%-         if synapse.get_on_receive_block(post_port) %}
-{%-             set dynamics = synapse.get_on_receive_block(post_port) %}
-{%-             with ast = dynamics.get_stmts_body() %}
-{%-                 include "directives_cpp/StmtsBody.jinja2" %}
-{%-             endwith %}
-{%-         endif %}
-{%-     endfor %}
-{%- endif %}
-{%- endfilter %}
-
-        // Apply potentiation to state (which is a weight_state)
-        return previous_state;//weight_one_term_apply_potentiation(previous_state, decayed_r1);
-    } else {
-        return previous_state;
-    }
-#endif
-    return previous_state;
 }
 
 #endif // {{synapseName.upper()}}_IMPL_H
