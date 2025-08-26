@@ -329,7 +329,7 @@ def generate_python_standalone_target(input_path: Union[str, Sequence[str]], tar
 
 
 def generate_spinnaker_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None, install_path: Optional[str] = None,
-                              logging_level="ERROR", module_name: str = "nestmlmodule", store_log: bool=False,
+                              logging_level="ERROR", store_log: bool=False,
                               suffix: str="", dev: bool=False, codegen_opts: Optional[Mapping[str, Any]]=None):
     r"""Generate and build code for the SpiNNaker target.
 
@@ -343,8 +343,6 @@ def generate_spinnaker_target(input_path: Union[str, Sequence[str]], target_path
         Path to the directory where the generated code will be installed.
     logging_level : str, optional (default: "ERROR")
         Sets which level of information should be displayed duing code generation (among "ERROR", "WARNING", "INFO", or "NO").
-    module_name : str, optional (default: "nestmlmodule")
-        The name of the generated Python module.
     store_log : bool, optional (default: False)
         Whether the log should be saved to file.
     suffix : str, optional (default: "")
@@ -356,7 +354,7 @@ def generate_spinnaker_target(input_path: Union[str, Sequence[str]], target_path
     """
     generate_target(input_path, target_platform="spinnaker", target_path=target_path,
                     install_path=install_path,
-                    logging_level=logging_level, module_name=module_name, store_log=store_log, suffix=suffix, dev=dev,
+                    logging_level=logging_level, module_name="nestmlmodule", store_log=store_log, suffix=suffix, dev=dev,
                     codegen_opts=codegen_opts)
 
 
