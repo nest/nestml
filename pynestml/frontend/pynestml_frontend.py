@@ -352,6 +352,9 @@ def generate_spinnaker_target(input_path: Union[str, Sequence[str]], target_path
     codegen_opts : Optional[Mapping[str, Any]]
         A dictionary containing additional options for the target code generator.
     """
+
+    #removed module_name from generate_spinnaker_target() arguments because it is not directly needed for the Jinja templates at the end of the pipeline
+
     generate_target(input_path, target_platform="spinnaker", target_path=target_path,
                     install_path=install_path,
                     logging_level=logging_level, module_name="nestmlmodule", store_log=store_log, suffix=suffix, dev=dev,
