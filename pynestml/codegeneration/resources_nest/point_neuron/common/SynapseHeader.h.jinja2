@@ -114,6 +114,10 @@ namespace {{names_namespace}}
     const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
 {%- endfor %}
 {%- endif %}
+{%- if uses_numeric_solver %}
+    const Name gsl_abs_error_tol("gsl_abs_error_tol");
+    const Name gsl_rel_error_tol("gsl_rel_error_tol");
+{%- endif %}
 } // end namespace {{names_namespace}};
 
 namespace {{ synapseName }}
@@ -1154,6 +1158,18 @@ def< {{ declarations.print_variable_type(variable_symbol) }} >( __d, {{ synapseN
 {%-     endif %}
 {%- endfor %}
 {%- endfilter %}
+{%- if uses_numeric_solver %}
+{%-     if numeric_solver == "rk45" %}
+  def< double >(__d, nest::{{ synapseName }}_names::gsl_abs_error_tol, P_.__gsl_abs_error_tol);
+  if ( P_.__gsl_abs_error_tol <= 0. ){
+    throw nest::BadProperty( "The gsl_abs_error_tol must be strictly positive." );
+  }
+  def< double >(__d, nest::{{ synapseName }}_names::gsl_rel_error_tol, P_.__gsl_rel_error_tol);
+  if ( P_.__gsl_rel_error_tol < 0. ){
+    throw nest::BadProperty( "The gsl_rel_error_tol must be zero or positive." );
+  }
+{%-     endif %}
+{%- endif %}
 }
 
 template < typename targetidentifierT >
@@ -1238,6 +1254,31 @@ set_delay(tmp_{{ nest_codegen_opt_delay_variable }});
     throw BadProperty("The constraint '{{nestml_printer.print(invariant)}}' is violated!");
   }
 {%- endfor %}
+{%- endif %}
+
+{% if uses_numeric_solver %}
+{%-     if numeric_solver == "rk45" %}
+  updateValue< double >(__d, nest::{{ synapseName }}_names::gsl_abs_error_tol, P_.__gsl_abs_error_tol);
+  if ( P_.__gsl_abs_error_tol <= 0. )
+  {
+    throw nest::BadProperty( "The gsl_abs_error_tol must be strictly positive." );
+  }
+  updateValue< double >(__d, nest::{{ synapseName }}_names::gsl_rel_error_tol, P_.__gsl_rel_error_tol);
+  if ( P_.__gsl_rel_error_tol < 0. )
+  {
+    throw nest::BadProperty( "The gsl_rel_error_tol must be zero or positive." );
+  }
+
+  // Reinitialize the control function of the solver with new values of tolerance
+  if ( not __c )
+  {
+    __c = gsl_odeiv_control_y_new( P_.__gsl_abs_error_tol, P_.__gsl_rel_error_tol );
+  }
+  else
+  {
+    gsl_odeiv_control_init( __c, P_.__gsl_abs_error_tol, P_.__gsl_rel_error_tol, 1.0, 0.0 );
+  }
+{%-     endif %}
 {%- endif %}
 
   // recompute internal variables in case they are dependent on parameters or state that might have been updated in this call to set_status()

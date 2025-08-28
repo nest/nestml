@@ -21,7 +21,9 @@
 import os
 import nest
 import pytest
+from IPython.core.pylabtools import figsize
 from scipy.integrate import solve_ivp
+from sqlalchemy.dialects.mssql.information_schema import columns
 
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_target, generate_nest_target
@@ -57,7 +59,6 @@ class TestSynapseNumericSolver:
         """
         Evaluate ODEs using SciPy.
         """
-        y0 = initial_state
         sol = []
 
         # integrate the ODES from one spike time to the next, until the end of the simulation.
@@ -66,23 +67,22 @@ class TestSynapseNumericSolver:
         for i in np.arange(1., sim_time + 0.01, 1.0):
             if spike_idx < len(spike_times) and i == spike_times[spike_idx]:
                 t_spike = spike_times[spike_idx]
-                t_span = (t_last_spike, t_spike)
-                print("Integrating over the interval: ", t_span)
+                t_span = [t_last_spike, t_spike]
                 # Solve using RK45
                 solution = solve_ivp(
                     fun=func,
                     t_span=t_span,  # interval of integration
-                    y0=y0,          # initial state
+                    y0=initial_state,  # initial state
                     args=params,  # parameters
                     method='RK45',
-                    rtol=1e-12,      # relative tolerance
-                    atol=1e-12       # absolute tolerance
+                    rtol=1e-14,  # relative tolerance
+                    atol=1e-14  # absolute tolerance
                 )
-                y0 = solution.y[:, -1]
+                initial_state = solution.y[:, -1]
                 t_last_spike = t_spike
                 spike_idx += 1
 
-            sol += [y0]
+            sol += [initial_state]
 
         return sol
 
@@ -91,8 +91,8 @@ class TestSynapseNumericSolver:
         nest.set_verbosity("M_WARNING")
         dt = 0.1
         nest.resolution = dt
-        sim_time = 8.0
-        spike_times = [3.0, 5.0, 7.0]
+        sim_time = 30.
+        spike_times = [3.0, 5.0, 9.0, 11.0, 22.0, 28.0]
 
         files = ["models/neurons/iaf_psc_exp_neuron.nestml", "tests/nest_tests/resources/non_linear_synapse.nestml"]
         input_paths = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -115,10 +115,12 @@ class TestSynapseNumericSolver:
         neuron_model = "iaf_psc_exp_neuron_nestml__with_non_linear_synapse_nestml"
         synapse_model = "non_linear_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
 
+
         neuron = nest.Create(neuron_model)
         sg = nest.Create("spike_generator", params={"spike_times": spike_times})
 
-        nest.Connect(sg, neuron, syn_spec={"synapse_model": synapse_model})
+        syn_spec = {"synapse_model": synapse_model, "gsl_abs_error_tol": 1E-14, "gsl_rel_error_tol": 1E-14}
+        nest.Connect(sg, neuron, syn_spec=syn_spec)
         connections = nest.GetConnections(source=sg, synapse_model=synapse_model)
 
         # Get the parameter values
@@ -146,7 +148,36 @@ class TestSynapseNumericSolver:
             y += [syn_stats["y"]]
             z += [syn_stats["z"]]
 
-        # TODO: Adjust tolerance
-        np.testing.assert_allclose(x, sol_arr[:, 0], atol=1e-3, rtol=1e-3)
-        np.testing.assert_allclose(y, sol_arr[:, 1], atol=1e-2, rtol=1e-2)
-        np.testing.assert_allclose(z, sol_arr[:, 2], atol=1e-3, rtol=1e-3)
+        # Plotting
+        if TEST_PLOTS:
+            fig, ax = plt.subplots(nrows=3, ncols=1, figsize=(7, 5))
+            times = np.arange(0., sim_time, sim_step_size)
+
+            ax[0].plot(times, x, label="NESTML")
+            ax[0].scatter(times, x, marker='x')
+            ax[0].plot(times, sol_arr[:, 0], '--', label="scipy")
+            ax[0].scatter(times, sol_arr[:, 0], marker='o')
+            ax[0].set_ylabel("x")
+
+            ax[1].plot(times, y, label="NESTML")
+            ax[1].scatter(times, y, marker='x')
+            ax[1].plot(times, sol_arr[:, 1], '--', label="scipy")
+            ax[1].scatter(times, sol_arr[:, 1], marker='o')
+            ax[1].set_ylabel("y")
+
+            ax[2].plot(times, z, label="NESTML")
+            ax[2].scatter(times, z, marker='x')
+            ax[2].plot(times, sol_arr[:, 2], '--', label="scipy")
+            ax[2].scatter(times, sol_arr[:, 2], marker='o')
+            ax[2].set_ylabel("z")
+            for _ax in ax:
+                _ax.set_xlabel("time")
+                _ax.scatter(spike_times, np.zeros_like(spike_times), marker='d', color='r')
+
+            handles, labels = ax[-1].get_legend_handles_labels()
+            fig.legend(handles, labels, loc='upper center')
+            plt.savefig("non_linear_synapse.png")
+
+        np.testing.assert_allclose(x, sol_arr[:, 0], rtol=1e-3, atol=1e-3)
+        np.testing.assert_allclose(y, sol_arr[:, 1], rtol=1e-3, atol=1e-3)
+        np.testing.assert_allclose(z, sol_arr[:, 2], rtol=1e-3, atol=1e-3)
