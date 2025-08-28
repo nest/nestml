@@ -18,12 +18,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.codegeneration.nest_code_generator_utils import NESTCodeGeneratorUtils
 from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
+from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
@@ -33,46 +34,42 @@ class GSLVariablePrinter(CppVariablePrinter):
     Variable printer for C++ syntax and using the GSL (GNU Scientific Library) API from inside the ``extern "C"`` stepping function.
     """
 
-    def print_variable(self, node: ASTVariable) -> str:
+    def __init__(self, expression_printer: ExpressionPrinter, with_origin: bool = True, ):
+        super().__init__(expression_printer)
+        self.with_origin = with_origin
+
+    def print_variable(self, variable: ASTVariable) -> str:
         """
         Converts a single name reference to a gsl processable format.
-        :param node: a single variable
+        :param variable: a single variable
         :return: a gsl processable format of the variable
         """
-        assert isinstance(node, ASTVariable)
-        symbol = node.get_scope().resolve_to_symbol(node.get_complete_name(), SymbolKind.VARIABLE)
+        assert isinstance(variable, ASTVariable)
+        symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
 
         if symbol is None:
             # test if variable name can be resolved to a type
-            if PredefinedUnits.is_unit(node.get_complete_name()):
-                return str(NESTUnitConverter.get_factor(PredefinedUnits.get_unit(node.get_complete_name()).get_unit()))
+            if PredefinedUnits.is_unit(variable.get_complete_name()):
+                return str(
+                    NESTUnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
 
-            code, message = Messages.get_could_not_resolve(node.get_name())
+            code, message = Messages.get_could_not_resolve(variable.get_name())
             Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
-                               error_position=node.get_source_position())
+                               error_position=variable.get_source_position())
             return ""
 
-        if node.is_delay_variable():
-            return self._print_delay_variable(node)
+        if variable.is_delay_variable():
+            return self._print_delay_variable(variable)
 
         if symbol.is_state() and not symbol.is_inline_expression:
-            if "_is_numeric" in dir(node) and node._is_numeric:
+            if "_is_numeric" in dir(variable) and variable._is_numeric:
                 # ode_state[] here is---and must be---the state vector supplied by the integrator, not the state vector in the node, node.S_.ode_state[].
-                return "ode_state[State_::" + CppVariablePrinter._print_cpp_name(node.get_complete_name()) + "]"
-
-            # non-ODE state symbol
-            return "node.S_." + CppVariablePrinter._print_cpp_name(node.get_complete_name())
-
-        if symbol.is_parameters():
-            return "node.P_." + super().print_variable(node)
-
-        if symbol.is_internals():
-            return "node.V_." + super().print_variable(node)
+                return "ode_state[State_::" + CppVariablePrinter._print_cpp_name(variable.get_complete_name()) + "]"
 
         if symbol.is_input():
-            return "node.B_." + self._print_buffer_value(node)
+            return "node.B_." + self._print_buffer_value(variable)
 
-        raise Exception("Unknown node type")
+        return self._print(variable, symbol, with_origin=self.with_origin)
 
     def _print_delay_variable(self, variable: ASTVariable) -> str:
         """
@@ -105,3 +102,9 @@ class GSLVariablePrinter(CppVariablePrinter):
 
         assert variable_symbol.is_continuous_input_port()
         return "continuous_inputs_grid_sum_[" + variable.get_name().upper() + "]"
+
+    def _print(self, variable, symbol, with_origin: bool = True):
+        variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
+        if with_origin:
+            return "node." + NESTCodeGeneratorUtils.print_symbol_origin(symbol, variable) % variable_name
+        return "node." + variable_name
