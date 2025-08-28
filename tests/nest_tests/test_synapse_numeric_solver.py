@@ -115,7 +115,6 @@ class TestSynapseNumericSolver:
         neuron_model = "iaf_psc_exp_neuron_nestml__with_non_linear_synapse_nestml"
         synapse_model = "non_linear_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
 
-
         neuron = nest.Create(neuron_model)
         sg = nest.Create("spike_generator", params={"spike_times": spike_times})
 
