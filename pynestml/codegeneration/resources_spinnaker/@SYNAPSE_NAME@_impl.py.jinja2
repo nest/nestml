@@ -537,7 +537,7 @@ class {{ synapseName }}Dynamics(
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
 {# {%-     if not isHomogeneous and variable.get_name() != synapse_weight_variable and variable.get_name() != synapse_delay_variable %} #}
-        yield '{{ printer_no_origin.print(variable) }}'
+        yield '{{ variable.name }}'
 {# {%-     endif %} #}
 {%- endfor %}
 

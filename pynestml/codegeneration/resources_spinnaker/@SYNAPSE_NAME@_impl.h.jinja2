@@ -154,17 +154,17 @@ typedef struct {
     //! Event times
     uint32_t times[MAX_POST_SYNAPTIC_EVENTS];
     //! Event traces
-    post_trace_t traces[MAX_POST_SYNAPTIC_EVENTS];
+    //post_trace_t traces[MAX_POST_SYNAPTIC_EVENTS];
 } post_event_history_t;
 
 //! Post event window description
 typedef struct {
     //! The previous post-synaptic event trace
-    post_trace_t prev_trace;
+//    post_trace_t prev_trace;
     //! The previous post-synaptic event time
     uint32_t prev_time;
     //! The next post-synaptic event trace
-    const post_trace_t *next_trace;
+  //  const post_trace_t *next_trace;
     //! The next post-synaptic event time
     const uint32_t *next_time;
     //! The number of events
@@ -322,22 +322,24 @@ static uint32_t plastic_saturation_count = 0;
 
 
 
-
+#define TYPECAST_TO_ACCUM(x) *((accum*)(&(x)))
+#define TYPECAST_TO_UINT32_T(x) *((uint32_t*)(&(x)))
 
 
 synapse_state_t synapse_word_to_state_t(const synapse_word_t const *synapse_word, const size_t synapse_word_len) {
     return (synapse_state_t) {
 {%- for sym in synapse.get_state_symbols() %}
-       .{{ sym.get_symbol_name() }} = synapse_word->{{ sym.get_symbol_name() }},
+       .{{ sym.get_symbol_name() }} = TYPECAST_TO_ACCUM(synapse_word->{{ sym.get_symbol_name() }}),    // use the typecast to copy bit-for-bit. If we don't do this, the compiler will do a data conversion, discarding and shifting the fractional bits.
 {%- endfor %}
        .weight_region = NULL
     };
 }
 
 
-void state_t_to_synapse_word(const synapse_state_t state, synapse_word_t *synapse_word, const size_t synapse_word_len) {
+void state_t_to_synapse_word(const synapse_state_t *state, synapse_word_t *synapse_word, const size_t synapse_word_len) {
 {%- for sym in synapse.get_state_symbols() %}
-    synapse_word->{{ sym.get_symbol_name() }} = state.{{ sym.get_symbol_name() }};
+    synapse_word->{{ sym.get_symbol_name() }} = TYPECAST_TO_UINT32_T(state->{{ sym.get_symbol_name() }});    // use the typecast to copy bit-for-bit. If we don't do this, the compiler will do a data conversion, discarding and shifting the fractional bits.
+    log_info("[NESTML synapse] ~~~~~~~~~~~~~ assigning 0x%x to 0x%x", state->{{ sym.get_symbol_name() }}, synapse_word->{{ sym.get_symbol_name() }});
 {%- endfor %}    
 }
 
@@ -473,8 +475,8 @@ uint32_t synapse_dynamics_n_connections_in_row(synapse_row_fixed_part_t *fixed) 
 static inline void print_event_history(const post_event_history_t *events) {
     log_debug("      ##  printing entire post event history  ##");
     for (uint32_t i = 0; i <= events->count_minus_one; i++) {
-        log_debug("post event: %u, time: %u, trace: %u",
-                i, events->times[i], events->traces[i]);
+        log_debug("post event: %u, time: %u",
+                i, events->times[i]);
     }
 }
 #endif
@@ -497,7 +499,7 @@ static inline post_event_history_t *post_events_init_buffers(
     for (uint32_t n = 0; n < n_neurons; n++) {
         // Add initial placeholder entry to buffer
         post_event_history[n].times[0] = 0;
-        post_event_history[n].traces[0] = (post_trace_t){.post_tr=0, .last_spike_time = 0};// timing_get_initial_post_trace();
+        //post_event_history[n].traces[0] = (post_trace_t){.post_tr=0, .last_spike_time = 0};// timing_get_initial_post_trace();
         post_event_history[n].count_minus_one = 0;
     }
 
@@ -517,7 +519,7 @@ static inline post_event_window_t post_events_get_window_delayed(
     const uint32_t count = events->count_minus_one + 1;
     const uint32_t *end_event_time = events->times + count;
     const uint32_t *event_time = end_event_time;
-    const post_trace_t *event_trace = events->traces + count;
+    //const post_trace_t *event_trace = events->traces + count;
 
     post_event_window_t window;
     do {
@@ -530,7 +532,7 @@ static inline post_event_window_t post_events_get_window_delayed(
         // event.
         // **NOTE** next_time can be invalid
         window.next_time = event_time--;
-        window.next_trace = event_trace--;
+        //window.next_trace = event_trace--;
 
         // Keep looping while event occurred after start of window and we
         // haven't hit beginning of array...
@@ -538,7 +540,7 @@ static inline post_event_window_t post_events_get_window_delayed(
 
     // Deference event to use as previous
     window.prev_time = *event_time;
-    window.prev_trace = *event_trace;
+    //window.prev_trace = *event_trace;
     window.prev_time_valid = event_time != events->times;
 
     // Calculate number of events
@@ -556,7 +558,7 @@ static inline post_event_window_t post_events_next(
         post_event_window_t window) {
     // Update previous time and increment next time
     window.prev_time = *window.next_time++;
-    window.prev_trace = *window.next_trace++;
+    //window.prev_trace = *window.next_trace++;
 
     // Time will now be valid for sure!
     window.prev_time_valid = 1;
@@ -571,29 +573,28 @@ static inline post_event_window_t post_events_next(
 //! \param[in] time: the time of the event
 //! \param[in,out] events: the history to add to
 //! \param[in] trace: the trace of the event
-static inline void post_events_add(
-        uint32_t time, post_event_history_t *events, post_trace_t trace) {
+static inline void post_events_add(uint32_t time, post_event_history_t *events/*, post_trace_t trace*/) {
     if (events->count_minus_one < MAX_POST_SYNAPTIC_EVENTS - 1) {
         // If there's still space, store time at current end
         // and increment count minus 1
         const uint32_t new_index = ++events->count_minus_one;
         events->times[new_index] = time;
-        events->traces[new_index] = trace;
+        //events->traces[new_index] = trace;
     } else {
         // Otherwise Shuffle down elements
         // **NOTE** 1st element is always an entry at time 0
         for (uint32_t e = 2; e < MAX_POST_SYNAPTIC_EVENTS; e++) {
             events->times[e - 1] = events->times[e];
-            events->traces[e - 1] = events->traces[e];
+            //events->traces[e - 1] = events->traces[e];
         }
 
         // Stick new time at end
         events->times[MAX_POST_SYNAPTIC_EVENTS - 1] = time;
-        events->traces[MAX_POST_SYNAPTIC_EVENTS - 1] = trace;
+        //events->traces[MAX_POST_SYNAPTIC_EVENTS - 1] = trace;
     }
 }
 
-#if LOG_LEVEL >= LOG_DEBUG
+#if LO G_LEVEL >= LOG_DEBUG
 //! \brief Print the post-synaptic event history
 //! \param[in] post_event_history: the history
 //! \param[in] begin_time: The start time of the history
@@ -656,55 +657,20 @@ static inline weight_t weight_get_final(synapse_word_t state) {
     return (weight_t) (bitsk(state.w) >> 16);
 }
 
-/*
-static inline accum weight_get_update(synapse_word_t state) {
-    return state.w;
-}
-*/
 
 
-
-// stuff from timing_pair_impl.h
-
-
-//---------------------------------------
-//! \brief Add a post spike to the post trace
-//! \param[in] time: the time of the spike
-//! \param[in] last_time: the time of the previous spike update
-//! \param[in] last_trace: the post trace to update
-//! \return the updated post trace
-static inline post_trace_t timing_add_post_spike(
-        uint32_t time, uint32_t last_time, post_trace_t last_trace) {
-
-    log_info("[NESTML synapse] In timing_add_post_spike()");
-    log_info("[NESTML synapse] \ttime = %d; last_time = %d", time, last_time);
-
-/*
-    uint32_t delta_time = time - last_time;
-
-//    int16_t decayed_tr = timing_decay_post(time, last_time, last_trace);
-    int16_t decayed_tr = STDP_FIXED_MUL_16X16(last_trace.post_tr, maths_lut_exponential_decay(delta_time, tau_minus));
-    decayed_tr += STDP_FIXED_POINT_ONE;
-
-    return (post_trace_t){.post_tr=decayed_tr, .last_spike_time = time};
-*/
-    return (post_trace_t){.post_tr=0., .last_spike_time = time};
-}
-
-
-
-
-//---------------------------------------
-void synapse_dynamics_process_post_synaptic_event(
-        uint32_t time, index_t neuron_index) {
-    log_debug("Adding post-synaptic event to trace at time:%u", time);
+//! \brief Inform the synapses that the neuron fired
+//! \param[in] time: The current simulation time
+//! \param[in] neuron_index: Which neuron are we processing
+void synapse_dynamics_process_post_synaptic_event(uint32_t time, index_t neuron_index) {
+    log_debug("[NESTML synapse] Adding post-synaptic event to trace at time: %u", time);
 
     // Add post-event
     post_event_history_t *history = &post_event_history[neuron_index];
     const uint32_t last_post_time = history->times[history->count_minus_one];
-    const post_trace_t last_post_trace = history->traces[history->count_minus_one];
+//    const post_trace_t last_post_trace = history->traces[history->count_minus_one];
 
-    post_events_add(time, history, timing_add_post_spike(time, last_post_time, last_post_trace));
+    post_events_add(time, history);
 }
 
 #endif // {{synapseName.upper()}}_IMPL_H

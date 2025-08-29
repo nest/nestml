@@ -241,7 +241,7 @@ static void process_plastic_synapse(
      * End NESTML generated code for the update block
     **/
 
-    log_info("[NESTML synapse] \tNEW state:");
+    log_info("[NESTML synapse] \tNEW state after integration:");
 {%- for sym in synapse.get_state_symbols() %}
     log_info("[NESTML synapse] \t\t{{ sym.get_symbol_name() }} = 0x%x\n", state.{{ sym.get_symbol_name() }});
 {%- endfor %}
@@ -298,12 +298,17 @@ static void process_plastic_synapse(
 {%-     endif %}
 {%- endfor %}
 
+    log_info("[NESTML synapse] \tNEW state after processing pre_spikes:");
+{%- for sym in synapse.get_state_symbols() %}
+    log_info("[NESTML synapse] \t\t{{ sym.get_symbol_name() }} = 0x%x\n", state.{{ sym.get_symbol_name() }});
+{%- endfor %}
+
     /**
      * Encode the new state into synaptic word
     **/
 
-    state_t_to_synapse_word(state, synapse_word, plastic_synapse_word_stride);
-    log_info("[NESTML synapse] ---> the new synapse word is %d, %d, %d", synapse_word->w, synapse_word->pre_trace, synapse_word->post_trace);
+    state_t_to_synapse_word(&state, synapse_word, plastic_synapse_word_stride);
+    log_info("[NESTML synapse] ---> the new synapse word is 0x%x, 0x%x, 0x%x", synapse_word->w, synapse_word->pre_trace, synapse_word->post_trace);
 }
 
 
@@ -326,7 +331,7 @@ void print_low_level_synaptic_row_data(synapse_row_plastic_data_t *plastic_regio
     for (size_t i = 0; i < n_fixed_synapses; ++i) {
         uint32_t synaptic_word = *synaptic_words++;
 
-        uint32_t delay = synapse_row_sparse_delay(synaptic_words, synapse_type_index_bits, synapse_delay_mask);
+        uint32_t delay = synapse_row_sparse_delay(synaptic_word, synapse_type_index_bits, synapse_delay_mask);
         uint32_t type = synapse_row_sparse_type(synaptic_word, synapse_index_bits, synapse_type_mask);
         uint32_t neuron = synapse_row_sparse_index(synaptic_word, synapse_index_mask);
         log_info("[NESTML synapse] \t\tDelay %u, Synapse Type %u, Neuron %u", delay, type, neuron);
@@ -529,11 +534,11 @@ bool synapse_dynamics_add_neuron(uint32_t id, synaptic_row_t row,
 static inline synapse_word_t timing_apply_post_spike(
         uint32_t time, UNUSED post_trace_t trace, uint32_t last_pre_time,
         pre_trace_t last_pre_trace, UNUSED uint32_t last_post_time,
-        UNUSED post_trace_t last_post_trace, synapse_word_t previous_state) {
+        UNUSED post_trace_t last_post_trace, synapse_word_t state) {
 
     log_info("[NESTML synapse] timing_apply_post_spike()");
-    log_info("[NESTML synapse] \tRaw weight = %x", previous_state.w);
-    previous_state.w = 456;
+    log_info("[NESTML synapse] \tRaw weight = %x", state.w);
+
 #ifdef FOOBAR
     // Get time of event relative to last pre-synaptic event
     uint32_t time_since_last_pre = time - last_pre_time;
@@ -556,9 +561,9 @@ static inline synapse_word_t timing_apply_post_spike(
 {%- endfilter %}
 
         // Apply potentiation to state (which is a weight_state)
-        return previous_state;//weight_one_term_apply_potentiation(previous_state, decayed_r1);
+        return state;//weight_one_term_apply_potentiation(state, decayed_r1);
     } else {
-        return previous_state;
+        return state;
     }
 #endif
     return previous_state;

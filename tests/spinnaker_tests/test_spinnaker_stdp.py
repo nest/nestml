@@ -149,8 +149,10 @@ class TestSpiNNakerSTDP:
 
         pre_input.set(spike_times=[100, 110, 120, 1000])
 
+        print("All properties: " + str(stdp_projection.get()))
+
         #calculate all data points
-        for t_post in [142.]:#np.linspace(0,max_it,points_gen):
+        for t_post in [142.]: #np.linspace(0,max_it,points_gen):
                 post_input.set(spike_times=[t_post])
 
                 p.run(simtime)
@@ -170,11 +172,10 @@ class TestSpiNNakerSTDP:
         pre_spike_times = []
         post_spike_times = []
 
-
+        
 
 
         pre_neo = pre_spiking.get_data("spikes")
-
         post_neo = post_spiking.get_data("spikes")
 
         #get spike data and calculate axis
