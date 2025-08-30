@@ -354,7 +354,7 @@ def generate_spinnaker_target(input_path: Union[str, Sequence[str]], target_path
     """
 
     # removed module_name from generate_spinnaker_target() arguments because it is not directly needed for the Jinja templates at the end of the pipeline
-    # but still added to generate_target() to surpress following warning: [5,GLOBAL, INFO]: No module name specified; the generated module will be named "nestmlmodule"
+    # but still added to generate_target() to surpress following log: [5,GLOBAL, INFO]: No module name specified; the generated module will be named "nestmlmodule"
 
     generate_target(input_path, target_platform="spinnaker", target_path=target_path,
                     install_path=install_path,
