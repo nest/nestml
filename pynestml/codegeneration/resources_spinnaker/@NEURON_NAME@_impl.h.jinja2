@@ -31,7 +31,7 @@
 {%- endif %}
 
 // uncomment the next line to enable printing of detailed debug information
-// #define DEBUG
+#define DEBUG
 
 
 {% set ns = namespace(count=0) %}
@@ -162,6 +162,10 @@ static neuron_impl_t *neuron_array;
 
 __attribute__((unused)) // Marked unused as only used sometimes
 static bool neuron_impl_initialise(uint32_t n_neurons) {
+#ifdef DEBUG
+    log_info("[NESTML neuron] neuron_impl_initialise()");
+#endif
+
     // Allocate DTCM for neuron array
     if (sizeof(neuron_impl_t) != 0) {
         neuron_array = spin1_malloc(n_neurons * sizeof(neuron_impl_t));
@@ -209,7 +213,7 @@ static void neuron_impl_store_neuron_parameters(
 void on_receive_block_{{ blk.port_name }}(neuron_state_t *state, neuron_input_t *input, neuron_parameter_t *parameter)
 {
 #ifdef DEBUG
-    log_info("on_receive_block_{{ blk.port_name }}()\n");
+    log_info("[NESTML neuron] on_receive_block_{{ blk.port_name }}()\n");
 #endif
 
 {%          filter indent(4, True) -%}
@@ -233,8 +237,12 @@ static void neuron_impl_add_inputs(
 }
 
 __attribute__((unused)) // Marked unused as only used sometimes
-static void neuron_impl_do_timestep_update(
-        uint32_t timer_count, uint32_t time, uint32_t n_neurons) {
+static void neuron_impl_do_timestep_update(uint32_t timer_count, uint32_t time, uint32_t n_neurons) {
+
+#ifdef DEBUG
+    log_info("[NESTML neuron] neuron_impl_do_timestep_update()\n");
+#endif
+
     for (uint32_t neuron_index = 0; neuron_index < n_neurons; neuron_index++) {
         // Get the neuron itself
         neuron_impl_t *neuron = &neuron_array[neuron_index];
@@ -242,9 +250,6 @@ static void neuron_impl_do_timestep_update(
         neuron_input_t *input = &neuron->input;
         neuron_parameter_t *parameter = &neuron->parameter;
 
-#ifdef DEBUG
-        log_info("neuron_impl_do_timestep_update()");
-#endif
         // Store the recorded membrane voltage
 {%- for variable in neuron.get_state_symbols() %}
 {%-   if variable.is_recordable %}
