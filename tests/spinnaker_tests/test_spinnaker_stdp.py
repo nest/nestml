@@ -149,7 +149,7 @@ class TestSpiNNakerSTDP:
 
         pre_input.set(spike_times=[100, 110, 120, 1000])
 
-        print("All properties: " + str(stdp_projection.get()))
+        #print("All properties: " + str(stdp_projection.get()))
 
         #calculate all data points
         for t_post in [142.]: #np.linspace(0,max_it,points_gen):

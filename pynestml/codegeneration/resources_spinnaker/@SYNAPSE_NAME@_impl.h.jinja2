@@ -339,7 +339,7 @@ synapse_state_t synapse_word_to_state_t(const synapse_word_t const *synapse_word
 void state_t_to_synapse_word(const synapse_state_t *state, synapse_word_t *synapse_word, const size_t synapse_word_len) {
 {%- for sym in synapse.get_state_symbols() %}
     synapse_word->{{ sym.get_symbol_name() }} = TYPECAST_TO_UINT32_T(state->{{ sym.get_symbol_name() }});    // use the typecast to copy bit-for-bit. If we don't do this, the compiler will do a data conversion, discarding and shifting the fractional bits.
-    log_info("[NESTML synapse] ~~~~~~~~~~~~~ assigning 0x%x to 0x%x", state->{{ sym.get_symbol_name() }}, synapse_word->{{ sym.get_symbol_name() }});
+//    log_info("[NESTML synapse] ~~~~~~~~~~~~~ assigning 0x%x to 0x%x", state->{{ sym.get_symbol_name() }}, synapse_word->{{ sym.get_symbol_name() }});
 {%- endfor %}    
 }
 
@@ -594,7 +594,7 @@ static inline void post_events_add(uint32_t time, post_event_history_t *events/*
     }
 }
 
-#if LO G_LEVEL >= LOG_DEBUG
+#if LOG_LEVEL >= LOG_DEBUG
 //! \brief Print the post-synaptic event history
 //! \param[in] post_event_history: the history
 //! \param[in] begin_time: The start time of the history

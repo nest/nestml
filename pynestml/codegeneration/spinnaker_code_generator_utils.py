@@ -65,7 +65,7 @@ class SPINNAKERCodeGeneratorUtils:
             #if numerical_state_symbols and variable_symbol.get_symbol_name() in numerical_state_symbols:
             #    return 'state.S_.ode_state[State_::%s]'
 
-            return 'state.%s'
+            return 'state->%s'
 
         if variable_symbol.block_type == BlockType.PARAMETERS:
             # parameters are global variables
