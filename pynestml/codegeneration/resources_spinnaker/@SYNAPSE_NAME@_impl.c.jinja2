@@ -207,18 +207,20 @@ static void process_plastic_synapse(
     const uint32_t window_begin_time =
             (delayed_last_pre_time >= s.delay_dendritic)
             ? (delayed_last_pre_time - s.delay_dendritic) : 0;
-    const uint32_t delayed_pre_time = last_pre_time + delay_axonal;
+    const uint32_t delayed_pre_time = pre_spike_time + delay_axonal;
     const uint32_t window_end_time =
             (delayed_pre_time >= s.delay_dendritic)
             ? (delayed_pre_time - s.delay_dendritic) : 0;
-    post_event_window_t post_window = post_events_get_window_delayed(
-            post_event_history, window_begin_time, window_end_time);
+
+    post_event_window_t post_window = post_events_get_window_delayed(post_event_history, window_begin_time, window_end_time);
+
+    log_info("[NESTML synapse] \t  Fetching post window from %u to %u\n", window_begin_time, window_end_time);
 
     // Process events in post-synaptic window
     while (post_window.num_events > 0) {
         const uint32_t delayed_post_time = *post_window.next_time + s.delay_dendritic;
 
-        log_debug("[NESTML synapse] \t\tApplying post-synaptic event at delayed time:%u, pre:%u\n", delayed_post_time, delayed_last_pre_time);
+        log_info("[NESTML synapse] \t\tApplying post-synaptic event at delayed time:%u, pre:%u\n", delayed_post_time, delayed_last_pre_time);
 
 
         /**
@@ -348,8 +350,6 @@ bool synapse_dynamics_process_plastic_synapses(
 
     log_info("[NESTML synapse] synapse_dynamics_process_plastic_synapses()");
  
-
-
     // Extract separate arrays of plastic synapses (from plastic region),
     // Control words (from fixed region) and number of plastic synapses
     synapse_word_t *plastic_words = plastic_region_address->synapses;
@@ -368,7 +368,7 @@ bool synapse_dynamics_process_plastic_synapses(
     const pre_trace_t last_pre_trace = plastic_region_address->history.prev_trace;
 
     // Update pre-synaptic trace
-//    plastic_region_address->history.prev_time = time - colour_delay;
+    plastic_region_address->history.prev_time = time - colour_delay;
 //    plastic_region_address->history.prev_trace = timing_add_pre_spike(time - colour_delay, last_pre_time, last_pre_trace);
 
     control_words = synapse_row_plastic_controls(fixed_region);
@@ -390,3 +390,25 @@ bool synapse_dynamics_process_plastic_synapses(
 
     return true;
 }
+
+
+
+
+//! \brief Inform the synapses that the neuron fired
+//! \param[in] time: The current simulation time
+//! \param[in] neuron_index: Which neuron are we processing
+void synapse_dynamics_process_post_synaptic_event(uint32_t time, index_t neuron_index) {
+    log_info("[NESTML synapse] Adding post-synaptic event to buffer at time: %u", time);
+
+    // Add post-event
+    post_event_history_t *history = &post_event_history[neuron_index];
+    //const uint32_t last_post_time = history->times[history->count_minus_one];
+
+    post_events_add(time, history);
+
+
+    print_delayed_window_events(history, 0., 9999, 0);
+}
+
+
+

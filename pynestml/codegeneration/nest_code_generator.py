@@ -581,6 +581,12 @@ class NESTCodeGenerator(CodeGenerator):
         for input_block in synapse.get_input_blocks():
             all_input_port_names.extend([p.name for p in input_block.get_input_ports()])
 
+
+        xfrm = SynapsePostNeuronTransformer()
+        xfrm.set_options({"neuron_synapse_pairs": self.get_option("neuron_synapse_pairs")})
+        namespace["post_ports"] = xfrm.get_post_port_names(synapse, "iaf_psc_exp_neuron", synapse.name.removesuffix("_nestml"))
+        namespace["spiking_post_ports"] = xfrm.get_spiking_post_port_names(synapse, "iaf_psc_exp_neuron", synapse.name)
+
         if "paired_neuron" in dir(synapse):
             # synapse is being co-generated with neuron
             namespace["paired_neuron"] = synapse.paired_neuron

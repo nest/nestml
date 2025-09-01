@@ -83,9 +83,8 @@ class TestSpiNNakerSTDP:
         pre_spiking = p.Population(1, iaf_psc_exp_neuron_nestml(), label="pre_spiking")
         post_spiking = p.Population(1, iaf_psc_exp_neuron_nestml(), label="post_spiking")
 
-        #pre w 5 post w 7
         weight_pre = 3000
-        weight_post = 6000
+        weight_post = 3000
 
 
         #connect exc populations with pre and post populations
@@ -138,9 +137,9 @@ class TestSpiNNakerSTDP:
         #run time of the simulator
         simtime = 1100
         #nr of iterations maxit has to be smaller than simtime
-        max_it = 200
+        #max_it = 200
         #datapoints generated
-        points_gen = 1
+        #points_gen = 1
 
 
         #record spikes
@@ -169,16 +168,14 @@ class TestSpiNNakerSTDP:
                 p.reset()
 
 
-        pre_spike_times = []
-        post_spike_times = []
-
-        
-
-
         pre_neo = pre_spiking.get_data("spikes")
         post_neo = post_spiking.get_data("spikes")
 
-        #get spike data and calculate axis
+        """#get spike data and calculate axis
+
+        pre_spike_times = []
+        post_spike_times = []
+
         for i in range(0,points_gen):
 
                 pre_spikes = pre_neo.segments[i].spiketrains
@@ -188,28 +185,27 @@ class TestSpiNNakerSTDP:
 
                 spike_time_axis.append(float(pre_spikes[0][0]-post_spikes[0][0]))
                 pre_spike_times.append(pre_spikes[0][0])
-                post_spike_times.append(post_spikes[0][0])
+                post_spike_times.append(post_spikes[0][0])"""
+
+
+        pre_spike_times = pre_neo.segments[0].spiketrains
+        post_spike_times = post_neo.segments[0].spiketrains
 
         p.end()
 
-
         #for testing purposes
-        print("HALLO pre_spikes")
-        print(pre_spike_times)
-        print("HALLO post_spikes")
-        print(post_spike_times)
-        print("HALLO spike time axis")
-        print(spike_time_axis)
+        print("pre_spikes: " + str(pre_spike_times))
+        print("post_spikes: " + str(post_spike_times))
         print("weights after simulation: " + str(res_weights))
 
 
         #format weight axis an substract 2.5 from every entry
 
-        weight_axis = [x - 2.5 for x in res_weights]
+        #weight_axis = [x - 2.5 for x in res_weights]
 
 
         #PLOT
-        plt.plot(spike_time_axis, weight_axis,'.')
+        """plt.plot(spike_time_axis, weight_axis,'.')
         plt.xlabel("$t_{pre} - t_{post} [ms]$")
         plt.ylabel("$\Delta w$")
         plt.title("STDP-Window")
@@ -226,4 +222,4 @@ class TestSpiNNakerSTDP:
 
 
 
-        plt.savefig("plot.png")
+        plt.savefig("plot.png")"""
