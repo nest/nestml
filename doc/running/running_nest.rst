@@ -88,12 +88,12 @@ Each neuron model can be endowed with gap junctions. The model does not need to 
 For a full example, please see `test_gap_junction.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/test_gap_junction.py>`_.
 
 
-Multiple input ports in NEST
-----------------------------
+Multiple spiking input ports in NEST
+------------------------------------
 
-See :ref:`Multiple input ports` to specify multiple input ports in a neuron.
+See :ref:`Multiple input ports` to specify multiple spiking input ports in a neuron.
 
-After generating and building the model code, a ``receptor_type`` entry is available in the status dictionary, which maps port names to numeric port indices in NEST. The receptor type can then be selected in NEST during `connection setup <https://nest-simulator.readthedocs.io/en/latest/synapses/connection_management.html#receptor-types>`_:
+After generating and building the model code, a ``receptor_types`` entry is available in the status dictionary, which maps spike port names to numeric port indices in NEST. The receptor type can then be selected in NEST during `connection setup <https://nest-simulator.readthedocs.io/en/latest/synapses/connection_management.html#receptor-types>`_:
 
 .. code-block:: python
 
@@ -110,7 +110,7 @@ After generating and building the model code, a ``receptor_type`` entry is avail
    sg3 = nest.Create("spike_generator", params={"spike_times": [30., 70.]})
    nest.Connect(sg3, neuron, syn_spec={"receptor_type" : receptor_types["SPIKES_3"], "weight": 500.})
 
-Note that in multisynapse neurons, receptor ports are numbered starting from 1.
+Note that in multisynapse neurons, spiking receptor ports are numbered starting from 1.
 
 We furthermore wish to record the synaptic currents ``I_kernel1``, ``I_kernel2`` and ``I_kernel3``. During code generation, one buffer is created for each combination of (kernel, spike input port) that appears in convolution statements. These buffers are named by joining together the name of the kernel with the name of the spike buffer using (by default) the string "__X__". The variables to be recorded are thus named as follows:
 
@@ -130,8 +130,8 @@ The output shows the currents for each synapse (three bottom rows) and the net e
 For a full example, please see `iaf_psc_exp_multisynapse.nestml <https://github.com/nest/nestml/blob/master/tests/nest_tests/resources/iaf_psc_exp_multisynapse.nestml>`_ for the full model and ``test_multisynapse`` in `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test harness that produced the figure above.
 
 
-Multiple input ports with vectors in NEST
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Multiple spiking input ports with vectors in NEST
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 See :ref:`Multiple input ports with vectors` for an example with input ports defined as vectors.
 
@@ -179,6 +179,25 @@ The above code querying for ``receptor_types`` gives a list of port names and NE
      - 7
 
 For a full example, please see `iaf_psc_exp_multisynapse_vectors.nestml <https://github.com/nest/nestml/blob/master/tests/nest_tests/resources/iaf_psc_exp_multisynapse_vectors.nestml>`_ for the neuron model and ``test_multisynapse_with_vector_input_ports`` in `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test.
+
+Multiple continuous input ports in NEST
+---------------------------------------
+
+See :ref:`Multiple input ports` to specify multiple continuous input ports in a neuron.
+
+After generating and building the model code, a ``continuous_inputs`` entry is available in the status dictionary, which maps continuous port names to numeric port indices in NEST. The receptor type can then be selected in NEST during `connection setup <https://nest-simulator.readthedocs.io/en/latest/synapses/connection_management.html#receptor-types>`_:
+
+.. code-block:: python
+
+   continuous_inputs = nest.GetStatus(neuron, "continuous_inputs")[0]
+
+   dc1 = nest.Create("dc_generator", params={"amplitude": 150.0})
+   nest.Connect(dc1, neuron, syn_spec={'receptor_type': continuous_inputs["I_STIM1"]})
+
+   dc2 = nest.Create("dc_generator", params={"amplitude": 225.0})
+   nest.Connect(dc2, neuron, syn_spec={'receptor_type': continuous_inputs["I_STIM2"]})
+
+Note that the receptor ports for continuous input ports are numbered starting from 0.
 
 
 Generating code

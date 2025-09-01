@@ -1,6 +1,15 @@
-# -*- coding: utf-8 -*-
+# multiple_input_currents_neuron.nestml
+# #####################################
 #
-# __init__.py
+#
+# Description
+# +++++++++++
+#
+# This model is used to test vector operations with NEST.
+#
+#
+# Copyright statement
+# +++++++++++++++++++
 #
 # This file is part of NEST.
 #
@@ -19,16 +28,15 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = "8.1.0-post-dev"
+model multiple_input_currents_neuron:
+    state:
+        V_m1 mV = 0 mV
+        V_m2 mV = -10 mV
 
-__all__ = ['cocos',
-           'codegeneration',
-           'exceptions',
-           'frontend',
-           'generated',
-           'meta_model',
-           'symbols',
-           'symbol_table',
-           'transformers',
-           'utils',
-           'visitors']
+    input:
+        I_1 pA <- continuous
+        I_2 pA <- continuous
+
+    update:
+        V_m1 += I_1 / 5 nS
+        V_m2 += I_2 / 10 nS

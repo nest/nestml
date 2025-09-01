@@ -46,8 +46,7 @@ from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 
 def get_known_targets():
-    targets = ["NEST", "NEST_compartmental", "python_standalone", "autodoc", "pretty_render", "spinnaker",
-               "NEST_DESKTOP", "GeNN", "nest_gpu", "none"]
+    targets = ["NEST", "NEST_compartmental", "python_standalone", "autodoc", "pretty_render", "spinnaker", "NEST_DESKTOP", "GeNN", "none"]
     targets = [s.upper() for s in targets]
     return targets
 
@@ -62,8 +61,7 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
     if options is None:
         options = {}
 
-    if target_name.upper() in ["NEST", "SPINNAKER", "PYTHON_STANDALONE", "NEST_COMPARTMENTAL", "NEST_DESKTOP", "GENN",
-                               "NEST_GPU"]:
+    if target_name.upper() in ["NEST", "SPINNAKER", "PYTHON_STANDALONE", "NEST_COMPARTMENTAL", "NEST_DESKTOP", "GENN"]:
         from pynestml.transformers.add_timestep_to_internals_transformer import AddTimestepToInternalsTransformer
 
         add_timestep_to_internals_transformer = AddTimestepToInternalsTransformer()
@@ -74,38 +72,8 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
 
         # rewrite all C++ keywords
         # from: https://docs.microsoft.com/en-us/cpp/cpp/keywords-cpp 2022-04-23
-        variable_name_rewriter = IllegalVariableNameTransformer({"forbidden_names": ["alignas", "alignof", "and",
-                                                                                     "and_eq", "asm", "auto", "bitand",
-                                                                                     "bitor", "bool", "break", "case",
-                                                                                     "catch", "char", "char8_t",
-                                                                                     "char16_t", "char32_t", "class",
-                                                                                     "compl", "concept", "const",
-                                                                                     "const_cast", "consteval",
-                                                                                     "constexpr", "constinit",
-                                                                                     "continue", "co_await",
-                                                                                     "co_return", "co_yield",
-                                                                                     "decltype", "default", "delete",
-                                                                                     "do", "double", "dynamic_cast",
-                                                                                     "else", "enum", "explicit",
-                                                                                     "export", "extern", "false",
-                                                                                     "float", "for", "friend",
-                                                                                     "goto", "if", "inline", "int",
-                                                                                     "long", "mutable", "namespace",
-                                                                                     "new", "noexcept", "not", "not_eq",
-                                                                                     "nullptr", "operator", "or",
-                                                                                     "or_eq", "private", "protected",
-                                                                                     "public", "register",
-                                                                                     "reinterpret_cast", "requires",
-                                                                                     "return", "short", "signed",
-                                                                                     "sizeof", "static",
-                                                                                     "static_assert", "static_cast",
-                                                                                     "struct", "switch", "template",
-                                                                                     "this", "thread_local", "throw",
-                                                                                     "true", "try", "typedef", "typeid",
-                                                                                     "typename", "union", "unsigned",
-                                                                                     "using", "virtual", "void",
-                                                                                     "volatile", "wchar_t", "while",
-                                                                                     "xor", "xor_eq"]})
+        variable_name_rewriter = IllegalVariableNameTransformer({"forbidden_names": ["alignas", "alignof", "and", "and_eq", "asm", "auto", "bitand", "bitor", "bool", "break", "case", "catch", "char", "char8_t", "char16_t", "char32_t", "class", "compl", "concept", "const", "const_cast", "consteval", "constexpr", "constinit", "continue", "co_await", "co_return", "co_yield", "decltype", "default", "delete", "do", "double", "dynamic_cast", "else", "enum", "explicit", "export", "extern", "false", "float", "for", "friend",
+                                                                "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private", "protected", "public", "register", "reinterpret_cast", "requires", "return", "short", "signed", "sizeof", "static", "static_assert", "static_cast", "struct", "switch", "template", "this", "thread_local", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"]})
         transformers.append(variable_name_rewriter)
 
     if target_name.upper() in ["SPINNAKER"]:
@@ -129,15 +97,7 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
 
         # rewrite all Python keywords
         # from: ``import keyword; print(keyword.kwlist)``
-        variable_name_rewriter = IllegalVariableNameTransformer({"forbidden_names": ["False", "None", "True", "and",
-                                                                                     "as", "assert", "async", "await",
-                                                                                     "break", "class", "continue",
-                                                                                     "def", "del", "elif", "else",
-                                                                                     "except", "finally", "for", "from",
-                                                                                     "global", "if", "import", "in",
-                                                                                     "is", "lambda", "nonlocal", "not",
-                                                                                     "or", "pass", "raise", "return",
-                                                                                     "try", "while", "with", "yield"]})
+        variable_name_rewriter = IllegalVariableNameTransformer({"forbidden_names": ["False", "None", "True", "and", "as", "assert", "async", "await", "break", "class", "continue", "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with", "yield"]})
         transformers.append(variable_name_rewriter)
 
         # co-generate neuron and synapse
@@ -189,10 +149,6 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         from pynestml.codegeneration.genn_code_generator import GeNNCodeGenerator
         return GeNNCodeGenerator(options)
 
-    if target_name.upper() == "NEST_GPU":
-        from pynestml.codegeneration.nest_gpu_code_generator import NESTGPUCodeGenerator
-        return NESTGPUCodeGenerator(options)
-
     if target_name.upper() == "NONE":
         # dummy/null target: user requested to not generate any code (for instance, when just doing validation of a model)
         code, message = Messages.get_no_code_generated()
@@ -225,12 +181,6 @@ def builder_from_target_name(target_name: str, options: Optional[Mapping[str, An
         builder = AutodocBuilder(options)
         remaining_options = builder.set_options(options)
         return builder, remaining_options
-
-    if target_name.upper() == "NEST_GPU":
-        from pynestml.codegeneration.nest_gpu_builder import NESTGPUBuilder
-        nest_gpu_builder = NESTGPUBuilder(options)
-        remaining_options = nest_gpu_builder.set_options(options)
-        return nest_gpu_builder, remaining_options
 
     return None, options  # no builder requested or available
 
@@ -278,6 +228,7 @@ def generate_target(input_path: Union[str, Sequence[str]], target_platform: str,
 def configure_front_end(input_path: Union[str, Sequence[str]], target_platform: str, target_path=None,
                         install_path: str = None, logging_level="ERROR", module_name=None, store_log=False, suffix="",
                         dev=False, codegen_opts: Optional[Mapping[str, Any]] = None):
+
     args = list()
     args.append(qualifier_input_path_arg)
     if type(input_path) is str:
@@ -354,8 +305,7 @@ def generate_nest_target(input_path: Union[str, Sequence[str]], target_path: Opt
 
 def generate_python_standalone_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None,
                                       logging_level="ERROR", module_name: str = "nestmlmodule", store_log: bool = False,
-                                      suffix: str = "", dev: bool = False,
-                                      codegen_opts: Optional[Mapping[str, Any]] = None):
+                                      suffix: str = "", dev: bool = False, codegen_opts: Optional[Mapping[str, Any]] = None):
     r"""Generate and build code for the standalone Python target.
 
     Parameters
@@ -411,40 +361,9 @@ def generate_genn_target(input_path: Union[str, Sequence[str]], target_path: Opt
                     codegen_opts=codegen_opts)
 
 
-def generate_nest_gpu_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None,
+def generate_spinnaker_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None, install_path: Optional[str] = None,
                              logging_level="ERROR", module_name: str = "nestmlmodule", store_log: bool = False,
-                             suffix: str = "", dev: bool = False, codegen_opts: Optional[Mapping[str, Any]] = None):
-    r"""Generate and build code for the NEST-GPU target.
-    Parameters
-    ----------
-    input_path : str **or** Sequence[str]
-        Path to the NESTML file(s) or to folder(s) containing NESTML files to convert to NEST code.
-    target_path : str, optional (default: append "target" to `input_path`)
-        Path to the generated C++ code and install files.
-    install_path
-        Path to the directory where the generated code will be installed.
-    logging_level : str, optional (default: "ERROR")
-        Sets which level of information should be displayed duing code generation (among "ERROR", "WARNING", "INFO", or "NO").
-    module_name : str, optional (default: "nestmlmodule")
-        The name of the generated Python module.
-    store_log : bool, optional (default: False)
-        Whether the log should be saved to file.
-    suffix : str, optional (default: "")
-        A suffix string that will be appended to the name of all generated models.
-    dev : bool, optional (default: False)
-        Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
-    codegen_opts : Optional[Mapping[str, Any]]
-        A dictionary containing additional options for the target code generator.
-    """
-    generate_target(input_path, target_platform="nest_gpu", target_path=target_path,
-                    logging_level=logging_level, store_log=store_log, suffix=suffix, dev=dev,
-                    codegen_opts=codegen_opts)
-
-
-def generate_spinnaker_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None,
-                              install_path: Optional[str] = None,
-                              logging_level="ERROR", module_name: str = "nestmlmodule", store_log: bool = False,
-                              suffix: str = "", dev: bool = False, codegen_opts: Optional[Mapping[str, Any]] = None):
+                              suffix: str="", dev: bool=False, codegen_opts: Optional[Mapping[str, Any]]=None):
     r"""Generate and build code for the SpiNNaker target.
 
     Parameters
@@ -457,8 +376,6 @@ def generate_spinnaker_target(input_path: Union[str, Sequence[str]], target_path
         Path to the directory where the generated code will be installed.
     logging_level : str, optional (default: "ERROR")
         Sets which level of information should be displayed duing code generation (among "ERROR", "WARNING", "INFO", or "NO").
-    module_name : str, optional (default: "nestmlmodule")
-        The name of the generated Python module.
     store_log : bool, optional (default: False)
         Whether the log should be saved to file.
     suffix : str, optional (default: "")
@@ -468,9 +385,13 @@ def generate_spinnaker_target(input_path: Union[str, Sequence[str]], target_path
     codegen_opts : Optional[Mapping[str, Any]]
         A dictionary containing additional options for the target code generator.
     """
+
+    # removed module_name from generate_spinnaker_target() arguments because it is not directly needed for the Jinja templates at the end of the pipeline
+    # but still added to generate_target() to surpress following log: [5,GLOBAL, INFO]: No module name specified; the generated module will be named "nestmlmodule"
+
     generate_target(input_path, target_platform="spinnaker", target_path=target_path,
                     install_path=install_path,
-                    logging_level=logging_level, store_log=store_log, suffix=suffix, dev=dev,
+                    logging_level=logging_level, module_name="nestmlmodule", store_log=store_log, suffix=suffix, dev=dev,
                     codegen_opts=codegen_opts)
 
 
@@ -625,7 +546,7 @@ def process() -> bool:
     models = list(set(models) - set(excluded_models))
 
     if len(models) == 0:
-        return True  # there is no model code to generate, return error condition
+        return True    # there is no model code to generate, return error condition
 
     # transformation(s)
     models = transform_models(transformers, models)
