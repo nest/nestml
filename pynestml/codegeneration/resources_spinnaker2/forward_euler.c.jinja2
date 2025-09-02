@@ -9,7 +9,7 @@ void forward_euler_step(
     const void *neuron_params,
     REAL *y_out)
 {
-    REAL dydt[MAX_STATE_DIM];
+    REAL dydt[dim];
     f(t, y, dydt, dim, neuron_params);
 
     for (uint8_t i = 0; i < dim; ++i)

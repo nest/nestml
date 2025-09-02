@@ -9,9 +9,9 @@ void rk4_step(
     const void *neuron_params,
     REAL *y_out)
 {
-    REAL k1[MAX_STATE_DIM], k2[MAX_STATE_DIM];
-    REAL k3[MAX_STATE_DIM], k4[MAX_STATE_DIM];
-    REAL y_temp[MAX_STATE_DIM];
+    REAL k1[dim], k2[dim];
+    REAL k3[dim], k4[dim];
+    REAL y_temp[dim];
 
     /* k1 */
     f(t, y, k1, dim, neuron_params);
