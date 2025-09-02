@@ -99,17 +99,17 @@ void timer_callback()
     synapses_do_timestep_update(systicks);
     neuron_do_timestep_update();
 
-    if ((global_params_ptr->profiling) && global_params_ptr->debug)
+    //if ((global_params_ptr->profiling) && global_params_ptr->debug)
+        //        log_info("Profiling [%d]: %i, %i, %i, %i\n", systicks, t1, t2, t3, t4));
 
-        //        log_info("Profiling [%d]: %i, %i, %i, %i\n", systicks, t1, t2, t3, t4);
+    if (global_params_ptr->record_time_done == 1) {
 
-        if (global_params_ptr->record_time_done == 1) {
+        if (systicks < sim_config.n_simulation_ticks) {
 
-            if (systicks < sim_config.n_simulation_ticks) {
-
-                time_done_records_all_timesteps[systicks] = timer[TIMER1_VALUE];
-            }
+            time_done_records_all_timesteps[systicks] = timer[TIMER1_VALUE];
         }
+    }
+    
     // check if processing finished within systick
     // If raw interrupt status register is true, it means that the timer already reached 0
     if (timer[TIMER1_INT_STATUS] == 1) {
