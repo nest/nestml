@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# cpp_expression_printer.py
+# spinnaker_cpp_expression_printer.py
 #
 # This file is part of NEST.
 #
@@ -63,8 +63,9 @@ class SpiNNakerCppExpressionPrinter(CppExpressionPrinter):
             return lhs + " * " + rhs
 
         if op.is_div_op:
-            raise Exception("SpiNNaker does not feature an FPU so division is not implemented on this platform")
-            #return lhs + " / " + rhs
+            #raise Exception("SpiNNaker does not feature an FPU so division is not implemented on this platform") i
+            print("WARNING: SpiNNaker does not feature an FPU so division is not implemented on this platform")
+            return "_kdivk(" + lhs + ", " + rhs + ")"
 
         if op.is_modulo_op:
             return lhs + " % " + rhs

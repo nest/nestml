@@ -61,6 +61,11 @@ class SPINNAKERCodeGeneratorUtils:
 
     @classmethod
     def _print_symbol_origin_for_synapse(cls, variable_symbol: VariableSymbol, numerical_state_symbols=None) -> str:
+
+        if variable_symbol.name == "__h" or variable_symbol.name.startswith("__P"):
+            # these are just local temporaries
+            return '%s'
+
         if variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
             #if numerical_state_symbols and variable_symbol.get_symbol_name() in numerical_state_symbols:
             #    return 'state.S_.ode_state[State_::%s]'

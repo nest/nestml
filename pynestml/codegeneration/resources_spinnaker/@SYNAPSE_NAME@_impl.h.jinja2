@@ -52,6 +52,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include <neuron/plasticity/stdp/stdp_typedefs.h>
 #include <neuron/synapse_row.h>
 
+
 // Standard includes
 #include <stdbool.h>
 #include <stdint.h>
@@ -97,7 +98,9 @@ typedef struct {
     **/
 
 {%- for sym in synapse.get_internal_symbols() %}
+{%-     if (not sym.name == "__h") and (not sym.name.startswith("__P")) %}
     accum {{ sym.get_symbol_name() }};
+{%-     endif %}
 {%- endfor %}
 } plasticity_weight_region_data_t;
 
@@ -601,7 +604,7 @@ static inline void post_events_add(uint32_t time, post_event_history_t *events/*
 static inline void print_delayed_window_events(
         const post_event_history_t *post_event_history,
         uint32_t begin_time, uint32_t end_time, uint32_t delay_dendritic) {
-    log_info("[NESTML synapse]      ##  printing post window  ##");
+/*    log_info("[NESTML synapse]      ##  printing post window  ##");
     post_event_window_t post_window = post_events_get_window_delayed(post_event_history, begin_time, end_time);
 
     while (post_window.num_events > 0) {
@@ -611,7 +614,7 @@ static inline void print_delayed_window_events(
                 post_window.num_events, delayed_post_time);
 
         post_window = post_events_next(post_window);
-    }
+    }*/
 }
 
 

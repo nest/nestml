@@ -10,6 +10,66 @@ plasticity_weight_region_data_t *plasticity_weight_region_data;
 
 
 
+
+
+uint64_t _udiv64(uint64_t num, uint64_t den) {
+
+    uint64_t quot = 0;
+    uint64_t qbit = 1;
+
+    if (den == 0) {
+        /* Intentional divide by zero, without
+	       triggering a compiler warning which
+	       would abort the build */
+        return 1/((unsigned)den);
+    }
+
+    /* Left-justify denominator and count shift */
+    while ((int64_t) den >= 0) {
+        den <<= 1;
+        qbit <<= 1;
+    }
+
+    while (qbit) {
+        if (den <= num) {
+            num -= den;
+            quot += qbit;
+        }
+        den >>= 1;
+        qbit >>= 1;
+    }
+    return quot;
+}
+
+
+
+
+static inline REAL _kdivk(REAL a, REAL b) {
+    if (a < 0k && b < 0k) {
+        return _kdivk(-a, -b);
+    }
+
+    if (a < 0k) {
+        return -_kdivk(-a, b);
+    }
+
+    if (b < 0k) {
+        return -_kdivk(a, -b);
+    }
+    
+	return kbits((uint32_t) _udiv64(((uint64_t) bitsk(a) << 15), (uint64_t) bitsk(b)));
+}
+
+
+
+
+
+
+
+
+
+
+
 //! The format of the plastic data region of a synaptic row
 struct synapse_row_plastic_data_t {
     //! The pre-event history
@@ -27,7 +87,7 @@ bool synapse_dynamics_initialise(
 
     char _string_buf[20];
 
-    log_info("[NESTML synapse] In synapse_dynamics_initialise(n_neurons = %d, n_synapse_types = %d)", n_neurons, n_synapse_types);
+    //log_info("[NESTML synapse] In synapse_dynamics_initialise(n_neurons = %d, n_synapse_types = %d)", n_neurons, n_synapse_types);
 
     // Load parameters
     plasticity_weight_region_data_t *config = (plasticity_weight_region_data_t *) address;
@@ -38,16 +98,14 @@ bool synapse_dynamics_initialise(
         return false;
     }
 
-//    for (uint32_t s = 0; s < n_synapse_types; s++, config++) {
     for (uint32_t s = 0; s < 1; s++, config++) {  // XXX: only permit one synapse type for now
 {%- for sym in synapse.get_parameter_symbols() + synapse.get_internal_symbols() %}
+{%-     if (not sym.name == "__h") and (not sym.name.startswith("__P")) %}
         plasticity_weight_region_data[s].{{ sym.get_symbol_name() }} = config->{{ sym.get_symbol_name() }};
 #ifdef DEBUG
-        log_info("\t[NESTML synapse] \tSynapse type %u: Parameter {{ sym.get_symbol_name() }}, Raw value: %x, Value: %k", s, plasticity_weight_region_data[s].{{ sym.get_symbol_name() }}, plasticity_weight_region_data[s].{{ sym.get_symbol_name() }});
-//        log_info("\t[NESTML synapse] \tSynapse type %u: Parameter {{ sym.get_symbol_name() }}, Value: %k", s, plasticity_weight_region_data[s].{{ sym.get_symbol_name() }});
- //       log_info("\t[NESTML synapse] \tSynapse type %u: Parameter {{ sym.get_symbol_name() }}, Raw value: %x, Decoded float value: %s", s, dtcm_copy[s].{{ sym.get_symbol_name() }}, _string_buf);
+//        log_info("\t[NESTML synapse] \tSynapse type %u: Parameter {{ sym.get_symbol_name() }}, Raw value: %x, Value: %k", s, plasticity_weight_region_data[s].{{ sym.get_symbol_name() }}, plasticity_weight_region_data[s].{{ sym.get_symbol_name() }});
 #endif
-    //    {{ sym.get_symbol_name() }} = config->{{ sym.get_symbol_name() }};
+{%-     endif %}
 {%- endfor %}
     }
 
@@ -90,16 +148,32 @@ static inline index_t sparse_axonal_delay(uint32_t x) {
 
 
 
-static void update_internal_state_(synapse_state_t *state, double t_start, double timestep) {
-    if (timestep < 1E-12) {
-        return;
-    }
+static void update_internal_state_(synapse_state_t *state, uint32_t t_start, uint32_t timestep) {
 
     /**
      * Recompute propagator constants
     **/
+
+    const accum __h = timestep;   // XXX: time constants are in ms, so __h should be as well! convert uint32_t to accum type
+
+//log_info("[NESTML synapse] ************** tau_tr_pre = 0x%x = %k\n", plasticity_weight_region_data->tau_tr_pre, plasticity_weight_region_data->tau_tr_pre);
+//log_info("[NESTML synapse] ************** __h = 0x%x = %k\n", __h, __h);
+//log_info("[NESTML synapse] ************** -__h = 0x%x = %k\n", -__h, -__h);
+//log_info("[NESTML synapse] ************** __h / tau_tr_pre = 0x%x = %k\n", _kdivk(__h, plasticity_weight_region_data->tau_tr_pre), _kdivk(__h, plasticity_weight_region_data->tau_tr_pre));
+//log_info("[NESTML synapse] ************** -(__h / tau_tr_pre) = 0x%x = %k\n", -_kdivk(__h, plasticity_weight_region_data->tau_tr_pre), -_kdivk(__h, plasticity_weight_region_data->tau_tr_pre));
+//log_info("[NESTML synapse] ************** (-__h) / tau_tr_pre = 0x%x = %k\n", _kdivk(-__h, plasticity_weight_region_data->tau_tr_pre), _kdivk(-__h, plasticity_weight_region_data->tau_tr_pre));
+log_info("[NESTML synapse] ************** exp(-__h / tau_tr_pre) = 0x%x = %k\n", expk(_kdivk((-__h), plasticity_weight_region_data->tau_tr_pre)), expk(_kdivk((-__h), plasticity_weight_region_data->tau_tr_pre)));
+//log_info("expk(_kdivk((-__h), plasticity_weight_region_data->tau_tr_pre)); 
     
-    //recompute_internal_variables(timestep = ...);
+    if (timestep == 0) {
+        return;
+    }
+
+{%- for sym in synapse.get_internal_symbols() %}
+{%-     if sym.get_symbol_name().startswith("__P") %}
+    const accum {{ sym.get_symbol_name() }} = {{ printer.print(sym.get_declaring_expression()) }};    // type: {{ sym.get_type_symbol().print_symbol() }}
+{%-     endif %}
+{%- endfor %}
 
 
     /**
@@ -214,7 +288,7 @@ static void process_plastic_synapse(
 
     post_event_window_t post_window = post_events_get_window_delayed(post_event_history, window_begin_time, window_end_time);
 
-    log_info("[NESTML synapse] \t  Fetching post window from %u to %u\n", window_begin_time, window_end_time);
+//    log_info("[NESTML synapse] \t  Fetching post window from %u to %u\n", window_begin_time, window_end_time);
 
     // Process events in post-synaptic window
     while (post_window.num_events > 0) {
@@ -248,23 +322,23 @@ static void process_plastic_synapse(
     update_internal_state_(&state, current_time, pre_spike_time - current_time);
     current_time = pre_spike_time;
 
-    log_info("[NESTML synapse] \tNEW state after integration to t_pre:");
+/*    log_info("[NESTML synapse] \tNEW state after integration to t_pre:");
 {%- for sym in synapse.get_state_symbols() %}
     log_info("[NESTML synapse] \t\t{{ sym.get_symbol_name() }} = 0x%x\n", state.{{ sym.get_symbol_name() }});
 {%- endfor %}
-
+*/
 
     /**
      * process pre spike
     **/
 
     process_pre_spike(&state, current_time);
-
+/*
     log_info("[NESTML synapse] \tNEW state after processing pre_spikes:");
 {%- for sym in synapse.get_state_symbols() %}
     log_info("[NESTML synapse] \t\t{{ sym.get_symbol_name() }} = 0x%x\n", state.{{ sym.get_symbol_name() }});
 {%- endfor %}
-
+*/
 	/**
 	 * Add weight to ring-buffer entry, but only if not too late
 	**/
@@ -291,6 +365,7 @@ static void process_plastic_synapse(
 void print_low_level_synaptic_row_data(synapse_row_plastic_data_t *plastic_region_address,
                                        synapse_row_fixed_part_t *fixed_region) {
 
+#ifdef FOOBAR
     // data words: for each synapse, stores the complete state in a 32-bit word
     synapse_word_t *plastic_words = plastic_region_address->synapses;
 
@@ -329,7 +404,7 @@ void print_low_level_synaptic_row_data(synapse_row_plastic_data_t *plastic_regio
                 synapse_delay_mask, synapse_type_index_bits);*/
 
     }
-
+#endif
 }
 
 
