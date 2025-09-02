@@ -32,7 +32,7 @@ static inline void _process_fixed_synapses(address_t fixed_region_address,
         uint32_t ring_buffer_index = synapses_get_ring_buffer_index_combined(
             delay + time, combined_synapse_neuron_index);
 
-        weight_t accumulation = ring_buffers[ring_buffer_index] + (weight * global_neuron_params.weight_scaling_factor);
+        weight_t accumulation = ring_buffers[ring_buffer_index] + weight;
         ring_buffers[ring_buffer_index] = accumulation;
 
     }
