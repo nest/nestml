@@ -1,10 +1,12 @@
-
+#include "../global_params.h"
+#include "../neuron_model_iaf_psc_exp_neuron_NO_ISTIM_impl.h"
 #ifndef _SYNAPSE_TYPES_EXPONENTIAL_IMPL_H_
 #define _SYNAPSE_TYPES_EXPONENTIAL_IMPL_H_
 #define SYNAPSE_TYPE_BITS 1
 #define SYNAPSE_TYPE_COUNT 2
 typedef UFRACT decay_t;
 
+extern global_neuron_params_t global_neuron_params __attribute__((aligned(0x10)));
 
 typedef struct synapse_param_t {
     decay_t exc_decay;
@@ -25,16 +27,6 @@ static inline index_t _in_offset(index_t neuron_index) {
     return synapse_types_get_input_buffer_index(INHIBITORY, neuron_index);
 }
 
-static inline decay_t _ex_decay(
-        synapse_param_t *parameters, index_t neuron_index) {
-    return (parameters[neuron_index].exc_decay);  //->__P__I_syn_exc__I_syn_exc
-}
-
-static inline decay_t _in_decay(
-        synapse_param_t *parameters, index_t neuron_index) {
-    return (parameters[neuron_index].inh_decay);  //->__P__I_syn_inh__I_syn_inh
-}
-
 static inline void synapse_types_add_neuron_input(
         input_t *input_buffers, index_t synapse_type_index,
         index_t neuron_index, input_t input) {
@@ -42,10 +34,10 @@ static inline void synapse_types_add_neuron_input(
         uint32_t index = _ex_offset(neuron_index);
         // log_info("input:%u\n", input);
 
-        input_buffers[index] = input_buffers[index] + input;
+        input_buffers[index] = input_buffers[index] + input * global_neuron_params.weight_scaling_factor_exc;
     } else if (synapse_type_index == INHIBITORY) {
         uint32_t index = _in_offset(neuron_index);
-        input_buffers[index] = input_buffers[index] + input;
+        input_buffers[index] = input_buffers[index] + input * global_neuron_params.weight_scaling_factor_inh;
     }
 }
 

@@ -57,15 +57,10 @@ class {{neuronName}}Application(BaseApplication):
         {%- for  parameter in neuron.get_parameter_symbols()  | sort(attribute='name') %}
         "{{  parameter.name }}":{{ printer_no_origin.print(parameter.declaring_expression) }},
         {%- endfor %}
-{#    {% set p = neuron.get_parameter_value_dict() | dictsort %}#}
-{#    {%- for name, value in p %}#}
-{#        "{{ name }}": {{ value | float }},#}
-{#    {%- endfor %}#}
-{#        {%- for parameter in neuron.get_parameter_value_dict() %}#}
-{#            "{{ parameter }}": {{ neuron.get_parameter_value_dict()[parameter] | float }},#}
-{#        {%- endfor %}#}
-        "calculation_timestep_in_s": 10.0,
-        "weight_scaling_factor": 0.0,
+
+        "calculation_timestep": 10.0,
+        "weight_scaling_factor_exc": 0.0,
+        "weight_scaling_factor_inh": 0.0,
     }
 
     propagators = {
@@ -78,12 +73,6 @@ class {{neuronName}}Application(BaseApplication):
         {%- endif %}
     }
 
-
-{#    propagators = {#}
-{#        {%- for name, value in propagators | dictsort %}#}
-{#            "{{ name }}": "{{ value }}",#}
-{#        {%- endfor %}#}
-{#    }#}
 
     max_atoms_per_core = 10
     splittable = True
@@ -286,7 +275,7 @@ class {{neuronName}}Application(BaseApplication):
 
     def convert_calculated_propagators_to_raw_data(self, name_value_dict, pop_slice=None):
         """
-        Coverts calculated propagator values to 32bit data, which can be sent over to SpiNNaker2
+        Covert calculated propagator values to 32bit data, which can be sent over to SpiNNaker2
 
         Args:
             name_value_dict: Dictionary of propagator name and attached value
@@ -297,8 +286,9 @@ class {{neuronName}}Application(BaseApplication):
         if isinstance(name_value_dict, list):
             all_raw_data = []
             for single_dict in name_value_dict:
-                del single_dict['calculation_timestep_in_s']
-                del single_dict['weight_scaling_factor']
+                del single_dict["calculation_timestep"]
+                del single_dict["weight_scaling_factor_exc"]
+                del single_dict["weight_scaling_factor_inh"]
                 values = list(single_dict.values())
                 float32_array = np.array(values, dtype=np.float32)
                 raw_data = np.frombuffer(float32_array.data, dtype=np.uint32)
@@ -306,8 +296,9 @@ class {{neuronName}}Application(BaseApplication):
             return [item for sublist in all_raw_data for item in sublist]
         else:
             n_neurons = pop_slice.pop.size
-            del name_value_dict['calculation_timestep_in_s']
-            del name_value_dict['weight_scaling_factor']
+            del name_value_dict["calculation_timestep"]
+            del name_value_dict["weight_scaling_factor_exc"]
+            del name_value_dict["weight_scaling_factor_inh"]
             values = list(name_value_dict.values())
             copy = values.copy()
             values.extend(copy * (n_neurons - 1))
@@ -335,11 +326,24 @@ class {{neuronName}}Application(BaseApplication):
         )
 
         neuron_params = pop_slice.pop.params
-        weight_scaling_factor = neuron_params.get("weight_scaling_factor", self.default_parameters["weight_scaling_factor"])
-        calculation_timestep_in_s = neuron_params.get("calculation_timestep_in_s", self.default_parameters["calculation_timestep_in_s"])
+
+        weight_scaling_factor_exc = neuron_params.get(
+            "weight_scaling_factor_exc",
+            self.default_parameters["weight_scaling_factor_exc"],
+        )
+        weight_scaling_factor_inh = neuron_params.get(
+            "weight_scaling_factor_inh",
+            self.default_parameters["weight_scaling_factor_inh"],
+        )
+        calculation_timestep = neuron_params.get(
+            "calculation_timestep",
+            self.default_parameters["calculation_timestep"],
+        )
         for propagator_expr in self.propagators:
             if "__h" in self.propagators[propagator_expr]:
-                self.propagators[propagator_expr] = self.propagators[propagator_expr].replace("__h", "calculation_timestep_in_s")
+                self.propagators[propagator_expr] = self.propagators[
+                    propagator_expr
+                ].replace("__h", "calculation_timestep")
 
         #####################
         # neuron parameters #
@@ -406,13 +410,26 @@ class {{neuronName}}Application(BaseApplication):
         #################
         # global params #
         #################
-        if calculation_timestep_in_s is not None:
-            calc_step_list = list([calculation_timestep_in_s])
+        if calculation_timestep is not None:
+            calc_step_list = list([calculation_timestep])
             calc_step_array = np.array(calc_step_list, dtype=np.float32)
-            calc_step_raw = np.frombuffer(calc_step_array.data, dtype=np.uint32).tolist()
-            weight_scaling_factor_list = list([weight_scaling_factor])
-            weight_scaling_factor_array = np.array(weight_scaling_factor_list, dtype=np.float32)
-            weight_scaling_factor_raw = np.frombuffer(weight_scaling_factor_array.data, dtype=np.uint32).tolist()
+            calc_step_raw = np.frombuffer(
+                calc_step_array.data, dtype=np.uint32
+            ).tolist()
+            weight_scaling_factor_exc_list = list([weight_scaling_factor_exc])
+            weight_scaling_factor_exc_array = np.array(
+                weight_scaling_factor_exc_list, dtype=np.float32
+            )
+            weight_scaling_factor_exc_raw = np.frombuffer(
+                weight_scaling_factor_exc_array.data, dtype=np.uint32
+            ).tolist()
+            weight_scaling_factor_inh_list = list([weight_scaling_factor_inh])
+            weight_scaling_factor_inh_array = np.array(
+                weight_scaling_factor_inh_list, dtype=np.float32
+            )
+            weight_scaling_factor_inh_raw = np.frombuffer(
+                weight_scaling_factor_inh_array.data, dtype=np.uint32
+            ).tolist()
             n_neurons = pop_slice.size()
             record_spikes = "spikes" in pop_slice.pop.record
             record_v_all = "v" in pop_slice.pop.record
@@ -429,25 +446,14 @@ class {{neuronName}}Application(BaseApplication):
                 int(self.profiling),
                 int(time_done_flag),
                 calc_step_raw[0],
-                weight_scaling_factor_raw[0],
+                weight_scaling_factor_exc_raw[0],
+                weight_scaling_factor_inh_raw[0],
                 int(debug),
-                int(self.log_size)
+                int(self.log_size),
             ]
 
         else:
-            n_neurons = pop_slice.size()
-            record_spikes = "spikes" in pop_slice.pop.record
-            record_v_all = "v" in pop_slice.pop.record
-            record_v_last = "v_last" in pop_slice.pop.record
-            record_v = 1 if record_v_all else 2 if record_v_last else 0
-            time_done_flag = "time_done" in pop_slice.pop.record
-            global_params_raw = [
-                n_neurons,
-                int(record_spikes),
-                int(record_v),
-                int(self.profiling),
-                int(time_done_flag),
-            ]
+            raise ValueError("Calculation(Integration) timestep has to be set!")
 
         memory_handler.add_mem_region(
             name=self.regions.GLOBAL_PARAMS.name,

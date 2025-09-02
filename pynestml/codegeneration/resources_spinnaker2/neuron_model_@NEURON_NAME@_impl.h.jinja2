@@ -5,32 +5,30 @@
 #include "common/neuron-typedefs.h"
 
 typedef struct global_neuron_params_t {
-    REAL calc_step_raw; // ode calc timestep
-    REAL weight_scaling_factor; // scaling factor for syn weights
+    REAL calc_step_raw;             // ode calc timestep
+    REAL weight_scaling_factor_exc; // scaling factor for exc syn weights
+    REAL weight_scaling_factor_inh; // scaling factor for inh syn weights
 } global_neuron_params_t;
 
 // neuron state variables
 typedef struct neuron_state_t {
-{#    {%- for state in neuron.get_state_symbols() %}#}
-{#        {{ declarations.get_domain_from_type(state.get_type_symbol()) }} {{ state.name }};#}
-{#    {%- endfor %}#}
-    {%- for declaration in neuron.get_state_declarations() |sort(attribute='name') %}
-        {{ declarations.get_domain_from_type(declaration.variables[0].get_type_symbol()) }} {{ declaration.variables[0].name }};
-    {%- endfor %}
+{%- for declaration in neuron.get_state_declarations() |sort(attribute='name') %}
+    {{ declarations.get_domain_from_type(declaration.variables[0].get_type_symbol()) }} {{ declaration.variables[0].name }};
+{%- endfor %}
 } neuron_state_t;
 
 // neuron parameters from .nestml file and internal parameters
 typedef struct neuron_params_t {
 
-    {%- for parameter in neuron.get_parameter_symbols() |sort(attribute='name') %}
-        {{ declarations.get_domain_from_type(parameter.get_type_symbol()) }} {{ parameter.name }};
-    {%- endfor %}
+{%- for parameter in neuron.get_parameter_symbols() |sort(attribute='name') %}
+    {{ declarations.get_domain_from_type(parameter.get_type_symbol()) }} {{ parameter.name }};
+{%- endfor %}
 {% if uses_analytic_solver %}
-    {%- for propagator in neuron.get_internal_symbols() |sort(attribute='name') %}
-    {% if propagator.name != "__h" %}
-        {{ declarations.get_domain_from_type(propagator.get_type_symbol()) }} {{ propagator.name }};
-    {% endif %}
-    {%- endfor %}
+{%- for propagator in neuron.get_internal_symbols() |sort(attribute='name') %}
+{% if propagator.name != "__h" %}
+    {{ declarations.get_domain_from_type(propagator.get_type_symbol()) }} {{ propagator.name }};
+{% endif %}
+{%- endfor %}
 {% endif %}
 } neuron_params_t;
 

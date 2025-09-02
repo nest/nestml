@@ -224,7 +224,8 @@ void initialise_global_params(address_t region_address)
 {
     global_params_ptr = (struct global_params *)region_address;
     global_neuron_params.calc_step_raw = global_params_ptr->calc_step_raw;
-    global_neuron_params.weight_scaling_factor = global_params_ptr->weight_scaling_factor;
+    global_neuron_params.weight_scaling_factor_exc = global_params_ptr->weight_scaling_factor_exc;
+    global_neuron_params.weight_scaling_factor_inh = global_params_ptr->weight_scaling_factor_inh;
     if (global_params_ptr->debug) {
         log_info("debug: %d\n", global_params_ptr->debug);
         log_info("log_size: %d\n", global_params_ptr->log_size);
@@ -250,7 +251,8 @@ void log_global_params(address_t region_address)
         log_info("record_time_done: %d\n", global_params_ptr->record_time_done);
         log_info("profiling: %d\n", global_params_ptr->profiling);
         log_info("calc_step_raw: %f\n", f2ui(global_params_ptr->calc_step_raw));
-        log_info("weight_scaling_factor: %f\n", f2ui(global_params_ptr->weight_scaling_factor));
+        log_info("weight_scaling_factor_exc: %f\n", f2ui(global_params_ptr->weight_scaling_factor_exc));
+        log_info("weight_scaling_factor_inh: %f\n", f2ui(global_params_ptr->weight_scaling_factor_inh));
         log_info("debug: %d\n", global_params_ptr->debug);
         log_info("log_size: %d\n", global_params_ptr->log_size);
     }

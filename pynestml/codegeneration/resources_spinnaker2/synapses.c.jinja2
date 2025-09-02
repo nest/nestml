@@ -32,7 +32,7 @@ static inline void _process_fixed_synapses(address_t fixed_region_address,
         uint32_t ring_buffer_index = synapses_get_ring_buffer_index_combined(
             delay + time, combined_synapse_neuron_index);
 
-        weight_t accumulation = ring_buffers[ring_buffer_index] + (weight * global_neuron_params.weight_scaling_factor);  // added weight_scaling factor here
+        weight_t accumulation = ring_buffers[ring_buffer_index] + (weight * global_neuron_params.weight_scaling_factor);
         ring_buffers[ring_buffer_index] = accumulation;
 
     }
@@ -68,13 +68,6 @@ void synapses_do_timestep_update(uint32_t time) {
 
     uint32_t n_used_neurons = global_params_ptr->n_used_neurons;
     for (index_t neuron_index = 0; neuron_index < n_used_neurons; neuron_index++) {
-//        neuron_params_t* neuron_params = &neuron_params_array[neuron_index];#}
-
-//        input_buffers[_ex_offset(neuron_index)] =
-//           input_buffers[_ex_offset(neuron_index)] * neuron_params->__P__I_syn_exc__I_syn_exc;
-//        input_buffers[_in_offset(neuron_index)] =
-//            input_buffers[_in_offset(neuron_index)] * neuron_params->__P__I_syn_inh__I_syn_inh;
-
         input_buffers[_ex_offset(neuron_index)] = 0;
         input_buffers[_in_offset(neuron_index)] = 0;
 
