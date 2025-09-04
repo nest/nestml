@@ -44,20 +44,30 @@ uint64_t _udiv64(uint64_t num, uint64_t den) {
 
 
 
-static inline REAL _kdivk(REAL a, REAL b) {
+//static inline accum _kdivk(accum a, accum b) {
+accum _kdivk(accum a, accum b) {
     if (a < 0k && b < 0k) {
-        return _kdivk(-a, -b);
+        const accum ret = _kdivk(-1k * a, -1k * b);
+//        log_info("\t\tkdivk: (1) returning %k / %k = 0x%x = %k", a, b, ret, ret);
+        return ret;
     }
 
     if (a < 0k) {
-        return -_kdivk(-a, b);
+        const accum ret = -1k * _kdivk(-1k * a, b);
+//        log_info("\t\tkdivk: (2) returning %k / %k = 0x%x = %k", a, b, ret, ret);
+        return ret;
     }
 
     if (b < 0k) {
-        return -_kdivk(a, -b);
+        const accum ret = -1k * _kdivk(a, -1k * b);
+//        log_info("\t\tkdivk: (3) returning %k / %k = 0x%x = %k", a, b, ret, ret);
+        return ret;
     }
-    
-	return kbits((uint32_t) _udiv64(((uint64_t) bitsk(a) << 15), (uint64_t) bitsk(b)));
+
+    const accum ret = kbits((uint32_t)_udiv64(((uint64_t) bitsk(a) << 15), (uint64_t) bitsk(b)));
+//    log_info("\t\tkdivk: (4) returning %k / %k = 0x%x = %k", a, b, ret, ret);
+   
+    return ret;
 }
 
 
@@ -157,12 +167,28 @@ static void update_internal_state_(synapse_state_t *state, uint32_t t_start, uin
     const accum __h = timestep;   // XXX: time constants are in ms, so __h should be as well! convert uint32_t to accum type
 
 //log_info("[NESTML synapse] ************** tau_tr_pre = 0x%x = %k\n", plasticity_weight_region_data->tau_tr_pre, plasticity_weight_region_data->tau_tr_pre);
-//log_info("[NESTML synapse] ************** __h = 0x%x = %k\n", __h, __h);
-//log_info("[NESTML synapse] ************** -__h = 0x%x = %k\n", -__h, -__h);
+//log_info("[NESTML synapse] ************** __h = 0x%x = %k\n", __h, __h);  // OK!
+//log_info("[NESTML synapse] ************** -__h = 0x%x = %k\n", -__h, -__h);  // OK!
+//log_info("[NESTML synapse] ************** -(-__h) = 0x%x = %k\n", -(-__h), -(-__h));  // OK!
+
 //log_info("[NESTML synapse] ************** __h / tau_tr_pre = 0x%x = %k\n", _kdivk(__h, plasticity_weight_region_data->tau_tr_pre), _kdivk(__h, plasticity_weight_region_data->tau_tr_pre));
-//log_info("[NESTML synapse] ************** -(__h / tau_tr_pre) = 0x%x = %k\n", -_kdivk(__h, plasticity_weight_region_data->tau_tr_pre), -_kdivk(__h, plasticity_weight_region_data->tau_tr_pre));
-//log_info("[NESTML synapse] ************** (-__h) / tau_tr_pre = 0x%x = %k\n", _kdivk(-__h, plasticity_weight_region_data->tau_tr_pre), _kdivk(-__h, plasticity_weight_region_data->tau_tr_pre));
-log_info("[NESTML synapse] ************** exp(-__h / tau_tr_pre) = 0x%x = %k\n", expk(_kdivk((-__h), plasticity_weight_region_data->tau_tr_pre)), expk(_kdivk((-__h), plasticity_weight_region_data->tau_tr_pre)));
+/*
+const accum foobar0 = -_kdivk(__h, plasticity_weight_region_data->tau_tr_pre);
+log_info("[NESTML synapse] ************** -(__h / tau_tr_pre) = 0x%x = %k\n", foobar0, foobar0);
+
+
+const accum minus_h = -__h;
+log_info("[NESTML synapse] ************** minus_h = 0x%x = %k\n", -minus_h, -minus_h);
+
+
+const accum foobar1 = _kdivk(minus_h, plasticity_weight_region_data->tau_tr_pre);
+log_info("[NESTML synapse] ************** (-__h) / tau_tr_pre = 0x%x = %k\n", foobar1, foobar1);
+
+const accum foobar2 = _kdivk(__h, -plasticity_weight_region_data->tau_tr_pre);
+log_info("[NESTML synapse] ************** (-__h) / tau_tr_pre = 0x%x = %k\n", foobar2, foobar2);
+*/
+//log_info("[NESTML synapse] ************** -(-__h) / tau_tr_pre = 0x%x = %k\n", _kdivk(-(__h, plasticity_weight_region_data->tau_tr_pre), _kdivk(-__h, plasticity_weight_region_data->tau_tr_pre));
+//log_info("[NESTML synapse] ************** exp(-__h / tau_tr_pre) = 0x%x = %k\n", expk(-_kdivk(__h, plasticity_weight_region_data->tau_tr_pre)), expk(-_kdivk(__h, plasticity_weight_region_data->tau_tr_pre)));
 //log_info("expk(_kdivk((-__h), plasticity_weight_region_data->tau_tr_pre)); 
     
     if (timestep == 0) {
@@ -242,6 +268,8 @@ static void process_pre_spike(synapse_state_t *state, uint32_t time) {
 }
 
 
+#define PLOT_DETAILED_STATE
+
 static void process_plastic_synapse(
         uint32_t control_word, uint32_t last_pre_time, pre_trace_t last_pre_trace,
 		pre_trace_t new_pre_trace, weight_t *ring_buffers, uint32_t pre_spike_time,
@@ -257,11 +285,12 @@ static void process_plastic_synapse(
     }
 
     synapse_state_t state = synapse_word_to_state_t(synapse_word, plastic_synapse_word_stride);
-
+#ifdef PLOT_DETAILED_STATE
     log_info("[NESTML synapse] \tCurrent state:");
 {%- for sym in synapse.get_state_symbols() %}
     log_info("[NESTML synapse] \t\t{{ sym.get_symbol_name() }} = 0x%x\n", state.{{ sym.get_symbol_name() }});
 {%- endfor %}
+#endif
 
     //log_info("[NESTML synapse] \t__P__pre_trace__pre_trace: %x", plasticity_weight_region_data->__P__pre_trace__pre_trace);
 
@@ -294,8 +323,9 @@ static void process_plastic_synapse(
     while (post_window.num_events > 0) {
         const uint32_t delayed_post_time = *post_window.next_time + s.delay_dendritic;
 
-        log_info("[NESTML synapse] \t\tApplying post-synaptic event at delayed time:%u, pre:%u\n", delayed_post_time, delayed_last_pre_time);
-
+#ifdef PLOT_DETAILED_STATE
+        log_info("[NESTML synapse] \t\tApplying post-synaptic event at delayed time: %u\n", delayed_post_time);
+#endif
 
         /**
          * update synapse internal state from `current_time` to `delayed_post_time`
@@ -304,11 +334,25 @@ static void process_plastic_synapse(
         update_internal_state_(&state, current_time, delayed_post_time - current_time);
         current_time = delayed_post_time;
 
+#ifdef PLOT_DETAILED_STATE
+    log_info("[NESTML synapse] \tNEW state after updating internal state to t = %u", current_time);
+{%- for sym in synapse.get_state_symbols() %}
+    log_info("[NESTML synapse] \t\t{{ sym.get_symbol_name() }} = 0x%x\n", state.{{ sym.get_symbol_name() }});
+{%- endfor %}
+#endif
+
         /**
          * handle the postsynaptic spike
         **/
 
         process_post_spike(&state, current_time);
+
+#ifdef PLOT_DETAILED_STATE
+    log_info("[NESTML synapse] \tNEW state after applying post spike:");
+{%- for sym in synapse.get_state_symbols() %}
+    log_info("[NESTML synapse] \t\t{{ sym.get_symbol_name() }} = 0x%x\n", state.{{ sym.get_symbol_name() }});
+{%- endfor %}
+#endif
 
         // Go onto next event
         post_window = post_events_next(post_window);
@@ -322,23 +366,24 @@ static void process_plastic_synapse(
     update_internal_state_(&state, current_time, pre_spike_time - current_time);
     current_time = pre_spike_time;
 
-/*    log_info("[NESTML synapse] \tNEW state after integration to t_pre:");
+#ifdef PLOT_DETAILED_STATE
+    log_info("[NESTML synapse] \tNEW state after integration to t_pre:");
 {%- for sym in synapse.get_state_symbols() %}
     log_info("[NESTML synapse] \t\t{{ sym.get_symbol_name() }} = 0x%x\n", state.{{ sym.get_symbol_name() }});
 {%- endfor %}
-*/
-
+#endif
     /**
      * process pre spike
     **/
 
     process_pre_spike(&state, current_time);
-/*
+
+#ifdef PLOT_DETAILED_STATE
     log_info("[NESTML synapse] \tNEW state after processing pre_spikes:");
 {%- for sym in synapse.get_state_symbols() %}
     log_info("[NESTML synapse] \t\t{{ sym.get_symbol_name() }} = 0x%x\n", state.{{ sym.get_symbol_name() }});
 {%- endfor %}
-*/
+#endif
 	/**
 	 * Add weight to ring-buffer entry, but only if not too late
 	**/

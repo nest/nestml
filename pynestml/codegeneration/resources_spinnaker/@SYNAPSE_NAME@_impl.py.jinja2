@@ -303,7 +303,7 @@ class {{ synapseName }}Dynamics(
 
 {%- for sym in synapse.get_parameter_symbols() + synapse.get_internal_symbols() %}
         # write value for parameter "{{ sym.get_symbol_name() }}"
-        print("XXXXXXXXX writing value for parameter {{ sym.get_symbol_name() }} ======= " + str(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]) + " ==== encoded --> " + str(float_to_s15_16(self._nestml_model_variables["{{ sym.get_symbol_name() }}"])))
+        print("XXXXXXXXX writing value for parameter {{ sym.get_symbol_name() }} ======= " + str(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]) + " ==== encoded --> " + str(hex(float_to_s15_16(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]))))
         spec.write_value(
                 data=float_to_s15_16(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]), # int(i),  # XXX should be actual data; use int(i) for testing
                 data_type=DataType.INT32)

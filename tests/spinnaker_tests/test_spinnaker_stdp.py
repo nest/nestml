@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
@@ -57,20 +58,14 @@ class TestSpiNNakerSTDP:
                                   suffix=suffix,
                                   codegen_opts=codegen_opts)
 
-    def test_stdp(self):
-        # import spynnaker and plotting stuff
+    def run_sim(self, pre_spike_times, post_spike_times, simtime=1100):
         import pyNN.spiNNaker as p
         from pyNN.utility.plotting import Figure, Panel
-        import matplotlib.pyplot as plt
-
-
-        # import models
-        #from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml__with_stdp_synapse_nestml import iaf_psc_exp_neuron_nestml__with_stdp_synapse_nestml as iaf_psc_exp_neuron_nestml
-        #from python_models8.neuron.implementations.stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml_impl import stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestmlDynamics as stdp_synapse_nestml
 
         from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml as iaf_psc_exp_neuron_nestml
         from python_models8.neuron.implementations.stdp_synapse_nestml_impl import stdp_synapse_nestmlDynamics as stdp_synapse_nestml
 
+#        p.reset()
         p.setup(timestep=1.0)
         exc_input = "exc_spikes"
         inh_input = "inh_spikes"
@@ -86,140 +81,81 @@ class TestSpiNNakerSTDP:
         weight_pre = 3000
         weight_post = 3000
 
+        p.Projection(pre_input, pre_spiking, p.OneToOneConnector(), receptor_type=exc_input, synapse_type=p.StaticSynapse(weight=weight_pre))
+        p.Projection(post_input, post_spiking, p.OneToOneConnector(), receptor_type=exc_input, synapse_type=p.StaticSynapse(weight=weight_post))
 
-        #connect exc populations with pre and post populations
-        p.Projection(
-            pre_input, pre_spiking,
-            p.OneToOneConnector(), receptor_type=exc_input,
-            synapse_type=p.StaticSynapse(weight=weight_pre))
-
-        p.Projection(
-            post_input, post_spiking,
-            p.OneToOneConnector(), receptor_type=exc_input,
-            synapse_type=p.StaticSynapse(weight=weight_post))
-
-
-
-        """
-        #pop and proj for testing reasons
-        pre_receiving_neuron = p.Population(
-            n_neurons, iaf_psc_exp_neuron_nestml(), label="iaf_psc_exp_neuron_nestml_receiving")
-        p.Projection(
-            pre_spiking_neuron, pre_receiving_neuron,
-            p.OneToOneConnector(), receptor_type=exc_input,
-            synapse_type=p.StaticSynapse(weight=weight))
-
-
-        post_receiving_neuron = p.Population(
-            n_neurons, iaf_psc_exp_neuron_nestml(), label="iaf_psc_exp_neuron_nestml_receiving")
-        p.Projection(
-            post_spiking_neuron, post_receiving_neuron,
-            p.OneToOneConnector(), receptor_type=exc_input,
-            synapse_type=p.StaticSynapse(weight=weight))
-        """
-
-
-
-#        stdp_model = stdp_synapse_nestml()
-#        stdp_projection = p.Projection(pre_spiking_neuron,post_spiking_neuron,p.OneToOneConnector(),synapse_type=stdp_model,receptor_type=exc_input)
-
-        #connecting inputs with spiking neuron populations
-        #pre_input2spiking = p.Projection(pre_input, pre_spiking, p.OneToOneConnector(), synapse_type=p.StaticSynapse(weight=weight_pre, delay=1),receptor_type=exc_input)
-        #post_input2spiking = p.Projection(post_input, post_spiking, p.OneToOneConnector(), synapse_type=p.StaticSynapse(weight=weight_post, delay=1),receptor_type=exc_input)
-
-        stdp_model = stdp_synapse_nestml()
+        stdp_model = stdp_synapse_nestml(weight=0) #0x8000)
         stdp_projection = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type=exc_input)
         #stdp_projection_inh = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type=inh_input)
-
-        #initialise lists for axis
-        res_weights = []
-        spike_time_axis = []
-        #run time of the simulator
-        simtime = 1100
-        #nr of iterations maxit has to be smaller than simtime
-        #max_it = 200
-        #datapoints generated
-        #points_gen = 1
-
 
         #record spikes
         pre_spiking.record(["spikes"])
         post_spiking.record(["spikes"])
 
-        pre_input.set(spike_times=[100, 110, 120, 1000])
+        #pre_input.set(spike_times=[100, 110, 120, 1000])
+        pre_input.set(spike_times=pre_spike_times)
+        post_input.set(spike_times=post_spike_times)
 
-        #print("All properties: " + str(stdp_projection.get()))
-
-        #calculate all data points
-        for t_post in [142.]: #np.linspace(0,max_it,points_gen):
-                post_input.set(spike_times=[t_post])
-
-                p.run(simtime)
-
-
-                #get weights for current run and append them into array
-                w_curr = stdp_projection.get("weight",format="float")
-                #post_tr_curr = stdp_projection.get("post_trace",format="float")
-                print("w_curr = " + str(w_curr))
-                #print("post_tr_curr = " + str(post_tr_curr))
-
-                res_weights.append(w_curr[0][0])
-
-                p.reset()
-
+        p.run(simtime)
 
         pre_neo = pre_spiking.get_data("spikes")
         post_neo = post_spiking.get_data("spikes")
 
-        """#get spike data and calculate axis
-
-        pre_spike_times = []
-        post_spike_times = []
-
-        for i in range(0,points_gen):
-
-                pre_spikes = pre_neo.segments[i].spiketrains
-
-                post_spikes = post_neo.segments[i].spiketrains
-                #calculate x axis for plot
-
-                spike_time_axis.append(float(pre_spikes[0][0]-post_spikes[0][0]))
-                pre_spike_times.append(pre_spikes[0][0])
-                post_spike_times.append(post_spikes[0][0])"""
-
-
         pre_spike_times = pre_neo.segments[0].spiketrains
         post_spike_times = post_neo.segments[0].spiketrains
 
+        w_curr = stdp_projection.get("weight", format="float")
+
         p.end()
 
-        #for testing purposes
-        print("pre_spikes: " + str(pre_spike_times))
-        print("post_spikes: " + str(post_spike_times))
-        print("weights after simulation: " + str(res_weights))
+        return w_curr[0][0], pre_spike_times, post_spike_times
 
 
-        #format weight axis an substract 2.5 from every entry
+    def test_stdp(self):
+        res_weights = []
+        spike_time_axis = []
 
-        #weight_axis = [x - 2.5 for x in res_weights]
+        pre_spike_times = [250, 1000]
+
+        for t_post in np.linspace(200, 300, 19):
+        #for t_post in [450.]:
+                dw, actual_pre_spike_times, actual_post_spike_times = self.run_sim(pre_spike_times, [t_post])
+
+                spike_time_axis.append(float(actual_post_spike_times[0][0]) - float(actual_pre_spike_times[0][0]))
+
+                if dw > 16000:   # XXX TODO REMOVE THIS IF...THEN..ELSE
+                    res_weights.append(dw - 32768)
+                else:
+                    res_weights.append(dw)
+
+                print("actual pre_spikes: " + str(actual_pre_spike_times))
+                print("actual post_spikes: " + str(actual_post_spike_times))
+                print("weights after simulation: " + str(dw))
+
+        print("Simulation results")
+        print("------------------")
+        print("timevec after sim = " + str(spike_time_axis))
+        print("weights after sim = " + str(res_weights))
 
 
-        #PLOT
-        """plt.plot(spike_time_axis, weight_axis,'.')
-        plt.xlabel("$t_{pre} - t_{post} [ms]$")
-        plt.ylabel("$\Delta w$")
-        plt.title("STDP-Window")
-        plt.grid(True)
 
-        plt.subplots_adjust(bottom=0.2)
 
-        plt.figtext(0.5, 0.05,
+        fig, ax = plt.subplots()
+        ax.plot(spike_time_axis, res_weights, '.')
+        ax.set_xlabel(r"$t_{pre} - t_{post} [ms]$")
+        ax.set_ylabel(r"$\Delta w$")
+        ax.set_title("STDP-Window")
+        ax.grid(True)
+
+#        ax.subplots_adjust(bottom=0.2)
+
+        """ax.figtext(0.5, 0.05,
                         r"$\tau_+ = 20ms,\tau_- = 20ms, A_+ = 0.5, A_- = 0.5$",
                         ha='center',       # horizontal alignment
                         va='bottom',       # vertical alignment
                         fontsize=10,
-                        color='gray')
+                        color='gray')"""
 
 
 
-        plt.savefig("plot.png")"""
+        fig.savefig("plot.png")
