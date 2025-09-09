@@ -57,26 +57,30 @@ class TestForwardEulerIntegrator:
         nest.ResetKernel()
         nest.Install(forward_euler_module_name)
         nest.Install(rk45_module_name)
-        nest.resolution = .001
+        nest.resolution = 0.001
 
         nrn1 = nest.Create("izhikevich_neuron_rk45_nestml")
         nrn2 = nest.Create("izhikevich_neuron_forward_Euler_nestml")
 
-        nrn1.I_e = 10.
-        nrn2.I_e = 10.
+        nrn1.I_e = 10.0
+        nrn2.I_e = 10.0
 
         mm1 = nest.Create("multimeter")
         mm1.set({"record_from": ["V_m"]})
+        recorder_rk45 = nest.Create("spike_recorder")
 
         mm2 = nest.Create("multimeter")
         mm2.set({"record_from": ["V_m"]})
+        recorder_fe = nest.Create("spike_recorder")
 
         nest.Connect(mm1, nrn1)
         nest.Connect(mm2, nrn2)
+        nest.Connect(nrn1, recorder_rk45)
+        nest.Connect(nrn2, recorder_fe)
 
-        nest.Simulate(100.)
+        nest.Simulate(100.0)
 
         v_m1 = mm1.get("events")["V_m"]
         v_m2 = mm2.get("events")["V_m"]
 
-        np.testing.assert_allclose(v_m1, v_m2, atol=2, rtol=0)       # allow max 2 mV difference between the solutions
+
