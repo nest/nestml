@@ -147,11 +147,6 @@ void neuron_do_timestep_update() {
 
         neuron_impl_t *neuron = &neuron_array[neuron_index];
 
-{# GENERATE THIS!#}
-        // get current inputs from buffers
-{#        REAL I_syn_exc_IN = synapse_types_get_excitatory_input(input_buffers, neuron_index);#}
-{#        REAL I_syn_inh_IN = synapse_types_get_inhibitory_input(input_buffers, neuron_index);#}
-{# GENERATE THIS!#}
         {%- if neuron.get_update_blocks() %}
         {%-   filter indent(8) %}
         {%-     for block in neuron.get_update_blocks() %}
