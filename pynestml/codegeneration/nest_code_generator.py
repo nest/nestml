@@ -162,6 +162,24 @@ class NESTCodeGenerator(CodeGenerator):
     - **delay_variable**: A mapping identifying, for each synapse (the name of which is given as a key), the variable or parameter in the model that corresponds with the NEST ``Connection`` class delay property.
     - **weight_variable**: Like ``delay_variable``, but for synaptic weight.
     - **linear_time_invariant_spiking_input_ports**: A list of spiking input ports which can be treated as linear and time-invariant; this implies that, for the given port(s), the weight of all spikes received within a timestep can be added together, improving memory consumption and runtime performance. Use with caution; for example, this is not compatible with using a single input port for, depending on the sign of the weight of the spike event, processing both inhibitory vs. excitatory spikes.
+    - **excitatory_inhibitory_combined_port**: A tuple containing the name of two spiking input ports. Without this option set, each input port would be assigned its own unique rport for connecting to in NEST, for instance:
+
+      .. code-block:: python
+
+         receptor_types = nest.GetStatus(neuron, "receptor_types")[0]
+         nest.Connect(sg_exc, neuron, syn_spec={"receptor_type": receptor_types["EXC_SPIKES"], "weight": 1.})
+         nest.Connect(sg_inh, neuron, syn_spec={"receptor_type": receptor_types["INH_SPIKES"], "weight": 1.})
+
+      For compatibility with legacy NEST Simulator models, these ports can instead be externally represented as a single port, that interprets spikes as either "excitatory" or "inhibitory" depending on the sign of the weight. In this case, connections to the neuron are made while omitting an explicit rport; inhibitory connections are the indicated by weights with a negative sign:
+
+      .. code-block:: python
+
+         receptor_types = nest.GetStatus(neuron, "receptor_types")[0]
+         nest.Connect(sg_exc, neuron, syn_spec={"weight": 1.})
+         nest.Connect(sg_inh, neuron, syn_spec={"weight": -1.})
+
+      This flag can only be used if there are exactly two spiking input ports in the model.
+
     - **redirect_build_output**: An optional boolean key for redirecting the build output. Setting the key to ``True``, two files will be created for redirecting the ``stdout`` and the ``stderr`. The ``target_path`` will be used as the default location for creating the two files.
     - **build_output_dir**: An optional string key representing the new path where the files corresponding to the output of the build phase will be created. This key requires that the ``redirect_build_output`` is set to ``True``.
 
@@ -194,7 +212,8 @@ class NESTCodeGenerator(CodeGenerator):
         "continuous_state_buffering_method": "continuous_time_buffer",
         "delay_variable": {},
         "weight_variable": {},
-        "linear_time_invariant_spiking_input_ports": []
+        "linear_time_invariant_spiking_input_ports": [],
+        "excitatory_inhibitory_combined_port": ()
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
