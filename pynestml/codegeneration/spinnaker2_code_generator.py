@@ -54,9 +54,6 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         namespace["gsl_printer"] = self._gsl_printer
         namespace["neuronName"] = astnode.get_name()
         namespace["neuron"] = astnode
-        # namespace["parameters"], namespace["state"] = PythonStandaloneTargetTools.get_neuron_parameters_and_state(astnode.file_path)
-        # namespace["propagators_as_math_expressions"] = Spinnaker2TargetTools.get_propagators_as_math_expressions(
-        #     namespace["neuron"], namespace["parameters"])
         return namespace
 
     def setup_printers(self):
@@ -73,10 +70,6 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
             simple_expression_printer=Spinnaker2CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
                                                                constant_printer=self._constant_printer,
                                                                function_call_printer=self._nest_function_call_printer))
-        # self._printer = CppExpressionPrinter(
-        #     simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
-        #                                                        constant_printer=self._constant_printer,
-        #                                                        function_call_printer=self._nest_function_call_printer))
         self._nest_variable_printer._expression_printer = self._printer
         self._nest_function_call_printer._expression_printer = self._printer
         self._nest_printer = CppPrinter(expression_printer=self._printer)
@@ -87,10 +80,6 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
             simple_expression_printer=Spinnaker2CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
                                                                constant_printer=self._constant_printer,
                                                                function_call_printer=self._nest_function_call_printer_no_origin))
-        # self._printer_no_origin = CppExpressionPrinter(
-        #     simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
-        #                                                        constant_printer=self._constant_printer,
-        #                                                        function_call_printer=self._nest_function_call_printer_no_origin))
         self._nest_variable_printer_no_origin._expression_printer = self._printer_no_origin
         self._nest_function_call_printer_no_origin._expression_printer = self._printer_no_origin
 
@@ -102,20 +91,11 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
             simple_expression_printer=Spinnaker2CSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
                                                                constant_printer=self._constant_printer,
                                                                function_call_printer=self._gsl_function_call_printer))
-        # self._gsl_printer = CppExpressionPrinter(
-        #     simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
-        #                                                        constant_printer=self._constant_printer,
-        #                                                        function_call_printer=self._gsl_function_call_printer))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
 
         # ODE-toolbox printers
         self._ode_toolbox_variable_printer = ODEToolboxVariablePrinter(None)
         self._ode_toolbox_function_call_printer = ODEToolboxFunctionCallPrinter(None)
-        # self._ode_toolbox_printer = ODEToolboxExpressionPrinter(
-        #     simple_expression_printer=Spinnaker2CSimpleExpressionPrinter(
-        #         variable_printer=self._ode_toolbox_variable_printer,
-        #         constant_printer=self._constant_printer,
-        #         function_call_printer=self._ode_toolbox_function_call_printer))
         self._ode_toolbox_printer = ODEToolboxExpressionPrinter(
             simple_expression_printer=CSimpleExpressionPrinter(
                 variable_printer=self._ode_toolbox_variable_printer,
@@ -133,9 +113,6 @@ class CustomPythonStandaloneCodeGenerator(PythonStandaloneCodeGenerator):
         namespace["gsl_printer"] = self._gsl_printer
         namespace["neuronName"] = astnode.get_name()
         namespace["neuron"] = astnode
-        # namespace["parameters"], namespace["state"] = PythonStandaloneTargetTools.get_neuron_parameters_and_state(astnode.file_path)
-        # namespace["propagators_as_math_expressions"] = Spinnaker2TargetTools.get_propagators_as_math_expressions(
-        #     namespace["neuron"], namespace["parameters"])
         return namespace
 
 
@@ -188,13 +165,8 @@ class Spinnaker2CodeGenerator(CodeGenerator):
     """
 
     _default_options = {"numeric_solver": "",
-        # "neuron_synapse_pairs": [
-        #                         {"neuron": 'nestml/models/neurons/iaf_psc_exp_neuron.nestml',# "iaf_psc_exp_neuron",
-        #                         "synapse": 'nestml/models/synapses/stdp_synapse.nestml',  #"stdp_synapse",
-        #                         "post_ports": ["post_spikes"]}
-        # ],
         "templates": {
-            "path": os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources_spinnaker2"))),  #, os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources_spinnaker2/common"))), os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources_spinnaker2/synapse_types")))],
+            "path": os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources_spinnaker2"))),
             "model_templates": {
                 "neuron":  ["@NEURON_NAME@.py.jinja2",
                             "main.c.jinja2",
@@ -276,10 +248,9 @@ class Spinnaker2CodeGenerator(CodeGenerator):
 
     def generate_code(self, models: Sequence[ASTModel]) -> None:
         cloned_models = []
-        for model in models:  # TODO: check if this can be removed
+        for model in models:
             cloned_model = model.clone()
             cloned_models.append(cloned_model)
 
         self.codegen_cpp.generate_code(models)
         self.codegen_py.generate_code(cloned_models)
-        # self.codegen_py.generate_code(models)
