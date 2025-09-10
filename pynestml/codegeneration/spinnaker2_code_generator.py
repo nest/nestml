@@ -43,7 +43,7 @@ from pynestml.meta_model.ast_model import ASTModel
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 from pynestml.codegeneration.python_standalone_target_tools import PythonStandaloneTargetTools
-from pynestml.codegeneration.spinnaker2TargetTools import Spinnaker2TargetTools
+
 
 
 
