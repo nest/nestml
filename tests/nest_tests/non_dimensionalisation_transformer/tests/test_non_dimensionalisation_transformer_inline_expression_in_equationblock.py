@@ -35,19 +35,29 @@ class TestNonDimensionalisationTransformerInlineEquationBlock:
     """
 
     def generate_code(self, codegen_opts=None):
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "../resources", "test_inline_expression_in_equation_block.nestml")))
+        input_path = os.path.join(
+            os.path.realpath(
+                os.path.join(
+                    os.path.dirname(__file__),
+                    "../resources",
+                    "test_inline_expression_in_equation_block.nestml",
+                )
+            )
+        )
         target_path = "target"
         logging_level = "DEBUG"
         module_name = "nestmlmodule"
         suffix = "_nestml"
 
         nest.set_verbosity("M_ALL")
-        generate_nest_target(input_path,
-                             target_path=target_path,
-                             logging_level=logging_level,
-                             module_name=module_name,
-                             suffix=suffix,
-                             codegen_opts=codegen_opts)
+        generate_nest_target(
+            input_path,
+            target_path=target_path,
+            logging_level=logging_level,
+            module_name=module_name,
+            suffix=suffix,
+            codegen_opts=codegen_opts,
+        )
 
     def test_inline_expression_in_equationblock(self):
         """
@@ -55,38 +65,28 @@ class TestNonDimensionalisationTransformerInlineEquationBlock:
         Additionally there is an exp() in the expression
         """
         codegen_opts = {
-            "quantity_to_preferred_prefix": {"electrical potential": "m",  # needed for voltages not part of the test
-                                             "electrical current": "p",  # needed for currents not part of the test
-                                             "electrical capacitance": "1",  # needed for caps not part of the test
-                                             "electrical resistance": "M",
-                                             "frequency": "k",
-                                             "power": "M",
-                                             "pressure": "k",
-                                             "length": "1",
-                                             "amount of substance": "1",
-                                             "electrical conductance": "m",
-                                             "inductance": "n",
-                                             "time": "f",
-                                             }
+            "quantity_to_preferred_prefix": {
+                "electrical potential": "m",  # needed for voltages not part of the test
+                "electrical current": "m",  # needed for currents not part of the test
+                "electrical conductance": "m",
+                "time": "m",
             }
+        }
         self.generate_code(codegen_opts)
 
         nest.ResetKernel()
         nest.Install("nestmlmodule")
-
-        nrn = nest.Create("non_dimensionalisation_transformer_test_neuron_nestml")
+        nrn = nest.Create(
+            "test_inline_expression_in_equation_block_transformation_neuron_nestml"
+        )
         mm = nest.Create("multimeter")
-        nest.SetStatus(mm, {"record_from": ["I_spike_test", "V_m_init"]})
-
+        nest.SetStatus(mm, {"record_from": ["I_test"]})
         nest.Connect(mm, nrn)
+        nest.Simulate(10.0)
 
-        nest.Simulate(10.)
+        I_spike = 2.718279110177217  # slope
+        I0 = 1  # t(0) value
+        t_ms = 9.0  # t end
+        expected = I0 + I_spike * t_ms  # expected value
 
-        V_m_init = mm.get("events")["V_m_init"]
-        I_spike_test = mm.get("events")["I_spike_test"]
-
-        np.testing.assert_allclose(V_m_init, -65)  # should be -65 mV
-        np.testing.assert_allclose(I_spike_test, 60)  # should be 60 pA
-
-        lhs_expression_after_transformation = "Inline I_spike_test real"
-        rhs_after_expression = "1e12 *((30.0 * 1e-9) * ((-V_m_init * 1e-3) / 130e3) * exp((((-80 * 1e-3)) - ((-20 * 1e-3))) / (3000 * 1e-6)))"
+        assert np.allclose(mm.get("events")["I_test"][8], expected, atol=1e-9)

@@ -37,20 +37,29 @@ class TestNonDimensionalisationTransformerStateBlock:
     """
 
     def generate_code(self, codegen_opts=None):
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "../resources", "test_real_factor_in_state"
-                                                                                                           "_block.nestml")))
+        input_path = os.path.join(
+            os.path.realpath(
+                os.path.join(
+                    os.path.dirname(__file__),
+                    "../resources",
+                    "test_real_factor_in_state_block.nestml",
+                )
+            )
+        )
         target_path = "target"
         logging_level = "DEBUG"
         module_name = "nestmlmodule"
         suffix = "_nestml"
 
         nest.set_verbosity("M_ALL")
-        generate_nest_target(input_path,
-                             target_path=target_path,
-                             logging_level=logging_level,
-                             module_name=module_name,
-                             suffix=suffix,
-                             codegen_opts=codegen_opts)
+        generate_nest_target(
+            input_path,
+            target_path=target_path,
+            logging_level=logging_level,
+            module_name=module_name,
+            suffix=suffix,
+            codegen_opts=codegen_opts,
+        )
 
     def test_real_factor_in_stateblock(self):
         r"""
@@ -59,40 +68,38 @@ class TestNonDimensionalisationTransformerStateBlock:
         a LHS with type 'real'
         will get processed correctly
         """
-        codegen_opts = {"quantity_to_preferred_prefix": {"electrical potential": "k",  # needed for V_m_init and U_m
-                                                         "electrical current": "1",
-                                                         # needed for currents not part of the test
-                                                         "electrical capacitance": "1",
-                                                         # needed for caps not part of the test
-                                                         "electrical resistance": "M",
-                                                         "frequency": "k",
-                                                         "power": "M",
-                                                         "pressure": "k",
-                                                         "length": "1",
-                                                         "amount of substance": "1",
-                                                         "electrical conductance": "m",
-                                                         "inductance": "n",
-                                                         "time": "f",
-                                                         }
-                        }
+        codegen_opts = {
+            "quantity_to_preferred_prefix": {
+                "electrical potential": "k",  # needed for V_m_init and U_m
+                "electrical current": "1",
+                # needed for currents not part of the test
+                "electrical capacitance": "1",
+                # needed for caps not part of the test
+                "electrical resistance": "M",
+                "frequency": "k",
+                "power": "M",
+                "pressure": "k",
+                "length": "1",
+                "amount of substance": "1",
+                "electrical conductance": "m",
+                "inductance": "n",
+                "time": "f",
+            }
+        }
         self.generate_code(codegen_opts)
 
         nest.ResetKernel()
         nest.Install("nestmlmodule")
 
-        nrn = nest.Create("test_real_factor_in_state_block_transformation_neuron_nestml")
+        nrn = nest.Create(
+            "test_real_factor_in_state_block_transformation_neuron_nestml"
+        )
         mm = nest.Create("multimeter")
-        # nest.SetStatus(mm, {"record_from": ["V_m_init", "U_m"]})
 
         nest.Connect(mm, nrn)
 
-        nest.Simulate(10.)
+        nest.Simulate(10.0)
 
         V_m_init = nrn.get("V_m_init")
 
-
         np.testing.assert_allclose(V_m_init, -65e-6)
-
-
-        # lhs_expression_after_transformation = "U_m real"
-        # rhs_expression_after_transformation = "b * (V_m_init * 1e-3)"
