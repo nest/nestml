@@ -201,7 +201,8 @@ class NESTVariablePrinter(CppVariablePrinter):
             return variable_symbol.get_symbol_name() + self.cpp_variable_suffix
 
         # case of continuous-time input port
-        return variable_symbol.get_symbol_name() + '_grid_sum_'
+        assert variable_symbol.is_continuous_input_port()
+        return "continuous_inputs_grid_sum_[" + variable.get_name().upper() + "]"
 
     def _print_buffer_value(self, variable: ASTVariable) -> str:
         """

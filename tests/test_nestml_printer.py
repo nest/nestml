@@ -223,6 +223,30 @@ class TestNESTMLPrinter:
         model_printer = NESTMLPrinter()
         assert unit == model_printer.print(model)
 
+    def test_unit_type_frac_float_exponent(self):
+        unit = "1/(mV*kg**0.5)"
+        model = ModelParser.parse_unit_type(unit)
+        model_printer = NESTMLPrinter()
+        assert unit == model_printer.print(model)
+
+    def test_unit_type_frac_float_negative_exponent(self):
+        unit = "1/(mV*kg**-0.5)"
+        model = ModelParser.parse_unit_type(unit)
+        model_printer = NESTMLPrinter()
+        assert unit == model_printer.print(model)
+
+    def test_unit_type_frac_exponent(self):
+        unit = "1/(mV*kg**(1/2))"
+        model = ModelParser.parse_unit_type(unit)
+        model_printer = NESTMLPrinter()
+        assert unit == model_printer.print(model)
+
+    def test_unit_type_negative_frac_exponent(self):
+        unit = "1/(mV*kg**-(1/2))"
+        model = ModelParser.parse_unit_type(unit)
+        model_printer = NESTMLPrinter()
+        assert unit == model_printer.print(model)
+
     def test_unary_operator(self):
         ops = ["-", "+", "~"]
         for op in ops:

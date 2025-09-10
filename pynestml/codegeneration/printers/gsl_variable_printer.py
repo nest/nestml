@@ -109,4 +109,5 @@ class GSLVariablePrinter(CppVariablePrinter):
             return "spike_input_" + str(variable) + "_grid_sum_"
 
         # case of continuous-type input port
+        assert variable_symbol.is_continuous_input_port()
         return variable_symbol.get_symbol_name() + '_grid_sum_'

@@ -192,7 +192,7 @@ These unit symbols can be used to define physical quantites, for instance:
 
 .. code-block:: nestml
 
-   x N*S = 10 N * 22 Ohm / 0.5 V
+   x N/A = 10 N * 22 Ohm / 0.5 V
 
 Physical units can have at most one of the following magnitude prefixes:
 
@@ -242,7 +242,7 @@ is equivalent to
 Type and unit checks
 ~~~~~~~~~~~~~~~~~~~~
 
-NESTML checks type correctness of all expressions. This also applies to assignments, declarations with an initialization and function calls. Conversion of ``integer``\ s to ``real``\ s is allowed. A conversion between ``unit``-typed and ``real``-typed variables is also allowed. However, these conversions are reported as warnings. No conversion is allowed between numeric types and Boolean or string types.
+NESTML checks type correctness of all expressions. This also applies to assignments, declarations with an initialization, ODEs, and function calls. Conversion of ``integer``\ s to ``real``\ s is allowed. A conversion between ``unit``-typed and ``real``-typed variables is also allowed. However, these conversions are reported as warnings. No conversion is allowed between numeric types and Boolean or string types.
 
 
 Basic elements of the embedded programming language
