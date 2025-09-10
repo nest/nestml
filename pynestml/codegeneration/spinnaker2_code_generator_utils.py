@@ -36,7 +36,7 @@ class SPINNAKER2CodeGeneratorUtils:
         """
         if variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
             if numerical_state_symbols and variable_symbol.get_symbol_name() in numerical_state_symbols:
-                return  'NUMERICAL STATE SYMBOL'  #'S_.ode_state[State_::%s]'
+                return  'NUMERICAL STATE SYMBOL'
 
             return 'neuron->state.%s'
 
@@ -46,7 +46,7 @@ class SPINNAKER2CodeGeneratorUtils:
         if variable_symbol.block_type == BlockType.COMMON_PARAMETERS:
             return 'neuron->neuron_params->%s'
 
-        if variable_symbol.block_type == BlockType.INTERNALS:  # and not variable_symbol.name == "__h":
+        if variable_symbol.block_type == BlockType.INTERNALS:
             return 'neuron->neuron_params->%s'
 
 
