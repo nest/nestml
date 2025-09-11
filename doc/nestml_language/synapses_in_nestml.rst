@@ -79,7 +79,7 @@ State variables (in particular, synaptic "trace" variables as often used in plas
        tr_pre real = 0
 
    onReceive(post_spikes):
-       print("Info: processing a presynaptic spike at time t = {t}")
+       print("Info: processing a postsynaptic spike at time t = {t}")
        tr_pre += 1
 
    equations:
