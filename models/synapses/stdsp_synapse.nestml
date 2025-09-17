@@ -4,6 +4,9 @@
 # Description
 # +++++++++++
 #
+# Note that in this particular STDP synapse model, the weight is not allowed to be negative. In case an inhibitory STDP synapse needs to be modeled, this model (with weight ≥ 0 at all times) can be connected to a postsynaptic neuron at its appropriate (inhibitory) input port. The sign of the postsynaptic response is thus handled in the postsynaptic neuron.
+#
+#
 # References
 # ++++++++++
 #
@@ -33,7 +36,7 @@ model stdsp_synapse:
         permanence real = 1.
         t_last_pre_spike ms = 0 ms
         pre_trace real = 0.
-        w real = 100. [[w >= 0]]    # dummy synaptic weight
+        w real = 100. [[w >= 0]]    # dummy synaptic weight -- just so weight can be recorded. Actual weight is only ever 0 or Wmax
 
     parameters:
         d ms = 1 ms    # Synaptic transmission delay

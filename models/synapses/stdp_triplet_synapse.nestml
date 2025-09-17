@@ -8,6 +8,8 @@
 #
 # Nearest-neighbour variant of pre- and postsynaptic spike coupling.
 #
+# Note that in this particular STDP synapse model, the weight is not allowed to be negative. In case an inhibitory STDP synapse needs to be modeled, this model (with weight ≥ 0 at all times) can be connected to a postsynaptic neuron at its appropriate (inhibitory) input port. The sign of the postsynaptic response is thus handled in the postsynaptic neuron. In principle, an STDP synapse model can be defined that allows for negative weights, but in this case, care should be taken to prevent the sign of the weight from changing during learning, as a biological synapse cannot simply switch from one type to another, say, from glutamatergic to GABAergic.
+#
 # .. note::
 #
 #    See https://github.com/nest/nestml/issues/703 for a potential edge-case issue with this model.
