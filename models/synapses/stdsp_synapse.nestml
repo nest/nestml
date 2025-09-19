@@ -4,7 +4,7 @@
 # Description
 # +++++++++++
 #
-# Note that in this particular STDP synapse model, the weight is not allowed to be negative. In case an inhibitory STDP synapse needs to be modeled, this model (with weight ≥ 0 at all times) can be connected to a postsynaptic neuron at its appropriate (inhibitory) input port. The sign of the postsynaptic response is thus handled in the postsynaptic neuron.
+# Note that in this particular STDP synapse model, the weight is not allowed to be negative. In case an inhibitory STDP synapse needs to be modeled, this model (with weight >= 0 at all times) can be connected to a postsynaptic neuron at its appropriate (inhibitory) input port. The sign of the postsynaptic response is thus handled in the postsynaptic neuron.
 #
 #
 # References
