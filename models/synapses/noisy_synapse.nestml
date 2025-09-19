@@ -1,9 +1,9 @@
 # noisy_synapse - Static synapse with Gaussian noise
 # ##################################################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # Each presynaptic spike is passed to the postsynaptic partner with a weight sampled as :math:`w + A_\text{noise} \mathcal{N}(0, 1)`.
 #
 #
@@ -11,7 +11,7 @@
 # +++++++++++++++++++
 #
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
 #
 # NEST is free software: you can redistribute it and/or modify
