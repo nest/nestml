@@ -62,7 +62,7 @@ try:
             nest_version = "v2.20.2"
     else:
         nest_version = "v" + nest.__version__
-        if nest_version.startswith("v3.5") or nest_version.startswith("v3.6") or nest_version.startswith("v3.7") or nest_version.startswith("v3.8"):
+        if nest_version.startswith("v3.5") or nest_version.startswith("v3.6") or nest_version.startswith("v3.7") or nest_version.startswith("v3.8") or nest_version.startswith("v3.9"):
             if "post0.dev0" in nest_version:
                 nest_version = "master"
         else:

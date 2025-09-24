@@ -167,7 +167,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        nest_branch: ["v2.20.2", "v3.0", "v3.8", "master"]
+        nest_branch: ["v2.20.2", "v3.0", "v3.9_rc2", "master"]
       fail-fast: false
     steps:
       # Checkout the repository contents
@@ -261,7 +261,7 @@ jobs:
 
       # Integration tests
       - name: Run integration tests
-        if: ${{ matrix.nest_branch == 'master' || matrix.nest_branch == 'v2.20.2' }}
+        if: ${{ matrix.nest_branch == 'master' || matrix.nest_branch == 'v2.20.2' || matrix.nest_branch == 'v3.9_rc2' }}
         env:
           LD_LIBRARY_PATH: ${{ env.NEST_INSTALL }}/lib/nest
         run: |
@@ -273,7 +273,7 @@ jobs:
 
       # Run only the nest integration tests for NEST versions other than master and 2.20.2
       - name: Run integration tests
-        if: ${{ !(matrix.nest_branch == 'master' || matrix.nest_branch == 'v2.20.2') }}
+        if: ${{ !(matrix.nest_branch == 'master' || matrix.nest_branch == 'v2.20.2' || matrix.nest_branch == 'v3.9_rc2') }}
         env:
           LD_LIBRARY_PATH: ${{ env.NEST_INSTALL }}/lib/nest
         run: |
@@ -281,7 +281,7 @@ jobs:
 
       # Run IPython/Jupyter notebooks
       - name: Run Jupyter notebooks
-        if: ${{ matrix.nest_branch == 'master' }}
+        if: ${{ matrix.nest_branch == 'master' || matrix.nest_branch == 'v3.9_rc2'}}
         run: |
           ipynb_fns=$(find $GITHUB_WORKSPACE/doc/tutorials -name '*.ipynb')
           rc=0
