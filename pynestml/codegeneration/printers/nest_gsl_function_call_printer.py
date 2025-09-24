@@ -46,7 +46,7 @@ class NESTGSLFunctionCallPrinter(NESTCppFunctionCallPrinter):
         function_name = function_call.get_name()
 
         function_is_predefined = bool(PredefinedFunctions.get_function(function_name))
-        if function_is_predefined:
+        if function_is_predefined or function_name == "log":
             return super()._print_function_call_format_string(function_call)
 
         return "node." + super()._print_function_call_format_string(function_call)
