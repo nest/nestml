@@ -2710,7 +2710,7 @@ class ASTUtils:
         return "0"
 
     @classmethod
-    def nestml_input_port_to_nest_rport_dict(cls, astnode: ASTModel) -> Dict[str, int]:
+    def nestml_spiking_input_port_to_nest_rport_dict(cls, astnode: ASTModel) -> Dict[str, int]:
         input_port_to_rport = {}
         rport = 1    # if there is more than one spiking input port, count begins at 1
         for input_block in astnode.get_input_blocks():
@@ -2728,6 +2728,24 @@ class ASTUtils:
 
         return input_port_to_rport
 
+    @classmethod
+    def nestml_continuous_input_port_to_nest_rport_dict(cls, astnode: ASTModel) -> Dict[str, int]:
+        input_port_to_rport = {}
+        rport = 1    # if there is more than one spiking input port, count begins at 1
+        for input_block in astnode.get_input_blocks():
+            for input_port in input_block.get_input_ports():
+                if not input_port.is_continuous():
+                    continue
+
+                if input_port.get_size_parameter():
+                    for i in range(int(str(input_port.size_parameter))):    # XXX: should be able to convert size_parameter expression to an integer more generically (allowing for e.g. parameters)
+                        input_port_to_rport[input_port.name + "_VEC_IDX_" + str(i)] = rport
+                        rport += 1
+                else:
+                    input_port_to_rport[input_port.name] = rport
+                    rport += 1
+
+        return input_port_to_rport
 
     @classmethod
     def find_parent_node_by_type(cls, node: ASTNode, type_to_find: Any) -> Optional[Any]:
@@ -2743,7 +2761,7 @@ class ASTUtils:
 
     @classmethod
     def nestml_input_port_to_nest_rport(cls, astnode: ASTModel, spike_in_port: ASTInputPort):
-        return ASTUtils.nestml_input_port_to_nest_rport_dict(astnode)[spike_in_port]
+        return ASTUtils.nestml_spiking_input_port_to_nest_rport_dict(astnode)[spike_in_port]
 
     @classmethod
     def port_name_printer(cls, variable: ASTVariable) -> str:

@@ -535,32 +535,15 @@ private:
 {%- endif %}
 
 private:
-{% if has_multiple_synapses -%}
   /**
    * Synapse types to connect to
    * @note Excluded lower and upper bounds are defined as MIN_, MAX_.
    *       Excluding port 0 avoids accidental connections.
   **/
-  const nest_port_t MAX_SPIKE_RECEPTOR = {{ utils.nestml_input_port_to_nest_rport_dict(astnode) | length }};
-  enum ContinuousInput
-  {
-{%-       set ns.count = 0 -%}
-{%- for port in neuron.get_continuous_input_ports() %}
-{%-   if port.has_vector_parameter() -%}
-{%      set size = utils.get_numeric_vector_size(port) | int %}
-{%-     for i in range(size) %}
-    {{port.get_symbol_name().upper()}}_{{i}} = {{ns.count}},
-{%-       set ns.count = ns.count + 1 -%}
-{%-     endfor %}
-{%-   else %}
-    {{port.get_symbol_name().upper()}} = {{ns.count}},
-{%-     set ns.count = ns.count + 1 -%}
-{%-   endif -%}
-{%- endfor %}
-    NUM_CONTINUOUS_INPUT_PORTS = {{ ns.count }}
-  };
+  const nest_port_t MAX_SPIKE_RECEPTOR = {{ utils.nestml_spiking_input_port_to_nest_rport_dict(astnode) | length }};
 
-{%- endif %}
+  const nest_port_t NUM_CONTINUOUS_INPUT_PORTS = {{ utils.nestml_continuous_input_port_to_nest_rport_dict(astnode) | length }};
+
 
   /**
    * Reset state of neuron.
@@ -1101,19 +1084,19 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const
 
   // input ports to NEST rport number mapping
   DictionaryDatum __receptor_type = new Dictionary();
-{%- for spike_in_port_name, rport in utils.nestml_input_port_to_nest_rport_dict(astnode).items() %}
+{%- for spike_in_port_name, rport in utils.nestml_spiking_input_port_to_nest_rport_dict(astnode).items() %}
 {%-     set spike_in_port = utils.get_input_port_by_name(astnode.get_input_blocks(), spike_in_port_name.split("_VEC_IDX_")[0]) %}
   ( *__receptor_type )[ "{{spike_in_port_name.upper()}}" ] = {{ rport }};
 {%- endfor %}
   (*__d)["receptor_types"] = __receptor_type;
-{%- endif %}
 
 {%- if (neuron.get_continuous_input_ports())|length > 1 %}
   DictionaryDatum __continuous_input_type = new Dictionary();
-{%-   for port in neuron.get_continuous_input_ports() %}
-    ( *__continuous_input_type )[ "{{port.get_symbol_name().upper()}}" ] = {{port.get_symbol_name().upper()}};
-{%-    endfor %}
-    ( *__d )[ "continuous_inputs" ] = __continuous_input_type;
+{%-     for port in neuron.get_continuous_input_ports() %}
+  ( *__continuous_input_type )[ "{{port.get_symbol_name().upper()}}" ] = {{port.get_symbol_name().upper()}};
+{%-     endfor %}
+  ( *__d )[ "continuous_inputs" ] = __continuous_input_type;
+{%- endif %}
 
   (*__d)[nest::names::recordables] = recordablesMap_.get_list();
 {%- if uses_numeric_solver %}

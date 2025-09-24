@@ -1177,7 +1177,16 @@ An ``onReceive`` block can be defined for every spiking input port. For example,
        println("Info: processing a presynaptic spike at time t = {t}")
        # ... further statements go here ...
 
-The statements in the event handler will be executed when the event occurs and integrate the state of the system from "just before" the event (at :math:`t-\epsilon`, for :math:`\epsilon\rightarrow 0`) to "just after" the event (at :math:`t=t+\epsilon`). Because the statements in the ``onReceive`` block are executed "instantaneously" at the time of the spike, the units of 1/s due to the definition of the delta function drop out. For instance, when a port is defined with an attribute "psp" in units of mV, then the following has consistent units:
+The statements in the event handler will be executed when the event occurs and integrate the state of the system from "just before" the event (at :math:`t-\epsilon`, for :math:`\epsilon\rightarrow 0`) to "just after" the event (at :math:`t=t+\epsilon`). Analogous to the ``update`` block, the predefined variable ``t`` indicates the time :math:`t-\epsilon` at the start of the interval, whereas the predefined function ``timestep()`` yields the duration of the interval :math:`2\epsilon` for :math:`\epsilon\rightarrow 0`. As the timestep() function would typically yield a numerical value equal to zero, its use inside an ``onReceive`` block only makes sense to integrate across delta pulses.
+
+Typically, the statements in the ``onReceive`` block integrate over the delta function across time, which yields the surface area of the pulse, which typically corresponds to the weight of the spike or to another spike event attribute. Integration across time causes the 1/s unit of the spike train to drop out, so that what remains are the units of the spike attribute itself. For instance, when a port is defined with an attribute "psp" in units of mV:
+
+.. code-block:: nestml
+
+   input:
+       in_spikes(psp mV) <- spike
+
+then the following has consistent units:
 
 .. code-block:: nestml
 
@@ -1185,9 +1194,16 @@ The statements in the event handler will be executed when the event occurs and i
        V_m mV = 0 mV
 
    onReceive(in_spikes):
-       V_m += in_spikes.psp    # consistent units: lhs and rhs both in [mV]
+       V_m += integrate(in_spikes.psp, t, t + timestep())    # lhs and rhs both in [mV]
 
-In ``onReceive`` blocks, a spiking input port may not appear without an attribute present:
+A spiking input port (or any of its attributes) may not appear outside of a ``integrate()`` call, because the units will be inconsistent; for example:
+
+.. code-block:: nestml
+
+   onReceive(in_spikes):
+       V_m += in_spikes.psp    # error! lhs in [mV], rhs in [mV/s]
+
+A spiking input port may appear without an attribute present; this refers to the unweighted train of delta pulses (with surface area 1):
 
 .. code-block:: nestml
 
@@ -1195,10 +1211,10 @@ In ``onReceive`` blocks, a spiking input port may not appear without an attribut
        x real = 0
 
    input:
-       in_spikes <- spike(weight pA)
+       in_spikes <- spike(foo pA, bar mmol)
 
    onReceive(in_spikes):
-       x += in_spikes    # error!
+       x += integrate(in_spikes, t, t + timestep())    # increments x by 1
 
 To specify in which sequence the event handlers should be called in case multiple events are received at the exact same time, the ``priority`` parameter can be used, which can be given an integer value, where a larger value means higher priority (handled earlier). For example:
 
