@@ -1115,7 +1115,7 @@ The spiking input port name ``spikes_in`` can be used directly in the right-hand
 
    \frac{dx}{dt} = -\frac{x}{\tau} + \mathrm{spikes\_in}(t)
 
-If ``x`` is a real number, then the units here are consistent (in 1/s). This can be written in NESTML as:
+If ``x`` is a real number, then the units here are consistent (in 1/s) on left- and right-hand side of the equation. This can be written in NESTML as:
 
 .. code-block:: nestml
 
@@ -1125,23 +1125,23 @@ If ``x`` is a real number, then the units here are consistent (in 1/s). This can
 
 .. math::
 
-   \frac{dx}{dt} = -\frac{x}{\tau} + (K \ast \mathrm{spikes\_in}) / s
+   \frac{dx}{dt} = -\frac{x}{\tau} + \frac{1}{C} \left(K \ast \mathrm{spikes\_in}\right)
 
-Note that applying the convolution means integrating over time, hence dropping the [1/s] unit, leaving a unitless quantity. To make the units consistent in this case, an explicit division by seconds is required.
+Note that applying the convolution means integrating over time, hence dropping the [1/s] unit, leaving a unitless quantity (the function of time (:math:`K \ast \mathrm{spikes\_in}`). To make the units consistent in this case, an explicit division by time (such as by a constant :math:`C` with units [s]) is required.
 
 This can be written in NESTML as:
 
 .. code-block:: nestml
 
-   x' = -x / tau + convolve(K, spikes_in) / s
+   x' = -x / tau + convolve(K, spikes_in) / C
 
-Physical units such as millivolts (:math:`\text{mV}`) and picoamperes (:math:`\text{pA}`) can be directly combined with the Dirac delta function to model an impulse with a physical quantity such as voltage or current. In such cases, the Dirac delta function is multiplied by the appropriate unit of the physical quantity to obtain a quantity with units of volts or amperes, for instance, if ``x`` is in ``pA``, then we can write:
+Physical units such as millivolts (:math:`\text{mV}`) and picoamperes (:math:`\text{pA}`) can be directly combined with the Dirac delta function to model an impulse with a physical quantity such as voltage or current. In such cases, the Dirac delta function is multiplied by the appropriate unit of the physical quantity to obtain a quantity with units of volts or amperes, for instance, if ``I`` is in ``pA``, then we can write:
 
 .. code-block:: nestml
 
-   x = -x / tau + spikes_in * pA
+   I' = -I / tau + spikes_in * (1 pA)
 
-However, note that this does not account for different spikes carrying different weight (which typically results in different postsynaptic currents or potentials). In this example, each spike will result in a change in :math:`x` of 1 pA.
+However, note that this does not account for different spikes carrying different weight (which typically results in different postsynaptic currents or potentials). In this example, each spike will result in a change in :math:`I` of 1 pA.
 
 To read out the attributes from events, for example the weight of the spike, the dot notation can be used, for example:
 
@@ -1155,13 +1155,13 @@ If ``spikes_in.w`` is defined as a real number, the units here are consistent (i
 .. code-block:: nestml
 
    state:
-       y mV = 0 mV
+       V mV = 0 mV
 
    input:
        spikes_in <- spike(w mV)
 
    equations:
-       y' = -y / tau + spikes_in.w
+       V' = -V / tau + spikes_in.w
 
 Note that again, the units are consistent if :math:`w_k` is assumed to be in units of mV; in combination with the 1/s unit of the delta train, the units of ``spikes_in.w`` are in mV/s.
 
@@ -1177,16 +1177,16 @@ An ``onReceive`` block can be defined for every spiking input port. For example,
        println("Info: processing a presynaptic spike at time t = {t}")
        # ... further statements go here ...
 
-The statements in the event handler will be executed when the event occurs and integrate the state of the system from "just before" the event (at :math:`t-\epsilon`, for :math:`\epsilon\rightarrow 0`) to "just after" the event (at :math:`t=t+\epsilon`). Analogous to the ``update`` block, the predefined variable ``t`` indicates the time :math:`t-\epsilon` at the start of the interval, whereas the predefined function ``timestep()`` yields the duration of the interval :math:`2\epsilon` for :math:`\epsilon\rightarrow 0`. As the timestep() function would typically yield a numerical value equal to zero, its use inside an ``onReceive`` block only makes sense to integrate across delta pulses.
+The statements in the event handler will be executed when the event occurs and integrate the state of the system from "just before" the event (at :math:`t-\epsilon`, for :math:`\epsilon\rightarrow 0`) to "just after" the event (at :math:`t=t+\epsilon`). Analogous to the ``update`` block, the predefined variable ``t`` indicates the time :math:`t-\epsilon` at the start of the interval, whereas the predefined function ``timestep()`` yields the duration of the interval :math:`2\epsilon` for :math:`\epsilon\rightarrow 0`. As the timestep() function would typically yield a numerical value equal to zero, its use inside an ``onReceive`` block only makes sense to integrate over (trains of) delta pulses to obtain the area under the curve.
 
-Typically, the statements in the ``onReceive`` block integrate over the delta function across time, which yields the surface area of the pulse, which typically corresponds to the weight of the spike or to another spike event attribute. Integration across time causes the 1/s unit of the spike train to drop out, so that what remains are the units of the spike attribute itself. For instance, when a port is defined with an attribute "psp" in units of mV:
+Typically, the statements in the ``onReceive`` block integrate the delta function across time, which yields the surface area under the curve, which typically corresponds to the weight of the spike, or to another spike event attribute. Integration across time causes the 1/s unit of the spike train to drop out, so that what remains are the units of the spike attribute itself. For instance, when a port is defined with an attribute "psp" in units of mV:
 
 .. code-block:: nestml
 
    input:
        in_spikes(psp mV) <- spike
 
-then the following has consistent units:
+then the following has consistent units: ``in_spikes.psp`` is in mV/s as it consists of the unit given in the spiking input port definition, multiplied with the 1/s from the delta pulses), and after integration the 1/s drops out leaving a unit of mV.
 
 .. code-block:: nestml
 
@@ -1196,7 +1196,7 @@ then the following has consistent units:
    onReceive(in_spikes):
        V_m += integrate(in_spikes.psp, t, t + timestep())    # lhs and rhs both in [mV]
 
-A spiking input port (or any of its attributes) may not appear outside of a ``integrate()`` call, because the units will be inconsistent; for example:
+In ``onReceive`` blocks, a spiking input port (or any of its attributes) may not appear outside of a ``integrate()`` call, because the units will be inconsistent; for example:
 
 .. code-block:: nestml
 

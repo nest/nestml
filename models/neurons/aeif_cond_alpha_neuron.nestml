@@ -119,8 +119,8 @@ model aeif_cond_alpha_neuron:
         I_e pA = 0 pA
 
     input:
-        exc_spikes <- spike(weight nS)
-        inh_spikes <- spike(weight nS)
+        exc_spikes <- spike(weight nS/s)
+        inh_spikes <- spike(weight nS/s)
         I_stim pA <- continuous
 
     output:

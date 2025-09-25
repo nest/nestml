@@ -110,10 +110,11 @@ model iaf_psc_exp_neuron:
 
     onReceive(spike_in_port):
         # route the incoming spike on the basis of the weight: less than zero means an inhibitory spike; greater than zero means an excitatory spike
-        if spike_in_port.weight > 0 pA:
-            I_syn_exc += spike_in_port.weight
+        weight pA = integral(spike_in_port.weight, t, t + timestep())    # integrate the incoming spike train (in pA/s) from "just before" the spike to "just after" the spike to obtain weight in pA
+        if weight > 0 pA:
+            I_syn_exc += weight
         else:
-            I_syn_inh -= spike_in_port.weight
+            I_syn_inh -= weight
 
     update:
         if refr_t > 0 ms:

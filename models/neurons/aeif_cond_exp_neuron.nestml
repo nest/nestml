@@ -127,10 +127,11 @@ model aeif_cond_exp_neuron:
 
     onReceive(spike_in_port):
         # route the incoming spike on the basis of the weight: less than zero means an inhibitory spike; greater than zero means an excitatory spike
-        if spike_in_port.weight > 0:
-            g_syn_exc += spike_in_port.weight
+        spike_weight nS = integral(spike_in_port.weight, t, t + timestep())
+        if spike_weight > 0 nS:
+            g_syn_exc += spike_weight
         else:
-            g_syn_inh -= spike_in_port.weight
+            g_syn_inh -= spike_weight
 
     update:
         if refr_t > 0 ms:

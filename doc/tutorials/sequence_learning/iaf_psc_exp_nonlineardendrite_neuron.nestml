@@ -77,7 +77,6 @@ model iaf_psc_exp_nonlineardendrite_neuron:
 
         I_dend_incr pA/ms = pA * exp(1) / tau_syn2
 
-
     input:
         I_1 <- spike(weight pA)
         I_2 <- spike(weight real)
@@ -87,7 +86,8 @@ model iaf_psc_exp_nonlineardendrite_neuron:
         spike
 
     onReceive(I_2):
-        I_dend$ += I_2.weight * I_dend_incr
+        spike_weight pA = integral(I_2.weight, t, t + timestep())
+        I_dend$ += spike_weight * I_dend_incr
 
     update:
         # solve ODEs
@@ -136,4 +136,3 @@ model iaf_psc_exp_nonlineardendrite_neuron:
             active_dendrite_readout = 0.
             dAP_counts = 0
             I_dend = 0 pA
-

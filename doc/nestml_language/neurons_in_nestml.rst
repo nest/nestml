@@ -87,7 +87,7 @@ The incoming spikes could have been equivalently handled with an ``onReceive`` e
        I_syn' = -I_syn / tau_syn
 
    onReceive(spikes):
-       I_syn += spikes.weight
+       I_syn += integrate(spikes.weight, t, t + timestep())
 
 
 (Re)setting synaptic integration state
