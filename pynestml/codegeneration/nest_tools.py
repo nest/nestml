@@ -46,6 +46,7 @@ import sys
 
 try:
     import nest
+    import semver
 
     vt = nest.Create("volume_transmitter")
 
@@ -61,10 +62,12 @@ try:
     if "DataConnect" in dir(nest):
             nest_version = "v2.20.2"
     else:
-        nest_version = "v" + nest.__version__
-        if nest_version.startswith("v3.5") or nest_version.startswith("v3.6") or nest_version.startswith("v3.7") or nest_version.startswith("v3.8") or nest_version.startswith("v3.9"):
-            if "post0.dev0" in nest_version:
+        ver = semver.Version.parse(nest.__version__)
+        if ver.major == 3 and ver.minor >= 5:
+            if ver.prerelease and "post0.dev0" in ver.prerelease:
                 nest_version = "master"
+            else:
+                nest_version = "v" + nest.__version__
         else:
             if "kernel_status" not in dir(nest):  # added in v3.1
                 nest_version = "v3.0"
