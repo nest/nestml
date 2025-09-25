@@ -62,8 +62,13 @@ try:
     if "DataConnect" in dir(nest):
             nest_version = "v2.20.2"
     else:
-        ver = semver.Version.parse(nest.__version__)
-        if ver.major == 3 and ver.minor >= 5:
+        try:
+            # For NEST version <= 3.4, the version string is not parsable by semver.
+            ver = semver.Version.parse(nest.__version__)
+        except ValueError:
+            ver = None
+        
+        if ver and ver.major == 3 and ver.minor >= 5:
             if ver.prerelease and "post0.dev0" in ver.prerelease:
                 nest_version = "master"
             else:
