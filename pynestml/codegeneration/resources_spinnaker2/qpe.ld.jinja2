@@ -144,6 +144,6 @@ SECTIONS
 
   /* custom sections */
 
-  .mySegment2 0xe000 (NOLOAD) : {KEEP(*(.myLogErrorSection))}
+  .mySegment2 0xe800 (NOLOAD) : {KEEP(*(.myLogErrorSection))}
   .mySegment1 0xe900 (NOLOAD) : {KEEP(*(.myDataSpecSection))}
 }

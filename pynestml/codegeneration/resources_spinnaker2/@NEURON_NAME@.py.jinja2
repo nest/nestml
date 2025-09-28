@@ -74,7 +74,7 @@ class {{neuronName}}Application(BaseApplication):
     }
 
 
-    max_atoms_per_core = 10
+    max_atoms_per_core = 128
     splittable = True
     recordables = ["spikes", "v", "v_last", "time_done"]
 
@@ -82,12 +82,12 @@ class {{neuronName}}Application(BaseApplication):
     # Lowest available address for the application: needs to be hand-tuned
     # This needs to be aligned with the C code
     # Error log is used before the data region is initialised
-    error_log_address = 0xE000
+    error_log_address = 0xE800
     # Data region starts after the error log
     first_address = 0xE900
     # Start of the log memory region. This can be None to maximize memory usage
     # Size of the log memory region. This can be None if log_address is None
-    log_size = 1000
+    log_size = 100
 
     # Size of the error log memory region. Need to match the C code !!
     error_log_size = (first_address - error_log_address) // 4
@@ -295,7 +295,7 @@ class {{neuronName}}Application(BaseApplication):
                 all_raw_data.append(raw_data.tolist())
             return [item for sublist in all_raw_data for item in sublist]
         else:
-            n_neurons = pop_slice.pop.size
+            n_neurons = pop_slice.size()
             del name_value_dict["calculation_timestep"]
             del name_value_dict["weight_scaling_factor_exc"]
             del name_value_dict["weight_scaling_factor_inh"]

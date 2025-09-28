@@ -6,5 +6,5 @@
 #include {{ '<' }}spinn_log.h{{ '>' }}
 
 #define {{ neuronName|upper }}_DATA_SPEC 0xE900
-#define {{ neuronName|upper }}_ERROR_LOG 0xE000
+#define {{ neuronName|upper }}_ERROR_LOG 0xE800
 #define LOG_ERROR_SIZE_IN_WORDS (({{ neuronName|upper }}_DATA_SPEC - {{ neuronName|upper }}_ERROR_LOG)/4)
