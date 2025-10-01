@@ -67,7 +67,7 @@ try:
                 nest_version = "master"
             else:
                 nest_version = "v" + nest.__version__
-    except ValueError:
+    except (AttributeError, ValueError):
         if "DataConnect" in dir(nest):
             nest_version = "v2.20.2"
         elif "kernel_status" not in dir(nest):  # added in v3.1
