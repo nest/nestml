@@ -20,7 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import unittest
+import pytest
 
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
@@ -34,13 +34,6 @@ from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import MessageCode
 from pynestml.utils.model_parser import ModelParser
 from pynestml.visitors.ast_visitor import ASTVisitor
-
-# minor setup steps required
-SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
-PredefinedUnits.register_units()
-PredefinedTypes.register_types()
-PredefinedVariables.register_variables()
-PredefinedFunctions.register_functions()
 
 
 class ExpressionTestVisitor(ASTVisitor):
@@ -75,10 +68,19 @@ class ExpressionTestVisitor(ASTVisitor):
         return
 
 
-class ExpressionTypeCalculationTest(unittest.TestCase):
+class TestExpressionTypeCalculation:
     """
     A simple test that prints all top-level expression types in a file.
     """
+
+    @pytest.fixture(scope="class", autouse=True)
+    def setUp(self, request):
+        # minor setup steps required
+        SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
+        PredefinedUnits.register_units()
+        PredefinedTypes.register_types()
+        PredefinedVariables.register_variables()
+        PredefinedFunctions.register_functions()
 
     def test(self):
         Logger.init_logger(LoggingLevel.INFO)
@@ -88,9 +90,4 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
         Logger.set_current_node(model.get_model_list()[0])
         model.accept(ExpressionTestVisitor())
         Logger.set_current_node(None)
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0],
-                                                                          LoggingLevel.ERROR)), 0)
-
-
-if __name__ == '__main__':
-    unittest.main()
+        assert len(Logger.get_messages(model.get_model_list()[0], LoggingLevel.ERROR)) == 0
