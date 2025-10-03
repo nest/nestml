@@ -73,6 +73,10 @@ class TestNonDimensionalisationTransformer:
     def test_metric_prefixes(self, para_name, expected):
         """
         This test checks if the transformer can deal with all metric prefixes in the range of Giga- to Atto- can be resolved and the corresponding factor found.
+
+        These tests will check if the standardized metric prefixes in the range of Giga- to Atto- can be resolved.
+        The prefixes Deci- and Deca- are probably little used in a neuroscience context.
+        The test for Femto- includes the use of a combined physical type, the "magnetic field strength".
         """
 
         nest.ResetKernel()

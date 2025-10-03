@@ -95,7 +95,7 @@ class NonDimVis(ASTVisitor):
         "y": 1e-24,     # yocto
     }
 
-    
+
     def get_conversion_factor_to_si(self, from_unit_str):
         r"""
         Return the conversion factor from the unit we have in the NESTML file to SI units.
@@ -105,7 +105,7 @@ class NonDimVis(ASTVisitor):
         scale = from_unit.si.scale
 
         return scale
-    
+
     def _is_valid_astropy_unit(self, unit_string):
         """Check if a string can be interpreted as an astropy unit"""
         try:
@@ -681,16 +681,27 @@ class NonDimensionalisationSimpleExpressionVisitor(NonDimVis):
 class NonDimensionalisationTransformer(Transformer):
     r"""Remove all units from the model and replace them with real type.
 
-    NESTML model:
-        V_m V = -70 mV
+    The transformer relates to [PR-1217](https://github.com/nest/nestml/pull/1217) and [Issue-984](https://github.com/nest/nestml/issues/984).
 
-    generated code:
-        float V_m = -0.07   # implicit: units of V
-        float V_m = -70     # implicit: units of mV
+    The correct transformation of the expressions inside a NESTML file should be checked. The tests should include:
+    - checking for all metric prefixes
+    - checking for nested expressions with metric prefixes
+    - checking that transformations occur in every part of the NESTML file units are specified
+    - checking of transformation for derived variables
+    - checking for transformation of reciprocal units/ expressions with reciprocal units
+    - does it make sense for these to have the same desired unit?
+    - E.g.: desired unit of 'electrical potential' is mV -> should variables with physical type of '1/V' also be then expressed as '1/mV' post transformation?
+    - see *test_reciprocal_unit_in_paramterblock*
+    - checking additional parenthesis are set correctly
 
+    In a second instance the unit arithmetic and consistency of physical types needs to be checked pre-transformation after the original AST is built:
+    - will the expression on the RHS of an equation yield a unit that is a unit of what is specified on the LHS of the equation?
+    - How should exceptions be handled, for example if LHS is 'V' but result on RHS is '1/V'?
+    - Are the arguments inside of functions like exp(), log(), sin(), etc. dimensionless or has the user made a mistake?
+    - What should happen if unknown units are encountered?
 
+    These tests can be found in ``tests/nest_tests/non_dimensionalisation_transformer``.
     """
-
 
     _default_options = {
         "quantity_to_preferred_prefix": {},

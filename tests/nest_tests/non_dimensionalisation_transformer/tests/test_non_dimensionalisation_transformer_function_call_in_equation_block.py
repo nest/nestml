@@ -57,7 +57,9 @@ class TestNonDimensionalisationTransformerEqationBlock:
     def test_exp_in_equationblock(self):
         """
         This test checks if the transformer can deal with functions like exp() in the equation block
-        V_m' (s) is a time dependent voltage
+        V_m' (s) is a time dependent voltage.
+
+        The target unit for V_exp'(s) is mV as the 1/s is being carried implicitly by declaring the variable with a tick, signifying that it is a derived unit with respect to time
         """
         codegen_opts = {
             "solver": "numeric",

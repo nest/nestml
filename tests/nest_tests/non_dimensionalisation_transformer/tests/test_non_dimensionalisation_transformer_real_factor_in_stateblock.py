@@ -30,10 +30,40 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 class TestNonDimensionalisationTransformerStateBlock:
     r"""
-    This test checks if state block expressions with
-    a RHS with a unit being multiplied by a real factor and
-    a LHS with type 'real'
-    will get processed correctly
+    This test checks if state block expressions with a RHS with a unit being multiplied by a real factor and a LHS with type 'real' will get processed correctly.
+
+    This test checks if state block expressions with a RHS with a unit being multiplied by a real factor a LHS with type 'real' will get processed correctly.
+
+    The target unit JSON file is
+    ```JSON
+    {"quantity_to_preferred_prefix":
+        {
+        "electrical potential": "m",    # needed for V_m_init and U_m
+        "electrical current": "1",      # needed for currents not part of the test
+        "electrical capacitance": "1",  # needed for caps not part of the test
+        }
+    }
+    ```
+    Before the transformation the relevant .NESTML should read
+
+    ```NESTML
+        state:
+            U_m real = b * V_m_init          # Membrane potential recovery variable
+
+        parameters:
+            b real = 0.2                     # sensitivity of recovery variable
+            V_m_init mV = -65 mV             # Initial membrane potential
+    ```
+    After the transformation it should read
+    ```NESTML
+        state:
+            U_m real = b * V_m_init          # Membrane potential recovery variable
+
+        parameters:
+            b real = 0.2                     # sensitivity of recovery variable
+            V_m_init real = 1e3 * (-65e-3)   # Initial membrane potential
+    ```
+
     """
 
     def generate_code(self, codegen_opts=None):

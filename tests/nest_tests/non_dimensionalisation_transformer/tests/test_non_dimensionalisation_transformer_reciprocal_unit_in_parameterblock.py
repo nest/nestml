@@ -32,6 +32,37 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 class TestNonDimensionalisationTransformerStateBlock:
     r"""
     This test checks if the transformer can deal with reciprocal units on the LHS of an equation inside the parameter block
+
+    The target unit JSON file is
+    ```JSON
+    {"quantity_to_preferred_prefix":
+        {
+        "electrical potential": "m",    # needed for V_exp, alpha_exp
+        "electrical current": "1",      # needed for I_spike_test
+        "electrical capacitance": "1",  # needed for caps not part of the test
+        }
+    }
+    ```
+    Before the transformation the relevant .NESTML should read
+    ```NESTML
+        state:
+            V_exp V = 2500 uV + V_m_init * exp(alpha_exp * 10 V)
+
+        parameters:
+            V_m_init mV = -65 mV                      # Initial membrane potential
+            alpha_exp 1/V = 2 /(3 MV)                 # this could be a factor for a voltage inside of en exp(), e.g. exp(alpha_exp * V_test)
+    ```
+
+    After the transformation it should read
+    ```NESTML
+        state:
+            V_exp V = (2500 * 1e-6) + (V_m_init * 1e-3) * exp((alpha_exp * 1e-6) * 10)
+
+        parameters:
+            V_m_init real = 1e3 * (-65 * 1e-3)        # Initial membrane potential
+            alpha_exp real = 1e-3 * (2 / (3 * 1e6))   # this could be a factor for a voltage inside of en exp(), e.g. exp(alpha_exp * V_test)
+    ```
+
     TODO: The grammar needs to be changed for reciprocal units to be accepted on LHSs
     """
 

@@ -263,6 +263,7 @@ class Messages:
         message = 'Type of \'%s\' could not be derived!' % rhs
         return MessageCode.TYPE_NOT_DERIVABLE, message
 
+    # XXX: this should be removed
     @classmethod
     def get_implicit_cast_rhs_to_lhs(cls, rhs_type, lhs_type):
         """

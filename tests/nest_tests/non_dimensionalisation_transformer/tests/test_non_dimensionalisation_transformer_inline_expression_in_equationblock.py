@@ -30,8 +30,36 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 class TestNonDimensionalisationTransformerInlineEquationBlock:
     r"""
-    This test checks if the transformer can deal with inline expressions in the equation block
-    Additionally there is an exp() in the expression
+    This test checks if the transformer can deal with inline expressions in the equation block. Additionally there is an exp() in the expression.
+
+    The target unit JSON file is
+    ```JSON
+    {"quantity_to_preferred_prefix":
+        {
+        "electrical potential": "m",    # needed for V_m_init
+        "electrical current": "p",      # needed for I_spike_test
+        "electrical capacitance": "1",  # needed for caps not part of the test
+        }
+    }
+    ```
+
+    Before the transformation the relevant .NESTML should read
+    ```NESTML
+        equations:
+            inline I_spike_test A = 30.0 nS * (-V_m_init / 130e3) * exp(((-80 mV) - (-20 mV)) / 3000 uV)
+
+        parameters:
+            V_m_init mV = -65 mV     # Initial membrane potential
+    ```
+
+    After the transformation it should read
+    ```NESTML
+        equations:
+            inline I_spike_test real = 1e12 * ((30.0 * 1e-9) * ((-V_m_init * * 1e-3)/ 130e3) * exp(((-80 * 1e-3) - (-20 * 1e-3)) / (3000 * 1e-6)))
+
+        parameters:
+            V_m_init real = 1e3 * (-65 * 1e-3)     # Initial membrane potential
+    ```
     """
 
     def generate_code(self, codegen_opts=None):

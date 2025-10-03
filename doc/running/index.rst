@@ -4,8 +4,14 @@ Running NESTML
 Running NESTML causes several processing steps to occur:
 
 1. The model is parsed from file and checked (syntax, consistent physical units, and so on).
-2. Code is generated from the model by one of the "code generators" selected when NESTML was invoked.
-3. If necessary, the code is compiled and built by the "builder" that belongs to the selected code generator.
+2. A series of transformation steps are optionally carried out on the model. (See the section, "Available transformers" below.)
+3. Code is generated from the model by one of the "code generators" selected when NESTML was invoked. If necessary, the code is compiled and built by the "builder" that belongs to the selected code generator. (See the section "Supported target platforms" below.)
+
+
+Available transformers
+----------------------
+
+- :doc:`Non-dimensionalisation transformer </running/transformer_non_dimensionalisation.rst`
 
 
 Supported target platforms
