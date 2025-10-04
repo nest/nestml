@@ -311,14 +311,11 @@ class NESTCodeGenerator(CodeGenerator):
         for neuron in neurons:
             code, message = Messages.get_analysing_transforming_model(neuron.get_name())
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
-            spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars = self.analyse_neuron(neuron)  # , parameter_value_dict, updated_state_dict = self.analyse_neuron(neuron)
+            spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars = self.analyse_neuron(neuron)
             neuron.spike_updates = spike_updates
             neuron.post_spike_updates = post_spike_updates
             neuron.equations_with_delay_vars = equations_with_delay_vars
             neuron.equations_with_vector_vars = equations_with_vector_vars
-            # neuron.analytic_solver = analytic_solver
-            # neuron.parameter_value_dict = parameter_value_dict
-            # neuron.updated_state_dict = updated_state_dict
 
     def analyse_transform_synapses(self, synapses: List[ASTModel]) -> None:
         """
@@ -363,15 +360,6 @@ class NESTCodeGenerator(CodeGenerator):
         equations_with_delay_vars_visitor = ASTEquationsWithDelayVarsVisitor()
         neuron.accept(equations_with_delay_vars_visitor)
         equations_with_delay_vars = equations_with_delay_vars_visitor.equations
-
-        # Collect all parameters and their attached values
-        # parameter_block = neuron.get_parameters_blocks()[0]
-        # parameter_value_dict = ASTUtils.generate_parameter_value_dict(neuron, parameter_block)
-        # state_block = neuron.get_state_blocks()[0]
-        # updated_state_dict = ASTUtils.generate_updated_state_dict(neuron, state_block, parameter_value_dict)
-
-
-
 
         # Collect all the equations with vector variables
         eqns_with_vector_vars_visitor = ASTEquationsWithVectorVariablesVisitor()
@@ -424,7 +412,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         spike_updates, post_spike_updates = self.get_spike_update_expressions(neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
 
-        return spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars# , analytic_solver  , parameter_value_dict, updated_state_dict
+        return spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars
 
     def analyse_synapse(self, synapse: ASTModel) -> Dict[str, ASTAssignment]:
         """
@@ -934,12 +922,6 @@ class NESTCodeGenerator(CodeGenerator):
 
         odetoolbox_indict["options"]["simplify_expression"] = self.get_option("simplify_expression")
         disable_analytic_solver = self.get_option("solver") != "analytic"
-        # solver_result = odetoolbox.analysis(odetoolbox_indict,
-        #                                     disable_stiffness_check=True,
-        #                                     disable_analytic_solver=disable_analytic_solver,
-        #                                     preserve_expressions=self.get_option("preserve_expressions"),
-        #                                     simplify_expression=self.get_option("simplify_expression"),
-        #                                     log_level=FrontendConfiguration.logging_level)
         solver_result = odetoolbox.analysis(odetoolbox_indict,
                                             disable_stiffness_check=True,
                                             disable_analytic_solver=disable_analytic_solver,

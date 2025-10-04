@@ -538,13 +538,12 @@ class ASTModel(ASTNode):
 
         return None
 
-    def _to_base_value_from_string(self,quantity_str):
+    def _to_base_value_from_string(self, quantity_str):
         local_dict = {'u': u}
         quantity = eval(quantity_str, {"__builtins__": {}}, local_dict)
         canonical_unit = u.get_physical_type(quantity.unit)._unit
         # Return the SI base value and unit name
         return quantity.si.value, str(canonical_unit)
-
 
     def get_parameter_value_dict(self) -> dict:
         """
@@ -558,7 +557,7 @@ class ASTModel(ASTNode):
             if isinstance(declarations.expression, ASTSimpleExpression):
                 # declarations.variables[0].astropy_unit = None
                 # declarations.data_type = ' real'
-                if ((declarations.expression.numeric_literal.real != None) and hasattr(declarations.expression.variable, 'name')):
+                if ((declarations.expression.numeric_literal.real is not None) and hasattr(declarations.expression.variable, 'name')):
                     expr = str(declarations.expression.numeric_literal) + '* u.' + declarations.expression.variable.name
                     float_value_in_si, unit_in_si = self._to_base_value_from_string(expr)
                     declarations.expression.numeric_literal = float_value_in_si

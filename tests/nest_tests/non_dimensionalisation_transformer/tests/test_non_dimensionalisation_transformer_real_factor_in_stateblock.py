@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# test_non_dimensionalisation_transformer.py
+# test_non_dimensionalisation_transformer_real_factor_in_stateblock.py
 #
 # This file is part of NEST.
 #

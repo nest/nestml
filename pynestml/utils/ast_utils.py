@@ -1589,24 +1589,6 @@ class ASTUtils:
         # Return the SI base value and unit name
         return quantity.si.value, str(canonical_unit)
 
-
-    # @classmethod
-    # def generate_updated_state_dict(cls, neuron: ASTModel, parameter_value_dict: dict) -> dict:
-    #     state_block = neuron.get_state_blocks()[0]
-    #     updated_state_dict = {}
-    #     for declarations in state_block.get_declarations():
-    #         if isinstance(declarations.expression, ASTSimpleExpression) and declarations.expression.numeric_literal == None:
-    #             if declarations.expression.variable.name in parameter_value_dict:
-    #                 updated_state_dict[declarations.variables[0]] = parameter_value_dict[declarations.expression.variable.name]
-    #             pass
-    #         if isinstance(declarations.expression, ASTSimpleExpression) and declarations.expression.numeric_literal != None:
-    #             expr = str(declarations.expression.numeric_literal) + '* u.' + declarations.expression.variable.name
-    #             float_value_in_si, unit_in_si = cls._to_base_value_from_string(cls, expr)
-    #             declarations.expression.numeric_literal = float_value_in_si
-    #             updated_state_dict[declarations.variables[0]] = float_value_in_si
-    #
-    #     return updated_state_dict
-
     @classmethod
     def generate_updated_state_dict(cls, initial_values: dict, parameter_value_dict: dict) -> dict:
         updated_state_dict = {}
@@ -1616,22 +1598,6 @@ class ASTUtils:
             else:
                 updated_state_dict[key] = float(value)
         return updated_state_dict
-
-    # @classmethod
-    # def get_propagators_as_math_expressions(cls, neuron: ASTNode, parameters: dict) -> dict:
-    #     propagators_as_math_expressions = {}
-    #     propagator_expressions = neuron.analytic_solver["propagators"]
-    #     for propagator_expression in propagator_expressions:
-    #         # propagator_expressions[propagator_expression] = propagator_expressions[propagator_expression].replace(
-    #         #     '__h', str(1))
-    #         # for symbol, value in parameters.items():
-    #         #     propagator_expressions[propagator_expression] = propagator_expressions[propagator_expression].replace(symbol, str(value))
-    #         #     propagators_as_math_expressions.update({propagator_expression: propagator_expressions[propagator_expression]})
-    #         propagators_as_math_expressions[propagator_expression] = propagator_expressions[propagator_expression]
-    #     return propagators_as_math_expressions
-    #
-    # # @classmethod
-    # # def
 
     @classmethod
     def get_internal_decl_by_name(cls, node: ASTModel, var_name: str) -> ASTDeclaration:

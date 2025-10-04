@@ -55,10 +55,10 @@ class PythonStandaloneTargetTools:
         # Import the module dynamically
         try:
             module = importlib.import_module(module_name)
-            Logger.log_message(None, -1,f"Successfully imported {module_name}", None, LoggingLevel.INFO)
+            Logger.log_message(None, -1, f"Successfully imported {module_name}", None, LoggingLevel.INFO)
             return module  # Return the imported module for use
         except ModuleNotFoundError as e:
-            Logger.log_message(None, -1,f"Module not found Error: {e}", None, LoggingLevel.ERROR)
+            Logger.log_message(None, -1, f"Module not found Error: {e}", None, LoggingLevel.ERROR)
             return None
 
     @classmethod
@@ -83,7 +83,7 @@ class PythonStandaloneTargetTools:
         model_name = model.get_name()
 
         py_module_name = os.path.basename(target_path) + "." + model_name
-        module = module = cls._dynamic_import(target_path, py_module_name)
+        module = cls._dynamic_import(target_path, py_module_name)
         neuron_name = "Neuron_" + model_name + "(1.0)"   # 1.0 is a dummy value for the timestep
         neuron = eval("module." + neuron_name)
 

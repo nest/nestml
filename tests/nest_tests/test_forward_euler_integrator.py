@@ -82,5 +82,3 @@ class TestForwardEulerIntegrator:
 
         v_m1 = mm1.get("events")["V_m"]
         v_m2 = mm2.get("events")["V_m"]
-
-

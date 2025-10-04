@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# test_non_dimensionalisation_transformer.py
+# test_non_dimensionalisation_transformer_inline_expression_in_equationblock.py
 #
 # This file is part of NEST.
 #

@@ -95,7 +95,6 @@ class NonDimVis(ASTVisitor):
         "y": 1e-24,     # yocto
     }
 
-
     def get_conversion_factor_to_si(self, from_unit_str):
         r"""
         Return the conversion factor from the unit we have in the NESTML file to SI units.
@@ -169,7 +168,6 @@ class NonDimensionalisationVarToRealTypeVisitor(NonDimVis):
                     new_node = node.clone()
                     new_node.data_type = new_data_type
                     parent_node.input_definitions[index] = new_node
-
 
     def visit_inline_expression(self, node):
         if isinstance(node.data_type.type_symbol, RealTypeSymbol) or isinstance(
@@ -298,7 +296,6 @@ class NonDimensionalisationPreferredPrefixFactorOnRhsVisitor(NonDimVis):
                         declaration.rhs = cloned_node.rhs
             return
 
-
     def visit_on_receive_block(self, node):
         # insert reciprocal of preferred prefix on RHS
         if isinstance(node.stmts_body.stmts[0].small_stmt.assignment, ASTAssignment):
@@ -366,7 +363,6 @@ class NonDimensionalisationPreferredPrefixFactorOnRhsVisitor(NonDimVis):
                         )
                         assignment.rhs = new_rhs
 
-
     def visit_inline_expression(self, node):
         if not node.data_type.is_real:
             if str(node.data_type.type_symbol.astropy_unit.physical_type) != "unknown":
@@ -402,7 +398,6 @@ class NonDimensionalisationPreferredPrefixFactorOnRhsVisitor(NonDimVis):
                             declaration.expression = cloned_node.expression
 
 
-
 class NonDimensionalisationVariableVisitor(NonDimVis):
     r"""
     Visitor changes unit symbols and numeric prefixes to numerical factors in epxressions on RHSs, where the numerical prefix and unit are positioned after an expression
@@ -412,15 +407,13 @@ class NonDimensionalisationVariableVisitor(NonDimVis):
     def __init__(self, preferred_prefix: Dict[str, str]):
         super().__init__(preferred_prefix)
 
-
-
     def visit_variable(self, node: ASTVariable) -> None:
         if hasattr(node.get_parent(), "variable"):
             if super()._is_valid_astropy_unit(node.name):
                 if (
                     isinstance(node, ASTVariable)
                     and node.get_parent().variable.name == node.get_name()
-                    and node.get_parent().numeric_literal == None
+                    and node.get_parent().numeric_literal is None
                 ):
                     # Then the variable encountered is something like mV, without a numeric literal in front, e.g. (4 + 3) * mV
                     conversion_factor = (
@@ -439,7 +432,6 @@ class NonDimensionalisationVariableVisitor(NonDimVis):
                             grandparent_node.lhs = new_expression
 
 
-
 class NonDimensionalisationSimpleExpressionVisitor(NonDimVis):
     r"""
     Visitor converts unit-ful simple expressions with metric prefixes to real type expressions in the corresponding SI base unit in RHSs.
@@ -449,7 +441,6 @@ class NonDimensionalisationSimpleExpressionVisitor(NonDimVis):
     def __init__(self, preferred_prefix: Dict[str, str], model):
         super().__init__(preferred_prefix)
         self.model = model
-
 
     def visit_simple_expression(self, node):
         if hasattr(node, "variable"):
@@ -527,6 +518,7 @@ class NonDimensionalisationSimpleExpressionVisitor(NonDimVis):
                     "Node type is neither RealTypeSymbol nor UnitTypeSymbol"
                 )
             return
+
         if node.function_call is None:
             if isinstance(node.get_parent(), ASTFunctionCall):
                 return

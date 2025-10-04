@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# test_non_dimensionalisation_transformer.py
+# test_non_dimensionalisation_transformer_metric_prefixes.py
 #
 # This file is part of NEST.
 #
@@ -56,9 +56,7 @@ class TestNonDimensionalisationTransformer:
                                                          "amount of substance": "1",
                                                          "electrical conductance": "m",
                                                          "inductance": "n",
-                                                         "time": "f",
-                                                         }
-        }
+                                                         "time": "f"}}
 
         nest.set_verbosity("M_ALL")
         generate_nest_target(input_path,
@@ -68,8 +66,7 @@ class TestNonDimensionalisationTransformer:
                              suffix=suffix,
                              codegen_opts=codegen_opts)
 
-
-    @pytest.mark.parametrize("para_name, expected", [("para_giga", 500) , ("para_mega", 3300), ("para_kilo", 0.002), ("para_hecto", 102.4), ("para_deca", 230), ("para_deci", 0.8), ("para_centi", 0.67), ("para_milli", 4), ("para_micro", 0.002), ("para_nano", 1.1e-8), ("para_pico", 0.003), ("para_femto", 30e-15), ("para_atto", 4e-8)])
+    @pytest.mark.parametrize("para_name, expected", [("para_giga", 500), ("para_mega", 3300), ("para_kilo", 0.002), ("para_hecto", 102.4), ("para_deca", 230), ("para_deci", 0.8), ("para_centi", 0.67), ("para_milli", 4), ("para_micro", 0.002), ("para_nano", 1.1e-8), ("para_pico", 0.003), ("para_femto", 30e-15), ("para_atto", 4e-8)])
     def test_metric_prefixes(self, para_name, expected):
         """
         This test checks if the transformer can deal with all metric prefixes in the range of Giga- to Atto- can be resolved and the corresponding factor found.

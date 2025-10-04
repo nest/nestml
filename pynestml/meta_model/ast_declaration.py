@@ -142,7 +142,6 @@ class ASTDeclaration(ASTNode):
         """
         self.variables = _variables
 
-
     def get_decorators(self):
         """
         """
