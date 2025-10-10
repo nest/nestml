@@ -47,6 +47,8 @@ The NESTML models are then available for instantiation, for example as:
    pre, post = nest.Create("neuron_nestml", 2)
    nest.Connect(pre, post, "one_to_one", syn_spec={"synapse_model": "synapse_nestml"})
 
+For more details on how to generate code for synaptic plasticity models, please refer to the section :ref:`Generating code for plastic synapses <Generating code for plastic synapses>`.
+
 
 Simulation loop
 ---------------
