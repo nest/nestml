@@ -28,10 +28,10 @@ model CoCoAssignmentToInlineExpression:
 
     equations:
         kernel alpha_kernel = (e / tau_syn) * t * exp(-t / tau_syn)
-        inline foo real = convolve(alpha_kernel, spikes_in)
+        inline foo real = convolve(alpha_kernel, spikes_in.weight)
 
     input:
-        spikes_in <- spike
+        spikes_in <- spike(weight real)
 
     update:
         foo = 42.

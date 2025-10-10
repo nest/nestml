@@ -51,7 +51,10 @@ class NestCustomTemplatesTest(unittest.TestCase):
                                       "model_templates": {"neuron": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"],
                                                           "synapse": ["@SYNAPSE_NAME@.h.jinja2"]},
                                       "module_templates": ["setup/CMakeLists.txt.jinja2",
-                                                           "setup/@MODULE_NAME@.h.jinja2", "setup/@MODULE_NAME@.cpp.jinja2"]}}
+                                                           "setup/@MODULE_NAME@.h.jinja2",
+                                                           "setup/@MODULE_NAME@.cpp.jinja2",
+                                                           "setup/vector_ring_buffer.h.jinja2",
+                                                           "setup/vector_ring_buffer.cpp.jinja2"]}}
 
         generate_target(input_path, target_platform, target_path,
                         logging_level=logging_level,
