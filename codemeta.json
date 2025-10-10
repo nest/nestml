@@ -23,6 +23,6 @@
     },
     "continuousIntegration": "https://github.com/nest/nestml/",
     "issueTracker": "https://github.com/nest/nestml/issues",
-    "version": "8.2.0"
+    "version": "8.2.0-post-dev"
 }
 
