@@ -40,7 +40,9 @@ from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
+from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
+from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
@@ -409,13 +411,13 @@ class NonDimensionalisationVariableVisitor(NonDimVis):
 
     def visit_variable(self, node: ASTVariable) -> None:
         if hasattr(node.get_parent(), "variable"):
-            if super()._is_valid_astropy_unit(node.name):
-                if (
-                    isinstance(node, ASTVariable)
-                    and node.get_parent().variable.name == node.get_name()
+            symbol_is_defined_as_a_variable: bool = node.get_scope().resolve_to_symbol(node.get_complete_name(), SymbolKind.VARIABLE)
+            if not symbol_is_defined_as_a_variable and super()._is_valid_astropy_unit(node.name):
+                if (node.get_parent().variable.name == node.get_name()
                     and node.get_parent().numeric_literal is None
                 ):
                     # Then the variable encountered is something like mV, without a numeric literal in front, e.g. (4 + 3) * mV
+                    assert PredefinedUnits.is_unit(node.get_name())
                     conversion_factor = (
                         f"{super().get_conversion_factor_to_si(node.get_name()):.1E}"
                     )
@@ -435,17 +437,28 @@ class NonDimensionalisationVariableVisitor(NonDimVis):
 class NonDimensionalisationSimpleExpressionVisitor(NonDimVis):
     r"""
     Visitor converts unit-ful simple expressions with metric prefixes to real type expressions in the corresponding SI base unit in RHSs.
-    E.g.: Var_a V = ...... * 3MV -> Var_a V = ...... * (3 * 1.0E+06)
+    E.g.:
+
+    .. code:: NESTML
+
+       Var_a V = ...... * 3 MV
+
+    becomes
+
+    .. code:: NESTML
+
+       Var_a V = ...... * (3 * 1.0E+06)
     """
 
     def __init__(self, preferred_prefix: Dict[str, str], model):
         super().__init__(preferred_prefix)
         self.model = model
 
-    def visit_simple_expression(self, node):
+    def _handle_node(self, node):
         if hasattr(node, "variable"):
             if str(node.variable) == "spikes":
                 return  # spikes have 1/s in NESTML
+
         if node.get_numeric_literal() is not None:
             print("Numeric literal: " + str(node.get_numeric_literal()))
             if isinstance(node.type, RealTypeSymbol):
@@ -520,16 +533,19 @@ class NonDimensionalisationSimpleExpressionVisitor(NonDimVis):
             return
 
         if node.function_call is None:
-            if isinstance(node.get_parent(), ASTFunctionCall):
+            if isinstance(node.get_parent(), ASTFunctionCall) and node.get_parent().get_name() in [PredefinedFunctions.INTEGRATE_ODES, PredefinedFunctions.CONVOLVE, PredefinedFunctions.DELTA, PredefinedFunctions.TIME_STEPS, PredefinedFunctions.EMIT_SPIKE]:
+                # skip certain predefined functions, e.g. don't add factors to "integrate_odes(V_m)" call
                 return
+
             if node.get_numeric_literal() is None:
                 # get physical type of node
                 if isinstance(node.type, UnitTypeSymbol):
                     if "spikes" not in node.variable.name:
-                        if super()._is_valid_astropy_unit(node.variable.name) and (
-                            node.get_parent().binary_operator is not None
-                            or node.get_parent().unary_operator is not None
-                        ):
+                        symbol_is_defined_as_a_variable: bool = node.variable.get_scope().resolve_to_symbol(node.variable.get_complete_name(), SymbolKind.VARIABLE) is not None
+                        if ((not symbol_is_defined_as_a_variable)
+                            and super()._is_valid_astropy_unit(node.variable.name)
+                            and (node.get_parent().binary_operator is not None
+                                 or node.get_parent().unary_operator is not None)):
                             # This should be handled by visit_variable instead - return early
                             return
                         else:
@@ -544,7 +560,7 @@ class NonDimensionalisationSimpleExpressionVisitor(NonDimVis):
                                         )
                                 # get preferred prefix for this node
                                 if variable_physical_type_string == "error":
-                                    raise Exception("AstroPy Physical Type could not be determined. Is it really defined in preferred prefixes?")
+                                    raise Exception("AstroPy Physical Type \"" + str(node.type.astropy_unit.physical_type) + "\" could not be determined. Is it really defined in preferred prefixes?")
                                 preferred_prefix_this_node_string = f"{self.PREFIX_FACTORS[self.preferred_prefix[variable_physical_type_string]]:.1E}"
                                 # create a new sub node that multiplies the variable with the reciprocal of the preferred prefix
                                 lhs_expression = node.clone()
@@ -661,12 +677,30 @@ class NonDimensionalisationSimpleExpressionVisitor(NonDimVis):
                                                 parent_node.unary_operator = None
                                                 return
                                     elif hasattr(parent_node, "expression"):
-                                        parent_node.expression = new_node
+                                        parent_node.args = new_node
                                         return
+                                    elif hasattr(parent_node, "args"):
+                                        for i, arg in enumerate(parent_node.args):
+                                            if node == arg:
+                                                import pdb;pdb.set_trace()
+                                                parent_node.args[i] = new_node
+                                                return
+                                        raise Exception("arg not found in parent node arguments list")
                                     else:
-                                        raise Exception(
-                                            "Parent node has no rhs or lhs."
-                                        )
+                                        raise Exception("Parent node has no rhs or lhs.")
+
+    def visit_simple_expression(self, node):
+        # if node.function_call is not None:
+        #     print("Function call")
+        #     for arg in node.function_call.get_args():
+        #         self.visit(arg)
+
+        #     import pdb;pdb.set_trace()
+
+
+        # else:
+        self._handle_node(node)
+
         super().visit_simple_expression(node)
 
 
@@ -728,14 +762,9 @@ class NonDimensionalisationTransformer(Transformer):
         transformed_model.accept(var_to_real_type_visitor)
         transformed_model.accept(ASTParentVisitor())
         transformed_model.accept(ASTSymbolTableVisitor())
-        if Logger.logging_level.name == "DEBUG" or "INFO":
-            print("--------------------------------")
-            print("model after transformation:")
-            print("--------------------------------")
-            print(transformed_model)
         if Logger.logging_level.name == "DEBUG":
-            with open("transformed_model_for_debug.txt", "a") as f:
-                f.write(str(transformed_model))
+            print("NonDimensionalisationTransformer(): model after transformation:")
+            print(transformed_model)
 
         return transformed_model
 
