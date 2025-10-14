@@ -12,6 +12,44 @@ After NESTML completes, the NEST extension module (by default called ``"nestmlmo
    Several code generator options are available; for an overview see :class:`pynestml.codegeneration.nest_code_generator.NESTCodeGenerator`.
 
 
+NEST workflow example
+---------------------
+
+A typical script for the NEST Simulator target could look like the following. First, import the function:
+
+.. code-block:: python
+
+   from pynestml.frontend.pynestml_frontend import generate_target
+
+   generate_target(input_path="/home/nest/work/pynestml/models",
+                   target_platform="NEST",
+                   target_path="/tmp/nestml_target")
+
+We can also use a shorthand function for each supported target platform (here, NEST):
+
+.. code-block:: python
+
+   from pynestml.frontend.pynestml_frontend import generate_nest_target
+
+   generate_nest_target(input_path="/home/nest/work/pynestml/models",
+                        target_path="/tmp/nestml_target")
+
+To dynamically load a module with ``module_name`` equal to ``nestmlmodule`` (the default) in PyNEST can be done as follows:
+
+.. code-block:: python
+
+   nest.Install("nestmlmodule")
+
+The NESTML models are then available for instantiation, for example as:
+
+.. code-block:: python
+
+   pre, post = nest.Create("neuron_nestml", 2)
+   nest.Connect(pre, post, "one_to_one", syn_spec={"synapse_model": "synapse_nestml"})
+
+For more details on how to generate code for synaptic plasticity models, please refer to the section :ref:`Generating code for plastic synapses <Generating code for plastic synapses>`.
+
+
 Simulation loop
 ---------------
 
