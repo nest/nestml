@@ -223,7 +223,7 @@ class NonDimensionalisationPreferredPrefixFactorOnRhsVisitor(NonDimVis):
 
 
             inverse_preferred_prefix_this_node_string = f"{1 / self.PREFIX_FACTORS[self.preferred_prefix[variable_physical_type_string]]:.1E}"
-            import pdb;pdb.set_trace()
+
             # modify the node.expression to include the metric prefix as a factor in scientific notation on the lhs
             cloned_node = node.clone()
             lhs_expression = ASTSimpleExpression(
@@ -301,7 +301,6 @@ class NonDimensionalisationPreferredPrefixFactorOnRhsVisitor(NonDimVis):
             return
 
     def visit_assignment(self, node):
-        import pdb;pdb.set_trace()
         # insert reciprocal of preferred prefix on RHS
         for state_declaration in self.model.get_state_blocks()[0].declarations:
             if (
@@ -540,6 +539,7 @@ class NonDimensionalisationVariableVisitor(NonDimVis):
         super().__init__(preferred_prefix)
 
     def visit_variable(self, node: ASTVariable) -> None:
+        print("NonDimensionalisationVariableVisitor: visit_variable(" + str(node))
         if node.get_type_symbol():
             type_sym = node.get_type_symbol()
         else:
@@ -556,41 +556,45 @@ class NonDimensionalisationVariableVisitor(NonDimVis):
 
         assert isinstance(parent_node, ASTSimpleExpression), "Don't know how to handle ASTVariable that is not inside an ASTSimpleExpression"
 
+
+
+        lhs_expression = ASTSimpleExpression(
+                numeric_literal=conversion_factor_to_si,
+                scope=node.get_scope(),
+            )
+        rhs_expression = ASTSimpleExpression(
+                variable=node,
+                scope=node.get_scope(),
+            )
+        new_sub_node = ASTExpression(
+            is_encapsulated=False,
+            binary_operator=ASTArithmeticOperator(is_times_op=True),
+            lhs=lhs_expression,
+            rhs=rhs_expression,
+            scope=node.get_scope(),
+        )
+        new_node = ASTExpression(
+            is_encapsulated=True,
+            expression=new_sub_node,
+            scope=node.get_scope()
+        )
+
         grandparent_node = parent_node.get_parent()
         if isinstance(grandparent_node, ASTDeclaration):
             # something of the form: ``V_m mV = E_L``
             # change it into ``V_m mv = conversion_factor_to_si * E_L``
-            lhs_expression = ASTSimpleExpression(
-                    numeric_literal=conversion_factor_to_si,
-                    scope=node.get_scope(),
-                )
-            rhs_expression = ASTSimpleExpression(
-                    variable=node,
-                    scope=node.get_scope(),
-                )
-            new_sub_node = ASTExpression(
-                is_encapsulated=False,
-                binary_operator=ASTArithmeticOperator(is_times_op=True),
-                lhs=lhs_expression,
-                rhs=rhs_expression,
-                scope=node.get_scope(),
-            )
+
             grandparent_node.set_expression(new_sub_node)
+        elif isinstance(grandparent_node, ASTExpression) and grandparent_node.get_binary_operator() is not None and grandparent_node.get_binary_operator().is_times_op:
+            # of the form "1000 * V_m" or "V_m * foo"
 
-        import pdb;pdb.set_trace()
-
-        # new_expression = ASTSimpleExpression(
-        #     numeric_literal=float(str(conversion_factor)),
-        #     scope=node.get_scope(),
-        # )
-        # import pdb;pdb.set_trace()
-
-        # if grandparent_node.binary_operator is not None:
-        #     print("QQQ")
-        #     if grandparent_node.rhs == parent_node:
-        #         grandparent_node.rhs = new_expression
-        #     elif grandparent_node.lhs == parent_node:
-        #         grandparent_node.lhs = new_expression
+            if grandparent_node.rhs == parent_node:
+                grandparent_node.rhs = new_node
+            else:
+                assert grandparent_node.lhs == parent_node
+                grandparent_node.lhs = new_node
+        else:
+            raise Exception("Don't know how to handle grandparent node type: " + str(type(grandparent_node)))
 
 
 class NonDimensionalisationSimpleExpressionVisitor(NonDimVis):
@@ -841,7 +845,6 @@ class NonDimensionalisationSimpleExpressionVisitor(NonDimVis):
                                     elif hasattr(parent_node, "args"):
                                         for i, arg in enumerate(parent_node.args):
                                             if node == arg:
-                                                import pdb;pdb.set_trace()
                                                 parent_node.args[i] = new_node
                                                 return
                                         raise Exception("arg not found in parent node arguments list")
@@ -909,7 +912,7 @@ class NonDimensionalisationTransformer(Transformer):
         simple_expression_visitor = NonDimensionalisationSimpleExpressionVisitor(
             self.get_option("quantity_to_preferred_prefix"), model
         )
-        declaration_visitor = NonDimensionalisationPreferredPrefixFactorOnRhsVisitor(
+        rhs_preferred_prefix_visitor = NonDimensionalisationPreferredPrefixFactorOnRhsVisitor(
             self.get_option("quantity_to_preferred_prefix"), model
         )
         var_to_real_type_visitor = NonDimensionalisationVarToRealTypeVisitor(
@@ -919,10 +922,8 @@ class NonDimensionalisationTransformer(Transformer):
             self.get_option("quantity_to_preferred_prefix"), model
         )
 
-
         transformed_model.accept(ASTParentVisitor())
         transformed_model.accept(literal_visitor)
-
 
         if Logger.logging_level.name == "DEBUG":
             print("NonDimensionalisationTransformer(): model after literal visitor:")
@@ -930,20 +931,31 @@ class NonDimensionalisationTransformer(Transformer):
 
         transformed_model.accept(rhs_variable_visitor)
 
-
         if Logger.logging_level.name == "DEBUG":
             print("NonDimensionalisationTransformer(): model after variable visitor:")
             print(transformed_model)
 
 
         # transformed_model.accept(simple_expression_visitor)
-        # transformed_model.accept(declaration_visitor)
-        # transformed_model.accept(var_to_real_type_visitor)
+        transformed_model.accept(rhs_preferred_prefix_visitor)
+
+        if Logger.logging_level.name == "DEBUG":
+            print("NonDimensionalisationTransformer(): model after rhs_preferred_prefix_visitor visitor:")
+            print(transformed_model)
+
+
+        transformed_model.accept(var_to_real_type_visitor)
+
+        if Logger.logging_level.name == "DEBUG":
+            print("NonDimensionalisationTransformer(): model after var_to_real_type_visitor visitor:")
+            print(transformed_model)
+
+
         transformed_model.accept(ASTParentVisitor())
         transformed_model.accept(ASTSymbolTableVisitor())
-        if Logger.logging_level.name == "DEBUG":
-            print("NonDimensionalisationTransformer(): model after transformation:")
-            print(transformed_model)
+        # if Logger.logging_level.name == "DEBUG":
+        #     print("NonDimensionalisationTransformer(): model after transformation:")
+        #     print(transformed_model)
 
         return transformed_model
 

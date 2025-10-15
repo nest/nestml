@@ -4,3 +4,4 @@ model aeif_cond_exp_neuron:
 
     parameters:
         E_L V = -70.6E3 uV       # Leak reversal Potential (aka resting potential)
+        foo V = 1000 * V_m       # Leak reversal Potential (aka resting potential)
