@@ -18,7 +18,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import datetime
@@ -62,6 +61,7 @@ from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
+from pynestml.transformers.non_dimensionalisation_transformer import NonDimensionalisationTransformer
 from pynestml.transformers.synapse_post_neuron_transformer import SynapsePostNeuronTransformer
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
@@ -412,6 +412,24 @@ class NESTCodeGenerator(CodeGenerator):
         ASTUtils.update_delay_parameter_in_state_vars(neuron, state_vars_before_update)
 
         spike_updates, post_spike_updates = self.get_spike_update_expressions(neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
+
+        # update expressions are processed by the transformer
+        for var_name, spike_updates_for_var in spike_updates.items():
+            transformed_spike_update_exprs = []
+            for spike_update_expr in spike_updates_for_var:
+                transformed_spike_update_exprs.append(NonDimensionalisationTransformer({"quantity_to_preferred_prefix": {"electrical potential": "m",
+                                                         "electrical current": "p",
+                                                         "electrical capacitance": "p",
+                                                         "electrical resistance": "M",
+                                                         "electrical conductance": "n",
+                                                         "time": "m"}}).transform([spike_update_expr])[0])
+
+            spike_updates[var_name] = transformed_spike_update_exprs
+
+
+
+
+        # post_spike_updates = NonDimensionalisationTransformer().transform(post_spike_updates)
 
         return spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars
 

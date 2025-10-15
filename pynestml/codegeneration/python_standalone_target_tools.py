@@ -24,6 +24,8 @@ import multiprocessing
 import os
 import sys
 import tempfile
+from pathlib import Path
+
 
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.frontend.pynestml_frontend import generate_python_standalone_target
@@ -36,6 +38,29 @@ class PythonStandaloneTargetTools:
     r"""
     Helper functions for the Python standalone target.
     """
+
+    @classmethod
+    def _dynamic_import(cls, target_path: str, module_name: str):
+        r"""
+        Dynamically imports a module from a given directory.
+        """
+
+        # Convert the path to an absolute path
+        target_path = Path(target_path).resolve()
+
+        # Add the target directory to sys.path if not already present
+        if str(target_path) not in sys.path:
+            sys.path.append(str(target_path))
+
+        # Import the module dynamically
+        try:
+            module = importlib.import_module(module_name)
+            Logger.log_message(None, -1, f"Successfully imported {module_name}", None, LoggingLevel.INFO)
+            return module  # Return the imported module for use
+        except ModuleNotFoundError as e:
+            Logger.log_message(None, -1, f"Module not found Error: {e}", None, LoggingLevel.ERROR)
+            return None
+
     @classmethod
     def _get_model_parameters_and_state(cls, nestml_file_name: str):
         suffix = ""
@@ -58,7 +83,7 @@ class PythonStandaloneTargetTools:
         model_name = model.get_name()
 
         py_module_name = os.path.basename(target_path) + "." + model_name
-        module = importlib.import_module(py_module_name)
+        module = cls._dynamic_import(target_path, py_module_name)
         neuron_name = "Neuron_" + model_name + "(1.0)"   # 1.0 is a dummy value for the timestep
         neuron = eval("module." + neuron_name)
 

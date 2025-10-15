@@ -104,6 +104,7 @@ class OutputPortDefinedIfEmitCalledVisitor(ASTVisitor):
                     # types are not equal, but castable
                     code, message = Messages.get_implicit_cast_rhs_to_lhs(output_block_attr_type_sym.print_symbol(),
                                                                           emit_spike_arg_type_sym.print_symbol())
+                    # XXX: this should be removed
                     Logger.log_message(error_position=output_blocks[0].get_source_position(),
                                        code=code, message=message, log_level=LoggingLevel.WARNING)
                     continue

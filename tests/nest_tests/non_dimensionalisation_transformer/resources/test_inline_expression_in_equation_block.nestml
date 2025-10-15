@@ -1,0 +1,13 @@
+model test_inline_expression_in_equation_block_transformation_neuron:
+    state:
+        I_test A = 1 mA 
+    
+    equations:
+        inline I_spike_test A = 0.0153846 mS * (-V_m_init) * exp(((-20 mV) - (-80 mV)) / 60 mV)
+        I_test' = I_spike_test * ms**-1
+
+    parameters:
+        V_m_init V = -65 mV     # Initial membrane potential
+
+    update:
+        integrate_odes()

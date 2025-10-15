@@ -40,7 +40,15 @@ class TestPythonStandaloneNeuronBuildAndSimAnalytic(unittest.TestCase):
         logging_level = "INFO"
         suffix = ""
         module_name = "nestmlmodule"
-        codegen_opts = {}
+        codegen_opts = {        "quantity_to_preferred_prefix": {
+            "electrical potential": "m",
+            "electrical current": "p",
+            "electrical resistance": "G",
+            "electrical capacitance": "p",
+            "electrical conductance": "n",
+            "time": "m",
+        },
+}
 
         generate_python_standalone_target(input_path, target_path,
                                           module_name=module_name,

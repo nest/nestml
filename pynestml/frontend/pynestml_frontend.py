@@ -107,6 +107,13 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         options = synapse_post_neuron_co_generation.set_options(options)
         transformers.append(synapse_post_neuron_co_generation)
 
+    if target_name.upper() in ["NEST", "PYTHON_STANDALONE"]:
+        from pynestml.transformers.non_dimensionalisation_transformer import NonDimensionalisationTransformer
+
+        non_dimensionalisation_transformer = NonDimensionalisationTransformer()
+        options = non_dimensionalisation_transformer.set_options(options)
+        transformers.append(non_dimensionalisation_transformer)
+
     return transformers, options
 
 
@@ -391,7 +398,7 @@ def generate_spinnaker_target(input_path: Union[str, Sequence[str]], target_path
 
     generate_target(input_path, target_platform="spinnaker", target_path=target_path,
                     install_path=install_path,
-                    logging_level=logging_level, module_name="nestmlmodule", store_log=store_log, suffix=suffix, dev=dev,
+                    logging_level=logging_level, store_log=store_log, suffix=suffix, dev=dev,
                     codegen_opts=codegen_opts)
 
 

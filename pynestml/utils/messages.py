@@ -217,12 +217,6 @@ class Messages:
         return MessageCode.CONVOLVE_NEEDS_BUFFER_PARAMETER, message
 
     @classmethod
-    def get_implicit_magnitude_conversion(cls, lhs, rhs, conversion_factor):
-        message = 'Implicit magnitude conversion from %s to %s with factor %s ' % (
-            lhs.print_symbol(), rhs.print_symbol(), conversion_factor)
-        return MessageCode.IMPLICIT_CAST, message
-
-    @classmethod
     def get_function_call_implicit_cast(
             cls,
             arg_nr,
@@ -269,6 +263,7 @@ class Messages:
         message = 'Type of \'%s\' could not be derived!' % rhs
         return MessageCode.TYPE_NOT_DERIVABLE, message
 
+    # XXX: this should be removed
     @classmethod
     def get_implicit_cast_rhs_to_lhs(cls, rhs_type, lhs_type):
         """
