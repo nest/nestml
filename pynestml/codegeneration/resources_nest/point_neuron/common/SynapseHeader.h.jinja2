@@ -1402,8 +1402,14 @@ inline void
   std::deque< histentry__{{ paired_neuron_name }} >::iterator start;
   std::deque< histentry__{{ paired_neuron_name }} >::iterator finish;
   static_cast<{{ paired_neuron_name }}*>(get_target(t))->get_history__( t_last_update_ - dendritic_delay, t_trig - dendritic_delay, &start, &finish );
-{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
-  // get continuous-time history entries in relevant range (t1, t2] from post-synaptic neuron
+
+{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering | length > 0 %}
+
+{%-     if continuous_state_buffering_method != "continuous_time_buffer" %}
+{{          raise('In combination with a volume transmitter input port, only ``"continuous_time_buffer"`` is supported for ``continuous_state_buffering_method`` code generator option.') }}
+{%-     endif %}
+
+  // get continuous-time history entries in relevant range (t_last_update, t_trig] from post-synaptic neuron
   std::deque< continuous_variable_histentry_{{ paired_neuron_name }} >::iterator continuous_history_start;
   std::deque< continuous_variable_histentry_{{ paired_neuron_name }} >::iterator continuous_history_finish;
 
@@ -1421,7 +1427,7 @@ inline void
   while ( start != finish )
   {
 {%- for vt_port in vt_ports %}
-{%- set vt_port = vt_ports[0] %}
+{%-     set vt_port = vt_ports[0] %}
     process_{{vt_port}}_spikes_( vt_spikes, t0, start->t_ + dendritic_delay, cp );
 {%- endfor %}
 
@@ -1430,16 +1436,25 @@ inline void
 #endif
 
 {%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering | length > 0 %}
+
+{%-     if continuous_state_buffering_method != "continuous_time_buffer" %}
+{{          raise('In combination with a volume transmitter input port, only ``"continuous_time_buffer"`` is supported for ``continuous_state_buffering_method`` code generator option.') }}
+{%-     endif %}
+
+#ifdef DEBUG
+      std::cout << "Grabbing continuous_variable_history at t = " << start->t_ + dendritic_delay << "\n";
+#endif
+
     continuous_variable_histentry_{{ paired_neuron_name }} histentry(0.,
 {%-     for state_var in paired_neuron.state_vars_that_need_continuous_buffering %}
     {{ state_vars_that_need_continuous_buffering_transformed_iv[state_var] }}{% if not loop.last %},{% endif %}
-{%-         endfor %});
+{%-     endfor %});
     get_entry_from_continuous_variable_history(start->t_ + dendritic_delay, continuous_history_start, continuous_history_finish, histentry);
 
-{%- for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
-{%-     set var = utils.get_parameter_variable_by_name(astnode, var_name) %}
-        const double __{{ var_name }} = histentry.{{ var_name }};
-{%- endfor %}
+{%-     for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
+{%-         set var = utils.get_parameter_variable_by_name(astnode, var_name) %}
+    const double __{{ var_name }} = histentry.{{ var_name }};
+{%-     endfor %}
 {%- endif %}
 
     /**
