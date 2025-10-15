@@ -536,6 +536,18 @@ class ASTModel(ASTNode):
                     if var.get_complete_name() == variable_name:
                         return decl.get_expression()
 
+        for internals_block in self.get_internals_blocks():
+            for decl in internals_block.get_declarations():
+                for var in decl.variables:
+                    if var.get_complete_name() == variable_name:
+                        return decl.get_expression()
+
+        for parameters_block in self.get_parameters_blocks():
+            for decl in parameters_block.get_declarations():
+                for var in decl.variables:
+                    if var.get_complete_name() == variable_name:
+                        return decl.get_expression()
+
         return None
 
     def _to_base_value_from_string(self, quantity_str):
