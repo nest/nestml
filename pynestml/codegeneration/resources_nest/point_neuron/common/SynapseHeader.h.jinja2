@@ -1027,9 +1027,11 @@ void
 
 {%- filter indent(4, True) %}
 {%-     set dynamics = synapse.get_on_receive_block(vt_port) %}
-{%-     with ast = dynamics.get_stmts_body() %}
-{%-         include "directives_cpp/StmtsBody.jinja2" %}
-{%-     endwith %}
+{%-     if dynamics is not none %}
+{%-         with ast = dynamics.get_stmts_body() %}
+{%-             include "directives_cpp/StmtsBody.jinja2" %}
+{%-         endwith %}
+{%-     endif %}
 {%- endfilter %}
     // process remaining dopa spikes in (t0, t1]
     double cd;
@@ -1047,9 +1049,11 @@ void
       **/
 {%- filter indent(6, True) %}
 {%-     set dynamics = synapse.get_on_receive_block(vt_port) %}
-{%-     with ast = dynamics.get_stmts_body() %}
-{%-         include "directives_cpp/StmtsBody.jinja2" %}
-{%-     endwith %}
+{%-     if dynamics is not none %}
+{%-         with ast = dynamics.get_stmts_body() %}
+{%-             include "directives_cpp/StmtsBody.jinja2" %}
+{%-         endwith %}
+{%-     endif %}
 {%- endfilter %}
 
       /**
@@ -1398,6 +1402,16 @@ inline void
   std::deque< histentry__{{ paired_neuron_name }} >::iterator start;
   std::deque< histentry__{{ paired_neuron_name }} >::iterator finish;
   static_cast<{{ paired_neuron_name }}*>(get_target(t))->get_history__( t_last_update_ - dendritic_delay, t_trig - dendritic_delay, &start, &finish );
+{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
+  // get continuous-time history entries in relevant range (t1, t2] from post-synaptic neuron
+  std::deque< continuous_variable_histentry_{{ paired_neuron_name }} >::iterator continuous_history_start;
+  std::deque< continuous_variable_histentry_{{ paired_neuron_name }} >::iterator continuous_history_finish;
+
+  ((post_neuron_t*)(get_target(t)))->get_continuous_variable_history( t_last_update_,
+    t_trig,
+    &continuous_history_start,
+    &continuous_history_finish );
+{%- endif %}
 
   // facilitation due to postsyn. spikes since last update
   double t0 = t_last_update_;
@@ -1414,6 +1428,19 @@ inline void
 #ifdef DEBUG
     std::cout << "[synapse " << this << "] {{ synapseName }}: processing post spike from " << t_last_update_ << " to " << start->t_ + dendritic_delay << std::endl;
 #endif
+
+{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering | length > 0 %}
+    continuous_variable_histentry_{{ paired_neuron_name }} histentry(0.,
+{%-     for state_var in paired_neuron.state_vars_that_need_continuous_buffering %}
+    {{ state_vars_that_need_continuous_buffering_transformed_iv[state_var] }}{% if not loop.last %},{% endif %}
+{%-         endfor %});
+    get_entry_from_continuous_variable_history(start->t_ + dendritic_delay, continuous_history_start, continuous_history_finish, histentry);
+
+{%- for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
+{%-     set var = utils.get_parameter_variable_by_name(astnode, var_name) %}
+        const double __{{ var_name }} = histentry.{{ var_name }};
+{%- endfor %}
+{%- endif %}
 
     /**
      * update synapse internal state from `t_last_update_` to `start->t_ + dendritic_delay`
