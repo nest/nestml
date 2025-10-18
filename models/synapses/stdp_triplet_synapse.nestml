@@ -8,6 +8,8 @@
 #
 # Nearest-neighbour variant of pre- and postsynaptic spike coupling.
 #
+# Note that in this particular STDP synapse model, the weight is not allowed to be negative. In case an inhibitory STDP synapse needs to be modeled, this model (with weight >= 0 at all times) can be connected to a postsynaptic neuron at its appropriate (inhibitory) input port. The sign of the postsynaptic response is thus handled in the postsynaptic neuron. In principle, an STDP synapse model can be defined that allows for negative weights, but in this case, care should be taken to prevent the sign of the weight from changing during learning, as a biological synapse cannot simply switch from one type to another, say, from glutamatergic to GABAergic.
+#
 # .. note::
 #
 #    See https://github.com/nest/nestml/issues/703 for a potential edge-case issue with this model.
@@ -24,7 +26,7 @@
 # +++++++++++++++++++
 #
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
 #
 # NEST is free software: you can redistribute it and/or modify
@@ -43,7 +45,7 @@
 #
 model stdp_triplet_synapse:
     state:
-        w nS = 1 nS   # Synaptic weight
+        w nS = 1 nS [[w >= 0 nS]]   # Synaptic weight
 
         tr_r1 real = 0.
         tr_r2 real = 0.
@@ -63,8 +65,8 @@ model stdp_triplet_synapse:
         A2_minus real = 7e-3
         A3_minus real = 2.3e-4
 
-        Wmax nS = 100 nS
-        Wmin nS = 0 nS
+        Wmax nS = 100 nS [[Wmax >= 0 nS]]
+        Wmin nS = 0 nS [[Wmin >= 0 nS]]
 
     equations:
         tr_r1' = -tr_r1 / tau_plus
