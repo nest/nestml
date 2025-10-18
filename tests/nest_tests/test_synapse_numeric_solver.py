@@ -58,7 +58,8 @@ class TestSynapseNumericSolver:
         """
         Evaluate ODEs using SciPy.
         """
-        sol = []
+        sol = np.empty((3, 0))
+        timevec_log = []
 
         # integrate the ODES from one spike time to the next, until the end of the simulation.
         t_last_spike = 0.
@@ -77,13 +78,15 @@ class TestSynapseNumericSolver:
                     rtol=1e-14,  # relative tolerance
                     atol=1e-14  # absolute tolerance
                 )
+                timevec_log.extend(solution.t)
+                sol = np.hstack((sol, solution.y))
                 initial_state = solution.y[:, -1]
                 t_last_spike = t_spike
                 spike_idx += 1
 
-            sol += [initial_state]
+            #sol += [initial_state]
 
-        return sol
+        return timevec_log, sol
 
     def test_non_linear_synapse(self):
         nest.ResetKernel()
@@ -99,7 +102,7 @@ class TestSynapseNumericSolver:
         target_path = "target_nl"
         modulename = "nl_syn_module"
 
-        generate_nest_target(input_path=input_paths,
+        """generate_nest_target(input_path=input_paths,
                              target_path=target_path,
                              logging_level="INFO",
                              suffix="_nestml",
@@ -108,7 +111,7 @@ class TestSynapseNumericSolver:
                                                                      "synapse": "non_linear_synapse"}],
                                            "delay_variable": {"non_linear_synapse": "d"},
                                            "weight_variable": {"non_linear_synapse": "w"},
-                                           "strictly_synaptic_vars": {"non_linear_synapse": ["x", "y", "z"]}})
+                                           "strictly_synaptic_vars": {"non_linear_synapse": ["x", "y", "z"]}})"""
         nest.Install(modulename)
 
         neuron_model = "iaf_psc_exp_neuron_nestml__with_non_linear_synapse_nestml"
@@ -131,7 +134,7 @@ class TestSynapseNumericSolver:
 
         # Scipy simulation
         params = (sigma, rho, beta)
-        sol = self.evaluate_odes_scipy(self.lorenz_attractor_system, params, inital_state, spike_times, sim_time)
+        timevec_log, sol = self.evaluate_odes_scipy(self.lorenz_attractor_system, params, inital_state, spike_times, sim_time)
         sol_arr = np.array(sol)
 
         # NEST simulation
@@ -153,20 +156,21 @@ class TestSynapseNumericSolver:
 
             ax[0].plot(times, x, label="NESTML")
             ax[0].scatter(times, x, marker='x')
-            ax[0].plot(times, sol_arr[:, 0], '--', label="scipy")
-            ax[0].scatter(times, sol_arr[:, 0], marker='o')
+            ax[0].plot(timevec_log, sol_arr[0, :], '--', label="scipy")
+            #ax[0].plot(times, sol_arr[:, 0], '--', label="scipy")
+            #ax[0].scatter(times, sol_arr[:, 0], marker='o')
             ax[0].set_ylabel("x")
 
             ax[1].plot(times, y, label="NESTML")
             ax[1].scatter(times, y, marker='x')
-            ax[1].plot(times, sol_arr[:, 1], '--', label="scipy")
-            ax[1].scatter(times, sol_arr[:, 1], marker='o')
+            ax[1].plot(timevec_log, sol_arr[1, :], '--', label="scipy")
+            #ax[1].scatter(times, sol_arr[:, 1], marker='o')
             ax[1].set_ylabel("y")
 
             ax[2].plot(times, z, label="NESTML")
             ax[2].scatter(times, z, marker='x')
-            ax[2].plot(times, sol_arr[:, 2], '--', label="scipy")
-            ax[2].scatter(times, sol_arr[:, 2], marker='o')
+            ax[2].plot(timevec_log, sol_arr[2, :], '--', label="scipy")
+            #ax[2].scatter(times, sol_arr[:, 2], marker='o')
             ax[2].set_ylabel("z")
             for _ax in ax:
                 _ax.set_xlabel("time")
@@ -174,7 +178,8 @@ class TestSynapseNumericSolver:
 
             handles, labels = ax[-1].get_legend_handles_labels()
             fig.legend(handles, labels, loc='upper center')
-            plt.savefig("non_linear_synapse.png")
+            plt.savefig("non_linear_synapse.png", dpi=600)
+            plt.show()
 
         np.testing.assert_allclose(x, sol_arr[:, 0], rtol=1e-3, atol=1e-3)
         np.testing.assert_allclose(y, sol_arr[:, 1], rtol=1e-3, atol=1e-3)
