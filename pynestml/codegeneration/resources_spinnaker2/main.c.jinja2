@@ -93,7 +93,7 @@ void timer_callback()
         set_mask_feedthrough_irq(qpe_x, qpe_y, pe_id, 1 + 2);
         return;
     }
-    log_info("tick:%i\n", systicks);
+    
     receive_spikes(packet_received_callback);
     synapses_do_timestep_update(systicks);
     neuron_do_timestep_update();
