@@ -319,7 +319,7 @@ class NESTCodeGenerator(CodeGenerator):
         :param neurons: a list of neurons.
         """
         for neuron in neurons:
-            code, message = Messages.get_analysing_transforming_model(neuron.get_name())
+            code, message = Messages.get_start_code_generation(neuron.get_name())
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
             spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars = self.analyse_neuron(neuron)
             neuron.spike_updates = spike_updates
