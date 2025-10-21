@@ -1,0 +1,23 @@
+model equations_log_neuron:
+    state:
+        x real = 0
+        z real = 0
+        foo real = 42
+
+    equations:
+        x' = alpha_x / ((1 + x**n_x) * ln(tau_d / tau_r) * ms) - beta_x * x
+        z' = alpha_z / ((1 + x**n_z) * ms) - beta_z * z
+        foo' = -foo + log10(tau_d / tau_r) / s
+
+    parameters:
+        alpha_x real = 0.5
+        alpha_z real = 0.3529
+        beta_x real = 0.5
+        beta_z real = 0.5
+        n_x integer = 2
+        n_z integer = 2
+        tau_d ms = 0.4 ms
+        tau_r ms = 20 ms
+
+    update:
+        integrate_odes()
