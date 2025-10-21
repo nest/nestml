@@ -50,4 +50,3 @@ class NESTGSLFunctionCallPrinter(NESTCppFunctionCallPrinter):
             return super()._print_function_call_format_string(function_call)
 
         return "node." + super()._print_function_call_format_string(function_call)
-
