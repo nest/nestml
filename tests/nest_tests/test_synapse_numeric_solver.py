@@ -63,7 +63,7 @@ class TestSynapseNumericSolver:
         # integrate the ODES from one spike time to the next, until the end of the simulation.
         t_last_spike = 0.
         spike_idx = 0
-        for i in np.arange(1., sim_time + 0.01, 1.0):
+        for i in np.arange(0, sim_time + 0.01, 1.0):
             if spike_idx < len(spike_times) and i == spike_times[spike_idx]:
                 t_spike = spike_times[spike_idx]
                 t_span = [t_last_spike, t_spike]
@@ -135,9 +135,9 @@ class TestSynapseNumericSolver:
         sol_arr = np.array(sol)
 
         # NEST simulation
-        x = []
-        y = []
-        z = []
+        x = [1]
+        y = [1]
+        z = [1]
         sim_step_size = 1.
         for i in np.arange(0., sim_time, sim_step_size):
             nest.Simulate(sim_step_size)
@@ -149,7 +149,7 @@ class TestSynapseNumericSolver:
         # Plotting
         if TEST_PLOTS:
             fig, ax = plt.subplots(nrows=3, ncols=1, figsize=(7, 5))
-            times = np.arange(0., sim_time, sim_step_size)
+            times = np.arange(0., sim_time + 0.01, sim_step_size)
 
             ax[0].plot(times, x, label="NESTML")
             ax[0].scatter(times, x, marker='x')
