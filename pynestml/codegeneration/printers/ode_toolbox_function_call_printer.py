@@ -61,7 +61,7 @@ class ODEToolboxFunctionCallPrinter(FunctionCallPrinter):
 
     def _print_function_call_format_string(self, function_call: ASTFunctionCall) -> str:
         r"""
-        Converts a single handed over function call to C++ NEST API syntax.
+        Converts a single handed over function call to sympy syntax.
 
         Parameters
         ----------
@@ -71,7 +71,7 @@ class ODEToolboxFunctionCallPrinter(FunctionCallPrinter):
         Returns
         -------
         s
-            The function call string in C++ syntax.
+            The function call string in sympy syntax.
         """
         function_name = function_call.get_name()
 
@@ -89,7 +89,7 @@ class ODEToolboxFunctionCallPrinter(FunctionCallPrinter):
             return 'exp({!s})'
 
         if function_name == PredefinedFunctions.LN:
-            return 'log({!s})'
+            return 'ln({!s})'
 
         if function_name == PredefinedFunctions.LOG10:
             return 'log10({!s})'
