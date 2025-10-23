@@ -64,7 +64,7 @@ class TestLogFunctionsInODEs:
         sim_time = 100.0
 
         n = nest.Create("equations_log_neuron")
-        params_dict = n.get()
+        params_dict = nest.GetStatus(n)[0]
         initial_state = [params_dict["foo"], params_dict["x"], params_dict["z"]]
         params = [params_dict["tau_d"], params_dict["tau_r"], params_dict["alpha_x"],
                   params_dict["alpha_z"], params_dict["beta_x"], params_dict["beta_z"],
@@ -75,7 +75,7 @@ class TestLogFunctionsInODEs:
 
         nest.Simulate(sim_time)
 
-        events = mm.get("events")
+        events = nest.GetStatus(mm, "events")[0]
         foo = events["foo"]
         x = events["x"]
         z = events["z"]
