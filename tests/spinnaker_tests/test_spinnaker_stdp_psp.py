@@ -65,7 +65,6 @@ class TestSpiNNakerSTDPPSP:
         from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml as iaf_psc_exp_neuron_nestml
         from python_models8.neuron.implementations.stdp_synapse_nestml_impl import stdp_synapse_nestmlDynamics as stdp_synapse_nestml
 
-#        p.reset()
         p.setup(timestep=1.0)
         exc_input = "exc_spikes"
         inh_input = "inh_spikes"
@@ -74,7 +73,7 @@ class TestSpiNNakerSTDPPSP:
         pre_input = p.Population(1, p.SpikeSourceArray(spike_times=[0]), label="pre_input")
         post_neuron = p.Population(1, iaf_psc_exp_neuron_nestml(), label="post_neuron")
 
-        stdp_model = stdp_synapse_nestml(weight=0) #0x8000)
+        stdp_model = stdp_synapse_nestml(weight=0) # XXX: weight seems to be hard-coded to 0x50000? PSC peak is 5, so seems to match, but where is 0x50000 coming from?
         stdp_projection = p.Projection(pre_input, post_neuron, p.OneToOneConnector(), receptor_type=exc_input, synapse_type=stdp_model)
 
         #record spikes
