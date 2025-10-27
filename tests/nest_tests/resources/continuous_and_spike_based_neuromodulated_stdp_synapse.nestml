@@ -1,0 +1,68 @@
+# continuous_and_spike_based_neuromodulated_stdp_synapse
+# ##########################################################################################################################
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+model continuous_and_spike_based_neuromodulated_stdp_synapse:
+    state:
+        w real = 1                 # synaptic weight
+        pre_tr real = 0.0          # presynaptic eligibility trace
+        post_tr real = 0.0         # postsynaptic trace (optional)
+        mod real = 0.0             # surprise / modulatory signal accumulator
+
+    parameters:
+        eta real = 0.01          # learning rate
+        tau_pre ms = 20 ms       # decay of pre-trace
+        tau_post ms = 20 ms      # decay of post-trace
+        tau_mod ms = 100 ms      # decay of modulatory trace
+        w_min nS = 0 nS          # lower weight bound
+        w_max nS = 5 nS          # upper weight bound
+        d ms = 1 ms              # synaptic delay
+
+    equations:
+        pre_tr'  = -pre_tr  / tau_pre
+        post_tr' = -post_tr / tau_post
+        mod'     = -mod     / tau_mod
+
+    input:
+        pre_spikes <- spike
+        post_spikes <- spike
+        mod_spikes <- spike     # from VT through the IN_surprise_neuron
+        dAP_trace real <- continuous
+
+    output:
+        spike(weight real, delay ms)
+
+    onReceive(mod_spikes):
+        mod = mod + eta       # each surprise spike increments mod by its signed weight (±η)
+
+    onReceive(pre_spikes):
+        pre_tr += 1
+        emit_spike(w, d)
+
+    onReceive(post_spikes):
+        post_tr += 1
+        w += mod * pre_tr * post_tr * dAP_trace
+
+    update:
+        integrate_odes()
