@@ -35,8 +35,6 @@ model continuous_and_spike_based_neuromodulated_stdp_synapse:
         tau_pre ms = 20 ms       # decay of pre-trace
         tau_post ms = 20 ms      # decay of post-trace
         tau_mod ms = 100 ms      # decay of modulatory trace
-        w_min nS = 0 nS          # lower weight bound
-        w_max nS = 5 nS          # upper weight bound
         d ms = 1 ms              # synaptic delay
 
     equations:
@@ -54,7 +52,7 @@ model continuous_and_spike_based_neuromodulated_stdp_synapse:
         spike(weight real, delay ms)
 
     onReceive(mod_spikes):
-        mod = mod + eta       # each surprise spike increments mod by its signed weight (±eta)
+        mod = mod + eta
 
     onReceive(pre_spikes):
         pre_tr += 1
