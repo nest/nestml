@@ -37,9 +37,6 @@ try:
 except Exception:
     TEST_PLOTS = False
 
-sim_mdl = True
-sim_ref = True
-
 
 @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                     reason="This test does not support NEST 2")
@@ -146,34 +143,30 @@ class TestSimultaneousContinuousAndSpikeBasedNeuromodulation:
                         "volume_transmitter": vt})
 
         # create parrot neurons and connect spike_generators
-        if sim_mdl:
-            pre_neuron = nest.Create("parrot_neuron")
-            post_neuron = nest.Create(neuron_model_name)
+        pre_neuron = nest.Create("parrot_neuron")
+        post_neuron = nest.Create(neuron_model_name)
 
-        if sim_mdl:
-            spikedet_pre = nest.Create("spike_recorder")
-            spikedet_post = nest.Create("spike_recorder")
-            spikedet_vt = nest.Create("spike_recorder")
-            mm = nest.Create("multimeter", params={"record_from": ["V_m", "post_tr__for_continuous_and_spike_based_neuromodulated_stdp_synapse_nestml"]})
+        spikedet_pre = nest.Create("spike_recorder")
+        spikedet_post = nest.Create("spike_recorder")
+        spikedet_vt = nest.Create("spike_recorder")
+        mm = nest.Create("multimeter", params={"record_from": ["V_m", "post_tr__for_continuous_and_spike_based_neuromodulated_stdp_synapse_nestml"]})
 
-        if sim_mdl:
-            nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
-            nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
-            nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "stdp_nestml_rec"})
-            nest.Connect(mm, post_neuron)
-            nest.Connect(pre_neuron, spikedet_pre)
-            nest.Connect(post_neuron, spikedet_post)
-            nest.Connect(vt_parrot, spikedet_vt)
+        receptor_types = nest.GetStatus(post_neuron, "receptor_types")[0]
+
+        nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
+        nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999., "receptor_type": receptor_types["I_1"]})
+        nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "stdp_nestml_rec", "receptor_type": receptor_types["I_2"]})
+        nest.Connect(mm, post_neuron)
+        nest.Connect(pre_neuron, spikedet_pre)
+        nest.Connect(post_neuron, spikedet_post)
+        nest.Connect(vt_parrot, spikedet_vt)
 
         # get STDP synapse and weight before protocol
-        if sim_mdl:
-            syn = nest.GetConnections(source=pre_neuron, synapse_model="stdp_nestml_rec")
+        syn = nest.GetConnections(source=pre_neuron, synapse_model="stdp_nestml_rec")
 
-        n_steps = int(np.ceil(sim_time / resolution)) + 1
         t = 0.
         t_hist = []
-        if sim_mdl:
-            w_hist = []
+        w_hist = []
         while t <= sim_time:
             nest.Simulate(resolution)
             t += resolution
