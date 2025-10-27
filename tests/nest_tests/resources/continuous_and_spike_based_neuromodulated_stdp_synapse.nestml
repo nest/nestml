@@ -40,21 +40,21 @@ model continuous_and_spike_based_neuromodulated_stdp_synapse:
         d ms = 1 ms              # synaptic delay
 
     equations:
-        pre_tr'  = -pre_tr  / tau_pre
+        pre_tr' = -pre_tr / tau_pre
         post_tr' = -post_tr / tau_post
-        mod'     = -mod     / tau_mod
+        mod' = -mod / tau_mod
 
     input:
         pre_spikes <- spike
         post_spikes <- spike
-        mod_spikes <- spike     # from VT through the IN_surprise_neuron
+        mod_spikes <- spike
         dAP_trace real <- continuous
 
     output:
         spike(weight real, delay ms)
 
     onReceive(mod_spikes):
-        mod = mod + eta       # each surprise spike increments mod by its signed weight (±η)
+        mod = mod + eta       # each surprise spike increments mod by its signed weight (±eta)
 
     onReceive(pre_spikes):
         pre_tr += 1
