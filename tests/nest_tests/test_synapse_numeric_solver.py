@@ -63,29 +63,41 @@ class TestSynapseNumericSolver:
         # integrate the ODES from one spike time to the next, until the end of the simulation.
         t_last_spike = 0.
         spike_idx = 0
-        for i in np.arange(0, sim_time + 0.01, 1.0):
-            if spike_idx < len(spike_times) and i == spike_times[spike_idx]:
-                t_spike = spike_times[spike_idx]
-                t_span = [t_last_spike, t_spike]
-                # Solve using RK45
-                solution = solve_ivp(
-                    fun=func,
-                    t_span=t_span,  # interval of integration
-                    y0=initial_state,  # initial state
-                    args=params,  # parameters
-                    method='RK45',
-                    rtol=1e-14,  # relative tolerance
-                    atol=1e-14  # absolute tolerance
-                )
-                initial_state = solution.y[:, -1]
-                t_last_spike = t_spike
-                spike_idx += 1
-
-            sol += [initial_state]
-
-        return sol
+        solution = solve_ivp(
+            fun=func,
+            t_span=[0, sim_time],  # interval of integration
+            y0=initial_state,  # initial state
+            args=params,  # parameters
+            method='RK45',
+            t_eval=np.arange(0, sim_time + 0.01, 1.0),
+            rtol=1e-14,  # relative tolerance
+            atol=1e-14  # absolute tolerance
+        )
+        # for i in np.arange(0, sim_time + 0.01, 1.0):
+        #     if spike_idx < len(spike_times) and i == spike_times[spike_idx]:
+        #         t_spike = spike_times[spike_idx]
+        #         t_span = [t_last_spike, t_spike]
+        #         # Solve using RK45
+        #         solution = solve_ivp(
+        #             fun=func,
+        #             t_span=t_span,  # interval of integration
+        #             y0=initial_state,  # initial state
+        #             args=params,  # parameters
+        #             method='RK45',
+        #             rtol=1e-14,  # relative tolerance
+        #             atol=1e-14  # absolute tolerance
+        #         )
+        #         initial_state = solution.y[:, -1]
+        #         t_last_spike = t_spike
+        #         spike_idx += 1
+        #
+        #     sol += [initial_state]
+        #
+        # return sol
+        return solution.y
 
     def test_non_linear_synapse(self):
+        np.set_printoptions(precision=None)
         nest.ResetKernel()
         nest.set_verbosity("M_WARNING")
         dt = 0.1
@@ -99,16 +111,16 @@ class TestSynapseNumericSolver:
         target_path = "target_nl"
         modulename = "nl_syn_module"
 
-        generate_nest_target(input_path=input_paths,
-                             target_path=target_path,
-                             logging_level="INFO",
-                             suffix="_nestml",
-                             module_name=modulename,
-                             codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                                     "synapse": "non_linear_synapse"}],
-                                           "delay_variable": {"non_linear_synapse": "d"},
-                                           "weight_variable": {"non_linear_synapse": "w"},
-                                           "strictly_synaptic_vars": {"non_linear_synapse": ["x", "y", "z"]}})
+        # generate_nest_target(input_path=input_paths,
+        #                      target_path=target_path,
+        #                      logging_level="INFO",
+        #                      suffix="_nestml",
+        #                      module_name=modulename,
+        #                      codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
+        #                                                              "synapse": "non_linear_synapse"}],
+        #                                    "delay_variable": {"non_linear_synapse": "d"},
+        #                                    "weight_variable": {"non_linear_synapse": "w"},
+        #                                    "strictly_synaptic_vars": {"non_linear_synapse": ["x", "y", "z"]}})
         nest.Install(modulename)
 
         neuron_model = "iaf_psc_exp_neuron_nestml__with_non_linear_synapse_nestml"
@@ -132,12 +144,21 @@ class TestSynapseNumericSolver:
         # Scipy simulation
         params = (sigma, rho, beta)
         sol = self.evaluate_odes_scipy(self.lorenz_attractor_system, params, inital_state, spike_times, sim_time)
-        sol_arr = np.array(sol)
+        # sol_arr = np.array(sol)
+        sol_arr = np.empty((0, 3))
+        spike_index = 0
+        sol = sol.T
+        old_row = sol[0:1, :]
+        for i in range(sol.shape[0]):
+            if spike_index < len(spike_times) and i == int(spike_times[spike_index]):
+                old_row = sol[i:i+1, :]
+                spike_index += 1
+            sol_arr = np.vstack([sol_arr, old_row])
 
         # NEST simulation
-        x = [1]
-        y = [1]
-        z = [1]
+        x = [1.0]
+        y = [1.0]
+        z = [1.0]
         sim_step_size = 1.
         for i in np.arange(0., sim_time, sim_step_size):
             nest.Simulate(sim_step_size)
@@ -176,6 +197,6 @@ class TestSynapseNumericSolver:
             fig.legend(handles, labels, loc='upper center')
             plt.savefig("non_linear_synapse.png")
 
-        np.testing.assert_allclose(x, sol_arr[:, 0], rtol=1e-3, atol=1e-3)
-        np.testing.assert_allclose(y, sol_arr[:, 1], rtol=1e-3, atol=1e-3)
-        np.testing.assert_allclose(z, sol_arr[:, 2], rtol=1e-3, atol=1e-3)
+        np.testing.assert_allclose(x, sol_arr[:, 0])
+        np.testing.assert_allclose(y, sol_arr[:, 1])
+        np.testing.assert_allclose(z, sol_arr[:, 2])
