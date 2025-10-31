@@ -122,4 +122,4 @@ class TestSpiNNakerSTDPPSP:
         ax[0].get_xticklabels([])
         ax[-1].set_xlabel("Time [ms]")
 
-        fig.savefig("plot.png")
+        fig.savefig("test_spinnaker_stdp_psp_" + str(time.strftime("%Y-%m-%d %H:%M:%S")) + ".png")
