@@ -103,7 +103,7 @@ class TestSpiNNakerSTDPDistribution:
         #p.Projection(pre_input, post_spiking, p.OneToOneConnector(), receptor_type=exc_input, synapse_type=p.StaticSynapse(weight=weight_post))
 
         #stdp_model = stdp_synapse_nestml(weight=50000) # should cause a 5 mV deflection in the postsynaptic potential
-        stdp_model = stdp_synapse_nestml(weight=0) # should cause a 5 mV deflection in the postsynaptic potential
+        stdp_model = stdp_synapse_nestml(weight=initial_weight) # should cause a 2.5 mV deflection in the postsynaptic potential
         stdp_projection = p.Projection(pre_input, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type=exc_input)
 
         # XXX: TODO: # Initialize weights to a random value around the midpoint
