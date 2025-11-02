@@ -58,7 +58,11 @@ class TestSpiNNakerSTDPDistribution:
                                   suffix=suffix,
                                   codegen_opts=codegen_opts)
 
-    def run_sim(self, simtime=10000):
+    def run_sim(self, n_inputs=100, input_rate=10., simtime=1000):
+        r"""
+        input_rate is in spikes/s
+        simtime is in ms and should be about 100 s for convergence
+        """
         import pyNN.spiNNaker as p
         from pyNN.utility.plotting import Figure, Panel
 
@@ -68,10 +72,28 @@ class TestSpiNNakerSTDPDistribution:
 #        p.reset()
         p.setup(timestep=1.0)
         exc_input = "exc_spikes"
-        inh_input = "inh_spikes"
+
+        neuron_parameters = {
+            "E_L": -70.,  # [mV]
+            "V_reset": -65.,    # [mV]
+            "V_th": -50.,    # [mV]
+            "tau_m": 20.,  # [ms]
+            "t_refr": 5.,    # [ms]
+        }
+
+        stdp_parameters = {
+            "W_min": 0.,
+            "w_max": 0.,
+            "tau_pre": 20.,    # [ms]
+            "tau_post": 20.,    # [ms]
+            "A_pot": 0.01,
+            "A_dep": 0.0105
+        }
+
+        initial_weight = 2.5    # [mV]
 
         #inputs for pre and post synaptic neurons
-        pre_input = p.Population(10, p.SpikeSourcePoisson(rate=10.), label="pre_input")
+        pre_input = p.Population(n_inputs, p.SpikeSourcePoisson(rate=input_rate), label="pre_input")
         post_spiking = p.Population(1, iaf_delta_neuron_nestml(), label="post_spiking")
 
         #weight_pre = 3000
@@ -83,6 +105,10 @@ class TestSpiNNakerSTDPDistribution:
         #stdp_model = stdp_synapse_nestml(weight=50000) # should cause a 5 mV deflection in the postsynaptic potential
         stdp_model = stdp_synapse_nestml(weight=0) # should cause a 5 mV deflection in the postsynaptic potential
         stdp_projection = p.Projection(pre_input, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type=exc_input)
+
+        # XXX: TODO: # Initialize weights to a random value around the midpoint
+        # stdp_projection.w = f'rand() * {INITIAL_WEIGHT / b2.mV} * mV'
+
 
         #record spikes
         pre_input.record(["spikes"])

@@ -66,9 +66,9 @@ model stdp_synapse:
         tau_tr_pre ms = 20 ms
         tau_tr_post ms = 20 ms
         A_POT real = 0.01  # Potentiation factor (LTP)
-        A_DEP real = 0.02 # Depression factor (LTD)
-        eta real = 10
-        Wmax real = 10.
+        A_DEP real = 0.0105 # Depression factor (LTD)
+        eta real = 1.    # learning rate
+        Wmax real = 5.
         Wmin real = 0.
 
     equations:
