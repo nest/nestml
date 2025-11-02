@@ -70,7 +70,7 @@ model stdp_synapse:
         mu_plus real = 1
         mu_minus real = 1
         Wmax real = 100.
-        Wmin real = 0.
+        Wmin real = 10.
 
     equations:
         pre_trace' = -pre_trace / tau_tr_pre
@@ -90,7 +90,7 @@ model stdp_synapse:
         #w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
         #w_ real = Wmax * ( w  + (lambda * ( 1. - w ) * pre_trace ))
         w += lambda * pre_trace
-        #w = min(Wmax, w)
+        w = min(Wmax, w)
 
     onReceive(pre_spikes):
         pre_trace += 1
@@ -99,7 +99,7 @@ model stdp_synapse:
         #w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
         #w_ real = Wmax * ( w - ( alpha * lambda * w * post_trace ))
         w -= lambda * post_trace
-        #w = max(Wmin, w)
+        w = max(Wmin, w)
 
         # deliver spike to postsynaptic partner
         emit_spike(w, d)
