@@ -23,6 +23,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
+import time
 
 from pynestml.frontend.pynestml_frontend import generate_spinnaker_target
 
@@ -73,7 +74,7 @@ class TestSpiNNakerSTDPPSP:
         pre_input = p.Population(1, p.SpikeSourceArray(spike_times=[0]), label="pre_input")
         post_neuron = p.Population(1, iaf_psc_exp_neuron_nestml(), label="post_neuron")
 
-        stdp_model = stdp_synapse_nestml(weight=0) # XXX: weight seems to be hard-coded to 0x50000? PSC peak is 5, so seems to match, but where is 0x50000 coming from?
+        stdp_model = stdp_synapse_nestml(weight=1234)  # setting to 123 here -> 0xf6 on the C side; 1234 -> 0x9a4 ---> SO, IT COMES OUT BIT SHIFTED 1 LEFT WITH RESPECT TO THIS VALUE
         stdp_projection = p.Projection(pre_input, post_neuron, p.OneToOneConnector(), receptor_type=exc_input, synapse_type=stdp_model)
 
         #record spikes

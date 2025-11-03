@@ -70,7 +70,7 @@ model stdp_synapse:
         mu_plus real = 1
         mu_minus real = 1
         Wmax real = 100.
-        Wmin real = 10.
+        Wmin real = 0.
 
     equations:
         pre_trace' = -pre_trace / tau_tr_pre

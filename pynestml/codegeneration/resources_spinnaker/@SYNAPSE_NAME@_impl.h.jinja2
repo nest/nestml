@@ -620,40 +620,4 @@ static inline void print_delayed_window_events(
 
 
 
-
-//---------------------------------------
-// STDP weight dependence functions
-//---------------------------------------
-/*!
- * \brief Gets the initial weight state.
- * \param[in] weight: The weight at the start
- * \param[in] synapse_type: The type of synapse involved
- * \return The initial weight state.
- */
-static inline synapse_word_t weight_get_initial(
-        weight_t weight, index_t synapse_type) {
-//    extern plasticity_weight_region_data_t *plasticity_weight_region_data;
-//    extern uint32_t *weight_shift;
-
-//    log_info("[NESTML synapse] weight_get_initial()");
-    accum s1615_weight = weight; //kbits(weight << weight_shift[synapse_type]);
-    return (synapse_word_t) {
-        .w = s1615_weight,
-        .pre_trace = 0,
-        .post_trace = 0
-      //  .weight_region = &plasticity_weight_region_data[synapse_type]
-    };
-}
-
-//---------------------------------------
-/*!
- * \brief Gets the final weight.
- * \param[in] state: The updated weight state
- * \return The new weight.
- */
-static inline weight_t weight_get_final(synapse_word_t state) {
-    return (weight_t) (bitsk(state.w) >> 16);
-}
-
-
 #endif // {{synapseName.upper()}}_IMPL_H

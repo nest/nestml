@@ -391,8 +391,10 @@ static void process_plastic_synapse(
 	if (s.delay_axonal + s.delay_dendritic > colour_delay) {
 	    int32_t weight = state.w;   // XXX: the variable name ``w`` is hard-coded here  // XXX: might need to bit-shift here! Store ``ring_buffer_to_input_buffer_left_shifts`` somewhere which is given in the init function
 	    synapse_dynamics_stdp_update_ring_buffers(ring_buffers, s, weight);
+        log_info("[NESTML synapse] \thard-coding weight");
     } else {
         skipped_synapses++;
+        log_info("[NESTML synapse] \tskipping synapse");
     }
 
     /**
