@@ -704,6 +704,8 @@ class NESTCodeGenerator(CodeGenerator):
 
                 namespace["state_vars_that_need_continuous_buffering_transformed_iv"] = {}
                 for var_name, var_name_transformed in zip(namespace["state_vars_that_need_continuous_buffering"], namespace["state_vars_that_need_continuous_buffering_transformed"]):
+                    if neuron.get_initial_value(var_name_transformed) is None:
+                        raise Exception("State variable \"" + str(var_name_transformed) + "\" was not found in the neuron model \"" + neuron.name + "\"")
                     namespace["state_vars_that_need_continuous_buffering_transformed_iv"][var_name] = self._nest_printer.print(neuron.get_initial_value(var_name_transformed))
             else:
                 namespace["state_vars_that_need_continuous_buffering"] = []
