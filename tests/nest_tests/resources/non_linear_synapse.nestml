@@ -5,7 +5,8 @@
 # Description
 # +++++++++++
 #
-# This model is used to test vector operations with NEST.
+# This model is used to test the synapse model with non-linear dynamics requiring a numeric solver.
+# The system of equations used in this model is the Lotka-Volterra system.
 #
 #
 # Copyright statement
@@ -30,21 +31,20 @@
 
 model non_linear_synapse:
     state:
-        x real = 1.
-        y real = 1.
-        z real = 1.
+        x real = 40.
+        y real = 9.
         w real = 0.
         d ms = 1.0 ms
 
     equations:
-        x' = (sigma * (y - x)) / ms
-        y' = (x * (rho - z) - y) / ms
-        z' = (x * y - beta * z) / ms
+        x' = (alpha * x - beta * x * y) / ms
+        y' = (-gamma * y + delta * x * y) / ms
 
     parameters:
-        sigma real = 10.
-        beta real = 8/3
-        rho real = 28
+        alpha real = 0.1
+        beta real = 0.02
+        delta real = 0.01
+        gamma real = 0.3
 
     input:
         pre_spikes <- spike
@@ -53,7 +53,7 @@ model non_linear_synapse:
         spike(weight real, delay ms)
 
     onReceive(pre_spikes):
-        w += x * y / z
+        w += x * y
         emit_spike(w, d)
 
     update:
