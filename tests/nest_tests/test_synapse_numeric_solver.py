@@ -119,7 +119,7 @@ class TestSynapseNumericSolver:
         old_row = sol[0:1, :]
         for i in range(sol.shape[0]):
             if spike_index < len(spike_times) and i == int(spike_times[spike_index]):
-                old_row = sol[i:i+1, :]
+                old_row = sol[i: i + 1, :]
                 spike_index += 1
             sol_arr = np.vstack([sol_arr, old_row])
 
