@@ -1,5 +1,7 @@
 import nestgpu as ngpu
 import numpy as np
+import os
+
 
 neuron = ngpu.Create("iaf_psc_exp_neuron_nestml")
 sg = ngpu.Create("spike_generator")
@@ -22,7 +24,8 @@ t = [row[0] for row in data_list]
 V_m = [row[1] for row in data_list]
 
 np.savetxt("test.out", data_list, delimiter="\t")
-data = np.loadtxt('nest_data.txt', delimiter="\t")
+nest_data_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "nest_data.txt")
+data = np.loadtxt(nest_data_file, delimiter="\t")
 t1 = [x[0] for x in data]
 V_m1 = [x[1] for x in data]
 
