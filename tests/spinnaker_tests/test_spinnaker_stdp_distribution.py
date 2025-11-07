@@ -58,7 +58,7 @@ class TestSpiNNakerSTDPDistribution:
                                   suffix=suffix,
                                   codegen_opts=codegen_opts)
 
-    def run_sim(self, n_inputs=100, input_rate=10., simtime=1000):
+    def run_sim(self, n_inputs=1, input_rate=10., simtime=1000):
         r"""
         input_rate is in spikes/s
         simtime is in ms and should be about 100 s for convergence
@@ -73,7 +73,7 @@ class TestSpiNNakerSTDPDistribution:
         p.setup(timestep=1.0)
         exc_input = "exc_spikes"
 
-        neuron_parameters = {
+        neuron_parameters = { # XXX UNUSED
             "E_L": -70.,  # [mV]
             "V_reset": -65.,    # [mV]
             "V_th": -50.,    # [mV]
@@ -81,30 +81,34 @@ class TestSpiNNakerSTDPDistribution:
             "t_refr": 5.,    # [ms]
         }
 
-        stdp_parameters = {
+        stdp_parameters = { # XXX UNUSED
             "W_min": 0.,
-            "w_max": 0.,
+            "W_max": 30.,
             "tau_pre": 20.,    # [ms]
             "tau_post": 20.,    # [ms]
             "A_pot": 0.01,
-            "A_dep": 0.0105
+            "A_dep": 0.02
         }
 
-        initial_weight = 2.5    # [mV]
+        initial_weight = 1500.    # [mV]
 
         #inputs for pre and post synaptic neurons
         pre_input = p.Population(n_inputs, p.SpikeSourcePoisson(rate=input_rate), label="pre_input")
-        post_spiking = p.Population(1, iaf_delta_neuron_nestml(), label="post_spiking")
+        post_neuron = p.Population(1, iaf_delta_neuron_nestml(), label="post_neuron")
 
         #weight_pre = 3000
         #weight_post = 3000
 
         #p.Projection(pre_input, pre_spiking, p.OneToOneConnector(), receptor_type=exc_input, synapse_type=p.StaticSynapse(weight=weight_pre))
-        #p.Projection(pre_input, post_spiking, p.OneToOneConnector(), receptor_type=exc_input, synapse_type=p.StaticSynapse(weight=weight_post))
+        #p.Projection(pre_input, post_neuron, p.OneToOneConnector(), receptor_type=exc_input, synapse_type=p.StaticSynapse(weight=weight_post))
 
         #stdp_model = stdp_synapse_nestml(weight=50000) # should cause a 5 mV deflection in the postsynaptic potential
+
+
+
+        #stdp_model = p.StaticSynapse(weight=initial_weight) # should cause a 2.5 mV deflection in the postsynaptic potential
         stdp_model = stdp_synapse_nestml(weight=initial_weight) # should cause a 2.5 mV deflection in the postsynaptic potential
-        stdp_projection = p.Projection(pre_input, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type=exc_input)
+        stdp_projection = p.Projection(pre_input, post_neuron, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type=exc_input)
 
         # XXX: TODO: # Initialize weights to a random value around the midpoint
         # stdp_projection.w = f'rand() * {INITIAL_WEIGHT / b2.mV} * mV'
@@ -112,7 +116,9 @@ class TestSpiNNakerSTDPDistribution:
 
         #record spikes
         pre_input.record(["spikes"])
-        post_spiking.record(["spikes"])
+        post_neuron.record(["spikes"])
+        post_neuron.record(["V_m"])
+
 
         #pre_input.set(spike_times=[100, 110, 120, 1000])
         #pre_input.set(spike_times=pre_spike_times)
@@ -121,34 +127,41 @@ class TestSpiNNakerSTDPDistribution:
         p.run(simtime)
 
         pre_neo = pre_input.get_data("spikes")
-        post_neo = post_spiking.get_data("spikes")
+        post_neo = post_neuron.get_data("spikes")
 
         pre_spike_times = pre_neo.segments[0].spiketrains
         post_spike_times = post_neo.segments[0].spiketrains
 
         w = stdp_projection.get("weight", format="float")
 
+        v_post_neuron = post_neuron.get_data("V_m")
+        times = v_post_neuron.segments[0].analogsignals[0].times
+        v_post_neuron = np.array(v_post_neuron.segments[0].filter(name="V_m")[0])
+
         p.end()
         print(w)
 
         import pdb;pdb.set_trace()
 
-        return w, pre_spike_times, post_spike_times
+        return times, v_post_neuron, w, pre_spike_times, post_spike_times
 
 
     def test_stdp(self):
-        dw, actual_pre_spike_times, actual_post_spike_times = self.run_sim()
+        times, v_post_neuron, dw, actual_pre_spike_times, actual_post_spike_times = self.run_sim()
         print("actual pre_spikes: " + str(actual_pre_spike_times))
         print("actual post_spikes: " + str(actual_post_spike_times))
         print("weights after simulation: " + str(dw))
 
 
-        fig, ax = plt.subplots()
-        ax.plot(spike_time_axis, res_weights, '.')
-        ax.set_xlabel(r"$t_{pre} - t_{post} [ms]$")
-        ax.set_ylabel(r"$\Delta w$")
-        ax.set_title("STDP-Window")
-        ax.grid(True)
+        fig, ax = plt.subplots(nrows=2)
+        ax[0].plot(actual_pre_spike_times, np.zeros_like(actual_pre_spike_times), '.')
+        ax[0].plot(actual_post_spike_times, np.ones_like(actual_post_spike_times), '.')
+        ax[1].plot(times, v_post_neuron)
+        ax[1].set_ylabel("V_m")
+        ax[-1].set_xlabel(r"$t$ [ms]")
+        ax[0].set_ylabel(r"$w$")
+        for _ax in ax:
+            _ax.grid(True)
 
 #        ax.subplots_adjust(bottom=0.2)
 
