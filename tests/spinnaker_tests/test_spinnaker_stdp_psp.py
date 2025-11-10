@@ -59,7 +59,7 @@ class TestSpiNNakerSTDPPSP:
                                   suffix=suffix,
                                   codegen_opts=codegen_opts)
 
-    def run_sim(self, pre_spike_times, simtime=50):
+    def run_sim(self, pre_spike_times, weight=123, simtime=50):
         import pyNN.spiNNaker as p
         from pyNN.utility.plotting import Figure, Panel
 
@@ -74,7 +74,7 @@ class TestSpiNNakerSTDPPSP:
         pre_input = p.Population(1, p.SpikeSourceArray(spike_times=[0]), label="pre_input")
         post_neuron = p.Population(1, iaf_psc_exp_neuron_nestml(), label="post_neuron")
 
-        stdp_model = stdp_synapse_nestml(weight=1234)  # setting to 123 here -> 0xf6 on the C side; 1234 -> 0x9a4 ---> SO, IT COMES OUT BIT SHIFTED 1 LEFT WITH RESPECT TO THIS VALUE
+        stdp_model = stdp_synapse_nestml(weight=weight)
         stdp_projection = p.Projection(pre_input, post_neuron, p.OneToOneConnector(), receptor_type=exc_input, synapse_type=stdp_model)
 
         #record spikes
@@ -107,10 +107,10 @@ class TestSpiNNakerSTDPPSP:
         return times, v_post_neuron, i_syn_exc_post_neuron
 
 
-    def test_stdp(self):
-        pre_spike_times = [10., 25.]
-        times, v_post_neuron, i_syn_exc_post_neuron = self.run_sim(pre_spike_times)
-
+    @pytest.mark.parametrize("weight", [123])
+    def test_stdp(self, weight):
+        pre_spike_times = [10.]
+        times, v_post_neuron, i_syn_exc_post_neuron = self.run_sim(pre_spike_times, weight=weight)
 
         fig, ax = plt.subplots(nrows=2)
         ax[0].plot(times, v_post_neuron, label="V_m")
@@ -124,3 +124,6 @@ class TestSpiNNakerSTDPPSP:
         ax[-1].set_xlabel("Time [ms]")
 
         fig.savefig("test_spinnaker_stdp_psp_" + str(time.strftime("%Y-%m-%d %H:%M:%S")) + ".png")
+
+        assert len(np.unique(v_post_neuron)) > 1, "No PSPs detected in postsynaptic membrane potential"
+        np.testing.assert_allclose(np.amax(i_syn_exc_post_neuron), weight)

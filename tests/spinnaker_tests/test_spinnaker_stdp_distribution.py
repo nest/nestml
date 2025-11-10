@@ -33,14 +33,15 @@ class TestSpiNNakerSTDPDistribution:
     @pytest.fixture(autouse=True,
                     scope="module")
     def generate_code(self):
-        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_delta_neuron",
+        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp", #"iaf_delta_neuron",
                                                   "synapse": "stdp_synapse",
                                                   "post_ports": ["post_spikes"]}],
                         "delay_variable":{"stdp_synapse":"d"},
                         "weight_variable":{"stdp_synapse":"w"}}
 
         files = [
-            os.path.join("models", "neurons", "iaf_delta_neuron.nestml"),
+            os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
+#            os.path.join("models", "neurons", "iaf_delta_neuron.nestml"),
             os.path.join("models", "synapses", "stdp_additive_synapse.nestml")
         ]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -66,7 +67,8 @@ class TestSpiNNakerSTDPDistribution:
         import pyNN.spiNNaker as p
         from pyNN.utility.plotting import Figure, Panel
 
-        from python_models8.neuron.builds.iaf_delta_neuron_nestml import iaf_delta_neuron_nestml as iaf_delta_neuron_nestml
+        from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml as iaf_neuron_nestml
+        #from python_models8.neuron.builds.iaf_delta_neuron_nestml import iaf_delta_neuron_nestml as iaf_delta_neuron_nestml
         from python_models8.neuron.implementations.stdp_synapse_nestml_impl import stdp_synapse_nestmlDynamics as stdp_synapse_nestml
 
 #        p.reset()
@@ -94,7 +96,7 @@ class TestSpiNNakerSTDPDistribution:
 
         #inputs for pre and post synaptic neurons
         pre_input = p.Population(n_inputs, p.SpikeSourcePoisson(rate=input_rate), label="pre_input")
-        post_neuron = p.Population(1, iaf_delta_neuron_nestml(), label="post_neuron")
+        post_neuron = p.Population(1, iaf_neuron_nestml(), label="post_neuron")
 
         #weight_pre = 3000
         #weight_post = 3000

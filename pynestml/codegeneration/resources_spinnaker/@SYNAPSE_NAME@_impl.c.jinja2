@@ -275,9 +275,9 @@ static void process_plastic_synapse(
 		pre_trace_t new_pre_trace, weight_t *ring_buffers, uint32_t pre_spike_time,
 		uint32_t colour_delay, synapse_word_t *synapse_word) {
 
-    log_info("[NESTML synapse] In process_plastic_synapse(time = %d, last_pre_time = %d)", pre_spike_time, last_pre_time);
-
     fixed_{{ synapseName }} s = synapse_dynamics_stdp_get_fixed(control_word, pre_spike_time, colour_delay);
+
+    log_info("[NESTML synapse] In process_plastic_synapse(time = %d, last_pre_time = %d, dendritic_delay = %x)", pre_spike_time, last_pre_time, s.delay_dendritic);
 
     uint32_t post_delay = s.delay_dendritic;
     if (!params.backprop_delay) {
@@ -389,9 +389,9 @@ static void process_plastic_synapse(
 	**/
 	
 	if (s.delay_axonal + s.delay_dendritic > colour_delay) {
-	    int32_t weight = state.w;   // XXX: the variable name ``w`` is hard-coded here  // XXX: might need to bit-shift here! Store ``ring_buffer_to_input_buffer_left_shifts`` somewhere which is given in the init function
+	    int32_t weight = TYPECAST_TO_UINT32_T(state.w);   // XXX: the variable name ``w`` is hard-coded here
 	    synapse_dynamics_stdp_update_ring_buffers(ring_buffers, s, weight);
-        log_info("[NESTML synapse] \thard-coding weight");
+        log_info("[NESTML synapse] \thard-coding weight, weight = %x", weight);
     } else {
         skipped_synapses++;
         log_info("[NESTML synapse] \tskipping synapse");
