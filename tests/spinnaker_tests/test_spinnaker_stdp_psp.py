@@ -107,7 +107,7 @@ class TestSpiNNakerSTDPPSP:
         return times, v_post_neuron, i_syn_exc_post_neuron
 
 
-    @pytest.mark.parametrize("weight", [123])
+    @pytest.mark.parametrize("weight", [123, 1234])
     def test_stdp(self, weight):
         pre_spike_times = [10.]
         times, v_post_neuron, i_syn_exc_post_neuron = self.run_sim(pre_spike_times, weight=weight)

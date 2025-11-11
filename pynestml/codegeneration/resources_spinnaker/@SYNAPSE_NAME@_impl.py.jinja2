@@ -93,10 +93,10 @@ NEUROMODULATION_TARGETS = {
 
 
 
-def float_to_s15_16(x: float) -> int:
-    """Converts a float to a Q15.16 fixed-point 32-bit integer.
+def float_to_s16_15(x: float) -> int:
+    """Converts a float to a Q16.15 fixed-point 32-bit integer.
 
-    The S15.16 format uses 1 sign bit, 15 integer bits, and 16
+    The S16.15 format uses 1 sign bit, 16 integer bits, and 15
     fractional bits.
 
     Args:
@@ -325,9 +325,9 @@ class {{ synapseName }}Dynamics(
 
 {%- for sym in synapse.get_parameter_symbols() + synapse.get_internal_symbols() %}
         # write value for parameter "{{ sym.get_symbol_name() }}"
-        print("XXXXXXXXX writing value for parameter {{ sym.get_symbol_name() }} ======= " + str(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]) + " ==== encoded --> " + str(hex(float_to_s15_16(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]))))
+        print("XXXXXXXXX writing value for parameter {{ sym.get_symbol_name() }} ======= " + str(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]) + " ==== encoded --> " + str(hex(float_to_s16_15(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]))))
         spec.write_value(
-                data=float_to_s15_16(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]), # int(i),  # XXX should be actual data; use int(i) for testing
+                data=float_to_s16_15(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]), # int(i),  # XXX should be actual data; use int(i) for testing
                 data_type=DataType.INT32)
         i += 1
 {%- endfor %}

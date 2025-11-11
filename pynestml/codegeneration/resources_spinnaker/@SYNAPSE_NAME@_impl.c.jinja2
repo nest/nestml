@@ -391,7 +391,7 @@ static void process_plastic_synapse(
 	if (s.delay_axonal + s.delay_dendritic > colour_delay) {
 	    int32_t weight = TYPECAST_TO_UINT32_T(state.w);   // XXX: the variable name ``w`` is hard-coded here
 	    synapse_dynamics_stdp_update_ring_buffers(ring_buffers, s, weight);
-        log_info("[NESTML synapse] \thard-coding weight, weight = %x", weight);
+        log_info("[NESTML synapse] \thard-coding weight, weight = 0x%x", weight);
     } else {
         skipped_synapses++;
         log_info("[NESTML synapse] \tskipping synapse");

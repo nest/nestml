@@ -80,7 +80,7 @@ class SynapsePostNeuronTransformer(Transformer):
 
         return unused_options
 
-    def is_special_port(self, special_type: str, port_name: str, neuron_name: str, synapse_name: str) -> bool:
+    def is_special_port(self, special_type: str, port_name: str, neuron_name: Optional[str], synapse_name: str) -> bool:
         """
         Check if a port by the given name is specified as connecting to the postsynaptic neuron. Only makes sense
         for synapses.
@@ -90,8 +90,10 @@ class SynapsePostNeuronTransformer(Transformer):
             return False
 
         for neuron_synapse_pair in self._options["neuron_synapse_pairs"]:
-            if not (neuron_name in [neuron_synapse_pair["neuron"], neuron_synapse_pair["neuron"] + FrontendConfiguration.suffix]
-                    and synapse_name in [neuron_synapse_pair["synapse"], neuron_synapse_pair["synapse"] + FrontendConfiguration.suffix]):
+            if not synapse_name in [neuron_synapse_pair["synapse"], neuron_synapse_pair["synapse"] + FrontendConfiguration.suffix]:
+                continue
+
+            if neuron_name is not None and not neuron_name in [neuron_synapse_pair["neuron"], neuron_synapse_pair["neuron"] + FrontendConfiguration.suffix]:
                 continue
 
             if not special_type + "_ports" in neuron_synapse_pair.keys():
@@ -119,10 +121,10 @@ class SynapsePostNeuronTransformer(Transformer):
                     return True
         return False
 
-    def is_post_port(self, port_name: str, neuron_name: str, synapse_name: str) -> bool:
+    def is_post_port(self, port_name: str, neuron_name: Optional[str], synapse_name: str) -> bool:
         return self.is_special_port("post", port_name, neuron_name, synapse_name)
 
-    def is_vt_port(self, port_name: str, neuron_name: str, synapse_name: str) -> bool:
+    def is_vt_port(self, port_name: str, neuron_name: Optional[str], synapse_name: str) -> bool:
         return self.is_special_port("vt", port_name, neuron_name, synapse_name)
 
     def get_spiking_post_port_names(self, synapse, neuron_name: str, synapse_name: str):
