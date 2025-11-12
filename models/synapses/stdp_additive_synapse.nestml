@@ -67,8 +67,8 @@ model stdp_synapse:
         tau_tr_post ms = 20 ms
         A_POT real = 0.01  # Potentiation factor (LTP)
         A_DEP real = 0.02 # Depression factor (LTD)
-        eta real = 1.    # learning rate
-        Wmax real = 30000.
+        eta real = .01    # learning rate
+        Wmax real = 50.
         Wmin real = 0.
 
     equations:
@@ -101,7 +101,8 @@ model stdp_synapse:
             w = 0.
         else:
             w -= eta * A_DEP * post_trace
-        w = max(Wmin, w)
+
+        # w = max(Wmin, w)
 
         # deliver spike to postsynaptic partner
         emit_spike(w, d)

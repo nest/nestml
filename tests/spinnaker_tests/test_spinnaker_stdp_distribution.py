@@ -27,21 +27,54 @@ import pytest
 from pynestml.frontend.pynestml_frontend import generate_spinnaker_target
 
 
+
+
+
+
+
+def float_to_s15_16(x: float) -> int:
+    """Converts a float to a Q15.16 fixed-point 32-bit integer.
+
+    The S15.16 format uses 1 sign bit, 15 integer bits, and 16
+    fractional bits.
+
+    Args:
+        float_val: The floating-point number to convert.
+
+    Returns:
+        The 32-bit signed integer representing the fixed-point number.
+    """
+
+    sign_bit: int = 1 if np.sign(x) == -1 else 0
+    integer_bits: int = int(np.abs(x))
+    fractional_bits: int = int((np.abs(x) - int(np.abs(x))) * 2**15)
+
+    fixp_x: int = (sign_bit << 31) + (integer_bits << 15) + fractional_bits
+
+    return fixp_x
+
+
+
+
+
+
+
+
 class TestSpiNNakerSTDPDistribution:
     """SpiNNaker code generation tests"""
 
     @pytest.fixture(autouse=True,
                     scope="module")
     def generate_code(self):
-        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp", #"iaf_delta_neuron",
+        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_delta_neuron", #"iaf_psc_exp",
                                                   "synapse": "stdp_synapse",
                                                   "post_ports": ["post_spikes"]}],
                         "delay_variable":{"stdp_synapse":"d"},
                         "weight_variable":{"stdp_synapse":"w"}}
 
         files = [
-            os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
-#            os.path.join("models", "neurons", "iaf_delta_neuron.nestml"),
+#            os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
+            os.path.join("models", "neurons", "iaf_delta_neuron.nestml"),
             os.path.join("models", "synapses", "stdp_additive_synapse.nestml")
         ]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -67,8 +100,8 @@ class TestSpiNNakerSTDPDistribution:
         import pyNN.spiNNaker as p
         from pyNN.utility.plotting import Figure, Panel
 
-        from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml as iaf_neuron_nestml
-        #from python_models8.neuron.builds.iaf_delta_neuron_nestml import iaf_delta_neuron_nestml as iaf_delta_neuron_nestml
+        #from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml as iaf_neuron_nestml
+        from python_models8.neuron.builds.iaf_delta_neuron_nestml import iaf_delta_neuron_nestml as iaf_neuron_nestml
         from python_models8.neuron.implementations.stdp_synapse_nestml_impl import stdp_synapse_nestmlDynamics as stdp_synapse_nestml
 
 #        p.reset()
@@ -92,7 +125,8 @@ class TestSpiNNakerSTDPDistribution:
             "A_dep": 0.02
         }
 
-        initial_weight = 1500.    # [mV]
+        #initial_weight = float_to_s15_16(2.5)    # [mV]
+        initial_weight = 25    # [mV]
 
         #inputs for pre and post synaptic neurons
         pre_input = p.Population(n_inputs, p.SpikeSourcePoisson(rate=input_rate), label="pre_input")
@@ -149,11 +183,12 @@ class TestSpiNNakerSTDPDistribution:
 
 
     def test_stdp(self):
-        times, v_post_neuron, dw, actual_pre_spike_times, actual_post_spike_times = self.run_sim()
+        simtime = 10000.     # [ms]
+        times, v_post_neuron, dw, actual_pre_spike_times, actual_post_spike_times = self.run_sim(simtime=simtime)
+
         print("actual pre_spikes: " + str(actual_pre_spike_times))
         print("actual post_spikes: " + str(actual_post_spike_times))
         print("weights after simulation: " + str(dw))
-
 
         fig, ax = plt.subplots(nrows=2)
         ax[0].plot(actual_pre_spike_times, np.zeros_like(actual_pre_spike_times), '.')
@@ -161,9 +196,10 @@ class TestSpiNNakerSTDPDistribution:
         ax[1].plot(times, v_post_neuron)
         ax[1].set_ylabel("V_m")
         ax[-1].set_xlabel(r"$t$ [ms]")
-        ax[0].set_ylabel(r"$w$")
+        ax[0].set_ylabel(r"pre spikes     post spikes")
         for _ax in ax:
             _ax.grid(True)
+            _ax.set_xlim(0, simtime)
 
 #        ax.subplots_adjust(bottom=0.2)
 

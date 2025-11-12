@@ -167,7 +167,8 @@ class TestSpiNNakerSTDP:
         #set synaptic parameters
         delay = 1
         #SpiNNaker: lambda 0.01
-        _lambda = 170.0
+        #170!!!
+        _lambda = 0.01
         tau_pre = 20
         tau_post = 20
 
@@ -245,7 +246,7 @@ class TestSpiNNakerSTDP:
         ref_post_spike_times = []
         ref_pre_spike_times = []
 
-        d_pts = 20
+        d_pts = 10
 
         for t_post in np.linspace(200, 300, d_pts):
         #for t_post in [450.]:
@@ -270,6 +271,16 @@ class TestSpiNNakerSTDP:
                 print("actual pre_spikes: " + str(actual_pre_spike_times))
                 print("actual post_spikes: " + str(actual_post_spike_times))
                 print("weights after simulation: " + str(dw))
+
+        #!!!
+        #convert spinnaker values, bit shift
+
+        #factor 2^(16)
+        conv_factor = 65536
+
+        spinn_weightvec = [x/conv_factor for x in spinn_weightvec]
+
+
 
         print("Simulation results")
         print("------------------")
