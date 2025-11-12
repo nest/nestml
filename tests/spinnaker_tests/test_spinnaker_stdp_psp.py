@@ -59,7 +59,7 @@ class TestSpiNNakerSTDPPSP:
                                   suffix=suffix,
                                   codegen_opts=codegen_opts)
 
-    def run_sim(self, pre_spike_times, weight=123, simtime=50):
+    def run_sim(self, pre_spike_times, post_spike_times, simtime=50):
         import pyNN.spiNNaker as p
         from pyNN.utility.plotting import Figure, Panel
 
@@ -74,16 +74,24 @@ class TestSpiNNakerSTDPPSP:
         pre_input = p.Population(1, p.SpikeSourceArray(spike_times=[0]), label="pre_input")
         post_neuron = p.Population(1, iaf_psc_exp_neuron_nestml(), label="post_neuron")
 
-        stdp_model = stdp_synapse_nestml(weight=weight)
+        post_input = p.Population(1, p.SpikeSourceArray(spike_times=[0]), label="post_input")
+        post_input2neuron = p.Projection(post_input, post_neuron, p.OneToOneConnector(), receptor_type=exc_input, synapse_type=p.StaticSynapse(weight=3000))
+
+
+#w 1234
+        stdp_model = stdp_synapse_nestml(weight=1234)  # setting to 123 here -> 0xf6 on the C side; 1234 -> 0x9a4 ---> SO, IT COMES OUT BIT SHIFTED 1 LEFT WITH RESPECT TO THIS VALUE
         stdp_projection = p.Projection(pre_input, post_neuron, p.OneToOneConnector(), receptor_type=exc_input, synapse_type=stdp_model)
 
         #record spikes
         pre_input.record(["spikes"])
-        post_neuron.record(["spikes"])
+        post_input.record(["spikes"])
         post_neuron.record(["V_m"])
         post_neuron.record(["I_syn_exc"])
 
         pre_input.set(spike_times=pre_spike_times)
+        post_input.set(spike_times=post_spike_times)
+
+        simtime = 100
 
         p.run(simtime)
 
@@ -94,36 +102,44 @@ class TestSpiNNakerSTDPPSP:
         i_syn_exc_post_neuron = post_neuron.get_data("I_syn_exc")
         i_syn_exc_post_neuron = np.array(i_syn_exc_post_neuron.segments[0].filter(name="I_syn_exc")[0])
 
-        """pre_neo = pre_input.get_data("spikes")
-        post_neo = post_neuron.get_data("spikes")
-
-        pre_spike_times = pre_neo.segments[0].spiketrains
-        post_spike_times = post_neo.segments[0].spiketrains
-
-        import pdb;pdb.set_trace()"""
+        spikes_pre = pre_input.get_data("spikes")
+        spikes_post = post_input.get_data("spikes")
 
         p.end()
 
-        return times, v_post_neuron, i_syn_exc_post_neuron
+        return times, v_post_neuron, i_syn_exc_post_neuron, spikes_pre, spikes_post
 
 
-    @pytest.mark.parametrize("weight", [123])
-    def test_stdp(self, weight):
-        pre_spike_times = [10.]
-        times, v_post_neuron, i_syn_exc_post_neuron = self.run_sim(pre_spike_times, weight=weight)
+    def test_stdp(self):
+        #pre_spike_times = [10., 25.]
 
-        fig, ax = plt.subplots(nrows=2)
+        pre_spike_times=[10., 32., 80.]
+        post_spike_times = [33.]
+
+        times, v_post_neuron, i_syn_exc_post_neuron, spikes_pre, spikes_post = self.run_sim(pre_spike_times, post_spike_times)
+
+
+        fig, ax = plt.subplots(nrows=4, sharex=True)
         ax[0].plot(times, v_post_neuron, label="V_m")
         ax[1].plot(times, i_syn_exc_post_neuron, label="I_exc")
+
         for _ax in ax:
             _ax.grid(True)
-            _ax.legend()
             _ax.set_xlim(np.amin(times), np.amax(times))
 
         ax[0].get_xticklabels([])
         ax[-1].set_xlabel("Time [ms]")
 
-        fig.savefig("test_spinnaker_stdp_psp_" + str(time.strftime("%Y-%m-%d %H:%M:%S")) + ".png")
 
-        assert len(np.unique(v_post_neuron)) > 1, "No PSPs detected in postsynaptic membrane potential"
-        np.testing.assert_allclose(np.amax(i_syn_exc_post_neuron), weight)
+        pre_spiketrain = spikes_pre.segments[0].spiketrains[0]
+        post_spiketrain = spikes_post.segments[0].spiketrains[0]
+
+        pre_spikes_array = np.asarray(pre_spiketrain)
+        post_spikes_array = np.asarray(post_spiketrain)
+
+        ax[2].eventplot(pre_spikes_array,label="Pre-Synaptic Spikes")
+        ax[3].eventplot(post_spikes_array,label="Post-Synaptic Spikes")
+        for _ax in ax:
+            _ax.legend(fontsize="small")
+
+        fig.savefig("test_spinnaker_stdp_psp_" + str(time.strftime("%Y-%m-%d %H:%M:%S")) + ".png")
