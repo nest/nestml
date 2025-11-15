@@ -167,7 +167,6 @@ class TestSpiNNakerSTDP:
         #set synaptic parameters
         delay = 1
         #SpiNNaker: lambda 0.01
-        #170!!!
         _lambda = 0.01
         tau_pre = 20
         tau_post = 20
@@ -275,8 +274,11 @@ class TestSpiNNakerSTDP:
         #!!!
         #convert spinnaker values, bit shift
 
-        #factor 2^(16)
-        conv_factor = 65536
+        #factor 2^(16) = 65536
+        # 2^(15) = 32768
+        # 2^(14) = 16384
+        # 2^(13) = 8192
+        conv_factor = 16384
 
         spinn_weightvec = [x/conv_factor for x in spinn_weightvec]
 
