@@ -55,7 +55,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
-#
 model iaf_cond_alpha_neuron:
     state:
         V_m mV = E_L    # Membrane potential
