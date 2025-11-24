@@ -1,0 +1,29 @@
+model continuous_post_synaptic_third_factor_neuron:
+    state:
+        x real = 0
+        alpha real = 0
+
+    parameters:
+        tau ms = 20 ms
+
+    equations:
+        kernel K_ampa = exp(-t / tau)
+        recordable inline I_AMPA real = alpha * convolve(K_ampa, spikes_ampa)
+        x' = (-x + I_AMPA) / tau
+
+    input:
+        spikes_ampa <- spike
+        spikes_on <- spike
+        spikes_off <- spike
+
+    output:
+        spike
+
+    onReceive(spikes_on):
+        alpha = 1
+
+    onReceive(spikes_off):
+        alpha = 0
+
+    update:
+        integrate_odes()

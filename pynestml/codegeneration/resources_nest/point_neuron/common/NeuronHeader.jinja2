@@ -879,7 +879,7 @@ private:
   // -------------------------------------------------------------------------
   //   Getters/setters for inline expressions
   // -------------------------------------------------------------------------
-
+public: // XXX REMOVE -- use friend class instead?
 {%  filter indent(2, True) -%}
 {%- for equations_block in neuron.get_equations_blocks() %}
 {%-     for inline_expr in equations_block.get_inline_expressions() %}
@@ -890,6 +890,7 @@ private:
 {%     endfor %}
 {%- endfor %}
 {%- endfilter %}
+private: // XXX REMOVE
 
   // -------------------------------------------------------------------------
   //   Getters/setters for input buffers

@@ -86,11 +86,12 @@ class NestWBCondExpTest(unittest.TestCase):
         else:
             nest.SetStatus(multimeter[1], {"record_from": record_from,
                                            "interval": dt})
-        # {"AMPA": 1, "NMDA": 2, "GABA_A": 3, "GABA_B": 4}
-        nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 1})  # AMPA
-        nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 2})  # NMDA
-        nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 3})  # GABAA
-        nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 4})  # GABAB
+
+        receptor_types = nest.GetStatus(neuron2, "receptor_types")[0]
+        nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": receptor_types["AMPA"]})  # AMPA
+        nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": receptor_types["NMDA"]})  # NMDA
+        nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": receptor_types["GABAA"]})  # GABAA
+        nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": receptor_types["GABAB"]})  # GABAB
 
         if NESTTools.detect_nest_version().startswith("v2"):
             nest.Connect([multimeter[0]], neuron1, "one_to_one")
