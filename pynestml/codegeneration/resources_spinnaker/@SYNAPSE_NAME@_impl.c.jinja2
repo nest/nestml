@@ -3,6 +3,10 @@
 // uncomment the next line to enable printing of detailed debug information
 #define DEBUG
 
+// uncomment the next line to enable printing of very detailed debug information (could overflow ITCM)
+//#define PLOT_DETAILED_STATE
+#define PLOT_DETAILED_STATE2
+
 
 //! Global plasticity parameter data (in DTCM)
 plasticity_weight_region_data_t *plasticity_weight_region_data;
@@ -166,30 +170,7 @@ static void update_internal_state_(synapse_state_t *state, uint32_t t_start, uin
 
     const accum __h = timestep;   // XXX: time constants are in ms, so __h should be as well! convert uint32_t to accum type
 
-//log_info("[NESTML synapse] ************** tau_tr_pre = 0x%x = %k\n", plasticity_weight_region_data->tau_tr_pre, plasticity_weight_region_data->tau_tr_pre);
-//log_info("[NESTML synapse] ************** __h = 0x%x = %k\n", __h, __h);  // OK!
-//log_info("[NESTML synapse] ************** -__h = 0x%x = %k\n", -__h, -__h);  // OK!
-//log_info("[NESTML synapse] ************** -(-__h) = 0x%x = %k\n", -(-__h), -(-__h));  // OK!
-
-//log_info("[NESTML synapse] ************** __h / tau_tr_pre = 0x%x = %k\n", _kdivk(__h, plasticity_weight_region_data->tau_tr_pre), _kdivk(__h, plasticity_weight_region_data->tau_tr_pre));
-/*
-const accum foobar0 = -_kdivk(__h, plasticity_weight_region_data->tau_tr_pre);
-log_info("[NESTML synapse] ************** -(__h / tau_tr_pre) = 0x%x = %k\n", foobar0, foobar0);
-
-
-const accum minus_h = -__h;
-log_info("[NESTML synapse] ************** minus_h = 0x%x = %k\n", -minus_h, -minus_h);
-
-
-const accum foobar1 = _kdivk(minus_h, plasticity_weight_region_data->tau_tr_pre);
-log_info("[NESTML synapse] ************** (-__h) / tau_tr_pre = 0x%x = %k\n", foobar1, foobar1);
-
-const accum foobar2 = _kdivk(__h, -plasticity_weight_region_data->tau_tr_pre);
-log_info("[NESTML synapse] ************** (-__h) / tau_tr_pre = 0x%x = %k\n", foobar2, foobar2);
-*/
-//log_info("[NESTML synapse] ************** -(-__h) / tau_tr_pre = 0x%x = %k\n", _kdivk(-(__h, plasticity_weight_region_data->tau_tr_pre), _kdivk(-__h, plasticity_weight_region_data->tau_tr_pre));
-//log_info("[NESTML synapse] ************** exp(-__h / tau_tr_pre) = 0x%x = %k\n", expk(-_kdivk(__h, plasticity_weight_region_data->tau_tr_pre)), expk(-_kdivk(__h, plasticity_weight_region_data->tau_tr_pre)));
-//log_info("expk(_kdivk((-__h), plasticity_weight_region_data->tau_tr_pre)); 
+    // log_info("[NESTML synapse] ************** __h = 0x%x = %k\n", __h, __h);
     
     if (timestep == 0) {
         return;
@@ -207,7 +188,7 @@ log_info("[NESTML synapse] ************** (-__h) / tau_tr_pre = 0x%x = %k\n", fo
     **/
 
 {%- if synapse.get_update_blocks() %}
-{%-     filter indent(2) %}
+{%-     filter indent(4) %}
 {%-         for block in synapse.get_update_blocks() %}
 {%-             set ast = block.get_stmts_body() %}
 {%-             if ast.print_comment('*')|length > 1 %}
@@ -242,6 +223,11 @@ static void process_post_spike(synapse_state_t *state, uint32_t time) {
 {%-     endfor %}
 {%- endif %}
 {%- endfilter %}
+
+
+log_info("[NESTML synapse] state->w = %k (raw: 0x%x), plasticity_weight_region_data->Wmax = %k (raw: 0x%x)\n", state->w, state->w, plasticity_weight_region_data->Wmax, plasticity_weight_region_data->Wmax);
+
+
 }
 
 
@@ -268,7 +254,6 @@ static void process_pre_spike(synapse_state_t *state, uint32_t time) {
 }
 
 
-#define PLOT_DETAILED_STATE
 
 static void process_plastic_synapse(
         uint32_t control_word, uint32_t last_pre_time, pre_trace_t last_pre_trace,
@@ -288,19 +273,11 @@ static void process_plastic_synapse(
 #ifdef PLOT_DETAILED_STATE
     log_info("[NESTML synapse] \tCurrent state:");
 {%- for sym in synapse.get_state_symbols() %}
-    log_info("[NESTML synapse] \t\t{{ sym.get_symbol_name() }} = 0x%x\n", state.{{ sym.get_symbol_name() }});
+    log_info("[NESTML synapse] \t\t{{ sym.get_symbol_name() }} = %k (raw: 0x%x)\n", state.{{ sym.get_symbol_name() }}, state.{{ sym.get_symbol_name() }});
 {%- endfor %}
 #endif
 
-    //log_info("[NESTML synapse] \t__P__pre_trace__pre_trace: %x", plasticity_weight_region_data->__P__pre_trace__pre_trace);
-
-
-
-
-
     uint32_t current_time = last_pre_time; // at the start, the state is either the initial state, or however we left it when the previous pre-synaptic spike was processed
-
-
 
     // Apply axonal delay to time of last presynaptic spike
     const uint32_t delay_axonal = 0;
@@ -412,7 +389,7 @@ static void process_plastic_synapse(
 void print_low_level_synaptic_row_data(synapse_row_plastic_data_t *plastic_region_address,
                                        synapse_row_fixed_part_t *fixed_region) {
 
-#ifdef FOOBAR
+#ifdef PLOT_DETAILED_STATE2
     // data words: for each synapse, stores the complete state in a 32-bit word
     synapse_word_t *plastic_words = plastic_region_address->synapses;
 
@@ -444,7 +421,8 @@ void print_low_level_synaptic_row_data(synapse_row_plastic_data_t *plastic_regio
         const synapse_word_t data_word = *(plastic_words + i * plastic_synapse_word_stride * 4);  // 4 because of 32-bit word length
         synapse_state_t update_state = synapse_structure_get_update_state(data_word, synapse_type);
 
-        log_info("[NESTML synapse] \t\tidx = %d; control word = %08x; data word = %08x; w = %5u; pre_trace = %d; post_trace = %d; d = %2u, post neuron id = %3u", i, control_word, data_word, update_state.w, update_state.pre_trace, update_state.post_trace, synapse_row_sparse_delay(control_word, synapse_type_index_bits, synapse_delay_mask), synapse_row_sparse_index(control_word, synapse_index_mask));
+        log_info("[NESTML synapse] \t\tidx = %d; control word = 0x%08x; data word = 0x%08x; w = 0x%x; pre_trace = 0x%x; post_trace = 0x%x; d = 0x%x, post neuron id = %3u",
+                     i, control_word, data_word, update_state.w, update_state.pre_trace, update_state.post_trace, synapse_row_sparse_delay(control_word, synapse_type_index_bits, synapse_delay_mask), synapse_row_sparse_index(control_word, synapse_index_mask));
 /*        log_info("[NESTML synapse] \td: %2u, n = %3u)] - { %08x %08x }\n",
                 synapse_row_sparse_delay(control_word, synapse_type_index_bits, synapse_delay_mask),
                 synapse_row_sparse_index(control_word, synapse_index_mask),
@@ -478,10 +456,9 @@ bool synapse_dynamics_process_plastic_synapses(
     control_t *control_words = synapse_row_plastic_controls(fixed_region);
     const size_t n_plastic_synapses = synapse_row_num_plastic_controls(fixed_region);
 
-//    log_info("[NESTML synapse] ------------------ AAAAAAAAAAAAAAAAAAA");
-//    print_low_level_synaptic_row_data(plastic_region_address, fixed_region);
-
-
+#ifdef PLOT_DETAILED_STATE2
+    print_low_level_synaptic_row_data(plastic_region_address, fixed_region);
+#endif
 
     num_plastic_pre_synaptic_events += n_plastic_synapses;
 

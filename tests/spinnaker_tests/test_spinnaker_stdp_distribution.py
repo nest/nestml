@@ -118,7 +118,7 @@ class TestSpiNNakerSTDPDistribution:
 
         stdp_parameters = { # XXX UNUSED
             "W_min": 0.,
-            "W_max": 30.,
+            "W_max": 50.,
             "tau_pre": 20.,    # [ms]
             "tau_post": 20.,    # [ms]
             "A_pot": 0.01,
@@ -132,23 +132,16 @@ class TestSpiNNakerSTDPDistribution:
         pre_input = p.Population(n_inputs, p.SpikeSourcePoisson(rate=input_rate), label="pre_input")
         post_neuron = p.Population(1, iaf_neuron_nestml(), label="post_neuron")
 
-        #weight_pre = 3000
-        #weight_post = 3000
+        stdp_model = stdp_synapse_nestml(weight=initial_weight)
 
-        #p.Projection(pre_input, pre_spiking, p.OneToOneConnector(), receptor_type=exc_input, synapse_type=p.StaticSynapse(weight=weight_pre))
-        #p.Projection(pre_input, post_neuron, p.OneToOneConnector(), receptor_type=exc_input, synapse_type=p.StaticSynapse(weight=weight_post))
+        # XXX: the following two lines should be replaced by a better constructor of the synapse, i.e.: ``stdp_model = stdp_synapse_nestml(weight=initial_weight, **stdp_parameters)``
+        for name, val in stdp_parameters.items():
+            stdp_model._nestml_model_variables[name] = val
 
-        #stdp_model = stdp_synapse_nestml(weight=50000) # should cause a 5 mV deflection in the postsynaptic potential
-
-
-
-        #stdp_model = p.StaticSynapse(weight=initial_weight) # should cause a 2.5 mV deflection in the postsynaptic potential
-        stdp_model = stdp_synapse_nestml(weight=initial_weight) # should cause a 2.5 mV deflection in the postsynaptic potential
         stdp_projection = p.Projection(pre_input, post_neuron, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type=exc_input)
 
         # XXX: TODO: # Initialize weights to a random value around the midpoint
         # stdp_projection.w = f'rand() * {INITIAL_WEIGHT / b2.mV} * mV'
-
 
         #record spikes
         pre_input.record(["spikes"])
