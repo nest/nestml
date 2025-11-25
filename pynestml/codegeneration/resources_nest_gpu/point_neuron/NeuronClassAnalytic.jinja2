@@ -170,9 +170,9 @@ const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}_
 }
 
 int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
-			 int i_group, unsigned long long *seed)
+			 int i_group)
 {
-  BaseNeuron::Init(i_node_0, n_node, {{neuron.get_spike_input_ports() | length}} /*n_port*/, i_group, seed);
+  BaseNeuron::Init(i_node_0, n_node, {{neuron.get_spike_input_ports() | length}} /*n_port*/, i_group);
   node_type_ = i_{{ neuronName }}_model;
 
   // State variables

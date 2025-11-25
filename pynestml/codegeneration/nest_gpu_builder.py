@@ -80,7 +80,7 @@ class NESTGPUBuilder(Builder):
             raise InvalidPathException('NEST-GPU path (' + str(nest_gpu_path) + ') is not a directory!')
 
         # Construct the build commands
-        mpi_option = "-Dwith-mpi=OFF"
+        mpi_option = "-Dwith-mpi=ON"
         install_prefix = f"-DCMAKE_INSTALL_PREFIX={nest_gpu_install_path}"
         cmake_cmd = ["cmake", mpi_option, install_prefix, nest_gpu_path]
         make_cmd = ['make']

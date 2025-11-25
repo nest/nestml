@@ -189,7 +189,7 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
             n_ports = len(neuron.get_spike_input_ports())
             code_blocks.append("\n"
                                f"else if (model_name == neuron_model_name[{model_name_index}]) {{\n"
-                               f"    n_port = {n_ports};\n"
+                               f"    n_ports = {n_ports};\n"
                                f"    {model_name} *{model_name}_group = new {model_name};\n"
                                f"    node_vect_.push_back({model_name}_group);\n"
                                " }")
