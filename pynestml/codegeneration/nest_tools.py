@@ -62,7 +62,7 @@ try:
     try:
         # For NEST version <= 3.4, the version string is not parsable by semver.
         ver = semver.Version.parse(nest.__version__)
-        if ver.major >= 3 and ver.minor >= 5:
+        if (ver.major == 3 and ver.minor >= 5) or ver.major > 3:
             if ver.prerelease and "post0.dev0" in ver.prerelease:
                 nest_version = "master"
             else:
