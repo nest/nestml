@@ -49,11 +49,11 @@ while ( __t < timestep  )
     const int status = gsl_odeiv_evolve_apply(__e,
                                               __c,
                                               __s,
-                                              &__sys,              // system of ODE
-                                              &__t,                   // from t
-                                              timestep,              // to t <= step
-                                              &__integration_step, // integration step size
-                                              S_.ode_state);          // neuronal state
+                                              &__sys,               // system of ODE
+                                              &__t,                 // from t
+                                              timestep,             // to t <= step
+                                              &__integration_step,  // integration step size
+                                              S_.ode_state);        // model state
 
     if ( status != GSL_SUCCESS )
     {

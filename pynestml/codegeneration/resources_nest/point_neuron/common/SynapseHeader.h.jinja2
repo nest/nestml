@@ -80,7 +80,8 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_odeiv.h>
-{%-     endif %}
+{%-     else %}
+#error "Numeric solver {{ numeric_solver }} is not supported in synapses!"
 {%- endif %}
 
 // Includes from sli:
@@ -283,7 +284,7 @@ public:
     //! state vector, must be C-array for GSL solver
     double ode_state[STATE_VEC_SIZE];
 
-{#    // state variables from state block#}
+    // variables from state block
 {%-     filter indent(4,True) %}
 {%-     for variable_symbol in synapse.get_state_symbols() %}
 {%          if variable_symbol.get_symbol_name() not in numeric_state_variables %}
@@ -1123,7 +1124,7 @@ void
 {%- endif %}
 
 /*
-** Synapse dynamics
+ ** Synapse dynamics
 */
 {%  if uses_numeric_solver %}
 {%-     for ast in utils.get_all_integrate_odes_calls_unique(synapse) %}
