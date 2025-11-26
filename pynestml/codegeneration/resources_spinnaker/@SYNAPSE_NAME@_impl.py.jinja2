@@ -111,9 +111,7 @@ def float_to_s16_15(x: float) -> int:
 
 
 
-class {{ synapseName }}Dynamics(
-        AbstractPlasticSynapseDynamics,
-        AbstractGenerateOnMachine):
+class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
     """
     The dynamics of a synapse that changes over time using a
     Spike Timing Dependent Plasticity (STDP) rule.
@@ -577,7 +575,7 @@ class {{ synapseName }}Dynamics(
 
         return n_connections
 
-    @property
+    """@property
     @overrides(AbstractGenerateOnMachine.gen_matrix_id)
     def gen_matrix_id(self) -> int:
         return MatrixGeneratorID.STDP_MATRIX.value
@@ -618,7 +616,7 @@ class {{ synapseName }}Dynamics(
     @property
     @overrides(AbstractGenerateOnMachine.gen_matrix_params_size_in_bytes)
     def gen_matrix_params_size_in_bytes(self) -> int:
-        return 19 * BYTES_PER_WORD
+        return 19 * BYTES_PER_WORD"""
 
     @property
     @overrides(AbstractPlasticSynapseDynamics.changes_during_run)
