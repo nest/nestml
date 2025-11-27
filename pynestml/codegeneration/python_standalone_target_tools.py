@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Mapping, Tuple
+
 import importlib
 import multiprocessing
 import os
@@ -65,21 +67,26 @@ class PythonStandaloneTargetTools:
         parameters_list = [p for p in dir(neuron.Parameters_) if not "__" in p]
         parameters = {p: getattr(neuron, "get_" + p)() for p in parameters_list}
 
+        internals_list = [p for p in dir(neuron.Variables_) if not "__" in p]
+        internals = {p: getattr(neuron, "get_" + p)() for p in internals_list}
+
         if "ode_state_variable_name_to_index" in dir(neuron.State_):
             state_list = neuron.State_.ode_state_variable_name_to_index.keys()
         else:
             state_list = [p for p in dir(neuron.State_) if not "__" in p]
         state_vars = {p: getattr(neuron, "get_" + p)() for p in state_list}
 
-        return parameters, state_vars
+        return parameters, internals, state_vars
 
     @classmethod
-    def get_neuron_parameters_and_state(cls, nestml_file_name: str) -> tuple[dict, dict]:
+    def get_neuron_numerical_initial_values(cls, nestml_file_name: str) -> Tuple[Mapping[str, float], Mapping[str, float], Mapping[str, float]]:
         r"""
-        Get the parameters for the given neuron model. The code is generated for the model for Python standalone target
-        The parameters and state variables are then queried by creating the neuron in Python standalone simulator.
+        Get numerical values the parameters for the given neuron model.
+
+        Internally, code is generated for the model for the Python standalone target, and then the value is read off by instantiating the resulting code.
+
         :param nestml_file_name: File name of the neuron model
-        :return: A dictionary of parameters and state variables
+        :return: Dictionaries mapping parameters, internals and state variables to their numerical initial values
         """
         parameters, state = cls._get_model_parameters_and_state(nestml_file_name)
 
