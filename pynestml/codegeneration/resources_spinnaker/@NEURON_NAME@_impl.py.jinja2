@@ -120,17 +120,9 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
     @property
     @overrides(AbstractNeuronImpl.binary_name)
     def binary_name(self):
-#!!
-#        import pdb
- #       pdb.set_trace()
-
-#        install_path = FrontendConfiguration.get_install_path()
- #       if os.path.isfile(os.path.join(install_path, "python_models8", "model_binaries", "iaf_psc_exp_neuron_nestml__with_stdp_synapse_nestml_impl_stdp_mad_my_timing_my_weight.aplx")):
-        #    pdb.set_trace()    
-  #          return "{{neuronName}}_impl_stdp_mad_my_timing_my_weight.aplx"
-
-
-        return "{{neuronName}}_impl.aplx"
+        s: str = "{{neuronName}}_impl.aplx"
+        print("The aplx file for this neuron is: " + s)
+        return s
 
     @overrides(AbstractNeuronImpl.get_global_weight_scale)
     def get_global_weight_scale(self):

@@ -40,7 +40,7 @@ class PythonStandaloneTargetTools:
     """
     @classmethod
     def _get_model_parameters_and_state(cls, nestml_file_name: str):
-        suffix = ""
+        suffix = "_nestml"
         module_name = FrontendConfiguration.get_module_name()
         target_path = tempfile.mkdtemp(prefix="nestml_python_target_", suffix="", dir=".")    # dir = "." is necessary for Python import
         # this has to run in a different process, because otherwise the frontend configuration gets overwritten
