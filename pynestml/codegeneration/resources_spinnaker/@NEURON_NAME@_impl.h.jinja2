@@ -113,18 +113,16 @@ typedef struct {
 }neuron_state_t;
 
 typedef struct {
-// Parameters of the neuron
+    // Parameters of the neuron
 {%- for sym in neuron.get_parameter_symbols() | sort(attribute="name") %}
     {{type_symbol_printer.print(sym.type_symbol)}} {{ sym.get_symbol_name() }};
 {%- endfor %}
-{%- if uses_numeric_solver %}
 
-{%- endif %}
-    // Internal variables of the neuron
+    // Internals of the neuron
 {%- for sym in neuron.get_internal_symbols() | sort(attribute="name") %}
     {{type_symbol_printer.print(sym.type_symbol)}} {{sym.get_symbol_name()}};
 {%- endfor %}
-}neuron_parameter_t;
+} neuron_parameter_t;
 
 //! neuron_impl_t struct
 typedef struct neuron_impl_t {

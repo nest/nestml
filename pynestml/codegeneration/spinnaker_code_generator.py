@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Sequence, Optional, Mapping, Any
+from typing import Dict, Sequence, Optional, Mapping, Any
 
 import copy
 import os
@@ -52,6 +52,7 @@ from pynestml.codegeneration.printers.spinnaker_python_function_call_printer imp
 from pynestml.codegeneration.printers.spinnaker_python_simple_expression_printer import SpinnakerPythonSimpleExpressionPrinter
 from pynestml.codegeneration.printers.spinnaker_python_type_symbol_printer import SpinnakerPythonTypeSymbolPrinter
 from pynestml.codegeneration.python_standalone_code_generator import PythonStandaloneCodeGenerator
+from pynestml.codegeneration.python_standalone_target_tools import PythonStandaloneTargetTools
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
@@ -130,6 +131,12 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
 
 
 class CustomPythonStandaloneCodeGenerator(PythonStandaloneCodeGenerator):
+    def _get_model_namespace(self, astnode: ASTModel) -> Dict:
+        namespace = super()._get_model_namespace(astnode)
+        namespace["numeric_parameter_values"], namespace["numeric_initial_state_values"] = PythonStandaloneTargetTools.get_neuron_numerical_initial_values(astnode.file_path)
+
+        return namespace
+
     def setup_printers(self, for_neuron: bool = True):
         super().setup_printers()
 
@@ -270,6 +277,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
     def generate_code(self, models: Sequence[ASTModel]) -> None:
         for model in models:
             cloned_model = model.clone()
+            cloned_model.file_path = model.file_path
             cloned_model.accept(ASTSymbolTableVisitor())
             if "paired_neuron" in dir(model):
                 cloned_model.paired_neuron = model.paired_neuron
@@ -291,6 +299,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
 
             cloned_model = model.clone()
             cloned_model.accept(ASTSymbolTableVisitor())
+            cloned_model.file_path = model.file_path
             if "paired_neuron" in dir(model):
                 cloned_model.paired_neuron = model.paired_neuron
                 cloned_model.spiking_post_port_names = model.spiking_post_port_names
