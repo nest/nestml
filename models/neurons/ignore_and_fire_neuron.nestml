@@ -45,13 +45,14 @@ model ignore_and_fire_neuron:
 
   state:
     phase real = 1.                # relative time to next spike (in (0,1])
-    phase_steps integer = firing_period_steps / 2   # start halfway through the interval by default
+    phase_steps integer = 1 # XXX # firing_period_steps / 2   # start halfway through the interval by default
 
   parameters:
     firing_rate Bq = 10. Bq        # firing rate
+    firing_period_steps 1/Bq = 1/(10 Bq)
 
-  internals:
-    firing_period_steps integer = steps( 1. / firing_rate )    # firing period in steps
+  #internals:
+  #  firing_period_steps integer = steps( 1. / firing_rate )    # firing period in steps
 
   input:
     spikes <- spike   # the neuron receives spikes, but is not processing them
