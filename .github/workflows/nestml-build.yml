@@ -390,7 +390,7 @@ jobs:
       # Install Python dependencies
       - name: Python dependencies
         run: |
-          python -m pip install --upgrade pip pytest matplotlib scipy pybind11 psutil
+          python -m pip install --upgrade pip pytest matplotlib scipy pybind11 psutil pkgconfig
           python -m pip install -r requirements.txt
 
       # Install GeNN
