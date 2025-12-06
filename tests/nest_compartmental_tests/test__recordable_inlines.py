@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# test__concmech_model.py
+# test__recordable_inlines.py
 #
 # This file is part of NEST.
 #
