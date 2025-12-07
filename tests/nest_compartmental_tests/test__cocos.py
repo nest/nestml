@@ -151,5 +151,5 @@ class TestCoCos:
                         os.path.dirname(__file__), 'resources',
                         'invalid')),
                 'CoCoCmMechSharedCode.nestml'))
-        assert len(Logger.get_all_messages_of_level_and_or_node(
+        assert len(Logger.get_messages(
             model, LoggingLevel.ERROR)) == 4
