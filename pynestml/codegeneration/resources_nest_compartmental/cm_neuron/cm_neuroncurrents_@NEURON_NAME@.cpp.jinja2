@@ -246,7 +246,6 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
         {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+ion_channel_name+"_channel_count-1") -}});
         {%- endfor %}
 
-        {%- with %}
         {%- for variable_type, variable_info in channel_info["States"].items() %}
             {%- set variable = variable_info["ASTVariable"] %}
             {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
@@ -254,9 +253,7 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
         if( channel_params->known( "{{variable.name}}" ) )
             {{variable.name}}[neuron_{{ ion_channel_name }}_channel_count-1] = getValue< double >( channel_params, "{{variable.name}}" );
         {%- endfor %}
-        {% endwith %}
 
-        {%- with %}
         {%- for variable_type, variable_info in channel_info["ODEs"].items() %}
             {%- set variable_name = variable_type %}
             {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
@@ -264,7 +261,6 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
         if( channel_params->known( "{{variable_name}}" ) )
             {{variable_name}}[neuron_{{ ion_channel_name }}_channel_count-1] = getValue< double >( channel_params, "{{variable_name}}" );
         {%- endfor %}
-        {% endwith %}
 
         {% for variable_type, variable_info in channel_info["Parameters"].items() %}
         // channel parameter {{variable_type }}
@@ -273,7 +269,6 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
         {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+ion_channel_name+"_channel_count-1") -}});
         {%- endfor %}
 
-        {%- with %}
         {%- for variable_type, variable_info in channel_info["Parameters"].items() %}
             {%- set variable = variable_info["ASTVariable"] %}
             {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
@@ -281,7 +276,6 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
         if( channel_params->known( "{{variable.name}}" ) )
             {{variable.name}}[neuron_{{ ion_channel_name }}_channel_count-1] = getValue< double >( channel_params, "{{variable.name}}" );
         {%- endfor %}
-        {% endwith %}
 
         {%- for pure_variable_name, variable_info in channel_info["Internals"].items() %}
         // state variable {{pure_variable_name }}
@@ -325,7 +319,6 @@ nest::{{ion_channel_name}}{{cm_unique_suffix}}::append_recordables(std::map< Nam
 {
   // add state variables to recordables map
   bool found_rec = false;
-  {%- with %}
   {%- for pure_variable_name, variable_info in channel_info["States"].items() %}
   {%- set variable = variable_info["ASTVariable"] %}
   found_rec = false;
@@ -350,7 +343,6 @@ nest::{{ion_channel_name}}{{cm_unique_suffix}}::append_recordables(std::map< Nam
   if(!found_rec) ( *recordables )[ Name( std::string("{{variable_name}}") + std::to_string(compartment_idx))] = &zero_recordable;
   {%- endif %}
   {%- endfor %}
-  {% endwith %}
   found_rec = false;
   for(size_t chan_id = 0; chan_id < neuron_{{ ion_channel_name }}_channel_count; chan_id++){
       if(compartment_association[chan_id] == compartment_idx){
@@ -542,7 +534,6 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
         {{concentration_name}}.push_back(0);
         compartment_association.push_back(comp_ass);
 
-        {%- with %}
         {%- for variable_type, variable_info in concentration_info["ODEs"].items() %}
             {%- set variable_name = variable_type %}
             {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
@@ -551,7 +542,6 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
                 {{ concentration_name }}[neuron_{{ concentration_name }}_concentration_count-1] = {{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count-1") -}};
             {%- endif %}
         {%- endfor %}
-        {% endwith %}
 
         {%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
         // state variable {{pure_variable_name }}
@@ -626,7 +616,6 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
         {{concentration_name}}.push_back(0);
         compartment_association.push_back(comp_ass);
 
-        {%- with %}
         {%- for variable_type, variable_info in concentration_info["ODEs"].items() %}
             {%- set variable_name = variable_type %}
             {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
@@ -635,8 +624,6 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
                 {{ concentration_name }}[neuron_{{ concentration_name }}_concentration_count-1] = {{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count-1") -}};
             {%- endif %}
         {%- endfor %}
-        {% endwith %}
-
 
         {%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
         // state variable {{pure_variable_name }}
@@ -645,7 +632,6 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
         {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count-1") -}});
         {%- endfor %}
 
-        {%- with %}
         {%- for variable_type, variable_info in concentration_info["States"].items() %}
             {%- set variable = variable_info["ASTVariable"] %}
             {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
@@ -653,9 +639,7 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
         if( concentration_params->known( "{{variable.name}}" ) )
             {{variable.name}}[neuron_{{ concentration_name }}_concentration_count-1] = getValue< double >( concentration_params, "{{variable.name}}" );
         {%- endfor %}
-        {% endwith %}
 
-        {%- with %}
         {%- for variable_type, variable_info in concentration_info["ODEs"].items() %}
             {%- set variable_name = variable_type %}
             {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
@@ -663,7 +647,6 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
         if( concentration_params->known( "{{variable_name}}" ) )
             {{variable_name}}[neuron_{{ concentration_name }}_concentration_count-1] = getValue< double >( concentration_params, "{{variable_name}}" );
         {%- endfor %}
-        {% endwith %}
 
         {% for variable_type, variable_info in concentration_info["Parameters"].items() %}
         // channel parameter {{variable_type }}
@@ -672,7 +655,6 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
         {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count-1") -}});
         {%- endfor %}
 
-        {%- with %}
         {%- for variable_type, variable_info in concentration_info["Parameters"].items() %}
             {%- set variable = variable_info["ASTVariable"] %}
             {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, concentration_name) %}
@@ -680,7 +662,6 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
         if( concentration_params->known( "{{variable.name}}" ) )
             {{variable.name}}[neuron_{{ concentration_name }}_concentration_count-1] = getValue< double >( concentration_params, "{{variable.name}}" );
         {%- endfor %}
-        {% endwith %}
 
         {%- for pure_variable_name, variable_info in concentration_info["Internals"].items() %}
         // state variable {{pure_variable_name }}
@@ -720,7 +701,7 @@ nest::{{ concentration_name }}{{cm_unique_suffix}}::append_recordables(std::map<
 {
   // add state variables to recordables map
   bool found_rec = false;
-  {%- with %}
+
   {%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
   {%- set variable = variable_info["ASTVariable"] %}
   found_rec = false;
@@ -746,7 +727,7 @@ nest::{{ concentration_name }}{{cm_unique_suffix}}::append_recordables(std::map<
   if(!found_rec) ( *recordables )[ Name( std::string("{{variable_name}}") + std::to_string(compartment_idx))] = &zero_recordable;
   {%- endif %}
   {%- endfor %}
-  {% endwith %}
+
     found_rec = false;
     for(size_t conc_id = 0; conc_id < neuron_{{ concentration_name }}_concentration_count; conc_id++){
       if(compartment_association[conc_id] == compartment_idx){
@@ -971,23 +952,20 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::new_receptor(std::size_t comp_
     {%- set rhs_expression = variable_info["rhs_expression"] %}
     {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1") -}});
     {%- endfor %}
-    {%- with %}
+
     {%- for variable_type, variable_info in receptor_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
     if( receptor_params->known( "{{variable.name}}" ) )
         {{variable.name}}[neuron_{{ receptor_name }}_receptor_count-1] = getValue< double >( receptor_params, "{{variable.name}}" );
     {%- endfor %}
-    {% endwith %}
 
-    {%- with %}
-        {%- for variable_type, variable_info in receptor_info["ODEs"].items() %}
-            {%- set variable_name = variable_type %}
-            {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
-        // {{concentration_name}} concentration ODE state {{dynamic_variable }}
-        if( receptor_params->known( "{{variable_name}}" ) )
-            {{variable_name}}[neuron_{{ receptor_name }}_receptor_count-1] = getValue< double >( receptor_params, "{{variable_name}}" );
-        {%- endfor %}
-    {% endwith %}
+    {%- for variable_type, variable_info in receptor_info["ODEs"].items() %}
+        {%- set variable_name = variable_type %}
+        {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
+    // {{concentration_name}} concentration ODE state {{dynamic_variable }}
+    if( receptor_params->known( "{{variable_name}}" ) )
+        {{variable_name}}[neuron_{{ receptor_name }}_receptor_count-1] = getValue< double >( receptor_params, "{{variable_name}}" );
+    {%- endfor %}
 
     {% for variable_type, variable_info in receptor_info["Parameters"].items() %}
     // receptor parameter {{variable_type }}
@@ -996,13 +974,11 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::new_receptor(std::size_t comp_
     {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1") -}});
     {%- endfor %}
 
-    {%- with %}
     {%- for variable_type, variable_info in receptor_info["Parameters"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
     if( receptor_params->known( "{{variable.name}}" ) )
         {{variable.name}}[neuron_{{ receptor_name }}_receptor_count-1] = getValue< double >( receptor_params, "{{variable.name}}" );
     {%- endfor %}
-    {% endwith %}
 
     // set propagators to ode toolbox returned value
   {%- for convolution, convolution_info in receptor_info["convolutions"].items() %}
@@ -1341,13 +1317,11 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
   {{inline_name}}.push_back(0);
   {%- endfor %}
 
-    {%- with %}
     {%- for in_function_declaration in synapse_info["InFunctionDeclarationsVars"] %}
       {%- for variable in declarations.get_variables(in_function_declaration) %}
-    {{variable.get_symbol_name()}}.push_back(0);
+  {{variable.get_symbol_name()}}.push_back(0);
       {%- endfor %}
     {%- endfor %}
-    {%- endwith %}
 
     self_spikes.push_back(false);
 }
@@ -1371,23 +1345,20 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
     {%- set rhs_expression = variable_info["rhs_expression"] %}
     {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count") -}});
     {%- endfor %}
-    {%- with %}
+
     {%- for variable_type, variable_info in receptor_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
     if( receptor_params->known( "{{variable.name}}" ) )
         {{variable.name}}[neuron_{{ receptor_name }}_receptor_count-1] = getValue< double >( receptor_params, "{{variable.name}}" );
     {%- endfor %}
-    {% endwith %}
 
-    {%- with %}
-        {%- for variable_type, variable_info in receptor_info["ODEs"].items() %}
-            {%- set variable_name = variable_type %}
-            {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
-        // {{concentration_name}} concentration ODE state {{dynamic_variable }}
-        if( receptor_params->known( "{{variable_name}}" ) )
-            {{variable_name}}[neuron_{{ receptor_name }}_receptor_count-1] = getValue< double >( receptor_params, "{{variable_name}}" );
-        {%- endfor %}
-    {% endwith %}
+    {%- for variable_type, variable_info in receptor_info["ODEs"].items() %}
+        {%- set variable_name = variable_type %}
+        {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
+    // {{concentration_name}} concentration ODE state {{dynamic_variable }}
+    if( receptor_params->known( "{{variable_name}}" ) )
+        {{variable_name}}[neuron_{{ receptor_name }}_receptor_count-1] = getValue< double >( receptor_params, "{{variable_name}}" );
+    {%- endfor %}
 
     {% for variable_type, variable_info in receptor_info["Parameters"].items() %}
     // receptor parameter {{variable_type }}
@@ -1396,13 +1367,11 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
     {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1") -}});
     {%- endfor %}
 
-    {%- with %}
     {%- for variable_type, variable_info in receptor_info["Parameters"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
     if( receptor_params->known( "{{variable.name}}" ) )
         {{variable.name}}[neuron_{{ receptor_name }}_receptor_count-1] = getValue< double >( receptor_params, "{{variable.name}}" );
     {%- endfor %}
-    {% endwith %}
 
     // set propagators to ode toolbox returned value
   {%- for convolution, convolution_info in receptor_info["convolutions"].items() %}
@@ -1887,7 +1856,6 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::si
         {{variable.name}}[neuron_{{ continuous_name }}_continuous_input_count-1] = getValue< double >( con_in_params, "{{variable.name}}" );
     {%- endfor %}
 
-    {%- with %}
         {%- for variable_type, variable_info in continuous_info["ODEs"].items() %}
             {%- set variable_name = variable_type %}
             {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
@@ -1895,7 +1863,6 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::si
         if( con_in_params->known( "{{variable_name}}" ) )
             {{variable_name}}[neuron_{{ continuous_name }}_continuous_input_count-1] = getValue< double >( con_in_params, "{{variable_name}}" );
         {%- endfor %}
-    {% endwith %}
 
     {% for variable_type, variable_info in continuous_info["Parameters"].items() %}
     // continuous parameter {{variable_type }}
@@ -1904,13 +1871,11 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::si
     {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+continuous_name+"_continuous_input_count-1") -}});
     {%- endfor %}
 
-    {%- with %}
     {%- for variable_type, variable_info in continuous_info["Parameters"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
     if( con_in_params->known( "{{variable.name}}" ) )
         {{variable.name}}[neuron_{{ continuous_name }}_continuous_input_count-1] = getValue< double >( con_in_params, "{{variable.name}}" );
     {%- endfor %}
-    {% endwith %}
 
     // user declared internals in order they were declared
   {%- for internal_name, internal_declaration in continuous_info["internals_used_declared"] %}
