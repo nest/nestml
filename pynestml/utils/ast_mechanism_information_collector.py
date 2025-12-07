@@ -205,7 +205,7 @@ class ASTMechanismInformationCollector(object):
                 elif len(search_variables) > 0:
                     variable = search_variables[0]
                     from pynestml.symbols.symbol import SymbolKind
-                    if (not (variable.name == "v_comp" or None == variable.get_scope().resolve_to_symbol(variable.name, SymbolKind.VARIABLE))):
+                    if (not (variable.name == "v_comp" or variable.get_scope().resolve_to_symbol(variable.name, SymbolKind.VARIABLE) is None)):
                         is_dependency = False
                         for inline in global_inlines:
                             if variable.name == inline.variable_name:
