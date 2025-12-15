@@ -18,6 +18,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #}
+{%- import 'directives/FunctionDeclaration.jinja2' as function_declaration with context %}
+
 /*
  *  {{ neuronName }}.cu
  *
@@ -48,6 +50,20 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace {{neuronName}}_ns
 {
+
+{%- if neuron.get_functions()|length > 0 %}
+// User-defined functions
+{%- for function in neuron.get_functions() %}
+{{ function_declaration.FunctionDeclaration(function, neuronName + "::") }}
+{
+{%- filter indent(2,True) %}
+{%-   with ast = function.get_stmts_body() %}
+{%-     include "directives/StmtsBody.jinja2" %}
+{%-   endwith %}
+{%- endfilter %}
+}
+{%- endfor %}
+{%- endif %}
 
 __device__
 void NodeInit(int n_var, int n_param, double x, float *y, float *param,
@@ -117,7 +133,7 @@ __device__
   {{ast.print_comment('*')}}
   */
 {%-             endif %}
-{%-             include "directives/Block.jinja2" %}
+{%-             include "directives/StmtsBody.jinja2" %}
 {%-         endfor %}
 {%-     endfilter %}
 {%- endif %}
@@ -131,7 +147,7 @@ __device__
     {
 {%-     set ast = blk.get_stmts_body() %}
 {%-     filter indent(6, True) -%}
-{%-         include "directives/Block.jinja2" %}
+{%-         include "directives/StmtsBody.jinja2" %}
 {%-     endfilter %}      
       y[N_SCAL_VAR + i_{{ inport }}] = 0; // reset the value
     }
@@ -151,7 +167,7 @@ __device__
  */
 {%-         endif %}
 {%-         filter indent(6) %}
-{%-             include "directives/Block.jinja2" %}
+{%-             include "directives/StmtsBody.jinja2" %}
 {%-         endfilter %}
     }
 {%-     endfor %}

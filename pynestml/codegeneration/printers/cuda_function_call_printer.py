@@ -85,11 +85,11 @@ class CUDAFunctionCallPrinter(FunctionCallPrinter):
         #     # the arguments of this function must be swapped and are therefore [v_max, v_min, v]
         #     return 'std::min({2!s}, std::max({1!s}, {0!s}))'
         #
-        # if function_name == PredefinedFunctions.MAX:
-        #     return 'std::max({!s}, {!s})'
-        #
-        # if function_name == PredefinedFunctions.MIN:
-        #     return 'std::min({!s}, {!s})'
+        if function_name == PredefinedFunctions.MAX:
+            return 'max({!s}, {!s})'
+
+        if function_name == PredefinedFunctions.MIN:
+            return 'min({!s}, {!s})'
 
         if function_name == PredefinedFunctions.EXP:
             return 'exp({!s})'
@@ -112,6 +112,9 @@ class CUDAFunctionCallPrinter(FunctionCallPrinter):
         if function_name == PredefinedFunctions.ERF:
             return 'std::erf({!s})'
 
+        if function_name == PredefinedFunctions.POW:
+            return 'pow({!s}, {!s})'
+
         # if function_name == PredefinedFunctions.ERFC:
         #     return 'std::erfc({!s})'
         #
@@ -124,9 +127,10 @@ class CUDAFunctionCallPrinter(FunctionCallPrinter):
         if function_name == PredefinedFunctions.PRINTLN:
             return 'printf({!s} + "\\n")'
 
+        # User-defined function
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
-            return function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
+            return function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ', y, param)'
 
         return function_name + '()'
 

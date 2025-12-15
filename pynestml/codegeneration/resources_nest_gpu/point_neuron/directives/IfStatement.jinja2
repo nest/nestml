@@ -7,7 +7,7 @@ if ({{ printer.print(ast.get_if_clause().get_condition()) }})
 {
 {%- filter indent(2, True) %}
 {%-   with ast = ast.get_if_clause().get_stmts_body() %}
-{%- include "directives/Block.jinja2" %}
+{%- include "directives/StmtsBody.jinja2" %}
 {%-   endwith %}
 {%- endfilter %}
 {%- for elif in ast.get_elif_clauses() %}
@@ -16,7 +16,7 @@ else if ({{ printer.print(elif.get_condition()) }})
 {
 {%-   filter indent(2, True) %}
 {%-     with ast = elif.get_stmts_body() %}
-{%- include "directives/Block.jinja2" %}
+{%- include "directives/StmtsBody.jinja2" %}
 {%-     endwith %}
 {%-   endfilter %}
 {%- endfor %}
@@ -26,7 +26,7 @@ else
 {
 {%-   filter indent(2, True) %}
 {%-     with ast = ast.get_else_clause().get_stmts_body() %}
-{%- include "directives/Block.jinja2" %}
+{%- include "directives/StmtsBody.jinja2" %}
 {%-     endwith %}
 {%-   endfilter %}
 {%- endif %}

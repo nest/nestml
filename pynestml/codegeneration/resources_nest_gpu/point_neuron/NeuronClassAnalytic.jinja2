@@ -106,7 +106,7 @@ const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}_
  {{ast.print_comment('*')}}
  */
 {%-             endif %}
-{%-             include "directives/Block.jinja2" %}
+{%-             include "directives/StmtsBody.jinja2" %}
 {%-         endfor %}
 {%-     endfilter %}
 {%- endif %}
@@ -120,7 +120,7 @@ const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}_
     {
 {%-     set ast = blk.get_stmts_body() %}
 {%-     filter indent(6, True) -%}
-{%-         include "directives/Block.jinja2" %}
+{%-         include "directives/StmtsBody.jinja2" %}
 {%-     endfilter %}      
       var[N_SCAL_VAR + i_{{ inport }}] = 0; // reset the value
     }
@@ -154,7 +154,7 @@ const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}_
  */
 {%-         endif %}
 {%-         filter indent(6) %}
-{%-             include "directives/Block.jinja2" %}
+{%-             include "directives/StmtsBody.jinja2" %}
 {%-         endfilter %}
     }
 {%-     endfor %}

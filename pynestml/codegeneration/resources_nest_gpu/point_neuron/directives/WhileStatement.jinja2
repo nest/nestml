@@ -6,6 +6,6 @@
 while ( {{printer_no_origin.print_expression(ast.get_condition())}})
 {
 {%- with ast = ast.get_stmts_body() %}
-{%- include "directives/Block.jinja2" %}
+{%- include "directives/StmtsBody.jinja2" %}
 {%- endwith %}
 }
