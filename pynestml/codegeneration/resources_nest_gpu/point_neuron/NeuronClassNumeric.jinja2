@@ -1,0 +1,308 @@
+{#-
+NeuronClassNumeric.jinja2
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#}
+{%- import 'directives/FunctionDeclaration.jinja2' as function_declaration with context %}
+
+/*
+ *  {{ neuronName }}.cu
+ *
+ *  This file is part of NEST GPU.
+ *
+ *  Copyright (C) 2021 The NEST Initiative
+ *
+ *  NEST GPU is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST GPU is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST GPU.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+#include <config.h>
+#include <cmath>
+#include <iostream>
+#include "{{ neuronName }}.h"
+#include "spike_buffer.h"
+
+namespace {{neuronName}}_ns
+{
+
+{%- if neuron.get_functions()|length > 0 %}
+// User-defined functions
+{%- for function in neuron.get_functions() %}
+{{ function_declaration.FunctionDeclaration(function, neuronName + "::") }}
+{
+{%- filter indent(2,True) %}
+{%-   with ast = function.get_stmts_body() %}
+{%-     include "directives/StmtsBody.jinja2" %}
+{%-   endwith %}
+{%- endfilter %}
+}
+{%- endfor %}
+{%- endif %}
+
+__device__
+void NodeInit(int n_var, int n_param, double x, float *y, float *param,
+	      {{neuronName}}_rk5 data_struct)
+{
+    // Parameters
+{%- for variable_symbol in neuron.get_parameter_symbols() %}
+{%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     include "directives/MemberInitialization.jinja2" %}
+{%- endfor %}
+
+    // Internal variables
+{%- for variable_symbol in neuron.get_internal_symbols() %}
+{%-   if variable_symbol.get_symbol_name() != "__h" %}
+{%-     set variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     include "directives/MemberInitialization.jinja2" %}
+{%-   endif %}
+{%- endfor %}
+
+    // State variables
+{%- for variable_symbol in neuron.get_state_symbols_sorted_by_suffix() %}
+{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     include "directives/MemberInitialization.jinja2" %}
+{%- endfor %}
+
+  {# TODO #}
+  // Input port variables
+{%- for variable_symbol in neuron.get_spike_input_ports() %}
+    y[N_SCAL_VAR + i_{{ variable_symbol.get_symbol_name() }}] = 0;
+{%- endfor %}  
+}
+
+__device__
+void NodeCalibrate(int n_var, int n_param, double x, float *y,
+		       float *param, {{neuronName}}_rk5 data_struct)
+{
+  // refractory_step = 0;
+{%- filter indent(4,True) %}
+{%- for internals_block in neuron.get_internals_blocks() %}
+{%-     for decl in internals_block.get_declarations() %}
+{%-         for variable in decl.get_variables() %}
+{%-           if variable.get_name() != "__h" %}
+{%-             include "directives/MemberInitialization.jinja2" %}
+{%-           endif %}
+{%-         endfor %}
+{%-     endfor %}
+{%- endfor %}
+{%- endfilter %}
+}
+
+{%-     for ast in utils.get_all_integrate_odes_calls_unique(neuron) %}
+{%-         include "directives/NumericDifferentiationFunction.jinja2" %}
+{%-     endfor %}
+
+ template<int NVAR, int NPARAM> //, class DataStruct>
+__device__
+    void ExternalUpdate
+    (double x, float *y, float *param, bool end_time_step,
+			{{ neuronName }}_rk5 data_struct)
+{
+{%- if neuron.get_update_blocks() %}
+{%-     filter indent(2) %}
+{%-         for block in neuron.get_update_blocks() %}
+{%-             set ast = block.get_stmts_body() %}
+{%-             if ast.print_comment('*')|length > 1 %}
+  /*
+  {{ast.print_comment('*')}}
+  */
+{%-             endif %}
+{%-             include "directives/StmtsBody.jinja2" %}
+{%-         endfor %}
+{%-     endfilter %}
+{%- endif %}
+
+    /**
+     * Begin NESTML generated code for the onReceive block(s)
+    **/
+{%  for blk in neuron.get_on_receive_blocks() %}
+{%-     set inport = blk.get_port_name() %}
+    if (y[N_SCAL_VAR + i_{{ inport }}] > 0)
+    {
+{%-     set ast = blk.get_stmts_body() %}
+{%-     filter indent(6, True) -%}
+{%-         include "directives/StmtsBody.jinja2" %}
+{%-     endfilter %}      
+      y[N_SCAL_VAR + i_{{ inport }}] = 0; // reset the value
+    }
+{%- endfor %}
+
+    /**
+     * Begin NESTML generated code for the onCondition block(s)
+    **/
+{% if neuron.get_on_condition_blocks() %}
+{%-     for block in neuron.get_on_condition_blocks() %}
+    if ({{ printer.print(block.get_cond_expr()) }})
+    {
+{%-         set ast = block.get_stmts_body() %}
+{%-         if ast.print_comment('*') | length > 1 %}
+/*
+ {{ast.print_comment('*')}}
+ */
+{%-         endif %}
+{%-         filter indent(6) %}
+{%-             include "directives/StmtsBody.jinja2" %}
+{%-         endfilter %}
+    }
+{%-     endfor %}
+{%- endif %}
+
+  // Reset the input port variables
+{%- for variable_symbol in neuron.get_spike_input_ports() %}
+    y[N_SCAL_VAR + i_{{ variable_symbol.get_symbol_name() }}] = 0;
+{%- endfor %} 
+}
+
+}; // namespace
+			    
+__device__
+void NodeInit(int n_var, int n_param, double x, float *y,
+	     float *param, {{neuronName}}_rk5 data_struct)
+{
+   {{neuronName}}_ns::NodeInit(n_var, n_param, x, y, param, data_struct);
+}
+
+__device__
+void NodeCalibrate(int n_var, int n_param, double x, float *y,
+		  float *param, {{neuronName}}_rk5 data_struct)
+
+{
+    {{neuronName}}_ns::NodeCalibrate(n_var, n_param, x, y, param, data_struct);
+}
+
+int Update(long long it, double t1);
+
+template<int NVAR, int NPARAM>
+__device__
+void ExternalUpdate(double x, float *y, float *param, bool end_time_step,
+		    {{ neuronName }}_rk5 data_struct)
+{
+    {{ neuronName }}_ns::ExternalUpdate<NVAR, NPARAM>(x, y, param,
+						    end_time_step,
+						    data_struct);
+}
+
+using namespace {{ neuronName }}_ns;
+
+template<int NVAR, int NPARAM>
+__device__
+void Derivatives(double x, float *y, float *dydx, float *param,
+		 {{ neuronName }}_rk5 data_struct)
+{
+{%- for ast in utils.get_all_integrate_odes_calls_unique(neuron) %}
+{%-    set parent = utils.get_integrate_odes_parent(ast) %}
+{%-    if parent is not none %}
+{%-       if  utils.is_if_clause(parent) %}
+    if({{ gsl_printer.print(parent.get_condition()) }})
+
+{%-       elif utils.is_elif_clause(parent) %}
+    else if({{ gsl_printer.print(parent.get_condition()) }})
+{%-       else  %}
+    else
+{%-       endif %}
+    {
+      {{ neuronName }}_ns::Derivatives{% if ast.get_args() | length > 0 %}_{{ utils.integrate_odes_args_str_from_function_call(ast) }}{% endif %}<NVAR, NPARAM>(x, y, dydx, param, data_struct);
+    }
+{%-    else %}
+    {{ neuronName }}_ns::Derivatives<NVAR, NPARAM>(x, y, dydx, param,
+						 data_struct);
+{%-    endif  %}
+{%- endfor %}
+}
+
+int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
+			 int i_group)
+{
+  BaseNeuron::Init(i_node_0, n_node, {{neuron.get_spike_input_ports() | length}} /*n_port*/, i_group);
+  node_type_ = i_{{ neuronName }}_model;
+
+  // State variables
+  n_scal_var_ = N_SCAL_VAR;
+  n_port_var_ = N_PORT_VAR;
+  n_var_ = n_scal_var_ + n_port_var_;
+
+  // Parameters
+  n_scal_param_ = N_SCAL_PARAM;
+  n_param_ = n_scal_param_;
+  n_group_param_ = N_GROUP_PARAM;
+  group_param_ = new float[N_GROUP_PARAM];
+
+  scal_var_name_ = {{ neuronName }}_scal_var_name;
+  scal_param_name_ = {{ neuronName }}_scal_param_name;
+  port_var_name_ = {{ neuronName }}_port_var_name;
+
+  group_param_name_ = {{neuronName}}_group_param_name;
+  rk5_data_struct_.i_node_0_ = i_node_0_;
+
+  SetGroupParam("h_min_rel", 1.0e-3);
+  SetGroupParam("h0_rel",  1.0e-2);
+  h_ = group_param_[i_h0_rel] * 0.1;
+  rk5_.Init(n_node, n_var_, n_param_, 0.0, h_, rk5_data_struct_);
+  var_arr_ = rk5_.GetYArr();
+  param_arr_ = rk5_.GetParamArr();
+
+  {# TODO: automatically determine "PSConInit_E" #}
+  {# port_weight_arr_ = GetParamArr() + GetScalParamIdx("PSConInit_E");
+  port_weight_arr_ = GetParamArr()
+  port_weight_arr_step_ = n_param_;
+  port_weight_port_step_ = 1;
+  #}
+
+  // multiplication factor of input signal is always 1 for all nodes
+  float input_weight = 1.0;
+  gpuErrchk(cudaMalloc(&port_weight_arr_, sizeof(float)));
+  gpuErrchk(cudaMemcpy(port_weight_arr_, &input_weight,
+			 sizeof(float), cudaMemcpyHostToDevice));
+  port_weight_arr_step_ = 0;
+  port_weight_port_step_ = 0;
+
+  // process the input spikes
+  port_input_arr_ = GetVarArr() + n_scal_var_ + GetPortVarIdx("{{ utils.get_first_excitatory_port(neuron) }}");
+  port_input_arr_step_ = n_var_;
+  port_input_port_step_ = {{(neuron.get_spike_input_ports() | length) - 1}};
+
+{# TODO #}
+{#  den_delay_arr_ =  GetParamArr() + GetScalParamIdx("den_delay"); #}
+
+  return 0;
+}
+
+int {{ neuronName }}::Calibrate(double time_min, float time_resolution)
+{
+  h_min_ = group_param_[i_h_min_rel] * time_resolution;
+  h_ = group_param_[i_h0_rel] * time_resolution;
+  rk5_.Calibrate(time_min, h_, rk5_data_struct_);
+  return 0;
+}
+
+int {{ neuronName }}::Update(long long it, double t1)
+{
+  rk5_.Update<N_SCAL_VAR + N_PORT_VAR, N_SCAL_PARAM>(t1, h_min_, rk5_data_struct_); 
+  return 0;
+}
