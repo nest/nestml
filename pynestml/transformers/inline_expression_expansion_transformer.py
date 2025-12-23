@@ -82,23 +82,24 @@ class InlineExpressionExpansionTransformer(Transformer):
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
         for source in inline_expressions:
-            source_position = source.get_source_position()
-            for target in inline_expressions:
-                matcher = re.compile(self._variable_matching_template.format(source.get_variable_name()))
-                target_definition = str(target.get_expression())
-                target_definition = re.sub(matcher, "(" + str(source.get_expression()) + ")", target_definition)
-                old_parent = target.expression.parent_
-                target.expression = ModelParser.parse_expression(target_definition)
-                target.expression.update_scope(source.get_scope())
-                target.expression.parent_ = old_parent
-                target.expression.accept(ASTParentVisitor())
-                target.expression.accept(ASTSymbolTableVisitor())
+            if "mechanism" not in [e.namespace for e in source.get_decorators()]:
+                source_position = source.get_source_position()
+                for target in inline_expressions:
+                    matcher = re.compile(self._variable_matching_template.format(source.get_variable_name()))
+                    target_definition = str(target.get_expression())
+                    target_definition = re.sub(matcher, "(" + str(source.get_expression()) + ")", target_definition)
+                    old_parent = target.expression.parent_
+                    target.expression = ModelParser.parse_expression(target_definition)
+                    target.expression.update_scope(source.get_scope())
+                    target.expression.parent_ = old_parent
+                    target.expression.accept(ASTParentVisitor())
+                    target.expression.accept(ASTSymbolTableVisitor())
 
-                def log_set_source_position(node):
-                    if node.get_source_position().is_added_source_position():
-                        node.set_source_position(source_position)
+                    def log_set_source_position(node):
+                        if node.get_source_position().is_added_source_position():
+                            node.set_source_position(source_position)
 
-                target.expression.accept(ASTHigherOrderVisitor(visit_funcs=log_set_source_position))
+                    target.expression.accept(ASTHigherOrderVisitor(visit_funcs=log_set_source_position))
 
         return inline_expressions
 
