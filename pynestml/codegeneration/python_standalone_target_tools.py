@@ -88,7 +88,7 @@ class PythonStandaloneTargetTools:
         :param nestml_file_name: File name of the neuron model
         :return: Dictionaries mapping parameters, internals and state variables to their numerical initial values
         """
-        parameters, state = cls._get_model_parameters_and_state(nestml_file_name)
+        parameters, internals, state = cls._get_model_parameters_and_state(nestml_file_name)
 
         if not parameters or not state:
             Logger.log_message(None, -1,
