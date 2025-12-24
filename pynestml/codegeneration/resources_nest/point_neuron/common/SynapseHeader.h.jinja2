@@ -704,14 +704,23 @@ void get_entry_from_continuous_variable_history(double t,
   send( Event& e, const thread tid, const {{synapseName}}CommonSynapseProperties& cp )
 {%- endif %}
   {
-    const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
+    const double __t_spike = e.get_stamp().get_ms();    // time of the presynaptic spike [ms]
+	
+    double __timestep;    // do not remove, this is necessary for the timestep() function
+    if (t_lastspike_ < 0.)
+    {
+        __timestep = __t_spike;
+    }
+    else
+    {
+        __timestep = __t_spike - t_lastspike_;
+    }
 
     auto get_thread = [tid]()
     {
         return tid;
     };
 
-    const double __t_spike = e.get_stamp().get_ms();    // time of the presynaptic spike [ms]
 #ifdef DEBUG
     std::cout << "[synapse " << this << "] {{ synapseName }}::send(): handling pre spike at t = " << __t_spike << std::endl;
 #endif
