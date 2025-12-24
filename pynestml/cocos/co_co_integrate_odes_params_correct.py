@@ -52,3 +52,6 @@ class IntegrateODEsCheckerVisitor(ASTVisitor):
                 if symbol_var is None or not symbol_var.is_state():
                     code, message = Messages.get_integrate_odes_wrong_arg(str(arg))
                     Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.ERROR)
+                elif symbol_var.is_state() and arg.get_variable().get_differential_order() > 0:
+                    code, message = Messages.get_integrate_odes_arg_higher_order(str(arg))
+                    Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.ERROR)

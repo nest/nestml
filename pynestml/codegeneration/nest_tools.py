@@ -18,7 +18,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
 import subprocess
 import sys
 import tempfile
@@ -47,6 +46,7 @@ import sys
 
 try:
     import nest
+    import semver
 
     vt = nest.Create("volume_transmitter")
 
@@ -59,24 +59,27 @@ try:
     except Exception:
         pass
 
-    if "DataConnect" in dir(nest):
-            nest_version = "v2.20.2"
-    else:
-        nest_version = "v" + nest.__version__
-        if nest_version.startswith("v3.5") or nest_version.startswith("v3.6") or nest_version.startswith("v3.7"):
-            if "post0.dev0" in nest_version:
+    try:
+        # For NEST version <= 3.4, the version string is not parsable by semver.
+        ver = semver.Version.parse(nest.__version__)
+        if (ver.major == 3 and ver.minor >= 5) or ver.major > 3:
+            if ver.prerelease and "post0.dev0" in ver.prerelease:
                 nest_version = "master"
-        else:
-            if "kernel_status" not in dir(nest):  # added in v3.1
-                nest_version = "v3.0"
-            elif "prepared" in nest.GetKernelStatus().keys():  # "prepared" key was added after v3.3 release
-                nest_version = "v3.4"
-            elif "tau_u_bar_minus" in neuron.get().keys():   # added in v3.3
-                nest_version = "v3.3"
-            elif "tau_Ca" in vt.get().keys():   # removed in v3.2
-                nest_version = "v3.1"
             else:
-                nest_version = "v3.2"
+                nest_version = "v" + nest.__version__
+    except (AttributeError, ValueError):
+        if "DataConnect" in dir(nest):
+            nest_version = "v2.20.2"
+        elif "kernel_status" not in dir(nest):  # added in v3.1
+            nest_version = "v3.0"
+        elif "prepared" in nest.GetKernelStatus().keys():  # "prepared" key was added after v3.3 release
+            nest_version = "v3.4"
+        elif "tau_u_bar_minus" in neuron.get().keys():   # added in v3.3
+            nest_version = "v3.3"
+        elif "tau_Ca" in vt.get().keys():   # removed in v3.2
+            nest_version = "v3.1"
+        else:
+            nest_version = "v3.2"
 except ModuleNotFoundError:
     nest_version = ""
 
@@ -93,9 +96,12 @@ print(nest_version, file=sys.stderr)
             nest_version = stderr.decode("UTF-8").strip()
 
         if nest_version == "":
-            Logger.log_message(None, -1, "An error occurred while importing the `nest` module in Python. Please check your NEST installation-related environment variables and paths, or specify ``nest_version`` manually in the code generator options.", None, LoggingLevel.ERROR)
+            Logger.log_message(None, -1,
+                               "An error occurred while importing the `nest` module in Python. Please check your NEST installation-related environment variables and paths, or specify ``nest_version`` manually in the code generator options.",
+                               None, LoggingLevel.ERROR)
             sys.exit(1)
 
-        Logger.log_message(None, -1, "The NEST Simulator version was automatically detected as: " + nest_version, None, LoggingLevel.INFO)
+        Logger.log_message(None, -1, "The NEST Simulator version was automatically detected as: " + nest_version, None,
+                           LoggingLevel.INFO)
 
         return nest_version

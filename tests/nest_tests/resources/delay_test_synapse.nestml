@@ -1,0 +1,22 @@
+# delay_test_synapse
+# ##################
+#
+model delay_test_synapse:
+  state:
+    x ms = 0 ms
+
+  parameters:
+    w real = 1    # Synaptic weight
+    d ms = 1 ms    # Synaptic transmission delay
+
+  input:
+    pre_spikes <- spike
+
+  output:
+    spike(weight real, delay ms)
+
+  onReceive(pre_spikes):
+    emit_spike(w, d)
+
+  update:
+    x = d

@@ -54,7 +54,7 @@ class LatexFunctionCallPrinter(FunctionCallPrinter):
         """
         function_name = node.get_name()
 
-        if function_name == PredefinedFunctions.TIME_RESOLUTION:
+        if function_name in [PredefinedFunctions.TIME_RESOLUTION, PredefinedFunctions.TIME_TIMESTEP]:
             # context dependent; we assume the template contains the necessary definitions
             return r'\Delta{}t'
 
@@ -62,10 +62,13 @@ class LatexFunctionCallPrinter(FunctionCallPrinter):
             return r'\text{steps}'
 
         if function_name == PredefinedFunctions.RANDOM_NORMAL:
-            return r'\mathcal{N}({!s}, {!s}'
+            return r'\mathcal{N}({!s}, {!s})'
+
+        if function_name == PredefinedFunctions.RANDOM_POISSON:
+            return r'\mathrm{Poisson}({!s})'
 
         if function_name == PredefinedFunctions.RANDOM_UNIFORM:
-            return r'\mathcal{U}({!s}, {!s}'
+            return r'\mathcal{U}({!s}, {!s})'
 
         if function_name == PredefinedFunctions.EMIT_SPIKE:
             return r'\text{spike}'

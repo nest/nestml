@@ -19,7 +19,10 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List
+
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_parameter import ASTParameter
 
 
 class ASTFunctionCall(ASTNode):
@@ -89,36 +92,26 @@ class ASTFunctionCall(ASTNode):
         """
         return (self.args is not None) and len(self.args) > 0
 
-    def get_args(self):
+    def get_args(self) -> List[ASTParameter]:
         """
         Returns the list of arguments.
         :return: the list of arguments.
-        :rtype: list(ASTExpression)
         """
+        if self.args is None:
+            return []
+
         return self.args
 
-    def get_parent(self, ast):
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
-        """
-        for param in self.get_args():
-            if param is ast:
-                return self
-            if param.get_parent(ast) is not None:
-                return param.get_parent(ast)
-        return None
+        return self.get_args()
 
-    def equals(self, other):
-        """
-        The equals method.
-        :param other: a different object.
-        :type other: object
-        :return: True if equal, otherwise False.
-        :rtype: bool
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTFunctionCall):
             return False

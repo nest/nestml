@@ -450,7 +450,7 @@ class ASTModel(ASTNode):
         """
         assert not self.get_update_blocks(), "create_empty_update_block() called although update block already present"
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-        block = ASTNodeFactory.create_ast_block([], ASTSourceLocation.get_predefined_source_position())
+        block = ASTNodeFactory.create_ast_stmts_body([], ASTSourceLocation.get_predefined_source_position())
         update_block = ASTNodeFactory.create_ast_update_block(block, ASTSourceLocation.get_predefined_source_position())
         self.get_body().get_body_elements().append(update_block)
 
@@ -459,21 +459,27 @@ class ASTModel(ASTNode):
         Adds the handed over declaration the internals block
         :param declaration: a single declaration
         """
-        assert len(self.get_internals_blocks()) <= 1, "Only one internals block supported for now"
         from pynestml.utils.ast_utils import ASTUtils
+        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+
+        assert len(self.get_internals_blocks()) <= 1, "Only one internals block supported for now"
+
         if not self.get_internals_blocks():
             ASTUtils.create_internal_block(self)
+
         n_declarations = len(self.get_internals_blocks()[0].get_declarations())
         if n_declarations == 0:
             index = 0
         else:
             index = 1 + (index % len(self.get_internals_blocks()[0].get_declarations()))
+
         self.get_internals_blocks()[0].get_declarations().insert(index, declaration)
         declaration.update_scope(self.get_internals_blocks()[0].get_scope())
-        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
         symtable_vistor = ASTSymbolTableVisitor()
         symtable_vistor.block_type_stack.push(BlockType.INTERNALS)
-        declaration.accept(symtable_vistor)
+        self.accept(ASTParentVisitor())
+        self.accept(symtable_vistor)
         symtable_vistor.block_type_stack.pop()
 
     def add_to_state_block(self, declaration: ASTDeclaration) -> None:
@@ -481,23 +487,26 @@ class ASTModel(ASTNode):
         Adds the handed over declaration to an arbitrary state block. A state block will be created if none exists.
         :param declaration: a single declaration.
         """
-        assert len(self.get_state_blocks()) <= 1, "Only one internals block supported for now"
+        from pynestml.symbols.symbol import SymbolKind
         from pynestml.utils.ast_utils import ASTUtils
+        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+
+        assert len(self.get_state_blocks()) <= 1, "Only one internals block supported for now"
+
         if not self.get_state_blocks():
             ASTUtils.create_state_block(self)
+
         self.get_state_blocks()[0].get_declarations().append(declaration)
         declaration.update_scope(self.get_state_blocks()[0].get_scope())
-        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-
         symtable_vistor = ASTSymbolTableVisitor()
         symtable_vistor.block_type_stack.push(BlockType.STATE)
-        declaration.accept(symtable_vistor)
+        self.accept(ASTParentVisitor())
+        self.accept(symtable_vistor)
         symtable_vistor.block_type_stack.pop()
-        from pynestml.symbols.symbol import SymbolKind
-        assert declaration.get_variables()[0].get_scope().resolve_to_symbol(
-            declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is not None
-        assert declaration.get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(),
-                                                         SymbolKind.VARIABLE) is not None
+
+        assert declaration.get_variables()[0].get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is not None
+        assert declaration.get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is not None
 
     def print_comment(self, prefix: str = "") -> str:
         """
@@ -513,16 +522,6 @@ class ASTModel(ASTNode):
             ret += prefix + comment + '\n'
 
         return ret
-
-    def equals(self, other: ASTNode) -> bool:
-        """
-        The equals method.
-        :param other: a different object.
-        :return: True if equal, otherwise False.
-        """
-        if not isinstance(other, ASTModel):
-            return False
-        return self.get_name() == other.get_name() and self.get_body().equals(other.get_body())
 
     def get_initial_value(self, variable_name: str):
         assert type(variable_name) is str
@@ -573,7 +572,6 @@ class ASTModel(ASTNode):
         """
         Returns a list of all spike input ports defined in the model.
         """
-        print("get_spike_input_port_names = " + str([port.get_symbol_name() for port in self.get_spike_input_ports()]))
         return [port.get_symbol_name() for port in self.get_spike_input_ports()]
 
     def get_continuous_input_ports(self) -> List[VariableSymbol]:
@@ -652,19 +650,6 @@ class ASTModel(ASTNode):
 
         return False
 
-    def get_parent(self, ast) -> Optional[ASTNode]:
-        """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        """
-        if self.get_body() is ast:
-            return self
-        if self.get_body().get_parent(ast) is not None:
-            return self.get_body().get_parent(ast)
-        return None
-
     def set_default_delay(self, var, expr, dtype):
         self._default_delay_variable = var
         self._default_delay_expression = expr
@@ -687,17 +672,14 @@ class ASTModel(ASTNode):
     def get_on_receive_block(self, port_name: str) -> Optional[ASTOnReceiveBlock]:
         if not self.get_body():
             return None
+
         return self.get_body().get_on_receive_block(port_name)
 
     def get_on_condition_blocks(self) -> List[ASTOnConditionBlock]:
         if not self.get_body():
             return []
-        return self.get_body().get_on_condition_blocks()
 
-    def get_on_condition_block(self, port_name: str) -> Optional[ASTOnConditionBlock]:
-        if not self.get_body():
-            return None
-        return self.get_body().get_on_condition_block(port_name)
+        return self.get_body().get_on_condition_blocks()
 
     def get_input_buffers(self):
         """
@@ -712,3 +694,18 @@ class ASTModel(ASTNode):
                                                        or symbol.block_type == BlockType.INPUT_BUFFER_CURRENT):
                 ret.append(symbol)
         return ret
+
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
+        """
+        return [self.get_body()]
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
+        """
+        if not isinstance(other, ASTModel):
+            return False
+        return self.get_name() == other.get_name() and self.get_body().equals(other.get_body())

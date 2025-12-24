@@ -1,54 +1,74 @@
-"""
-hh_psc_alpha - Hodgkin-Huxley neuron model
-##########################################
-
-Description
-+++++++++++
-
-hh_psc_alpha is an implementation of a spiking neuron using the Hodgkin-Huxley
-formalism.
-
-Incoming spike events induce a post-synaptic change of current modelled
-by an alpha function. The alpha function is normalised such that an event of
-weight 1.0 results in a peak current of 1 pA.
-
-Spike detection is done by a combined threshold-and-local-maximum search: if
-there is a local maximum above a certain threshold of the membrane potential,
-it is considered a spike.
-
-
-Problems/Todo
-+++++++++++++
-
-- better spike detection
-- initial wavelet/spike at simulation onset
-
-
-References
-++++++++++
-
-.. [1] Gerstner W, Kistler W (2002). Spiking neuron models: Single neurons,
-       populations, plasticity. New York: Cambridge University Press
-.. [2] Dayan P, Abbott LF (2001). Theoretical neuroscience: Computational and
-       mathematical modeling of neural systems. Cambridge, MA: MIT Press.
-       https://pure.mpg.de/pubman/faces/ViewItemOverviewPage.jsp?itemId=item_3006127>
-.. [3] Hodgkin AL and Huxley A F (1952). A quantitative description of
-       membrane current and its application to conduction and excitation in
-       nerve. The Journal of Physiology 117.
-       DOI: https://doi.org/10.1113/jphysiol.1952.sp004764
-
-
-See also
-++++++++
-
-hh_cond_exp_traub
-"""
+# hh_psc_alpha - Hodgkin-Huxley neuron model
+# ##########################################
+# 
+# Description
+# +++++++++++
+# 
+# hh_psc_alpha is an implementation of a spiking neuron using the Hodgkin-Huxley
+# formalism.
+# 
+# Incoming spike events induce a post-synaptic change of current modelled
+# by an alpha function. The alpha function is normalised such that an event of
+# weight 1.0 results in a peak current of 1 pA.
+# 
+# Spike detection is done by a combined threshold-and-local-maximum search: if
+# there is a local maximum above a certain threshold of the membrane potential,
+# it is considered a spike.
+# 
+# 
+# Problems/Todo
+# +++++++++++++
+# 
+# - better spike detection
+# - initial wavelet/spike at simulation onset
+# 
+# 
+# References
+# ++++++++++
+# 
+# .. [1] Gerstner W, Kistler W (2002). Spiking neuron models: Single neurons,
+#        populations, plasticity. New York: Cambridge University Press
+# .. [2] Dayan P, Abbott LF (2001). Theoretical neuroscience: Computational and
+#        mathematical modeling of neural systems. Cambridge, MA: MIT Press.
+#        https://pure.mpg.de/pubman/faces/ViewItemOverviewPage.jsp?itemId=item_3006127>
+# .. [3] Hodgkin AL and Huxley A F (1952). A quantitative description of
+#        membrane current and its application to conduction and excitation in
+#        nerve. The Journal of Physiology 117.
+#        DOI: https://doi.org/10.1113/jphysiol.1952.sp004764
+# 
+# 
+# See also
+# ++++++++
+# 
+# hh_cond_exp_traub
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+# 
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
 model hh_psc_alpha_neuron:
     state:
         V_m mV = V_m_init    # Membrane potential
         V_m_old mV = V_m_init    # Membrane potential at previous timestep for threshold check
         refr_t ms = 0 ms    # Refractory period timer
-        is_refractory boolean = false
 
         Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )   # Activation variable m for Na
         Inact_h real = alpha_h_init / ( alpha_h_init + beta_h_init )    # Inactivation variable h for Na
@@ -81,6 +101,7 @@ model hh_psc_alpha_neuron:
         Inact_h' = ( alpha_h * ( 1 - Inact_h ) - beta_h * Inact_h ) / ms # h-variable
 
         V_m' = ( -( I_Na + I_K + I_L ) + I_e + I_stim + I_syn_exc - I_syn_inh ) / C_m
+        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
 
     parameters:
         V_m_init mV = -65 mV     # Initial membrane potential
@@ -118,20 +139,14 @@ model hh_psc_alpha_neuron:
     update:
         # Hodgkin-Huxley type model: ODEs are always integrated, regardless of refractory state
         V_m_old = V_m
-        integrate_odes()
+        if refr_t > 0 ms:
+            # neuron is absolute refractory
+            integrate_odes(V_m, Inact_h, Act_n, Act_m, refr_t)
+        else:
+            # neuron not refractory
+            integrate_odes(V_m, Inact_h, Act_n, Act_m)
 
-        if is_refractory:
-            # neuron is absolute refractory, decrease refractoriness timer
-            refr_t -= resolution()
-
-    onCondition(not is_refractory and V_m > 0 mV and V_m_old > V_m):
+    onCondition(refr_t <= 0 ms and V_m > 0 mV and V_m_old > V_m):
         # threshold crossing and maximum
         refr_t = refr_T    # start of the refractory period
-        is_refractory = true
         emit_spike()
-
-    onCondition(is_refractory and refr_t <= resolution() / 2):
-        # end of refractory period
-        refr_t = 0 ms
-        is_refractory = false
-

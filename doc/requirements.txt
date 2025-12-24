@@ -2,11 +2,11 @@ ipykernel
 nbsphinx
 docutils
 sphinx>=6
-MarkupSafe==2.1.5
+MarkupSafe==3.0.3
 readthedocs-sphinx-ext==2.2.0
 nbformat==5.10.4
 nbsphinx==0.9.1
-typing_extensions==4.5.0
+typing_extensions==4.15.0
 sphinx_rtd_theme==2.0.0
 nbclient==0.10.0
 sphinx-design
@@ -14,8 +14,8 @@ sphinx-design
 # the following list is a direct copy from requirements.txt in the root directory (requirements for NESTML itself rather than for doc building)
 numpy >= 1.8.2
 scipy
-sympy >= 1.1.1,!= 1.11, != 1.11.1
-antlr4-python3-runtime == 4.12
+sympy
+antlr4-python3-runtime == 4.13.2
 setuptools
 Jinja2 >= 2.10
 typing;python_version<"3.5"

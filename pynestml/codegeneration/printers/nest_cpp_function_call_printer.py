@@ -45,15 +45,20 @@ class NESTCppFunctionCallPrinter(CppFunctionCallPrinter):
         """
         function_name = function_call.get_name()
 
+        if function_name == PredefinedFunctions.TIME_TIMESTEP:
+            return '__timestep'
+
         if function_name == PredefinedFunctions.TIME_RESOLUTION:
-            # context dependent; we assume the template contains the necessary definitions
-            return '__resolution'
+            return 'nest::Time::get_resolution().get_ms()'
 
         if function_name == PredefinedFunctions.TIME_STEPS:
             return 'nest::Time(nest::Time::ms((double) ({!s}))).get_steps()'
 
         if function_name == PredefinedFunctions.RANDOM_NORMAL:
             return '(({!s}) + ({!s}) * ' + 'normal_dev_( nest::get_vp_specific_rng( ' + 'get_thread() ) ))'
+
+        if function_name == PredefinedFunctions.RANDOM_POISSON:
+            return '([&]() -> int {{ nest::poisson_distribution::param_type poisson_params({!s}); int sample = poisson_dev_( nest::get_vp_specific_rng( get_thread() ), poisson_params); return sample; }})()'   # double curly braces {{ }} due to passing through str.format() later
 
         if function_name == PredefinedFunctions.RANDOM_UNIFORM:
             return '(({!s}) + ({!s}) * nest::get_vp_specific_rng( ' + 'get_thread() )->drand())'

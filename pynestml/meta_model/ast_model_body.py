@@ -175,12 +175,6 @@ class ASTModelBody(ASTNode):
 
         return on_receive_blocks
 
-    def get_on_condition_block(self, port_name) -> Optional[ASTOnConditionBlock]:
-        for elem in self.get_body_elements():
-            if isinstance(elem, ASTOnConditionBlock) and elem.port_name == port_name:
-                return elem
-        return None
-
     def get_on_condition_blocks(self) -> List[ASTOnConditionBlock]:
         on_condition_blocks = []
         for elem in self.get_body_elements():
@@ -225,21 +219,6 @@ class ASTModelBody(ASTNode):
 
         return ret
 
-    def get_parent(self, ast=None):
-        """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
-        """
-        for stmt in self.get_body_elements():
-            if stmt is ast:
-                return self
-            if stmt.get_parent(ast) is not None:
-                return stmt.get_parent(ast)
-        return None
-
     def get_spike_input_ports(self) -> List[ASTInputPort]:
         """
         Returns a list of all spike input ports defined in the model.
@@ -253,13 +232,16 @@ class ASTModelBody(ASTNode):
                     ret.append(port)
         return ret
 
-    def equals(self, other):
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
-        The equals method.
-        :param other: a different object.
-        :type other: object
-        :return: True if equal, otherwise False.
-        :rtype: bool
+        return self.get_body_elements()
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTModelBody):
             return False

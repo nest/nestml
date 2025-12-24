@@ -18,6 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from typing import Mapping
 
 from pynestml.symbols.function_symbol import FunctionSymbol
@@ -27,40 +28,10 @@ from pynestml.symbols.predefined_types import PredefinedTypes
 class PredefinedFunctions:
     r"""
     This class is used to represent all predefined functions of NESTML.
-
-    Attributes:
-        TIME_RESOLUTION       The callee name of the resolution function.
-        TIME_STEPS            The callee name of the time-steps function.
-        EMIT_SPIKE            The callee name of the emit-spike function.
-        PRINT                 The callee name of the print function.
-        PRINTLN               The callee name of the println function.
-        EXP                   The callee name of the exponent function.
-        LN                    The callee name of the natural logarithm function, i.e. the logarithm function of base :math:`e`.
-        LOG10                 The callee name of the logarithm function of base 10.
-        COSH                  The callee name of the hyperbolic cosine.
-        SINH                  The callee name of the hyperbolic sine.
-        TANH                  The callee name of the hyperbolic tangent.
-        ERF                   The callee name of the error function
-        ERFC                  The callee name of the complementary error function
-        LOGGER_INFO           The callee name of the logger-info function.
-        LOGGER_WARNING        The callee name of the logger-warning function.
-        RANDOM_NORMAL         The callee name of the function used to generate a random normal (Gaussian) distributed variable with parameters `mean` and `var` (variance).
-        RANDOM_UNIFORM        The callee name of the function used to generate a random sample from a uniform distribution in the interval `[offset, offset + scale)`.
-        EXPM1                 The callee name of the exponent (alternative) function.
-        DELTA                 The callee name of the delta function.
-        CLIP                  The callee name of the clip function.
-        POW                   The callee name of the pow function.
-        MAX                   The callee name of the max function.
-        MIN                   The callee name of the min function.
-        ABS                   The callee name of the abs function.
-        CEIL                  The callee name of the ceil function.
-        FLOOR                 The callee name of the floor function.
-        ROUND                 The callee name of the round function.
-        INTEGRATE_ODES        The callee name of the integrate_odes function.
-        CONVOLVE              The callee name of the convolve function.
     """
 
     TIME_RESOLUTION = "resolution"
+    TIME_TIMESTEP = "timestep"
     TIME_STEPS = "steps"
     EMIT_SPIKE = "emit_spike"
     PRINT = "print"
@@ -68,14 +39,18 @@ class PredefinedFunctions:
     EXP = "exp"
     LN = "ln"
     LOG10 = "log10"
+    COS = "cos"
+    SIN = "sin"
+    TAN = "tan"
     COSH = "cosh"
     SINH = "sinh"
+    TANH = "tanh"
     ERF = "erf"
     ERFC = "erfc"
-    TANH = "tanh"
     LOGGER_INFO = "info"
     LOGGER_WARNING = "warning"
     RANDOM_NORMAL = "random_normal"
+    RANDOM_POISSON = "random_poisson"
     RANDOM_UNIFORM = "random_uniform"
     EXPM1 = "expm1"
     CLIP = "clip"
@@ -98,6 +73,7 @@ class PredefinedFunctions:
         """
         cls.name2function = {}
         cls.__register_time_resolution_function()
+        cls.__register_timestep_function()
         cls.__register_time_steps_function()
         cls.__register_emit_spike_function()
         cls.__register_print_function()
@@ -105,6 +81,9 @@ class PredefinedFunctions:
         cls.__register_exponent_function()
         cls.__register_ln_function()
         cls.__register_log10_function()
+        cls.__register_cos_function()
+        cls.__register_sin_function()
+        cls.__register_tan_function()
         cls.__register_cosh_function()
         cls.__register_sinh_function()
         cls.__register_tanh_function()
@@ -113,6 +92,7 @@ class PredefinedFunctions:
         cls.__register_logger_info_function()
         cls.__register_logger_warning_function()
         cls.__register_random_normal_function()
+        cls.__register_random_poisson_function()
         cls.__register_random_uniform_function()
         cls.__register_exp1_function()
         cls.__register_delta_function()
@@ -217,6 +197,42 @@ class PredefinedFunctions:
         cls.name2function[cls.LOG10] = symbol
 
     @classmethod
+    def __register_cos_function(cls):
+        """
+        Registers the cosine function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_real_type())  # the argument
+        symbol = FunctionSymbol(name=cls.COS, param_types=params,
+                                return_type=PredefinedTypes.get_real_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.COS] = symbol
+
+    @classmethod
+    def __register_sin_function(cls):
+        """
+        Registers the sine function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_real_type())  # the argument
+        symbol = FunctionSymbol(name=cls.SIN, param_types=params,
+                                return_type=PredefinedTypes.get_real_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.SIN] = symbol
+
+    @classmethod
+    def __register_tan_function(cls):
+        """
+        Registers the tangent function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_real_type())  # the argument
+        symbol = FunctionSymbol(name=cls.TAN, param_types=params,
+                                return_type=PredefinedTypes.get_real_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.TAN] = symbol
+
+    @classmethod
     def __register_cosh_function(cls):
         """
         Registers the hyperbolic cosine function.
@@ -311,6 +327,16 @@ class PredefinedFunctions:
         cls.name2function[cls.RANDOM_NORMAL] = symbol
 
     @classmethod
+    def __register_random_poisson_function(cls):
+        """
+        Registers the random method as used to generate a random Poissonian distributed variable with the rate parameter `lmbda` (expected value).
+        """
+        symbol = FunctionSymbol(name=cls.RANDOM_POISSON, param_types=[PredefinedTypes.get_real_type()],
+                                return_type=PredefinedTypes.get_integer_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.RANDOM_POISSON] = symbol
+
+    @classmethod
     def __register_random_uniform_function(cls):
         """
         Registers the random method as used to generate a random sample from a uniform distribution in the interval [offset, offset + scale).
@@ -329,6 +355,16 @@ class PredefinedFunctions:
                                 return_type=PredefinedTypes.get_type("ms"),
                                 element_reference=None, is_predefined=True, scope=None)
         cls.name2function[cls.TIME_RESOLUTION] = symbol
+
+    @classmethod
+    def __register_timestep_function(cls):
+        """
+        Registers the time timestep() function.
+        """
+        symbol = FunctionSymbol(name=cls.TIME_TIMESTEP, param_types=list(),
+                                return_type=PredefinedTypes.get_type("ms"),
+                                element_reference=None, is_predefined=True, scope=None)
+        cls.name2function[cls.TIME_TIMESTEP] = symbol
 
     @classmethod
     def __register_exp1_function(cls):

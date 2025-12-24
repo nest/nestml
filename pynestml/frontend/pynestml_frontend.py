@@ -41,10 +41,12 @@ from pynestml.transformers.transformer import Transformer
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 
 def get_known_targets():
-    targets = ["NEST", "NEST_compartmental", "python_standalone", "autodoc", "spinnaker", "none"]
+    targets = ["NEST", "NEST_compartmental", "python_standalone", "autodoc", "pretty_render", "spinnaker", "NEST_DESKTOP", "GeNN", "none"]
     targets = [s.upper() for s in targets]
     return targets
 
@@ -59,7 +61,13 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
     if options is None:
         options = {}
 
-    if target_name.upper() in ["NEST", "SPINNAKER"]:
+    if target_name.upper() in ["NEST", "SPINNAKER", "PYTHON_STANDALONE", "NEST_COMPARTMENTAL", "NEST_DESKTOP", "GENN"]:
+        from pynestml.transformers.add_timestep_to_internals_transformer import AddTimestepToInternalsTransformer
+
+        add_timestep_to_internals_transformer = AddTimestepToInternalsTransformer()
+        transformers.append(add_timestep_to_internals_transformer)
+
+    if target_name.upper() in ["NEST", "SPINNAKER", "GENN"]:
         from pynestml.transformers.illegal_variable_name_transformer import IllegalVariableNameTransformer
 
         # rewrite all C++ keywords
@@ -89,8 +97,15 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
 
         # rewrite all Python keywords
         # from: ``import keyword; print(keyword.kwlist)``
-        variable_name_rewriter = IllegalVariableNameTransformer({"forbidden_names": ['False', 'None', 'True', 'and', 'as', 'assert', 'async', 'await', 'break', 'class', 'continue', 'def', 'del', 'elif', 'else', 'except', 'finally', 'for', 'from', 'global', 'if', 'import', 'in', 'is', 'lambda', 'nonlocal', 'not', 'or', 'pass', 'raise', 'return', 'try', 'while', 'with', 'yield']})
+        variable_name_rewriter = IllegalVariableNameTransformer({"forbidden_names": ["False", "None", "True", "and", "as", "assert", "async", "await", "break", "class", "continue", "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with", "yield"]})
         transformers.append(variable_name_rewriter)
+
+        # co-generate neuron and synapse
+        from pynestml.transformers.synapse_remove_post_port import SynapseRemovePostPortTransformer
+
+        synapse_post_neuron_co_generation = SynapseRemovePostPortTransformer()
+        options = synapse_post_neuron_co_generation.set_options(options)
+        transformers.append(synapse_post_neuron_co_generation)
 
     return transformers, options
 
@@ -108,11 +123,19 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         from pynestml.codegeneration.python_standalone_code_generator import PythonStandaloneCodeGenerator
         return PythonStandaloneCodeGenerator(options)
 
+    if target_name.upper() == "PRETTY_RENDER":
+        from pynestml.codegeneration.pretty_render_code_generator import PrettyRenderCodeGenerator
+        return PrettyRenderCodeGenerator()
+
     if target_name.upper() == "AUTODOC":
         from pynestml.codegeneration.autodoc_code_generator import AutoDocCodeGenerator
         assert options is None or options == {
         }, "\"autodoc\" code generator does not support options"
         return AutoDocCodeGenerator()
+
+    if target_name.upper() == "NEST_DESKTOP":
+        from pynestml.codegeneration.nest_desktop_code_generator import NESTDesktopCodeGenerator
+        return NESTDesktopCodeGenerator(options)
 
     if target_name.upper() == "NEST_COMPARTMENTAL":
         from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
@@ -122,15 +145,18 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         from pynestml.codegeneration.spinnaker_code_generator import SpiNNakerCodeGenerator
         return SpiNNakerCodeGenerator(options)
 
+    if target_name.upper() == "GENN":
+        from pynestml.codegeneration.genn_code_generator import GeNNCodeGenerator
+        return GeNNCodeGenerator(options)
+
     if target_name.upper() == "NONE":
-        # dummy/null target: user requested to not generate any code
+        # dummy/null target: user requested to not generate any code (for instance, when just doing validation of a model)
         code, message = Messages.get_no_code_generated()
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
-        return CodeGenerator("", options)
+        return CodeGenerator(options)
 
-    # cannot reach here due to earlier assert -- silence
+    # cannot reach here due to earlier assert -- silence static checker warnings
     assert "Unknown code generator requested: " + target_name
-    # static checker warnings
 
 
 def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Tuple[Builder, Dict[str, Any]]:
@@ -186,12 +212,17 @@ def generate_target(input_path: Union[str, Sequence[str]], target_platform: str,
         Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
     codegen_opts : Optional[Mapping[str, Any]]
         A dictionary containing additional options for the target code generator.
+
+    Return
+    ------
+    errors_occurred
+        Flag indicating whether errors occurred during processing. False if processing was successful; True if errors occurred in any of the models.
     """
 
     configure_front_end(input_path, target_platform, target_path, install_path, logging_level,
                         module_name, store_log, suffix, dev, codegen_opts)
-    if not process() == 0:
-        raise Exception("Error(s) occurred while processing the model")
+
+    return process()
 
 
 def configure_front_end(input_path: Union[str, Sequence[str]], target_platform: str, target_path=None,
@@ -301,10 +332,10 @@ def generate_python_standalone_target(input_path: Union[str, Sequence[str]], tar
                     codegen_opts=codegen_opts)
 
 
-def generate_spinnaker_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None, install_path: Optional[str] = None,
-                              logging_level="ERROR", module_name: str = "nestmlmodule", store_log: bool=False,
-                              suffix: str="", dev: bool=False, codegen_opts: Optional[Mapping[str, Any]]=None):
-    r"""Generate and build code for the SpiNNaker target.
+def generate_genn_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None,
+                         logging_level="ERROR", module_name: str = "nestmlmodule", store_log: bool = False,
+                         suffix: str = "", dev: bool = False, codegen_opts: Optional[Mapping[str, Any]] = None):
+    r"""Generate and build code for the GeNN target.
 
     Parameters
     ----------
@@ -312,8 +343,6 @@ def generate_spinnaker_target(input_path: Union[str, Sequence[str]], target_path
         Path to the NESTML file(s) or to folder(s) containing NESTML files to convert to NEST code.
     target_path : str, optional (default: append "target" to `input_path`)
         Path to the generated C++ code and install files.
-    install_path
-        Path to the directory where the generated code will be installed.
     logging_level : str, optional (default: "ERROR")
         Sets which level of information should be displayed duing code generation (among "ERROR", "WARNING", "INFO", or "NO").
     module_name : str, optional (default: "nestmlmodule")
@@ -327,9 +356,42 @@ def generate_spinnaker_target(input_path: Union[str, Sequence[str]], target_path
     codegen_opts : Optional[Mapping[str, Any]]
         A dictionary containing additional options for the target code generator.
     """
+    generate_target(input_path, target_platform="GeNN", target_path=target_path,
+                    logging_level=logging_level, store_log=store_log, suffix=suffix, dev=dev,
+                    codegen_opts=codegen_opts)
+
+
+def generate_spinnaker_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None, install_path: Optional[str] = None,
+                              logging_level="ERROR", store_log: bool=False,
+                              suffix: str="", dev: bool=False, codegen_opts: Optional[Mapping[str, Any]]=None):
+    r"""Generate and build code for the SpiNNaker target.
+
+    Parameters
+    ----------
+    input_path : str **or** Sequence[str]
+        Path to the NESTML file(s) or to folder(s) containing NESTML files to convert to NEST code.
+    target_path : str, optional (default: append "target" to `input_path`)
+        Path to the generated C++ code and install files.
+    install_path
+        Path to the directory where the generated code will be installed.
+    logging_level : str, optional (default: "ERROR")
+        Sets which level of information should be displayed duing code generation (among "ERROR", "WARNING", "INFO", or "NO").
+    store_log : bool, optional (default: False)
+        Whether the log should be saved to file.
+    suffix : str, optional (default: "")
+        A suffix string that will be appended to the name of all generated models.
+    dev : bool, optional (default: False)
+        Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
+    codegen_opts : Optional[Mapping[str, Any]]
+        A dictionary containing additional options for the target code generator.
+    """
+
+    # removed module_name from generate_spinnaker_target() arguments because it is not directly needed for the Jinja templates at the end of the pipeline
+    # but still added to generate_target() to surpress following log: [5,GLOBAL, INFO]: No module name specified; the generated module will be named "nestmlmodule"
+
     generate_target(input_path, target_platform="spinnaker", target_path=target_path,
                     install_path=install_path,
-                    logging_level=logging_level, store_log=store_log, suffix=suffix, dev=dev,
+                    logging_level=logging_level, module_name="nestmlmodule", store_log=store_log, suffix=suffix, dev=dev,
                     codegen_opts=codegen_opts)
 
 
@@ -366,34 +428,36 @@ def generate_nest_compartmental_target(input_path: Union[str, Sequence[str]], ta
 
 
 def main() -> int:
-    """
+    r"""
     Entry point for the command-line application.
 
     Returns
     -------
-    The process exit code: 0 for success, > 0 for failure
+    exit_code
+        The process exit code: 0 for success, > 0 for failure
     """
     try:
         FrontendConfiguration.parse_config(sys.argv[1:])
     except InvalidPathException as e:
         print(e)
+
         return 1
+
     # the default Python recursion limit is 1000, which might not be enough in practice when running an AST visitor on a deep tree, e.g. containing an automatically generated expression
     sys.setrecursionlimit(10000)
+
     # after all argument have been collected, start the actual processing
     return int(process())
 
 
-def get_parsed_models():
+def get_parsed_models() -> List[ASTModel]:
     r"""
    Handle the parsing and validation of the NESTML files
 
     Returns
     -------
-    models: Sequence[ASTModel]
+    models
         List of correctly parsed models
-    errors_occurred : bool
-        Flag indicating whether errors occurred during processing
     """
     # init log dir
     create_report_dir()
@@ -410,36 +474,25 @@ def get_parsed_models():
 
     for nestml_file in nestml_files:
         parsed_unit = ModelParser.parse_file(nestml_file)
-        if parsed_unit is None:
-            # Parsing error in the NESTML model, return True
-            return [],  True
+        if parsed_unit:
+            compilation_units.append(parsed_unit)
 
-        compilation_units.append(parsed_unit)
+    # generate a list of all models
+    models: Sequence[ASTModel] = []
+    for compilation_unit in compilation_units:
+        CoCosManager.check_model_names_unique(compilation_unit)
+        models.extend(compilation_unit.get_model_list())
 
-    if len(compilation_units) > 0:
-        # generate a list of all models
-        models: Sequence[ASTModel] = []
-        for compilationUnit in compilation_units:
-            models.extend(compilationUnit.get_model_list())
+    # check that no models with duplicate names have been defined
+    CoCosManager.check_no_duplicate_compilation_unit_names(models)
 
-        # check that no models with duplicate names have been defined
-        CoCosManager.check_no_duplicate_compilation_unit_names(models)
-
-        # now exclude those which are broken, i.e. have errors.
-        for model in models:
-            if Logger.has_errors(model):
-                code, message = Messages.get_model_contains_errors(model.get_name())
-                Logger.log_message(node=model, code=code, message=message,
-                                   error_position=model.get_source_position(),
-                                   log_level=LoggingLevel.WARNING)
-                return [model], True
-
-        return models, False
+    return models
 
 
 def transform_models(transformers, models):
     for transformer in transformers:
         models = transformer.transform(models)
+
     return models
 
 
@@ -447,44 +500,69 @@ def generate_code(code_generators, models):
     code_generators.generate_code(models)
 
 
-def process():
+def process() -> bool:
     r"""
     The main toolchain workflow entry point. For all models: parse, validate, transform, generate code and build.
 
-    Returns
-    -------
-    errors_occurred : bool
-        Flag indicating whether errors occurred during processing
+    Return
+    ------
+    errors_occurred
+        Flag indicating whether errors occurred during processing. False if processing was successful; True if errors occurred in any of the models.
     """
 
-    # initialize and set options for transformers, code generator and builder
-    codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
+    # initialise model transformers
+    transformers, unused_opts_transformer = transformers_from_target_name(FrontendConfiguration.get_target_platform(),
+                                                                          options=FrontendConfiguration.get_codegen_opts())
 
-    transformers, codegen_and_builder_opts = transformers_from_target_name(FrontendConfiguration.get_target_platform(),
-                                                                           options=codegen_and_builder_opts)
-
+    # initialise code generator
     code_generator = code_generator_from_target_name(FrontendConfiguration.get_target_platform())
-    codegen_and_builder_opts = code_generator.set_options(codegen_and_builder_opts)
+    unused_opts_codegen = code_generator.set_options(FrontendConfiguration.get_codegen_opts())
 
-    _builder, codegen_and_builder_opts = builder_from_target_name(FrontendConfiguration.get_target_platform(), options=codegen_and_builder_opts)
+    # initialise builder
+    _builder, unused_opts_builder = builder_from_target_name(FrontendConfiguration.get_target_platform(),
+                                                             options=FrontendConfiguration.get_codegen_opts())
 
-    if len(codegen_and_builder_opts) > 0:
-        raise CodeGeneratorOptionsException("The code generator option(s) \"" + ", ".join(codegen_and_builder_opts.keys()) + "\" do not exist.")
+    # check for unused codegen options
+    for opt_key in FrontendConfiguration.get_codegen_opts().keys():
+        if opt_key in unused_opts_transformer.keys() and opt_key in unused_opts_codegen.keys() and opt_key in unused_opts_builder.keys():
+            raise CodeGeneratorOptionsException("The code generator option \"" + opt_key + "\" does not exist.")
 
-    models, errors_occurred = get_parsed_models()
+    models = get_parsed_models()
 
-    if not errors_occurred:
-        models = transform_models(transformers, models)
-        generate_code(code_generator, models)
+    # validation -- check cocos for models that do not have errors already
+    excluded_models = []
+    for model in models:
+        if not Logger.has_errors(model.name):
+            CoCosManager.check_cocos(model)
 
-        # perform build
-        if _builder is not None:
-            _builder.build()
+        if Logger.has_errors(model.name):
+            code, message = Messages.get_model_contains_errors(model.get_name())
+            Logger.log_message(node=model, code=code, message=message,
+                               error_position=model.get_source_position(),
+                               log_level=LoggingLevel.WARNING)
+            excluded_models.append(model)
+
+    # exclude models that have errors
+    models = list(set(models) - set(excluded_models))
+
+    if len(models) == 0:
+        return True    # there is no model code to generate, return error condition
+
+    # transformation(s)
+    models = transform_models(transformers, models)
+
+    # generate code
+    generate_code(code_generator, models)
+
+    # perform build
+    if _builder is not None:
+        _builder.build()
 
     if FrontendConfiguration.store_log:
         store_log_to_file()
 
-    return errors_occurred
+    # return a boolean indicating whether errors occurred
+    return len(Logger.get_messages(level=LoggingLevel.ERROR)) > 0
 
 
 def init_predefined():

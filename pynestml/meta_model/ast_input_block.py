@@ -19,27 +19,22 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List
+
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_node import ASTNode
 
 
 class ASTInputBlock(ASTNode):
     """
-    This class is used to store blocks of input definitions.
-    ASTInputBlock represents the input block, e.g.:
+    This class is used to store the input block of a model, e.g.:
 
     .. code-block:: nestml
 
        input:
-           spike_in pA <- excitatory spike
+           spike_in <- excitatory spike
            current_in pA <- continuous
 
-    @attribute inputPort set of input ports.
-    Grammar:
-          inputBlock: 'input'
-            BLOCK_OPEN
-              (inputPort | NEWLINE)*
-            BLOCK_CLOSE;
     Attributes:
         input_definitions = None
     """
@@ -90,36 +85,27 @@ class ASTInputBlock(ASTNode):
         """
         return self.input_definitions
 
-    def get_parent(self, ast):
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
-        """
-        for port in self.get_input_ports():
-            if port is ast:
-                return self
-            if port.get_parent(ast) is not None:
-                return port.get_parent(ast)
-        return None
+        return self.get_input_ports()
 
-    def equals(self, other):
-        """
-        The equals method.
-        :param other: a different object.
-        :type other:  object
-        :return: True if equal, otherwise False.
-        :rtype: bool
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTInputBlock):
             return False
+
         if len(self.get_input_ports()) != len(other.get_input_ports()):
             return False
+
         my_input_ports = self.get_input_ports()
         your_input_ports = other.get_input_ports()
         for i in range(0, len(my_input_ports)):
             if not my_input_ports[i].equals(your_input_ports[i]):
                 return False
+
         return True

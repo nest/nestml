@@ -19,7 +19,12 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import annotations
+
+from typing import List, Optional, Union
+
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.symbols.type_symbol import TypeSymbol
 from pynestml.utils.cloning_helpers import clone_numeric_literal
 
 
@@ -28,58 +33,26 @@ class ASTUnitType(ASTNode):
     This class stores information regarding unit types and their properties.
     ASTUnitType. Represents an unit datatype. It can be a plain datatype as 'mV' or a
     complex data type as 'mV/s'
-
-    unitType : leftParentheses='(' unitType rightParentheses=')'
-               | base=unitType powOp='**' exponent=UNSIGNED_INTEGER
-               | left=unitType (timesOp='*' | divOp='/') right=unitType
-               | unitlessLiteral=UNSIGNED_INTEGER divOp='/' right=unitType
-               | unit=NAME;
-    Attributes:
-        # encapsulated or not
-        is_encapsulated = False
-        compound_unit = None
-        # pow rhs
-        base = None
-        is_pow = False
-        exponent = None
-        # arithmetic combination case
-        lhs = None
-        is_times = False
-        is_div = False
-        rhs = None
-        # simple case, just a name
-        unit = None
-        # the corresponding symbol
-        type_symbol = None
     """
 
-    def __init__(self, is_encapsulated=False, compound_unit=None, base=None, is_pow=False,
-                 exponent=None, lhs=None, rhs=None, is_div=False, is_times=False, _unit=None, type_symbol=None, *args, **kwargs):
+    def __init__(self, is_encapsulated: bool = False, compound_unit: Optional[ASTUnitType] = None, base: Optional[ASTUnitType] = None, is_pow: bool = False, exponent: Optional[Union[int, float]] = None, exponent_num: Optional[float] = None, exponent_den: Optional[float] = None, lhs: Optional[Union[ASTUnitType, int]] = None, rhs: Optional[ASTUnitType] = None, is_div: bool = False, is_times: bool = False, _unit: Optional[str] = None, type_symbol: Optional[TypeSymbol] = None, *args, **kwargs):
         """
         Standard constructor.
 
         Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
 
         :param compound_unit: a unit encapsulated in brackets
-        :type compound_unit: ASTUnitType
         :param base: the base rhs
-        :type base: ASTUnitType
         :param is_pow: is a power rhs
-        :type is_pow: bool
         :param exponent: the exponent rhs
-        :type exponent: int
+        :param exponent_num: the exponent numerator
+        :exponent_den exponent: the exponent denominator
         :param lhs: the left-hand side rhs
-        :type lhs: ASTUnitType or Integer
         :param rhs: the right-hand side rhs
-        :type rhs: ASTUnitType
         :param is_div: is a division rhs
-        :type is_div: bool
         :param is_times: is a times rhs
-        :type is_times: bool
         :param _unit: is a single unit, e.g. mV
-        :type _unit: string
         :param type_symbol: the corresponding type symbol
-        :type type_symbol: TypeSymbol
         """
         super(ASTUnitType, self).__init__(*args, **kwargs)
         if _unit:
@@ -89,6 +62,8 @@ class ASTUnitType(ASTNode):
         self.base = base
         self.is_pow = is_pow
         self.exponent = exponent
+        self.exponent_num = exponent_num
+        self.exponent_den = exponent_den
         self.lhs = lhs
         self.is_times = is_times
         self.is_div = is_div
@@ -123,6 +98,8 @@ class ASTUnitType(ASTNode):
                           base=base_dup,
                           is_pow=self.is_pow,
                           exponent=self.exponent,
+                          exponent_num=self.exponent_num,
+                          exponent_den=self.exponent_den,
                           lhs=lhs_dup,
                           rhs=rhs_dup,
                           is_div=self.is_div,
@@ -177,44 +154,32 @@ class ASTUnitType(ASTNode):
     def set_type_symbol(self, type_symbol):
         self.type_symbol = type_symbol
 
-    def get_parent(self, ast):
-        """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
         if self.is_encapsulated:
-            if self.compound_unit is ast:
-                return self
-            if self.compound_unit.get_parent(ast) is not None:
-                return self.compound_unit.get_parent(ast)
+            return [self.compound_unit]
 
         if self.is_pow:
-            if self.base is ast:
-                return self
-            if self.base.get_parent(ast) is not None:
-                return self.base.get_parent(ast)
-        if self.is_arithmetic_expression():
-            if isinstance(self.get_lhs(), ASTUnitType):
-                if self.get_lhs() is ast:
-                    return self
-                if self.get_lhs().get_parent(ast) is not None:
-                    return self.get_lhs().get_parent(ast)
-            if self.get_rhs() is ast:
-                return self
-            if self.get_rhs().get_parent(ast) is not None:
-                return self.get_rhs().get_parent(ast)
-        return None
+            return [self.base]
 
-    def equals(self, other):
-        """
-        The equals method.
-        :param other: a different object.
-        :type other: object
-        :return: True if equal, otherwise False.
-        :rtype: bool
+        if self.is_arithmetic_expression():
+            children = []
+            if self.get_lhs() and isinstance(self.get_lhs(), ASTNode):
+                children.append(self.get_lhs())
+
+            if self.get_rhs() and isinstance(self.get_rhs(), ASTNode):
+                children.append(self.get_rhs())
+
+            return children
+
+        return []
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTUnitType):
             return False
@@ -225,7 +190,7 @@ class ASTUnitType(ASTNode):
         if self.is_pow + other.is_pow == 1:
             return False
         if self.is_pow and other.is_pow and \
-                not (self.base.equals(other.base) and self.exponent == other.exponent):
+                not (self.base.equals(other.base) and self.exponent == other.exponent and self.exponent_num == other.exponent_num and self.exponent_den == other.exponent_den):
             return False
         if self.is_arithmetic_expression() + other.is_arithmetic_expression() == 1:
             return False

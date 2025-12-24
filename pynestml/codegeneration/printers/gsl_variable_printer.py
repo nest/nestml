@@ -18,16 +18,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
+from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.ast_utils import ASTUtils
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.messages import Messages
 
 
 class GSLVariablePrinter(CppVariablePrinter):
     r"""
-    Reference converter for C++ syntax and using the GSL (GNU Scientific Library) API from inside the ``extern "C"`` stepping function.
+    Variable printer for C++ syntax and using the GSL (GNU Scientific Library) API from inside the ``extern "C"`` stepping function.
     """
 
     def print_variable(self, node: ASTVariable) -> str:
@@ -38,6 +41,16 @@ class GSLVariablePrinter(CppVariablePrinter):
         """
         assert isinstance(node, ASTVariable)
         symbol = node.get_scope().resolve_to_symbol(node.get_complete_name(), SymbolKind.VARIABLE)
+
+        if symbol is None:
+            # test if variable name can be resolved to a type
+            if PredefinedUnits.is_unit(node.get_complete_name()):
+                return str(NESTUnitConverter.get_factor(PredefinedUnits.get_unit(node.get_complete_name()).get_unit()))
+
+            code, message = Messages.get_could_not_resolve(node.get_name())
+            Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
+                               error_position=node.get_source_position())
+            return ""
 
         if node.is_delay_variable():
             return self._print_delay_variable(node)
@@ -82,10 +95,13 @@ class GSLVariablePrinter(CppVariablePrinter):
         variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         if variable_symbol.is_spike_input_port():
             var_name = variable_symbol.get_symbol_name().upper()
-            if variable_symbol.get_vector_parameter() is not None:
-                vector_parameter = ASTUtils.get_numeric_vector_size(variable_symbol)
-                var_name = var_name + "_" + str(vector_parameter)
-
+            if variable.has_vector_parameter():
+                if variable.get_vector_parameter().is_variable():
+                    # the enum corresponding to the first input port in a vector of input ports will have the _0 suffixed to the enum's name.
+                    var_name += "_0 + " + variable.get_vector_parameter().get_variable().get_name()
+                else:
+                    var_name += "_" + str(variable.get_vector_parameter())
             return "spike_inputs_grid_sum_[node." + var_name + " - node.MIN_SPIKE_RECEPTOR]"
 
-        return variable_symbol.get_symbol_name() + '_grid_sum_'
+        assert variable_symbol.is_continuous_input_port()
+        return "continuous_inputs_grid_sum_[" + variable.get_name().upper() + "]"

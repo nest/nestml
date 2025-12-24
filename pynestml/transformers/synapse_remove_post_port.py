@@ -23,14 +23,13 @@ from __future__ import annotations
 
 from typing import Optional, Mapping, Any, Union, Sequence
 
-from pynestml.meta_model.ast_node import ASTNode
-
-from pynestml.utils.logger import Logger, LoggingLevel
-from pynestml.transformers.transformer import Transformer
-from pynestml.utils.ast_utils import ASTUtils
-from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
-
+from pynestml.meta_model.ast_node import ASTNode
+from pynestml.transformers.transformer import Transformer
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+from pynestml.utils.ast_utils import ASTUtils
+from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.string_utils import removesuffix
 
 
@@ -150,6 +149,11 @@ class SynapseRemovePostPortTransformer(Transformer):
         #
         #    add modified versions of neuron and synapse to list
         #
+
+        new_neuron.parent_ = None    # set root element
+        new_neuron.accept(ASTParentVisitor())
+        new_synapse.parent_ = None    # set root element
+        new_synapse.accept(ASTParentVisitor())
 
         new_neuron.accept(ASTSymbolTableVisitor())
         new_synapse.accept(ASTSymbolTableVisitor())

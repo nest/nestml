@@ -60,20 +60,22 @@ class NestSTDPNNRestrSymmSynapseTest(unittest.TestCase):
             os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,
                              target_path="/tmp/nestml-jit",
-                             logging_level="INFO",
+                             logging_level="DEBUG",
                              module_name="nestml_jit_module",
                              suffix="_nestml",
                              codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                            "neuron_parent_class_include": "structural_plasticity_node.h",
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                                      "synapse": "stdp_nn_restr_symm_synapse",
-                                                                     "post_ports": ["post_spikes"]}]})
+                                                                     "post_ports": ["post_spikes"]}],
+                                           "delay_variable": {"stdp_nn_restr_symm_synapse": "d"},
+                                           "weight_variable": {"stdp_nn_restr_symm_synapse": "w"}})
 
         # generate the "non-jit" model, that relies on ArchivingNode
         generate_nest_target(input_path=os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                       os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))),
                              target_path="/tmp/nestml-non-jit",
-                             logging_level="INFO",
+                             logging_level="DEBUG",
                              module_name="nestml_non_jit_module",
                              suffix="_nestml_non_jit",
                              codegen_opts={"neuron_parent_class": "ArchivingNode",

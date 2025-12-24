@@ -19,12 +19,12 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Sequence
-from pynestml.meta_model.ast_kernel import ASTKernel
+from typing import Any, List, Sequence
 
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
-from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 
 
 class ASTEquationsBlock(ASTNode):
@@ -43,12 +43,18 @@ class ASTEquationsBlock(ASTNode):
         """
         assert (declarations is not None and isinstance(declarations, list)), \
             '(PyNestML.AST.EquationsBlock) No or wrong type of declarations provided (%s)!' % type(declarations)
+
+        if declarations is None:
+            declarations = []
+
         for decl in declarations:
             assert decl is not None and (isinstance(decl, ASTKernel)
                                          or isinstance(decl, ASTOdeEquation)
                                          or isinstance(decl, ASTInlineExpression)), \
                 '(PyNestML.AST.EquationsBlock) No or wrong type of ode-element provided (%s)' % type(decl)
+
         super(ASTEquationsBlock, self).__init__(*args, **kwargs)
+
         self.declarations = declarations
 
     def clone(self):
@@ -79,21 +85,6 @@ class ASTEquationsBlock(ASTNode):
         :rtype: list(ASTInlineExpression|ASTOdeEquation)
         """
         return self.declarations
-
-    def get_parent(self, ast):
-        """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
-        """
-        for decl in self.get_declarations():
-            if decl is ast:
-                return self
-            if decl.get_parent(ast) is not None:
-                return decl.get_parent(ast)
-        return None
 
     def get_ode_equations(self) -> Sequence[ASTOdeEquation]:
         """
@@ -135,11 +126,16 @@ class ASTEquationsBlock(ASTNode):
         del self.declarations
         self.declarations = list()
 
-    def equals(self, other: Any) -> bool:
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
-        The equals method.
-        :param other: a different object.
-        :return: True if equal, otherwise False.
+        return self.get_declarations()
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTEquationsBlock):
             return False
