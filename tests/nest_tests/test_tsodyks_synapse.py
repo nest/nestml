@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# tsodyks_synapse_test.py
+# test_tsodyks_synapse.py
 #
 # This file is part of NEST.
 #
@@ -38,6 +38,8 @@ except Exception:
     TEST_PLOTS = False
 
 
+@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                    reason="This test does not support NEST 2")
 class TestNESTTsodyksSynapse:
 
     neuron_model_name = "iaf_psc_exp_neuron_nestml__with_tsodyks_synapse_nestml"
@@ -51,10 +53,12 @@ class TestNESTTsodyksSynapse:
         """Generate the model code"""
 
         jit_codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                      "synapse": "tsodyks_synapse"}]}
-        if not NESTTools.detect_nest_version().startswith("v2"):
-            jit_codegen_opts["neuron_parent_class"] = "StructuralPlasticityNode"
-            jit_codegen_opts["neuron_parent_class_include"] = "structural_plasticity_node.h"
+                                                      "synapse": "tsodyks_synapse"}],
+                            "delay_variable": {"tsodyks_synapse": "d"},
+                            "weight_variable": {"tsodyks_synapse": "w"}}
+
+        jit_codegen_opts["neuron_parent_class"] = "StructuralPlasticityNode"
+        jit_codegen_opts["neuron_parent_class_include"] = "structural_plasticity_node.h"
 
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
         files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
@@ -63,23 +67,21 @@ class TestNESTTsodyksSynapse:
             os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,
                              target_path="/tmp/nestml-jit",
-                             logging_level="INFO",
+                             logging_level="DEBUG",
                              module_name="nestml_jit_module",
                              suffix="_nestml",
                              codegen_opts=jit_codegen_opts)
 
-        if NESTTools.detect_nest_version().startswith("v2"):
-            non_jit_codegen_opts = {"neuron_parent_class": "Archiving_Node",
-                                    "neuron_parent_class_include": "archiving_node.h"}
-        else:
-            non_jit_codegen_opts = {"neuron_parent_class": "ArchivingNode",
-                                    "neuron_parent_class_include": "archiving_node.h"}
+        non_jit_codegen_opts = {"neuron_parent_class": "ArchivingNode",
+                                "neuron_parent_class_include": "archiving_node.h",
+                                "delay_variable": {"tsodyks_synapse": "d"},
+                                "weight_variable": {"tsodyks_synapse": "w"}}
 
         # generate the "non-jit" model, that relies on ArchivingNode
         generate_nest_target(input_path=os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                       os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))),
                              target_path="/tmp/nestml-non-jit",
-                             logging_level="INFO",
+                             logging_level="DEBUG",
                              module_name="nestml_non_jit_module",
                              suffix="_nestml_non_jit",
                              codegen_opts=non_jit_codegen_opts)
@@ -93,27 +95,12 @@ class TestNESTTsodyksSynapse:
         post_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
         pre_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
 
-        #post_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
-        #pre_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
-
-        """pre_spike_times = np.array([2.,   4.,   7.,   8.,  12.,  13.,  19.,  23.,  24.,  28.,  29.,  30.,  33.,  34.,
-                                    35.,  36.,  38.,  40.,  42.,  46.,  51.,  53.,  54.,  55.,  56.,  59.,  63.,  64.,
-                                    65.,  66.,  68.,  72.,  73.,  76.,  79.,  80.,  83.,  84.,  86.,  87.,  90.,  95.,
-                                    99., 100., 103., 104., 105., 111., 112., 126., 131., 133., 134., 139., 147., 150.,
-                                    152., 155., 172., 175., 176., 181., 196., 197., 199., 202., 213., 215., 217., 265.])
-        post_spike_times = np.array([4.,   5.,   6.,   7.,  10.,  11.,  12.,  16.,  17.,  18.,  19.,  20.,  22.,  23.,
-                                     25.,  27.,  29.,  30.,  31.,  32.,  34.,  36.,  37.,  38.,  39.,  42.,  44.,  46.,
-                                     48.,  49.,  50.,  54.,  56.,  57.,  59.,  60.,  61.,  62.,  67.,  74.,  76.,  79.,
-                                     80.,  81.,  83.,  88.,  93.,  94.,  97.,  99., 100., 105., 111., 113., 114., 115.,
-                                     116., 119., 123., 130., 132., 134., 135., 145., 152., 155., 158., 166., 172., 174.,
-                                     188., 194., 202., 245., 249., 289., 454.])"""
-
         self.run_synapse_test(neuron_model_name=self.neuron_model_name,
                               ref_neuron_model_name=self.ref_neuron_model_name,
                               synapse_model_name=self.synapse_model_name,
                               ref_synapse_model_name=self.ref_synapse_model_name,
                               resolution=.5,  # [ms]
-                              delay=1.5,  # [ms]
+                              delay=1.,  # [ms]
                               pre_spike_times=pre_spike_times,
                               post_spike_times=post_spike_times,
                               fname_snip=fname_snip)
@@ -168,50 +155,33 @@ class TestNESTTsodyksSynapse:
         pre_neuron_ref = nest.Create("parrot_neuron")
         post_neuron_ref = nest.Create(ref_neuron_model_name)
 
-        if NESTTools.detect_nest_version().startswith("v2"):
-            spikedet_pre = nest.Create("spike_detector")
-            spikedet_post = nest.Create("spike_detector")
-        else:
-            spikedet_pre = nest.Create("spike_recorder")
-            spikedet_post = nest.Create("spike_recorder")
+        spikedet_pre = nest.Create("spike_recorder")
+        spikedet_post = nest.Create("spike_recorder")
         mm = nest.Create("multimeter", params={"record_from": ["V_m"]})
 
-        if NESTTools.detect_nest_version().startswith("v2"):
-            spikedet_pre_ref = nest.Create("spike_detector")
-            spikedet_post_ref = nest.Create("spike_detector")
-        else:
-            spikedet_pre_ref = nest.Create("spike_recorder")
-            spikedet_post_ref = nest.Create("spike_recorder")
+        spikedet_pre_ref = nest.Create("spike_recorder")
+        spikedet_post_ref = nest.Create("spike_recorder")
         mm_ref = nest.Create("multimeter", params={"record_from": ["V_m"]})
 
-        if True:
-            nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
-            nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
-            if NESTTools.detect_nest_version().startswith("v2"):
-                nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"model": "tsodyks_nestml_rec"})
-            else:
-                nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "tsodyks_nestml_rec"})
-            nest.Connect(mm, post_neuron)
-            nest.Connect(pre_neuron, spikedet_pre)
-            nest.Connect(post_neuron, spikedet_post)
+        nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
+        nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
+        nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "tsodyks_nestml_rec"})
+        nest.Connect(mm, post_neuron)
+        nest.Connect(pre_neuron, spikedet_pre)
+        nest.Connect(post_neuron, spikedet_post)
 
-            nest.Connect(pre_sg, pre_neuron_ref, "one_to_one", syn_spec={"delay": 1.})
-            nest.Connect(post_sg, post_neuron_ref, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
-            if NESTTools.detect_nest_version().startswith("v2"):
-                nest.Connect(pre_neuron_ref, post_neuron_ref, "all_to_all",
-                             syn_spec={"model": ref_synapse_model_name})
-            else:
-                nest.Connect(pre_neuron_ref, post_neuron_ref, "all_to_all",
-                             syn_spec={"synapse_model": ref_synapse_model_name})
-            nest.Connect(mm_ref, post_neuron_ref)
-            nest.Connect(pre_neuron_ref, spikedet_pre_ref)
-            nest.Connect(post_neuron_ref, spikedet_post_ref)
+        nest.Connect(pre_sg, pre_neuron_ref, "one_to_one", syn_spec={"delay": 1.})
+        nest.Connect(post_sg, post_neuron_ref, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
+        nest.Connect(pre_neuron_ref, post_neuron_ref, "all_to_all", syn_spec={"synapse_model": ref_synapse_model_name})
+        nest.Connect(mm_ref, post_neuron_ref)
+        nest.Connect(pre_neuron_ref, spikedet_pre_ref)
+        nest.Connect(post_neuron_ref, spikedet_post_ref)
 
         # get tsodyks synapse and weight before protocol
         syn = nest.GetConnections(source=pre_neuron, synapse_model="tsodyks_nestml_rec")
         syn_ref = nest.GetConnections(source=pre_neuron_ref, synapse_model=ref_synapse_model_name)
 
-        n_steps = int(np.ceil(sim_time / resolution)) + 1
+        # simulate
         t = 0.
         t_hist = []
         hist = {}
@@ -228,29 +198,27 @@ class TestNESTTsodyksSynapse:
                 hist_ref[key].append(nest.GetStatus(syn_ref)[0][key])
                 hist[key].append(nest.GetStatus(syn)[0][key])
 
+        # data collection
+        V_m = nest.GetStatus(mm, "events")[0]["V_m"]
+        V_m_ref = nest.GetStatus(mm_ref, "events")[0]["V_m"]
+
         # plot
         if TEST_PLOTS:
-            fig, ax = plt.subplots(nrows=2)
-            ax1, ax2 = ax
+            fig, ax1 = plt.subplots(nrows=1)
 
-            if True:
-                timevec = nest.GetStatus(mm, "events")[0]["times"]
-                V_m = nest.GetStatus(mm, "events")[0]["V_m"]
-                #ax2.plot(timevec, nest.GetStatus(mm, "events")[0]["post_trace__for_tsodyks_nestml"], label="post_tr nestml")
-                ax1.plot(timevec, V_m, label="nestml", alpha=.7, linestyle=":")
+            timevec = nest.GetStatus(mm, "events")[0]["times"]
+            ax1.plot(timevec, V_m, label="nestml", alpha=.7, linestyle=":")
 
-                pre_ref_spike_times_ = nest.GetStatus(spikedet_pre_ref, "events")[0]["times"]
-                timevec = nest.GetStatus(mm_ref, "events")[0]["times"]
-                V_m = nest.GetStatus(mm_ref, "events")[0]["V_m"]
-                ax1.plot(timevec, V_m, label="nest ref", alpha=.7)
+            pre_ref_spike_times_ = nest.GetStatus(spikedet_pre_ref, "events")[0]["times"]
+            timevec = nest.GetStatus(mm_ref, "events")[0]["times"]
+            ax1.plot(timevec, V_m_ref, label="nest ref", alpha=.7)
+
             ax1.set_ylabel("V_m")
+            ax1.grid(which="major", axis="both")
+            ax1.grid(which="minor", axis="x", linestyle=":", alpha=.4)
+            ax1.set_xlim(0., sim_time)
+            ax1.legend()
 
-            for _ax in ax:
-                _ax.grid(which="major", axis="both")
-                _ax.grid(which="minor", axis="x", linestyle=":", alpha=.4)
-                # _ax.minorticks_on()
-                _ax.set_xlim(0., sim_time)
-                _ax.legend()
             fig.savefig("/tmp/tsodyks_synapse_test" + fname_snip + "_V_m.png", dpi=300)
 
         # plot
@@ -303,7 +271,6 @@ class TestNESTTsodyksSynapse:
                     else:
                         _lbl = None
                     ax2.plot(2 * [post_ref_spike_times_[i]], [0, 1], linewidth=2, color="red", alpha=.4, label=_lbl)
-            #ax2.plot(timevec, nest.GetStatus(mm, "events")[0]["post_⎄trace__for_tsodyks_nestml"], label="nestml post tr")
             ax2.set_ylabel("Post spikes")
 
             for i, key in enumerate(["x", "y", "u"]):
@@ -321,4 +288,4 @@ class TestNESTTsodyksSynapse:
             fig.savefig("/tmp/tsodyks_synapse_test" + fname_snip + ".png", dpi=300)
 
         # verify
-        # ...
+        np.testing.assert_allclose(V_m, V_m_ref)
