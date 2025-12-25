@@ -374,7 +374,8 @@ private:
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
 {%-     if not isHomogeneous %}
 {%-         if variable.get_name() != nest_codegen_opt_delay_variable and variable.get_name() != synapse_weight_variable %}
-{%-             include "directives_cpp/MemberVariableGetterSetter.jinja2" %}
+{%-             include "directives_cpp/MemberVariableGetter.jinja2" %}
+{%-             include "directives_cpp/MemberVariableSetter.jinja2" %}
 {%          elif variable.get_name() == synapse_weight_variable and variable.get_name() != "weight" %}
 {#              weight is its own special case in NEST #}
 inline {{ declarations.print_variable_type(variable_symbol) }} get_{{ variable.get_name() }}() const
@@ -401,7 +402,8 @@ inline void set_{{ variable.get_name() }}(const {{ declarations.print_variable_t
 {%-     for inline_expr in equations_block.get_inline_expressions() %}
 {%-         set variable = ast_node_factory.create_ast_variable(inline_expr.get_variable_name(), differential_order=0, scope=inline_expr.scope) %}
 {%-         set variable_symbol = equations_block.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
-{%-         include "directives_cpp/MemberVariableGetterSetter.jinja2" %}
+{%-         include "directives_cpp/MemberVariableGetter.jinja2" %}
+{%-         include "directives_cpp/MemberVariableSetter.jinja2" %}
 {%-     endfor %}
 {%- endfor %}
 {%- endfilter %}
@@ -1028,7 +1030,9 @@ void
 {%- filter indent(4, True) %}
 {%-     set dynamics = synapse.get_on_receive_block(vt_port) %}
 {%-     with ast = dynamics.get_stmts_body() %}
-{%-         include "directives_cpp/StmtsBody.jinja2" %}
+{%-         if dynamics is not none %}
+{%-             include "directives_cpp/StmtsBody.jinja2" %}
+{%-         endif %}
 {%-     endwith %}
 {%- endfilter %}
     // process remaining dopa spikes in (t0, t1]
@@ -1047,9 +1051,11 @@ void
       **/
 {%- filter indent(6, True) %}
 {%-     set dynamics = synapse.get_on_receive_block(vt_port) %}
-{%-     with ast = dynamics.get_stmts_body() %}
-{%-         include "directives_cpp/StmtsBody.jinja2" %}
-{%-     endwith %}
+{%-     if dynamics is not none %}
+{%-         with ast = dynamics.get_stmts_body() %}
+{%-             include "directives_cpp/StmtsBody.jinja2" %}
+{%-         endwith %}
+{%-     endif %}
 {%- endfilter %}
 
       /**
@@ -1427,7 +1433,7 @@ inline void
   while ( start != finish )
   {
 {%- for vt_port in vt_ports %}
-{%- set vt_port = vt_ports[0] %}
+{%-     set vt_port = vt_ports[0] %}
     process_{{vt_port}}_spikes_( vt_spikes, t0, start->t_ + dendritic_delay, cp );
 {%- endfor %}
 
@@ -1505,7 +1511,7 @@ inline void
   **/
 
 {%- for vt_port in vt_ports %}
-{%- set vt_port = vt_ports[0] %}
+{%-     set vt_port = vt_ports[0] %}
   process_{{vt_port}}_spikes_( vt_spikes, t_lastspike_, t_trig, cp );
 {%- endfor %}
 #ifdef DEBUG

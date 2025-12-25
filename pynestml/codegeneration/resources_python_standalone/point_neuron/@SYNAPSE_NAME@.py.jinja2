@@ -224,7 +224,7 @@ class Synapse_{{ astnode.name }}(Synapse):
 {%- for variable_symbol in astnode.get_state_symbols() %}
 {%-   if not is_delta_kernel(astnode.get_kernel_by_name(variable_symbol.get_symbol_name())) %}
 {%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     include "directives_py/MemberVariableGetterSetter.jinja2" %}
+{%-     include "directives_py/MemberVariableGetter.jinja2" %}
 {%-   endif %}
 {%- endfor %}
 {%- endfilter %}
@@ -235,7 +235,7 @@ class Synapse_{{ astnode.name }}(Synapse):
 {% filter indent(2, True) -%}
 {%- for variable_symbol in astnode.get_parameter_symbols() %}
 {%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-   include "directives_py/MemberVariableGetterSetter.jinja2" %}
+{%-   include "directives_py/MemberVariableSetter.jinja2" %}
 {%- endfor %}
 {%- endfilter %}
 
