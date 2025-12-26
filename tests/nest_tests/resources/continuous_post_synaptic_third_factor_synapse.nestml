@@ -1,0 +1,20 @@
+model continuous_post_synaptic_third_factor_synapse:
+    state:
+        w real = 1
+
+    parameters:
+        d ms = 1 ms
+        tau ms = 20 ms
+
+    input:
+        pre_spikes <- spike
+        post_spikes <- spike
+        I_AMPA real <- continuous
+
+    onReceive(pre_spikes):
+        w += I_AMPA
+        emit_spike(w, d)
+
+    output:
+        spike(weight real, delay ms)
+
