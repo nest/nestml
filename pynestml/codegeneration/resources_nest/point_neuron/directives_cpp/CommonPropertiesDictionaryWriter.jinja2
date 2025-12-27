@@ -7,4 +7,4 @@
 {%- if variable_symbol.has_vector_parameter() %}
 {{ raise('Vector parameters not supported in common properties dictionary.') }}
 {%- endif %}
-{{ write_in_dictionary.WriteInDictionary("d", declarations.print_variable_type(variable_symbol), "nest::" + names_namespace + "::_" + variable_symbol.get_symbol_name(), "get_" + printer_no_origin.print(variable) + "()") }}
+{{ write_in_dictionary.WriteInDictionary("d", declarations.print_variable_type(variable_symbol), "nest::" + names_namespace + "::_" + variable_symbol.get_symbol_name(), "this->" + printer_no_origin.print(variable)) }}
