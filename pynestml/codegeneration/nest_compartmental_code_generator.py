@@ -578,6 +578,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["nestml_version"] = pynestml.__version__
         namespace["now"] = datetime.datetime.utcnow()
         namespace["tracing"] = FrontendConfiguration.is_dev
+        namespace["names_namespace"] = "names"
 
         # helper functions
         namespace["ast_node_factory"] = ASTNodeFactory
