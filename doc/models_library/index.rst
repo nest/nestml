@@ -498,3 +498,11 @@ Source file: `stdp_synapse.nestml <https://www.github.com/nest/nestml/blob/maste
 Synapse type with triplet spike-timing dependent plasticity
 
 Source file: `stdp_triplet_synapse.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/stdp_triplet_synapse.nestml>`_
+
+
+:doc:`stdsp_synapse <stdsp_synapse>`
+------------------------------------
+
+Synapse model for spike-timing dependent plasticity with postsynaptic third-factor modulation
+
+Source file: `stdsp_synapse.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/stdsp_synapse.nestml>`_
