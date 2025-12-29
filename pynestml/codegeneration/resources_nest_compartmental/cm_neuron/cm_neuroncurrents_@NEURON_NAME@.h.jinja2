@@ -719,7 +719,7 @@ public:
       DictionaryDatum dd = DictionaryDatum( new Dictionary );
 {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::receptor_idx", "syn_it") }}
 {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::comp_idx", "compartment_index") }}
-{{ write_in_dictionary.WriteInDictionary("dd", "std::string", "names::receptor_type", synapse_name) }}
+{{ write_in_dictionary.WriteInDictionary("dd", "std::string", "names::receptor_type", "\"" + synapse_name + "\"") }}
       ad.push_back( dd );
     }
 {%  endfor -%}
@@ -730,7 +730,7 @@ public:
       DictionaryDatum dd = DictionaryDatum( new Dictionary );
 {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::receptor_idx", "syn_it") }}
 {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::comp_idx", "compartment_index") }}
-{{ write_in_dictionary.WriteInDictionary("dd", "std::string", "names::receptor_type", continuous_name) }}
+{{ write_in_dictionary.WriteInDictionary("dd", "std::string", "names::receptor_type", "\"" + continuous_name + "\"") }}
       ad.push_back( dd );
     }
 {%  endfor -%}

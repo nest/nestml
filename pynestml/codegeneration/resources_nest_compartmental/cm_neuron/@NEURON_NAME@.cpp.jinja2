@@ -79,7 +79,7 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::{{neuronSpecificFileNamesCmSyns
 void
 {{neuronSpecificFileNamesCmSyns["main"]}}::get_status( DictionaryDatum& statusdict )
 {
-  {{ write_in_dictionary.WriteInDictionary("statusdict", "double", "V_th", "V_th_") }}
+  {{ write_in_dictionary.WriteInDictionary("statusdict", "double", "names::V_th", "V_th_") }}
 
   ArchivingNode::get_status( statusdict );
 
@@ -96,16 +96,16 @@ void
     Compartment{{cm_unique_suffix}}* compartment = c_tree_.get_compartment( comp_idx_ );
 
     // add compartment info
-    {{ write_in_dictionary.WriteInDictionary("dd", "long", "comp_idx", "comp_idx_") }}
-    {{ write_in_dictionary.WriteInDictionary("dd", "long", "parent_idx", "compartment->p_index") }}
+    {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::comp_idx", "comp_idx_") }}
+    {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::parent_idx", "compartment->p_index") }}
     compartment_ad.push_back( dd );
 
     // add receptor info
     c_tree_.neuron_currents.add_receptor_info( receptor_ad, compartment->comp_index );
   }
   // add compartment info and receptor info to the status dictionary
-  {{ write_in_dictionary.WriteInDictionary("statusdict", "ArrayDatum", "compartments", "compartment_ad") }}
-  {{ write_in_dictionary.WriteInDictionary("statusdict", "ArrayDatum", "receptors", "receptor_ad") }}
+  {{ write_in_dictionary.WriteInDictionary("statusdict", "ArrayDatum", "names::compartments", "compartment_ad") }}
+  {{ write_in_dictionary.WriteInDictionary("statusdict", "ArrayDatum", "names::receptors", "receptor_ad") }}
 }
 
 void
