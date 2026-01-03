@@ -728,7 +728,7 @@ public:
     for( std::size_t con_it = 0; con_it != {{continuous_name}}{{continuous_suffix}}.neuron_{{continuous_name}}_continuous_input_count; con_it++)
     {
       DictionaryDatum dd = DictionaryDatum( new Dictionary );
-{{ write_in_dictionary.WriteInDictionary("dd", "long", "names::receptor_idx", "syn_it") }}
+{{ write_in_dictionary.WriteInDictionary("dd", "long", "names::receptor_idx", "con_it") }}
 {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::comp_idx", "compartment_index") }}
 {{ write_in_dictionary.WriteInDictionary("dd", "std::string", "names::receptor_type", "\"" + continuous_name + "\"") }}
       ad.push_back( dd );
