@@ -82,6 +82,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include <gsl/gsl_odeiv.h>
 {%-     else %}
 #error "Numeric solver {{ numeric_solver }} is not supported in synapses!"
+{%-     endif %}
 {%- endif %}
 
 // Includes from sli:
