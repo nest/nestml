@@ -78,14 +78,14 @@ class TestSimultaneousContinuousAndSpikeBasedNeuromodulation:
 
         for nonzero_dAP_trace in [True, False]:
             t_hist, w_hist = self.run_synapse_test(neuron_model_name=self.neuron_model_name,
-                                                synapse_model_name=self.synapse_model_name,
-                                                resolution=.1,  # [ms]
-                                                delay=1.,  # [ms]
-                                                pre_spike_times=pre_spike_times,
-                                                post_spike_times=post_spike_times,
-                                                vt_spike_times=vt_spike_times,
-                                                nonzero_dAP_trace=nonzero_dAP_trace,
-                                                fname_snip=fname_snip)
+                                                   synapse_model_name=self.synapse_model_name,
+                                                   resolution=.1,  # [ms]
+                                                   delay=1.,  # [ms]
+                                                   pre_spike_times=pre_spike_times,
+                                                   post_spike_times=post_spike_times,
+                                                   vt_spike_times=vt_spike_times,
+                                                   nonzero_dAP_trace=nonzero_dAP_trace,
+                                                   fname_snip=fname_snip)
             if nonzero_dAP_trace:
                 assert np.abs(w_hist[-1] - w_hist[0]) > 1E-3, "Weights should change under this protocol!"
             else:
