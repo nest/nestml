@@ -297,6 +297,10 @@ jobs:
           cd $GITHUB_WORKSPACE
           exit $rc
 
+      - name: Setup interactive SSH debug session
+        if: failure()
+        uses: mxschmitt/action-tmate@v3
+
 
   build_and_test_nest_compartmental:
     needs: [static_checks]
