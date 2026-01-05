@@ -81,7 +81,7 @@ class PythonStandaloneTargetTools:
     @classmethod
     def get_neuron_numerical_initial_values(cls, nestml_file_name: str) -> Tuple[Mapping[str, float], Mapping[str, float], Mapping[str, float]]:
         r"""
-        Get numerical values the parameters for the given neuron model.
+        Get the numerical values of the parameters, internals, and state variables for the given neuron model.
 
         Internally, code is generated for the model for the Python standalone target, and then the value is read off by instantiating the resulting code.
 
