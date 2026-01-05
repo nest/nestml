@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# traub_cond_multisyn_test.py
+# test_traub_cond_multisyn.py
 #
 # This file is part of NEST.
 #
@@ -21,7 +21,6 @@
 
 import numpy as np
 import os
-import unittest
 
 try:
     import matplotlib
@@ -36,7 +35,7 @@ from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
-class NestWBCondExpTest(unittest.TestCase):
+class TestTraubCondMultiSyn:
 
     def test_traub_cond_multisyn(self):
 
@@ -88,10 +87,10 @@ class NestWBCondExpTest(unittest.TestCase):
                                            "interval": dt})
 
         receptor_types = nest.GetStatus(neuron2, "receptor_types")[0]
-        nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": receptor_types["AMPA"]})  # AMPA
-        nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": receptor_types["NMDA"]})  # NMDA
-        nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": receptor_types["GABAA"]})  # GABAA
-        nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": receptor_types["GABAB"]})  # GABAB
+        nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": receptor_types["AMPA"]})
+        nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": receptor_types["NMDA"]})
+        nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": receptor_types["GABA_A"]})
+        nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": receptor_types["GABA_B"]})
 
         if NESTTools.detect_nest_version().startswith("v2"):
             nest.Connect([multimeter[0]], neuron1, "one_to_one")
@@ -114,10 +113,10 @@ class NestWBCondExpTest(unittest.TestCase):
 
         firing_rate = len(spikes) / t_simulation * 1000
         print("firing rate is ", firing_rate)
-        expected_value = np.abs(firing_rate - 40)
+        expected_value = 40  # Hz
         tolerance_value = 5  # Hz
 
-        self.assertLessEqual(expected_value, tolerance_value)
+        assert expected_value - tolerance_value < firing_rate < expected_value + tolerance_value
 
         if TEST_PLOTS:
 
@@ -140,7 +139,3 @@ class NestWBCondExpTest(unittest.TestCase):
             ax[1].legend(frameon=False, loc="upper right")
 
             plt.savefig("traub_cond_multisyn.png")
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -65,7 +65,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
-#
 model stdp_nn_restr_symm_synapse:
     state:
         w real = 1. [[w >= 0]]   # Synaptic weight
