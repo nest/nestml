@@ -87,7 +87,7 @@ extern "C" inline int {{modelName}}_dynamics{% if ast.get_args() | length > 0 %}
 {%-   set update_expr = numeric_update_expressions[variable_name] %}
 {%-   set variable_symbol = variable_symbols[variable_name] %}
 {%- if use_gap_junctions %}
-  f[State_::{{ variable_symbol.get_symbol_name() }}] = {% if ast.get_args() | length > 0 %}{% if variable_name in numeric_state_variables_to_be_integrated + utils.all_convolution_variable_names(astnode) %}{{ gsl_printer.print(update_expr)|replace("node.B_.continuous_inputs_grid_sum_[" + gap_junction_port.upper() + "]", "(node.B_.continuous_inputs_grid_sum_[" + gap_junction_port.upper() + "] + __I_gap)") }}{% else %}0{% endif %}{% else %}{{ gsl_printer.print(update_expr) }}{% endif %};
+  f[State_::{{ variable_symbol.get_symbol_name() }}] = {% if ast.get_args() | length > 0 %}{% if variable_name in numeric_state_variables_to_be_integrated + utils.all_convolution_variable_names(astnode) %}{{ gsl_printer.print(update_expr)|replace("node.B_.continuous_inputs_grid_sum_[" + gap_junction_port.upper() + "]", "(node.B_.continuous_inputs_grid_sum_[" + gap_junction_port.upper() + "] + __I_gap)") }}{% else %}0{% endif %}{% else %}{{ gsl_printer.print(update_expr)|replace("node.B_.continuous_inputs_grid_sum_[" + gap_junction_port.upper() + "]", "(node.B_.continuous_inputs_grid_sum_[" + gap_junction_port.upper() + "] + __I_gap)") }}{% endif %};
 {%- else %}
   f[State_::{{ variable_symbol.get_symbol_name() }}] = {% if ast.get_args() | length > 0 %}{% if variable_name in numeric_state_variables_to_be_integrated + utils.all_convolution_variable_names(astnode) %}{{ gsl_printer.print(update_expr) }}{% else %}0{% endif %}{% else %}{{ gsl_printer.print(update_expr) }}{% endif %};
 {%- endif %}
