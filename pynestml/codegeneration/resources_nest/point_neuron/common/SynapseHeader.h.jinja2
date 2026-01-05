@@ -1407,15 +1407,9 @@ inline void
 
   auto get_t = [t_trig](){ return t_trig; };    // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
-
-
-
-
 {%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
-#error "not supported yet"
+#error "For third-factor plasticity combining spiking and continuous-time inputs, \"continuous_time_buffer\" is not supported yet!"
 {%- endif %}
-
-
 
   // purely dendritic delay
   double dendritic_delay = get_delay();
