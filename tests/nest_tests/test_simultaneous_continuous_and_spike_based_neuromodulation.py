@@ -69,22 +69,27 @@ class TestSimultaneousContinuousAndSpikeBasedNeuromodulation:
                                            "weight_variable": {"continuous_and_spike_based_neuromodulated_stdp_synapse": "w"}})
 
     def test_nest_stdp_synapse(self):
-
         fname_snip = ""
 
         pre_spike_times = [1., 11., 21.]    # [ms]
         post_spike_times = [6., 16., 26.]  # [ms]
 
-        vt_spike_times = [14., 23.]    # [ms]
+        vt_spike_times = [4.]    # must be early to gate pre/post plasticity on [ms]
 
-        self.run_synapse_test(neuron_model_name=self.neuron_model_name,
-                              synapse_model_name=self.synapse_model_name,
-                              resolution=.1,  # [ms]
-                              delay=1.,  # [ms]
-                              pre_spike_times=pre_spike_times,
-                              post_spike_times=post_spike_times,
-                              vt_spike_times=vt_spike_times,
-                              fname_snip=fname_snip)
+        for nonzero_dAP_trace in [True, False]:
+            t_hist, w_hist = self.run_synapse_test(neuron_model_name=self.neuron_model_name,
+                                                synapse_model_name=self.synapse_model_name,
+                                                resolution=.1,  # [ms]
+                                                delay=1.,  # [ms]
+                                                pre_spike_times=pre_spike_times,
+                                                post_spike_times=post_spike_times,
+                                                vt_spike_times=vt_spike_times,
+                                                nonzero_dAP_trace=nonzero_dAP_trace,
+                                                fname_snip=fname_snip)
+            if nonzero_dAP_trace:
+                assert np.abs(w_hist[-1] - w_hist[0]) > 1E-3, "Weights should change under this protocol!"
+            else:
+                np.testing.assert_allclose(w_hist[-1], w_hist[0]), "Weights should not change under this protocol!"
 
     def run_synapse_test(self, neuron_model_name,
                          synapse_model_name,
@@ -94,6 +99,7 @@ class TestSimultaneousContinuousAndSpikeBasedNeuromodulation:
                          pre_spike_times=None,
                          post_spike_times=None,
                          vt_spike_times=None,
+                         nonzero_dAP_trace=True,
                          fname_snip=""):
 
         if pre_spike_times is None:
@@ -145,6 +151,9 @@ class TestSimultaneousContinuousAndSpikeBasedNeuromodulation:
         # create parrot neurons and connect spike_generators
         pre_neuron = nest.Create("parrot_neuron")
         post_neuron = nest.Create(neuron_model_name)
+        if nonzero_dAP_trace:
+            post_neuron.dAP_trace = 1.
+            post_neuron.evolve_dAP_trace = 0.
 
         spikedet_pre = nest.Create("spike_recorder")
         spikedet_post = nest.Create("spike_recorder")
@@ -172,3 +181,5 @@ class TestSimultaneousContinuousAndSpikeBasedNeuromodulation:
             t += resolution
             t_hist.append(t)
             w_hist.append(nest.GetStatus(syn)[0]["w"])
+
+        return t_hist, w_hist

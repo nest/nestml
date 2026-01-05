@@ -411,7 +411,8 @@ public:
 {%-         for variable_symbol in neuron.get_state_symbols() %}
 {%-             if not is_delta_kernel(neuron.get_kernel_by_name(variable_symbol.name)) %}
 {%-                 set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-                 include "directives_cpp/MemberVariableGetterSetter.jinja2" %}
+{%-                 include "directives_cpp/MemberVariableGetter.jinja2" %}
+{%-                 include "directives_cpp/MemberVariableSetter.jinja2" %}
 {%              endif %}
 {%          endfor %}
 {%-     endfilter %}
@@ -425,7 +426,8 @@ public:
 {%      filter indent(2, True) -%}
 {%-         for variable_symbol in neuron.get_parameter_symbols() %}
 {%-             set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-             include "directives_cpp/MemberVariableGetterSetter.jinja2" %}
+{%-             include "directives_cpp/MemberVariableGetter.jinja2" %}
+{%-             include "directives_cpp/MemberVariableSetter.jinja2" %}
 
 {%          endfor %}
 {%-     endfilter %}
@@ -439,7 +441,8 @@ public:
 {%      filter indent(2, True) -%}
 {%-         for variable_symbol in neuron.get_internal_symbols() %}
 {%-             with variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-                 include "directives_cpp/MemberVariableGetterSetter.jinja2" %}
+{%-                 include "directives_cpp/MemberVariableGetter.jinja2" %}
+{%-                 include "directives_cpp/MemberVariableSetter.jinja2" %}
 {%-             endwith %}
 {%          endfor %}
 {%-     endfilter %}
@@ -877,20 +880,34 @@ private:
   };
 
   // -------------------------------------------------------------------------
-  //   Getters/setters for inline expressions
+  //   Getters for inline expressions
   // -------------------------------------------------------------------------
-public: // XXX REMOVE -- use friend class instead?
+public:
 {%  filter indent(2, True) -%}
 {%- for equations_block in neuron.get_equations_blocks() %}
 {%-     for inline_expr in equations_block.get_inline_expressions() %}
 {%-         set variable = ast_node_factory.create_ast_variable(inline_expr.get_variable_name(), differential_order=0, scope=inline_expr.scope) %}
 {%-         set variable_symbol = equations_block.get_scope().resolve_to_symbol(inline_expr.get_variable_name(), SymbolKind.VARIABLE) %}
-{%-         include "directives_cpp/MemberVariableGetterSetter.jinja2" %}
+{%-         include "directives_cpp/MemberVariableGetter.jinja2" %}
 
 {%     endfor %}
 {%- endfor %}
 {%- endfilter %}
-private: // XXX REMOVE
+
+  // -------------------------------------------------------------------------
+  //   Setters for inline expressions (this is allowed for expressions containing a convolve() call)
+  // -------------------------------------------------------------------------
+private:
+{%  filter indent(2, True) -%}
+{%- for equations_block in neuron.get_equations_blocks() %}
+{%-     for inline_expr in equations_block.get_inline_expressions() %}
+{%-         set variable = ast_node_factory.create_ast_variable(inline_expr.get_variable_name(), differential_order=0, scope=inline_expr.scope) %}
+{%-         set variable_symbol = equations_block.get_scope().resolve_to_symbol(inline_expr.get_variable_name(), SymbolKind.VARIABLE) %}
+{%-         include "directives_cpp/MemberVariableSetter.jinja2" %}
+
+{%     endfor %}
+{%- endfor %}
+{%- endfilter %}
 
   // -------------------------------------------------------------------------
   //   Getters/setters for input buffers
