@@ -1,38 +1,60 @@
-"""
-iaf_chxk_2008 - Conductance based leaky integrate-and-fire neuron model used in Casti et al. 2008
-#################################################################################################
-
-Description
-+++++++++++
-
-iaf_chxk_2008 is an implementation of a spiking neuron using IAF dynamics with
-conductance-based synapses [1]_. A spike is emitted when the membrane potential
-is crossed from below. After a spike, an afterhyperpolarizing (AHP) conductance
-is activated which repolarizes the neuron over time. Membrane potential is not
-reset explicitly and the model also has no explicit refractory time.
-
-The AHP conductance and excitatory and inhibitory synaptic input conductances
-follow alpha-function time courses as in the iaf_cond_alpha model.
-
-.. note ::
-   In the original Fortran implementation underlying [1]_, all previous AHP activation was discarded when a new spike
-   occurred, leading to reduced AHP currents in particular during periods of high spiking activity. Set ``ahp_bug`` to
-   ``true`` to obtain this behavior in the model.
-
-
-References
-++++++++++
-
-.. [1] Casti A, Hayot F, Xiao Y, Kaplan E (2008) A simple model of retina-LGN
-       transmission. Journal of Computational Neuroscience 24:235-252.
-       DOI: https://doi.org/10.1007/s10827-007-0053-7
-
-
-See also
-++++++++
-
-iaf_cond_alpha
-"""
+# iaf_chxk_2008 - Conductance based leaky integrate-and-fire neuron model used in Casti et al. 2008
+# #################################################################################################
+# 
+# Description
+# +++++++++++
+# 
+# iaf_chxk_2008 is an implementation of a spiking neuron using IAF dynamics with
+# conductance-based synapses [1]_. A spike is emitted when the membrane potential
+# is crossed from below. After a spike, an afterhyperpolarizing (AHP) conductance
+# is activated which repolarizes the neuron over time. Membrane potential is not
+# reset explicitly and the model also has no explicit refractory time.
+# 
+# The AHP conductance and excitatory and inhibitory synaptic input conductances
+# follow alpha-function time courses as in the iaf_cond_alpha model.
+# 
+# .. note ::
+#
+#    In the original Fortran implementation underlying [1]_, all previous AHP activation was discarded when a new spike
+#    occurred, leading to reduced AHP currents in particular during periods of high spiking activity. Set ``ahp_bug`` to
+#    ``true`` to obtain this behavior in the model.
+# 
+# 
+# References
+# ++++++++++
+# 
+# .. [1] Casti A, Hayot F, Xiao Y, Kaplan E (2008) A simple model of retina-LGN
+#        transmission. Journal of Computational Neuroscience 24:235-252.
+#        DOI: https://doi.org/10.1007/s10827-007-0053-7
+# 
+# 
+# See also
+# ++++++++
+# 
+# iaf_cond_alpha
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+# 
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
 model iaf_chxk_2008_neuron:
 
     state:

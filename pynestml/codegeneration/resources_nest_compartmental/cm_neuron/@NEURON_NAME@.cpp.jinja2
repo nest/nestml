@@ -76,7 +76,7 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::{{neuronSpecificFileNamesCmSyns
  * ----------------------------------------------------------------
  */
 void
-{{neuronSpecificFileNamesCmSyns["main"]}}::get_status( DictionaryDatum& statusdict ) const
+{{neuronSpecificFileNamesCmSyns["main"]}}::get_status( DictionaryDatum& statusdict )
 {
   def< double >( statusdict, names::V_th, V_th_ );
   ArchivingNode::get_status( statusdict );
@@ -99,7 +99,7 @@ void
     compartment_ad.push_back( dd );
 
     // add receptor info
-    compartment->compartment_currents.add_receptor_info( receptor_ad, compartment->comp_index );
+    c_tree_.neuron_currents.add_receptor_info( receptor_ad, compartment->comp_index );
   }
   // add compartment info and receptor info to the status dictionary
   def< ArrayDatum >( statusdict, names::compartments, compartment_ad );
@@ -233,15 +233,14 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::add_receptor_( DictionaryDatum&
   syn_buffers_.push_back( buffer );
 
   // add the receptor to the compartment
-  Compartment{{cm_unique_suffix}}* compartment = c_tree_.get_compartment( compartment_idx );
   if ( dd->known( names::params ) )
   {
-    compartment->compartment_currents.add_synapse(
-      receptor_type, syn_idx, getValue< DictionaryDatum >( dd, names::params ) );
+    c_tree_.neuron_currents.add_mechanism(
+      receptor_type, compartment_idx, getValue< DictionaryDatum >( dd, names::params ), syn_idx );
   }
   else
   {
-    compartment->compartment_currents.add_synapse( receptor_type, syn_idx );
+    c_tree_.neuron_currents.add_mechanism( receptor_type, compartment_idx, syn_idx );
   }
 }
 
@@ -312,13 +311,13 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::update( Time const& origin, con
 
   for ( long lag = from; lag < to; ++lag )
   {
-    const double v_0_prev = c_tree_.get_root()->v_comp;
+    const double v_0_prev = *(c_tree_.get_root()->v_comp);
 
     c_tree_.construct_matrix( lag );
     c_tree_.solve_matrix();
 
     // threshold crossing
-    if ( c_tree_.get_root()->v_comp >= V_th_ && v_0_prev < V_th_ )
+    if ( *(c_tree_.get_root()->v_comp) >= V_th_ && v_0_prev < V_th_ )
     {
       set_spiketime( Time::step( origin.get_steps() + lag + 1 ) );
 
@@ -353,8 +352,11 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::handle( CurrentEvent& e )
   const double c = e.get_current();
   const double w = e.get_weight();
 
-  Compartment{{cm_unique_suffix}}* compartment = c_tree_.get_compartment_opt( e.get_rport() );
-  compartment->currents.add_value( e.get_rel_delivery_steps( kernel().simulation_manager.get_slice_origin() ), w * c );
+  assert( e.get_delay_steps() > 0 );
+  assert( ( e.get_rport() >= 0 ) && ( ( size_t ) e.get_rport() < syn_buffers_.size() ) );
+
+  syn_buffers_[ e.get_rport() ].add_value(
+    e.get_rel_delivery_steps( kernel().simulation_manager.get_slice_origin() ), c*w );
 }
 
 void

@@ -42,18 +42,11 @@ from pynestml.utils.with_options import WithOptions
 
 
 class CodeGenerator(WithOptions):
+    r"""Generate code for a given target platform."""
+
     _default_options: Mapping[str, Any] = {}
 
-    def __init__(self, target, options: Optional[Mapping[str, Any]] = None):
-        from pynestml.frontend.pynestml_frontend import get_known_targets
-
-        if not target.upper() in get_known_targets():
-            code, msg = Messages.get_unknown_target(target)
-            Logger.log_message(message=msg, code=code, log_level=LoggingLevel.ERROR)
-            self._target = ""
-            raise InvalidTargetException()
-
-        self._target = target
+    def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super(CodeGenerator, self).__init__(options)
 
         self._init_templates_list()
@@ -176,8 +169,6 @@ class CodeGenerator(WithOptions):
         from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
         for synapse in synapses:
-            if Logger.logging_level == LoggingLevel.INFO:
-                print("Generating code for the synapse {}.".format(synapse.get_name()))
             self.generate_synapse_code(synapse)
             code, message = Messages.get_code_generated(synapse.get_name(), FrontendConfiguration.get_target_path())
             Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)

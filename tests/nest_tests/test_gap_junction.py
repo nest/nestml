@@ -23,6 +23,7 @@ import numpy as np
 import os
 import pytest
 import scipy
+import scipy.signal
 
 import nest
 
@@ -42,23 +43,25 @@ except Exception:
 @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                     reason="This test does not support NEST 2")
 class TestGapJunction:
-    r"""Test code generation and perform simulations and numerical checks for gap junction support in linear and non-linear neuron models"""
+    r"""Test code generation and perform simulations and numerical checks for gap junction support in linear and non-linear neuron models. aeif_cond_beta_neuron is included to test for a case where integrate_odes() is called with no arguments."""
 
-    @pytest.mark.parametrize("neuron_model", ["iaf_psc_exp_neuron", "aeif_cond_exp_neuron"])
-    def test_gap_junction_effect_on_membrane_potential(self, neuron_model: str):
-        self.generate_code(neuron_model)
+    @pytest.mark.parametrize("neuron_model_path, neuron_model", [("models/neurons", "iaf_psc_exp_neuron"),
+                                                                 ("models/neurons", "aeif_cond_exp_neuron"),
+                                                                 ("tests/nest_tests/resources", "aeif_cond_beta_neuron")])
+    def test_gap_junction_effect_on_membrane_potential(self, neuron_model_path: str, neuron_model: str):
+        self.generate_code(neuron_model_path, neuron_model)
         for wfr_interpolation_order in [0, 1, 3]:
             self._test_gap_junction_effect_on_membrane_potential(neuron_model, wfr_interpolation_order)
 
-    def generate_code(self, neuron_model: str):
+    def generate_code(self, neuron_model_path: str, neuron_model: str):
         codegen_opts = {"gap_junctions": {"enable": True,
                                           "gap_current_port": "I_stim",
                                           "membrane_potential_variable": "V_m"}}
 
-        files = [os.path.join("models", "neurons", neuron_model + ".nestml")]
+        files = [os.path.join(*os.path.split(neuron_model_path), neuron_model + ".nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,
-                             logging_level="DEBUG",
+                             logging_level="WARNING",
                              module_name="nestml_gap_" + neuron_model + "_module",
                              suffix="_nestml",
                              codegen_opts=codegen_opts)

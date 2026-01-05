@@ -1,7 +1,6 @@
-"""
-delay_test_assigned_delay_synapse
-#################################
-"""
+# delay_test_assigned_delay_synapse
+# #################################
+#
 model delay_test_assigned_delay_synapse:
   state:
     w real = 1    # Synaptic weight
@@ -11,7 +10,7 @@ model delay_test_assigned_delay_synapse:
     pre_spikes <- spike
 
   output:
-    spike
+    spike(weight real, delay ms)
 
   onReceive(pre_spikes):
     d = 2 ms       # not allowed!

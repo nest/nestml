@@ -1,36 +1,56 @@
-"""
-traub_cond_multisyn - Traub model according to Borgers 2017
-###########################################################
-
-Description
-+++++++++++
-
-Reduced Traub-Miles Model of a Pyramidal Neuron in Rat Hippocampus [1]_.
-parameters got from reference [2]_ chapter 5.
-
-AMPA, NMDA, GABA_A, and GABA_B conductance-based synapses with
-beta-function (difference of two exponentials) time course corresponding
-to "hill_tononi" model.
-
-
-References
-++++++++++
-
-.. [1] R. D. Traub and R. Miles, Neuronal Networks of the Hippocampus,Cam- bridge University Press, Cambridge, UK, 1991.
-.. [2] Borgers, C., 2017. An introduction to modeling neuronal dynamics (Vol. 66). Cham: Springer.
-
-
-See also
-++++++++
-
-hh_cond_exp_traub
-"""
+# traub_cond_multisyn - Traub model according to Borgers 2017
+# ###########################################################
+# 
+# Description
+# +++++++++++
+# 
+# Reduced Traub-Miles Model of a Pyramidal Neuron in Rat Hippocampus [1]_.
+# parameters got from reference [2]_ chapter 5.
+# 
+# AMPA, NMDA, GABA_A, and GABA_B conductance-based synapses with
+# beta-function (difference of two exponentials) time course corresponding
+# to "hill_tononi" model.
+# 
+# 
+# References
+# ++++++++++
+# 
+# .. [1] R. D. Traub and R. Miles, Neuronal Networks of the Hippocampus,Cam- bridge University Press, Cambridge, UK, 1991.
+# .. [2] Borgers, C., 2017. An introduction to modeling neuronal dynamics (Vol. 66). Cham: Springer.
+# 
+# 
+# See also
+# ++++++++
+# 
+# hh_cond_exp_traub
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+# 
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
 model traub_cond_multisyn_neuron:
     state:
         V_m mV = -70. mV # Membrane potential
         V_m_old mV = E_L    # Membrane potential at previous timestep for threshold check
         refr_t ms = 0 ms    # Refractory period timer
-        is_refractory boolean = false
 
         Act_m real = alpha_m_init / ( alpha_m_init + beta_m_init )      # Activation variable m for Na
         Inact_h real = alpha_h_init / ( alpha_h_init + beta_h_init )    # Inactivation variable h for Na
@@ -57,6 +77,7 @@ model traub_cond_multisyn_neuron:
         inline I_L   pA = g_L * ( V_m - E_L )
 
         V_m' = ( -( I_Na + I_K + I_L ) + I_e + I_stim + I_syn ) / C_m
+        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
 
         # Act_n
         inline alpha_n real = 0.032 * (V_m / mV + 52.) / (1. - exp(-(V_m / mV + 52.) / 5.))
@@ -68,7 +89,7 @@ model traub_cond_multisyn_neuron:
         inline beta_m  real = 0.28 * (V_m / mV + 27.) / (exp((V_m / mV + 27.) / 5.) - 1.)
         Act_m' = ( alpha_m * ( 1 - Act_m ) - beta_m * Act_m ) / ms # m-variable
 
-        # Inact_h'
+        # Inact_h
         inline alpha_h real = 0.128 * exp(-(V_m / mV + 50.0) / 18.0)
         inline beta_h  real = 4.0 / (1.0 + exp(-(V_m / mV + 27.) / 5.))
         Inact_h' = ( alpha_h * ( 1 - Inact_h ) - beta_h * Inact_h ) / ms # h-variable
@@ -150,22 +171,19 @@ model traub_cond_multisyn_neuron:
         spike
 
     update:
-        if is_refractory:
-            refr_t -= resolution()
-
+        # Hodgkin-Huxley type model: ODEs are always integrated, regardless of refractory state
         V_m_old = V_m
-        integrate_odes()
+        if refr_t > 0 ms:
+            # neuron is absolute refractory
+            integrate_odes(V_m, Act_n, Act_m, Inact_h, refr_t)
+        else:
+            # neuron not refractory
+            integrate_odes(V_m, Act_n, Act_m, Inact_h)
 
-    onCondition(not is_refractory and V_m > V_Tr and V_m_old > V_m):
+    onCondition(refr_t <= 0 ms and V_m > V_Tr and V_m_old > V_m):
         # threshold crossing and maximum
         refr_t = refr_T    # start of the refractory period
-        is_refractory = true
         emit_spike()
-
-    onCondition(is_refractory and refr_t <= resolution() / 2):
-        # end of refractory period
-        refr_t = 0 ms
-        is_refractory = false
 
     function compute_synapse_constant(Tau_1 ms, Tau_2 ms, g_peak real) real:
         # Factor used to account for the missing 1/((1/Tau_2)-(1/Tau_1)) term

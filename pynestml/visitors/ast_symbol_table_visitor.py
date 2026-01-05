@@ -19,7 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
@@ -53,16 +52,12 @@ class ASTSymbolTableVisitor(ASTVisitor):
         self.symbol_stack = Stack()
         self.scope_stack = Stack()
         self.block_type_stack = Stack()
-        self.after_ast_rewrite_ = False
 
     def visit_model(self, node: ASTModel) -> None:
         """
         Used to visit a single model and create the corresponding global as well as local scopes.
         """
         Logger.set_current_node(node)
-        code, message = Messages.get_start_building_symbol_table()
-        Logger.log_message(node=node, code=code, error_position=node.get_source_position(),
-                           message=message, log_level=LoggingLevel.DEBUG)
         scope = Scope(scope_type=ScopeType.GLOBAL,
                       source_position=node.get_source_position())
         node.update_scope(scope)
@@ -79,10 +74,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
             node.get_scope().add_symbol(types[symbol])
 
     def endvisit_model(self, node: ASTModel):
-        # before following checks occur, we need to ensure several simple properties
-        CoCosManager.post_symbol_table_builder_checks(
-            node, after_ast_rewrite=self.after_ast_rewrite_)
-
         # update the equations
         for equation_block in node.get_equations_blocks():
             ASTUtils.assign_ode_to_variables(equation_block)
@@ -122,8 +113,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
         if node.has_return_type():
             node.get_return_type().update_scope(scope)
 
-        if node.get_block() is not None:
-            node.get_block().update_scope(scope)
+        if node.get_stmts_body() is not None:
+            node.get_stmts_body().update_scope(scope)
 
     def endvisit_function(self, node):
         symbol = self.symbol_stack.pop()
@@ -167,7 +158,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         scope = Scope(scope_type=ScopeType.UPDATE, enclosing_scope=node.get_scope(),
                       source_position=node.get_source_position())
         node.get_scope().add_scope(scope)
-        node.get_block().update_scope(scope)
+        node.get_stmts_body().update_scope(scope)
         return
 
     def endvisit_update_block(self, node=None):
@@ -184,7 +175,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         scope = Scope(scope_type=ScopeType.ON_RECEIVE, enclosing_scope=node.get_scope(),
                       source_position=node.get_source_position())
         node.get_scope().add_scope(scope)
-        node.get_block().update_scope(scope)
+        node.get_stmts_body().update_scope(scope)
 
     def endvisit_on_receive_block(self, node=None):
         self.block_type_stack.pop()
@@ -199,7 +190,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         scope = Scope(scope_type=ScopeType.ON_CONDITION, enclosing_scope=node.get_scope(),
                       source_position=node.get_source_position())
         node.get_scope().add_scope(scope)
-        node.get_block().update_scope(scope)
+        node.get_stmts_body().update_scope(scope)
         node.get_cond_expr().update_scope(node.get_scope())
 
     def endvisit_on_condition_block(self, node=None):
@@ -280,16 +271,14 @@ class ASTSymbolTableVisitor(ASTVisitor):
         # all declarations in the state block are recordable
         is_recordable = (node.is_recordable
                          or self.block_type_stack.top() == BlockType.STATE)
-        init_value = node.get_expression(
-        ) if self.block_type_stack.top() == BlockType.STATE else None
+        init_value = node.get_expression() if self.block_type_stack.top() in [BlockType.STATE, BlockType.PARAMETERS, BlockType.INTERNALS] else None
 
         # split the decorators in the AST up into namespace decorators and other decorators
         decorators = []
         namespace_decorators = {}
         for d in node.get_decorators():
             if isinstance(d, ASTNamespaceDecorator):
-                namespace_decorators[str(d.get_namespace())] = str(
-                    d.get_name())
+                namespace_decorators[str(d.get_namespace())] = str(d.get_name())
             else:
                 decorators.append(d)
 
@@ -297,6 +286,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         block_type = None
         if not self.block_type_stack.is_empty():
             block_type = self.block_type_stack.top()
+
         for var in node.get_variables():  # for all variables declared create a new symbol
             var.update_scope(node.get_scope())
 
@@ -325,11 +315,14 @@ class ASTSymbolTableVisitor(ASTVisitor):
             symbol.set_comment(node.get_comment())
             node.get_scope().add_symbol(symbol)
             var.set_type_symbol(type_symbol)
+
         # the data type
         node.get_data_type().update_scope(node.get_scope())
+
         # the rhs update
         if node.has_expression():
             node.get_expression().update_scope(node.get_scope())
+
         # the invariant update
         if node.has_invariant():
             node.get_invariant().update_scope(node.get_scope())
@@ -362,7 +355,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :type node: ast_if_clause
         """
         node.get_condition().update_scope(node.get_scope())
-        node.get_block().update_scope(node.get_scope())
+        node.get_stmts_body().update_scope(node.get_scope())
 
     def visit_elif_clause(self, node):
         """
@@ -371,7 +364,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :type node: ast_elif_clause
         """
         node.get_condition().update_scope(node.get_scope())
-        node.get_block().update_scope(node.get_scope())
+        node.get_stmts_body().update_scope(node.get_scope())
 
     def visit_else_clause(self, node):
         """
@@ -379,7 +372,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: an else clause.
         :type node: ast_else_clause
         """
-        node.get_block().update_scope(node.get_scope())
+        node.get_stmts_body().update_scope(node.get_scope())
 
     def visit_for_stmt(self, node):
         """
@@ -389,7 +382,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         node.get_start_from().update_scope(node.get_scope())
         node.get_end_at().update_scope(node.get_scope())
-        node.get_block().update_scope(node.get_scope())
+        node.get_stmts_body().update_scope(node.get_scope())
 
     def visit_while_stmt(self, node):
         """
@@ -398,7 +391,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :type node: ast_while_stmt
         """
         node.get_condition().update_scope(node.get_scope())
-        node.get_block().update_scope(node.get_scope())
+        node.get_stmts_body().update_scope(node.get_scope())
 
     def visit_data_type(self, node):
         """

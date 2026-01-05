@@ -1,4 +1,4 @@
-# Generated from PyNestMLParser.g4 by ANTLR 4.13.1
+# Generated from PyNestMLParser.g4 by ANTLR 4.13.2
 from antlr4 import *
 if "." in __name__:
     from .PyNestMLParser import PyNestMLParser
@@ -14,13 +14,28 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by PyNestMLParser#unitTypeExponent.
+    def visitUnitTypeExponent(self, ctx:PyNestMLParser.UnitTypeExponentContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by PyNestMLParser#unitType.
     def visitUnitType(self, ctx:PyNestMLParser.UnitTypeContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#unitTypeExponent.
-    def visitUnitTypeExponent(self, ctx:PyNestMLParser.UnitTypeExponentContext):
+    # Visit a parse tree produced by PyNestMLParser#anyDecorator.
+    def visitAnyDecorator(self, ctx:PyNestMLParser.AnyDecoratorContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PyNestMLParser#namespaceDecoratorNamespace.
+    def visitNamespaceDecoratorNamespace(self, ctx:PyNestMLParser.NamespaceDecoratorNamespaceContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PyNestMLParser#namespaceDecoratorName.
+    def visitNamespaceDecoratorName(self, ctx:PyNestMLParser.NamespaceDecoratorNameContext):
         return self.visitChildren(ctx)
 
 
@@ -79,11 +94,6 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#block.
-    def visitBlock(self, ctx:PyNestMLParser.BlockContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by PyNestMLParser#stmt.
     def visitStmt(self, ctx:PyNestMLParser.StmtContext):
         return self.visitChildren(ctx)
@@ -114,18 +124,8 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#anyDecorator.
-    def visitAnyDecorator(self, ctx:PyNestMLParser.AnyDecoratorContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by PyNestMLParser#namespaceDecoratorNamespace.
-    def visitNamespaceDecoratorNamespace(self, ctx:PyNestMLParser.NamespaceDecoratorNamespaceContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by PyNestMLParser#namespaceDecoratorName.
-    def visitNamespaceDecoratorName(self, ctx:PyNestMLParser.NamespaceDecoratorNameContext):
+    # Visit a parse tree produced by PyNestMLParser#stmtsBody.
+    def visitStmtsBody(self, ctx:PyNestMLParser.StmtsBodyContext):
         return self.visitChildren(ctx)
 
 

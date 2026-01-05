@@ -1,7 +1,6 @@
-"""
-weight_test_assigned_synapse
-###########################
-"""
+# weight_test_assigned_synapse
+# ###########################
+#
 model weight_test_assigned_synapse:
   state:
     w real = 1    # Synaptic weight
@@ -11,7 +10,7 @@ model weight_test_assigned_synapse:
     pre_spikes <- spike
 
   output:
-    spike
+    spike(weight real, delay ms)
 
   onReceive(pre_spikes):
     w = 2

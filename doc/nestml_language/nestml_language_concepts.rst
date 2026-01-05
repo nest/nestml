@@ -38,91 +38,39 @@ Similar to Python, a single line can be split into multiple lines by using a bac
 Data types and physical units
 -----------------------------
 
-Data types define types of variables as well as parameters and return values of functions. NESTML provides the following primitive types and physical data types:
+Data types define types of variables, as well as parameters and return values of functions. NESTML provides the following primitive types and physical data types, which can both be used to indicate types.
 
 
 Primitive data types
 ~~~~~~~~~~~~~~~~~~~~
 
--  ``real`` corresponds to the ``double`` data type in C++. Example literals are: ``42.0``, ``-0.42``, ``.44``
--  ``integer`` corresponds to the ``long`` data type in C++. Example literals are: ``42``, ``-7``
--  ``boolean`` corresponds to the ``bool`` data type in C++. Its only literals are ``true`` and ``false``
--  ``string`` corresponds to the ``std::string`` data type in C++. Example literals are: ``"Bob"``, ``""``, ``"Hello World!"``
--  ``void`` corresponds to the ``void`` data type in C++. No literals are possible and this can only be used in the declaration of a function without a return value.
+-  ``real`` indicates a real number. Example literals are: ``42.0``, ``-0.42``, ``.44``
+-  ``integer`` indicates a natural number (signed integer). Example literals are: ``42``, ``-7``
+-  ``boolean`` indicates a Boolean value. Its only literals are ``true`` and ``false``
+-  ``string`` indicates a text string. Example literals are: ``"Bob"``, ``""``, ``"Hello World!"``
+-  ``void`` can only be used in the declaration of a function to indicate that it does not return a value.
 
 
 Physical units
 ~~~~~~~~~~~~~~
 
-A physical unit in NESTML can be either a simple physical unit or a complex physical unit. A simple physical unit is composed of an optional magnitude prefix and the name of the unit.
+A physical unit in NESTML can be either a base physical unit or a derived physical unit. The following table lists the seven base units as defined in `the SI standard <https://en.wikipedia.org/wiki/International_System_of_Units>`__.
 
-The following table lists seven base units, which can be used to specify any physical unit. This idea is based on `the SI units <https://en.wikipedia.org/wiki/International_System_of_Units>`__.
++-----------+--------+---------------------+
+| Name      | Symbol | Quantity            |
+|===========|========|=====================|
+| meter     | m      | length              |
+| kilogram  | kg     | mass                |
+| second    | s      | time                |
+| Ampère    | A      | electric current    |
+| Kelvin    | K      | temperature         |
+| mole      | mol    | amount of substance |
+| candela   | cd     | luminous intensity  |
++-----------+--------+---------------------+
 
-+-----------------------+-------------+------------------+
-| Quantity              | Unit Name   | NESTML/SI unit   |
-+=======================+=============+==================+
-| length                | meter       | m                |
-+-----------------------+-------------+------------------+
-| mass                  | kilogram    | kg               |
-+-----------------------+-------------+------------------+
-| time                  | second      | s                |
-+-----------------------+-------------+------------------+
-| electric current      | ampere      | A                |
-+-----------------------+-------------+------------------+
-| temperature           | kelvin      | K                |
-+-----------------------+-------------+------------------+
-| amount of substance   | mole        | mol              |
-+-----------------------+-------------+------------------+
-| luminous intensity    | candela     | cd               |
-+-----------------------+-------------+------------------+
+Any other physical unit can be expressed as a combination of these seven units. For this, the operators ``*`` (multiplication), ``/`` (division), ``**`` (power) and ``()`` (parentheses) can be used (see below for examples).
 
-Any other physical unit can be expressed as a combination of these seven units. These other units are called derived units. NESTML provides a concept for the derivation of new physical units, i.e., by combining simple units (consisting of a prefix and an SI unit), the user is able to create arbitrary physical units.
-
-Units can have at most one of the following magnitude prefixes:
-
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| Factor   | SI Name   | NESTML prefix   | Factor   | SI Name   | NESTML prefix   |
-+==========+===========+=================+==========+===========+=================+
-| 10^-1    | deci      | d               | 10^1     | deca      | da              |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-2    | centi     | c               | 10^2     | hecto     | h               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-3    | milli     | m               | 10^3     | kilo      | k               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-6    | micro     | u               | 10^6     | mega      | M               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-9    | nano      | n               | 10^9     | giga      | G               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-12   | pico      | p               | 10^12    | tera      | T               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-15   | femto     | f               | 10^15    | peta      | P               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-18   | atto      | a               | 10^18    | exa       | E               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-21   | zepto     | z               | 10^21    | zetta     | Z               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-24   | yocto     | y               | 10^24    | yotta     | Y               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-
-Simple physical units can be combined to complex units. For this, the operators , ``*`` (multiplication), ``/`` (division), ``**`` (power) and ``()`` (parenthesis) can be used. An example could be
-
-.. code-block:: nestml
-
-   mV*mV*nS**2/(mS*pA)
-
-Units of the form ``<unit> ** -1`` can also be expressed as ``1/<unit>``. For example
-
-.. code-block:: nestml
-
-   (ms*mV)**-1
-
-is equivalent to
-
-.. code-block:: nestml
-
-   1/(ms*mV)
-
-NESTML also supports the usage of named derived-units such as Newton, Henry or lux:
+NESTML also supports the usage of many named derived units such as Newton, Henry or lux. The following units are defined:
 
 .. list-table::
    :header-rows: 1
@@ -184,14 +132,14 @@ NESTML also supports the usage of named derived-units such as Newton, Henry or l
      - C/V
      - kg\ :sup:`−1`\ ⋅ m\ :sup:`−2`\ ⋅ s\ :sup:`4`\ ⋅ A\ :sup:`2`
    * - Ohm
-     - Ω
+     - Ohm
      - resistance, impedance, reactance
      - V/A
      - kg⋅(m\ :sup:`2`\ ) ⋅ (s\ :sup:`−3`\ ) ⋅(A\ :sup:`−2`\ )
    * - Siemens
      - S
      - electrical conductance
-     - Ω\ :sup:`−1`
+     - Ohm\ :sup:`−1`
      - (kg\ :sup:`−1`\ ) ⋅(m\ :sup:`−2`\ ) ⋅(s\ :sup:`3`\ ) ⋅ A\ :sup:`2`
    * - Weber
      - Wb
@@ -240,17 +188,61 @@ NESTML also supports the usage of named derived-units such as Newton, Henry or l
      - mol⋅(s\ :sup:`−1`\ )
 
 
-Here, except for Ohm, the symbol of the unit has to be used in the model, e.g.:
+These unit symbols can be used to define physical quantites, for instance:
 
 .. code-block:: nestml
 
-   x = 10 N * 22 Ohm / 0.5 V
+   x N/A = 10 N * 22 Ohm / 0.5 V
+
+Physical units can have at most one of the following magnitude prefixes:
+
++----------+-----------+-----------------+----------+-----------+-----------------+
+| Factor   | SI Name   | NESTML prefix   | Factor   | SI Name   | NESTML prefix   |
++==========+===========+=================+==========+===========+=================+
+| 10^-1    | deci      | d               | 10^1     | deca      | da              |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-2    | centi     | c               | 10^2     | hecto     | h               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-3    | milli     | m               | 10^3     | kilo      | k               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-6    | micro     | u               | 10^6     | mega      | M               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-9    | nano      | n               | 10^9     | giga      | G               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-12   | pico      | p               | 10^12    | tera      | T               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-15   | femto     | f               | 10^15    | peta      | P               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-18   | atto      | a               | 10^18    | exa       | E               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-21   | zepto     | z               | 10^21    | zetta     | Z               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-24   | yocto     | y               | 10^24    | yotta     | Y               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+
+For example, the following defines a possible unit:
+
+.. code-block:: nestml
+
+   mV*mV*nS**2/(mS*pA)
+
+Units of the form ``<unit>**-1`` can also be expressed as ``1/<unit>``. For example
+
+.. code-block:: nestml
+
+   (ms*mV)**-1
+
+is equivalent to
+
+.. code-block:: nestml
+
+   1/(ms*mV)
 
 
 Type and unit checks
 ~~~~~~~~~~~~~~~~~~~~
 
-NESTML checks type correctness of all expressions. This also applies to assignments, declarations with an initialization and function calls. NESTML supports conversion of ``integer``\ s to ``real``\ s. A conversion between ``unit``-typed and ``real``-typed variables is also possible. However, these conversions are reported as warnings. Finally, there is no conversion between numeric types and boolean or string types.
+NESTML checks type correctness of all expressions. This also applies to assignments, declarations with an initialization, ODEs, and function calls. Conversion of ``integer``\ s to ``real``\ s is allowed. A conversion between ``unit``-typed and ``real``-typed variables is also allowed. However, these conversions are reported as warnings. No conversion is allowed between numeric types and Boolean or string types.
 
 
 Basic elements of the embedded programming language
@@ -299,37 +291,10 @@ For example, the following model will result in one warning and one error:
            foo = 42 ms  # ERROR: Actual type different from expected. Expected: 's', got: 'mA'!
 
 
-Documentation string
-~~~~~~~~~~~~~~~~~~~~
-
-Each model may be documented by a block of text in reStructuredText format. Following `PEP 257 "Docstring Conventions" <https://www.python.org/dev/peps/pep-0257/>`_, this block should be enclosed in triple double quotes (``""" ... """``) and appear directly before the definition of the neuron. For example:
-
-.. code-block:: nestml
-
-   """
-   my_custom_neuron: My customized version of a Hodgkin-Huxley model
-   #################################################################
-
-   Description
-   +++++++++++
-
-   Long description follows here. We can typeset LaTeX math:
-
-   .. math::
-
-      E = mc^2
-
-   """
-   model my_custom_neuron:
-       # [...]
-
-This documentation block is rendered as HTML on the :doc:`models library <models_library/index>`.
-
-
 Comments in the model
 ~~~~~~~~~~~~~~~~~~~~~
 
-When the character ``#`` appears as the first character on a line (ignoring whitespace), the remainder of that line is allowed to contain any comment string. Comments are not interpreted as part of the model specification, but when a comment is placed in a strategic location, it will be printed into the generated NEST code.
+When the character ``#`` appears as the first character on a line (ignoring whitespace), the remainder of that line is allowed to contain any comment string. Comments are not interpreted as part of the model specification, but when a comment is placed in a strategic location, it may be printed into the generated code.
 
 Example of single or multi-line comments:
 
@@ -341,14 +306,12 @@ Example of single or multi-line comments:
    #  a comment
    #   over several lines.
 
-To enable NESTML to recognize which element a comment belongs to, the following approach has to be used: there should be no white line separating the comment and its target and the comment should be placed before the target line or on the same line as the target. For example:
+To enable NESTML to recognize which element a comment belongs to, the following approach is used: there should be no white line separating the comment and its target, and the comment should be placed before the target line or on the same line as the target. For example:
 
 .. code-block:: nestml
 
    # I am a comment of the membrane potential
    V_m mV = -55 mV # I am a comment of the membrane potential
-
-   # I am not a comment of the membrane potential. A white line separates us.
 
 If a comment shall be attached to an element, no white lines are allowed.
 
@@ -356,7 +319,6 @@ If a comment shall be attached to an element, no white lines are allowed.
 
    # I am not a comment of the membrane potential.
 
-   # I am a comment of the membrane potential.
    V_m mV = -55 mV # I am a comment of the membrane potential
 
 Whitelines are therefore used to separate comment targets:
@@ -369,6 +331,28 @@ Whitelines are therefore used to separate comment targets:
    # I am a comment of the resting potential.
    V_rest mV = -60 mV
 
+The text of each comment is interpreted as `Sphinx reStructuredText format <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_.
+
+Documentation for a model may appear directly in front of the model definition, akin to Python "docstrings" (see `PEP 257 "Docstring Conventions" <https://www.python.org/dev/peps/pep-0257/>`_). For example:
+
+.. code-block:: nestml
+
+   # my_custom_neuron: My customized version of a Hodgkin-Huxley model
+   # #################################################################
+   #
+   # Description
+   # +++++++++++
+   #
+   # Long description follows here. We can typeset LaTeX math:
+   #
+   # .. math::
+   #
+   #    E = mc^2
+   #
+   model my_custom_neuron:
+       # [...]
+
+The documentation block is rendered as HTML on the :doc:`models library <models_library/index>`.
 
 Assignments
 ~~~~~~~~~~~
@@ -561,7 +545,10 @@ The following functions are predefined in NESTML and can be used out of the box.
      - Convert a time into a number of simulation steps. See the section :ref:`Handling of time` for more information.
    * - ``resolution``
      -
-     - Returns the current resolution of the simulation in ms. See the section :ref:`Handling of time` for more information.
+     - In the ``update`` block, or in initialising expressions, returns the current timestep taken in milliseconds. See the section :ref:`Handling of time` for more information.
+   * - ``timestep``
+     -
+     - In the ``update`` block, returns the current timestep taken in milliseconds. See the section :ref:`Handling of time` for more information.
 
 
 Predefined variables and constants
@@ -776,31 +763,34 @@ All variables, literals, and function calls are valid terms. Variables are names
 List of operators
 ~~~~~~~~~~~~~~~~~
 
-For any two valid numeric expressions ``a``, ``b``, boolean expressions ``c``,\ ``c1``,\ ``c2``, and an integer expression ``n`` the following operators produce valid expressions.
+For any two valid numeric expressions ``x``, ``y``, boolean expressions ``b``,\ ``b1``,\ ``b2``, and integer expressions ``n``,\ ``i`` the following operators produce valid expressions.
 
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
 | Operator                                       | Description                                                        | Examples                  |
 +================================================+====================================================================+===========================+
-| ``()``                                         | Expressions with parentheses                                       | ``(a)``                   |
+| ``()``                                         | Expressions with parentheses                                       | ``(x)``                   |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``**``                                         | Power operator.                                                    | ``a ** b``                |
+| ``**``                                         | Power operator                                                     | ``x**y``                  |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``+``, ``-``, ``~``                            | unary plus, unary minus, bitwise negation                          | ``-a``, ``~c``            |
+| ``+``, ``-``, ``~``                            | Unary plus, unary minus                                            | ``-x``                    |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``*``, ``/``, ``%``                            | Multiplication, Division and Modulo-Operator                       | ``a * b``, ``a % b``      |
+| ``*``, ``/``, ``%``                            | Multiplication, division and modulo operator                       | ``x * y``, ``x % y``      |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``+``, ``-``                                   | Addition and Subtraction                                           | ``a + b``, ``a - b``      |
+| ``+``, ``-``                                   | Addition and subtraction                                           | ``x + y``, ``x - y``      |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``<<``, ``>>``                                 | Left and right bit shifts                                          | ``a << n``, ``a >> n``    |
+| ``<<``, ``>>``                                 | Left and right bit shifts                                          | ``n << i``, ``n >> i``    |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``&``, ``|``, ``^``                            | Bitwise ``and``, ``or`` and ``xor``                                | ``a&b``, ``|``, ``a~b``   |
+| ``~``                                          | Bitwise negation                                                   | ``~b``                    |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``<``, ``<=``, ``==``, ``!=``, ``>=``, ``>``   | Comparison operators                                               | ``a <= b``, ``a != b``    |
+| ``&``, ``|``, ``^``                            | Bitwise ``and``, ``or`` and ``xor``                                | ``b1 & b2``, ``b1 ^ b2``  |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``not``, ``and``, ``or``                       | Logical conjunction, disjunction and negation                      | ``not c``, ``c1 or c2``   |
+| ``<``, ``<=``, ``==``, ``!=``, ``>=``, ``>``   | Comparison operators                                               | ``x <= y``, ``x != y``    |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``?:``                                         | Ternary operator (return ``a`` if ``c`` is ``true``, ``b`` else)   | ``c ? a : b``             |
+| ``not``, ``and``, ``or``                       | Logical conjunction, disjunction and negation                      | ``not b``, ``b1 or b2``   |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
+| ``?:``                                         | Ternary operator (return ``x`` if ``b`` is true, ``y`` otherwise)  | ``b ? x : y``             |
++------------------------------------------------+--------------------------------------------------------------------+---------------------------+
+
 
 Blocks
 ------
@@ -822,10 +812,10 @@ Block types
 -  ``state`` - This block is composed of a list of variable declarations that describe parts of the model which may change over time. All the variables declared in this block must be initialized with a value.
 -  ``equations`` - This block contains kernel definitions and differential equations. It will be explained in further detail `later on in the manual <#equations>`__.
 -  ``input`` - This block is composed of one or more input ports. It will be explained in further detail `later on in the manual <#input>`__.
--  ``output`` *``<event_type>``* - Defines which type of event the model can send. Currently, only ``spike`` is supported.
+-  ``output`` - Defines which type of event the model can send.
 -  ``update`` - Contains statements that are executed once every simulation timestep (on a fixed grid or from event to event).
 - ``onReceive`` - Can be defined for each spiking input port; contains statements that are executed whenever an incoming spike event arrives. Optional event parameters, such as the weight, can be accessed by referencing the input port name. Priorities can optionally be defined for each ``onReceive`` block; these resolve ambiguity in the model specification of which event handler should be called after which, in case multiple events occur at the exact same moment in time on several input ports, triggering multiple event handlers.
-- ``onCondition`` - Contains statements that are executed when a particular condition holds. The condition is expressed as a (boolean typed) expression. The advantage of having conditions separate from the ``update`` block is that a root-finding algorithm can be used to find the precise time at which a condition holds, within each (fixed resolution) simulation timestep. This makes the model more generic with respect to the simulator that is used.
+- ``onCondition`` - Contains statements that are executed when a particular condition holds. The condition is expressed as a (boolean typed) expression. The advantage of having conditions separate from the ``update`` block is that a root-finding algorithm can be used to find the precise time at which a condition holds (with a higher resolution than the simulation timestep). This makes the model more generic with respect to the simulator that is used.
 
 
 Input
@@ -874,7 +864,7 @@ Spiking input can be handled by convolutions with kernels (see :ref:`Integrating
 .. code-block:: nestml
 
    onReceive(pre_spikes):
-       print("Info: processing a presynaptic spike at time t = {t}")
+       println("Info: processing a presynaptic spike at time t = {t}")
        # ... further statements go here ...
 
 The statements in the event handler will be executed when the event occurs.
@@ -884,10 +874,10 @@ To specify in which sequence the event handlers should be called in case multipl
 .. code-block:: nestml
 
    onReceive(pre_spikes, priority=1):
-       print("Info: processing a presynaptic spike at time t = {t}")
+       println("Info: processing a presynaptic spike at time t = {t}")
 
    onReceive(post_spikes, priority=2):
-       print("Info: processing a postsynaptic spike at time t = {t}")
+       println("Info: processing a postsynaptic spike at time t = {t}")
 
 In this case, if a pre- and postsynaptic spike are received at the exact same time, the higher-priority ``post_spikes`` handler will be invoked first.
 
@@ -902,7 +892,31 @@ Each model can only send a single type of event. The type of the event has to be
    output:
        spike
 
-Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + resolution()``.
+Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + timestep()``.
+
+Event attributes
+~~~~~~~~~~~~~~~~
+
+Each spiking output event can be parameterised by one or more attributes. For example, a synapse could assign a weight (as a real number) and delay (in milliseconds) to its spike events by including these values in the call to ``emit_spike()``:
+
+.. code-block:: nestml
+
+   parameters:
+       weight real = 10.
+
+   update:
+       emit_spike(weight, 1 ms)
+
+If spike event attributes are used, their names and types must be given as part of the output port specification, for example:
+
+.. code-block:: nestml
+
+   output:
+       spike(weight real, delay ms)
+
+The names are only used externally, so that other models can refer to the correct attribute (such as a downstream neuron that is receiving the spike through its input port). It is thus allowed to have a state variable called ``weight`` and an output port attribute by the same name; the output port attribute name does not refer to names declared inside the model.
+
+Specific code generators may support a specific set of attributes; please check the documentation of each individual code generator for more details.
 
 
 Equations
@@ -1018,7 +1032,7 @@ with time constant, for example, equal to 20 ms:
    parameters:
        tau ms = 20 ms
 
-The start at time :math:`t \geq 0` is an implicit assumption for all kernels.
+All kernels are assumed to start at time :math:`t \geq 0` (that is, the value of a kernel is 0 for :math:`t < 0`; it is not necessary to explicitly enforce this).
 
 Equivalently, the same exponentially decaying kernel can be formulated as a differential equation:
 
@@ -1084,7 +1098,7 @@ A Dirac delta impulse kernel can be defined by using the predefined function ``d
 Handling of time
 ----------------
 
-Inside the ``update`` block, the current time can be retrieved via the predefined, global variable ``t``. The statements executed in the block are reponsible for updating the state of the model between timesteps or events. The statements in this block update the state of the model from the "current" time ``t``, to the next simulation timestep or time of next event ``t + resolution()``. The update step typically involves integration of the ODEs and corresponds to the "free-flight" or "subthreshold" integration; the events themselves are typically handled elsewhere, namely as a convolution with a kernel, or as an ``onReceive`` block.
+Inside the ``update`` block, the current time can be retrieved via the predefined, global variable ``t``. The statements executed in the block are responsible for updating the state of the model between timesteps or events. The statements in this block update the state of the model from the "current" time ``t``, to the next simulation timestep or time of next event ``t + timestep()``. The update step involves integration of the ODEs and corresponds to the "free-flight" or "subthreshold" integration; the events themselves are handled elsewhere, namely as a convolution with a kernel, or as an ``onReceive`` block.
 
 
 Integrating the ODEs
@@ -1093,6 +1107,22 @@ Integrating the ODEs
 Integrating the ODEs needs to be triggered explicitly inside the ``update`` block by calling the ``integrate_odes()`` function. Making this call explicit forces the model to be precise about the sequence of steps that needs to be carried out to step the model state forward in time.
 
 The ``integrate_odes()`` function numerically integrates the differential equations defined in the ``equations`` block. Integrating the ODEs from one timestep to the next has to be explicitly carried out in the model by calling the ``integrate_odes()`` function. If no parameters are given, all ODEs in the model are integrated. Integration can be limited to a given set of ODEs by giving their left-hand side state variables as parameters to the function, for example ``integrate_odes(V_m, I_ahp)`` if ODEs exist for the variables ``V_m`` and ``I_ahp``. In this example, these variables are integrated simultaneously (as one single system of equations). This is different from calling ``integrate_odes(V_m)`` and then ``integrate_odes(I_ahp)`` in that the second call would use the already-updated values from the first call. Variables not included in the call to ``integrate_odes()`` are assumed to remain constant (both inside the numeric solver stepping function as well as from before to after the call).
+
+In case of higher-order ODEs of the form ``F(x'', x', x) = 0``, the solution ``x(t)`` is obtained by just providing the variable ``x`` to the ``integrate_odes`` function. For example,
+
+.. code-block:: nestml
+
+   state:
+     x  real    = 0
+     x' ms**-1  = 0 * ms**-1
+
+   equations:
+     x'' = - 2 * x' / ms - x / ms**2
+
+   update:
+     integrate_odes(x)
+
+Here, ``integrate_odes(x)`` integrates the entire dynamics of ``x(t)``, in this case, ``x`` and ``x'``.
 
 Note that the dynamical equations that correspond to convolutions are always updated, regardless of whether ``integrate_odes()`` is called. The state variables affected by incoming events are updated at the end of each timestep, that is, within one timestep, the state as observed by statements in the ``update`` block will be those at :math:`t^-`, i.e. "just before" it has been updated due to the events. See also :ref:`Integrating spiking input` and :ref:`Integration order`.
 
@@ -1104,22 +1134,23 @@ Retrieving simulation timing parameters
 
 To retrieve timing parameters from the simulator kernel, two special functions are built into NESTML:
 
--  ``resolution`` returns the current resolution of the simulation in ms.
--  ``steps`` takes one parameter of type ``ms`` and returns the number of simulation steps in the current simulation resolution.
+- ``resolution`` returns the current timestep taken. Can be used only inside the ``update`` block and in intialising expressions. The use of this function assumes that the simulator uses fixed resolution steps, therefore it is recommended to use ``timestep()`` instead in order to make the models more generic.
+- ``timestep`` returns the current timestep taken. Can be used only inside the ``update`` block.
+- ``steps`` takes one parameter of type ``ms`` and returns the number of simulation steps in the current simulation resolution. This only makes sense in case of a fixed simulation resolution (such as in NEST); hence, use of this function is not recommended, because it precludes the models from being compatible with other simulation platforms where a non-constant simulation timestep is used.
 
-These functions can be used to implement custom buffer lookup logic but should be used with care. In particular, when a non-constant simulation timestep is used, ``steps()`` should be avoided.
-
-When using ``resolution()``, it is recommended to use the function call directly in the code, rather than defining it as a parameter. This makes the model more robust in case of non-constant timestep. In some cases, as in the synapse ``update`` block, a step is made between spike events, a timestep which is not constrained by the simulation timestep. For example:
+When using ``resolution()``, it is recommended to use the function call directly in the code, rather than defining it as a parameter. This makes the model more robust in case the resolution is changed during the simulation. In some cases, as in the synapse ``update`` block, a step is made between spike events, unconstrained by the simulation resolution. For example:
 
 .. code-block:: nestml
 
    parameters:
-       h ms = resolution()   # !! NOT RECOMMENDED.
+       h ms = resolution()   # !! NOT RECOMMENDED
 
    update:
-       # update from t to t + resolution()
-       x *= exp(-resolution() / tau)   # let x' = -x / tau
-                                       # evolve the state of x one timestep
+       # update from t to t + timestep()
+       # let x' = -x / tau
+       # x *= exp(-h / tau)  # !! NOT RECOMMENDED
+       # x *= exp(-resolution() / tau)  # !! better but NOT RECOMMENDED
+       x *= exp(-timestep() / tau)  # recommended (supports any timestep)
 
 
 Integration order
@@ -1127,18 +1158,18 @@ Integration order
 
 During simulation, the simulation kernel (for example, NEST Simulator) is responsible for invoking the model functions that update its state: those in ``update``, ``onReceive``, integrating the ODEs, etc. Different simulators may invoke these functions in a different sequence and with different steps of time, leading to different numerical results even though the same model was used. For example, "time-based" simulators take discrete steps of time of fixed duration (for example, 1 millisecond), whereas "event-based" simulators process events at their exact time of occurrence, without having to round off the time of occurrence of the event to the nearest timestep interval. The following section describes some of the variants of integration sequences that can be encountered and what this means for the outcome of a simulation.
 
-The recommended update sequence for a spiking neuron model is shown below (panel B), which is optimal ("gives the fewest surprises") in the case the simulator uses a minimum synaptic transmission delay (this includes NEST). In this sequence, first the subthreshold dynamics are evaluated (that is, ``integrate_odes()`` is called; in the simplest case, all equations are solved simultaneously) and only afterwards, incoming spikes are processed.
+The recommended update sequence for a spiking neuron model is shown below (panel A), which is optimal ("gives the fewest surprises") in the case the simulator uses a minimum synaptic transmission delay (this includes NEST). In this sequence, first the subthreshold dynamics are evaluated (that is, ``integrate_odes()`` is called; in the simplest case, all equations are solved simultaneously) and only afterwards, incoming spikes are processed.
 
 .. _label:fig_integration_order
-.. figure:: https://raw.githubusercontent.com/clinssen/nestml/integrate_specific_odes/doc/fig/integration_order.png
-   :alt: Four different conventions for integration sequence. Modified after [1]_, their Fig. 10.2.
+.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/integration_order.png
+   :alt: Different conventions for the integration sequence. Modified after [1]_, their Fig. 10.2. The precise sequence of operations depends on whether the simulation is considered to have synaptic propagation delays (A) or not (B).
 
 The numeric results of a typical simulation run are shown below. Consider a leaky integrate-and-fire neuron with exponentially decaying postsynaptic currents :math:`I_\text{syn}`. The neuron is integrated using a fixed timestep of :math:`1~\text{ms}` (left) and using an event-based method (right):
 
-.. figure:: https://raw.githubusercontent.com/clinssen/nestml/integrate_specific_odes/doc/fig/integration_order_example.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/integration_order_example.png
    :alt: Numerical example for two different integration sequences.
 
-On the left, both pre-synaptic spikes are only processed at the end of the interval in which they occur. The statements in the ``update`` block are run every timestep for a fixed resolution of :math:`1~\text{ms}`, alternating with the statements in the ``onReceive`` handler for the spiking input port. Note that this means that the effect of the spikes becomes visible at the end of the timestep in :math:`I_\text{syn}`, but it takes another timestep before ``integrate_odes()`` is called again and consequently for the effect of the spikes to become visible in the membrane potential. This results in a threshold crossing and the neuron firing a spike. On the right half of the figure, the same presynaptic spike timing is used, but because events are processed at their exact time of occurrence. In this case, the ``update`` statements are called once to update the neuron from time 0 to :math:`1~\text{ms}`, then again to update from :math:`1~\text{ms}` to the time of the first spike, then the spike is processed by running the statements in its ``onReceive`` block, then ``update`` is called to update from the time of the first spike to the second spike, and so on. The time courses of :math:`I_\text{syn}` and :math:`V_\text{m}` are such that the threshold is not reached and the neuron does not fire, illustrating the numerical differences that can occur when the same model is simulated using different strategies.
+On the left, both pre-synaptic spikes are only processed at the end of the interval in which they occur. The statements in the ``update`` block are run every timestep for a fixed timestep of :math:`1~\text{ms}`, alternating with the statements in the ``onReceive`` handler for the spiking input port. Note that this means that the effect of the spikes becomes visible at the end of the timestep in :math:`I_\text{syn}`, but it takes another timestep before ``integrate_odes()`` is called again and consequently for the effect of the spikes to become visible in the membrane potential. This results in a threshold crossing and the neuron firing a spike. On the right half of the figure, the same presynaptic spike timing is used, but events are processed at their exact time of occurrence. In this case, the ``update`` statements are called once to update the neuron from time 0 to :math:`1~\text{ms}`, then again to update from :math:`1~\text{ms}` to the time of the first spike, then the spike is processed by running the statements in its ``onReceive`` block, then ``update`` is called to update from the time of the first spike to the second spike, and so on. The time courses of :math:`I_\text{syn}` and :math:`V_\text{m}` are such that the threshold is not reached and the neuron does not fire, illustrating the numerical differences that can occur when the same model is simulated using different strategies.
 
 
 Guards
@@ -1164,4 +1195,4 @@ References
 
 .. [1] Morrison A, Diesmann M (2008). Maintaining causality in discrete time neuronal network simulations. Lectures in Supercomputational Neurosciences: Dynamics in Complex Brain Networks, 267-278.
 
-.. [2] Stefan Rotter and Markus Diesmann. Exact digital simulation of time-invariant linear systems with applications to neuronal modeling. Biol. Cybern. 81, 381±402 (1999)
+.. [2] Stefan Rotter and Markus Diesmann. Exact digital simulation of time-invariant linear systems with applications to neuronal modeling. Biol. Cybern. 81, 381–402 (1999)

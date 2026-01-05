@@ -1,6 +1,5 @@
-"""
-Model for testing the integrate_odes() function.
-"""
+# Model for testing the integrate_odes() function.
+#
 model integrate_odes_test:
     state:
         test_1 real = 0.
@@ -8,7 +7,6 @@ model integrate_odes_test:
 
     update:
         integrate_odes(2 * test_1)
-        integrate_odes(test_3)
         integrate_odes(100 ms)
         integrate_odes(test_1)
         integrate_odes(test_2)

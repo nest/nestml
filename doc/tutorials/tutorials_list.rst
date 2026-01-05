@@ -25,6 +25,10 @@ Creating neuron models
 
   In the GL model, firing of the neuron is a stochastic event, whose probability of occurrence is a function of the membrane potential.
 
+* :doc:`Sequence learning network </tutorials/sequence_learning/sequence_learning>`
+
+  A network learns to predict and autonomously replay sequences of items.
+
 
 Creating synapse models
 -----------------------
@@ -36,6 +40,10 @@ Creating synapse models
 * :doc:`Triplet STDP synapse </tutorials/triplet_stdp_synapse/triplet_stdp_synapse>`
 
   A triplet STDP rule is sensitive to third-order correlations of pre- and postsynaptic spike times, and accounts better for experimentally seen dependence on timing and frequency.
+
+* :doc:`Third-factor modulated STDP </tutorials/stdp_third_factor_active_dendrite/stdp_third_factor_active_dendrite>`
+
+  An STDP rule that is modulated by a "third factor", in this case the dendritic action potential current of the postsynaptic neuron with an active dendrite.
 
 * :doc:`Dopamine-modulated STDP synapse </tutorials/stdp_dopa_synapse/stdp_dopa_synapse>`
 

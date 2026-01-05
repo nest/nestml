@@ -1,37 +1,57 @@
-"""
-wb_cond_exp - Wang-Buzsaki model
-################################
-
-Description
-+++++++++++
-
-wb_cond_exp is an implementation of a modified Hodkin-Huxley model.
-
-(1) Post-synaptic currents: Incoming spike events induce a post-synaptic change
-    of conductance modeled by an exponential function.
-
-(2) Spike Detection: Spike detection is done by a combined threshold-and-local-
-    maximum search: if there is a local maximum above a certain threshold of
-    the membrane potential, it is considered a spike.
-
-References
-++++++++++
-
-.. [1] Wang, X.J. and Buzsaki, G., (1996) Gamma oscillation by synaptic
-       inhibition in a hippocampal interneuronal network model. Journal of
-       neuroscience, 16(20), pp.6402-6413.
-
-See Also
-++++++++
-
-hh_cond_exp_traub, wb_cond_multisyn
-"""
+# wb_cond_exp - Wang-Buzsaki model
+# ################################
+# 
+# Description
+# +++++++++++
+# 
+# wb_cond_exp is an implementation of a modified Hodkin-Huxley model.
+# 
+# (1) Post-synaptic currents: Incoming spike events induce a post-synaptic change
+# of conductance modeled by an exponential function.
+# 
+# (2) Spike Detection: Spike detection is done by a combined threshold-and-local-
+# maximum search: if there is a local maximum above a certain threshold of
+# the membrane potential, it is considered a spike.
+# 
+# References
+# ++++++++++
+# 
+# .. [1] Wang, X.J. and Buzsaki, G., (1996) Gamma oscillation by synaptic
+#        inhibition in a hippocampal interneuronal network model. Journal of
+#        neuroscience, 16(20), pp.6402-6413.
+# 
+# See Also
+# ++++++++
+# 
+# hh_cond_exp_traub, wb_cond_multisyn
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+# 
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
 model wb_cond_exp_neuron:
     state:
         V_m mV = E_L    # Membrane potential
         V_m_old mV = E_L    # Membrane potential at previous timestep for threshold check
         refr_t ms = 0 ms    # Refractory period timer
-        is_refractory boolean = false
 
         Inact_h real = alpha_h_init / ( alpha_h_init + beta_h_init )
         Act_n real = alpha_n_init / ( alpha_n_init + beta_n_init )
@@ -51,6 +71,7 @@ model wb_cond_exp_neuron:
         V_m' =( -( I_Na + I_K + I_L ) + I_e + I_stim + I_syn_exc - I_syn_inh ) / C_m
         Act_n' = ( alpha_n(V_m) * ( 1 - Act_n ) - beta_n(V_m) * Act_n )  # n-variable
         Inact_h' = ( alpha_h(V_m) * ( 1 - Inact_h ) - beta_h(V_m) * Inact_h ) # h-variable
+        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
 
     parameters:
         C_m pF = 100 pF           # Membrane capacitance
@@ -86,21 +107,19 @@ model wb_cond_exp_neuron:
         spike
 
     update:
-        if is_refractory:
-            refr_t -= resolution()
+        # Hodgkin-Huxley type model: ODEs are always integrated, regardless of refractory state
         V_m_old = V_m
-        integrate_odes()
+        if refr_t > 0 ms:
+            # neuron is absolute refractory
+            integrate_odes(V_m, Act_n, Inact_h, refr_t)
+        else:
+            # neuron not refractory
+            integrate_odes(V_m, Act_n, Inact_h)
 
-    onCondition(not is_refractory and V_m > 0 mV and V_m_old > V_m):
+    onCondition(refr_t <= 0 ms and V_m > 0 mV and V_m_old > V_m):
         # threshold crossing and maximum
         refr_t = refr_T    # start of the refractory period
-        is_refractory = true
         emit_spike()
-
-    onCondition(is_refractory and refr_t <= resolution() / 2):
-        # end of refractory period
-        refr_t = 0 ms
-        is_refractory = false
 
     function _subexpr(V_m mV) real:
         return alpha_m(V_m)**3 / ( alpha_m(V_m) + beta_m(V_m) )**3
