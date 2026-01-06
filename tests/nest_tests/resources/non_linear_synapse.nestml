@@ -1,10 +1,12 @@
-# noisy_synapse - Static synapse with Gaussian noise
-# ##################################################
+# non_linear_synapse.nestml
+# #########################
+#
 #
 # Description
 # +++++++++++
 #
-# Each presynaptic spike is passed to the postsynaptic partner with a weight sampled as :math:`w + A_\text{noise} \mathcal{N}(0, 1)`.
+# This model is used to test the synapse model with non-linear dynamics requiring a numeric solver.
+# The system of equations used in this model is the Lotka-Volterra system.
 #
 #
 # Copyright statement
@@ -26,12 +28,23 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-#
-model noisy_synapse:
+
+model non_linear_synapse:
+    state:
+        x real = 40.
+        y real = 9.
+        w real = 0.
+        d ms = 1.0 ms
+
+    equations:
+        x' = (alpha * x - beta * x * y) / ms
+        y' = (-gamma * y + delta * x * y) / ms
+
     parameters:
-        w real = 1     # Synaptic weight
-        d ms = 1 ms    # Synaptic transmission delay
-        A_noise real = .4
+        alpha real = 0.1
+        beta real = 0.02
+        delta real = 0.01
+        gamma real = 0.3
 
     input:
         pre_spikes <- spike
@@ -40,8 +53,8 @@ model noisy_synapse:
         spike(weight real, delay ms)
 
     onReceive(pre_spikes):
-        # temporary variable for the "weight" that will be transmitted
-        w_ real = w + A_noise * random_normal(0, 1)
+        w += x * y
+        emit_spike(w, d)
 
-        # deliver spike to postsynaptic partner
-        emit_spike(w_, d)
+    update:
+        integrate_odes()
