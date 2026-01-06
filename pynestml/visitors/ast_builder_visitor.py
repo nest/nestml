@@ -680,12 +680,6 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     def visitOutputBlock(self, ctx):
         source_pos = create_source_pos(ctx)
         attributes: List[ASTParameter] = []
-        if ctx.parameter() is not None:
-            if type(ctx.parameter()) is list:
-                for par in ctx.parameter():
-                    attributes.append(self.visit(par))
-            else:
-                attributes.append(self.visit(ctx.parameter()))
 
         if ctx.isSpike is not None:
             ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.SPIKE, attributes=attributes, source_position=source_pos)

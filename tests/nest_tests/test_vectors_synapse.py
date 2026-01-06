@@ -43,7 +43,6 @@ class TestVectorsSynapse:
         codegen_opts = {
             "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                       "synapse": "vectors_test_synapse"}],
-            "delay_variable": {"vectors_test_synapse": "d"},
             "weight_variable": {"vectors_test_synapse": "w"}
         }
         generate_nest_target(input_path=input_paths,

@@ -56,7 +56,6 @@ def nestml_generate_target():
                                        "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_fixed_timestep_neuron",
                                                                  "synapse": "stdp_triplet_synapse",
                                                                  "post_ports": ["post_spikes"]}],
-                                       "delay_variable": {"stdp_triplet_synapse": "d"},
                                        "weight_variable": {"stdp_triplet_synapse": "w"}})
 
 

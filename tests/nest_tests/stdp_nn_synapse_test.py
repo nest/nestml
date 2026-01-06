@@ -68,7 +68,6 @@ class NestSTDPNNSynapseTest(unittest.TestCase):
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                                      "synapse": "stdp_nn_symm_synapse",
                                                                      "post_ports": ["post_spikes"]}],
-                                           "delay_variable": {"stdp_nn_symm_synapse": "d"},
                                            "weight_variable": {"stdp_nn_symm_synapse": "w"}})
 
         # generate the "non-jit" model, that relies on ArchivingNode

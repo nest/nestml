@@ -53,8 +53,7 @@ class NoisySynapseTest(unittest.TestCase):
                              logging_level="INFO",
                              module_name="nestml_noisy_synapse_module",
                              suffix="_nestml",
-                             codegen_opts={"delay_variable": {"noisy_synapse": "d"},
-                                           "weight_variable": {"noisy_synapse": "w"}})
+                             codegen_opts={"weight_variable": {"noisy_synapse": "w"}})
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")

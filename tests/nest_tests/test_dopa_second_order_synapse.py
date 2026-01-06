@@ -62,7 +62,6 @@ class TestDopaSecondOrder:
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                                      "synapse": "dopa_second_order_synapse",
                                                                      "vt_ports": ["dopa_spikes"]}],
-                                           "delay_variable": {"dopa_second_order_synapse": "d"},
                                            "weight_variable": {"dopa_second_order_synapse": "w"}})
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
