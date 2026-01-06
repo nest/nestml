@@ -172,38 +172,6 @@ The following default values are used, corresponding to the command line default
 
 For a detailed description of all the arguments of ``generate_target()``, see :func:`pynestml.frontend.pynestml_frontend.generate_target`.
 
-A typical script for the NEST Simulator target could look like the following. First, import the function:
-
-.. code-block:: python
-
-   from pynestml.frontend.pynestml_frontend import generate_target
-
-   generate_target(input_path="/home/nest/work/pynestml/models",
-                   target_platform="NEST",
-                   target_path="/tmp/nestml_target")
-
-We can also use a shorthand function for each supported target platform (here, NEST):
-
-.. code-block:: python
-
-   from pynestml.frontend.pynestml_frontend import generate_nest_target
-
-   generate_nest_target(input_path="/home/nest/work/pynestml/models",
-                        target_path="/tmp/nestml_target")
-
-To dynamically load a module with ``module_name`` equal to ``nestmlmodule`` (the default) in PyNEST can be done as follows:
-
-.. code-block:: python
-
-   nest.Install("nestmlmodule")
-
-The NESTML models are then available for instantiation, for example as:
-
-.. code-block:: python
-
-   pre, post = nest.Create("neuron_nestml", 2)
-   nest.Connect(pre, post, "one_to_one", syn_spec={"synapse_model": "synapse_nestml"})
-
 
 Running NESTML from the command line
 ------------------------------------
