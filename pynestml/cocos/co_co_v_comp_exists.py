@@ -49,6 +49,9 @@ class CoCoVCompDefined(CoCo):
         if not FrontendConfiguration.get_target_platform().upper() == 'NEST_COMPARTMENTAL':
             return
 
+        if not isinstance(neuron, ASTModel):
+            return
+
         enforced_variable_name = NESTCompartmentalCodeGenerator._default_options["compartmental_variable_name"]
 
         state_blocks = neuron.get_state_blocks()

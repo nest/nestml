@@ -1,0 +1,78 @@
+# recordable inlines test model
+#
+# Description
+# +++++++++++
+# Corresponds to standard compartmental model implemented in NEST.
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+model cm_default:
+
+    state:
+        m_Na real = 0.01696863
+        h_Na real = 0.83381407
+
+        v_comp real = 0
+
+    parameters:
+        e_Na real = 50.0
+        gbar_Na real = 0.0
+
+        e_AMPA real = 0 mV
+        tau_r_AMPA real = 0.2 ms
+        tau_d_AMPA real = 3.0 ms
+
+    equations:
+        h_Na' = (h_inf_Na(v_comp) - h_Na) / (tau_h_Na(v_comp) * 1 s)
+        m_Na' = (m_inf_Na(v_comp) - m_Na) / (tau_m_Na(v_comp) * 1 s)
+
+        recordable inline open_probability real = m_Na**3 * h_Na
+        recordable inline equilibrium_distance real = (e_Na - v_comp)
+
+        inline Na real = gbar_Na * open_probability * equilibrium_distance @mechanism::channel
+
+        kernel g_AMPA = g_norm_AMPA * ( - exp(-t / tau_r_AMPA) + exp(-t / tau_d_AMPA) )
+        inline AMPA real = convolve(g_AMPA, spikes_AMPA) * (e_AMPA - v_comp) @mechanism::receptor
+
+    function m_inf_Na (v_comp real) real:
+        return (1.0 - 0.020438532058318*exp(-0.111111111111111*v_comp))**(-1)*((1.0 - 0.020438532058318*exp(-0.111111111111111*v_comp))**(-1)*(6.372366 + 0.182*v_comp) + (1.0 - 48.9271928701465*exp(0.111111111111111*v_comp))**(-1)*(-4.341612 - 0.124*v_comp))**(-1)*(6.372366 + 0.182*v_comp)
+
+    function tau_m_Na (v_comp real) real:
+        return 0.311526479750779*((1.0 - 0.020438532058318*exp(-0.111111111111111*v_comp))**(-1)*(6.372366 + 0.182*v_comp) + (1.0 - 48.9271928701465*exp(0.111111111111111*v_comp))**(-1)*(-4.341612 - 0.124*v_comp))**(-1)
+
+    function h_inf_Na (v_comp real) real:
+        return 1.0*(1.0 + 35734.4671267926*exp(0.161290322580645*v_comp))**(-1)
+
+    function tau_h_Na (v_comp real) real:
+        return 0.311526479750779*((1.0 - 4.52820432639598e-5*exp(-0.2*v_comp))**(-1)*(1.200312 + 0.024*v_comp) + (1.0 - 3277527.87650153*exp(0.2*v_comp))**(-1)*(-0.6826183 - 0.0091*v_comp))**(-1)
+
+
+    internals:
+        tp_AMPA real = (tau_r_AMPA * tau_d_AMPA) / (tau_d_AMPA - tau_r_AMPA) * ln( tau_d_AMPA / tau_r_AMPA )
+        g_norm_AMPA real =  1. / ( -exp( -tp_AMPA / tau_r_AMPA ) + exp( -tp_AMPA / tau_d_AMPA ) )
+
+    input:
+        spikes_AMPA <- spike
+
+    output:
+        spike
