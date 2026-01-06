@@ -623,7 +623,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace["has_state_vectors"] = False
         namespace["vector_symbols"] = []
-        namespace['names_namespace'] = synapse.get_name() + "_names"
+        namespace["names_namespace"] = synapse.get_name() + "_names"
 
         # event handlers priority
         # XXX: this should be refactored in case we have additional modulatory (3rd-factor) spiking input ports in the synapse
