@@ -223,13 +223,22 @@ class NESTCodeGenerator(CodeGenerator):
         self._gsl_variable_printer = GSLVariablePrinter(None)
         if self.option_exists("nest_version") and (self.get_option("nest_version").startswith("2") or self.get_option("nest_version").startswith("v2")):
             self._gsl_function_call_printer = NEST2GSLFunctionCallPrinter(None)
+            self._gsl_function_call_printer_no_origin = NEST2GSLFunctionCallPrinter(None)
         else:
             self._gsl_function_call_printer = NESTGSLFunctionCallPrinter(None)
+            self._gsl_function_call_printer_no_origin = NEST2GSLFunctionCallPrinter(None)
 
         self._gsl_printer = CppExpressionPrinter(simple_expression_printer=CppSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
                                                                                                       constant_printer=self._constant_printer,
                                                                                                       function_call_printer=self._gsl_function_call_printer))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
+
+        self._gsl_variable_printer_no_origin = GSLVariablePrinter(None, with_origin=False)
+        self._gsl_printer_no_origin = CppExpressionPrinter(simple_expression_printer=CppSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer_no_origin,
+                                                                                                                constant_printer=self._constant_printer,
+                                                                                                                function_call_printer=self._gsl_function_call_printer))
+        self._gsl_variable_printer_no_origin._expression_printer = self._gsl_printer_no_origin
+        self._gsl_function_call_printer_no_origin._expression_printer = self._gsl_printer_no_origin
 
         # ODE-toolbox printers
         self._ode_toolbox_variable_printer = ODEToolboxVariablePrinter(None)
@@ -521,6 +530,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["printer"] = self._nest_printer
         namespace["printer_no_origin"] = self._printer_no_origin
         namespace["gsl_printer"] = self._gsl_printer
+        namespace["gsl_printer_no_origin"] = self._gsl_printer_no_origin
         namespace["nestml_printer"] = NESTMLPrinter()
         namespace["type_symbol_printer"] = self._type_symbol_printer
 
@@ -665,6 +675,9 @@ class NESTCodeGenerator(CodeGenerator):
                 expr_ast.update_scope(synapse.get_equations_blocks()[0].get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["numeric_update_expressions"][sym] = expr_ast
+
+            ASTUtils.assign_numeric_non_numeric_state_variables(synapse, namespace["numeric_state_variables"],
+                                                                namespace["numeric_update_expressions"] if "numeric_update_expressions" in namespace.keys() else None, namespace["update_expressions"] if "update_expressions" in namespace.keys() else None)
 
         namespace["spike_updates"] = synapse.spike_updates
 

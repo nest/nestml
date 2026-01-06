@@ -70,6 +70,21 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "volume_transmitter.h"
 {%- endif %}
 
+{%- if uses_numeric_solver %}
+{%-     if numeric_solver == "rk45" %}
+
+#ifndef HAVE_GSL
+#error "The GSL library is required for the Runge-Kutta solver."
+#endif
+
+// External includes:
+#include <gsl/gsl_errno.h>
+#include <gsl/gsl_matrix.h>
+#include <gsl/gsl_odeiv.h>
+{%-     else %}
+#error "Numeric solver {{ numeric_solver }} is not supported in synapses!"
+{%-     endif %}
+{%- endif %}
 
 // Includes from sli:
 #include "dictdatum.h"
@@ -102,9 +117,22 @@ namespace {{names_namespace}}
     const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
 {%- endfor %}
 {%- endif %}
-}
+{%- if uses_numeric_solver %}
+    const Name gsl_abs_error_tol("gsl_abs_error_tol");
+    const Name gsl_rel_error_tol("gsl_rel_error_tol");
+{%- endif %}
+} // end namespace {{names_namespace}};
 
-class {{synapseName}}CommonSynapseProperties : public CommonSynapseProperties {
+namespace {{ synapseName }}
+{
+{%- if uses_numeric_solver %}
+{%- for s in utils.create_integrate_odes_combinations(astnode) %}
+extern "C" inline int {{synapseName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );
+{%- endfor %}
+{%- endif %}
+
+class {{synapseName}}CommonSynapseProperties : public CommonSynapseProperties
+{
 public:
 
     {{synapseName}}CommonSynapseProperties()
@@ -215,43 +243,7 @@ public:
     }
 
 {%- endif %}
-};
-
-template < typename targetidentifierT >
-class {{synapseName}} : public Connection< targetidentifierT >
-{
-{%- if paired_neuron_name | length > 0 %}
-  typedef {{ paired_neuron_name }} post_neuron_t;
-
-{% endif %}
-{%- if vt_ports is defined and vt_ports|length > 0  %}
-public:
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
-  void trigger_update_weight( size_t t,
-    const std::vector< spikecounter >& vt_spikes,
-    double t_trig,
-    const {{synapseName}}CommonSynapseProperties& cp );
-{%- else %}
-  void trigger_update_weight( thread t,
-    const std::vector< spikecounter >& vt_spikes,
-    double t_trig,
-    const {{synapseName}}CommonSynapseProperties& cp );
-{%- endif %}
-{%- endif %}
-private:
-  double t_lastspike_;
-{%- if vt_ports is defined and vt_ports|length > 0  %}
-  // time of last update, which is either time of last presyn. spike or time-driven update
-  double t_last_update_;
-
-  // vt_spikes_idx_ refers to the vt spike that has just been processed after trigger_update_weight
-  // a pseudo vt spike at t_trig is stored at index 0 and vt_spikes_idx_ = 0
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
-  size_t vt_spikes_idx_;
-{%- else %}
-  index vt_spikes_idx_;
-{%- endif %}
-{%- endif %}
+}; // end class {{synapseName}}CommonSynapseProperties
 
   /**
    * Dynamic state of the synapse.
@@ -294,11 +286,13 @@ private:
     //! state vector, must be C-array for GSL solver
     double ode_state[STATE_VEC_SIZE];
 
-    // state variables from state block
+    // variables from state block
 {%-     filter indent(4,True) %}
 {%-     for variable_symbol in synapse.get_state_symbols() %}
-{%-         set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-         include "directives_cpp/MemberDeclaration.jinja2" %}
+{%          if variable_symbol.get_symbol_name() not in numeric_state_variables %}
+{%-           set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-           include "directives_cpp/MemberDeclaration.jinja2" %}
+{%-         endif %}
 {%-     endfor %}
 {%-     endfilter %}
 {%- endif %}
@@ -339,10 +333,49 @@ private:
 {%-     endif %}
 {%- endfor %}
 {%- endfilter %}
+    double __gsl_abs_error_tol;
+    double __gsl_rel_error_tol;
 
     /** Initialize parameters to their default values. */
     Parameters_() {};
-  };
+  }; // end Parameters_
+
+
+template < typename targetidentifierT >
+class {{synapseName}} : public Connection< targetidentifierT >
+{
+{%- if paired_neuron_name | length > 0 %}
+  typedef {{ paired_neuron_name }} post_neuron_t;
+
+{% endif %}
+{%- if vt_ports is defined and vt_ports|length > 0  %}
+public:
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
+  void trigger_update_weight( size_t t,
+    const std::vector< spikecounter >& vt_spikes,
+    double t_trig,
+    const {{synapseName}}CommonSynapseProperties& cp );
+{%- else %}
+  void trigger_update_weight( thread t,
+    const std::vector< spikecounter >& vt_spikes,
+    double t_trig,
+    const {{synapseName}}CommonSynapseProperties& cp );
+{%- endif %}
+{%- endif %}
+private:
+  double t_lastspike_;
+{%- if vt_ports is defined and vt_ports|length > 0  %}
+  // time of last update, which is either time of last presyn. spike or time-driven update
+  double t_last_update_;
+
+  // vt_spikes_idx_ refers to the vt spike that has just been processed after trigger_update_weight
+  // a pseudo vt spike at t_trig is stored at index 0 and vt_spikes_idx_ = 0
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
+  size_t vt_spikes_idx_;
+{%- else %}
+  index vt_spikes_idx_;
+{%- endif %}
+{%- endif %}
 
   /**
    * Internal variables of the synapse.
@@ -362,10 +395,30 @@ private:
 {%- endfor %}
   };
 
+{%- if uses_numeric_solver %}
+{%-     if numeric_solver == "rk45" %}
+    gsl_odeiv_step* __s = nullptr;    //!< stepping function
+    gsl_odeiv_control* __c = nullptr; //!< adaptive stepsize control function
+    gsl_odeiv_evolve* __e = nullptr;  //!< evolution function
+    gsl_odeiv_system __sys; //!< struct describing system
+
+    // __integration_step should be reset with the neuron on ResetNetwork,
+    // but remain unchanged during calibration. Since it is initialized with
+    // step_, and the resolution cannot change after nodes have been created,
+    // it is safe to place both here.
+    double __step;             //!< step size in ms
+    double __integration_step; //!< current integration time step, updated by GSL
+{%-     endif %}
+{%- endif %}
+
   Parameters_ P_;  //!< Free parameters.
   State_      S_;  //!< Dynamic state.
   Variables_  V_;  //!< Internal Variables
-{%- if synapse.get_state_symbols()|length > 0 or synapse.get_parameter_symbols()|length > 0 %}
+
+{%-     for s in utils.create_integrate_odes_combinations(astnode) %}
+  friend int {{synapseName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );
+{%-     endfor %}
+
   // -------------------------------------------------------------------------
   //   Getters/setters for parameters and state variables
   // -------------------------------------------------------------------------
@@ -391,7 +444,6 @@ inline void set_{{ variable.get_name() }}(const {{ declarations.print_variable_t
 {%-     endif %}
 {%- endfor %}
 {%- endfilter %}
-{%- endif %}
 
   // -------------------------------------------------------------------------
   //   Getters/setters for inline expressions
@@ -424,6 +476,8 @@ inline void set_{{ variable.get_name() }}(const {{ declarations.print_variable_t
   update_internal_state_(double t_start, double timestep, const {{synapseName}}CommonSynapseProperties& cp);
 
   void recompute_internal_variables();
+
+   std::string get_name() const;
 
 public:
   // this line determines which common properties to use
@@ -677,7 +731,7 @@ void get_entry_from_continuous_variable_history(double t,
     runner = start;
     while ( runner != finish )
     {
-      if ( fabs( t - runner->t_ ) < nest::kernel().connection_manager.get_stdp_eps() )
+      if ( fabs( t - runner->t_ ) < kernel().connection_manager.get_stdp_eps() )
       {
         histentry = *runner;
         return;
@@ -705,7 +759,7 @@ void get_entry_from_continuous_variable_history(double t,
   send( Event& e, const thread tid, const {{synapseName}}CommonSynapseProperties& cp )
 {%- endif %}
   {
-    const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
+    const double __timestep = Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
 
     auto get_thread = [tid]()
     {
@@ -981,7 +1035,7 @@ void get_entry_from_continuous_variable_history(double t,
 {%- if nest_version.startswith("v2") %}
   librandom::NormalRandomDev normal_dev_; //!< random deviate generator
 {%- else %}
-  nest::normal_distribution normal_dev_; //!< random deviate generator
+  normal_distribution normal_dev_; //!< random deviate generator
 {%- endif %}
 {%- endif %}
 };
@@ -991,7 +1045,7 @@ void get_entry_from_continuous_variable_history(double t,
 void
 register_{{ synapseName }}( const std::string& name )
 {
-  nest::register_connection_model< {{ synapseName }} >( name );
+  register_connection_model< {{ synapseName }} >( name );
 }
 {%- endif %}
 
@@ -1071,6 +1125,14 @@ void
 }
 {%- endif %}
 
+/*
+ ** Synapse dynamics
+*/
+{%  if uses_numeric_solver %}
+{%-     for ast in utils.get_all_integrate_odes_calls_unique(synapse) %}
+{%-         include "directives_cpp/GSLDifferentiationFunction.jinja2" %}
+{%-     endfor %}
+{%- endif %}
 
 template < typename targetidentifierT >
 void
@@ -1099,6 +1161,18 @@ void
 {%-     endif %}
 {%- endfor %}
 {%- endfilter %}
+{%- if uses_numeric_solver %}
+{%-     if numeric_solver == "rk45" %}
+  def< double >(__d, nest::{{ synapseName }}_names::gsl_abs_error_tol, P_.__gsl_abs_error_tol);
+  if ( P_.__gsl_abs_error_tol <= 0. ){
+    throw nest::BadProperty( "The gsl_abs_error_tol must be strictly positive." );
+  }
+  def< double >(__d, nest::{{ synapseName }}_names::gsl_rel_error_tol, P_.__gsl_rel_error_tol);
+  if ( P_.__gsl_rel_error_tol < 0. ){
+    throw nest::BadProperty( "The gsl_rel_error_tol must be zero or positive." );
+  }
+{%-     endif %}
+{%- endif %}
 }
 
 template < typename targetidentifierT >
@@ -1107,14 +1181,14 @@ void
   ConnectorModel& cm )
 {
 {%- if synapse_weight_variable|length > 0 and synapse_weight_variable != "weight" %}
-  if (__d->known(nest::{{ synapseName }}_names::_{{ synapse_weight_variable }}) and __d->known(nest::names::weight))
+  if (__d->known({{ synapseName }}_names::_{{ synapse_weight_variable }}) and __d->known(names::weight))
   {
     throw BadProperty( "To prevent inconsistencies, please set either 'weight' or '{{ synapse_weight_variable }}' variable; not both at the same time." );
   }
 {%- endif %}
 
 {%- if nest_codegen_opt_delay_variable != "delay" %}
-  if (__d->known(nest::{{ synapseName }}_names::_{{ nest_codegen_opt_delay_variable }}) and __d->known(nest::names::delay))
+  if (__d->known({{ synapseName }}_names::_{{ nest_codegen_opt_delay_variable }}) and __d->known(names::delay))
   {
     throw BadProperty( "To prevent inconsistencies, please set either 'delay' or '{{ nest_codegen_opt_delay_variable }}' variable; not both at the same time." );
   }
@@ -1132,17 +1206,17 @@ void
 {%-         if variable.get_name() == nest_codegen_opt_delay_variable %}
 // special treatment of NEST delay
 double tmp_{{ nest_codegen_opt_delay_variable }} = get_delay();
-updateValue<double>(__d, nest::{{ synapseName }}_names::_{{ nest_codegen_opt_delay_variable }}, tmp_{{nest_codegen_opt_delay_variable}});
+updateValue<double>(__d, {{ synapseName }}_names::_{{ nest_codegen_opt_delay_variable }}, tmp_{{nest_codegen_opt_delay_variable}});
 {%-         elif variable.get_name() == synapse_weight_variable %}
 // special treatment of NEST weight
 double tmp_{{ synapse_weight_variable }} = get_weight();
-if (__d->known(nest::{{ synapseName }}_names::_{{ synapse_weight_variable }}))
+if (__d->known({{ synapseName }}_names::_{{ synapse_weight_variable }}))
 {
-  updateValue<double>(__d, nest::{{ synapseName }}_names::_{{ synapse_weight_variable }}, tmp_{{synapse_weight_variable}});
+  updateValue<double>(__d, {{ synapseName }}_names::_{{ synapse_weight_variable }}, tmp_{{synapse_weight_variable}});
 }
-if (__d->known(nest::names::weight))
+if (__d->known(names::weight))
 {
-  updateValue<double>(__d, nest::names::weight, tmp_{{synapse_weight_variable}});
+  updateValue<double>(__d, names::weight, tmp_{{synapse_weight_variable}});
 }
 {%-         else %}
 {%-             include "directives_cpp/ReadFromDictionaryToTmp.jinja2" %}
@@ -1180,13 +1254,38 @@ set_delay(tmp_{{ nest_codegen_opt_delay_variable }});
 {% for invariant in synapse.get_parameter_invariants() %}
   if ( !({{printer.print(invariant)}}) )
   {
-    throw nest::BadProperty("The constraint '{{nestml_printer.print(invariant)}}' is violated!");
+    throw BadProperty("The constraint '{{nestml_printer.print(invariant)}}' is violated!");
   }
 {%- endfor %}
 {%- endif %}
 
+{% if uses_numeric_solver %}
+{%-     if numeric_solver == "rk45" %}
+  updateValue< double >(__d, nest::{{ synapseName }}_names::gsl_abs_error_tol, P_.__gsl_abs_error_tol);
+  if ( P_.__gsl_abs_error_tol <= 0. )
+  {
+    throw nest::BadProperty( "The gsl_abs_error_tol must be strictly positive." );
+  }
+  updateValue< double >(__d, nest::{{ synapseName }}_names::gsl_rel_error_tol, P_.__gsl_rel_error_tol);
+  if ( P_.__gsl_rel_error_tol < 0. )
+  {
+    throw nest::BadProperty( "The gsl_rel_error_tol must be zero or positive." );
+  }
+
+  // Reinitialize the control function of the solver with new values of tolerance
+  if ( not __c )
+  {
+    __c = gsl_odeiv_control_y_new( P_.__gsl_abs_error_tol, P_.__gsl_rel_error_tol );
+  }
+  else
+  {
+    gsl_odeiv_control_init( __c, P_.__gsl_abs_error_tol, P_.__gsl_rel_error_tol, 1.0, 0.0 );
+  }
+{%-     endif %}
+{%- endif %}
+
   // recompute internal variables in case they are dependent on parameters or state that might have been updated in this call to set_status()
-  V_.__h = nest::Time::get_resolution().get_ms();
+  V_.__h = Time::get_resolution().get_ms();
   recompute_internal_variables();
 }
 
@@ -1196,7 +1295,7 @@ set_delay(tmp_{{ nest_codegen_opt_delay_variable }});
 template < typename targetidentifierT >
 void {{synapseName}}< targetidentifierT >::recompute_internal_variables()
 {
-  const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
+  const double __timestep = Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
 
 {% filter indent(2) %}
 {%- for variable_symbol in synapse.get_internal_symbols() %}
@@ -1208,14 +1307,20 @@ void {{synapseName}}< targetidentifierT >::recompute_internal_variables()
 {%- endfilter %}
 }
 
+template < typename targetidentifierT >
+std::string {{synapseName}}< targetidentifierT >::get_name() const
+{
+  std::string s ("{{ synapseName }}");
+  return s;
+}
+
 /**
  * constructor
 **/
 template < typename targetidentifierT >
 {{synapseName}}< targetidentifierT >::{{synapseName}}() : ConnectionBase()
 {
-  const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
-
+  const double __timestep = Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
   // initial values for parameters
 {%- filter indent(2, True) %}
 {%- for variable_symbol in synapse.get_parameter_symbols() %}
@@ -1227,6 +1332,10 @@ template < typename targetidentifierT >
 {%-         endif %}
 {%-     endif %}
 {%- endfor %}
+{%- if uses_numeric_solver and numeric_solver == "rk45" %}
+P_.__gsl_abs_error_tol = 1e-6;
+P_.__gsl_rel_error_tol = 1e-6;
+{%- endif %}
 {%- endfilter %}
 
   // initial values for internal variables
@@ -1260,6 +1369,41 @@ template < typename targetidentifierT >
   // special treatment of NEST weight
   set_weight({{ printer.print(variable_symbol.get_initial_value()) }});
 {%-     endif %}
+{%- endif %}
+
+{%- if uses_numeric_solver and numeric_solver == "rk45" %}
+  if ( not __s )
+  {
+    __s = gsl_odeiv_step_alloc( gsl_odeiv_step_rkf45, State_::STATE_VEC_SIZE );
+  }
+  else
+  {
+    gsl_odeiv_step_reset( __s );
+  }
+
+  if ( not __c )
+  {
+    __c = gsl_odeiv_control_y_new( P_.__gsl_abs_error_tol, P_.__gsl_rel_error_tol );
+  }
+  else
+  {
+    gsl_odeiv_control_init( __c, P_.__gsl_abs_error_tol, P_.__gsl_rel_error_tol, 1.0, 0.0 );
+  }
+
+  if ( not __e )
+  {
+    __e = gsl_odeiv_evolve_alloc( State_::STATE_VEC_SIZE );
+  }
+  else
+  {
+    gsl_odeiv_evolve_reset( __e );
+  }
+
+  __sys.jacobian = nullptr;
+  __sys.dimension = State_::STATE_VEC_SIZE;
+  __sys.params = reinterpret_cast< void* >( &P_ );
+  __step = Time::get_resolution().get_ms();
+  __integration_step = Time::get_resolution().get_ms();
 {%- endif %}
 
   t_lastspike_ = 0.;
@@ -1297,7 +1441,7 @@ template < typename targetidentifierT >
 {%- for variable_symbol in synapse.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     if variable.get_name() != synapse_weight_variable and variable.get_name() != nest_codegen_opt_delay_variable %}
-  S_.{{ printer_no_origin.print(variable) }} = rhs.S_.{{ printer_no_origin.print(variable) }};
+    {{ nest_codegen_utils.print_symbol_origin(variable_symbol, variable) % printer_no_origin.print(variable) }} = rhs.{{ nest_codegen_utils.print_symbol_origin(variable_symbol, variable) % printer_no_origin.print(variable) }};
 {%-     endif %}
 {%- endfor %}
 
@@ -1305,6 +1449,16 @@ template < typename targetidentifierT >
   t_last_update_ = rhs.t_last_update_;
 {%- endif %}
   t_lastspike_ = rhs.t_lastspike_;
+
+{%- if uses_numeric_solver and numeric_solver == "rk45" %}
+  // Numeric solver variables
+  __s = rhs.__s;
+  __c = rhs.__c;
+  __e = rhs.__e;
+  __sys = rhs.__sys;
+  __step = rhs.__step;
+  __integration_step = rhs.__integration_step;
+{%- endif %}
 
   // special treatment of NEST delay
   set_delay(rhs.get_delay());
@@ -1474,6 +1628,7 @@ inline void
 
 {%- endif %}
 
-} // namespace
+} // namespace {{ synapseName }};
+} // end namespace nest;
 
 #endif /* #ifndef {{synapseName.upper()}}_H */
