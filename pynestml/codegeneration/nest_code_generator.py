@@ -591,7 +591,14 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace["state_vars_that_need_continuous_buffering_transformed"] = [xfrm.get_neuron_var_name_from_syn_port_name(port_name, removesuffix(synapse.paired_neuron.unpaired_name, FrontendConfiguration.suffix), removesuffix(synapse.paired_neuron.paired_synapse.get_name().split("__with_")[0], FrontendConfiguration.suffix)) for port_name in synapse.paired_neuron.state_vars_that_need_continuous_buffering]
                 namespace["state_vars_that_need_continuous_buffering_transformed_iv"] = {}
                 for var_name, var_name_transformed in zip(namespace["state_vars_that_need_continuous_buffering"], namespace["state_vars_that_need_continuous_buffering_transformed"]):
-                    namespace["state_vars_that_need_continuous_buffering_transformed_iv"][var_name] = self._nest_printer.print(synapse.paired_neuron.get_initial_value(var_name_transformed))
+                    if synapse.paired_neuron.get_initial_value(var_name_transformed) is None:
+                        if var_name_transformed in [sym.name for sym in synapse.paired_neuron.get_inline_expression_symbols()]:
+                            # the postsynaptic variable is actually an inline expression: initial value is 0
+                            namespace["state_vars_that_need_continuous_buffering_transformed_iv"][var_name] = "0"
+                        else:
+                            raise Exception("State variable \"" + str(var_name_transformed) + "\" was not found in the neuron model \"" + synapse.paired_neuron.name + "\"")
+                    else:
+                        namespace["state_vars_that_need_continuous_buffering_transformed_iv"][var_name] = self._nest_printer.print(synapse.paired_neuron.get_initial_value(var_name_transformed))
 
             namespace["continuous_post_ports"] = []
             if "neuron_synapse_pairs" in FrontendConfiguration.get_codegen_opts().keys():
@@ -710,9 +717,20 @@ class NESTCodeGenerator(CodeGenerator):
                 codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
                 xfrm = SynapsePostNeuronTransformer(codegen_and_builder_opts)
                 namespace["state_vars_that_need_continuous_buffering_transformed"] = [xfrm.get_neuron_var_name_from_syn_port_name(port_name, removesuffix(neuron.unpaired_name, FrontendConfiguration.suffix), removesuffix(neuron.paired_synapse.get_name().split("__with_")[0], FrontendConfiguration.suffix)) for port_name in neuron.state_vars_that_need_continuous_buffering]
+                for i, item in enumerate(namespace["state_vars_that_need_continuous_buffering_transformed"]):
+                    if item is None:
+                        raise Exception("State variable \"" + str(neuron.state_vars_that_need_continuous_buffering[i]) + "\" was not found in the neuron model \"" + neuron.name + "\"")
+
                 namespace["state_vars_that_need_continuous_buffering_transformed_iv"] = {}
                 for var_name, var_name_transformed in zip(namespace["state_vars_that_need_continuous_buffering"], namespace["state_vars_that_need_continuous_buffering_transformed"]):
-                    namespace["state_vars_that_need_continuous_buffering_transformed_iv"][var_name] = self._nest_printer.print(neuron.get_initial_value(var_name_transformed))
+                    if neuron.get_initial_value(var_name_transformed) is None:
+                        if var_name_transformed in [sym.name for sym in neuron.get_inline_expression_symbols()]:
+                            # the postsynaptic variable is actually an inline expression: initial value is 0
+                            namespace["state_vars_that_need_continuous_buffering_transformed_iv"][var_name] = "0"
+                        else:
+                            raise Exception("State variable \"" + str(var_name_transformed) + "\" was not found in the neuron model \"" + neuron.name + "\"")
+                    else:
+                        namespace["state_vars_that_need_continuous_buffering_transformed_iv"][var_name] = self._nest_printer.print(neuron.get_initial_value(var_name_transformed))
             else:
                 namespace["state_vars_that_need_continuous_buffering"] = []
             if "extra_on_emit_spike_stmts_from_synapse" in dir(neuron):

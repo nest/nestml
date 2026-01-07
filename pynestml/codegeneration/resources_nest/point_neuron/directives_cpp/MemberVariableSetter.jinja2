@@ -1,0 +1,6 @@
+{% if not (variable_symbol.is_inline_expression and not utils.contains_convolve_call(variable_symbol)) -%}
+inline void set_{{ printer_no_origin.print(variable) }}(const {{ declarations.print_variable_type(variable_symbol) }} __v)
+{
+  {{ nest_codegen_utils.print_symbol_origin(variable_symbol, variable) % printer_no_origin.print(variable) }} = __v;
+}
+{%- endif %}

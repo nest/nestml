@@ -213,3 +213,30 @@ This will generate, compile, build, and install the code for a set of specified 
    * - ``--codegen_opts``
      - (Optional) Path to a JSON file containing additional options for the target platform code generator. A list of available options can be found under the section "Code generation options" for your intended target platform on the page :ref:`Running NESTML`.
 
+Filesystem permissions
+~~~~~~~~~~~~~~~~~~~~~~
+
+If you are using NESTML on a shared server or high performance computing (HPC) system, it could be that NESTML was installed in a location in the filesystem to which you do not have write access. In this case, make sure to explicitly set the ``install_path`` when generating the target code to a directory to which you have write access, for example, inside your home directory. For example:
+
+.. code-block:: python
+
+   from pynestml.frontend.pynestml_frontend import generate_nest_target
+
+   nestml_file_path = "~/nestml-neurons"    # this should be a path inside your home directory
+                                            # or other directory to which you have write permission
+   nestml_target_path = nestml_file_path + "/nestml_target/"
+   nestml_install_path = nestml_file_path + "/nestml_install/"
+
+   print(f"Generating NEST target code from {nestml_file_path} to {nestml_target_path}")
+
+   generate_nest_target(
+        input_path=str(nestml_file_path),
+        target_path=str(nestml_target_path),
+        install_path=str(nestml_install_path)
+   )
+
+Then, when running the Python simulation script which contains the ``nest.Install(<module_name>)``, make sure to first set the ``LD_LIBRARY_PATH``, such as:
+
+.. code-block:: bash
+
+   export LD_LIBRARY_PATH="~/nestml-neurons/nestml_install":$LD_LIBRARY_PATH
