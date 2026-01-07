@@ -64,7 +64,7 @@ class TestVectorsSynapse:
         par_neuron = nest.Create("parrot_neuron")
         sg = nest.Create("spike_generator", params={"spike_times": spike_times})
         nest.Connect(sg, par_neuron)
-        nest.Connect(par_neuron, neuron, syn_spec={"synapse_model": synapse_model, "d": delay})
+        nest.Connect(par_neuron, neuron, syn_spec={"synapse_model": synapse_model, "delay": delay})
 
         nest.Simulate(sim_time)
         conn = nest.GetConnections(par_neuron, neuron)

@@ -365,7 +365,7 @@ def _test_stdp_triplet_synapse(delay, spike_times_len):
                        "tau_y__for_stdp_triplet_synapse_nestml": syn_opts["tau_y"]}
 
         synapse_model_name = "stdp_triplet_synapse_nestml__with_iaf_psc_delta_fixed_timestep_neuron_nestml"
-        nest_syn_opts = {"d": delay}
+        nest_syn_opts = {"delay": delay}
         nest_syn_opts.update(syn_opts)
         nest_syn_opts.pop("tau_minus")  # these have been moved to the neuron
         nest_syn_opts.pop("tau_y")

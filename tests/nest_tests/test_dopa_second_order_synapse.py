@@ -93,7 +93,7 @@ class TestDopaSecondOrder:
         # set up custom synapse model
         wr = nest.Create("weight_recorder")
         nest.CopyModel(self.synapse_model_name, "stdp_nestml_rec",
-                       {"weight_recorder": wr[0], "d": delay, "receptor_type": 0,
+                       {"weight_recorder": wr[0], "delay": delay, "receptor_type": 0,
                         "volume_transmitter": vt})
 
         # create parrot neurons and connect spike_generators
