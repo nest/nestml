@@ -18,8 +18,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
-import os
 import subprocess
 import sys
 import tempfile
@@ -88,15 +86,14 @@ except ModuleNotFoundError:
 print(nest_version, file=sys.stderr)
 """
 
-        with tempfile.TemporaryDirectory() as tmp_dir_name:
-            with tempfile.NamedTemporaryFile(dir=tmp_dir_name, delete=True) as f:
-                cwd = os.path.dirname(f.name)
-                f.write(bytes(script, encoding="UTF-8"))
-                f.seek(0)
-                cmd = [sys.executable, f.name]
-                process = subprocess.Popen(cmd, cwd=cwd, stderr=subprocess.PIPE)
-                stdout, stderr = process.communicate()
-                nest_version = stderr.decode("UTF-8").strip()
+        with tempfile.NamedTemporaryFile() as f:
+            f.write(bytes(script, encoding="UTF-8"))
+            f.seek(0)
+            cmd = [sys.executable, f.name]
+
+            process = subprocess.Popen(cmd, stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+            nest_version = stderr.decode("UTF-8").strip()
 
         if nest_version == "":
             Logger.log_message(None, -1,
