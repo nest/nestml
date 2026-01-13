@@ -119,14 +119,13 @@ class TestCompartmentalConcmech(unittest.TestCase):
         nest.Install("cm_stdp_module.so")
 
         measuring_spike = sim_time - 1
+
         if measuring_spike > pre_spike:
             pre_spike_times = [pre_spike, measuring_spike]
         else:
             pre_spike_times = [measuring_spike, pre_spike]
-        post_spike_times = [post_spike]
 
         external_input_pre = nest.Create("spike_generator", params={"spike_times": pre_spike_times})
-        external_input_post = nest.Create("spike_generator", params={"spike_times": post_spike_times})
         pre_neuron = nest.Create("parrot_neuron")
         post_neuron = nest.Create('multichannel_test_model_nestml')
 
@@ -140,8 +139,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
                 {"comp_idx": 0, "receptor_type": "AMPA_stdp_synapse_nestml", "params": {'w': 10.0, "d": 0.1, "tau_tr_pre": 40, "tau_tr_post": 40}}
             ]
             mm = nest.Create('multimeter', 1, {
-                'record_from': ['v_comp0', 'w0', 'AMPA_stdp_synapse_nestml0', 'pre_trace0',
-                                'post_trace0'], 'interval': .1})
+                'record_from': ['v_comp0', 'w0', 'AMPA_stdp_synapse_nestml0', 'pre_trace0', 'post_trace0'], 'interval': .1})
         elif model_case == "nest":
             post_neuron.receptors = [
                 {"comp_idx": 0, "receptor_type": "AMPA", "params": {}}
@@ -151,6 +149,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
 
         nest.Connect(external_input_pre, pre_neuron, "one_to_one",
                      syn_spec={'synapse_model': 'static_synapse', 'weight': 2.0, 'delay': 0.1})
+
         if model_case == "nestml":
             nest.Connect(pre_neuron, post_neuron, "one_to_one",
                          syn_spec={'synapse_model': 'static_synapse', 'weight': 1.0, 'delay': 0.1, 'receptor_type': 0})

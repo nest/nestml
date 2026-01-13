@@ -310,7 +310,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         :param neurons: a list of neurons.
         """
         for neuron in neurons:
-            code, message = Messages.get_analysing_transforming_model(
+            code, message = Messages.get_start_code_generation(
                 neuron.get_name())
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
             spike_updates = self.analyse_neuron(neuron)

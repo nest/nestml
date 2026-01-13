@@ -204,7 +204,8 @@ class ASTMechanismInformationCollector(object):
 
                 elif len(search_variables) > 0:
                     variable = search_variables[0]
-                    if not (variable.name == "v_comp" or variable.name in PredefinedUnits.get_units()):
+                    from pynestml.symbols.symbol import SymbolKind
+                    if (not (variable.name == "v_comp" or variable.get_scope().resolve_to_symbol(variable.name, SymbolKind.VARIABLE) is None)):
                         is_dependency = False
                         for inline in global_inlines:
                             if variable.name == inline.variable_name:
@@ -325,7 +326,6 @@ class ASTMechanismInformationCollector(object):
 
                     search_variables.remove(variable)
                     found_variables.append(variable)
-                    # IMPLEMENT CATCH NONDEFINED!!!
 
             mechs_info[mechanism_name]["States"] = mechanism_states
             mechs_info[mechanism_name]["Parameters"] = mechanism_parameters

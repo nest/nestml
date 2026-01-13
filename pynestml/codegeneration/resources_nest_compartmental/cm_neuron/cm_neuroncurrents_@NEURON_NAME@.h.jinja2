@@ -499,13 +499,11 @@ private:
   std::vector< double > {{internal_name}};
   {%- endfor %}
 
-  {%- with %}
   {%- for in_function_declaration in synapse_info["InFunctionDeclarationsVars"] %}
       {%- for variable in declarations.get_variables(in_function_declaration) %}
   std::vector<{{declarations.print_variable_type(variable)}}> {{variable.get_symbol_name()}} = {};
       {%- endfor %}
   {%- endfor %}
-  {%- endwith %}
 
   {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
   {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
@@ -725,23 +723,20 @@ private:
     bool initialized = false;
   //mechanisms
   // ion channels
-{% with %}
   {%- for ion_channel_name, channel_info in chan_info.items() %}
   {{ion_channel_name}}{{cm_unique_suffix}} {{ion_channel_name}}{{channel_suffix}};
   {% endfor -%}
-{% endwith %}
+
   // concentrations
-{% with %}
   {%- for concentration_name, concentration_info in conc_info.items() %}
   {{concentration_name}}{{cm_unique_suffix}} {{concentration_name}}{{concentration_suffix}};
   {% endfor -%}
-{% endwith %}
+
   // receptors
-{% with %}
   {%- for receptor_name, receptor_info in recs_info.items() %}
   {{receptor_name}}{{cm_unique_suffix}} {{receptor_name}}{{receptor_suffix}};
   {% endfor -%}
-{% endwith %}
+
   // receptors with synapses
 {%- for receptor_name, receptor_info in recs_info.items() %}
     {%- for synapse_name, synapse_info in syns_info.items() %}
@@ -749,53 +744,45 @@ private:
     {% endfor -%}
 {% endfor -%}
   // continuous inputs
-{% with %}
   {%- for continuous_name, continuous_info in con_in_info.items() %}
   {{continuous_name}}{{cm_unique_suffix}} {{continuous_name}}{{continuous_suffix}};
   {% endfor -%}
-{% endwith %}
 
   //number of compartments
   std::size_t compartment_number = 0;
 
   //interdependency shared reference vectors and consecutive area vectors
   // ion channels
-{% with %}
   {%- for ion_channel_name, channel_info in chan_info.items() %}
   std::vector < double > {{ion_channel_name}}{{channel_suffix}}_shared_current;
   std::vector < std::pair< std::size_t, int > > {{ion_channel_name}}{{channel_suffix}}_con_area;
   {% endfor -%}
-{% endwith %}
+
   // concentrations
-{% with %}
   {%- for concentration_name, concentration_info in conc_info.items() %}
   std::vector < double > {{concentration_name}}{{concentration_suffix}}_shared_concentration;
   std::vector < std::pair< std::size_t, int > > {{concentration_name}}{{concentration_suffix}}_con_area;
   {% endfor -%}
-{% endwith %}
+
   // receptors
-{% with %}
   {%- for receptor_name, receptor_info in recs_info.items() %}
   std::vector < double > {{receptor_name}}{{receptor_suffix}}_shared_current;
   std::vector < std::pair< std::size_t, int > > {{receptor_name}}{{receptor_suffix}}_con_area;
   {% endfor -%}
-{% endwith %}
+
   // receptors with synapses
-{% with %}
   {%- for receptor_name, receptor_info in recs_info.items() %}
   {%- for synapse_name, synapse_info in syns_info.items() %}
   std::vector < double > {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}_shared_current;
   std::vector < std::pair< std::size_t, int > > {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}_con_area;
   {% endfor -%}
   {% endfor -%}
-{% endwith %}
+
 // continuous inputs
-{% with %}
   {%- for continuous_name, continuous_info in con_in_info.items() %}
   std::vector < double > {{continuous_name}}{{continuous_suffix}}_shared_current;
   std::vector < std::pair< std::size_t, int > > {{continuous_name}}{{continuous_suffix}}_con_area;
   {% endfor -%}
-{% endwith %}
 
   //compartment gi states
   std::vector < std::pair < double, double > > comps_gi;
@@ -811,7 +798,6 @@ public:
 {%- endif %}
     if(!initialized){
     // initialization of ion channels
-  {%- with %}
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     {{ion_channel_name}}{{channel_suffix}}.calibrate();
@@ -913,14 +899,12 @@ public:
         }
     }
     {% endfor -%}
-  {% endwith -%}
     initialized = true;
   }
   };
 
   void add_mechanism( const std::string& type, const std::size_t compartment_id, const long multi_mech_index = 0)
   {
-  {%- with %}
     bool mech_found = false;
   {%- for ion_channel_name, channel_info in chan_info.items() %}
     if ( type == "{{ion_channel_name}}" )
@@ -964,7 +948,6 @@ public:
     }
   {% endfor -%}
 
-  {% endwith -%}
     if(!mech_found)
     {
       throw BadProperty( type + " mechanism does not exist." );
@@ -974,7 +957,6 @@ public:
 
   void add_mechanism( const std::string& type, const std::size_t compartment_id, const DictionaryDatum& mechanism_params, const long multi_mech_index = 0)
   {
-   {%- with %}
     bool mech_found = false;
   {%- for ion_channel_name, channel_info in chan_info.items() %}
     if ( type == "{{ion_channel_name}}" )
@@ -1017,7 +999,6 @@ public:
       mech_found = true;
     }
   {% endfor -%}
-  {% endwith -%}
     if(!mech_found)
     {
       throw BadProperty( type + " mechanism does not exist." );
@@ -1096,7 +1077,6 @@ public:
 
   void add_receptor_info( ArrayDatum& ad, long compartment_index )
   {
-    {%- with %}
     {%- for receptor_name, receptor_info in recs_info.items() %}
     for( std::size_t syn_it = 0; syn_it != {{receptor_name}}{{receptor_suffix}}.neuron_{{receptor_name}}_receptor_count; syn_it++)
     {
@@ -1131,15 +1111,11 @@ public:
       ad.push_back( dd );
     }
     {% endfor -%}
-
-    {% endwith -%}
   };
 
   void set_buffers( std::vector< RingBuffer >& buffers)
   {
     // spike and continuous buffers for receptors and continuous inputs
-
-    {%- with %}
     {%- for receptor_name, receptor_info in recs_info.items() %}
       {{receptor_name}}{{ receptor_suffix }}.set_buffer_ptr( buffers );
     {% endfor -%}
@@ -1151,8 +1127,6 @@ public:
     {%- for continuous_name, continuous_info in con_in_info.items() %}
       {{continuous_name}}{{ continuous_suffix }}.set_buffer_ptr( buffers );
     {% endfor -%}
-    {% endwith %}
-
   };
 
   std::map< Name, double* > get_recordables( const long compartment_idx )
@@ -1160,41 +1134,31 @@ public:
     std::map< Name, double* > recordables;
 
     // append ion channel state variables to recordables
-    {%- with %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     {{ion_channel_name}}{{channel_suffix}}.append_recordables( &recordables, compartment_idx );
     {% endfor %}
-    {% endwith %}
 
     // append concentration state variables to recordables
-    {%- with %}
     {%- for concentration_name, concentration_info in conc_info.items() %}
     {{concentration_name}}{{concentration_suffix}}.append_recordables( &recordables, compartment_idx );
     {% endfor %}
-    {% endwith %}
 
     // append receptor state variables to recordables
-    {%- with %}
     {%- for receptor_name, receptor_info in recs_info.items() %}
     {{receptor_name}}{{receptor_suffix}}.append_recordables( &recordables, compartment_idx );
     {% endfor %}
-    {% endwith %}
 
     // append receptor with synapse state variables to recordables
-    {%- with %}
     {%- for receptor_name, receptor_info in recs_info.items() %}
     {%- for synapse_name, synapse_info in syns_info.items() %}
     {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}.append_recordables( &recordables, compartment_idx );
     {% endfor %}
     {% endfor %}
-    {% endwith %}
 
     // append continuous input state variables to recordables
-    {%- with %}
     {%- for continuous_name, continuous_info in con_in_info.items() %}
     {{continuous_name}}{{continuous_suffix}}.append_recordables( &recordables, compartment_idx );
     {% endfor %}
-    {% endwith %}
 
     return recordables;
   };
@@ -1223,8 +1187,6 @@ public:
     {{ion_channel_name}}{{channel_suffix}}.get_currents_per_compartment({{ion_channel_name}}{{channel_suffix}}_shared_current);
 {% endfor -%}
 
-
-  {%- with %}
     {%- for concentration_name, concentration_info in conc_info.items() %}
     // computation of {{ concentration_name }} concentration
     {{ concentration_name }}{{concentration_suffix}}.f_numstep({{ concentration_name }}{{concentration_suffix}}.distribute_shared_vector(v_comp_vec){% for ode in concentration_info["Dependencies"]["concentrations"] %}, {{ concentration_name }}{{concentration_suffix}}.distribute_shared_vector({{ode.lhs.name}}{{concentration_suffix}}_shared_concentration){% endfor %}{% if concentration_info["Dependencies"]["receptors"]|length %}
@@ -1233,12 +1195,10 @@ public:
                         {% endif %}{% for inline in concentration_info["Dependencies"]["continuous"] %}, {{ concentration_name }}{{concentration_suffix}}.distribute_shared_vector({{inline.variable_name}}{{continuous_suffix}}_shared_current){% endfor %});
 
     {% endfor -%}
-  {% endwith -%}
 
     std::pair< std::vector< double >, std::vector< double > > gi_mech;
     std::size_t con_area_count;
 
-  {%- with %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     // contribution of {{ion_channel_name}} channel
     gi_mech = {{ion_channel_name}}{{channel_suffix}}.f_numstep({{ion_channel_name}}{{channel_suffix}}.distribute_shared_vector(v_comp_vec){% for ode in channel_info["Dependencies"]["concentrations"] %}, {{ion_channel_name}}{{channel_suffix}}.distribute_shared_vector({{ode.lhs.name}}{{concentration_suffix}}_shared_concentration){% endfor %}{% if channel_info["Dependencies"]["receptors"]|length %}
@@ -1270,9 +1230,7 @@ public:
         }
     }
     {% endfor -%}
-  {% endwith -%}
 
-  {%- with %}
     {%- for receptor_name, receptor_info in recs_info.items() %}
     // contribution of {{receptor_name}} receptors
     gi_mech = {{receptor_name}}{{receptor_suffix}}.f_numstep({{receptor_name}}{{receptor_suffix}}.distribute_shared_vector(v_comp_vec), lag {% for ode in receptor_info["Dependencies"]["concentrations"] %}, {{receptor_name}}{{receptor_suffix}}.distribute_shared_vector({{ode.lhs.name}}{{concentration_suffix}}_shared_concentration){% endfor %}{% if receptor_info["Dependencies"]["receptors"]|length %}
@@ -1304,9 +1262,7 @@ public:
         }
     }
     {% endfor -%}
-  {% endwith -%}
 
-{%- with %}
     {%- for receptor_name, receptor_info in recs_info.items() %}
     {%- for synapse_name, synapse_info in syns_info.items() %}
     // contribution of {{receptor_name}}_{{synapse_name}} receptors
@@ -1345,9 +1301,7 @@ public:
     }
     {% endfor -%}
     {% endfor -%}
-  {% endwith -%}
 
-  {%- with %}
     {%- for continuous_name, continuous_info in con_in_info.items() %}
     // contribution of {{continuous_name}} continuous inputs
     gi_mech = {{continuous_name}}{{continuous_suffix}}.f_numstep({{continuous_name}}{{continuous_suffix}}.distribute_shared_vector(v_comp_vec), lag {% for ode in continuous_info["Dependencies"]["concentrations"] %}, {{continuous_name}}{{continuous_suffix}}.distribute_shared_vector({{ode.lhs.name}}{{concentration_suffix}}_shared_concentration){% endfor %}{% if continuous_info["Dependencies"]["receptors"]|length %}
@@ -1379,7 +1333,6 @@ public:
         }
     }
     {% endfor -%}
-  {% endwith -%}
 
     return comp_to_gi;
   };
