@@ -1,8 +1,8 @@
-# recordable inlines test model
+# recordable_inline_test.nestml - recordable inlines test model
 #
 # Description
 # +++++++++++
-# Corresponds to standard compartmental model implemented in NEST.
+# Reduced version of the cm_default model to test the recordable inline feature.
 #
 #
 # Copyright statement

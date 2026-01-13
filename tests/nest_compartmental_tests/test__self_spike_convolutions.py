@@ -63,14 +63,13 @@ class TestSelfSpikeConvolutions:
         nest.ResetKernel()
         nest.SetKernelStatus(dict(resolution=.1))
 
-        if True:
-            generate_nest_compartmental_target(
-                input_path=input_path,
-                target_path=target_path,
-                module_name="self_spike_convolutions_module",
-                suffix="_nestml",
-                logging_level="DEBUG"
-            )
+        generate_nest_compartmental_target(
+            input_path=input_path,
+            target_path=target_path,
+            module_name="self_spike_convolutions_module",
+            suffix="_nestml",
+            logging_level="INFO"
+        )
 
         nest.Install("self_spike_convolutions_module.so")
 
@@ -147,3 +146,28 @@ class TestSelfSpikeConvolutions:
         axs[7].legend()
 
         plt.savefig("self_spike_convolutions.png")
+
+        step_time_delta = res['times'][1] - res['times'][0]
+        data_array_index = int(58 / step_time_delta)
+
+        expected_entries={
+            'chan_primary0': 0.5945205479701962,
+            'chan_secondary0': 0.5945205479701962,
+            'concentration0': 0.3589924428735023,
+            'v_comp0': 3.0631281139481406,
+            'rec_primary0': 2.4651862560098405,
+            'rec_secondary1': 2.4651862560098405,
+            'con_in_primary2': 1.1890410959403923,
+            'con_in_secondary3': 1.1890410959403923,
+        }
+        fail_emtries = dict()
+        fail_message = "Some values have evolved significantly different to the expected values at time 58ms. These are the differences: \n"
+        fail_message = fail_message + "Mechanism    Expected    Result    Difference \n"
+        for entry_name, entry in res.items():
+            if entry_name != 'times' and entry_name != 'senders':
+                print(entry_name, entry[data_array_index])
+                if abs(entry[data_array_index] - expected_entries[entry_name]) >= 0.0000001:
+                    fail_emtries[entry_name] = entry[data_array_index] - expected_entries[entry_name]
+                    fail_message = fail_message + entry_name + ": " + str(expected_entries[entry_name]) + " " + str(entry[data_array_index]) + " " + str(fail_emtries[entry_name]) + "\n"
+
+        assert len(fail_emtries) == 0, fail_message

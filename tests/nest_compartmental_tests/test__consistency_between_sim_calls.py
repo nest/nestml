@@ -63,15 +63,15 @@ class TestConsistencyBetweenSimCalls(unittest.TestCase):
 
         nest.ResetKernel()
         nest.SetKernelStatus(dict(resolution=.1))
-        if True:
-            generate_nest_compartmental_target(
-                input_path=[neuron_input_path],
-                target_path=target_path,
-                module_name="cm_module",
-                suffix="_nestml",
-                logging_level="DEBUG",
-                codegen_opts={}
-            )
+
+        generate_nest_compartmental_target(
+            input_path=[neuron_input_path],
+            target_path=target_path,
+            module_name="cm_module",
+            suffix="_nestml",
+            logging_level="INFO",
+            codegen_opts={}
+        )
 
         nest.Install("cm_module.so")
 

@@ -67,7 +67,7 @@ class TestContinuousInput:
             target_path=target_path,
             module_name="continuous_test_module",
             suffix="_nestml",
-            logging_level="DEBUG"
+            logging_level="INFO"
         )
 
         nest.Install("continuous_test_module.so")

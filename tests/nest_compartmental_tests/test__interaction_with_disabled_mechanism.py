@@ -68,7 +68,7 @@ class TestCompartmentalMechDisabled():
             target_path="/tmp/nestml-component/",
             module_name="concmech_mockup_module",
             suffix="_nestml",
-            logging_level="DEBUG"
+            logging_level="INFO"
         )
 
         nest.Install("concmech_mockup_module.so")

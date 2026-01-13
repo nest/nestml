@@ -61,14 +61,13 @@ class TestCompartmentalIAF:
         nest.ResetKernel()
         nest.SetKernelStatus(dict(resolution=.1))
 
-        if True:
-            generate_nest_compartmental_target(
-                input_path=input_path,
-                target_path=target_path,
-                module_name="iaf_psc_exp_dend_neuron_compartmental_module",
-                suffix="_nestml",
-                logging_level="DEBUG"
-            )
+        generate_nest_compartmental_target(
+            input_path=input_path,
+            target_path=target_path,
+            module_name="iaf_psc_exp_dend_neuron_compartmental_module",
+            suffix="_nestml",
+            logging_level="INFO"
+        )
 
         nest.Install("iaf_psc_exp_dend_neuron_compartmental_module.so")
 

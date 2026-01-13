@@ -1,3 +1,9 @@
+# concmech.nestml - Compartmental active ion-channel implementation with concentration mechanism linking.
+#
+# Description
+# +++++++++++
+# Example compartmental model featuring receptors, ion-channels and slow-dynamic concentration mechanism linking.
+#
 # Copyright statement
 # +++++++++++++++++++
 #
@@ -94,8 +100,8 @@ model multichannel_test_model:
         h_NaTa_t' = ( h_inf_NaTa_t(v_comp) - h_NaTa_t ) / (tau_h_NaTa_t(v_comp)*1s)
 
         # equations SKv3_1
-        #inline SKv3_1 real = gbar_SKv3_1 * (z_SKv3_1) * (e_SKv3_1 - v_comp) @mechanism::channel
-        #z_SKv3_1' = ( z_inf_SKv3_1(v_comp) - z_SKv3_1 ) / (tau_z_SKv3_1(v_comp)*1s)
+        inline SKv3_1 real = gbar_SKv3_1 * (z_SKv3_1) * (e_SKv3_1 - v_comp) @mechanism::channel
+        z_SKv3_1' = ( z_inf_SKv3_1(v_comp) - z_SKv3_1 ) / (tau_z_SKv3_1(v_comp)*1s)
 
         # equations SK_E2
         inline SK_E2 real = gbar_SK_E2 * (z_SK_E2) * (e_SK_E2 - v_comp) @mechanism::channel
