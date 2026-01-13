@@ -70,7 +70,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
-#
 model stdp_nn_symm_synapse:
     state:
         w real = 1 [[w >= 0]]    # Synaptic weight
@@ -78,7 +77,6 @@ model stdp_nn_symm_synapse:
         post_trace real = 0.
 
     parameters:
-        d ms = 1 ms    # Synaptic transmission delay
         lambda real = .01
         tau_tr_pre ms = 20 ms
         tau_tr_post ms = 20 ms
@@ -100,7 +98,7 @@ model stdp_nn_symm_synapse:
         post_spikes <- spike
 
     output:
-        spike(weight real, delay ms)
+        spike
 
     onReceive(post_spikes):
         post_trace = 1
@@ -117,7 +115,7 @@ model stdp_nn_symm_synapse:
         w = max(Wmin, w_)
 
         # deliver spike to postsynaptic partner
-        emit_spike(w, d)
+        emit_spike(w)
 
     update:
         integrate_odes()

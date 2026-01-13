@@ -18,6 +18,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+import os
 import subprocess
 import sys
 import tempfile
@@ -46,6 +48,7 @@ import sys
 
 try:
     import nest
+    import semver
 
     vt = nest.Create("volume_transmitter")
 
@@ -58,38 +61,42 @@ try:
     except Exception:
         pass
 
-    if "DataConnect" in dir(nest):
-            nest_version = "v2.20.2"
-    else:
-        nest_version = "v" + nest.__version__
-        if nest_version.startswith("v3.5") or nest_version.startswith("v3.6") or nest_version.startswith("v3.7") or nest_version.startswith("v3.8"):
-            if "post0.dev0" in nest_version:
+    try:
+        # For NEST version <= 3.4, the version string is not parsable by semver.
+        ver = semver.Version.parse(nest.__version__)
+        if (ver.major == 3 and ver.minor >= 5) or ver.major > 3:
+            if ver.prerelease and "post0.dev0" in ver.prerelease:
                 nest_version = "master"
-        else:
-            if "kernel_status" not in dir(nest):  # added in v3.1
-                nest_version = "v3.0"
-            elif "prepared" in nest.GetKernelStatus().keys():  # "prepared" key was added after v3.3 release
-                nest_version = "v3.4"
-            elif "tau_u_bar_minus" in neuron.get().keys():   # added in v3.3
-                nest_version = "v3.3"
-            elif "tau_Ca" in vt.get().keys():   # removed in v3.2
-                nest_version = "v3.1"
             else:
-                nest_version = "v3.2"
+                nest_version = "v" + nest.__version__
+    except (AttributeError, ValueError):
+        if "DataConnect" in dir(nest):
+            nest_version = "v2.20.2"
+        elif "kernel_status" not in dir(nest):  # added in v3.1
+            nest_version = "v3.0"
+        elif "prepared" in nest.GetKernelStatus().keys():  # "prepared" key was added after v3.3 release
+            nest_version = "v3.4"
+        elif "tau_u_bar_minus" in neuron.get().keys():   # added in v3.3
+            nest_version = "v3.3"
+        elif "tau_Ca" in vt.get().keys():   # removed in v3.2
+            nest_version = "v3.1"
+        else:
+            nest_version = "v3.2"
 except ModuleNotFoundError:
     nest_version = ""
 
 print(nest_version, file=sys.stderr)
 """
 
-        with tempfile.NamedTemporaryFile() as f:
-            f.write(bytes(script, encoding="UTF-8"))
-            f.seek(0)
-            cmd = [sys.executable, f.name]
-
-            process = subprocess.Popen(cmd, stderr=subprocess.PIPE)
-            stdout, stderr = process.communicate()
-            nest_version = stderr.decode("UTF-8").strip()
+        with tempfile.TemporaryDirectory() as tmp_dir_name:
+            with tempfile.NamedTemporaryFile(dir=tmp_dir_name, delete=True) as f:
+                cwd = os.path.dirname(f.name)
+                f.write(bytes(script, encoding="UTF-8"))
+                f.seek(0)
+                cmd = [sys.executable, f.name]
+                process = subprocess.Popen(cmd, cwd=cwd, stderr=subprocess.PIPE)
+                stdout, stderr = process.communicate()
+                nest_version = stderr.decode("UTF-8").strip()
 
         if nest_version == "":
             Logger.log_message(None, -1,

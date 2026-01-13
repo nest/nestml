@@ -42,7 +42,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
-#
 model stdp_triplet_synapse:
     state:
         w nS = 1 nS [[w >= 0 nS]]   # Synaptic weight
@@ -53,7 +52,6 @@ model stdp_triplet_synapse:
         tr_o2 real = 0.
 
     parameters:
-        d ms = 1 ms     # Synaptic transmission delay
 
         tau_plus ms = 16.8 ms  # time constant for tr_r1
         tau_x ms = 101 ms  # time constant for tr_r2
@@ -79,7 +77,7 @@ model stdp_triplet_synapse:
         post_spikes <- spike
 
     output:
-        spike(weight real, delay ms)
+        spike
 
     onReceive(post_spikes):
         # potentiate synapse
@@ -100,7 +98,7 @@ model stdp_triplet_synapse:
         tr_r2 += 1
 
         # deliver spike to postsynaptic partner
-        emit_spike(w, d)
+        emit_spike(w)
 
     update:
         integrate_odes()

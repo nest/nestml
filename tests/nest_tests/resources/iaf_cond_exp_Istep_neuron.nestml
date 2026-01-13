@@ -1,23 +1,23 @@
 # iaf_cond_exp_Istep_neuron - Simple conductance based leaky integrate-and-fire neuron model with step current
 # ############################################################################################################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # This is a variation of iaf_cond_exp [1] that incorporates a stepwise-constant injected current, defined according to a vector of times (``t_step``) and a vector of current amplitudes at those times (``I_step``).
-# 
+#
 # References
 # ++++++++++
-# 
+#
 # .. [1] Meffin H, Burkitt AN, Grayden DB (2004). An analytical
 # model for the large, fluctuating synaptic conductance state typical of
 # neocortical neurons in vivo. Journal of Computational Neuroscience,
 # 16:159-175.
 # DOI: https://doi.org/10.1023/B:JCNS.0000014108.03012.81
-# 
+#
 # See also
 # ++++++++
-# 
+#
 # iaf_psc_delta, iaf_psc_exp, iaf_cond_exp
 #
 model iaf_cond_exp_Istep_neuron:

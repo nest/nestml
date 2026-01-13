@@ -159,8 +159,8 @@ class NESTCodeGenerator(CodeGenerator):
     - **gsl_adaptive_step_size_controller**: For the numeric (GSL) solver: how to interpret the absolute and relative tolerance values. Can be changed to trade off integration accuracy with numerical stability. The default value is ``"with_respect_to_solution"``. Can also be set to ``"with_respect_to_derivative"``. (Tolerance values can be specified at runtime as parameters of the model instance.) For further details, see https://www.gnu.org/software/gsl/doc/html/ode-initval.html#adaptive-step-size-control.
     - **numeric_solver**: A string identifying the preferred numeric ODE solver. Supported are ``"rk45"`` and ``"forward-Euler"``.
     - **continuous_state_buffering_method**: Which method to use for buffering state variables between neuron and synapse pairs. When a synapse has a "continuous" input port, connected to a postsynaptic neuron, either the value is obtained taking the synaptic (dendritic, that is, synapse-soma) delay into account, requiring a buffer to store the value at each timepoint (``continuous_state_buffering_method = "continuous_time_buffer"``); or the value is obtained at the times of the somatic spikes of the postsynaptic neuron, ignoring the synaptic delay (``continuous_state_buffering_method == "post_spike_based"``). The former is more physically accurate but requires a large buffer and can require a long time to simulate. The latter ignores the dendritic delay but is much more computationally efficient.
-    - **delay_variable**: A mapping identifying, for each synapse (the name of which is given as a key), the variable or parameter in the model that corresponds with the NEST ``Connection`` class delay property.
-    - **weight_variable**: Like ``delay_variable``, but for synaptic weight.
+    - **delay_variable**: A mapping identifying, for each synapse (the name of which is given as a key), the variable or parameter in the model that corresponds with the NEST ``Connection`` class delay property. (Optional.)
+    - **weight_variable**: Like ``delay_variable``, but for synaptic weight. (Required.)
     - **linear_time_invariant_spiking_input_ports**: A list of spiking input ports which can be treated as linear and time-invariant; this implies that, for the given port(s), the weight of all spikes received within a timestep can be added together, improving memory consumption and runtime performance. Use with caution; for example, this is not compatible with using a single input port for, depending on the sign of the weight of the spike event, processing both inhibitory vs. excitatory spikes.
     - **excitatory_inhibitory_combined_port**: A tuple containing the name of two spiking input ports. Without this option set, each input port would be assigned its own unique rport for connecting to in NEST, for instance:
 
@@ -254,8 +254,9 @@ class NESTCodeGenerator(CodeGenerator):
                 self._check_delay_variable_codegen_opt(model)
                 self._check_weight_variable_codegen_opt(model)
 
-                delay_variable = self.get_option("delay_variable")[synapse_name_stripped]
-                CoCoNESTSynapseDelayNotAssignedTo.check_co_co(delay_variable, model)
+                if self.get_option("delay_variable"):
+                    delay_variable = self.get_option("delay_variable")[synapse_name_stripped]
+                    CoCoNESTSynapseDelayNotAssignedTo.check_co_co(delay_variable, model)
 
                 if Logger.has_errors(model.name):
                     raise Exception("Error(s) occurred during code generation")
@@ -291,13 +292,22 @@ class NESTCodeGenerator(CodeGenerator):
         self._gsl_variable_printer = GSLVariablePrinter(None)
         if self.option_exists("nest_version") and (self.get_option("nest_version").startswith("2") or self.get_option("nest_version").startswith("v2")):
             self._gsl_function_call_printer = NEST2GSLFunctionCallPrinter(None)
+            self._gsl_function_call_printer_no_origin = NEST2GSLFunctionCallPrinter(None)
         else:
             self._gsl_function_call_printer = NESTGSLFunctionCallPrinter(None)
+            self._gsl_function_call_printer_no_origin = NEST2GSLFunctionCallPrinter(None)
 
         self._gsl_printer = CppExpressionPrinter(simple_expression_printer=CppSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
                                                                                                       constant_printer=self._constant_printer,
                                                                                                       function_call_printer=self._gsl_function_call_printer))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
+
+        self._gsl_variable_printer_no_origin = GSLVariablePrinter(None, with_origin=False)
+        self._gsl_printer_no_origin = CppExpressionPrinter(simple_expression_printer=CppSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer_no_origin,
+                                                                                                                constant_printer=self._constant_printer,
+                                                                                                                function_call_printer=self._gsl_function_call_printer))
+        self._gsl_variable_printer_no_origin._expression_printer = self._gsl_printer_no_origin
+        self._gsl_function_call_printer_no_origin._expression_printer = self._gsl_printer_no_origin
 
         # ODE-toolbox printers
         self._ode_toolbox_variable_printer = ODEToolboxVariablePrinter(None)
@@ -326,7 +336,10 @@ class NESTCodeGenerator(CodeGenerator):
 
         self._check_delay_variable_codegen_opt(synapse)
 
-        variables_special_cases = {self.get_option("delay_variable")[synapse_name_stripped]: "get_delay()"}
+        variables_special_cases = {}
+        if self.get_option("delay_variable"):
+            variables_special_cases[self.get_option("delay_variable")[synapse_name_stripped]] = "get_delay()"
+
         self._nest_variable_printer.variables_special_cases = variables_special_cases
         self._nest_variable_printer_no_origin.variables_special_cases = variables_special_cases
 
@@ -378,7 +391,7 @@ class NESTCodeGenerator(CodeGenerator):
         :param neurons: a list of neurons.
         """
         for neuron in neurons:
-            code, message = Messages.get_analysing_transforming_model(neuron.get_name())
+            code, message = Messages.get_start_code_generation(neuron.get_name())
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
             spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars = self.analyse_neuron(neuron)
             neuron.spike_updates = spike_updates
@@ -558,13 +571,7 @@ class NESTCodeGenerator(CodeGenerator):
     def _check_delay_variable_codegen_opt(self, synapse: ASTModel) -> None:
         synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
 
-        if not self.get_option("delay_variable"):
-            code, message = Messages.get_delay_variable_not_specified()
-            Logger.log_message(synapse, code, message, None, LoggingLevel.ERROR)
-
-            return
-
-        if not (synapse_name_stripped in self.get_option("delay_variable").keys() and ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped])):
+        if self.get_option("delay_variable") and not (synapse_name_stripped in self.get_option("delay_variable").keys() and ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped])):
             code, message = Messages.get_delay_variable_not_found(variable_name=self.get_option("delay_variable")[synapse_name_stripped])
             Logger.log_message(synapse, code, message, None, LoggingLevel.ERROR)
 
@@ -601,6 +608,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["printer"] = self._nest_printer
         namespace["printer_no_origin"] = self._printer_no_origin
         namespace["gsl_printer"] = self._gsl_printer
+        namespace["gsl_printer_no_origin"] = self._gsl_printer_no_origin
         namespace["nestml_printer"] = NESTMLPrinter()
         namespace["type_symbol_printer"] = self._type_symbol_printer
 
@@ -668,7 +676,14 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace["state_vars_that_need_continuous_buffering_transformed"] = [xfrm.get_neuron_var_name_from_syn_port_name(port_name, removesuffix(synapse.paired_neuron.unpaired_name, FrontendConfiguration.suffix), removesuffix(synapse.paired_neuron.paired_synapse.get_name().split("__with_")[0], FrontendConfiguration.suffix)) for port_name in synapse.paired_neuron.state_vars_that_need_continuous_buffering]
                 namespace["state_vars_that_need_continuous_buffering_transformed_iv"] = {}
                 for var_name, var_name_transformed in zip(namespace["state_vars_that_need_continuous_buffering"], namespace["state_vars_that_need_continuous_buffering_transformed"]):
-                    namespace["state_vars_that_need_continuous_buffering_transformed_iv"][var_name] = self._nest_printer.print(synapse.paired_neuron.get_initial_value(var_name_transformed))
+                    if synapse.paired_neuron.get_initial_value(var_name_transformed) is None:
+                        if var_name_transformed in [sym.name for sym in synapse.paired_neuron.get_inline_expression_symbols()]:
+                            # the postsynaptic variable is actually an inline expression: initial value is 0
+                            namespace["state_vars_that_need_continuous_buffering_transformed_iv"][var_name] = "0"
+                        else:
+                            raise Exception("State variable \"" + str(var_name_transformed) + "\" was not found in the neuron model \"" + synapse.paired_neuron.name + "\"")
+                    else:
+                        namespace["state_vars_that_need_continuous_buffering_transformed_iv"][var_name] = self._nest_printer.print(synapse.paired_neuron.get_initial_value(var_name_transformed))
 
             namespace["continuous_post_ports"] = []
             if "neuron_synapse_pairs" in FrontendConfiguration.get_codegen_opts().keys():
@@ -691,7 +706,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace["has_state_vectors"] = False
         namespace["vector_symbols"] = []
-        namespace['names_namespace'] = synapse.get_name() + "_names"
+        namespace["names_namespace"] = synapse.get_name() + "_names"
 
         # event handlers priority
         # XXX: this should be refactored in case we have additional modulatory (3rd-factor) spiking input ports in the synapse
@@ -751,13 +766,17 @@ class NESTCodeGenerator(CodeGenerator):
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["numeric_update_expressions"][sym] = expr_ast
 
+            ASTUtils.assign_numeric_non_numeric_state_variables(synapse, namespace["numeric_state_variables"],
+                                                                namespace["numeric_update_expressions"] if "numeric_update_expressions" in namespace.keys() else None, namespace["update_expressions"] if "update_expressions" in namespace.keys() else None)
+
         namespace["spike_updates"] = synapse.spike_updates
 
         # special case for NEST delay variable (state or parameter)
         self._check_delay_variable_codegen_opt(synapse)
 
         synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
-        namespace["nest_codegen_opt_delay_variable"] = self.get_option("delay_variable")[synapse_name_stripped]
+        if self.get_option("delay_variable") and synapse_name_stripped in self.get_option("delay_variable").keys():
+            namespace["nest_codegen_opt_delay_variable"] = self.get_option("delay_variable")[synapse_name_stripped]
 
         # special case for NEST weight variable (state or parameter)
         if synapse_name_stripped in self.get_option("weight_variable").keys() and ASTUtils.get_variable_by_name(synapse, self.get_option("weight_variable")[synapse_name_stripped]):
@@ -783,9 +802,20 @@ class NESTCodeGenerator(CodeGenerator):
                 codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
                 xfrm = SynapsePostNeuronTransformer(codegen_and_builder_opts)
                 namespace["state_vars_that_need_continuous_buffering_transformed"] = [xfrm.get_neuron_var_name_from_syn_port_name(port_name, removesuffix(neuron.unpaired_name, FrontendConfiguration.suffix), removesuffix(neuron.paired_synapse.get_name().split("__with_")[0], FrontendConfiguration.suffix)) for port_name in neuron.state_vars_that_need_continuous_buffering]
+                for i, item in enumerate(namespace["state_vars_that_need_continuous_buffering_transformed"]):
+                    if item is None:
+                        raise Exception("State variable \"" + str(neuron.state_vars_that_need_continuous_buffering[i]) + "\" was not found in the neuron model \"" + neuron.name + "\"")
+
                 namespace["state_vars_that_need_continuous_buffering_transformed_iv"] = {}
                 for var_name, var_name_transformed in zip(namespace["state_vars_that_need_continuous_buffering"], namespace["state_vars_that_need_continuous_buffering_transformed"]):
-                    namespace["state_vars_that_need_continuous_buffering_transformed_iv"][var_name] = self._nest_printer.print(neuron.get_initial_value(var_name_transformed))
+                    if neuron.get_initial_value(var_name_transformed) is None:
+                        if var_name_transformed in [sym.name for sym in neuron.get_inline_expression_symbols()]:
+                            # the postsynaptic variable is actually an inline expression: initial value is 0
+                            namespace["state_vars_that_need_continuous_buffering_transformed_iv"][var_name] = "0"
+                        else:
+                            raise Exception("State variable \"" + str(var_name_transformed) + "\" was not found in the neuron model \"" + neuron.name + "\"")
+                    else:
+                        namespace["state_vars_that_need_continuous_buffering_transformed_iv"][var_name] = self._nest_printer.print(neuron.get_initial_value(var_name_transformed))
             else:
                 namespace["state_vars_that_need_continuous_buffering"] = []
             if "extra_on_emit_spike_stmts_from_synapse" in dir(neuron):

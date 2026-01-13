@@ -327,7 +327,7 @@ parser grammar PyNestMLParser;
    * @attribute isContinuous: true if and only if the model has a continuous-time output.
   **/
   outputBlock : OUTPUT_KEYWORD COLON
-                NEWLINE INDENT ((isSpike=SPIKE_KEYWORD (LEFT_PAREN (attribute=parameter (COMMA attribute=parameter)*)? RIGHT_PAREN)?) | isContinuous=CONTINUOUS_KEYWORD)
+                NEWLINE INDENT (isSpike=SPIKE_KEYWORD | isContinuous=CONTINUOUS_KEYWORD)
                 NEWLINE DEDENT;
 
   /**

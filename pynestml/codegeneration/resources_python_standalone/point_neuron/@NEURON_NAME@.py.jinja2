@@ -131,29 +131,30 @@ class Neuron_{{neuronName}}(Neuron):
     self.S_ = self.State_()
     self.V_ = self.Variables_()
     self.B_ = self.Buffers_()
-
-{%- if parameter_vars_with_iv|length > 0 %}
-    # initial values for parameters
-{%- filter indent(4) %}
-{%- for variable in parameter_vars_with_iv %}
-{%-   set variable_symbol = neuron.get_scope().resolve_to_symbol(variable.get_name(), SymbolKind.VARIABLE) %}
-{%-   include "directives_py/MemberInitialization.jinja2" %}
-{%- endfor %}
-{%- endfilter %}
-{%- endif %}
-
-{%- if neuron.get_state_symbols()|length > 0 %}
-    # initial values for state variables
-{%- filter indent(4) %}
-{%- for variable_symbol in neuron.get_state_symbols() %}
-{%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-   include "directives_py/MemberInitialization.jinja2" %}
-{%- endfor %}
-{%- endfilter %}
-{%- endif %}
-
     self._timestep = timestep
+
+{%  if parameter_vars_with_iv|length > 0 %}
+    # initial values for parameters
+{%-     filter indent(4) %}
+{%-         for variable in parameter_vars_with_iv %}
+{%-             set variable_symbol = neuron.get_scope().resolve_to_symbol(variable.get_name(), SymbolKind.VARIABLE) %}
+{%-             include "directives_py/MemberInitialization.jinja2" %}
+{%-         endfor %}
+{%-     endfilter %}
+{%- endif %}
+
+    # initial values for internals
     self.recompute_internal_variables(self._timestep)
+{%  if neuron.get_state_symbols()|length > 0 %}
+    # initial values for state variables
+{%-     filter indent(4) %}
+{%-         for variable_symbol in neuron.get_state_symbols() %}
+{%-             set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-             include "directives_py/MemberInitialization.jinja2" %}
+{%-         endfor %}
+{%-     endfilter %}
+{%- endif %}
+
 
   def get_model(self) -> str:
     return "{{neuronName}}"

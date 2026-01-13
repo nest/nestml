@@ -818,6 +818,101 @@ Block types
 - ``onCondition`` - Contains statements that are executed when a particular condition holds. The condition is expressed as a (boolean typed) expression. The advantage of having conditions separate from the ``update`` block is that a root-finding algorithm can be used to find the precise time at which a condition holds (with a higher resolution than the simulation timestep). This makes the model more generic with respect to the simulator that is used.
 
 
+<<<<<<< HEAD
+=======
+Input
+-----
+
+A model written in NESTML can be configured to receive two distinct types of input: spikes and continuous-time values.
+
+
+Continuous-time input ports
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Continuous-time input ports receive a time-varying signal :math:`f(t)` (possibly, a vector :math:`\mathbf{f}(t)`) that is defined for all :math:`t` (but that could, in practice, be implemented as a stepwise-continuous function of time).
+
+
+Spiking input ports
+~~~~~~~~~~~~~~~~~~~
+
+The incoming spikes at the spiking input port are modelled as Dirac delta functions. The Dirac Delta function :math:`\delta(x)` is an impulsive function defined as zero at every value of :math:`x`, except for :math:`x=u`, and whose integral is equal to 1:
+
+.. math::
+
+   \int \delta(x - u) dx = 1
+
+The unit of the Dirac delta function follows from its definition:
+
+.. math::
+
+   f(0) = \int \delta(x) f(x) dx
+
+Here :math:`f(x)` is a continuous function of x. As the unit of the :math:`f()` is the same on both left- and right-hand side, the unit of :math:`dx \delta(x)` must be equal to 1.
+Therefore, the unit of :math:`\delta(x)` must be equal to the inverse of the unit of :math:`x`.
+
+In the context of neuroscience, the spikes are represented as events in time with a unit of :math:`\text{s}`. Consequently, the delta pulses will have a unit of inverse of time, :math:`\text{1/s}`.
+Therefore, all the incoming spikes defined in the input block will have an implicit unit of :math:`\text{1/s}`.
+
+Physical units such as millivolts (:math:`\text{mV}`) and nanoamperes (:math:`\text{nA}`) can be directly combined with the Dirac delta function to model an impulse with a physical quantity such as voltage or current.
+In such cases, the Dirac delta function is multiplied by the appropriate unit of the physical quantity, such as :math:`\text{mV}` or :math:`\text{nA}`, to obtain a quantity with units of volts or amperes, respectively.
+For example, the product of a Dirac delta function and millivolt (:math:`\text{mV}`) unit can be written as :math:`\delta(t) \text{mV}`. This can be interpreted as an impulse in voltage with a magnitude of one millivolt.
+
+
+Handling spiking input
+~~~~~~~~~~~~~~~~~~~~~~
+
+Spiking input can be handled by convolutions with kernels (see :ref:`Integrating spiking input`) or by means of ``onReceive`` event handler blocks. An ``onReceive`` block can be defined for every spiking input port, for example, if a port named ``pre_spikes`` is defined, the corresponding event handler has the general structure:
+
+.. code-block:: nestml
+
+   onReceive(pre_spikes):
+       println("Info: processing a presynaptic spike at time t = {t}")
+       # ... further statements go here ...
+
+The statements in the event handler will be executed when the event occurs.
+
+To specify in which sequence the event handlers should be called in case multiple events are received at the exact same time, the ``priority`` parameter can be used, which can be given an integer value, where a larger value means higher priority. For example:
+
+.. code-block:: nestml
+
+   onReceive(pre_spikes, priority=1):
+       println("Info: processing a presynaptic spike at time t = {t}")
+
+   onReceive(post_spikes, priority=2):
+       println("Info: processing a postsynaptic spike at time t = {t}")
+
+In this case, if a pre- and postsynaptic spike are received at the exact same time, the higher-priority ``post_spikes`` handler will be invoked first.
+
+
+Output
+------
+
+Each model can only send a single type of event. The type of the event has to be given in the `output` block. Currently, however, only spike output is supported.
+
+.. code-block:: nestml
+
+   output:
+       spike
+
+Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + timestep()``.
+
+Event attributes
+~~~~~~~~~~~~~~~~
+
+Each spiking output event corresponds to a Dirac delta pulse and can be parameterised by one attributes (the area of the pulse). For example, a synapse could assign a weight (as a real number) to its spike events by including this value in the call to ``emit_spike()``:
+
+.. code-block:: nestml
+
+   parameters:
+       weight real = 10.
+
+   update:
+       emit_spike(weight)
+
+If the parameter is not specified, the delta function will have an area of 1.
+
+
+>>>>>>> origin/remove_event_attributes
 Equations
 ---------
 

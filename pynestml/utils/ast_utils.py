@@ -2627,7 +2627,7 @@ class ASTUtils:
         return ''
 
     @classmethod
-    def assign_numeric_non_numeric_state_variables(cls, neuron, numeric_state_variable_names, numeric_update_expressions, update_expressions):
+    def assign_numeric_non_numeric_state_variables(cls, model, numeric_state_variable_names, numeric_update_expressions, update_expressions):
         r"""For each ASTVariable, set the ``node._is_numeric`` member to True or False based on whether this variable will be solved with the analytic or numeric solver.
 
         Ideally, this would not be a property of the ASTVariable as it is an implementation detail (that only emerges during code generation) and not an intrinsic part of the model itself. However, this approach is preferred over setting it as a property of the variable printers as it would have to make each printer aware of all models and variables therein."""
@@ -2646,10 +2646,10 @@ class ASTUtils:
 
         visitor = ASTVariableOriginSetterVisitor()
         visitor._numeric_state_variables = numeric_state_variable_names
-        neuron.accept(visitor)
+        model.accept(visitor)
 
-        if "extra_on_emit_spike_stmts_from_synapse" in dir(neuron):
-            for expr in neuron.extra_on_emit_spike_stmts_from_synapse:
+        if "extra_on_emit_spike_stmts_from_synapse" in dir(model):
+            for expr in model.extra_on_emit_spike_stmts_from_synapse:
                 expr.accept(visitor)
 
         if update_expressions:
@@ -2660,15 +2660,17 @@ class ASTUtils:
             for expr in numeric_update_expressions.values():
                 expr.accept(visitor)
 
-        for update_expr_list in neuron.spike_updates.values():
+        for update_expr_list in model.spike_updates.values():
             for update_expr in update_expr_list:
                 update_expr.accept(visitor)
 
-        for update_expr in neuron.post_spike_updates.values():
-            update_expr.accept(visitor)
+        if "post_spike_updates" in dir(model):
+            for update_expr in model.post_spike_updates.values():
+                update_expr.accept(visitor)
 
-        for node in neuron.equations_with_delay_vars + neuron.equations_with_vector_vars:
-            node.accept(visitor)
+        if "equations_with_delay_vars" in dir(model):
+            for node in model.equations_with_delay_vars + model.equations_with_vector_vars:
+                node.accept(visitor)
 
     @classmethod
     def depends_only_on_vars(cls, expr, vars):

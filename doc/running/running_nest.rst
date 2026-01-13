@@ -12,11 +12,50 @@ After NESTML completes, the NEST extension module (by default called ``"nestmlmo
    Several code generator options are available; for an overview see :class:`pynestml.codegeneration.nest_code_generator.NESTCodeGenerator`.
 
 
+<<<<<<< HEAD
 Data types
 ----------
 
 - The NESTML data type ``real`` will be rendered as ``double``.
 - The NESTML data type ``integer`` will be rendered as ``long``.
+=======
+NEST workflow example
+---------------------
+
+A typical script for the NEST Simulator target could look like the following. First, import the function:
+
+.. code-block:: python
+
+   from pynestml.frontend.pynestml_frontend import generate_target
+
+   generate_target(input_path="/home/nest/work/pynestml/models",
+                   target_platform="NEST",
+                   target_path="/tmp/nestml_target")
+
+We can also use a shorthand function for each supported target platform (here, NEST):
+
+.. code-block:: python
+
+   from pynestml.frontend.pynestml_frontend import generate_nest_target
+
+   generate_nest_target(input_path="/home/nest/work/pynestml/models",
+                        target_path="/tmp/nestml_target")
+
+To dynamically load a module with ``module_name`` equal to ``nestmlmodule`` (the default) in PyNEST can be done as follows:
+
+.. code-block:: python
+
+   nest.Install("nestmlmodule")
+
+The NESTML models are then available for instantiation, for example as:
+
+.. code-block:: python
+
+   pre, post = nest.Create("neuron_nestml", 2)
+   nest.Connect(pre, post, "one_to_one", syn_spec={"synapse_model": "synapse_nestml"})
+
+For more details on how to generate code for synaptic plasticity models, please refer to the section :ref:`Generating code for plastic synapses <Generating code for plastic synapses>`.
+
 
 Simulation loop
 ---------------
@@ -31,7 +70,13 @@ Event-based updating of synapses
 
 The synapse is allowed to contain an ``update`` block. Statements in the ``update`` block are executed whenever the internal state of the synapse is updated from one timepoint to the next; these updates are typically triggered by incoming spikes. The NESTML ``timestep()`` function will return the time that has elapsed since the last event was handled.
 
-Synapses in NEST are not allowed to have any nonlinear time-based internal dynamics (ODEs). This is due to the fact that synapses are, unlike nodes, not updated on a regular time grid. Linear ODEs are allowed, because they admit an analytical solution, which can be updated in a single step from the previous event time to the current event time. However, nonlinear dynamics are not allowed because they would require a numeric solver evaluating the dynamics on a regular time grid.
+Synapses can have ODEs with linear and non-linear dynamics. In the case of linear dynamics, the ODEs are solved with the propagators provided by the ODE-toolbox; for non-linear dynamics, the ODEs are solved using a fourth order Runge-Kutta solver with adaptive timestep provided by `GSL <https://www.gnu.org/software/gsl/doc/html/ode-initval.html>`_. Tolerance values can be specified at runtime as parameters of the model instance.
+
+.. code-block:: python
+
+   neurons = nest.Create(neuron_model, 2)
+   syn_spec = {"synapse_model": synapse_model, "gsl_abs_error_tol": 1E-12, "gsl_rel_error_tol": 1E-12}
+   nest.Connect(neurons[0], neurons[1], syn_spec=syn_spec)
 
 If ODE-toolbox is not successful in finding the propagator solver to a system of ODEs that is, however, solvable, the propagators may be entered "by hand" in the ``update`` block of the model. This block may contain any series of statements to update the state of the system from the current timestep to the next, for example, multiplications of state variables by the propagators.
 
@@ -244,7 +289,7 @@ Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to 
                                                            "post_ports": ["post_spikes",
                                                                           ["I_post_dend", "I_dend"]]}]})
 
-This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``.
+This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``. Note that inline expressions can also be used; in this example in case ``I_dend`` had been an inline expression in the postsynaptic neuron.
 
 To prevent the NESTML code generator from moving specific variables from synapse into postsynaptic neuron, the code generation option ``strictly_synaptic_vars`` may be used (see https://nestml.readthedocs.io/en/latest/pynestml.transformers.html#pynestml.transformers.synapse_post_neuron_transformer.SynapsePostNeuronTransformer).
 
@@ -269,10 +314,52 @@ By default, the "continuous-time" based buffer is selected. This covers the most
 As a computationally more efficient alternative, a spike-based buffer can be selected. In this case, the third factor is not stored every timestep, but only upon the occurrence of postsynaptic (somatic) spikes. Because of the existence of a nonzero dendritic delay, the time at which the somatic spike is observed at the synapse is delayed, and the time at which the third factor is sampled should match the time of the spike at the synapse, rather than the soma. When the spike-based buffering method is used, the dendritic delay is therefore ignored, because the third factor is sampled instead at the time of the somatic spike.
 
 
+<<<<<<< HEAD
 Dendritic delay and synaptic weight
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=======
+Dendritic delays
+~~~~~~~~~~~~~~~~
 
-In NEST, all synapses are expected to specify a nonzero dendritic delay, that is, the delay between arrival of a spike at the dendritic spine and the time at which its effects are felt at the soma (or conversely, the delay between a somatic action potential and the arrival at the dendritic spine due to dendritic backpropagation). As delays and weights are hard-wired into the NEST C++ base classes for the NESTML synapse classes, special annotations must be made in the NESTML model to indicate which state variables or parameters correspond to weight and delay. To indicate the correspondence, use the code generator options ``delay_variable`` and ``weight_variable``. For example, given the following model:
+In NEST, all synapses are expected to specify a nonzero dendritic delay, that is, the delay between arrival of a spike at the dendritic spine and the time at which its effects are felt at the soma (or conversely, the delay between a somatic action potential and the arrival at the dendritic spine due to dendritic backpropagation). Dendritic delays are managed entirely by NEST and can in principle not be read from or written to from inside the NESTML model. However, in some cases it can be useful to read the delay from inside the synapse. This can be achieved by using the code generator option ``delay_variable``.
+
+For example, given the following model:
+
+.. code:: nestml
+
+   model my_synapse:
+       parameters:
+           d ms = 1 ms
+
+the variable might be specified as:
+
+.. code-block:: python
+
+   generate_target(...,
+                   codegen_opts={...,
+                                 "delay_variable": {"my_synapse": "d"}})
+
+The parameter can then be set in NEST:
+
+.. code-block:: python
+
+   nest.Connect(pre, post, syn_spec={"delay": 2.5})
+
+and subsequently read out from NESTML:
+
+.. code:: nestml
+
+   model my_synapse:
+       onReceive(pre_spikes):
+           print("dendritic delay = {d}")
+
+This will print the string ``dendritic_delay = 2.5``.
+
+
+Synaptic weights
+~~~~~~~~~~~~~~~~~
+
+As synaptic weights are hard-wired into the NEST C++ base class for the NESTML synapse class, a special annotations must be made on the NESTML side to indicate which state variable or parameter corresponds to the weight. To indicate the correspondence, use the code generator option ``weight_variable``. For example, given the following model:
 
 .. code:: nestml
 
@@ -280,16 +367,12 @@ In NEST, all synapses are expected to specify a nonzero dendritic delay, that is
        state:
            w real = 1.
 
-       parameters:
-           dend_delay ms = 1 ms
-
-the variables might be specified as:
+the variable might be specified as:
 
 .. code-block:: python
 
    generate_target(...,
                    codegen_opts={...,
-                                 "delay_variable": {"my_synapse": "dend_delay"},
                                  "weight_variable": {"my_synapse": "w"}})
 
 
