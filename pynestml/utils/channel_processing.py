@@ -29,7 +29,7 @@ class ChannelProcessing(MechanismProcessing):
     """
     This file is part of the compartmental code generation process.
 
-    Extends MechanismProcessing. Searches for Variables that if 0 lead to the root expression always beeing zero so
+    Extends MechanismProcessing. Searches for Variables that if 0 lead to the root expression always being zero so
     that the computation can be skipped during the simulation
     """
 
