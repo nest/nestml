@@ -57,7 +57,6 @@ def nestml_generate_target():
                                                                 {"neuron": "izhikevich_neuron",
                                                                  "synapse": "stdp_synapse",
                                                                  "post_ports": ["post_spikes"]}],
-                                       "delay_variable": {"stdp_synapse": "d"},
                                        "weight_variable": {"stdp_synapse": "w"}})
 
 

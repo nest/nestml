@@ -27,7 +27,6 @@ model continuous_post_synaptic_third_factor_synapse:
         w real = 1
 
     parameters:
-        d ms = 1 ms
         tau ms = 20 ms
 
     input:
@@ -37,8 +36,8 @@ model continuous_post_synaptic_third_factor_synapse:
 
     onReceive(pre_spikes):
         w += I_AMPA
-        emit_spike(w, d)
+        emit_spike(w)
 
     output:
-        spike(weight real, delay ms)
+        spike
 

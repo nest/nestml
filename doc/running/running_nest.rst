@@ -307,12 +307,48 @@ By default, the "continuous-time" based buffer is selected. This covers the most
 As a computationally more efficient alternative, a spike-based buffer can be selected. In this case, the third factor is not stored every timestep, but only upon the occurrence of postsynaptic (somatic) spikes. Because of the existence of a nonzero dendritic delay, the time at which the somatic spike is observed at the synapse is delayed, and the time at which the third factor is sampled should match the time of the spike at the synapse, rather than the soma. When the spike-based buffering method is used, the dendritic delay is therefore ignored, because the third factor is sampled instead at the time of the somatic spike.
 
 
+Dendritic delays
+~~~~~~~~~~~~~~~~
+
+In NEST, all synapses are expected to specify a nonzero dendritic delay, that is, the delay between arrival of a spike at the dendritic spine and the time at which its effects are felt at the soma (or conversely, the delay between a somatic action potential and the arrival at the dendritic spine due to dendritic backpropagation). Dendritic delays are managed entirely by NEST and can in principle not be read from or written to from inside the NESTML model. However, in some cases it can be useful to read the delay from inside the synapse. This can be achieved by using the code generator option ``delay_variable``.
+
+For example, given the following model:
+
+.. code:: nestml
+
+   model my_synapse:
+       parameters:
+           d ms = 1 ms
+
+the variable might be specified as:
+
+.. code-block:: python
+
+   generate_target(...,
+                   codegen_opts={...,
+                                 "delay_variable": {"my_synapse": "d"}})
+
+The parameter can then be set in NEST:
+
+.. code-block:: python
+
+   nest.Connect(pre, post, syn_spec={"delay": 2.5})
+
+and subsequently read out from NESTML:
+
+.. code:: nestml
+
+   model my_synapse:
+       onReceive(pre_spikes):
+           print("dendritic delay = {d}")
+
+This will print the string ``dendritic_delay = 2.5``.
 
 
-Dendritic delay and synaptic weight
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Synaptic weights
+~~~~~~~~~~~~~~~~~
 
-In NEST, all synapses are expected to specify a nonzero dendritic delay, that is, the delay between arrival of a spike at the dendritic spine and the time at which its effects are felt at the soma (or conversely, the delay between a somatic action potential and the arrival at the dendritic spine due to dendritic backpropagation). As delays and weights are hard-wired into the NEST C++ base classes for the NESTML synapse classes, special annotations must be made in the NESTML model to indicate which state variables or parameters correspond to weight and delay. To indicate the correspondence, use the code generator options ``delay_variable`` and ``weight_variable``. For example, given the following model:
+As synaptic weights are hard-wired into the NEST C++ base class for the NESTML synapse class, a special annotations must be made on the NESTML side to indicate which state variable or parameter corresponds to the weight. To indicate the correspondence, use the code generator option ``weight_variable``. For example, given the following model:
 
 .. code:: nestml
 
@@ -320,16 +356,12 @@ In NEST, all synapses are expected to specify a nonzero dendritic delay, that is
        state:
            w real = 1.
 
-       parameters:
-           dend_delay ms = 1 ms
-
-the variables might be specified as:
+the variable might be specified as:
 
 .. code-block:: python
 
    generate_target(...,
                    codegen_opts={...,
-                                 "delay_variable": {"my_synapse": "dend_delay"},
                                  "weight_variable": {"my_synapse": "w"}})
 
 

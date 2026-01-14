@@ -56,7 +56,6 @@ model neuromodulated_stdp_synapse:
         post_tr real = 0.
 
     parameters:
-        d ms = 1 ms    # Synaptic transmission delay
         tau_tr_pre ms = 20 ms    # STDP time constant for weight changes caused by pre-before-post spike pairings.
         tau_tr_post ms = 20 ms    # STDP time constant for weight changes caused by post-before-pre spike pairings.
         tau_c ms = 1000 ms    # Time constant of eligibility trace
@@ -80,7 +79,7 @@ model neuromodulated_stdp_synapse:
         mod_spikes <- spike
 
     output:
-        spike(weight real, delay ms)
+        spike
 
     onReceive(mod_spikes):
         n += 1. / tau_n
@@ -98,7 +97,7 @@ model neuromodulated_stdp_synapse:
         c -= A_minus * post_tr
 
         # deliver spike to postsynaptic partner
-        emit_spike(w, d)
+        emit_spike(w)
 
     # update from time t to t + timestep()
     update:

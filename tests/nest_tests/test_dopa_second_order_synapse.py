@@ -62,7 +62,6 @@ class TestDopaSecondOrder:
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                                      "synapse": "dopa_second_order_synapse",
                                                                      "vt_ports": ["dopa_spikes"]}],
-                                           "delay_variable": {"dopa_second_order_synapse": "d"},
                                            "weight_variable": {"dopa_second_order_synapse": "w"}})
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
@@ -94,7 +93,7 @@ class TestDopaSecondOrder:
         # set up custom synapse model
         wr = nest.Create("weight_recorder")
         nest.CopyModel(self.synapse_model_name, "stdp_nestml_rec",
-                       {"weight_recorder": wr[0], "d": delay, "receptor_type": 0,
+                       {"weight_recorder": wr[0], "delay": delay, "receptor_type": 0,
                         "volume_transmitter": vt})
 
         # create parrot neurons and connect spike_generators
