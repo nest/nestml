@@ -45,7 +45,6 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-#
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
@@ -90,22 +89,22 @@ model terub_gpe_neuron:
 
         # time evolvement of gating variables
         inline g_phi_h real =  0.05
-        inline g_phi_n real =  0.1 #Report: 0.1, Terman Rubin 2002: 0.05
+        inline g_phi_n real =  0.1    # Report: 0.1, Terman Rubin 2002: 0.05
         inline g_phi_r real = 1.0
 
         # Calcium concentration and afterhyperpolarization current
-        inline g_epsilon 1/ms =  0.0001 /ms
-        inline g_k_Ca real = 15.0 #Report:15,  Terman Rubin 2002: 20.0
+        inline g_epsilon 1/ms =  0.0001/ms
+        inline g_k_Ca real = 15.0    # Report:15,  Terman Rubin 2002: 20.0
         inline g_k1 real = 30.0
 
         inline I_exc_mod real = -convolve(g_exc, exc_spikes) * nS * V_m
-        inline I_inh_mod real = convolve(g_inh, inh_spikes) * nS * (V_m-E_gg)
+        inline I_inh_mod real = convolve(g_inh, inh_spikes) * nS * (V_m - E_gg)
 
-        inline tau_n real = g_tau_n_0 + g_tau_n_1 / (1. + exp(-(V_m-g_theta_n_tau)/g_sigma_n_tau))
-        inline tau_h real = g_tau_h_0 + g_tau_h_1 / (1. + exp(-(V_m-g_theta_h_tau)/g_sigma_h_tau))
+        inline tau_n real = g_tau_n_0 + g_tau_n_1 / (1. + exp(-(V_m - g_theta_n_tau) / g_sigma_n_tau))
+        inline tau_h real = g_tau_h_0 + g_tau_h_1 / (1. + exp(-(V_m - g_theta_h_tau) / g_sigma_h_tau))
         inline tau_r real = g_tau_r
 
-        inline a_inf real = 1. / (1. + exp(-(V_m-g_theta_a)/g_sigma_a))
+        inline a_inf real = 1. / (1. + exp(-(V_m - g_theta_a) / g_sigma_a))
         inline h_inf real = 1. / (1. + exp(-(V_m-g_theta_h)/g_sigma_h))
         inline m_inf real = 1. / (1. + exp(-(V_m-g_theta_m)/g_sigma_m))
         inline n_inf real = 1. / (1. + exp(-(V_m-g_theta_n)/g_sigma_n))

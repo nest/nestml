@@ -11,8 +11,9 @@
 # (*) The model can easily be extended and equipped with any arbitrary input processing (such as calculating input currents with alpha-function shaped PSC kernels or updating the gating variables in the Hodgkin-Huxley model) or (after-) spike generation dynamics to make it more similar and comparable to other non-ignorant neuron models. In such extended ignore_and_fire models, the spike emission process would still be decoupled from the intrinsic neuron dynamics.
 # 
 # .. note::
-# This neuron model can only be used in combination with a fixed
-# simulation resolution (timestep size).
+#
+#    This neuron model can only be used in combination with a fixed
+#    simulation resolution (timestep size).
 # 
 # Authors
 # +++++++
@@ -50,7 +51,7 @@ model ignore_and_fire_neuron:
     firing_rate Bq = 10. Bq        # firing rate
 
   internals:
-    firing_period_steps integer = steps( 1. / firing_rate )    # firing period in steps
+    firing_period_steps integer = steps(1. / firing_rate)    # firing period in steps
 
   input:
     spikes <- spike   # the neuron receives spikes, but is not processing them
