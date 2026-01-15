@@ -126,15 +126,15 @@ model hh_cond_exp_destexhe_neuron:
         sigma_noise_exc uS = 0.003 uS	# Standard deviation of the excitatory noise conductance
         sigma_noise_inh uS = 0.0066 uS	# Standard deviation of the inhibitory noise conductance
 
-        alpha_n_init 1/ms = 0.032/(ms* mV ) * ( 15. mV - V_m) / ( exp( ( 15. mV - V_m) / 5. mV ) - 1. )
-        beta_n_init 1/ms = 0.5 /ms * exp( ( 10. mV - V_m ) / 40. mV )
-        alpha_m_init 1/ms = 0.32/(ms* mV ) * ( 13. mV - V_m) / ( exp( ( 13. mV - V_m) / 4. mV ) - 1. )
-        beta_m_init 1/ms = 0.28/(ms* mV ) * ( V_m  - 40. mV ) / ( exp( ( V_m - 40. mV ) / 5. mV ) - 1. )
-        alpha_h_init 1/ms = 0.128/ms * exp( ( 17. mV - V_m) / 18. mV )
-        beta_h_init 1/ms = ( 4. / ( 1. + exp( ( 40. mV - V_m ) / 5. mV) ) ) / ms
+        alpha_n_init 1/ms = 0.032 / (ms * mV) * (15 mV - V_m) / (exp((15 mV - V_m) / 5 mV) - 1.)
+        beta_n_init 1/ms = 0.5 / ms * exp((10 mV - V_m) / 40 mV)
+        alpha_m_init 1/ms = 0.32 / (ms * mV) * (13 mV - V_m) / (exp((13 mV - V_m) / 4 mV) - 1.)
+        beta_m_init 1/ms = 0.28 / (ms * mV) * (V_m  - 40 mV) / (exp((V_m - 40 mV) / 5 mV ) - 1.)
+        alpha_h_init 1/ms = 0.128 / ms * exp((17 mV - V_m) / 18 mV)
+        beta_h_init 1/ms = (4. / (1. + exp((40 mV - V_m) / 5 mV))) / ms
 
-        alpha_p_init 1/ms = 0.0001/(ms * mV) * (V_m + 30. mV) / (1. - exp(-(V_m + 30. mV) / 9. mV))
-        beta_p_init 1/ms = -0.0001/(ms * mV) * (V_m + 30. mV) / (1. - exp( (V_m + 30. mV) / 9. mV ))
+        alpha_p_init 1/ms = 0.0001 / (ms * mV) * (V_m + 30 mV) / (1. - exp(-(V_m + 30 mV) / 9. mV))
+        beta_p_init 1/ms = -0.0001 / (ms * mV) * (V_m + 30 mV) / (1. - exp((V_m + 30 mV) / 9. mV))
 
         refr_T ms = 2 ms          # Duration of refractory period
 

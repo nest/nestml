@@ -67,7 +67,7 @@ model aeif_psc_alpha_neuron:
     parameters:
         # membrane parameters
         C_m pF = 281.0 pF         # Membrane Capacitance
-        refr_T ms = 2 ms         # Duration of refractory period
+        refr_T ms = 2 ms          # Duration of refractory period
         V_reset mV = -60.0 mV     # Reset Potential
         g_L nS = 30.0 nS          # Leak Conductance
         E_L mV = -70.6 mV         # Leak reversal Potential (aka resting potential)

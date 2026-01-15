@@ -79,7 +79,7 @@ model izhikevich_psc_alpha_neuron:
         k pF/mV/ms = 8 pF/mV/ms   # Spiking slope
         V_r mV = -65 mV           # Resting potential
         V_t mV = -45 mV           # Threshold potential
-        a 1/ms = 0.01 /ms         # Time scale of recovery variable
+        a 1/ms = 0.01/ms          # Time scale of recovery variable
         b nS = 9 nS               # Sensitivity of recovery variable
         c mV = -65 mV             # After-spike reset value of V_m
         d pA = 60 pA              # After-spike reset value of U_m
