@@ -31,6 +31,5 @@ class CoCoCmContinuousInputModel(CoCo):
         Checks if this compartmental condition applies to the handed over neuron.
         If yes, it checks the presence of expected functions and declarations.
         :param neuron: a single neuron instance.
-        :type neuron: ast_neuron
         """
         return ContinuousInputProcessing.check_co_co(neuron, global_info)
