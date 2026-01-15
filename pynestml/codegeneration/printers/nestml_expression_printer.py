@@ -117,7 +117,7 @@ class NESTMLExpressionPrinter(ExpressionPrinter):
             return " - "
 
         if node.is_pow_op:
-            return " ** "
+            return "**"
 
         raise RuntimeError("Arithmetic operator not specified.")
 

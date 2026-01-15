@@ -42,19 +42,13 @@ class ASTNumericLiteralVisitor(ASTVisitor):
         :rtype: void
         """
         assert node.get_scope() is not None, "Run symboltable creator."
-        # if variable is also set in this rhs, the var type overrides the literal
-        if node.get_variable() is not None:
+
+        # if unitType is set in this rhs, the var type overrides the literal
+        if node.unitType is not None:
             scope = node.get_scope()
-            var_name = node.get_variable().get_name()
-            variable_symbol_resolve = scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE)
-            if variable_symbol_resolve is not None:
-                node.type = variable_symbol_resolve.get_type_symbol()
-            else:
-                type_symbol_resolve = scope.resolve_to_symbol(var_name, SymbolKind.TYPE)
-                if type_symbol_resolve is not None:
-                    node.type = type_symbol_resolve
-                else:
-                    node.type = ErrorTypeSymbol()
+            type_symbol_resolve = scope.resolve_to_symbol(node.unitType.unit, SymbolKind.TYPE)
+            assert type_symbol_resolve is not None, "Unknown unit type: " + str(node.unitType())
+            node.type = type_symbol_resolve
             node.type.referenced_object = node
             return
 
