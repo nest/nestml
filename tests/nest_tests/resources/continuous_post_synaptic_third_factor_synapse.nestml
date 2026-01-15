@@ -1,10 +1,5 @@
-# noisy_synapse - Static synapse with Gaussian noise
-# ##################################################
-#
-# Description
-# +++++++++++
-#
-# Each presynaptic spike is passed to the postsynaptic partner with a weight sampled as :math:`w + A_\text{noise} \mathcal{N}(0, 1)`.
+# continuous_post_synaptic_third_factor_synapse
+# #############################################
 #
 #
 # Copyright statement
@@ -27,21 +22,23 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
-model noisy_synapse:
+model continuous_post_synaptic_third_factor_synapse:
+    state:
+        w real = 1
+
     parameters:
-        w real = 1     # Synaptic weight
-        d ms = 1 ms    # Synaptic transmission delay
-        A_noise real = .4
+        d ms = 1 ms
+        tau ms = 20 ms
 
     input:
         pre_spikes <- spike
+        post_spikes <- spike
+        I_AMPA real <- continuous
+
+    onReceive(pre_spikes):
+        w += I_AMPA
+        emit_spike(w, d)
 
     output:
         spike(weight real, delay ms)
 
-    onReceive(pre_spikes):
-        # temporary variable for the "weight" that will be transmitted
-        w_ real = w + A_noise * random_normal(0, 1)
-
-        # deliver spike to postsynaptic partner
-        emit_spike(w_, d)
