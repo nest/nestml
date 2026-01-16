@@ -115,7 +115,7 @@ def serializedATN():
         170,1,0,0,0,201,177,1,0,0,0,201,183,1,0,0,0,201,187,1,0,0,0,201,
         191,1,0,0,0,201,195,1,0,0,0,202,205,1,0,0,0,203,201,1,0,0,0,203,
         204,1,0,0,0,204,13,1,0,0,0,205,203,1,0,0,0,206,216,3,26,13,0,207,
-        216,5,85,0,0,208,210,7,1,0,0,209,211,3,24,12,0,210,209,1,0,0,0,210,
+        216,5,85,0,0,208,210,7,1,0,0,209,211,3,4,2,0,210,209,1,0,0,0,210,
         211,1,0,0,0,211,216,1,0,0,0,212,216,5,86,0,0,213,216,5,23,0,0,214,
         216,3,24,12,0,215,206,1,0,0,0,215,207,1,0,0,0,215,208,1,0,0,0,215,
         212,1,0,0,0,215,213,1,0,0,0,215,214,1,0,0,0,216,15,1,0,0,0,217,221,
@@ -1315,8 +1315,8 @@ class PyNestMLParser ( Parser ):
         def FLOAT(self):
             return self.getToken(PyNestMLParser.FLOAT, 0)
 
-        def variable(self):
-            return self.getTypedRuleContext(PyNestMLParser.VariableContext,0)
+        def unitType(self):
+            return self.getTypedRuleContext(PyNestMLParser.UnitTypeContext,0)
 
 
         def STRING_LITERAL(self):
@@ -1324,6 +1324,10 @@ class PyNestMLParser ( Parser ):
 
         def INF_KEYWORD(self):
             return self.getToken(PyNestMLParser.INF_KEYWORD, 0)
+
+        def variable(self):
+            return self.getTypedRuleContext(PyNestMLParser.VariableContext,0)
+
 
         def getRuleIndex(self):
             return PyNestMLParser.RULE_simpleExpression
@@ -1372,7 +1376,7 @@ class PyNestMLParser ( Parser ):
                 la_ = self._interp.adaptivePredict(self._input,14,self._ctx)
                 if la_ == 1:
                     self.state = 209
-                    self.variable()
+                    self.unitType(0)
 
 
                 pass

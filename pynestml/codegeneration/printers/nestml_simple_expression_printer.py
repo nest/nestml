@@ -23,6 +23,7 @@ from pynestml.codegeneration.printers.simple_expression_printer import SimpleExp
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.meta_model.ast_unit_type import ASTUnitType
 from pynestml.meta_model.ast_variable import ASTVariable
 
 
@@ -38,6 +39,9 @@ class NESTMLSimpleExpressionPrinter(SimpleExpressionPrinter):
         if isinstance(node, ASTFunctionCall):
             return self._function_call_printer.print(node)
 
+        if isinstance(node, ASTUnitType):
+            return self.print_unit_type(node)
+
         return self.print_simple_expression(node)
 
     def print(self, node: ASTNode) -> str:
@@ -45,6 +49,33 @@ class NESTMLSimpleExpressionPrinter(SimpleExpressionPrinter):
             return "(" + str(node.get_implicit_conversion_factor()) + " * (" + self._print(node) + "))"
 
         return self._print(node)
+
+
+    def print_unit_type(self, node: ASTUnitType) -> str:
+        if node.is_encapsulated:
+            return "(" + self.print(node.compound_unit) + ")"
+
+        if node.is_pow:
+            s = self.print(node.base) + "**"
+            if node.exponent is not None:
+                # ``node.exponent`` is either a float or an int
+                s += str(node.exponent)
+            else:
+                assert node.exponent_num is not None and node.exponent_den is not None
+                if node.exponent_num < 0:
+                    s += "-"
+                s += "(" + str(int(abs(node.exponent_num))) + "/" + str(int(node.exponent_den)) + ")"
+
+            return s
+
+        if node.is_arithmetic_expression():
+            t_lhs = self.print(node.get_lhs()) if isinstance(node.get_lhs(), ASTUnitType) else str(node.get_lhs())
+            if node.is_times:
+                return t_lhs + "*" + self.print(node.get_rhs())
+
+            return t_lhs + "/" + self.print(node.get_rhs())
+
+        return node.unit
 
     def print_simple_expression(self, node: ASTSimpleExpression) -> str:
         if node.is_function_call():
@@ -60,9 +91,9 @@ class NESTMLSimpleExpressionPrinter(SimpleExpressionPrinter):
             return "inf"
 
         if node.is_numeric_literal():
-            if node.variable is not None:
+            if node.unitType is not None:
                 # numeric literal + physical unit
-                return str(node.numeric_literal) + self.print(node.variable)
+                return str(node.numeric_literal) + " " + self.print(node.unitType)
 
             return str(node.numeric_literal)
 

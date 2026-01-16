@@ -94,7 +94,7 @@ parser grammar PyNestMLParser;
   **/
   simpleExpression : functionCall
                      | BOOLEAN_LITERAL // true & false;
-                     | (UNSIGNED_INTEGER | FLOAT) (variable)?
+                     | (UNSIGNED_INTEGER | FLOAT) (unitType)?
                      | string=STRING_LITERAL
                      | isInf=INF_KEYWORD
                      | variable;

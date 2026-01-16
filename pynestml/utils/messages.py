@@ -148,6 +148,7 @@ class MessageCode(Enum):
     WEIGHT_VARIABLE_NOT_SPECIFIED = 119
     DELAY_VARIABLE_NOT_FOUND = 120
     WEIGHT_VARIABLE_NOT_FOUND = 121
+    NOT_ALLOWED_TO_ASSIGN_TO_A_UNIT_TYPE = 122
 
 
 class Messages:
@@ -469,7 +470,7 @@ class Messages:
         :param variable_name: the name of the variable of an equation which is not defined in an equations block
         :return: a message
         """
-        message = 'Ode equation lhs-variable \'%s\' not defined in state block!' % variable_name
+        message = "Left-hand side variable '%s' was not defined in state block!" % variable_name
         return MessageCode.VARIABLE_NOT_IN_STATE_BLOCK, message
 
     @classmethod
@@ -1181,3 +1182,9 @@ class Messages:
         message = "Weight variable '" + variable_name + "' not found in synapse. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
 
         return MessageCode.WEIGHT_VARIABLE_NOT_FOUND, message
+
+    @classmethod
+    def get_not_allowed_to_assign_to_a_unit_type(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "Not allowed to assign to unit type '" + variable_name + "'!"
+
+        return MessageCode.NOT_ALLOWED_TO_ASSIGN_TO_A_UNIT_TYPE, message
