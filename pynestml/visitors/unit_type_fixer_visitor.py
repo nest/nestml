@@ -31,6 +31,7 @@ from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
+from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_unit_type import ASTUnitType
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.predefined_types import PredefinedTypes
@@ -48,11 +49,12 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 class UnitTypeFixerVisitor(ASTVisitor):
     r"""
+    TODO:
+    - do this recursively (in case of unit*var*var/var... etc)
     """
 
     def visit_simple_expression(self, node: ASTSimpleExpression):
         if node.is_numeric_literal() and node.unitType:
-
             if node.unitType.is_times or node.unitType.is_div:
                 # check rhs
                 scope = node.get_scope()
@@ -74,22 +76,28 @@ class UnitTypeFixerVisitor(ASTVisitor):
                     assert isinstance(parent_node, ASTExpression)
 
                     # remove the variable from ``node``
-                    new_unit_type = node # XXX: TODO
+                    new_unit_type = ASTSimpleExpression(numeric_literal=node.numeric_literal,
+                                                        unitType=node.unitType.lhs) # ``node`` is of the form ``lhs * rhs``; remove the entire rhs
 
                     # add the variable as an extra term (* ... or / ...) in ``parent_node``
                     if node.unitType.rhs.is_pow:
                         # construct the new term
                         binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_pow_op=True)
+
                         base_var_name = node.unitType.rhs.base.unit
                         base_var = ASTNodeFactory.create_ast_variable(base_var_name)
                         base_var_simple_expr = ASTNodeFactory.create_ast_simple_expression(variable=base_var)
                         base_var_expr = ASTExpression(expression=base_var_simple_expr)
 
                         exponent = node.unitType.rhs.exponent
-                        exponent_simple_expr = ASTNodeFactory.create_ast_simple_expression(numeric_literal=exponent)
-                        exponent_expr = ASTExpression(expression=exponent_simple_expr)
+                        exponent_simple_expr = ASTNodeFactory.create_ast_simple_expression(numeric_literal=abs(exponent))
+                        if exponent < 0:
+                            unary_operator = ASTUnaryOperator(is_unary_minus=True)
+                            exponent_expr = ASTExpression(unary_operator=unary_operator, expression=exponent_simple_expr)
+                        else:
+                            exponent_expr = ASTExpression(expression=exponent_simple_expr)
 
-                        expr_to_be_moved = ASTNodeFactory.create_ast_compound_expression(lhs=base_var_expr, binary_operator=binary_operator, rhs=exponent_expr)
+                        expr_to_be_moved = ASTNodeFactory.create_ast_compound_expression(lhs=base_var_simple_expr, binary_operator=binary_operator, rhs=exponent_expr)
 
                         # substitute it in the parent class
                         if parent_node.binary_operator.is_times_op:
@@ -101,7 +109,5 @@ class UnitTypeFixerVisitor(ASTVisitor):
                                 parent_node.lhs = new_node
                             elif parent_node.rhs == node:
                                 parent_node.rhs = new_node
-
-
 
             import pdb;pdb.set_trace()

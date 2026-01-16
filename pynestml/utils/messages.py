@@ -303,7 +303,6 @@ class Messages:
         :param got_type: the actual type
         :return: a message
         """
-        import pdb;pdb.set_trace()
         message = 'Actual type different from expected. Expected: \'%s\', got: \'%s\'!' % (
             expected_type.print_symbol(), got_type.print_symbol())
         return MessageCode.TYPE_DIFFERENT_FROM_EXPECTED, message

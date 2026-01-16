@@ -25,6 +25,7 @@ simpleExpression : (UNSIGNED_INTEGER | FLOAT) (variable)?
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.visitors.ast_data_type_visitor import ASTDataTypeVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
@@ -45,10 +46,14 @@ class ASTNumericLiteralVisitor(ASTVisitor):
 
         # if unitType is set in this rhs, the var type overrides the literal
         if node.unitType is not None:
-            scope = node.get_scope()
-            type_symbol_resolve = scope.resolve_to_symbol(node.unitType.unit, SymbolKind.TYPE)
-            assert type_symbol_resolve is not None, "Unknown unit type: " + str(node.unitType())
-            node.type = type_symbol_resolve
+            # scope = node.get_scope()
+
+            node.unitType.accept(ASTDataTypeVisitor())
+            node.type = node.unitType.get_type_symbol()
+
+            # type_symbol_resolve = scope.resolve_to_symbol(node.unitType.unit, SymbolKind.TYPE)
+            # assert type_symbol_resolve is not None, "Unknown unit type: " + str(node.unitType)
+            # node.type = type_symbol_resolve
             node.type.referenced_object = node
             return
 

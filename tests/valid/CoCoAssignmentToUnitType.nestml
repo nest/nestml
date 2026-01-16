@@ -34,7 +34,6 @@ model CoCoAssignmentToUnitType:
     state:
         V mV = 250 mV
         pA real = 1
-        F real = 1
 
     update:
         V = 1 V * pA * F**-1 * exp(42)

@@ -154,6 +154,7 @@ class ModelParser:
             model.accept(ASTSymbolTableVisitor())
             SymbolTable.add_model_scope(model.get_name(), model.get_scope())
             model.accept(UnitTypeFixerVisitor())
+            model.accept(ASTSymbolTableVisitor())
             Logger.set_current_node(model)
             model.accept(AssignImplicitConversionFactorsVisitor())
             Logger.set_current_node(None)
