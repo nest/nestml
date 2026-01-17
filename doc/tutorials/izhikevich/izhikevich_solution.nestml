@@ -1,24 +1,24 @@
 # izhikevich_tutorial_neuron
 # ##########################
-# 
+#
 #
 # Copyright statement
 # +++++++++++++++++++
-# 
+#
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
-# 
+#
 # NEST is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # NEST is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
@@ -38,8 +38,11 @@ model izhikevich_tutorial_neuron:
         c mV = -65 mV   # after-spike reset value of v
         d real = 8.     # after-spike reset value of u
 
+    internals:
+        unit_psp mV = 1 mV        # Unitary postsynaptic potential amplitude
+
     input:
-        spikes <- spike(weight mV)
+        spikes <- spike
         I_e pA <- continuous
 
     output:
@@ -50,7 +53,7 @@ model izhikevich_tutorial_neuron:
 
     onReceive(spikes):
         # add synaptic current
-        v += spikes.weight
+        v += sift(spikes, unit_psp)
 
     onCondition(v >= 30mV):
         # threshold crossing

@@ -2357,16 +2357,6 @@ class ASTUtils:
                     if factor_str:
                         delta_factors[(var, inport_var)] = factor_str
 
-                    for param in inport_.get_parameters():
-                        inport_var = inport_var.clone()
-
-                        inport_var.attribute = param.get_name()
-
-                        factor_str = ASTUtils.get_factor_str_from_expr_and_inport(expr, inport_var.name + "__DOT__" + inport_var.attribute, skip_if_in_convolve_call=True)
-
-                        if factor_str:
-                            delta_factors[(var, inport_var)] = factor_str
-
                     # XXX: what about vectors?????
 
         return delta_factors

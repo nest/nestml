@@ -46,7 +46,7 @@ model beta_function_with_inline_expression_neuron:
     recordable inline z pA = x
 
   input:
-    spike_in_port <- spike(weight pA)
+    spike_in_port <- spike
 
   output:
     spike
@@ -55,4 +55,4 @@ model beta_function_with_inline_expression_neuron:
     integrate_odes()
 
   onReceive(weighted_input_spikes):
-    x_ += alpha * (1 / tau2 - 1 / tau1) * integrate(spike_in_port.weight, t, t + timestep())
+    x_ += alpha * (1 / tau2 - 1 / tau1) * sift(spike_in_port, t)

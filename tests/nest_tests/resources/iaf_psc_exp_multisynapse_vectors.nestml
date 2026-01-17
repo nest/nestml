@@ -38,7 +38,7 @@ model iaf_psc_exp_multisynapse_vectors_neuron:
         I_e     pA = 0pA       # External current.
 
     input:
-        spikes[3] <- spike(weight pA)
+        spikes[3] <- spike
         I_stim pA <- continuous
 
     output:

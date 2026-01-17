@@ -818,8 +818,6 @@ Block types
 - ``onCondition`` - Contains statements that are executed when a particular condition holds. The condition is expressed as a (boolean typed) expression. The advantage of having conditions separate from the ``update`` block is that a root-finding algorithm can be used to find the precise time at which a condition holds (with a higher resolution than the simulation timestep). This makes the model more generic with respect to the simulator that is used.
 
 
-<<<<<<< HEAD
-=======
 Input
 -----
 
@@ -912,7 +910,6 @@ Each spiking output event corresponds to a Dirac delta pulse and can be paramete
 If the parameter is not specified, the delta function will have an area of 1.
 
 
->>>>>>> origin/remove_event_attributes
 Equations
 ---------
 
@@ -1101,7 +1098,7 @@ Each model can only produce a single output. The type of the event has to be giv
 
 Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + timestep()``.
 
-Each spiking output event can optionally be parameterised by one or more attributes. For example, a synapse could assign a weight (as a real number) and delay (in milliseconds) to its spike events by including these values in the call to ``emit_spike()``:
+Each spiking output event can optionally be parameterised by using the area-under-the-curve of the Dirac delta function. For example, a synapse could assign a weight (as a real number) to its spike event by including this value in the call to ``emit_spike()``:
 
 .. code-block:: nestml
 
@@ -1109,18 +1106,7 @@ Each spiking output event can optionally be parameterised by one or more attribu
        weight real = 10.
 
    update:
-       emit_spike(weight, 1 ms)
-
-If spike event attributes are used, their names and types must be given as part of the output port specification, for example:
-
-.. code-block:: nestml
-
-   output:
-       spike(weight real, delay ms)
-
-The names are only used externally, so that other models can refer to the correct attribute (such as a downstream neuron that is receiving the spike through its input port). It is thus allowed to have a state variable called ``weight`` and an output port attribute by the same name; the output port attribute name does not refer to names declared inside the model.
-
-Specific code generators may support a specific set of attributes; please check the documentation of each individual code generator for more details.
+       emit_spike(weight)
 
 
 Input
@@ -1189,14 +1175,14 @@ A spiking input port that is suitable for handling these events could be defined
 .. code-block:: nestml
 
    input:
-       spikes_in <- spike(w real)
+       spikes_in <- spike
 
 Note that the units of ``spikes_in.w`` are again in 1/s, as ``w`` has been defined as a dimensionless real number. If a physical unit is specified (such as pA or mV), the numeric value of the attribute is interpreted as having the units given in the definition of the input port. For example, if :math:`w_k` is assumed to be in units of mV, then in combination with the 1/s unit of the delta train, the units of ``spikes_in.w`` would be in mV/s, and the input port can be defined as follows:
 
 .. code-block:: nestml
 
    input:
-       spikes_in <- spike(w mV)
+       spikes_in <- spike
 
 In general, spiking input can be processed by referencing the input port in the right-hand side of an equation (see :ref:`Handling spiking input in equations`) or by means of ``onReceive`` event handlers (see :ref:`Handling spiking input by event handlers`).
 
@@ -1253,12 +1239,15 @@ If ``spikes_in.w`` is defined as a real number, the units here are consistent (i
        V mV = 0 mV
 
    input:
-       spikes_in <- spike(w mV)
+       spikes_in <- spike
 
    equations:
-       V' = -V / tau + spikes_in.w
+       V' = -V / tau + spikes_in
 
 Note that again, the units are consistent if :math:`w_k` is assumed to be in units of mV; in combination with the 1/s unit of the delta train, the units of ``spikes_in.w`` are in mV/s.
+
+XXX --- TODO
+
 
 
 Handling spiking input by event handlers
@@ -1306,10 +1295,10 @@ A spiking input port may appear without an attribute present; this refers to the
        x real = 0
 
    input:
-       in_spikes <- spike(foo pA, bar mmol)
+       in_spikes <- spike
 
    onReceive(in_spikes):
-       x += integrate(in_spikes, t, t + timestep())    # increments x by 1
+       x += sift(in_spikes, 1)    # increments x by 1
 
 To specify in which sequence the event handlers should be called in case multiple events are received at the exact same time, the ``priority`` parameter can be used, which can be given an integer value, where a larger value means higher priority (handled earlier). For example:
 

@@ -77,8 +77,11 @@ model izhikevich_neuron:
         # constant external input current
         I_e pA = 0 pA
 
+    internals:
+        unit_psp mV = 1 mV        # Unitary postsynaptic membrane potential
+
     input:
-        spike_in_port <- spike(weight mV)
+        spike_in_port <- spike
         I_stim pA <- continuous
 
     output:
@@ -86,7 +89,7 @@ model izhikevich_neuron:
 
     onReceive(spike_in_port):
         # Add synaptic contribution
-        spike_weight real = integrate(spike_in_port.weight, t, t + timestep())
+        spike_weight real = sift(spike_in_port, unit_psp)
         V_m += spike_weight
 
         # lower bound of membrane potential

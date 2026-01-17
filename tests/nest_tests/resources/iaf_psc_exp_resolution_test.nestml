@@ -7,6 +7,9 @@
 # Used to test resolution() function.
 #
 model iaf_psc_exp_resolution_test_neuron:
+    internals:
+        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+
     state:
         I_syn_exc pA = 0 pA
         I_syn_inh pA = 0 pA
@@ -38,18 +41,19 @@ model iaf_psc_exp_resolution_test_neuron:
         c ms = resolution()
 
     input:
-        spike_in_port <- spike(weight pA)
+        spike_in_port <- spike
         I_stim pA <- continuous
 
     output:
         spike
 
     onReceive(spike_in_port):
-        # route the incoming spike on the basis of the weight: less than zero means an inhibitory spike; greater than zero means an excitatory spike
-        if spike_in_port.weight < 0:
-            I_syn_inh += spike_in_port.weight
+        # route the incoming spike on the basis of the sign of the postsynaptic current: less than zero means an inhibitory spike; greater than zero means an excitatory spike
+        psc pA = sift(spike_in_port, unit_psc)    # obtain the postsynaptic current by integrating area under the curve of the spike
+        if psc < 0:
+            I_syn_inh += psc
         else:
-            I_syn_exc += spike_in_port.weight
+            I_syn_exc += psc
 
     update:
         d ms = resolution()

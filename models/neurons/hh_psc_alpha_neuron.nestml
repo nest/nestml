@@ -1,31 +1,31 @@
 # hh_psc_alpha - Hodgkin-Huxley neuron model
 # ##########################################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # hh_psc_alpha is an implementation of a spiking neuron using the Hodgkin-Huxley
 # formalism.
-# 
+#
 # Incoming spike events induce a post-synaptic change of current modelled
 # by an alpha function. The alpha function is normalised such that an event of
 # weight 1.0 results in a peak current of 1 pA.
-# 
+#
 # Spike detection is done by a combined threshold-and-local-maximum search: if
 # there is a local maximum above a certain threshold of the membrane potential,
 # it is considered a spike.
-# 
-# 
+#
+#
 # Problems/Todo
 # +++++++++++++
-# 
+#
 # - better spike detection
 # - initial wavelet/spike at simulation onset
-# 
-# 
+#
+#
 # References
 # ++++++++++
-# 
+#
 # .. [1] Gerstner W, Kistler W (2002). Spiking neuron models: Single neurons,
 #        populations, plasticity. New York: Cambridge University Press
 # .. [2] Dayan P, Abbott LF (2001). Theoretical neuroscience: Computational and
@@ -35,11 +35,11 @@
 #        membrane current and its application to conduction and excitation in
 #        nerve. The Journal of Physiology 117.
 #        DOI: https://doi.org/10.1113/jphysiol.1952.sp004764
-# 
-# 
+#
+#
 # See also
 # ++++++++
-# 
+#
 # hh_cond_exp_traub
 #
 #
@@ -47,7 +47,7 @@
 # +++++++++++++++++++
 #
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
 #
 # NEST is free software: you can redistribute it and/or modify
@@ -78,8 +78,8 @@ model hh_psc_alpha_neuron:
         kernel K_syn_inh = (e/tau_syn_inh) * t * exp(-t/tau_syn_inh)
         kernel K_syn_exc = (e/tau_syn_exc) * t * exp(-t/tau_syn_exc)
 
-        inline I_syn_exc pA = convolve(K_syn_exc, exc_spikes.weight)
-        inline I_syn_inh pA = convolve(K_syn_inh, inh_spikes.weight)
+        inline I_syn_exc pA = unit_psc * convolve(K_syn_exc, exc_spikes)
+        inline I_syn_inh pA = unit_psc * convolve(K_syn_inh, inh_spikes)
         inline I_Na  pA = g_Na * Act_m * Act_m * Act_m * Inact_h * ( V_m - E_Na )
         inline I_K   pA = g_K * Act_n * Act_n * Act_n * Act_n * ( V_m - E_K )
         inline I_L   pA = g_L * ( V_m - E_L )
@@ -127,9 +127,11 @@ model hh_psc_alpha_neuron:
         alpha_h_init real = 0.07 * exp( -( V_m_init / mV + 65. ) / 20. )
         beta_h_init  real = 1. / ( 1. + exp( -( V_m_init / mV + 35. ) / 10. ) )
 
+        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+
     input:
-        exc_spikes <- spike(weight pA)
-        inh_spikes <- spike(weight pA)
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:

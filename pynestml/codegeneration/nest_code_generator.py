@@ -94,45 +94,6 @@ def find_spiking_post_port(synapse, namespace):
     return None
 
 
-class NoAttributesSpikingInputPortNecessaryVisitor(ASTVisitor):
-    r"""This visitor checks whether any references occur in the model to a spiking input port without attributes.
-
-    For instance, for a spiking input port:
-
-    .. code:: nestml
-
-       input:
-           spikes_in_port <- spike(weight pA)
-
-    A reference to the port with attribute would be ``spikes_in_port.weight`` and a reference without attributes would be ``spikes_in_port``.
-
-    If no references to the port without an attribute are present, then no code needs to be generated for the buffer, saving on runtime performance.
-    """
-    def __init__(self, model: ASTModel, enable_on_receive_check: bool = True):
-        super().__init__()
-
-        self._model = model
-        self._attributes_spiking_input_port_necessary = False
-        self._spike_input_ports = model.get_spike_input_port_names()
-        self.enable_on_receive_check = enable_on_receive_check
-
-    def visit_variable(self, node: ASTVariable):
-        if node.name in self._spike_input_ports \
-           and node.get_attribute() is None \
-           and not ASTUtils.find_parent_node_by_type(node, ASTInputBlock):
-
-            if self.enable_on_receive_check and ASTUtils.find_parent_node_by_type(node, ASTOnReceiveBlock):
-                # parent is an onReceive block: ignore mentions in the onReceive block input_port_variable, check instead for occurrences in the body (statements) of the block
-                on_receive_block_stmts = ASTUtils.find_parent_node_by_type(node, ASTOnReceiveBlock).get_stmts_body()
-                v = NoAttributesSpikingInputPortNecessaryVisitor(self._model, enable_on_receive_check=False)
-                on_receive_block_stmts.accept(v)
-                self._attributes_spiking_input_port_necessary = v._attributes_spiking_input_port_necessary
-
-                return
-
-            self._attributes_spiking_input_port_necessary = True
-
-
 class NESTCodeGenerator(CodeGenerator):
     r"""
     Code generator for a NEST Simulator C++ extension module.
@@ -420,10 +381,6 @@ class NESTCodeGenerator(CodeGenerator):
         code, message = Messages.get_start_processing_model(neuron.get_name())
         Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
 
-        v = NoAttributesSpikingInputPortNecessaryVisitor(neuron)
-        neuron.accept(v)
-        neuron._attributes_spiking_input_port_necessary = v._attributes_spiking_input_port_necessary
-
         if not neuron.get_equations_blocks():
             # add all declared state variables as none of them are used in equations block
             self.non_equations_state_variables[neuron.get_name()] = []
@@ -510,10 +467,6 @@ class NESTCodeGenerator(CodeGenerator):
         """
         code, message = Messages.get_start_processing_model(synapse.get_name())
         Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
-
-        v = NoAttributesSpikingInputPortNecessaryVisitor(synapse)
-        synapse.accept(v)
-        synapse._attributes_spiking_input_port_necessary = v._attributes_spiking_input_port_necessary
 
         spike_updates = {}
         if synapse.get_equations_blocks():
@@ -643,8 +596,6 @@ class NESTCodeGenerator(CodeGenerator):
 
         # input port/event handling options
         namespace["linear_time_invariant_spiking_input_ports"] = self.get_option("linear_time_invariant_spiking_input_ports")
-
-        namespace["attributes_spiking_input_port_necessary"] = astnode._attributes_spiking_input_port_necessary
 
         return namespace
 

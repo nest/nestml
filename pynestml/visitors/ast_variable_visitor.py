@@ -58,11 +58,7 @@ class ASTVariableVisitor(ASTVisitor):
                 # this variable represents a spiking input port
                 if ASTUtils.find_parent_node_by_type(node, ASTEquationsBlock):
                     # it appears in an equations block; units are [units of attribute / s]
-                    from astropy import units as u
-                    if inport.get_parameters():
-                        node.type = var_resolve.get_type_symbol() * UnitTypeSymbol(UnitType(name=str("1/s"), unit=1 / u.si.s))
-                    else:
-                        node.type = var_resolve.get_type_symbol()    # the type of the base port is [1/s]
+                    node.type = var_resolve.get_type_symbol()    # the type of the base port is [1/s]
                 else:
                     # it appears in an equations block; units are [units of attribute]
                     node.type = var_resolve.get_type_symbol()

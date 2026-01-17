@@ -104,9 +104,6 @@ class Neuron_{{neuronName}}(Neuron):
     spike_received_{{ port.get_symbol_name() }}: List[bool] = []
 {%-     else %}
 {%         set ast_input_port = utils.get_input_port_by_name(astnode.get_input_blocks(), port.name) %}
-{%-        for attribute in ast_input_port.get_parameters() %}
-    {{ port.get_symbol_name() }}__DOT__{{ attribute.name }}: List[float] = []
-{%-        endfor %}
     {{ port.get_symbol_name() }}: List[float] = []    # buffer for the port name by itself (train of unweighted delta pulses)
     spike_received_{{ port.get_symbol_name() }}: bool = False
 {%-     endif %}
@@ -326,9 +323,6 @@ class Neuron_{{neuronName}}(Neuron):
 {%- for port in neuron.get_spike_input_ports() %}
     self.B_.{{port.get_symbol_name()}} = []
 {%-     set ast_input_port = utils.get_input_port_by_name(astnode.get_input_blocks(), port.name) %}
-{%-     for attribute in ast_input_port.get_parameters() %}
-    self.B_.{{ port.get_symbol_name() }}__DOT__{{ attribute.name }} = []
-{%-     endfor %}
     self.B_.spike_received_{{port.get_symbol_name()}} = False
 {%- endfor %}
 
@@ -358,13 +352,6 @@ class Neuron_{{neuronName}}(Neuron):
     if port_name == "{{ port.name }}":
       self.B_.{{ port.get_symbol_name() }}.append(1.)    # unweighted spike port
 {%-         set ast_input_port = utils.get_input_port_by_name(astnode.get_input_blocks(), port.name) %}
-{%-         for attribute in ast_input_port.get_parameters() %}
-{%-             if attribute.name == "weight" %}
-      self.B_.{{ port.get_symbol_name() }}__DOT__{{ attribute.name }}.append(w)    # weighted spike port
-{%-             else %}
-{{                 raise('The Python-standalone code generator only supports \'weight\' spike input port attribute for now') }}
-{%-             endif %}
-{%-          endfor %}
       self.B_.spike_received_{{ port.get_symbol_name() }} = True
       return
 {%-     endfor %}
@@ -389,11 +376,6 @@ class Neuron_{{neuronName}}(Neuron):
   def on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}(self):
     # first, grab all the buffer values from the buffers
     B__{{ utils.port_name_printer(blk.get_input_port_variable()) }} = self.B_.{{ utils.port_name_printer(blk.get_input_port_variable()) }}.pop()
-{%-     for attribute in ast_input_port.get_parameters() %}
-    B__{{ ast_input_port.get_name() }}__DOT__{{ attribute.name }} = self.B_.{{ ast_input_port.get_name() }}__DOT__{{ attribute.name }}.pop()
-{%-     endfor %}
-    # XXX: TODO: check that NESTML models are only alowed to have on onreceive block per input port
-
 {%-     filter indent(4, True) -%}
 {%-         include "directives_py/StmtsBody.jinja2" %}
 {%-     endfilter %}

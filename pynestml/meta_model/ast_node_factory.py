@@ -252,9 +252,9 @@ class ASTNodeFactory:
         return ASTInputBlock(input_definitions, source_position=source_position)
 
     @classmethod
-    def create_ast_input_port(cls, name: str, size_parameter: str, data_type: Optional[ASTDataType], signal_type: Optional[PortSignalType], parameters: Optional[List[ASTParameter]], source_position: ASTSourceLocation) -> ASTInputPort:
+    def create_ast_input_port(cls, name: str, size_parameter: str, data_type: Optional[ASTDataType], signal_type: Optional[PortSignalType], source_position: ASTSourceLocation) -> ASTInputPort:
         return ASTInputPort(name=name, size_parameter=size_parameter, data_type=data_type,
-                            signal_type=signal_type, parameters=parameters, source_position=source_position)
+                            signal_type=signal_type, source_position=source_position)
 
     @classmethod
     def create_ast_logical_operator(cls, is_logical_and=False, is_logical_or=False, source_position=None):

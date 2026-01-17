@@ -1,32 +1,32 @@
 # hh_cond_exp_destexhe - Hodgin Huxley based model, Traub, Destexhe and Mainen modified
 # #####################################################################################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # hh_cond_exp_destexhe is an implementation of a modified Hodkin-Huxley model, which is based on the hh_cond_exp_traub model.
-# 
+#
 # Differences to hh_cond_exp_traub:
-# 
+#
 # (1) **Additional background noise:** A background current whose conductances were modeled as an Ornstein-Uhlenbeck process is injected into the neuron.
 # (2) **Additional non-inactivating K+ current:** A non-inactivating K+ current was included, which is responsible for spike frequency adaptation.
-# 
-# 
+#
+#
 # References
 # ++++++++++
-# 
+#
 # .. [1] Traub, R.D. and Miles, R. (1991) Neuronal Networks of the Hippocampus. Cambridge University Press, Cambridge UK.
-# 
+#
 # .. [2] Destexhe, A. and Pare, D. (1999) Impact of Network Activity on the Integrative Properties of Neocortical Pyramidal Neurons In Vivo. Journal of Neurophysiology
-# 
+#
 # .. [3] A. Destexhe, M. Rudolph, J.-M. Fellous and T. J. Sejnowski (2001) Fluctuating synaptic conductances recreate in vivo-like activity in neocortical neurons. Neuroscience
-# 
+#
 # .. [4] Z. Mainen, J. Joerges, J. R. Huguenard and T. J. Sejnowski (1995) A Model of Spike Initiation in Neocortical Pyramidal Neurons. Neuron
-# 
-# 
+#
+#
 # See also
 # ++++++++
-# 
+#
 # hh_cond_exp_traub
 #
 #
@@ -34,7 +34,7 @@
 # +++++++++++++++++++
 #
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
 #
 # NEST is free software: you can redistribute it and/or modify
@@ -79,8 +79,8 @@ model hh_cond_exp_destexhe_neuron:
         inline I_M pA = g_M * Noninact_p * (V_m - E_K)
         inline I_noise pA = (g_noise_exc * (V_m - E_exc) + g_noise_inh * (V_m - E_inh))
 
-        inline I_syn_exc pA = convolve(g_exc, exc_spikes.weight) * ( V_m - E_exc )
-        inline I_syn_inh pA = convolve(g_inh, inh_spikes.weight) * ( V_m - E_inh )
+        inline I_syn_exc pA = unit_psg * convolve(g_exc, exc_spikes) * ( V_m - E_exc )
+        inline I_syn_inh pA = unit_psg * convolve(g_inh, inh_spikes) * ( V_m - E_inh )
 
         V_m' =( -I_Na - I_K - I_M - I_L - I_syn_exc - I_syn_inh + I_e + I_stim - I_noise) / C_m
         refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
@@ -145,9 +145,11 @@ model hh_cond_exp_destexhe_neuron:
         D_exc uS**2/ms = 2 * sigma_noise_exc**2 / tau_syn_exc
         D_inh uS**2/ms = 2 * sigma_noise_inh**2 / tau_syn_inh
 
+        unit_psg nS = 1 nS        # Unitary postsynaptic conductance amplitude
+
     input:
-        inh_spikes <- spike(weight nS)
-        exc_spikes <- spike(weight nS)
+        inh_spikes <- spike
+        exc_spikes <- spike
         I_stim pA <- continuous
 
     output:

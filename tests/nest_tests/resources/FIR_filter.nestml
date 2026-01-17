@@ -1,30 +1,30 @@
 # FIR_filter.nestml
 # ################
-# 
-# 
+#
+#
 # Description
 # +++++++++++
-# 
+#
 # Model for Finite Impulse Response (FIR) filter
-# 
-# 
+#
+#
 # Copyright statement
 # +++++++++++++++++++
-# 
+#
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
-# 
+#
 # NEST is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # NEST is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
@@ -44,10 +44,10 @@ model fir_filter:
         h[N] real = 1.   # filter coefficients
 
     input:
-        spike_in <- spike(weight real)
+        spike_in_port <- spike
 
     onReceive(spike_in):
-        spike_in_buffer += spike_in.weight
+        spike_in_buffer += sift(spike_in_port, t)
 
     update:
         # circular buffer for input spike count per timestep

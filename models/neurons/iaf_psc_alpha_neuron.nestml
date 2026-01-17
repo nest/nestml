@@ -1,42 +1,42 @@
 # iaf_psc_alpha - Leaky integrate-and-fire neuron model
 # #####################################################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # iaf_psc_alpha is an implementation of a leaky integrate-and-fire model
 # with alpha-function kernel synaptic currents. Thus, synaptic currents
 # and the resulting post-synaptic potentials have a finite rise time.
-# 
+#
 # The threshold crossing is followed by an absolute refractory period
 # during which the membrane potential is clamped to the resting potential.
-# 
+#
 # The general framework for the consistent formulation of systems with
 # neuron like dynamics interacting by point events is described in
 # [1]_.  A flow chart can be found in [2]_.
-# 
+#
 # Critical tests for the formulation of the neuron model are the
 # comparisons of simulation results for different computation step
 # sizes.
-# 
+#
 # The iaf_psc_alpha is the standard model used to check the consistency
 # of the nest simulation kernel because it is at the same time complex
 # enough to exhibit non-trivial dynamics and simple enough compute
 # relevant measures analytically.
-# 
+#
 # .. note::
 #
 #    If tau_m is very close to tau_syn_exc or tau_syn_inh, numerical problems
 #    may arise due to singularities in the propagator matrics. If this is
 #    the case, replace equal-valued parameters by a single parameter.
-# 
+#
 # For details, please see ``IAF_neurons_singularity.ipynb`` in
 # the NEST source code (``docs/model_details``).
-# 
-# 
+#
+#
 # References
 # ++++++++++
-# 
+#
 # .. [1] Rotter S,  Diesmann M (1999). Exact simulation of
 #        time-invariant linear systems with applications to neuronal
 #        modeling. Biologial Cybernetics 81:381-402.
@@ -49,11 +49,11 @@
 #        subthreshold integration with continuous spike times in discrete time
 #        neural network simulations. Neural Computation, in press
 #        DOI: https://doi.org/10.1162/neco.2007.19.1.47
-# 
-# 
+#
+#
 # See also
 # ++++++++
-# 
+#
 # iaf_psc_delta, iaf_psc_exp, iaf_cond_alpha
 #
 #
@@ -61,7 +61,7 @@
 # +++++++++++++++++++
 #
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
 #
 # NEST is free software: you can redistribute it and/or modify
@@ -86,7 +86,7 @@ model iaf_psc_alpha_neuron:
     equations:
         kernel I_kernel_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
         kernel I_kernel_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
-        inline I pA = convolve(I_kernel_exc, exc_spikes.weight) - convolve(I_kernel_inh, inh_spikes.weight) + I_e + I_stim
+        inline I pA = unit_psc * (convolve(I_kernel_exc, exc_spikes) - convolve(I_kernel_inh, inh_spikes)) + I_e + I_stim
         V_m' = -(V_m - E_L) / tau_m + I / C_m
         refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
 
@@ -103,9 +103,12 @@ model iaf_psc_alpha_neuron:
         # constant external input current
         I_e pA = 0 pA
 
+    internals:
+        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+
     input:
-        exc_spikes <- spike(weight pA)
-        inh_spikes <- spike(weight pA)
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:

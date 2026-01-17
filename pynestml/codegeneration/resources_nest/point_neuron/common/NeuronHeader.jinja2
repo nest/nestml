@@ -544,9 +544,9 @@ private:
    * @note Excluded lower and upper bounds are defined as MIN_, MAX_.
    *       Excluding port 0 avoids accidental connections.
   **/
-  const nest_port_t MAX_SPIKE_RECEPTOR = {{ utils.nestml_spiking_input_port_to_nest_rport_dict(astnode) | length }};
+  static const nest_port_t MAX_SPIKE_RECEPTOR = {{ utils.nestml_spiking_input_port_to_nest_rport_dict(astnode) | length }};
 
-  const nest_port_t NUM_CONTINUOUS_INPUT_PORTS = {{ utils.nestml_continuous_input_port_to_nest_rport_dict(astnode) | length }};
+  static const nest_port_t NUM_CONTINUOUS_INPUT_PORTS = {{ utils.nestml_continuous_input_port_to_nest_rport_dict(astnode) | length }};
 
 
   /**
@@ -798,22 +798,12 @@ private:
 {%-     if inputPortSymbol.has_vector_parameter() %}
 {%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
 {%-         for i in range(size)  %}
-{%-             if inputPort.get_parameters() %}
-{%-                 for parameter in inputPort.get_parameters() %}
-    nest::RingBuffer spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_;
-    double spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_;
-{%-                 endfor %}
-{%-             endif %}
     nest::RingBuffer spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_;
     double spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_grid_sum_;
     nest::RingBuffer spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_n_spikes_received_;
     double spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_n_spikes_received_grid_sum_;
 {%-         endfor %}
 {%-     else %}
-{%-         for parameter in inputPort.get_parameters() %}
-    nest::RingBuffer spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_;
-    double spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_;
-{%-         endfor %}
     nest::RingBuffer spike_input_{{ inputPort.name }}_;    // buffer for unweighted spikes
     double spike_input_{{ inputPort.name }}_grid_sum_;    // buffer for unweighted spikes
     nest::RingBuffer spike_input_{{ inputPort.name }}_n_spikes_received_;    // buffer for the "spike received" boolean flag
@@ -825,27 +815,13 @@ private:
 {%-     if inputPortSymbol.has_vector_parameter() %}
 {%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
 {%-         for i in range(size)  %}
-{%-             if inputPort.get_parameters() %}
-{%-                 for parameter in inputPort.get_parameters() %}
-    nest::VectorRingBuffer spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_;
-    double spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_;
-{%-                 endfor %}
-{%-             endif %}
-{%-             if attributes_spiking_input_port_necessary %}
     nest::VectorRingBuffer spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_;
     double spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_grid_sum_;
-{%-             endif %}
     nest::RingBuffer spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_n_spikes_received_;
     double spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_n_spikes_received_grid_sum_;
 {%-         endfor %}
 {%-     else %}
-{%-         for parameter in inputPort.get_parameters() %}
-    nest::VectorRingBuffer spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_;
-    double spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_;
-{%-         endfor %}
-{%-         if attributes_spiking_input_port_necessary %}
     nest::VectorRingBuffer spike_input_{{ inputPort.name }}_;    // buffer for unweighted spikes
-{%-         endif %}
     nest::RingBuffer spike_input_{{ inputPort.name }}_n_spikes_received_;    // buffer for the "spike received" boolean flag
     double spike_input_{{ inputPort.name }}_n_spikes_received_grid_sum_;    // buffer for the "spike received" boolean flag
 {%-     endif %}

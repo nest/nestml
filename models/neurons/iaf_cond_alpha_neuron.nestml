@@ -1,19 +1,19 @@
 # iaf_cond_alpha - Simple conductance based leaky integrate-and-fire neuron model
 # ###############################################################################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # iaf_cond_alpha is an implementation of a spiking neuron using IAF dynamics with
 # conductance-based synapses. Incoming spike events induce a post-synaptic change
 # of conductance modelled by an alpha function. The alpha function
 # is normalised such that an event of weight 1.0 results in a peak current of 1 nS
 # at :math:`t = \tau_{syn}`.
-# 
-# 
+#
+#
 # References
 # ++++++++++
-# 
+#
 # .. [1] Meffin H, Burkitt AN, Grayden DB (2004). An analytical
 #        model for the large, fluctuating synaptic conductance state typical of
 #        neocortical neurons in vivo. Journal of Computational Neuroscience,
@@ -28,10 +28,10 @@
 #        the fluctuation- driven regime. Journal of Neuroscience,
 #        24(10):2345-2356
 #        DOI: https://doi.org/10.1523/JNEUROSCI.3349-03.2004
-# 
+#
 # See also
 # ++++++++
-# 
+#
 # iaf_cond_exp
 #
 #
@@ -39,7 +39,7 @@
 # +++++++++++++++++++
 #
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
 #
 # NEST is free software: you can redistribute it and/or modify
@@ -64,8 +64,8 @@ model iaf_cond_alpha_neuron:
         kernel g_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
         kernel g_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
 
-        inline I_syn_exc pA = convolve(g_exc, exc_spikes.weight) * (V_m - E_exc)
-        inline I_syn_inh pA = convolve(g_inh, inh_spikes.weight) * (V_m - E_inh)
+        inline I_syn_exc pA = unit_psg * convolve(g_exc, exc_spikes) * (V_m - E_exc)
+        inline I_syn_inh pA = unit_psg * convolve(g_inh, inh_spikes) * (V_m - E_inh)
         inline I_leak pA = g_L * (V_m - E_L)
 
         V_m' = (-I_leak - I_syn_exc - I_syn_inh + I_e + I_stim) / C_m
@@ -87,9 +87,12 @@ model iaf_cond_alpha_neuron:
         # constant external input current
         I_e pA = 0 pA
 
+    internals:
+        unit_psg nS = 1 nS        # Unitary postsynaptic conductance amplitude
+
     input:
-        exc_spikes <- spike(weight nS)
-        inh_spikes <- spike(weight nS)
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:

@@ -1,38 +1,38 @@
 # izhikevich_psc_alpha - Detailed Izhikevich neuron model with alpha-kernel post-synaptic current
 # ###############################################################################################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # Implementation of the simple spiking neuron model introduced by Izhikevich [1]_, with membrane potential in (milli)volt
 # and current-based synapses.
-# 
+#
 # The dynamics are given by:
-# 
+#
 # .. math::
-# 
+#
 #    C_m \frac{dV_m}{dt} = k (V - V_t)(V - V_t) - u + I + I_{syn,ex} + I_{syn,in}
 #    \frac{dU_m}{dt} = a(b(V_m - E_L) - U_m)
-# 
+#
 #    &\text{if}\;\;\; V_m \geq V_{th}:\\
 #    &\;\;\;\; V_m \text{ is set to } c
 #    &\;\;\;\; U_m \text{ is incremented by } d
-# 
+#
 # On each spike arrival, the membrane potential is subject to an alpha-kernel current of the form:
-# 
+#
 # .. math::
-# 
+#
 #    I_syn = I_0 \cdot t \cdot \exp\left(-t/\tau_{syn}\right) / \tau_{syn}
-# 
+#
 # See also
 # ++++++++
-# 
+#
 # izhikevich, iaf_psc_alpha
-# 
-# 
+#
+#
 # References
 # ++++++++++
-# 
+#
 # .. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
 #
 #
@@ -40,7 +40,7 @@
 # +++++++++++++++++++
 #
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
 #
 # NEST is free software: you can redistribute it and/or modify
@@ -67,8 +67,8 @@ model izhikevich_psc_alpha_neuron:
         kernel K_syn_inh = (e/tau_syn_inh) * t * exp(-t/tau_syn_inh)
         kernel K_syn_exc = (e/tau_syn_exc) * t * exp(-t/tau_syn_exc)
 
-        inline I_syn_exc pA = convolve(K_syn_exc, exc_spikes.weight)
-        inline I_syn_inh pA = convolve(K_syn_inh, inh_spikes.weight)
+        inline I_syn_exc pA = unit_psc * convolve(K_syn_exc, exc_spikes)
+        inline I_syn_inh pA = unit_psc * convolve(K_syn_inh, inh_spikes)
 
         V_m' = (k * (V_m - V_r) * (V_m - V_t) - U_m + I_e + I_stim + I_syn_exc - I_syn_inh) / C_m
         U_m' = a * (b * (V_m - V_r) - U_m)
@@ -91,9 +91,12 @@ model izhikevich_psc_alpha_neuron:
         # constant external input current
         I_e pA = 0 pA
 
+    internals:
+        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+
     input:
-        inh_spikes <- spike(weight pA)
-        exc_spikes <- spike(weight pA)
+        inh_spikes <- spike
+        exc_spikes <- spike
         I_stim pA <- continuous
 
     output:

@@ -623,18 +623,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
 
         assert node.is_spike()
 
-        if node.parameters:
-            for parameter in node.parameters:
-                type_symbol = parameter.get_data_type().type_symbol
-                type_symbol.is_buffer = True  # set it as a buffer
-                symbol = VariableSymbol(element_reference=node, scope=node.get_scope(), name=node.get_name() + "." + parameter.get_name(),
-                                        block_type=BlockType.INPUT, vector_parameter=node.get_size_parameter(),
-                                        is_predefined=False, is_inline_expression=False, is_recordable=False,
-                                        type_symbol=type_symbol, variable_type=VariableType.BUFFER,
-                                        attribute=parameter.get_name())
-                node.get_scope().add_symbol(symbol)
-
-        # add a symbol for the bare input port (without any attributes)
         symbol = VariableSymbol(element_reference=node,
                                 scope=node.get_scope(),
                                 name=node.get_name(),

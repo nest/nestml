@@ -1,29 +1,29 @@
 # RecordableVariables.nestml
 # ##########################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # This model is used to test recording of variables and inline expressions.
-# 
-# 
+#
+#
 # Copyright statement
 # +++++++++++++++++++
-# 
+#
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
-# 
+#
 # NEST is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # NEST is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
@@ -34,7 +34,7 @@ model recordable_variables:
 
     equations:
         kernel I_kernel = exp(-t / tau_syn)
-        inline I_syn pA = convolve(I_kernel, spike_in_port.weight)
+        inline I_syn pA = unit_psc * convolve(I_kernel, spike_in_port)
         recordable inline V_m mV = V_rel + V_reset
         V_rel' = -V_rel / tau_m + (I_syn + I_e + I_stim) / C_m
 
@@ -46,8 +46,11 @@ model recordable_variables:
         V_reset mV = -70 mV
         V_thr mV = -55 mV
 
+    internals:
+        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+
     input:
-        spike_in_port <- spike(weight pA)
+        spike_in_port <- spike
         I_stim pA <- continuous
 
     update:

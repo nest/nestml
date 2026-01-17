@@ -27,10 +27,10 @@ model spiking_input_port_on_equation_rhs_outside_convolve2_neuron:
         x real = 0.
 
     equations:
-        x' = spikes_in_port.weight
+        x' = spikes_in_port
 
     input:
-        spikes_in_port <- spike(weight real)
+        spikes_in_port <- spike
 
     update:
         integrate_odes()

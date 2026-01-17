@@ -1,28 +1,28 @@
 # wb_cond_multisyn - Wang-Buzsaki model with multiple synapses
 # ############################################################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # wb_cond_multisyn is an implementation of a modified Hodkin-Huxley model.
-# 
+#
 # Spike detection is done by a combined threshold-and-local-maximum search: if
 # there is a local maximum above a certain threshold of the membrane potential,
 # it is considered a spike.
-# 
+#
 # AMPA, NMDA, GABA_A, and GABA_B conductance-based synapses with
 # beta-function (difference of two exponentials) time course.
-# 
+#
 # References
 # ++++++++++
-# 
+#
 # .. [1] Wang, X.J. and Buzsaki, G., (1996) Gamma oscillation by synaptic
 #        inhibition in a hippocampal interneuronal network model. Journal of
 #        Neuroscience, 16(20), pp.6402-6413.
-# 
+#
 # See also
 # ++++++++
-# 
+#
 # wb_cond_multisyn
 #
 #
@@ -30,7 +30,7 @@
 # +++++++++++++++++++
 #
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
 #
 # NEST is free software: you can redistribute it and/or modify
@@ -65,10 +65,10 @@ model wb_cond_multisyn_neuron:
         g_GABAB$ real = GABA_BInitialValue
 
     equations:
-        recordable inline I_syn_ampa pA = -convolve(g_AMPA, AMPA.weight) * ( V_m - AMPA_E_rev )
-        recordable inline I_syn_nmda pA = -convolve(g_NMDA, NMDA.weight) * ( V_m - NMDA_E_rev ) / ( 1 + exp( ( NMDA_Vact - V_m ) / NMDA_Sact ) )
-        recordable inline I_syn_gaba_a pA = -convolve(g_GABAA, GABA_A.weight) * ( V_m - GABA_A_E_rev )
-        recordable inline I_syn_gaba_b pA = -convolve(g_GABAB, GABA_B.weight) * ( V_m - GABA_B_E_rev )
+        recordable inline I_syn_ampa pA = -unit_psg * convolve(g_AMPA, AMPA) * ( V_m - AMPA_E_rev )
+        recordable inline I_syn_nmda pA = -unit_psg * convolve(g_NMDA, NMDA) * ( V_m - NMDA_E_rev ) / ( 1 + exp( ( NMDA_Vact - V_m ) / NMDA_Sact ) )
+        recordable inline I_syn_gaba_a pA = -unit_psg * convolve(g_GABAA, GABA_A) * ( V_m - GABA_A_E_rev )
+        recordable inline I_syn_gaba_b pA = -unit_psg * convolve(g_GABAB, GABA_B) * ( V_m - GABA_B_E_rev )
         recordable inline I_syn pA = I_syn_ampa + I_syn_nmda + I_syn_gaba_a + I_syn_gaba_b
 
         inline I_Na  pA = g_Na * Act_m_inf(V_m)**3 * Inact_h * ( V_m - E_Na )
@@ -147,11 +147,13 @@ model wb_cond_multisyn_neuron:
         alpha_h_init real = 0.35 * exp(-(V_m / mV + 58.0) / 20.0)
         beta_h_init  real = 5.0 / (exp(-0.1 * (V_m / mV + 28.0)) + 1.0)
 
+        unit_psg nS = 1 nS        # Unitary postsynaptic conductance amplitude
+
     input:
-        AMPA <- spike(weight nS)
-        NMDA <- spike(weight nS)
-        GABA_A <- spike(weight nS)
-        GABA_B <- spike(weight nS)
+        AMPA <- spike
+        NMDA <- spike
+        GABA_A <- spike
+        GABA_B <- spike
         I_stim pA <- continuous
 
     output:

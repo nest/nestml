@@ -12,13 +12,6 @@ After NESTML completes, the NEST extension module (by default called ``"nestmlmo
    Several code generator options are available; for an overview see :class:`pynestml.codegeneration.nest_code_generator.NESTCodeGenerator`.
 
 
-<<<<<<< HEAD
-Data types
-----------
-
-- The NESTML data type ``real`` will be rendered as ``double``.
-- The NESTML data type ``integer`` will be rendered as ``long``.
-=======
 NEST workflow example
 ---------------------
 
@@ -314,10 +307,6 @@ By default, the "continuous-time" based buffer is selected. This covers the most
 As a computationally more efficient alternative, a spike-based buffer can be selected. In this case, the third factor is not stored every timestep, but only upon the occurrence of postsynaptic (somatic) spikes. Because of the existence of a nonzero dendritic delay, the time at which the somatic spike is observed at the synapse is delayed, and the time at which the third factor is sampled should match the time of the spike at the synapse, rather than the soma. When the spike-based buffering method is used, the dendritic delay is therefore ignored, because the third factor is sampled instead at the time of the somatic spike.
 
 
-<<<<<<< HEAD
-Dendritic delay and synaptic weight
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-=======
 Dendritic delays
 ~~~~~~~~~~~~~~~~
 
@@ -357,7 +346,7 @@ This will print the string ``dendritic_delay = 2.5``.
 
 
 Synaptic weights
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 As synaptic weights are hard-wired into the NEST C++ base class for the NESTML synapse class, a special annotations must be made on the NESTML side to indicate which state variable or parameter corresponds to the weight. To indicate the correspondence, use the code generator option ``weight_variable``. For example, given the following model:
 
@@ -412,15 +401,19 @@ For instance, if spikes arriving at the same port are handled differently accord
 
 .. code:: nestml
 
+   internals:
+       unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+
    input:
-       spike_in_port <- spike(weight pA)
+       spike_in_port <- spike
 
    onReceive(spike_in_port):
        # route the incoming spike on the basis of the weight: less than zero means an inhibitory spike; greater than zero means an excitatory spike
-       if spike_in_port.weight > 0:
-           I_syn_exc += spike_in_port.weight
+       psc pA = unit_psc * sift(spike_in_port, t)    # obtain the postsynaptic current by integrating area under the curve of the spike
+       if psc > 0:
+           I_syn_exc += psc
        else:
-           I_syn_inh -= spike_in_port.weight
+           I_syn_inh -= psc
 
 then the system is not LTI and a queue is necessary.
 
@@ -428,15 +421,18 @@ However, if two separate ports are used (and weights are subsequently processed 
 
 .. code:: nestml
 
+   internals:
+       unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+
    input:
-       spike_in_port_exc <- spike(weight pA)
-       spike_in_port_inh <- spike(weight pA)
+       spike_in_port_exc <- spike
+       spike_in_port_inh <- spike
 
    onReceive(spike_in_port_exc):
-        I_syn_exc += spike_in_port.weight
+        I_syn_exc += unit_psc * sift(spike_in_port_exc, t)
 
-   onReceive(spike_in_port_exc):
-        I_syn_inh += spike_in_port.weight
+   onReceive(spike_in_port_inh):
+        I_syn_inh += unit_psc * sift(spike_in_port_inh, t)
 
 In this case, the ``linear_time_invariant_spiking_input_ports`` option can be used to specify that both ``spike_in_port_exc`` and ``spike_in_port_inh`` are LTI ports, for better runtime performance.
 

@@ -46,7 +46,7 @@ model iaf_psc_exp_nonlineardendrite_neuron:
         kernel I_kernel3 = exp(-1/tau_syn3*t)
 
         # diff. eq. for membrane potential
-        inline I_syn pA = convolve(I_kernel1, I_1.weight) - convolve(I_kernel3, I_3.weight) + I_e
+        inline I_syn pA = unit_psc * (convolve(I_kernel1, I_1) - convolve(I_kernel3, I_3)) + I_e
         V_m' = -(V_m - E_L) / tau_m + (I_syn + I_dend) / C_m
 
         # diff. eq. for dAP trace
@@ -77,16 +77,19 @@ model iaf_psc_exp_nonlineardendrite_neuron:
 
         I_dend_incr pA/ms = pA * exp(1) / tau_syn2
 
+    internals:
+        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+
     input:
-        I_1 <- spike(weight pA)
-        I_2 <- spike(weight real)
-        I_3 <- spike(weight pA)
+        I_1 <- spike
+        I_2 <- spike
+        I_3 <- spike
 
     output:
         spike
 
     onReceive(I_2):
-        spike_weight pA = integral(I_2.weight, t, t + timestep())
+        spike_weight real = sift(I_2, 1)
         I_dend$ += spike_weight * I_dend_incr
 
     update:

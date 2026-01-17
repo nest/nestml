@@ -1,27 +1,27 @@
 # traub_cond_multisyn - Traub model according to Borgers 2017
 # ###########################################################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # Reduced Traub-Miles Model of a Pyramidal Neuron in Rat Hippocampus [1]_.
 # parameters got from reference [2]_ chapter 5.
-# 
+#
 # AMPA, NMDA, GABA_A, and GABA_B conductance-based synapses with
 # beta-function (difference of two exponentials) time course corresponding
 # to "hill_tononi" model.
-# 
-# 
+#
+#
 # References
 # ++++++++++
-# 
+#
 # .. [1] R. D. Traub and R. Miles, Neuronal Networks of the Hippocampus,Cam- bridge University Press, Cambridge, UK, 1991.
 # .. [2] Borgers, C., 2017. An introduction to modeling neuronal dynamics (Vol. 66). Cham: Springer.
-# 
-# 
+#
+#
 # See also
 # ++++++++
-# 
+#
 # hh_cond_exp_traub
 #
 #
@@ -29,7 +29,7 @@
 # +++++++++++++++++++
 #
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
 #
 # NEST is free software: you can redistribute it and/or modify
@@ -65,10 +65,10 @@ model traub_cond_multisyn_neuron:
         g_GABAB$ real = GABA_BInitialValue
 
     equations:
-        recordable inline I_syn_ampa pA = -convolve(g_AMPA, AMPA.weight) * ( V_m - AMPA_E_rev )
-        recordable inline I_syn_nmda pA = -convolve(g_NMDA, NMDA.weight) * ( V_m - NMDA_E_rev ) / ( 1 + exp( ( NMDA_Vact - V_m ) / NMDA_Sact ) )
-        recordable inline I_syn_gaba_a pA = -convolve(g_GABAA, GABA_A.weight) * ( V_m - GABA_A_E_rev )
-        recordable inline I_syn_gaba_b pA = -convolve(g_GABAB, GABA_B.weight) * ( V_m - GABA_B_E_rev )
+        recordable inline I_syn_ampa pA = -unit_psg * convolve(g_AMPA, AMPA_spikes) * ( V_m - AMPA_E_rev )
+        recordable inline I_syn_nmda pA = -unit_psg * convolve(g_NMDA, NMDA_spikes) * ( V_m - NMDA_E_rev ) / ( 1 + exp( ( NMDA_Vact - V_m ) / NMDA_Sact ) )
+        recordable inline I_syn_gaba_a pA = -unit_psg * convolve(g_GABAA, GABA_A_spikes) * ( V_m - GABA_A_E_rev )
+        recordable inline I_syn_gaba_b pA = -unit_psg * convolve(g_GABAB, GABA_B_spikes) * ( V_m - GABA_B_E_rev )
         recordable inline I_syn pA = I_syn_ampa + I_syn_nmda + I_syn_gaba_a + I_syn_gaba_b
 
         inline I_Na  pA = g_Na * Act_m * Act_m * Act_m * Inact_h * ( V_m - E_Na )
@@ -160,10 +160,10 @@ model traub_cond_multisyn_neuron:
         beta_h_init  real = 4.0 / (1.0 + exp(-(V_m / mV + 27.) / 5.))
 
     input:
-        AMPA <- spike(weight nS)
-        NMDA <- spike(weight nS)
-        GABA_A <- spike(weight nS)
-        GABA_B <- spike(weight nS)
+        AMPA_spikes <- spike
+        NMDA_spikes <- spike
+        GABA_A_spikes <- spike
+        GABA_B_spikes <- spike
         I_stim pA <- continuous
 
     output:

@@ -38,7 +38,7 @@ class ASTInputPort(ASTNode):
 
     .. code-block:: nestml
 
-       spike_in <- spike(weight real)
+       spike_in <- spike
 
     @attribute name: The name of the input port.
     @attribute sizeParameter: Optional size parameter for multisynapse neuron.
@@ -50,7 +50,6 @@ class ASTInputPort(ASTNode):
     def __init__(self,
                  name: str,
                  signal_type: PortSignalType,
-                 parameters: Optional[List[ASTParameter]] = None,
                  size_parameter: Optional[Union[ASTSimpleExpression, ASTExpression]] = None,
                  data_type: Optional[ASTDataType] = None,
                  *args, **kwargs):
@@ -61,7 +60,6 @@ class ASTInputPort(ASTNode):
 
         :param name: the name of the port
         :param signal_type: type of signal received, i.e., spikes or continuous
-        :param parameters: spike event parameters (for instance, ``foo ms`` in ``spike_in_port <- spike(foo ms)``)
         :param size_parameter: a parameter indicating the index in an array.
         :param data_type: the data type of this input port
         """
@@ -70,7 +68,6 @@ class ASTInputPort(ASTNode):
         self.signal_type = signal_type
         self.size_parameter = size_parameter
         self.data_type = data_type
-        self.parameters = parameters
 
     def clone(self) -> ASTInputPort:
         r"""
@@ -81,12 +78,8 @@ class ASTInputPort(ASTNode):
         data_type_dup = None
         if self.data_type:
             data_type_dup = self.data_type.clone()
-        parameters_dup = None
-        if self.parameters:
-            parameters_dup = [parameter.clone() for parameter in self.parameters]
         dup = ASTInputPort(name=self.name,
                            signal_type=self.signal_type,
-                           parameters=parameters_dup,
                            size_parameter=self.size_parameter,
                            data_type=data_type_dup,
                            # ASTNode common attributes:
@@ -105,16 +98,6 @@ class ASTInputPort(ASTNode):
         :return: the name.
         """
         return self.name
-
-    def get_parameters(self) -> List[ASTParameter]:
-        r"""
-        Returns the parameters of the declared input port.
-        :return: the parameters.
-        """
-        if self.parameters is not None:
-            return self.parameters
-
-        return []
 
     def has_size_parameter(self) -> bool:
         r"""

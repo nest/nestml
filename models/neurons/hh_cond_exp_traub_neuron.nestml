@@ -1,49 +1,49 @@
 # hh_cond_exp_traub - Hodgkin-Huxley model for Brette et al (2007) review
 # #######################################################################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # hh_cond_exp_traub is an implementation of a modified Hodgkin-Huxley model.
-# 
+#
 # This model was specifically developed for a major review of simulators [1]_,
 # based on a model of hippocampal pyramidal cells by Traub and Miles [2]_.
 # The key differences between the current model and the model in [2]_ are:
-# 
+#
 # - This model is a point neuron, not a compartmental model.
 # - This model includes only I_Na and I_K, with simpler I_K dynamics than
 # in [2]_, so it has only three instead of eight gating variables;
 # in particular, all Ca dynamics have been removed.
 # - Incoming spikes induce an instantaneous conductance change followed by
 # exponential decay instead of activation over time.
-# 
+#
 # This model is primarily provided as reference implementation for hh_coba
 # example of the Brette et al (2007) review. Default parameter values are chosen
 # to match those used with NEST 1.9.10 when preparing data for [1]_. Code for all
 # simulators covered is available from ModelDB [3]_.
-# 
+#
 # Note: In this model, a spike is emitted if :math:`V_m >= V_T + 30` mV and
 # :math:`V_m` has fallen during the current time step.
-# 
+#
 # To avoid that this leads to multiple spikes during the falling flank of a
 # spike, it is essential to choose a sufficiently long refractory period.
 # Traub and Miles used :math:`t_{ref} = 3` ms [2, p 118], while we used
 # :math:`t_{ref} = 2` ms in [2]_.
-# 
+#
 # References
 # ++++++++++
-# 
+#
 # .. [1] Brette R et al. (2007). Simulation of networks of spiking neurons: A
 #        review of tools and strategies. Journal of Computational Neuroscience
 #        23:349-98. DOI: https://doi.org/10.1007/s10827-007-0038-6
 # .. [2] Traub RD and Miles R (1991). Neuronal networks of the hippocampus.
 #        Cambridge University Press, Cambridge UK.
 # .. [3] http://modeldb.yale.edu/83319
-# 
-# 
+#
+#
 # See also
 # ++++++++
-# 
+#
 # hh_psc_alpha
 #
 #
@@ -51,7 +51,7 @@
 # +++++++++++++++++++
 #
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
 #
 # NEST is free software: you can redistribute it and/or modify
@@ -87,8 +87,8 @@ model hh_cond_exp_traub_neuron:
         inline I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
         inline I_K   pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
         inline I_L   pA = g_L * ( V_m - E_L )
-        inline I_syn_exc pA = convolve(g_exc, exc_spikes.weight) * ( V_m - E_exc )
-        inline I_syn_inh pA = convolve(g_inh, inh_spikes.weight) * ( V_m - E_inh )
+        inline I_syn_exc pA = unit_psg * convolve(g_exc, exc_spikes) * ( V_m - E_exc )
+        inline I_syn_inh pA = unit_psg * convolve(g_inh, inh_spikes) * ( V_m - E_inh )
 
         V_m' = ( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + I_e + I_stim ) / C_m
         refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
@@ -132,9 +132,12 @@ model hh_cond_exp_traub_neuron:
         # constant external input current
         I_e pA = 0 pA
 
+    internals:
+        unit_psg nS = 1 nS        # Unitary postsynaptic conductance amplitude
+
     input:
-        inh_spikes <- spike(weight nS)
-        exc_spikes <- spike(weight nS)
+        inh_spikes <- spike
+        exc_spikes <- spike
         I_stim pA <- continuous
 
     output:

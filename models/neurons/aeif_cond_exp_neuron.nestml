@@ -117,8 +117,11 @@ model aeif_cond_exp_neuron:
         # constant external input current
         I_e pA = 0 pA
 
+    internals:
+        unit_psg nS = 1 nS         # Unitary postsynaptic conductance amplitude
+
     input:
-        spike_in_port <- spike(weight nS)
+        spike_in_port <- spike
         I_stim pA <- continuous
 
     output:
@@ -126,11 +129,11 @@ model aeif_cond_exp_neuron:
 
     onReceive(spike_in_port):
         # route the incoming spike on the basis of the weight: less than zero means an inhibitory spike; greater than zero means an excitatory spike
-        spike_weight nS = integral(spike_in_port.weight, t, t + timestep())
-        if spike_weight > 0 nS:
-            g_syn_exc += spike_weight
+        spike_resp nS = unit_psg * sift(spike_in_port, t)    # obtain the postsynaptic current by integrating area under the curve of the spike
+        if spike_resp > 0 nS:
+            g_syn_exc += spike_resp
         else:
-            g_syn_inh -= spike_weight
+            g_syn_inh -= spike_resp
 
     update:
         if refr_t > 0 ms:

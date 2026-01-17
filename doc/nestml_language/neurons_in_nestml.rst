@@ -61,12 +61,12 @@ To model the effect that an arriving spike has on the state of the neuron, a con
                         &= \sum_{i=1}^N w_i \cdot f(t - t_i)
    \end{align*}
 
-For example, say there is a spiking input port defined named ``spikes``, which receives weighted spike events:
+For example, say there is a spiking input port defined named ``spike_in_port``, which receives weighted spike events:
 
 .. code-block:: nestml
 
    input:
-       spikes <- spike(weight pA)
+       spike_in_port <- spike
 
 A decaying exponential with time constant ``tau_syn`` is defined as postsynaptic kernel ``G``. Their convolution is expressed using the ``convolve()`` function, which takes a kernel and input port, respectively, as its arguments:
 
@@ -74,7 +74,7 @@ A decaying exponential with time constant ``tau_syn`` is defined as postsynaptic
 
    equations:
        kernel G = exp(-t / tau_syn)
-       inline I_syn pA = convolve(G, spikes.weight)
+       inline I_syn pA = convolve(G, spike_in_port)
 
 The incoming spikes could have been equivalently handled with an ``onReceive`` event handler block:
 
@@ -86,22 +86,22 @@ The incoming spikes could have been equivalently handled with an ``onReceive`` e
    equations:
        I_syn' = -I_syn / tau_syn
 
-   onReceive(spikes):
-       I_syn += integrate(spikes.weight, t, t + timestep())
+   onReceive(spike_in_port):
+       I_syn += sift(spike_in_port, t)
 
 
 (Re)setting synaptic integration state
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-When convolutions are used, additional state variables are required for each pair *(shape, spike input port)* that appears as the parameters in a convolution. These variables track the dynamical state of that kernel, for that input port. The number of variables created corresponds to the dimensionality of the kernel. For example, in the code block above, the one-dimensional kernel ``G`` is used in a convolution with spiking input port ``spikes``. During code generation, a new state variable called ``G__conv__spikes`` is created for this combination, by joining together the name of the kernel with the name of the spike buffer using (by default) the string “__conv__”. If the same kernel is used later in a convolution with another spiking input port, say ``spikes_GABA``, then the resulting generated variable would be called ``G__conv__spikes_GABA``, allowing independent synaptic integration between input ports but allowing the same kernel to be used more than once.
+When convolutions are used, additional state variables are required for each pair *(shape, spike input port)* that appears as the parameters in a convolution. These variables track the dynamical state of that kernel, for that input port. The number of variables created corresponds to the dimensionality of the kernel. For example, in the code block above, the one-dimensional kernel ``G`` is used in a convolution with spiking input port ``spike_in_port``. During code generation, a new state variable called ``G__conv__spike_in_port`` is created for this combination, by joining together the name of the kernel with the name of the spike buffer using (by default) the string “__conv__”. If the same kernel is used later in a convolution with another spiking input port, say ``spike_in_port_GABA``, then the resulting generated variable would be called ``G__conv__spike_in_port_GABA``, allowing independent synaptic integration between input ports but allowing the same kernel to be used more than once.
 
-The process of generating extra state variables for keeping track of convolution state is normally hidden from the user. For some models, however, it might be required to set or reset the state of synaptic integration, which is stored in these internally generated variables. For example, we might want to set the synaptic current (and its rate of change) to 0 when firing a dendritic action potential. Although we would like to set the generated variable ``G__conv__spikes`` to 0 in the running example, a variable by this name is only generated during code generation, and does not exist in the namespace of the NESTML model to begin with. To still allow referring to this state in the context of the model, it is recommended to use an inline expression, with only a convolution on the right-hand side.
+The process of generating extra state variables for keeping track of convolution state is normally hidden from the user. For some models, however, it might be required to set or reset the state of synaptic integration, which is stored in these internally generated variables. For example, we might want to set the synaptic current (and its rate of change) to 0 when firing a dendritic action potential. Although we would like to set the generated variable ``G__conv__spike_in_port`` to 0 in the running example, a variable by this name is only generated during code generation, and does not exist in the namespace of the NESTML model to begin with. To still allow referring to this state in the context of the model, it is recommended to use an inline expression, with only a convolution on the right-hand side.
 
 For example, suppose we define:
 
 .. code-block:: nestml
 
-   inline g_dend pA = convolve(G, spikes)
+   inline g_dend pA = convolve(G, spike_in_port)
 
 Then the name ``g_dend`` can be used as a target for assignment:
 
@@ -116,11 +116,11 @@ This also works for higher-order kernels, e.g. for the second-order alpha kernel
 
    kernel H'' = (-2/tau_syn) * H' - 1/tau_syn**2) * H
 
-We can define an inline expression with the same port as before, ``spikes``:
+We can define an inline expression with the same port as before, ``spike_in_port``:
 
 .. code-block:: nestml
 
-   inline h_dend pA = convolve(H, spikes)
+   inline h_dend pA = convolve(H, spike_in_port)
 
 The name ``h_dend`` now acts as an alias for this particular convolution. We can now assign to the inline defined variable up to the order of the kernel:
 
@@ -141,9 +141,9 @@ If there is more than one line specifying a `spike` or `continuous` port with th
 .. code-block:: nestml
 
    input:
-       spikes1 <- spike
-       spikes2 <- spike
-       spikes3 <- spike
+       spike_in_port1 <- spike
+       spike_in_port2 <- spike
+       spike_in_port3 <- spike
        I_stim1 <- continuous
        I_stim2 <- continuous
 
@@ -155,7 +155,7 @@ For the sake of keeping the example simple, we assign a decaying exponential-ker
        kernel I_kernel1 = exp(-t / tau_syn1)
        kernel I_kernel2 = exp(-t / tau_syn2)
        kernel I_kernel3 = -exp(-t / tau_syn3)
-       inline I_syn pA = (convolve(I_kernel1, spikes1) - convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3)) * pA
+       inline I_syn pA = unit_psc * (convolve(I_kernel1, spike_in_port1) - convolve(I_kernel2, spike_in_port2) + convolve(I_kernel3, spike_in_port3))
        V_m' = -(V_m - E_L) / tau_m + (I_syn + I_stim1) / C_m
        V_d' = -(V_d - E_L) / tau_d + I_stim2 / C_m
 
@@ -177,8 +177,8 @@ The input ports can also be defined as vectors. For example,
            inh_spikes[3] <- spike
 
        equations:
-           kernel I_kernel_exc = exp(-1 / tau_syn_exc * t)
-           kernel I_kernel_inh = exp(-1 / tau_syn_inh * t)
+           kernel I_kernel_exc = exp(-t / tau_syn_exc)
+           kernel I_kernel_inh = exp(-t / tau_syn_inh)
            inline I_syn_exc pA = convolve(I_kernel_exc, exc_spikes[1]) * pA
            inline I_syn_inh pA = convolve(I_kernel_inh, inh_spikes[1]) * pA
 

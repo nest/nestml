@@ -62,15 +62,9 @@ class ASTFunctionCallVisitor(ASTVisitor):
 
             assert buffer_parameter.get_variable() is not None
 
-            if "." in str(buffer_parameter):
-                # the type of the convolve call is [the type of the attribute] * [s]
-                input_port = ASTUtils.get_input_port_by_name(ASTUtils.find_parent_node_by_type(node, ASTModel).get_input_blocks(), buffer_parameter.get_variable().get_name())
-                node.type = input_port.get_parameters()[0].get_data_type().get_type_symbol()
-                return
-            else:
-                # convolve with a train of delta pulses --> the type of the convolve call is [1]
-                node.type = RealTypeSymbol()
-                return
+            # convolve with a train of delta pulses --> the type of the convolve call is [1]
+            node.type = RealTypeSymbol()
+            return
 
         # check if this is a delay variable
         symbol = ASTUtils.get_delay_variable_symbol(node.get_function_call())

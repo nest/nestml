@@ -1,32 +1,32 @@
 # hh_moto_5ht_nestml - a motor neuron model in HH formalism with 5HT modulation
 # #############################################################################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # hh_moto_5ht is an implementation of a spiking motor neuron using the Hodgkin-Huxley formalism according to [2]_. Basically this model is an implementation of the existing NEURON model [1]_.
-# 
+#
 # The parameter that represents 5HT modulation is ``g_K_Ca_5ht``. When it equals 1, no modulation happens. An application of 5HT corresponds to its decrease. The default value for it is 0.6. This value was used in the Neuron simulator model. The range of this parameter is (0, 1] but you are free to play with any value.
-# 
+#
 # Post-synaptic currents and spike detection are the same as in hh_psc_alpha.
-# 
-# 
+#
+#
 # References
 # ++++++++++
-# 
+#
 # .. [1] Muscle spindle feedback circuit by Moraud EM and Capogrosso M.
 # https://senselab.med.yale.edu/ModelDB/showmodel.cshtml?model=189786
-# 
+#
 # .. [2] Compartmental model of vertebrate motoneurons for Ca2+-dependent spiking and plateau potentials under pharmacological treatment.
 #        Booth V, Rinzel J, Kiehn O.
 #        http://refhub.elsevier.com/S0896-6273(16)00010-6/sref4
-# 
+#
 # .. [3] Repository: https://github.com/research-team/hh-moto-5ht
-# 
-# 
+#
+#
 # See also
 # ++++++++
-# 
+#
 # hh_psc_alpha
 #
 #
@@ -34,7 +34,7 @@
 # +++++++++++++++++++
 #
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
 #
 # NEST is free software: you can redistribute it and/or modify
@@ -67,8 +67,8 @@ model hh_moto_5ht_neuron:
         # synapses: alpha functions
         kernel I_syn_in = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
         kernel I_syn_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
-        inline I_syn_exc pA = convolve(I_syn_ex, exc_spikes.weight)
-        inline I_syn_inh pA = convolve(I_syn_in, inh_spikes.weight)
+        inline I_syn_exc pA = unit_psc * convolve(I_syn_ex, exc_spikes)
+        inline I_syn_inh pA = unit_psc * convolve(I_syn_in, inh_spikes)
 
         inline E_Ca mV = ((1000.0 * R_const * T_current) / (2. * F_const)) * log10(Ca_out / Ca_in) * mV
 
@@ -127,9 +127,12 @@ model hh_moto_5ht_neuron:
 
         alpha mmol/pA = 1E-5 mmol/pA
 
+    internals:
+        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+
     input:
-        inh_spikes <- spike(weight pA)
-        exc_spikes <- spike(weight pA)
+        inh_spikes <- spike
+        exc_spikes <- spike
         I_stim pA <- continuous
 
     output:
