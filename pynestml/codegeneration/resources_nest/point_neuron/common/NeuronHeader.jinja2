@@ -546,8 +546,26 @@ private:
   **/
   static const nest_port_t MAX_SPIKE_RECEPTOR = {{ utils.nestml_spiking_input_port_to_nest_rport_dict(astnode) | length }};
 
-  static const nest_port_t NUM_CONTINUOUS_INPUT_PORTS = {{ utils.nestml_continuous_input_port_to_nest_rport_dict(astnode) | length }};
+  //static const nest_port_t NUM_CONTINUOUS_INPUT_PORTS = {{ utils.nestml_continuous_input_port_to_nest_rport_dict(astnode) | length }};
 
+  enum ContinuousInput
+  {
+{%- set ns = namespace(count=0) %}
+{%- set ns.count = 0 -%}
+{%- for port in neuron.get_continuous_input_ports() %}
+{%-   if port.has_vector_parameter() -%}
+{%      set size = utils.get_numeric_vector_size(port) | int %}
+{%-     for i in range(size) %}
+    {{port.get_symbol_name().upper()}}_{{ i }} = {{ ns.count }},
+{%-       set ns.count = ns.count + 1 -%}
+{%-     endfor %}
+{%-   else %}
+    {{ port.get_symbol_name().upper() }} = {{ns.count}},
+{%-     set ns.count = ns.count + 1 -%}
+{%-   endif -%}
+{%- endfor %}
+    NUM_CONTINUOUS_INPUT_PORTS = {{ ns.count }}
+  };
 
   /**
    * Reset state of neuron.

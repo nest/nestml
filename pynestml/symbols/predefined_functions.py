@@ -527,10 +527,10 @@ class PredefinedFunctions:
         Registers the sift function into the system.
         """
         params = list()
-        params.append(PredefinedTypes.get_real_type())    # kernel
         params.append(PredefinedTypes.get_template_type(0))    # spike input buffer
+        params.append(PredefinedTypes.get_type("ms"))    # predefined variable ``t``
         symbol = FunctionSymbol(name=cls.SIFT, param_types=params,
-                                return_type=PredefinedTypes.get_template_type(0),
+                                return_type=PredefinedTypes.get_real_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.SIFT] = symbol
 

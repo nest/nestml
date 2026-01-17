@@ -64,6 +64,7 @@ from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.symbol_table import SymbolTable
+from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
@@ -545,6 +546,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["ast_node_factory"] = ASTNodeFactory
         namespace["assignments"] = NestAssignmentsHelper()
         namespace["ASTNodeFactory"] = ASTNodeFactory
+        namespace["PredefinedVariables"] = PredefinedVariables
         namespace["utils"] = ASTUtils
         namespace["nest_codegen_utils"] = NESTCodeGeneratorUtils
         namespace["declarations"] = NestDeclarationsHelper(self._type_symbol_printer)

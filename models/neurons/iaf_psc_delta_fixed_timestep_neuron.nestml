@@ -84,7 +84,7 @@ model iaf_psc_delta_fixed_timestep_neuron:
     onReceive(spike_in_port):
         # process spike only if neuron is not refractory
         if refr_counter == 0:
-            spike_weight mV = sift(spike_in_port, unit_psp)
+            spike_weight mV = unit_psp * sift(spike_in_port, t)
             V_m += spike_weight
 
     update:

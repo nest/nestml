@@ -58,9 +58,12 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         """
         assert isinstance(function_call, ASTFunctionCall)
         function_name = self._print_function_call_format_string(function_call)
+
         if ASTUtils.needs_arguments(function_call):
             if function_call.get_name() == PredefinedFunctions.PRINT or function_call.get_name() == PredefinedFunctions.PRINTLN:
                 return function_name.format(self._print_print_statement(function_call))
+            elif function_call.get_name() == PredefinedFunctions.SIFT:
+                return self._expression_printer.print(function_call.get_args()[0])
 
             return function_name.format(*self._print_function_call_argument_list(function_call))
 
@@ -145,6 +148,15 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
 
         if function_name == PredefinedFunctions.PRINTLN:
             return 'std::cout << {!s} << std::endl'
+
+        if function_name == PredefinedFunctions.SIFT:
+            # XXX: this should be in the jinja2 template for NEST?!
+#             if str(ast.get_args()[1]) != PredefinedVariables.TIME_CONSTANT %}
+# {{ raise('Only ``t`` is supported as second parameter of sift() function.') }}
+# {%- endif -%}
+
+            # return 'B_.spike_input_{{ 1!s }}_grid_sum_' # __spike_input_spike_in_port
+            return '__spike_input_{0!s}'
 
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())

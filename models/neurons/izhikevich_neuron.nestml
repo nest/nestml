@@ -89,7 +89,7 @@ model izhikevich_neuron:
 
     onReceive(spike_in_port):
         # Add synaptic contribution
-        spike_weight real = sift(spike_in_port, unit_psp)
+        spike_weight mV = unit_psp * sift(spike_in_port, t)
         V_m += spike_weight
 
         # lower bound of membrane potential

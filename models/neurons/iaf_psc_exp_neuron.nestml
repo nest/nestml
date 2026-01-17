@@ -112,7 +112,7 @@ model iaf_psc_exp_neuron:
 
     onReceive(spike_in_port):
         # route the incoming spike on the basis of the sign of the postsynaptic current: less than zero means an inhibitory spike; greater than zero means an excitatory spike
-        psc pA = sift(spike_in_port, unit_psc)    # obtain the postsynaptic current by integrating area under the curve of the spike
+        psc pA = unit_psc * sift(spike_in_port, t)    # obtain the postsynaptic current by integrating area under the curve of the spike
         if psc > 0 pA:
             I_syn_exc += psc
         else:
