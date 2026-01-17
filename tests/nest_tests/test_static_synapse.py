@@ -48,9 +48,7 @@ class TestStaticSynapse:
                              logging_level="DEBUG",
                              module_name="nestmlmodule",
                              suffix="_nestml",
-                             codegen_opts={"delay_variable": {"static_synapse": "d",
-                                                              "noisy_synapse": "d"},
-                                           "weight_variable": {"static_synapse": "w",
+                             codegen_opts={"weight_variable": {"static_synapse": "w",
                                                                "noisy_synapse": "w"}})
 
     @pytest.mark.parametrize("synapse_model_name", ["static_synapse_nestml", "noisy_synapse_nestml"])

@@ -758,7 +758,7 @@ Expressions in NESTML can be specified in a recursive fashion.
 Terms
 ~~~~~
 
-All variables, literals, and function calls are valid terms. Variables are names of user-defined or predefined variables (``t``, ``e``).
+All variables, literals, and function calls are valid terms.
 
 List of operators
 ~~~~~~~~~~~~~~~~~
@@ -897,7 +897,7 @@ Calling the ``emit_spike()`` function in the ``update`` block results in firing 
 Event attributes
 ~~~~~~~~~~~~~~~~
 
-Each spiking output event can be parameterised by one or more attributes. For example, a synapse could assign a weight (as a real number) and delay (in milliseconds) to its spike events by including these values in the call to ``emit_spike()``:
+Each spiking output event corresponds to a Dirac delta pulse and can be parameterised by one attributes (the area of the pulse). For example, a synapse could assign a weight (as a real number) to its spike events by including this value in the call to ``emit_spike()``:
 
 .. code-block:: nestml
 
@@ -905,18 +905,9 @@ Each spiking output event can be parameterised by one or more attributes. For ex
        weight real = 10.
 
    update:
-       emit_spike(weight, 1 ms)
+       emit_spike(weight)
 
-If spike event attributes are used, their names and types must be given as part of the output port specification, for example:
-
-.. code-block:: nestml
-
-   output:
-       spike(weight real, delay ms)
-
-The names are only used externally, so that other models can refer to the correct attribute (such as a downstream neuron that is receiving the spike through its input port). It is thus allowed to have a state variable called ``weight`` and an output port attribute by the same name; the output port attribute name does not refer to names declared inside the model.
-
-Specific code generators may support a specific set of attributes; please check the documentation of each individual code generator for more details.
+If the parameter is not specified, the delta function will have an area of 1.
 
 
 Equations
@@ -1095,20 +1086,260 @@ A Dirac delta impulse kernel can be defined by using the predefined function ``d
    kernel g = delta(t)
 
 
+Output
+------
+
+Each model can only produce a single output. The type of the event has to be given in the `output` block. Currently, only spike output is supported.
+
+.. code-block:: nestml
+
+   output:
+       spike
+
+Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + timestep()``.
+
+Each spiking output event can optionally be parameterised by using the area-under-the-curve of the Dirac delta function. For example, a synapse could assign a weight (as a real number) to its spike event by including this value in the call to ``emit_spike()``:
+
+.. code-block:: nestml
+
+   parameters:
+       weight real = 10.
+
+   update:
+       emit_spike(weight)
+
+
+Input
+-----
+
+A model written in NESTML can be configured to receive two distinct types of input: spikes and continuous-time values.
+
+
+Continuous-time input ports
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Continuous-time input ports receive a time-varying signal :math:`f(t)` (possibly, a vector :math:`\mathbf{f}(t)`) that is defined for all :math:`t` (but that could, in practice, be implemented as a stepwise-continuous function of time).
+
+For example, the following will add an external signal :math:`f(t)` with units of 1/s to a dynamical variable named :math:`x`.
+
+.. code-block:: nestml
+
+   state:
+       x real = 0
+
+   parameters:
+       tau ms = 20 ms
+
+   equations:
+       x' = -x / tau + f
+
+   input:
+       f 1/s <- continuous
+
+
+Spiking input ports
+~~~~~~~~~~~~~~~~~~~
+
+The incoming spikes at the spiking input port are modelled as Dirac delta functions. The Dirac delta function :math:`\delta(x)` is an impulsive function defined as zero at every value of :math:`x`, except for :math:`x=0`, and whose integral is equal to 1:
+
+.. math::
+
+   \int \delta(t) dt = 1
+
+The unit of the Dirac delta function follows from its definition:
+
+.. math::
+
+   f(0) = \int \delta(t) f(t) dt
+
+Here :math:`f(t)` is a continuous function of :math:`t`. As the unit of the :math:`f()` is the same on both left-and right-hand side, the unit of :math:`dt \delta(t)` must be equal to 1. Therefore, the unit of :math:`\delta(t)` must be equal to the inverse of the unit of :math:`t`, that is :math:`s^{-1}`. Therefore, all the incoming spikes defined in the input block will have an implicit unit of :math:`\text{1/s}`.
+
+Given an input port named ``spikes_in``, the semantics of using this name in expressions and ODEs is that it should be understood as a train of delta pulses:
+
+.. math::
+
+   \mathrm{spikes\_in}(t) = \sum_k \delta(t - t_k)
+
+The units are the same as for a single delta function.
+
+Each spike event can optionally contain one or more attributes, such as weight or delay. These are given numerical values by the sending side when calling ``emit_spike()``, and are read out by the receiving side, by appending a dot (fullstop) to the name of the spiking input port and then writing the name of the attribute.
+
+For example, say there is a train of weighted spike events, with each event :math:`k` having weight :math:`w_k`:
+
+.. math::
+
+   \mathrm{spikes\_in}(t) = \sum_k w_k \delta(t - t_k)
+
+A spiking input port that is suitable for handling these events could be defined as such:
+
+.. code-block:: nestml
+
+   input:
+       spikes_in <- spike
+
+Note that the units of ``spikes_in.w`` are again in 1/s, as ``w`` has been defined as a dimensionless real number. If a physical unit is specified (such as pA or mV), the numeric value of the attribute is interpreted as having the units given in the definition of the input port. For example, if :math:`w_k` is assumed to be in units of mV, then in combination with the 1/s unit of the delta train, the units of ``spikes_in.w`` would be in mV/s, and the input port can be defined as follows:
+
+.. code-block:: nestml
+
+   input:
+       spikes_in <- spike
+
+In general, spiking input can be processed by referencing the input port in the right-hand side of an equation (see :ref:`Handling spiking input in equations`) or by means of ``onReceive`` event handlers (see :ref:`Handling spiking input by event handlers`).
+
+
+Handling spiking input in equations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The spiking input port name ``spikes_in`` can be used directly in the right-hand side of ODEs:
+
+.. math::
+
+   \frac{dx}{dt} = -\frac{x}{\tau} + \mathrm{spikes\_in}(t)
+
+If ``x`` is a real number, then the units here are consistent (in 1/s) on left- and right-hand side of the equation. This can be written in NESTML as:
+
+.. code-block:: nestml
+
+   x' = -x / tau + spikes_in
+
+``spikes_in`` can also be used inside a convolution; for instance, if ``K`` is a kernel, then:
+
+.. math::
+
+   \frac{dx}{dt} = -\frac{x}{\tau} + \frac{1}{C} \left(K \ast \mathrm{spikes\_in}\right)
+
+Note that applying the convolution means integrating over time, hence dropping the [1/s] unit, leaving a unitless quantity (the function of time (:math:`K \ast \mathrm{spikes\_in}`). To make the units consistent in this case, an explicit division by time (such as by a constant :math:`C` with units [s]) is required.
+
+This can be written in NESTML as:
+
+.. code-block:: nestml
+
+   x' = -x / tau + convolve(K, spikes_in) / C
+
+Physical units such as millivolts (:math:`\text{mV}`) and picoamperes (:math:`\text{pA}`) can be directly combined with the Dirac delta function to model an impulse with a physical quantity such as voltage or current. In such cases, the Dirac delta function is multiplied by the appropriate unit of the physical quantity to obtain a quantity with units of volts or amperes, for instance, if ``I`` is in ``pA``, then we can write:
+
+.. code-block:: nestml
+
+   I' = -I / tau + spikes_in * (1 pA)
+
+However, note that this does not account for different spikes carrying different weight (which typically results in different postsynaptic currents or potentials). In this example, each spike will result in a change in :math:`I` of 1 pA.
+
+To read out the attributes from events, for example the weight of the spike, the dot notation can be used, for example:
+
+.. code-block:: nestml
+
+   equations:
+       x' = -x / tau + spikes_in.w
+
+If ``spikes_in.w`` is defined as a real number, the units here are consistent (in 1/s). In case the weight is defined as having a unit in mV, it could be used for instance as follows:
+
+.. code-block:: nestml
+
+   state:
+       V mV = 0 mV
+
+   input:
+       spikes_in <- spike
+
+   equations:
+       V' = -V / tau + spikes_in
+
+Note that again, the units are consistent if :math:`w_k` is assumed to be in units of mV; in combination with the 1/s unit of the delta train, the units of ``spikes_in.w`` are in mV/s.
+
+XXX --- TODO
+
+
+
+Handling spiking input by event handlers
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+An ``onReceive`` block can be defined for every spiking input port. For example, if a port named ``pre_spikes`` is defined, the corresponding event handler has the general structure:
+
+.. code-block:: nestml
+
+   onReceive(pre_spikes):
+       println("Info: processing a presynaptic spike at time t = {t}")
+       # ... further statements go here ...
+
+The statements in the event handler will be executed when the event occurs and integrate the state of the system from "just before" the event (at :math:`t-\epsilon`, for :math:`\epsilon\rightarrow 0`) to "just after" the event (at :math:`t=t+\epsilon`). Analogous to the ``update`` block, the predefined variable ``t`` indicates the time :math:`t-\epsilon` at the start of the interval, whereas the predefined function ``timestep()`` yields the duration of the interval :math:`2\epsilon` for :math:`\epsilon\rightarrow 0`. As the timestep() function would typically yield a numerical value equal to zero, its use inside an ``onReceive`` block only makes sense to integrate over (trains of) delta pulses to obtain the area under the curve.
+
+Typically, the statements in the ``onReceive`` block integrate the delta function across time, which yields the surface area under the curve, which typically corresponds to the weight of the spike, or to another spike event attribute. Integration across time causes the 1/s unit of the spike train to drop out, so that what remains are the units of the spike attribute itself. For instance, when a port is defined with an attribute "psp" in units of mV:
+
+.. code-block:: nestml
+
+   input:
+       in_spikes(psp mV) <- spike
+
+then the following has consistent units: ``in_spikes.psp`` is in mV/s as it consists of the unit given in the spiking input port definition, multiplied with the 1/s from the delta pulses), and after integration the 1/s drops out leaving a unit of mV.
+
+.. code-block:: nestml
+
+   state:
+       V_m mV = 0 mV
+
+   onReceive(in_spikes):
+       V_m += integrate(in_spikes.psp, t, t + timestep())    # lhs and rhs both in [mV]
+
+In ``onReceive`` blocks, a spiking input port (or any of its attributes) may not appear outside of a ``integrate()`` call, because the units will be inconsistent; for example:
+
+.. code-block:: nestml
+
+   onReceive(in_spikes):
+       V_m += in_spikes.psp    # error! lhs in [mV], rhs in [mV/s]
+
+A spiking input port may appear without an attribute present; this refers to the unweighted train of delta pulses (with surface area 1):
+
+.. code-block:: nestml
+
+   state:
+       x real = 0
+
+   input:
+       in_spikes <- spike
+
+   onReceive(in_spikes):
+       x += sift(in_spikes, 1)    # increments x by 1
+
+To specify in which sequence the event handlers should be called in case multiple events are received at the exact same time, the ``priority`` parameter can be used, which can be given an integer value, where a larger value means higher priority (handled earlier). For example:
+
+.. code-block:: nestml
+
+   onReceive(pre_spikes, priority=1):
+       println("Info: processing a presynaptic spike at time t = {t}")
+
+   onReceive(post_spikes, priority=2):
+       println("Info: processing a postsynaptic spike at time t = {t}")
+
+In this case, if a pre- and postsynaptic spike are received at the exact same time, the higher-priority ``post_spikes`` handler will be invoked first.
+
+Vector input ports of constant size and with a constant numerical value for the index can be used:
+
+.. code-block:: nestml
+
+    input:
+        foo[2] <- spike
+
+    onReceive(foo[0]):
+        # ... handle foo[0] spikes...
+
+    onReceive(foo[1]):
+        # ... handle foo[1] spikes...
+
+
 Handling of time
 ----------------
 
-Inside the ``update`` block, the current time can be retrieved via the predefined, global variable ``t``. The statements executed in the block are responsible for updating the state of the model between timesteps or events. The statements in this block update the state of the model from the "current" time ``t``, to the next simulation timestep or time of next event ``t + timestep()``. The update step involves integration of the ODEs and corresponds to the "free-flight" or "subthreshold" integration; the events themselves are handled elsewhere, namely as a convolution with a kernel, or as an ``onReceive`` block.
+Inside the ``update`` block, the current time can be retrieved via the predefined, global variable ``t``. The statements executed in the block are responsible for updating the state of the model between events. The statements in this block update the state of the model from the "current" time ``t``, to the next simulation timestep or time of next event ``t + timestep()``. The update step involves integration of the ODEs, corresponding to the "free-flight" or "subthreshold" integration; the events themselves are handled elsewhere, namely as a convolution with a kernel, or as an ``onReceive`` block.
 
 
 Integrating the ODEs
 ~~~~~~~~~~~~~~~~~~~~
 
-Integrating the ODEs needs to be triggered explicitly inside the ``update`` block by calling the ``integrate_odes()`` function. Making this call explicit forces the model to be precise about the sequence of steps that needs to be carried out to step the model state forward in time.
+Numerical integration of the ODEs needs to be triggered explicitly inside the ``update`` block by calling the ``integrate_odes()`` function. Making this call explicit allows subtle differences in integration sequence to be expressed, as well as making it explicit that some variables but not others are integrated; for example, if a neuron is in an absolute refractory state, we might want to skip integrating the differential equation for the membrane potential.
 
-The ``integrate_odes()`` function numerically integrates the differential equations defined in the ``equations`` block. Integrating the ODEs from one timestep to the next has to be explicitly carried out in the model by calling the ``integrate_odes()`` function. If no parameters are given, all ODEs in the model are integrated. Integration can be limited to a given set of ODEs by giving their left-hand side state variables as parameters to the function, for example ``integrate_odes(V_m, I_ahp)`` if ODEs exist for the variables ``V_m`` and ``I_ahp``. In this example, these variables are integrated simultaneously (as one single system of equations). This is different from calling ``integrate_odes(V_m)`` and then ``integrate_odes(I_ahp)`` in that the second call would use the already-updated values from the first call. Variables not included in the call to ``integrate_odes()`` are assumed to remain constant (both inside the numeric solver stepping function as well as from before to after the call).
+If ``integrate_odes()`` is called without parameters, all ODEs defined in the model are integrated. Integration can be limited to a given set of ODEs by giving their left-hand side state variables as parameters to the function, for example, ``integrate_odes(V_m, I_ahp)`` if ODEs exist for the variables ``V_m`` and ``I_ahp``. In this example, these variables are integrated simultaneously (as one single system of equations). This is different from calling ``integrate_odes(V_m)`` and then ``integrate_odes(I_ahp)``, in that the second call would use the already-updated state value from the first call. Variables not included in the call to ``integrate_odes()`` are assumed to remain constant (both inside the numeric solver stepping function as well as from before to after the call).
 
-In case of higher-order ODEs of the form ``F(x'', x', x) = 0``, the solution ``x(t)`` is obtained by just providing the variable ``x`` to the ``integrate_odes`` function. For example,
+In case of higher-order ODEs, calling ``integrate_odes()`` integrates variables of all order. For example, in case an ODE :math:`d^2x/dt^2` is defined, then calling ``integrate_odes(x)`` will integrate all variable orders related to ``x``:
 
 .. code-block:: nestml
 
@@ -1122,9 +1353,7 @@ In case of higher-order ODEs of the form ``F(x'', x', x) = 0``, the solution ``x
    update:
      integrate_odes(x)
 
-Here, ``integrate_odes(x)`` integrates the entire dynamics of ``x(t)``, in this case, ``x`` and ``x'``.
-
-Note that the dynamical equations that correspond to convolutions are always updated, regardless of whether ``integrate_odes()`` is called. The state variables affected by incoming events are updated at the end of each timestep, that is, within one timestep, the state as observed by statements in the ``update`` block will be those at :math:`t^-`, i.e. "just before" it has been updated due to the events. See also :ref:`Integrating spiking input` and :ref:`Integration order`.
+Here, ``integrate_odes(x)`` integrates both ``x`` and ``x'``.
 
 ODEs that can be solved analytically are integrated to machine precision from one timestep to the next using the propagators obtained from `ODE-toolbox <https://ode-toolbox.readthedocs.io/>`_. In case a numerical solver is used (such as Runge-Kutta or forward Euler), the same ODEs are also evaluated numerically by the numerical solver to allow more precise values for analytically solvable ODEs *within* a timestep. In this way, the long-term dynamics obeys the analytic (more exact) equations, while the short-term (within one timestep) dynamics is evaluated to the precision of the numerical integrator.
 
@@ -1132,13 +1361,13 @@ ODEs that can be solved analytically are integrated to machine precision from on
 Retrieving simulation timing parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To retrieve timing parameters from the simulator kernel, two special functions are built into NESTML:
+To retrieve timing parameters from the simulator kernel, three predefined functions are built into NESTML:
 
-- ``resolution`` returns the current timestep taken. Can be used only inside the ``update`` block and in intialising expressions. The use of this function assumes that the simulator uses fixed resolution steps, therefore it is recommended to use ``timestep()`` instead in order to make the models more generic.
-- ``timestep`` returns the current timestep taken. Can be used only inside the ``update`` block.
-- ``steps`` takes one parameter of type ``ms`` and returns the number of simulation steps in the current simulation resolution. This only makes sense in case of a fixed simulation resolution (such as in NEST); hence, use of this function is not recommended, because it precludes the models from being compatible with other simulation platforms where a non-constant simulation timestep is used.
+- ``resolution()`` can only be used in the context of fixed-timestep simulation. It returns the time resolution (duration of each timestep) taken by the simulator. It is only allowed to be called inside the ``update`` block and in intialising expressions. This only makes sense in case of a fixed-timestep simulation; hence, use of this function is not recommended, because it precludes the models from being compatible with other simulation platforms where a non-constant simulation timestep is used. Instead, ``timestep()`` should be preferred to make models more generic.
+- ``timestep()`` returns the current timestep taken. It is only allowed inside the ``update`` block.
+- ``steps()`` takes one parameter of type ``ms`` and returns the number of simulation steps in the current simulation resolution. This only makes sense in case of a fixed-timestep simulation; hence, use of this function is not recommended, because it precludes the models from being compatible with other simulation platforms where a non-constant simulation timestep is used.
 
-When using ``resolution()``, it is recommended to use the function call directly in the code, rather than defining it as a parameter. This makes the model more robust in case the resolution is changed during the simulation. In some cases, as in the synapse ``update`` block, a step is made between spike events, unconstrained by the simulation resolution. For example:
+When using ``resolution()``, it is recommended to use the function call directly in the code, rather than assigning it to a parameter. This makes the model more robust in case the resolution is changed during the simulation. In some cases, as in the ``update`` block, a step may be made between spike events, unconstrained by the simulation resolution. For example:
 
 .. code-block:: nestml
 
@@ -1156,7 +1385,7 @@ When using ``resolution()``, it is recommended to use the function call directly
 Integration order
 ~~~~~~~~~~~~~~~~~
 
-During simulation, the simulation kernel (for example, NEST Simulator) is responsible for invoking the model functions that update its state: those in ``update``, ``onReceive``, integrating the ODEs, etc. Different simulators may invoke these functions in a different sequence and with different steps of time, leading to different numerical results even though the same model was used. For example, "time-based" simulators take discrete steps of time of fixed duration (for example, 1 millisecond), whereas "event-based" simulators process events at their exact time of occurrence, without having to round off the time of occurrence of the event to the nearest timestep interval. The following section describes some of the variants of integration sequences that can be encountered and what this means for the outcome of a simulation.
+During simulation, the simulation kernel (for example, NEST Simulator) is responsible for invoking the model functions that update its state: those in ``update``, ``onReceive``, and ``onCondition`` blocks. Different simulators may invoke these functions in a different sequence and with different steps of time, leading to different numerical results even though the same model was used. For example, "time-based" simulators take discrete steps of time of fixed duration (for example, 1 millisecond), whereas "event-based" simulators process events at their exact time of occurrence, without having to round off the time of occurrence of the event to the nearest timestep interval. The following section describes some of the variants of integration sequences that can be encountered and what this means for the outcome of a simulation.
 
 The recommended update sequence for a spiking neuron model is shown below (panel A), which is optimal ("gives the fewest surprises") in the case the simulator uses a minimum synaptic transmission delay (this includes NEST). In this sequence, first the subthreshold dynamics are evaluated (that is, ``integrate_odes()`` is called; in the simplest case, all equations are solved simultaneously) and only afterwards, incoming spikes are processed.
 
@@ -1164,12 +1393,12 @@ The recommended update sequence for a spiking neuron model is shown below (panel
 .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/integration_order.png
    :alt: Different conventions for the integration sequence. Modified after [1]_, their Fig. 10.2. The precise sequence of operations depends on whether the simulation is considered to have synaptic propagation delays (A) or not (B).
 
-The numeric results of a typical simulation run are shown below. Consider a leaky integrate-and-fire neuron with exponentially decaying postsynaptic currents :math:`I_\text{syn}`. The neuron is integrated using a fixed timestep of :math:`1~\text{ms}` (left) and using an event-based method (right):
+The numeric results of a typical simulation run are shown below. Consider a leaky integrate-and-fire neuron with exponentially decaying postsynaptic currents :math:`I_\text{syn}`. The same neuron is integrated using a fixed timestep of :math:`1~\text{ms}` (left) and using an event-based method (right):
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/integration_order_example.png
    :alt: Numerical example for two different integration sequences.
 
-On the left, both pre-synaptic spikes are only processed at the end of the interval in which they occur. The statements in the ``update`` block are run every timestep for a fixed timestep of :math:`1~\text{ms}`, alternating with the statements in the ``onReceive`` handler for the spiking input port. Note that this means that the effect of the spikes becomes visible at the end of the timestep in :math:`I_\text{syn}`, but it takes another timestep before ``integrate_odes()`` is called again and consequently for the effect of the spikes to become visible in the membrane potential. This results in a threshold crossing and the neuron firing a spike. On the right half of the figure, the same presynaptic spike timing is used, but events are processed at their exact time of occurrence. In this case, the ``update`` statements are called once to update the neuron from time 0 to :math:`1~\text{ms}`, then again to update from :math:`1~\text{ms}` to the time of the first spike, then the spike is processed by running the statements in its ``onReceive`` block, then ``update`` is called to update from the time of the first spike to the second spike, and so on. The time courses of :math:`I_\text{syn}` and :math:`V_\text{m}` are such that the threshold is not reached and the neuron does not fire, illustrating the numerical differences that can occur when the same model is simulated using different strategies.
+On the left, both pre-synaptic spikes are only processed at the end of the interval in which they occur. The statements in the ``update`` block are run every timestep for a fixed timestep of :math:`1~\text{ms}`, alternating with the statements in the ``onReceive`` handler for the spiking input port. Note that this means that the effect of the spikes becomes visible at the end of the timestep in :math:`I_\text{syn}`, but it takes another timestep before ``integrate_odes()`` is called again and consequently for the effect of the spikes to become visible in the membrane potential. This results in a threshold crossing and the neuron firing a spike. In the right panel in the figure, the same presynaptic spike timing is used, but events are processed at their exact time of occurrence. In this case, the ``update`` statements are called once to update the neuron from time 0 to :math:`1~\text{ms}`, then again to update from :math:`1~\text{ms}` to the time of the first spike, then the spike is processed by running the statements in its ``onReceive`` block, then ``update`` is called to update from the time of the first spike to the second spike, and so on. The time courses of :math:`I_\text{syn}` and :math:`V_\text{m}` are such that the threshold is not reached and the neuron does not fire, illustrating the numerical differences that can occur when the same model is simulated using different strategies.
 
 
 Guards

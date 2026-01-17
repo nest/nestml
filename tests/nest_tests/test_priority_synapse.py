@@ -30,7 +30,7 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
     import matplotlib
-    matplotlib.use('Agg')
+    matplotlib.use("Agg")
     import matplotlib.ticker
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
@@ -60,8 +60,6 @@ class TestSynapsePriority:
                                                                     {"neuron": "iaf_psc_delta_neuron",
                                                                      "synapse": "event_inv_priority_test_synapse",
                                                                      "post_ports": ["post_spikes"]}],
-                                           "delay_variable": {"event_priority_test_synapse": "d",
-                                                              "event_inv_priority_test_synapse": "d"},
                                            "weight_variable": {"event_priority_test_synapse": "w",
                                                                "event_inv_priority_test_synapse": "w"}})
 
@@ -107,15 +105,13 @@ class TestSynapsePriority:
             nest.Install("nestml_module")
         except Exception:
             pass
-        nest.SetKernelStatus({'resolution': resolution})
+        nest.SetKernelStatus({"resolution": resolution})
 
         print("Pre spike times: " + str(pre_spike_times))
         print("Post spike times: " + str(post_spike_times))
 
-        # wr = nest.Create('weight_recorder')
         nest.CopyModel(synapse_model_name, "syn_nestml",
-                       {"d": delay})
-        #    {"weight_recorder": wr[0], "d": delay})
+                       {"delay": delay})
 
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",
@@ -133,7 +129,7 @@ class TestSynapsePriority:
 
         nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
         nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
-        nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={'synapse_model': 'syn_nestml'})
+        nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "syn_nestml"})
         # nest.Connect(mm, post_neuron)
         nest.Connect(pre_neuron, spikedet_pre)
         nest.Connect(post_neuron, spikedet_post)

@@ -48,28 +48,21 @@ Depending on whether the plasticity rule depends only on pre-, or on both pre- a
 Presynaptic spike event handler
 -------------------------------
 
-Typically, it is the responsibility of the event handler for the spiking input port to create an event at the (spiking) output port. This can be done using the predefined ``emit_spike(w, d)`` function, which for synapses is expected to take two parameters: a weight ``w`` and delay ``d``.
+Typically, it is the responsibility of the event handler for the spiking input port to create an event at the (spiking) output port. This can be done using the predefined ``emit_spike()`` function, which takes an (optional) parameter that for synapses typically corresponds to the weight ``w``.
 
 The corresponding event handler has the general structure:
-
-.. code-block:: nestml
-
-   onReceive(pre_spikes):
-       print("Info: processing a presynaptic spike at time t = {t}")
-       # ... plasticity dynamics go here ...
-       emit_spike(w, d)
-
-The statements in the event handler will be executed when the event occurs. The weight and delay could be defined as follows:
 
 .. code-block:: nestml
 
    state:
        w real = 1
 
-   parameters:
-       d ms = 1 ms
+   onReceive(pre_spikes):
+       print("Info: processing a presynaptic spike at time t = {t}")
+       # ... plasticity dynamics go here ...
+       emit_spike(w)
 
-If synaptic plasticity modifies the weight of the synapse, the weight update could (but does not have to) take place before calling ``emit_spike()`` with the updated weight.
+The statements in the event handler will be executed when the event occurs. If synaptic plasticity modifies the weight of the synapse, the weight update could (but does not have to) take place before calling ``emit_spike()`` with the updated weight.
 
 State variables (in particular, synaptic "trace" variables as often used in plasticity models) can be updated in the event handler as follows:
 
@@ -257,8 +250,8 @@ Our update rule for depression is:
        w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * tr_post ))
        w = max(Wmin, w_)
 
-       # deliver spike to postsynaptic partner
-       emit_spike(w, d)
+       # send spike to postsynaptic partner
+       emit_spike(w)
 
 Finally, all remaining parameters are defined:
 
@@ -340,7 +333,7 @@ To implement this rule, the postsynaptic trace is reset to 1 upon a spike, where
    onReceive(pre_spikes):
        tr_pre += 1
        w = ...  # depression step (omitted)
-       emit_spike(w, d)
+       emit_spike(w)
 
 The remainder of the model is the same as the all-to-all STDP synapse.
 
@@ -438,7 +431,7 @@ The weight update rules can then be expressed in terms of the traces and paramet
        w = max(Wmin, w_)
 
        # deliver spike to postsynaptic partner
-       emit_spike(w, d)
+       emit_spike(w)
 
 
 Generating code

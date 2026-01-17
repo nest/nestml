@@ -55,8 +55,7 @@ class TestHomogeneousParametersSynapse:
                              logging_level="DEBUG",
                              module_name="nestmlmodule",
                              suffix="_nestml",
-                             codegen_opts={"delay_variable": {"static_synapse": "d"},
-                                           "weight_variable": {"static_synapse": "w"}})
+                             codegen_opts={"weight_variable": {"static_synapse": "w"}})
 
     def test_homogeneous_parameters_synapse(self):
 
