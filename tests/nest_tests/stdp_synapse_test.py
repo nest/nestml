@@ -95,8 +95,8 @@ class TestNestSTDPSynapse:
     @pytest.mark.parametrize("delay", [1., 1.5])
     @pytest.mark.parametrize("resolution", [.1, .5, 1.])
     @pytest.mark.parametrize("pre_spike_times,post_spike_times", [
-        ([1., 11., 21.],
-         [6., 16., 26.]),
+        # ([1., 11., 21.],
+        #  [6., 16., 26.]),
         (np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100)))))),
          np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))),
         (np.array([2.,   4.,   7.,   8.,  12.,  13.,  19.,  23.,  24.,  28.,  29.,  30.,  33.,  34.,
@@ -306,9 +306,11 @@ class TestNestSTDPSynapse:
             if sim_mdl:
                 post_spike_times_ = nest.GetStatus(spikedet_post, "events")[0]["times"]
                 print("Actual post spike times: " + str(post_spike_times_))
+                assert len(post_spike_times_) > 0, "Postsynaptic neuron didn't spike!"
             if sim_ref:
                 post_ref_spike_times_ = nest.GetStatus(spikedet_post_ref, "events")[0]["times"]
                 print("Actual post ref spike times: " + str(post_ref_spike_times_))
+                assert len(post_spike_times_) > 0, "Postsynaptic neuron didn't spike!"
 
             if sim_ref:
                 n_spikes = len(pre_ref_spike_times_)

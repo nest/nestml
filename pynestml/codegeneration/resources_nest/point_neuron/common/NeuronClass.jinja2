@@ -70,7 +70,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "{{ neuronName }}.h"
 
 // uncomment the next line to enable printing of detailed debug information
-// #define DEBUG
+#define DEBUG
 
 {%  if state_vars_that_need_continuous_buffering | length > 0 %}
 {%-     if continuous_state_buffering_method == "continuous_time_buffer" %}
@@ -1157,7 +1157,7 @@ void {{ neuronName }}::handle(nest::SpikeEvent &e)
 #endif
 
   assert(e.get_delay_steps() > 0);
-  assert(e.get_rport() <= {{ utils.nestml_spiking_input_port_to_nest_rport_dict(astnode) | length }});
+  assert(e.get_rport() <= {{ utils.nestml_spiking_input_port_to_nest_rport_dict(astnode) | length }});    // the neuron should not receive spike on an rport that does not exist
 
 {%-     for spike_in_port_name, rport in utils.nestml_spiking_input_port_to_nest_rport_dict(astnode).items() %}
 {%-         set spike_in_port = utils.get_input_port_by_name(astnode.get_input_blocks(), spike_in_port_name.split("_VEC_IDX_")[0]) %}
@@ -1169,12 +1169,12 @@ void {{ neuronName }}::handle(nest::SpikeEvent &e)
 {#-     linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
     B_.spike_input_{{ spike_in_port_name }}_.add_value(
       e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
-      e.get_multiplicity() );
+      e.get_weight() * e.get_multiplicity() ); // XXX: TODO: factor 1E3 should be removed; see https://github.com/nest/nestml/issues/984
 {%-         else %}
 {#-     generic input port: use lists of spike events for each buffer slot #}
     B_.spike_input_{{ spike_in_port_name }}_.append_value(
       e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
-      e.get_multiplicity() );
+      e.get_weight() * e.get_multiplicity() ); // XXX: TODO: factor 1E3 should be removed; see https://github.com/nest/nestml/issues/984
 {%-         endif %}
 
     // increment the number of spikes received

@@ -149,15 +149,6 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         if function_name == PredefinedFunctions.PRINTLN:
             return 'std::cout << {!s} << std::endl'
 
-        if function_name == PredefinedFunctions.SIFT:
-            # XXX: this should be in the jinja2 template for NEST?!
-#             if str(ast.get_args()[1]) != PredefinedVariables.TIME_CONSTANT %}
-# {{ raise('Only ``t`` is supported as second parameter of sift() function.') }}
-# {%- endif -%}
-
-            # return 'B_.spike_input_{{ 1!s }}_grid_sum_' # __spike_input_spike_in_port
-            return '__spike_input_{0!s}'
-
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
             return function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'

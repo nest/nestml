@@ -46,7 +46,7 @@ model fir_filter:
     input:
         spike_in_port <- spike
 
-    onReceive(spike_in):
+    onReceive(spike_in_port):
         spike_in_buffer += sift(spike_in_port, t)
 
     update:

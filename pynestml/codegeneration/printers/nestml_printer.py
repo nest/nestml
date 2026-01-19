@@ -349,12 +349,8 @@ class NESTMLPrinter(ModelPrinter):
         ret += " <- "
         if node.is_spike():
             ret += "spike"
-            if node.get_parameters():
-                ret += "("
-                for parameter in node.get_parameters():
-                    ret += self.print_parameter(parameter)
-                ret += ")"
         else:
+            assert node.is_continuous()
             ret += "continuous"
         ret += print_sl_comment(node.in_comment) + "\n"
         return ret

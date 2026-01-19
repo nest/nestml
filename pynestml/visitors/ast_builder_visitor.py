@@ -312,6 +312,9 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
                 args.append(self.visit(arg))
         elif ctx.expression() is not None:
             args.append(self.visit(ctx.expression()))
+        if name.upper() == "SIFT":
+            args[0].set_implicit_conversion_factor(1E3)    # XXX: TODO: the factor 1E3 should be removed; see https://github.com/nest/nestml/issues/984
+
         node = ASTNodeFactory.create_ast_function_call(callee_name=name, args=args,
                                                        source_position=create_source_pos(ctx))
         return node

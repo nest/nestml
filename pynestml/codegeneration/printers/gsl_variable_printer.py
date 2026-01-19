@@ -90,14 +90,14 @@ class GSLVariablePrinter(CppVariablePrinter):
         :return: the corresponding representation as a string
         """
         variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+        var_name_upper = variable_symbol.get_symbol_name().upper()
         if variable_symbol.is_spike_input_port():
-            var_name = variable_symbol.get_symbol_name().upper()
             if variable.has_vector_parameter():
                 if variable.get_vector_parameter().is_variable():
                     # the enum corresponding to the first input port in a vector of input ports will have the _0 suffixed to the enum's name.
-                    var_name += "_0 + " + variable.get_vector_parameter().get_variable().get_name()
+                    var_name_upper += "_0 + " + variable.get_vector_parameter().get_variable().get_name()
                 else:
-                    var_name += "_" + str(variable.get_vector_parameter())
+                    var_name_upper += "_" + str(variable.get_vector_parameter())
 
             # add variable attribute if it exists
             if variable.attribute:
@@ -107,7 +107,8 @@ class GSLVariablePrinter(CppVariablePrinter):
 
         # case of continuous-type input port
         assert variable_symbol.is_continuous_input_port()
-        return variable_symbol.get_symbol_name() + '_grid_sum_'
+        # return variable_symbol.get_symbol_name() + '_grid_sum_'
+        return "continuous_inputs_grid_sum_[" + var_name_upper + "]"
 
     def _print(self, variable, symbol, with_origin: bool = True):
         variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
