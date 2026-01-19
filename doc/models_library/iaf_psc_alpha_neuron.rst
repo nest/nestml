@@ -39,7 +39,7 @@ relevant measures analytically.
 References
 ++++++++++
 
-.. [1] Rotter S,  Diesmann M (1999). Exact simulation of
+.. [1] Rotter S, Diesmann M (1999). Exact simulation of
        time-invariant linear systems with applications to neuronal
        modeling. Biologial Cybernetics 81:381-402.
        DOI: https://doi.org/10.1007/s004220050570
@@ -66,15 +66,15 @@ Parameters
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-    
-    "C_m", "pF", "250pF", "Capacitance of the membrane"    
-    "tau_m", "ms", "10ms", "Membrane time constant"    
-    "tau_syn_inh", "ms", "2ms", "Time constant of synaptic current"    
-    "tau_syn_exc", "ms", "2ms", "Time constant of synaptic current"    
-    "refr_T", "ms", "2ms", "Duration of refractory period"    
-    "E_L", "mV", "-70mV", "Resting potential"    
-    "V_reset", "mV", "-70mV", "Reset potential of the membrane"    
-    "V_th", "mV", "-55mV", "Spike threshold potential"    
+
+    "C_m", "pF", "250pF", "Capacitance of the membrane"
+    "tau_m", "ms", "10ms", "Membrane time constant"
+    "tau_syn_inh", "ms", "2ms", "Time constant of synaptic current"
+    "tau_syn_exc", "ms", "2ms", "Time constant of synaptic current"
+    "refr_T", "ms", "2ms", "Duration of refractory period"
+    "E_L", "mV", "-70mV", "Resting potential"
+    "V_reset", "mV", "-70mV", "Reset potential of the membrane"
+    "V_th", "mV", "-55mV", "Spike threshold potential"
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -86,9 +86,9 @@ State variables
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-    
-    "V_m", "mV", "E_L", ""    
-    "refr_t", "ms", "0ms", "Refractory period timer"    
+
+    "V_m", "mV", "E_L", ""
+    "refr_t", "ms", "0ms", "Refractory period timer"
     "is_refractory", "boolean", "false", ""
 
 

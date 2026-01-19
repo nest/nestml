@@ -1,30 +1,28 @@
 # BiexponentialPostSynapticResponse.nestml
 # ########################################
-# 
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # Bi-exponential ("beta function") postsynaptic response
-# 
-# 
+#
 # Copyright statement
 # +++++++++++++++++++
-# 
+#
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
-# 
+#
 # NEST is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # NEST is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
@@ -65,7 +63,7 @@ model biexp_postsynaptic_response_neuron:
         V_m' = (-I_leak - I_syn_exc - I_syn_inh - I_syn_gap - I_syn_GABA + I_e + I_stim) / C_m
 
     parameters:
-        E_L mV = -70.0mV # Leak reversal Potential (aka resting potential)
+        E_L mV = -70.0mV # Leak reversal potential (a.k.a. resting potential)
         C_m pF = 250.0pF # Capacity of the membrane
         refr_T ms = 2.0ms # Refractory period
         V_th mV = -55.0mV      # Threshold Potential

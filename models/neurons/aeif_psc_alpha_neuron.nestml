@@ -11,15 +11,14 @@
 # .. math::
 #
 #    C_m \frac{dV_m}{dt} =
-#    -g_L(V_m-E_L)+g_L\Delta_T\exp\left(\frac{V_m-V_{th}}{\Delta_T}\right) -
-#  g_e(t)(V_m-E_e) \\
-#                                                      -g_i(t)(V_m-E_i)-w + I_e
+#    -g_L(V_m-E_L)+g_L\Delta_T\exp\left(\frac{V_m-V_{th}}{\Delta_T}\right) - g_e(t)(V_m-E_e) \\
+#    -g_i(t)(V_m-E_i)-w + I_e
 #
 # and
 #
 # .. math::
 #
-#  \tau_w \frac{dw}{dt} = a(V_m-E_L) - w
+#    \tau_w \frac{dw}{dt} = a(V_m-E_L) - w
 #
 # Note that the membrane potential can diverge to positive infinity due to the exponential term. To avoid numerical instabilities, instead of :math:`V_m`, the value :math:`\min(V_m,V_{peak})` is used in the dynamical equations.
 #
@@ -66,11 +65,11 @@ model aeif_psc_alpha_neuron:
 
     parameters:
         # membrane parameters
-        C_m pF = 281.0 pF         # Membrane Capacitance
+        C_m pF = 281.0 pF         # Membrane capacitance
         refr_T ms = 2 ms          # Duration of refractory period
         V_reset mV = -60.0 mV     # Reset Potential
         g_L nS = 30.0 nS          # Leak Conductance
-        E_L mV = -70.6 mV         # Leak reversal Potential (aka resting potential)
+        E_L mV = -70.6 mV         # Leak reversal potential (a.k.a. resting potential)
 
         # spike adaptation parameters
         a nS = 4 nS               # Subthreshold adaptation

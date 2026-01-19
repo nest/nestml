@@ -1,12 +1,12 @@
 # hill_tononi - Neuron model after Hill & Tononi (2005)
 # #####################################################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # This model neuron implements a slightly modified version of the
 # neuron model described in [1]_. The most important properties are:
-# 
+#
 # - Integrate-and-fire with threshold adaptive threshold.
 # - Repolarizing potassium current instead of hard reset.
 # - AMPA, NMDA, GABA_A, and GABA_B conductance-based synapses with
@@ -14,31 +14,30 @@
 # - Voltage-dependent NMDA with instantaneous or two-stage unblocking [1]_, [2]_.
 # - Intrinsic currents I_h, I_T, I_Na(p), and I_KNa.
 # - Synaptic "minis" are not implemented.
-# 
+#
 # Documentation and examples can be found on the NEST Simulator repository
 # (https://github.com/nest/nest-simulator/) at the following paths:
 # - docs/model_details/HillTononiModels.ipynb
 # - pynest/examples/intrinsic_currents_spiking.py
 # - pynest/examples/intrinsic_currents_subthreshold.py
-# 
-# 
+#
+#
 # References
 # ++++++++++
-# 
+#
 # .. [1] Hill S, Tononi G (2005). Modeling sleep and wakefulness in the
 #        thalamocortical system. Journal of Neurophysiology. 93:1671-1698.
 #        DOI: https://doi.org/10.1152/jn.00915.2004
 # .. [2] Vargas-Caballero M, Robinson HPC (2003). A slow fraction of Mg2+
-#        unblock of NMDA receptors limits their  contribution to spike generation
+#        unblock of NMDA receptors limits their contribution to spike generation
 #        in cortical pyramidal neurons. Journal of Neurophysiology 89:2778-2783.
 #        DOI: https://doi.org/10.1152/jn.01038.2002
-#
 #
 # Copyright statement
 # +++++++++++++++++++
 #
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
 #
 # NEST is free software: you can redistribute it and/or modify
@@ -101,10 +100,10 @@ model hill_tononi_neuron:
         # Low-thresh Ca current; member only to allow recording
         recordable inline I_T pA = -T_g_peak / nS * IT_m / nS * IT_m / nS * IT_h * (V_m - T_E_rev)
 
-        recordable inline I_h pA = -h_g_peak / nS * Ih_m  * (V_m - h_E_rev)
+        recordable inline I_h pA = -h_g_peak / nS * Ih_m * (V_m - h_E_rev)
         # The spike current is only activate immediately after a spike.
         inline I_spike mV = (g_spike) ? -(V_m - E_K) / Tau_spike * ms : 0 mV
-        V_m'  = ((I_Na + I_K + I_syn + I_NaP + I_KNa + I_T + I_h + I_e + I_stim) / Tau_m + I_spike * pA/(ms * mV)) * s/nF
+        V_m' = ((I_Na + I_K + I_syn + I_NaP + I_KNa + I_T + I_h + I_e + I_stim) / Tau_m + I_spike * pA/(ms * mV)) * s/nF
         potassium_refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``potassium_refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
 
         #############
@@ -125,7 +124,7 @@ model hill_tononi_neuron:
 
         # equation modified from y[](1-D_eq) to (y[]-D_eq), since we'd not
         # be converging to equilibrium otherwise
-        IKNa_D' = (D_influx_peak * D_influx * nS - (IKNa_D  - KNa_D_EQ / mV) / tau_D) / ms
+        IKNa_D' = (D_influx_peak * D_influx * nS - (IKNa_D - KNa_D_EQ / mV) / tau_D) / ms
         inline tau_m_T real = 0.22 / (exp(-(V_m / mV + 132.0) / 16.7) + exp((V_m / mV + 16.8) / 18.2)) + 0.13
         inline tau_h_T real = 8.2 + (56.6 + 0.27 * exp((V_m / mV + 115.2) / 5.0)) / (1.0 + exp((V_m / mV + 86.0) / 3.2))
         inline I_h_Vthreshold real = -75.0
@@ -137,7 +136,7 @@ model hill_tononi_neuron:
         #############
         # Synapses
         #############
-        kernel g_AMPA' = g_AMPA$ - g_AMPA  / AMPA_Tau_2,
+        kernel g_AMPA' = g_AMPA$ - g_AMPA / AMPA_Tau_2,
                g_AMPA$' = -g_AMPA$ / AMPA_Tau_1
 
         kernel g_NMDA' = g_NMDA$ - g_NMDA / NMDA_Tau_2,
@@ -152,7 +151,7 @@ model hill_tononi_neuron:
     parameters:
         E_Na mV = 30.0 mV
         E_K mV = -90.0 mV
-        g_NaL nS =  0.2 nS
+        g_NaL nS = 0.2 nS
         g_KL nS = 1.0 nS       # 1.0 - 1.85
         Tau_m ms = 16.0 ms     # membrane time constant applying to all currents but repolarizing K-current (see [1, p 1677])
         Theta_eq mV = -51.0 mV # equilibrium value
@@ -161,6 +160,7 @@ model hill_tononi_neuron:
         t_spike ms = 2.0 ms    # duration of re-polarizing potassium current
 
         # Parameters for synapse of type AMPA, GABA_A, GABA_B and NMDA
+
         AMPA_g_peak nS = 0.1 nS      # peak conductance
         AMPA_E_rev mV = 0.0 mV       # reversal potential
         AMPA_Tau_1 ms = 0.5 ms       # rise time
@@ -181,6 +181,7 @@ model hill_tononi_neuron:
         GABA_B_E_rev mV = -90.0 mV   # reversal potential for intrinsic current
 
         # parameters for intrinsic currents
+
         NaP_g_peak nS = 1.0 nS       # peak conductance for intrinsic current
         NaP_E_rev mV = 30.0 mV       # reversal potential for intrinsic current
         KNa_g_peak nS = 1.0 nS       # peak conductance for intrinsic current

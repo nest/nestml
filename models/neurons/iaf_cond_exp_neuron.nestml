@@ -1,35 +1,34 @@
 # iaf_cond_exp - Simple conductance based leaky integrate-and-fire neuron model
 # #############################################################################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # iaf_cond_exp is an implementation of a spiking neuron using IAF dynamics with
 # conductance-based synapses. Incoming spike events induce a post-synaptic change
 # of conductance modelled by an exponential function. The exponential function
 # is normalised such that an event of weight 1.0 results in a peak conductance of
 # 1 nS.
-# 
+#
 # References
 # ++++++++++
-# 
+#
 # .. [1] Meffin H, Burkitt AN, Grayden DB (2004). An analytical
 #        model for the large, fluctuating synaptic conductance state typical of
 #        neocortical neurons in vivo. Journal of Computational Neuroscience,
 #        16:159-175.
 #        DOI: https://doi.org/10.1023/B:JCNS.0000014108.03012.81
-# 
+#
 # See also
 # ++++++++
-# 
-# iaf_psc_delta, iaf_psc_exp, iaf_cond_exp
 #
+# iaf_psc_delta, iaf_psc_exp, iaf_cond_exp
 #
 # Copyright statement
 # +++++++++++++++++++
 #
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
 #
 # NEST is free software: you can redistribute it and/or modify
@@ -48,12 +47,12 @@
 model iaf_cond_exp_neuron:
 
     state:
-        V_m mV = E_L    # Membrane potential
+        V_m mV = E_L        # Membrane potential
         refr_t ms = 0 ms    # Refractory period timer
 
     equations:
-        kernel g_inh = exp(-t/tau_syn_inh) # inputs from the inh conductance
-        kernel g_exc = exp(-t/tau_syn_exc) # inputs from the exc conductance
+        kernel g_inh = exp(-t / tau_syn_inh) # inputs from the inh conductance
+        kernel g_exc = exp(-t / tau_syn_exc) # inputs from the exc conductance
 
         inline I_syn_exc pA = convolve(g_exc, exc_spikes) * nS * (V_m - E_exc)
         inline I_syn_inh pA = convolve(g_inh, inh_spikes) * nS * (V_m - E_inh)
@@ -65,7 +64,7 @@ model iaf_cond_exp_neuron:
     parameters:
         C_m pF = 250 pF         # Membrane capacitance
         g_L nS = 16.6667 nS     # Leak conductance
-        E_L mV = -70 mV         # Leak reversal potential (aka resting potential)
+        E_L mV = -70 mV         # Leak reversal potential (a.k.a. resting potential)
         refr_T ms = 2 ms        # Duration of refractory period
         V_th mV = -55 mV        # Spike threshold potential
         V_reset mV = -60 mV     # Reset potential

@@ -1,7 +1,6 @@
 # stdp_synapse - Synapse model for spike-timing dependent plasticity
 # ##################################################################
 #
-#
 # Description
 # +++++++++++
 #
@@ -35,7 +34,6 @@
 #        Stable Hebbian learning from spike timing-dependent
 #        plasticity, Journal of Neuroscience, 20:23,8812--8821
 #
-#
 # Copyright statement
 # +++++++++++++++++++
 #
@@ -63,7 +61,7 @@ model stdp_synapse:
         post_trace real = 0.
 
     parameters:
-        d ms = 1 ms    # Synaptic transmission delay
+        d ms = 1 ms                 # Synaptic transmission delay
         lambda real =  0.01         # (dimensionless) learning rate for causal updates
         alpha real = 1              # relative learning rate for acausal firing
         tau_tr_pre ms = 20 ms       # time constant of presynaptic trace

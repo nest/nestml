@@ -1,40 +1,39 @@
 # hh_moto_5ht_nestml - a motor neuron model in HH formalism with 5HT modulation
 # #############################################################################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # hh_moto_5ht is an implementation of a spiking motor neuron using the Hodgkin-Huxley formalism according to [2]_. Basically this model is an implementation of the existing NEURON model [1]_.
-# 
+#
 # The parameter that represents 5HT modulation is ``g_K_Ca_5ht``. When it equals 1, no modulation happens. An application of 5HT corresponds to its decrease. The default value for it is 0.6. This value was used in the Neuron simulator model. The range of this parameter is (0, 1] but you are free to play with any value.
-# 
+#
 # Post-synaptic currents and spike detection are the same as in hh_psc_alpha.
-# 
-# 
+#
+#
 # References
 # ++++++++++
-# 
+#
 # .. [1] Muscle spindle feedback circuit by Moraud EM and Capogrosso M.
 #        https://senselab.med.yale.edu/ModelDB/showmodel.cshtml?model=189786
-# 
+#
 # .. [2] Compartmental model of vertebrate motoneurons for Ca2+-dependent spiking and plateau potentials under pharmacological treatment.
 #        Booth V, Rinzel J, Kiehn O.
 #        http://refhub.elsevier.com/S0896-6273(16)00010-6/sref4
-# 
+#
 # .. [3] Repository: https://github.com/research-team/hh-moto-5ht
-# 
-# 
+#
+#
 # See also
 # ++++++++
-# 
-# hh_psc_alpha
 #
+# hh_psc_alpha
 #
 # Copyright statement
 # +++++++++++++++++++
 #
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
 #
 # NEST is free software: you can redistribute it and/or modify
@@ -52,10 +51,10 @@
 #
 model hh_moto_5ht_neuron:
     state:
-        V_m mV = V_m_init    # Membrane potential
-        V_m_old mV = V_m_init    # Membrane potential
-        refr_t ms = 0 ms    # Refractory period timer
-        Ca_in mmol = Ca_in_init    # Inside Calcium concentration
+        V_m mV = V_m_init            # Membrane potential
+        V_m_old mV = V_m_init        # Membrane potential at previous timestep
+        refr_t ms = 0 ms             # Refractory period timer
+        Ca_in mmol = Ca_in_init      # Inside Calcium concentration
         Act_m real = alpha_m(V_m_init) / (alpha_m(V_m_init) + beta_m(V_m_init))
         Act_h real = h_inf(V_m_init)
         Inact_n real = n_inf(V_m_init)
@@ -75,7 +74,7 @@ model hh_moto_5ht_neuron:
         inline I_Na pA = g_Na * Act_m * Act_m * Act_m * Act_h * (V_m - E_Na)
         inline I_K pA = g_K_rect * Inact_n * Inact_n * Inact_n * Inact_n * (V_m - E_K)
         inline I_L pA = g_L * (V_m - E_L)
-        inline I_Ca_N pA = g_Ca_N *    Act_mc * Act_mc * Act_hc * (V_m - E_Ca)
+        inline I_Ca_N pA = g_Ca_N * Act_mc * Act_mc * Act_hc * (V_m - E_Ca)
         inline I_Ca_L pA = g_Ca_L * Act_p * (V_m - E_Ca)
         inline I_K_Ca pA = g_K_Ca_5ht * g_K_Ca * ((Ca_in * Ca_in) / (Ca_in * Ca_in + 0.014 * 0.014)) * (V_m - E_K)
 
