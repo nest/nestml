@@ -51,8 +51,66 @@ jobs:
         run: |
           python3 extras/codeanalysis/check_copyright_headers.py && python3 -m pycodestyle $GITHUB_WORKSPACE -v --ignore=E241,E501,E714,E713,E714,E252,W503 --exclude=$GITHUB_WORKSPACE/doc,$GITHUB_WORKSPACE/.git,$GITHUB_WORKSPACE/NESTML.egg-info,$GITHUB_WORKSPACE/pynestml/generated,$GITHUB_WORKSPACE/extras,$GITHUB_WORKSPACE/build,$GITHUB_WORKSPACE/.github
 
-  build_and_test_py_standalone:
+  unit_tests:
     needs: [static_checks]
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository contents
+      - name: Checkout NESTML code
+        uses: actions/checkout@v5
+
+      # Setup Python version
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: 3.9
+
+      # Install dependencies
+      - name: Install apt dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libgsl0-dev libncurses5-dev pkg-config
+          sudo apt-get install python3-all-dev python3-matplotlib python3-numpy python3-scipy ipython3
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip pytest jupyterlab matplotlib pycodestyle scipy
+          python -m pip install -r requirements.txt
+
+      - name: Install Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'zulu'
+          java-version: '11.0.x'
+          java-package: jre
+
+      - name: Install Antlr4
+        run: |
+          wget http://www.antlr.org/download/antlr-4.13.1-complete.jar
+          echo \#\!/bin/bash > antlr4
+          echo java -cp \"`pwd`/antlr-4.13.1-complete.jar:$CLASSPATH\" org.antlr.v4.Tool \"\$@\" >> antlr4
+          echo >> antlr4
+          chmod +x antlr4
+          echo PATH=$PATH:`pwd` >> $GITHUB_ENV
+
+      - name: Install NESTML
+        run: |
+          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.9/site-packages
+          #echo PYTHONPATH=`pwd` >> $GITHUB_ENV
+          echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
+          python setup.py install
+
+      - name: Generate Lexer and Parser using Antlr4
+        run: |
+          cd pynestml/grammars
+          ./generate_lexer_parser
+
+      - name: Run unit tests
+        run: |
+          pytest -s -o norecursedirs='*' -o log_cli=true -o log_cli_level="DEBUG" tests
+
+  build_and_test_py_standalone:
+    needs: [unit_tests]
     runs-on: ubuntu-latest
     steps:
       # Checkout the repository contents
@@ -119,7 +177,7 @@ jobs:
           exit $rc
 
   build_and_test_nest_desktop:
-    needs: [static_checks]
+    needs: [unit_tests]
     runs-on: ubuntu-latest
     steps:
       # Checkout the repository contents
@@ -163,7 +221,7 @@ jobs:
           exit $rc
 
   build_and_test_nest:
-    needs: [static_checks]
+    needs: [unit_tests]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -242,11 +300,6 @@ jobs:
           cd pynestml/grammars
           ./generate_lexer_parser
 
-      # Unit tests
-      - name: Run unit tests
-        run: |
-          pytest -s -o norecursedirs='*' -o log_cli=true -o log_cli_level="DEBUG" tests
-
       # Integration tests: prepare (make module containing all NESTML models)
       - name: Setup integration tests
         run: |
@@ -299,7 +352,7 @@ jobs:
 
 
   build_and_test_nest_compartmental:
-    needs: [static_checks]
+    needs: [unit_tests]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -367,7 +420,7 @@ jobs:
           exit $rc
 
   build_and_test_genn:
-    needs: [static_checks]
+    needs: [unit_tests]
     runs-on: ubuntu-latest
     steps:
       # Checkout the repository contents
