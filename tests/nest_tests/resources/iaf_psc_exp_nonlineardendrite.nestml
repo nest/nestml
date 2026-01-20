@@ -47,7 +47,7 @@ model iaf_psc_exp_nonlineardendrite:
         I_dend' = I_dend$ - I_dend / tau_syn2
         I_dend$' = -I_dend$ / tau_syn2
 
-        inline I_syn pA = convolve(I_kernel1, I_1) + dend_curr_enabled * I_dend + I_dend_ap + convolve(I_kernel3, I_3) + I_e
+        inline I_syn pA = convolve(I_kernel1, I_1) * pA + dend_curr_enabled * I_dend + I_dend_ap + convolve(I_kernel3, I_3) * pA + I_e
 
         V_m' = -(V_m - E_L) / tau_m + I_syn / C_m
 
