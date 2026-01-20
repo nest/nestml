@@ -77,6 +77,13 @@ Currently, the following target platforms are supported for code generation. Cli
 
       |genn_logo|
 
+   .. grid-item-card::
+      :text-align: center
+      :class-title: sd-d-flex-row sd-align-minor-center
+
+      :doc:`NEST GPU </running/running_nest_gpu>`
+
+      |nest_gpu_logo|
 
 .. |nest_logo| image:: ../fig/nest-simulator-logo.png
    :width: 95px
@@ -107,6 +114,11 @@ Currently, the following target platforms are supported for code generation. Cli
    :width: 40px
    :height: 40px
    :target: running_nest_desktop.html
+
+.. |nest_gpu_logo| image:: ../fig/nest-gpu.svg
+   :width: 95
+   :height: 40px
+   :target: running_nest_gpu.html
 
 .. warning::
 
