@@ -99,10 +99,6 @@ class GSLVariablePrinter(CppVariablePrinter):
                 else:
                     var_name_upper += "_" + str(variable.get_vector_parameter())
 
-            # add variable attribute if it exists
-            if variable.attribute:
-                return "spike_input_" + str(variable.name) + "__DOT__" + variable.attribute + "_grid_sum_"
-
             return "spike_input_" + str(variable) + "_grid_sum_"
 
         # case of continuous-type input port

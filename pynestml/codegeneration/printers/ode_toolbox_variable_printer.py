@@ -41,9 +41,6 @@ class ODEToolboxVariablePrinter(VariablePrinter):
         if node.get_vector_parameter():
             s += "_VEC_IDX_" + self._expression_printer.print(node.get_vector_parameter())
 
-        if node.get_attribute():
-            s += "__DOT__" + node.get_attribute()
-
         s += "__d" * node.get_differential_order()
 
         return s

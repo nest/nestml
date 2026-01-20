@@ -82,7 +82,7 @@ model iaf_psc_exp_htum_neuron:
     equations:
         kernel I_kernel_inh = exp(-t / tau_syn_inh)
         kernel I_kernel_exc = exp(-t / tau_syn_exc)
-        inline I_syn pA = unit_psc_amplitude * (sift(I_kernel_exc, exc_spikes) - sift(I_kernel_inh, inh_spikes))
+        inline I_syn pA = unit_psc * (sift(I_kernel_exc, exc_spikes) - sift(I_kernel_inh, inh_spikes))
         V_m' = -V_m / tau_m + (I_syn + I_e + I_stim) / C_m
 
     parameters:
@@ -99,7 +99,7 @@ model iaf_psc_exp_htum_neuron:
         I_e pA = 0 pA               # Constant external input current
 
     internals:
-        unit_psc_ampl pA = 1 pA  # Unitary postsynaptic current amplitude
+        unit_psc pA = 1 pA    # Unitary postsynaptic current amplitude
 
         # TauR specifies the length of the absolute refractory period as
         # a double_t in ms. The grid based iaf_psc_exp_htum can only handle refractory

@@ -69,8 +69,6 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "{{ neuronName }}.h"
 
-// uncomment the next line to enable printing of detailed debug information
-#define DEBUG
 
 {%  if state_vars_that_need_continuous_buffering | length > 0 %}
 {%-     if continuous_state_buffering_method == "continuous_time_buffer" %}
@@ -132,7 +130,7 @@ namespace nest
 {%- if recordable_inline_expressions|length > 0 %}
     // add recordable inline expressions to recordables map
 {%- for variable_symbol in recordable_inline_expressions %}
-{%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     set variable_name = utils.get_inline_expression_by_name(astnode, variable_symbol.get_symbol_name()).get_variable_name() %}
 	  insert_({{ names_namespace }}::_{{ variable_symbol.get_symbol_name() }}, &{{ neuronName }}::{{ printer_no_origin.print(variable)[:-2] }});
 {%- endfor %}
 {%- endif %}

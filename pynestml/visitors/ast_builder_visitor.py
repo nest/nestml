@@ -292,15 +292,10 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             vector_parameter = self.visit(ctx.vectorParameter)
 
         differential_order = (len(ctx.DIFFERENTIAL_ORDER()) if ctx.DIFFERENTIAL_ORDER() is not None else 0)
-        if ctx.attribute:
-            attribute = ctx.attribute.getText()
-        else:
-            attribute = None
 
         return ASTNodeFactory.create_ast_variable(name=str(ctx.NAME()),
                                                   differential_order=differential_order,
                                                   vector_parameter=vector_parameter,
-                                                  attribute=attribute,
                                                   source_position=create_source_pos(ctx))
 
     # Visit a parse tree produced by PyNESTMLParser#functionCall.
@@ -677,15 +672,14 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     # Visit a parse tree produced by PyNESTMLParser#outputBuffer.
     def visitOutputBlock(self, ctx):
         source_pos = create_source_pos(ctx)
-        attributes: List[ASTParameter] = []
 
         if ctx.isSpike is not None:
-            ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.SPIKE, attributes=attributes, source_position=source_pos)
+            ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.SPIKE, source_position=source_pos)
             update_node_comments(ret, self.__comments.visit(ctx))
             return ret
 
         if ctx.isContinuous is not None:
-            ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.CONTINUOUS, attributes=attributes, source_position=source_pos)
+            ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.CONTINUOUS, source_position=source_pos)
             update_node_comments(ret, self.__comments.visit(ctx))
             return ret
 

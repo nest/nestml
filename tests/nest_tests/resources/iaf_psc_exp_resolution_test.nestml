@@ -7,9 +7,6 @@
 # Used to test resolution() function.
 #
 model iaf_psc_exp_resolution_test_neuron:
-    internals:
-        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
-
     state:
         I_syn_exc pA = 0 pA
         I_syn_inh pA = 0 pA
@@ -39,6 +36,8 @@ model iaf_psc_exp_resolution_test_neuron:
 
     internals:
         c ms = resolution()
+
+        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
 
     input:
         spike_in_port <- spike

@@ -580,15 +580,33 @@ class ASTUtils:
     @classmethod
     def inline_aliases_convolution(cls, inline_expr: ASTInlineExpression) -> bool:
         """
-        Returns True if and only if the inline expression is of the form ``var type = convolve(...)``.
+        Returns True if and only if the inline expression is of the form ``var type = const * convolve(...)``.
+
+        The constant may be a numeric literal or an internal parameter.
         """
         expr = inline_expr.get_expression()
-        if isinstance(expr, ASTExpression):
-            expr = expr.get_lhs()
-        if isinstance(expr, ASTSimpleExpression) \
-           and expr.is_function_call() \
-           and expr.get_function_call().get_name() == PredefinedFunctions.CONVOLVE:
+
+        root_node = expr
+        while not isinstance(root_node, ASTModel):
+            root_node = root_node.get_parent()
+
+
+        if expr.binary_operator and expr.binary_operator.is_times_op and (ASTUtils.get_internal_variable_by_name(root_node, str(expr.lhs)) or expr.lhs.is_numeric_literal()):
+            # case of "const * convolve(...)"
+            putative_convolve_call_expr = expr.rhs
+        else:
+            putative_convolve_call_expr = expr
+
+        # import pdb;pdb.set_trace()
+
+        # if isinstance(convolve_call_expr, ASTExpression):
+            # convolve_call_expr = convolve_call_expr.get_lhs()
+
+        if isinstance(putative_convolve_call_expr, ASTSimpleExpression) \
+           and putative_convolve_call_expr.is_function_call() \
+           and putative_convolve_call_expr.get_function_call().get_name() == PredefinedFunctions.CONVOLVE:
             return True
+
         return False
 
     @classmethod
@@ -1423,7 +1441,7 @@ class ASTUtils:
 
     @classmethod
     def construct_kernel_X_spike_buf_name(cls, kernel_var_name: str, spike_input_port: ASTInputPort, order: int,
-                                          diff_order_symbol="__d", suffix="", attribute: Optional[str] = None):
+                                          diff_order_symbol="__d", suffix=""):
         r"""
         Construct a kernel-buffer name as <KERNEL_NAME__X__INPUT_PORT_NAME>
 
@@ -1453,12 +1471,7 @@ class ASTUtils:
             if spike_input_port.has_vector_parameter():
                 spike_input_port_name += "_" + str(spike_input_port.get_vector_parameter())
 
-        if attribute is not None:
-            attribute = "__DOT__" + attribute
-        else:
-            attribute = ""
-
-        return kernel_var_name.replace("$", "__DOLLAR") + suffix + "__X__" + spike_input_port_name + attribute + diff_order_symbol * order + suffix
+        return kernel_var_name.replace("$", "__DOLLAR") + suffix + "__X__" + spike_input_port_name + diff_order_symbol * order + suffix
 
     @classmethod
     def replace_rhs_variable(cls, expr: ASTExpression, variable_name_to_replace: str, kernel_var: ASTVariable,
@@ -1477,7 +1490,7 @@ class ASTUtils:
                     and node.get_variable().get_name() == variable_name_to_replace:
                 var_order = node.get_variable().get_differential_order()
                 new_variable_name = cls.construct_kernel_X_spike_buf_name(
-                    kernel_var.get_name(), spike_buf, var_order - 1, diff_order_symbol="'", attribute=spike_buf.get_variable().get_attribute())
+                    kernel_var.get_name(), spike_buf, var_order - 1, diff_order_symbol="'")
                 new_variable = ASTVariable(new_variable_name, var_order)
                 new_variable.set_source_position(node.get_variable().get_source_position())
                 node.set_variable(new_variable)
@@ -1611,7 +1624,7 @@ class ASTUtils:
         return None
 
     @classmethod
-    def get_internal_variable_by_name(cls, node: ASTVariable, var_name: str) -> ASTVariable:
+    def get_internal_variable_by_name(cls, node: ASTModel, var_name: str) -> ASTVariable:
         """
         Get the internal parameter node based on the name of the internal parameter
         :param node: the neuron or synapse containing the parameter
@@ -2194,9 +2207,8 @@ class ASTUtils:
             for kernel_var in kernel.get_variables():
                 expr = cls.get_expr_from_kernel_var(kernel, kernel_var.get_complete_name())
                 kernel_order = kernel_var.get_differential_order()
-                attribute = spike_input_port.get_variable().get_attribute()
                 kernel_X_spike_buf_name_ticks = cls.construct_kernel_X_spike_buf_name(
-                    kernel_var.get_name(), spike_input_port, kernel_order, diff_order_symbol="'", attribute=attribute)
+                    kernel_var.get_name(), spike_input_port, kernel_order, diff_order_symbol="'")
 
                 cls.replace_rhs_variables(expr, kernel_buffers)
 
@@ -2206,7 +2218,7 @@ class ASTUtils:
                 # f(t) = ...; 1 for kernel ODE f'(t) = ...; 2 for f''(t) = ... and so on)
                 for order in range(kernel_order):
                     iv_sym_name_ode_toolbox = cls.construct_kernel_X_spike_buf_name(
-                        kernel_var.get_name(), spike_input_port, order, diff_order_symbol="'", attribute=attribute)
+                        kernel_var.get_name(), spike_input_port, order, diff_order_symbol="'")
                     symbol_name_ = kernel_var.get_name() + "'" * order
                     symbol = equations_block.get_scope().resolve_to_symbol(symbol_name_, SymbolKind.VARIABLE)
                     assert symbol is not None, "Could not find initial value for variable " + symbol_name_
@@ -2320,9 +2332,16 @@ class ASTUtils:
 
         expr_str = printer.print(expr)
 
-        sympy_expr = sympify(expr_str, locals=units)
+        root_node = expr
+        while not isinstance(root_node, ASTModel):
+            root_node = root_node.get_parent()
+
+        all_variable_symbols = root_node.get_parameter_symbols() + root_node.get_state_symbols() + root_node.get_internal_symbols()
+        all_variable_symbols_dict = {s.name: sympy.Symbol(s.name) for s in all_variable_symbols}
+
+        sympy_expr = sympify(expr_str, locals=units | all_variable_symbols_dict)  # minimal dict to make no assumptions (e.g. "beta" could otherwise be recognised as a function instead of as a parameter symbol)
         sympy_expr = sympy.expand(sympy_expr)
-        sympy_conv_expr = sympy.parsing.sympy_parser.parse_expr(sub_expr.replace(".", "__DOT__"))
+        sympy_conv_expr = sympy.parsing.sympy_parser.parse_expr(sub_expr)
         factor_str = []
         for term in sympy.Add.make_args(sympy_expr):
             coeff = term.coeff(sympy_conv_expr)
@@ -2491,7 +2510,7 @@ class ASTUtils:
 
                 _expr.set_function_call(None)
                 buffer_var = cls.construct_kernel_X_spike_buf_name(
-                    var.get_name(), spike_input_port, var.get_differential_order() - 1, attribute=spike_input_port.get_attribute())
+                    var.get_name(), spike_input_port, var.get_differential_order() - 1)
                 if cls.is_delta_kernel(kernel):
                     # delta kernels are treated separately, and should be kept out of the dynamics (computing derivates etc.) --> set to zero
                     _expr.set_variable(None)

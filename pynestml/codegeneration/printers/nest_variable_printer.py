@@ -28,6 +28,7 @@ from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePri
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.meta_model.ast_external_variable import ASTExternalVariable
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
@@ -105,7 +106,7 @@ class NESTVariablePrinter(CppVariablePrinter):
         if variable.get_name() == PredefinedVariables.TIME_CONSTANT:
             return "get_t()"
 
-        symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name().replace("__DOT__", "."), SymbolKind.VARIABLE)
+        symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
 
         if symbol is None:
             symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
@@ -172,7 +173,7 @@ class NESTVariablePrinter(CppVariablePrinter):
 
     def __print_buffer_value(self, variable: ASTVariable) -> str:
 
-        variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name().replace("__DOT__", "."), SymbolKind.VARIABLE)
+        variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         if variable_symbol.is_spike_input_port():
             if self.buffers_are_zero:
                 return "0.0"   # XXX this should be spun off to a NESTVariablePrinterWithFactorsAsZeros
@@ -185,16 +186,7 @@ class NESTVariablePrinter(CppVariablePrinter):
                 else:
                     var_name += "_" + str(variable.get_vector_parameter())
 
-                # add variable attribute if it exists
-                if variable.attribute:
-                    return "__spike_input_" + str(variable.name) + "_VEC_IDX_" + str(variable.get_vector_parameter()) + "__DOT__" + variable.attribute
-
-            else:
-                # add variable attribute if it exists
-                if variable.attribute:
-                    return "__spike_input_" + str(variable.name) + "__DOT__" + variable.attribute
-
-            # no vector indices, no attributes
+            # no vector indices
             return "__spike_input_" + str(variable)
 
         if self.cpp_variable_suffix:

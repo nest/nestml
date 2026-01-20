@@ -21,7 +21,7 @@ model iaf_psc_exp_multisynapse_neuron:
         kernel I_kernel2 = (e / tau_syn2) * t * exp(-t / tau_syn2)
         kernel I_kernel3 = -exp(-t / tau_syn3)
 
-        recordable inline I_syn pA = convolve(I_kernel1, spikes1) - convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3)
+        recordable inline I_syn pA = unit_psc * (convolve(I_kernel1, spikes1) - convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3))
 
         V_m' = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
 
@@ -35,6 +35,8 @@ model iaf_psc_exp_multisynapse_neuron:
         V_reset mV = -70 mV       # Reset value of the membrane potential
         V_th mV = -55 mV          # Spike threshold potential
         I_e pA = 0 pA             # External current.
+
+        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
 
     input:
         spikes1 <- spike

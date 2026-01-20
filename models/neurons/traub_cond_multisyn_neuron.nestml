@@ -159,6 +159,8 @@ model traub_cond_multisyn_neuron:
         alpha_h_init real = 0.128 * exp(-(V_m / mV + 50.0) / 18.0)
         beta_h_init  real = 4.0 / (1.0 + exp(-(V_m / mV + 27.) / 5.))
 
+        unit_psg nS = 1 nS        # Unitary postsynaptic conductance amplitude
+
     input:
         AMPA_spikes <- spike
         NMDA_spikes <- spike

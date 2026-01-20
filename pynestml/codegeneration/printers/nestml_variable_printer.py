@@ -36,9 +36,6 @@ class NESTMLVariablePrinter(VariablePrinter):
         if node.get_vector_parameter():
             ret += "[" + self._expression_printer.print(node.get_vector_parameter()) + "]"
 
-        if node.get_attribute():
-            ret += "." + node.get_attribute()
-
         for i in range(1, node.differential_order + 1):
             ret += "'"
 

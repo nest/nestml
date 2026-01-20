@@ -164,7 +164,7 @@ model terub_stn_neuron:
         I_e pA = 0 pA
 
     internals:
-        unit_psg pA = 1 pA        # Unitary postsynaptic conductance amplitude
+        unit_psg nS = 1 nS        # Unitary postsynaptic conductance amplitude
 
     input:
         exc_spikes <- spike

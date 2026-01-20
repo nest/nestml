@@ -141,9 +141,7 @@ class MessageCode(Enum):
     EXPONENT_MUST_BE_INTEGER = 114
     EMIT_SPIKE_OUTPUT_PORT_TYPE_DIFFERS = 115
     SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED = 116
-    CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES = 117
     INTEGRATE_ODES_ARG_HIGHER_ORDER = 117
-    SPIKING_INPUT_PORT_REFERENCE_MISSING_ATTRIBUTE = 118
     CONVOLVE_NEEDS_BUFFER_PARAMETER = 119
     SPIKE_INPUT_PORT_IN_EQUATION_RHS_OUTSIDE_CONVOLVE = 120
     DELAY_VARIABLE_NOT_SPECIFIED = 121
@@ -699,6 +697,7 @@ class Messages:
         :return: a message
         """
         message = 'Could not resolve symbol \'%s\'!' % name
+        import pdb;pdb.set_trace()
         return MessageCode.SYMBOL_NOT_RESOLVED, message
 
     @classmethod
@@ -1150,16 +1149,6 @@ class Messages:
     def get_spike_input_port_appears_outside_equation_rhs_and_event_handler(cls, name):
         message = "Spiking input port names (in this case '" + name + "') can only be used in the right-hand side of equations or in an onReceive block!"
         return MessageCode.SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED, message
-
-    @classmethod
-    def get_continuous_output_port_cannot_have_attributes(cls) -> Tuple[MessageCode, str]:
-        message = "continuous time output port may not have attributes."
-        return MessageCode.CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES, message
-
-    @classmethod
-    def get_spike_input_port_attribute_missing(cls, name: str):
-        message = "Spiking input port '" + name + "' reference is missing attribute."
-        return MessageCode.SPIKING_INPUT_PORT_REFERENCE_MISSING_ATTRIBUTE, message
 
     @classmethod
     def get_vector_input_ports_should_be_of_constant_size(cls):

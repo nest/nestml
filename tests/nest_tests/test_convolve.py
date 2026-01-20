@@ -36,7 +36,7 @@ class TestConvolve:
                         reason="This test does not support NEST 2")
     def test_convolve(self):
         input_path = os.path.join(os.path.realpath(os.path.join(
-            os.path.dirname(__file__), "resources", "ConvolveSpikingNoAttributes.nestml")))
+            os.path.dirname(__file__), "resources", "ConvolveSpiking.nestml")))
         target_path = "target"
         logging_level = "DEBUG"
         module_name = "nestmlmodule"
@@ -50,7 +50,7 @@ class TestConvolve:
         nest.ResetKernel()
         nest.Install(module_name)
 
-        neuron = nest.Create("convolve_spiking_no_attributes_neuron_nestml")
+        neuron = nest.Create("convolve_spiking_neuron_nestml")
         sg = nest.Create("spike_generator")
         sg.spike_times = [10., 50.]
 

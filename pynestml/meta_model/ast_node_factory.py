@@ -288,8 +288,8 @@ class ASTNodeFactory:
         return ASTKernel(variables, expressions, source_position=source_position)
 
     @classmethod
-    def create_ast_output_block(cls, s_type: PortSignalType, attributes: Optional[List[ASTParameter]] = None, source_position: ASTSourceLocation = None) -> ASTOutputBlock:
-        return ASTOutputBlock(s_type, attributes=attributes, source_position=source_position)
+    def create_ast_output_block(cls, s_type: PortSignalType, source_position: ASTSourceLocation = None) -> ASTOutputBlock:
+        return ASTOutputBlock(s_type, source_position=source_position)
 
     @classmethod
     def create_ast_parameter(cls, name, data_type, source_position):
@@ -353,8 +353,8 @@ class ASTNodeFactory:
         return ASTUpdateBlock(block, source_position=source_position)
 
     @classmethod
-    def create_ast_variable(cls, name: str, differential_order: int = 0, vector_parameter=None, is_homogeneous=False, attribute: Optional[str] = None, source_position: Optional[ASTSourceLocation] = None, scope: Optional[Scope] = None) -> ASTVariable:
-        var = ASTVariable(name, differential_order, vector_parameter=vector_parameter, is_homogeneous=is_homogeneous, attribute=attribute, source_position=source_position)
+    def create_ast_variable(cls, name: str, differential_order: int = 0, vector_parameter=None, is_homogeneous=False, source_position: Optional[ASTSourceLocation] = None, scope: Optional[Scope] = None) -> ASTVariable:
+        var = ASTVariable(name, differential_order, vector_parameter=vector_parameter, is_homogeneous=is_homogeneous, source_position=source_position)
 
         if scope:
             var.scope = scope

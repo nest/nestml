@@ -76,7 +76,7 @@ class TestNestBiexponentialSynapse:
         nest.Connect(sg4, neuron, syn_spec={"receptor_type": 4, "weight": 100.})
 
         i_1 = nest.Create("multimeter", params={"record_from": [
-                          "g_gap__X__spikeGap__DOT__weight", "g_ex__X__spikeExc__DOT__weight", "g_in__X__spikeInh__DOT__weight", "g_GABA__X__spikeGABA__DOT__weight"], "interval": .1})
+                          "g_gap__X__spikeGap", "g_ex__X__spikeExc", "g_in__X__spikeInh", "g_GABA__X__spikeGABA"], "interval": .1})
         nest.Connect(i_1, neuron)
 
         vm_1 = nest.Create("voltmeter")
@@ -106,16 +106,16 @@ class TestNestBiexponentialSynapse:
 
         ax[0].scatter(sd.events["times"], np.mean(vm_1["V_m"]) * np.ones_like(sd.events["times"]))
 
-        ax[1].plot(i_1["times"], i_1["g_gap__X__spikeGap__DOT__weight"], label="g_gap__X__spikeGap")
+        ax[1].plot(i_1["times"], i_1["g_gap__X__spikeGap"], label="g_gap__X__spikeGap")
         ax[1].set_ylabel("current")
 
-        ax[2].plot(i_1["times"], i_1["g_ex__X__spikeExc__DOT__weight"], label="g_ex__X__spikeExc")
+        ax[2].plot(i_1["times"], i_1["g_ex__X__spikeExc"], label="g_ex__X__spikeExc")
         ax[2].set_ylabel("current")
 
-        ax[3].plot(i_1["times"], i_1["g_in__X__spikeInh__DOT__weight"], label="g_in__X__spikeInh")
+        ax[3].plot(i_1["times"], i_1["g_in__X__spikeInh"], label="g_in__X__spikeInh")
         ax[3].set_ylabel("current")
 
-        ax[4].plot(i_1["times"], i_1["g_GABA__X__spikeGABA__DOT__weight"], label="g_GABA__X__spikeGABA")
+        ax[4].plot(i_1["times"], i_1["g_GABA__X__spikeGABA"], label="g_GABA__X__spikeGABA")
         ax[4].set_ylabel("current")
 
         for _ax in ax:

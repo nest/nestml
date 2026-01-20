@@ -997,15 +997,6 @@ class NESTCodeGenerator(CodeGenerator):
                                             preserve_expressions=self.get_option("preserve_expressions"),
                                             log_level=FrontendConfiguration.logging_level)
 
-        for solver in solver_result:
-            if "propagators" in solver.keys():
-                for k, v in solver["propagators"].items():
-                    solver["propagators"][k] = v.replace("__DOT__", ".")
-
-            if "update_expressions" in solver.keys():
-                for k, v in solver["update_expressions"].items():
-                    solver["update_expressions"][k] = v.replace("__DOT__", ".")
-
         analytic_solver = None
         analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
         assert len(analytic_solvers) <= 1, "More than one analytic solver not presently supported"
@@ -1073,10 +1064,7 @@ class NESTCodeGenerator(CodeGenerator):
                 buffer_type = neuron.paired_synapse.get_scope().resolve_to_symbol(orig_port_name, SymbolKind.VARIABLE).get_type_symbol()
             else:
                 # not a post port
-                if spike_input_port.get_variable().get_attribute():
-                    variable_name = spike_input_port_name + "." + str(spike_input_port.get_variable().get_attribute())
-                else:
-                    variable_name = spike_input_port_name
+                variable_name = spike_input_port_name
 
                 buffer_type = neuron.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE).get_type_symbol()
 
@@ -1084,7 +1072,7 @@ class NESTCodeGenerator(CodeGenerator):
 
             for kernel_var in kernel.get_variables():
                 for var_order in range(ASTUtils.get_kernel_var_order_from_ode_toolbox_result(kernel_var.get_name(), solver_dicts)):
-                    kernel_spike_buf_name = ASTUtils.construct_kernel_X_spike_buf_name(kernel_var.get_name(), spike_input_port, var_order, attribute=spike_input_port.get_variable().get_attribute())
+                    kernel_spike_buf_name = ASTUtils.construct_kernel_X_spike_buf_name(kernel_var.get_name(), spike_input_port, var_order)
                     expr = ASTUtils.get_initial_value_from_ode_toolbox_result(kernel_spike_buf_name, solver_dicts)
                     assert expr is not None, "Initial value not found for kernel " + kernel_var
                     expr = str(expr)
@@ -1108,11 +1096,7 @@ class NESTCodeGenerator(CodeGenerator):
                     ast_assignment.update_scope(neuron.get_scope())
                     ast_assignment.accept(ASTSymbolTableVisitor())
 
-                    spike_input_port_name_with_attr = spike_input_port_name
-                    if spike_input_port.get_variable().get_attribute():
-                        spike_input_port_name_with_attr += "." + str(spike_input_port.get_variable().get_attribute())
-
-                    if neuron.get_scope().resolve_to_symbol(spike_input_port_name_with_attr, SymbolKind.VARIABLE) is None:
+                    if neuron.get_scope().resolve_to_symbol(spike_input_port_name, SymbolKind.VARIABLE) is None:
                         # this case covers variables that were moved from synapse to the neuron
                         post_spike_updates[kernel_var.get_name()] = ast_assignment
                     elif "_is_post_port" in dir(spike_input_port.get_variable()) and spike_input_port.get_variable()._is_post_port:
