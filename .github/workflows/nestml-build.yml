@@ -54,11 +54,6 @@ jobs:
       - name: Checkout the repository contents
         uses: actions/checkout@v5
 
-      - name: Setup Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: 3.9
-
       - name: Install Java
         uses: actions/setup-java@v5
         with:
@@ -84,6 +79,15 @@ jobs:
 
       - name: Check that generated lexer and parser code is identical
         run: |
+          echo "pynestml/generated/PyNestMLLexer.py"
+          cat pynestml/generated/PyNestMLLexer.py
+          echo "pynestml/generated/PyNestMLLexer.p_"
+          cat pynestml/generated/PyNestMLLexer.p_
+          echo "pynestml/generated/PyNestMLParser.py"
+          cat pynestml/generated/PyNestMLParser.py
+          echo "pynestml/generated/PyNestMLParser.p_"
+          cat pynestml/generated/PyNestMLParser.p_
+          
           cmp -s pynestml/generated/PyNestMLLexer.py pynestml/generated/PyNestMLLexer.p_
           cmp -s pynestml/generated/PyNestMLParser.py pynestml/generated/PyNestMLParser.p_
 
