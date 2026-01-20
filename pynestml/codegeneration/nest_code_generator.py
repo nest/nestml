@@ -22,6 +22,7 @@
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import datetime
+import inspect
 import re
 
 import odetoolbox
@@ -97,6 +98,8 @@ class NESTCodeGenerator(CodeGenerator):
     - **neuron_parent_class_include**: The C++ header filename to include that contains **neuron_parent_class**. Default: ``"archiving_node.h"``.
     - **neuron_synapse_pairs**: List of pairs of (neuron, synapse) model names.
     - **synapse_models**: List of synapse model names. Instructs the code generator that models with these names are synapse models.
+    - **disable_singularity_detection**: Set to True to disable detection of conditions under which numerical singularities (division by zero) could occur in the generated analytic solver. This can be useful for analytic solvers containing a large amount of conditions, which could take a long time to compute. If True, at most one analytic solver will be returned, in which numerical singularities could occur. (This parameter is directly passed to ODE-toolbox.)
+    - **use_alternative_expM**: If :python:`False`, use the sympy function ``sympy.exp`` to compute the matrix exponential. If :python:`True`, use an alternative function (see :py:func:`odetoolbox.sympy_helpers.expMt` for details). This can be useful as calls to ``sympy.exp`` can sometimes take a very large amount of time. (This parameter is directly passed to ODE-toolbox.)
     - **preserve_expressions**: Set to True, or a list of strings corresponding to individual variable names, to disable internal rewriting of expressions, and return same output as input expression where possible. Only applies to variables specified as first-order differential equations. (This parameter is passed to ODE-toolbox.)
     - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
     - **gap_junctions**:
@@ -125,6 +128,8 @@ class NESTCodeGenerator(CodeGenerator):
         "neuron_parent_class_include": "archiving_node.h",
         "neuron_synapse_pairs": [],
         "synapse_models": [],
+        "disable_singularity_detection": False,
+        "use_alternative_expM": False,
         "preserve_expressions": True,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "gap_junctions": {
@@ -412,8 +417,12 @@ class NESTCodeGenerator(CodeGenerator):
         ASTUtils.replace_convolution_aliasing_inlines(neuron)
 
         if self.analytic_solver[neuron.get_name()] is not None:
-            neuron = ASTUtils.add_declarations_to_internals(
-                neuron, self.analytic_solver[neuron.get_name()]["propagators"])
+            if "conditions" in self.analytic_solver[neuron.get_name()].keys():
+                propagators = self.analytic_solver[neuron.get_name()]["conditions"]["default"]["propagators"]
+            else:
+                propagators = self.analytic_solver[neuron.get_name()]["propagators"]
+
+            neuron = ASTUtils.add_declarations_to_internals(neuron, propagators)
 
         self.update_symbol_table(neuron)
 
@@ -459,8 +468,12 @@ class NESTCodeGenerator(CodeGenerator):
             spike_updates, _ = self.get_spike_update_expressions(synapse, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
 
             if not self.analytic_solver[synapse.get_name()] is None:
-                synapse = ASTUtils.add_declarations_to_internals(
-                    synapse, self.analytic_solver[synapse.get_name()]["propagators"])
+                if "conditions" in self.analytic_solver[synapse.get_name()].keys():
+                    propagators = self.analytic_solver[synapse.get_name()]["conditions"]["default"]["propagators"]
+                else:
+                    propagators = self.analytic_solver[synapse.get_name()]["propagators"]
+
+                synapse = ASTUtils.add_declarations_to_internals(synapse, propagators)
 
         self.update_symbol_table(synapse)
 
@@ -796,8 +809,11 @@ class NESTCodeGenerator(CodeGenerator):
 
             namespace["update_expressions"] = {}
             for sym in namespace["analytic_state_variables"] + namespace["analytic_state_variables_moved"]:
-                expr_str = self.analytic_solver[neuron.get_name()]["update_expressions"][sym]
-                expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr_str)
+                if "conditions" in self.analytic_solver[neuron.get_name()].keys():
+                    update_expressions = self.analytic_solver[neuron.get_name()]["conditions"]["default"]["update_expressions"][sym]
+                else:
+                    update_expressions = self.analytic_solver[neuron.get_name()]["update_expressions"][sym]
+                expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(update_expressions)
                 expr_ast = ModelParser.parse_expression(expr_str)
                 # pretend that update expressions are in "equations" block, which should always be present, as differential equations must have been defined to get here
                 expr_ast.update_scope(neuron.get_equations_blocks()[0].get_scope())
@@ -815,7 +831,10 @@ class NESTCodeGenerator(CodeGenerator):
                         sets_vector_param_in_update_expr_visitor = ASTSetVectorParameterInUpdateExpressionVisitor(var)
                         expr_ast.accept(sets_vector_param_in_update_expr_visitor)
 
-            namespace["propagators"] = self.analytic_solver[neuron.get_name()]["propagators"]
+            if "conditions" in self.analytic_solver[neuron.get_name()].keys():
+                namespace["propagators"] = self.analytic_solver[neuron.get_name()]["conditions"]["default"]["propagators"]
+            else:
+                namespace["propagators"] = self.analytic_solver[neuron.get_name()]["propagators"]
 
             namespace["propagators_are_state_dependent"] = False
             for prop_name, prop_expr in namespace["propagators"].items():
@@ -954,11 +973,21 @@ class NESTCodeGenerator(CodeGenerator):
 
         odetoolbox_indict["options"]["simplify_expression"] = self.get_option("simplify_expression")
         disable_analytic_solver = self.get_option("solver") != "analytic"
-        solver_result = odetoolbox.analysis(odetoolbox_indict,
-                                            disable_stiffness_check=True,
-                                            disable_analytic_solver=disable_analytic_solver,
-                                            preserve_expressions=self.get_option("preserve_expressions"),
-                                            log_level=FrontendConfiguration.logging_level)
+        if not "use_alternative_expM" in inspect.signature(odetoolbox.analysis).parameters.keys():
+            Logger.log_message(None, None, "Old version of ODE-toolbox used; consider upgrading. ``disable_singularity_detection`` and ``use_alternative_expM`` flags will be ignored.", None, LoggingLevel.WARNING)
+            solver_result = odetoolbox.analysis(odetoolbox_indict,
+                                                disable_stiffness_check=True,
+                                                disable_analytic_solver=disable_analytic_solver,
+                                                preserve_expressions=self.get_option("preserve_expressions"),
+                                                log_level=FrontendConfiguration.logging_level)
+        else:
+            solver_result = odetoolbox.analysis(odetoolbox_indict,
+                                                disable_stiffness_check=True,
+                                                disable_analytic_solver=disable_analytic_solver,
+                                                disable_singularity_detection=self.get_option("disable_singularity_detection"),
+                                                use_alternative_expM=self.get_option("use_alternative_expM"),
+                                                preserve_expressions=self.get_option("preserve_expressions"),
+                                                log_level=FrontendConfiguration.logging_level)
         analytic_solver = None
         analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
         assert len(analytic_solvers) <= 1, "More than one analytic solver not presently supported"
