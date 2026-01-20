@@ -90,49 +90,6 @@ The incoming spikes could have been equivalently handled with an ``onReceive`` e
        I_syn += sift(spike_in_port, t)
 
 
-(Re)setting synaptic integration state
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-When convolutions are used, additional state variables are required for each pair *(shape, spike input port)* that appears as the parameters in a convolution. These variables track the dynamical state of that kernel, for that input port. The number of variables created corresponds to the dimensionality of the kernel. For example, in the code block above, the one-dimensional kernel ``G`` is used in a convolution with spiking input port ``spike_in_port``. During code generation, a new state variable called ``G__conv__spike_in_port`` is created for this combination, by joining together the name of the kernel with the name of the spike buffer using (by default) the string “__conv__”. If the same kernel is used later in a convolution with another spiking input port, say ``spike_in_port_GABA``, then the resulting generated variable would be called ``G__conv__spike_in_port_GABA``, allowing independent synaptic integration between input ports but allowing the same kernel to be used more than once.
-
-The process of generating extra state variables for keeping track of convolution state is normally hidden from the user. For some models, however, it might be required to set or reset the state of synaptic integration, which is stored in these internally generated variables. For example, we might want to set the synaptic current (and its rate of change) to 0 when firing a dendritic action potential. Although we would like to set the generated variable ``G__conv__spike_in_port`` to 0 in the running example, a variable by this name is only generated during code generation, and does not exist in the namespace of the NESTML model to begin with. To still allow referring to this state in the context of the model, it is recommended to use an inline expression, with only a convolution on the right-hand side.
-
-For example, suppose we define:
-
-.. code-block:: nestml
-
-   inline g_dend pA = convolve(G, spike_in_port)
-
-Then the name ``g_dend`` can be used as a target for assignment:
-
-.. code-block:: nestml
-
-   update:
-       g_dend = 42 pA
-
-This also works for higher-order kernels, e.g. for the second-order alpha kernel :math:`H(t)`:
-
-.. code-block:: nestml
-
-   kernel H'' = (-2/tau_syn) * H' - 1/tau_syn**2) * H
-
-We can define an inline expression with the same port as before, ``spike_in_port``:
-
-.. code-block:: nestml
-
-   inline h_dend pA = convolve(H, spike_in_port)
-
-The name ``h_dend`` now acts as an alias for this particular convolution. We can now assign to the inline defined variable up to the order of the kernel:
-
-.. code-block:: nestml
-
-   update:
-       h_dend = 42 pA
-       h_dend' = 10 pA/ms
-
-For more information, see the :doc:`Active dendrite tutorial </tutorials/active_dendrite/nestml_active_dendrite_tutorial>`.
-
-
 Multiple input ports
 ^^^^^^^^^^^^^^^^^^^^
 

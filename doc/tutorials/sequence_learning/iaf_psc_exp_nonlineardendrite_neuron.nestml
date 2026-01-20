@@ -75,10 +75,7 @@ model iaf_psc_exp_nonlineardendrite_neuron:
         t_ref ms = 10 ms                                # refractory period
         ref_timeout_ticks integer = steps(t_ref)
 
-        I_dend_incr pA/ms = pA * exp(1) / tau_syn2
-
-    internals:
-        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+        unit_psr pA/ms = pA * exp(1) / tau_syn2         # Unitary postsynaptic response amplitude
 
     input:
         I_1 <- spike
@@ -89,8 +86,7 @@ model iaf_psc_exp_nonlineardendrite_neuron:
         spike
 
     onReceive(I_2):
-        spike_weight real = sift(I_2, t)
-        I_dend$ += spike_weight * I_dend_incr
+        I_dend$ += unit_psr * I_2 * s
 
     update:
         # solve ODEs
@@ -130,6 +126,7 @@ model iaf_psc_exp_nonlineardendrite_neuron:
                 V_m = V_reset
                 dAP_counts = 0
                 I_dend = 0 pA
+                I_dend$ = 0 pA/s
                 active_dendrite = false
                 active_dendrite_readout = 0.
         else:
@@ -139,3 +136,4 @@ model iaf_psc_exp_nonlineardendrite_neuron:
             active_dendrite_readout = 0.
             dAP_counts = 0
             I_dend = 0 pA
+            I_dend$ = 0 pA/s

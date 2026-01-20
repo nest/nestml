@@ -68,7 +68,7 @@ model iaf_psc_exp_nonlineardendrite:
         T_dend_ap ms = 10 ms     # time window over which the dendritic current clamp is active
 
     internals:
-        unit_psc pA/ms = 1 pA/ms       # Unitary postsynaptic current amplitude
+        unit_psr pA/ms = pA * exp(1) / tau_syn2       # Unitary postsynaptic response amplitude
 
     input:
         I_1 <- spike
@@ -83,7 +83,7 @@ model iaf_psc_exp_nonlineardendrite:
         integrate_odes()
 
     onReceive(I_2):
-        I_dend$ += unit_psc * sift(I_2, t)
+        I_dend$ += unit_psr * I_2 * s
 
     onCondition(t_dend_ap > 0 ms):
         # we are in the middle of emitting a dendritic action potential

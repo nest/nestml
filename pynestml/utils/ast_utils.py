@@ -578,38 +578,6 @@ class ASTUtils:
         return vars
 
     @classmethod
-    def inline_aliases_convolution(cls, inline_expr: ASTInlineExpression) -> bool:
-        """
-        Returns True if and only if the inline expression is of the form ``var type = const * convolve(...)``.
-
-        The constant may be a numeric literal or an internal parameter.
-        """
-        expr = inline_expr.get_expression()
-
-        root_node = expr
-        while not isinstance(root_node, ASTModel):
-            root_node = root_node.get_parent()
-
-
-        if expr.binary_operator and expr.binary_operator.is_times_op and (ASTUtils.get_internal_variable_by_name(root_node, str(expr.lhs)) or expr.lhs.is_numeric_literal()):
-            # case of "const * convolve(...)"
-            putative_convolve_call_expr = expr.rhs
-        else:
-            putative_convolve_call_expr = expr
-
-        # import pdb;pdb.set_trace()
-
-        # if isinstance(convolve_call_expr, ASTExpression):
-            # convolve_call_expr = convolve_call_expr.get_lhs()
-
-        if isinstance(putative_convolve_call_expr, ASTSimpleExpression) \
-           and putative_convolve_call_expr.is_function_call() \
-           and putative_convolve_call_expr.get_function_call().get_name() == PredefinedFunctions.CONVOLVE:
-            return True
-
-        return False
-
-    @classmethod
     def add_suffix_to_variable_name(cls, var_name: str, astnode: ASTNode, suffix: str, scope=None):
         """add suffix to variable by given name recursively throughout astnode"""
 
@@ -742,9 +710,6 @@ class ASTUtils:
     def get_inline_expression_by_constructed_rhs_name(cls, node, name: str) -> Optional[ASTInlineExpression]:
         for equations_block in node.get_equations_blocks():
             for inline_expr in equations_block.get_inline_expressions():
-                if not ASTUtils.inline_aliases_convolution(inline_expr):
-                    continue
-
                 constructed_name = ASTUtils.construct_kernel_X_spike_buf_name(str(inline_expr.get_expression().get_function_call().get_args()[0]), inline_expr.get_expression().get_function_call().get_args()[1], order=0, suffix="__for_" + node.get_name())
 
                 if name == constructed_name:

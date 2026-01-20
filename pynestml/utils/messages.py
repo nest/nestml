@@ -697,7 +697,6 @@ class Messages:
         :return: a message
         """
         message = 'Could not resolve symbol \'%s\'!' % name
-        import pdb;pdb.set_trace()
         return MessageCode.SYMBOL_NOT_RESOLVED, message
 
     @classmethod

@@ -209,7 +209,7 @@ public:
   double {{ var }}_;
 
 {%-     set inline = utils.get_inline_expression_by_constructed_rhs_name(paired_synapse_original_model, var) %}
-{%-     if inline and utils.inline_aliases_convolution(inline) %}
+{%-     if inline %}
   double get_{{ inline.get_variable_name() + "__for_" + paired_synapse_original_model.get_name() }}() const     // getter for an inline expression
 {%-     else %}
   double get_{{ var }}() const
