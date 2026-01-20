@@ -100,12 +100,9 @@ class Neuron_{{neuronName}}(Neuron):
 {%- endif %}
 {%- for port in neuron.get_spike_input_ports() %}
 {%-     if port.has_vector_parameter() %}
-    {{ port.get_symbol_name() }}: List[float] = []
-    spike_received_{{ port.get_symbol_name() }}: List[bool] = []
+    {{ port.get_symbol_name() }}: List[float] = []    # buffer for the spiking input port (weighted delta pulses)
 {%-     else %}
-{%         set ast_input_port = utils.get_input_port_by_name(astnode.get_input_blocks(), port.name) %}
-    {{ port.get_symbol_name() }}: List[float] = []    # buffer for the port name by itself (train of unweighted delta pulses)
-    spike_received_{{ port.get_symbol_name() }}: bool = False
+    {{ port.get_symbol_name() }}: List[float] = []    # buffer for the spiking input port (weighted delta pulses)
 {%-     endif %}
 {%- endfor %}
 
@@ -309,11 +306,10 @@ class Neuron_{{neuronName}}(Neuron):
     # -------------------------------------------------------------------------
 
 {%  for blk in neuron.get_on_receive_blocks() %}
-    if self.B_.spike_received_{{ utils.port_name_printer(blk.get_input_port_variable()) }}:
-      # loop over all spikes received since last timestep
-      n_spikes_received: int = len(self.B_.{{ utils.port_name_printer(blk.get_input_port_variable()) }})
-      for i in range(n_spikes_received):
-        self.on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}()
+    # loop over all spikes received since last timestep
+    n_spikes_received: int = len(self.B_.{{ utils.port_name_printer(blk.get_input_port_variable()) }})
+    for i in range(n_spikes_received):
+      self.on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}()
 {%- endfor %}
 
     # -------------------------------------------------------------------------
@@ -321,9 +317,7 @@ class Neuron_{{neuronName}}(Neuron):
     # -------------------------------------------------------------------------
 
 {%- for port in neuron.get_spike_input_ports() %}
-    self.B_.{{port.get_symbol_name()}} = []
-{%-     set ast_input_port = utils.get_input_port_by_name(astnode.get_input_blocks(), port.name) %}
-    self.B_.spike_received_{{port.get_symbol_name()}} = False
+    self.B_.{{ port.get_symbol_name() }} = []
 {%- endfor %}
 
 
@@ -350,9 +344,8 @@ class Neuron_{{neuronName}}(Neuron):
   def handle(self, t_spike: float, w: float, port_name: str) -> None:
 {%-     for port in neuron.get_spike_input_ports() %}
     if port_name == "{{ port.name }}":
-      self.B_.{{ port.get_symbol_name() }}.append(1.)    # unweighted spike port
+      self.B_.{{ port.get_symbol_name() }}.append(w)    # add weighted spike to buffer
 {%-         set ast_input_port = utils.get_input_port_by_name(astnode.get_input_blocks(), port.name) %}
-      self.B_.spike_received_{{ port.get_symbol_name() }} = True
       return
 {%-     endfor %}
     raise Exception("Received a spike on unknown input port \"" + port_name + "\" at t = " + "{0:E}".format(t_spike))
@@ -360,7 +353,7 @@ class Neuron_{{neuronName}}(Neuron):
   def get_spiking_input_ports(self) -> List[str]:
     return [
 {%-     for port in neuron.get_spike_input_ports() %}
-            "{{port.name}}",
+            "{{ port.name }}",
 {%-     endfor %}
     ]
 {%- endif %}

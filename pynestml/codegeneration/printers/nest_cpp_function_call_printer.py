@@ -63,7 +63,4 @@ class NESTCppFunctionCallPrinter(CppFunctionCallPrinter):
         if function_name == PredefinedFunctions.RANDOM_UNIFORM:
             return '(({!s}) + ({!s}) * nest::get_vp_specific_rng( ' + 'get_thread() )->drand())'
 
-        if function_name == PredefinedFunctions.SIFT:
-            return '__spike_input_{0!s}'
-
         return super()._print_function_call_format_string(function_call)
