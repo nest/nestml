@@ -572,20 +572,6 @@ class ASTUtils:
         return vars
 
     @classmethod
-    def inline_aliases_convolution(cls, inline_expr: ASTInlineExpression) -> bool:
-        """
-        Returns True if and only if the inline expression is of the form ``var type = convolve(...)``.
-        """
-        expr = inline_expr.get_expression()
-        if isinstance(expr, ASTExpression):
-            expr = expr.get_lhs()
-        if isinstance(expr, ASTSimpleExpression) \
-           and expr.is_function_call() \
-           and expr.get_function_call().get_name() == PredefinedFunctions.CONVOLVE:
-            return True
-        return False
-
-    @classmethod
     def add_suffix_to_variable_name(cls, var_name: str, astnode: ASTNode, suffix: str, scope=None):
         """add suffix to variable by given name recursively throughout astnode"""
 
@@ -718,9 +704,6 @@ class ASTUtils:
     def get_inline_expression_by_constructed_rhs_name(cls, node, name: str) -> Optional[ASTInlineExpression]:
         for equations_block in node.get_equations_blocks():
             for inline_expr in equations_block.get_inline_expressions():
-                if not ASTUtils.inline_aliases_convolution(inline_expr):
-                    continue
-
                 constructed_name = ASTUtils.construct_kernel_X_spike_buf_name(str(inline_expr.get_expression().get_function_call().get_args()[0]), inline_expr.get_expression().get_function_call().get_args()[1], order=0, suffix="__for_" + node.get_name())
 
                 if name == constructed_name:
