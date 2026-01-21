@@ -23,9 +23,18 @@ import os
 import unittest
 import pytest
 
-import nest
+# try to import matplotlib; set the result in the flag TEST_PLOTS
+try:
+    import logging
+    import matplotlib as mpl
+    mpl.use("agg")
+    logging.getLogger('matplotlib').setLevel(logging.WARNING)    # prevent matplotlib from printing a lot of debug messages when NESTML is running in DEBUG logging_level
+    import matplotlib.pyplot as plt
+    TEST_PLOTS = True
+except BaseException:
+    TEST_PLOTS = False
 
-import matplotlib.pyplot as plt
+import nest
 
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_target

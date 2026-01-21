@@ -19,11 +19,14 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import numpy as np
 import os
 
+# try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
-    import matplotlib
+    import logging
+    import matplotlib as mpl
+    mpl.use("agg")
+    logging.getLogger('matplotlib').setLevel(logging.WARNING)    # prevent matplotlib from printing a lot of debug messages when NESTML is running in DEBUG logging_level
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
 except BaseException:
