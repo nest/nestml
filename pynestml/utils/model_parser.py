@@ -153,6 +153,25 @@ class ModelParser:
         for model in ast.get_model_list():
             model.accept(ASTSymbolTableVisitor())
             SymbolTable.add_model_scope(model.get_name(), model.get_scope())
+
+
+            print("Model before transformation: ---------------------")
+            print(model)
+
+
+            model.accept(UnitTypeFixerVisitor())
+            model.accept(ASTSymbolTableVisitor())
+
+            print("Model after transformation: ---------------------")
+            print(model)
+
+            model.accept(UnitTypeFixerVisitor())
+            model.accept(ASTSymbolTableVisitor())
+
+            print("Model after transformation 2: ---------------------")
+            print(model)
+
+
             model.accept(UnitTypeFixerVisitor())
             model.accept(ASTSymbolTableVisitor())
             Logger.set_current_node(model)

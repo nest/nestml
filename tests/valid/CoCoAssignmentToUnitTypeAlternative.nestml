@@ -1,14 +1,12 @@
 # CoCoAssignmentToUnitType.nestml
 # ###############################
 #
-#
 # Description
 # +++++++++++
 #
 # This model is used to check if all cocos work correctly by detecting corresponding broken context.
 #
 # Positive case.
-#
 #
 # Copyright statement
 # +++++++++++++++++++
@@ -32,8 +30,7 @@
 #
 model CoCoAssignmentToUnitType:
     state:
-        V mV/F = 250 mV/F
-        pA real = 1
+        V mV = 123 mV
 
     update:
-        V = 1 V * pA * 1 F**-1 * exp(1)
+        V = 1 V

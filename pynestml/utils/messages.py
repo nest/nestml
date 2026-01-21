@@ -149,6 +149,7 @@ class MessageCode(Enum):
     DELAY_VARIABLE_NOT_FOUND = 120
     WEIGHT_VARIABLE_NOT_FOUND = 121
     NOT_ALLOWED_TO_ASSIGN_TO_A_UNIT_TYPE = 122
+    VARIABLE_USED_AS_A_UNIT = 123
 
 
 class Messages:
@@ -1188,3 +1189,9 @@ class Messages:
         message = "Not allowed to assign to unit type '" + variable_name + "'!"
 
         return MessageCode.NOT_ALLOWED_TO_ASSIGN_TO_A_UNIT_TYPE, message
+
+    @classmethod
+    def get_variable_used_as_a_unit(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "Variable '" + variable_name + "' used as a physical unit!"
+
+        return MessageCode.VARIABLE_USED_AS_A_UNIT, message

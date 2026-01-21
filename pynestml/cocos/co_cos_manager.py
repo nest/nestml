@@ -53,6 +53,7 @@ from pynestml.cocos.co_co_no_assignment_to_unit import CoCoNoAssignmentToUnit
 from pynestml.cocos.co_co_no_kernels_except_in_convolve import CoCoNoKernelsExceptInConvolve
 from pynestml.cocos.co_co_no_nest_name_space_collision import CoCoNoNestNameSpaceCollision
 from pynestml.cocos.co_co_no_duplicate_compilation_unit_names import CoCoNoDuplicateCompilationUnitNames
+from pynestml.cocos.co_co_no_variables_in_unit_types import CoCoNoVariablesInUnitTypes
 from pynestml.cocos.co_co_odes_have_consistent_units import CoCoOdesHaveConsistentUnits
 from pynestml.cocos.co_co_ode_functions_have_consistent_units import CoCoOdeFunctionsHaveConsistentUnits
 from pynestml.cocos.co_co_output_port_defined_if_emit_call import CoCoOutputPortDefinedIfEmitCall
@@ -170,6 +171,13 @@ class CoCosManager:
         :param model: a single model object
         """
         CoCoInlineExpressionsHaveRhs.check_co_co(model)
+
+    @classmethod
+    def check_no_variables_in_unit_types(cls, model: ASTModel):
+        """
+        :param model: a single model object
+        """
+        CoCoNoVariablesInUnitTypes.check_co_co(model)
 
     @classmethod
     def check_inline_has_max_one_lhs(cls, model: ASTModel):
@@ -456,6 +464,7 @@ class CoCosManager:
             cls.check_v_comp_requirement(model)
             cls.check_compartmental_model(model)
         cls.check_inline_expressions_have_rhs(model)
+        cls.check_no_variables_in_unit_types(model)
         cls.check_inline_has_max_one_lhs(model)
         cls.check_input_ports_not_assigned_to(model)
         cls.check_order_of_equations_correct(model)

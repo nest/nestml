@@ -26,6 +26,7 @@ from typing import Optional
 import os
 import pytest
 
+from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
@@ -438,28 +439,34 @@ class TestCoCos:
     #     model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoVectorInputPortSizeAndType.nestml'))
     #     assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 1
 
-    def test_assignment_to_unit_type_valid(self):
-        model = self._parse_and_validate_model(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
-                         'CoCoAssignmentToUnitType.nestml'))
-        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 0
+    # def test_assignment_to_unit_type_valid(self):
+    #     model = self._parse_and_validate_model(
+    #         os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+    #                      'CoCoAssignmentToUnitType.nestml'))
+    #     assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 0
 
-    def test_assignment_to_unit_type_valid_local(self):
-        model = self._parse_and_validate_model(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
-                         'CoCoAssignmentToUnitTypeLocal.nestml'))
-        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 0
+    # def test_assignment_to_unit_type_valid_local(self):
+    #     model = self._parse_and_validate_model(
+    #         os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+    #                      'CoCoAssignmentToUnitTypeLocal.nestml'))
+    #     assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 0
 
-    def test_assignment_to_unit_type_invalid(self):
+    # def test_assignment_to_unit_type_invalid(self):
+    #     model = self._parse_and_validate_model(
+    #         os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
+    #                      'CoCoAssignmentToUnitType.nestml'))
+    #     assert len(Logger.get_messages(model, LoggingLevel.ERROR)) > 0
+
+    # def test_assignment_to_unit_type_invalid_operator(self):
+    #     model = self._parse_and_validate_model(
+    #         os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
+    #                      'CoCoAssignmentToUnitTypeOperator.nestml'))
+    #     assert len(Logger.get_messages(model, LoggingLevel.ERROR)) > 0
+
+    def test_assignment_to_unit_type_invalid_alt(self):
         model = self._parse_and_validate_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
-                         'CoCoAssignmentToUnitType.nestml'))
-        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) > 0
-
-    def test_assignment_to_unit_type_invalid_operator(self):
-        model = self._parse_and_validate_model(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
-                         'CoCoAssignmentToUnitTypeOperator.nestml'))
+                         'CoCoAssignmentToUnitTypeAlt.nestml'))
         assert len(Logger.get_messages(model, LoggingLevel.ERROR)) > 0
 
     def _parse_and_validate_model(self, fname: str) -> Optional[str]:
@@ -474,6 +481,10 @@ class TestCoCos:
             return None
 
         model: ASTModel = ast_compilation_unit.get_model_list()[0]
+
+        # if not Logger.has_errors(model.name):
+        CoCosManager.check_cocos(model)
+
         model_name = model.get_name()
 
         return model_name

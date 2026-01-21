@@ -99,15 +99,25 @@ class UnitTypeFixerVisitor(ASTVisitor):
 
                         expr_to_be_moved = ASTNodeFactory.create_ast_compound_expression(lhs=base_var_simple_expr, binary_operator=binary_operator, rhs=exponent_expr)
 
-                        # substitute it in the parent class
-                        if parent_node.binary_operator.is_times_op:
-                            binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_times_op=True)
+                    elif node.unitType.rhs.is_simple_unit():
+                        # construct the new term
+                        var_name = node.unitType.rhs.unit
+                        var = ASTNodeFactory.create_ast_variable(var_name)
+                        var_simple_expr = ASTNodeFactory.create_ast_simple_expression(variable=var)
+                        var_expr = ASTExpression(expression=var_simple_expr)
+                        expr_to_be_moved = var_simple_expr
 
-                            new_node = ASTExpression(binary_operator=binary_operator, lhs=new_unit_type, rhs=expr_to_be_moved)
+                    else:
+                        raise Exception("Not implemented yet!")
 
-                            if parent_node.lhs == node:
-                                parent_node.lhs = new_node
-                            elif parent_node.rhs == node:
-                                parent_node.rhs = new_node
 
-            import pdb;pdb.set_trace()
+                    # substitute the new expression ``expr_to_be_moved`` into the parent class
+                    if parent_node.binary_operator.is_times_op:
+                        binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_times_op=True)
+
+                        new_node = ASTExpression(binary_operator=binary_operator, lhs=new_unit_type, rhs=expr_to_be_moved)
+
+                        if parent_node.lhs == node:
+                            parent_node.lhs = new_node
+                        elif parent_node.rhs == node:
+                            parent_node.rhs = new_node
