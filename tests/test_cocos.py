@@ -26,6 +26,7 @@ from typing import Optional
 import os
 import pytest
 
+from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
@@ -451,5 +452,8 @@ class TestCoCos:
 
         model: ASTModel = ast_compilation_unit.get_model_list()[0]
         model_name = model.get_name()
+
+        if not Logger.has_errors(model.name):
+            CoCosManager.check_cocos(model)
 
         return model_name
