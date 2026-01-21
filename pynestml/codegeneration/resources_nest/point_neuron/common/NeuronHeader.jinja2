@@ -127,11 +127,6 @@ namespace {{names_namespace}}
     const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
 {%-     endfor %}
 {%- endif %}
-{%- if neuron.get_internal_symbols()|length > 0 %}
-{%- for sym in neuron.get_internal_symbols() %}
-    const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
-{%- endfor %}
-{%- endif %}
 
     const Name gsl_abs_error_tol("gsl_abs_error_tol");
     const Name gsl_rel_error_tol("gsl_rel_error_tol");
