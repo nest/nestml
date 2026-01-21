@@ -25,10 +25,12 @@ import numpy as np
 import os
 import pytest
 
+# try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
-    import matplotlib
+    import logging
+    import matplotlib as mpl
+    mpl.use("agg")
     import matplotlib.pyplot as plt
-
     TEST_PLOTS = True
 except BaseException:
     TEST_PLOTS = False

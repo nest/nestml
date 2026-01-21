@@ -24,17 +24,20 @@ import os
 import pytest
 import unittest
 
-import nest
-
-from pynestml.codegeneration.nest_tools import NESTTools
-from pynestml.frontend.pynestml_frontend import generate_nest_target
-
+# try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
-    import matplotlib
+    import logging
+    import matplotlib as mpl
+    mpl.use("agg")
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
 except BaseException:
     TEST_PLOTS = False
+
+import nest
+
+from pynestml.codegeneration.nest_tools import NESTTools
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
 class TestOUConductanceNoise(unittest.TestCase):

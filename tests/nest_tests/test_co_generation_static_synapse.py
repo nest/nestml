@@ -21,17 +21,18 @@
 
 import os
 
-from pynestml.codegeneration.nest_tools import NESTTools
-from pynestml.frontend.pynestml_frontend import generate_nest_target
-
+# try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.ticker
+    import logging
+    import matplotlib as mpl
+    mpl.use("agg")
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
-except Exception:
+except BaseException:
     TEST_PLOTS = False
+
+from pynestml.codegeneration.nest_tools import NESTTools
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
 def test_co_generation_static_synapse():
