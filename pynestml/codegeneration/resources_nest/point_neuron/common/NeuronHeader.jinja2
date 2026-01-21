@@ -104,19 +104,28 @@ namespace nest
 namespace {{names_namespace}}
 {
 {%- if neuron.get_state_symbols()|length > 0 %}
-{%- for sym in neuron.get_state_symbols() %}
+    // state variables
+{%-     for sym in neuron.get_state_symbols() %}
     const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
-{%- endfor %}
+{%-     endfor %}
 {%- endif %}
 {%- if recordable_inline_expressions|length > 0 %}
-{%- for sym in recordable_inline_expressions %}
+    // inline expressions
+{%-     for sym in recordable_inline_expressions %}
     const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
-{%- endfor %}
+{%-     endfor %}
 {%- endif %}
 {%- if neuron.get_parameter_symbols()|length > 0 %}
-{%- for sym in neuron.get_parameter_symbols() %}
+    // parameters
+{%-     for sym in neuron.get_parameter_symbols() %}
     const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
-{%- endfor %}
+{%-     endfor %}
+{%- endif %}
+{%- if neuron.get_internal_symbols()|length > 0 %}
+    // internals
+{%-     for sym in neuron.get_internal_symbols() %}
+    const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
+{%-     endfor %}
 {%- endif %}
 {%- if neuron.get_internal_symbols()|length > 0 %}
 {%- for sym in neuron.get_internal_symbols() %}
