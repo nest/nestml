@@ -1,13 +1,12 @@
-# CoCoElementInSameLine.nestml
-# ############################
-#
+# CoCoAssignmentToUnitType.nestml
+# ###############################
 #
 # Description
 # +++++++++++
 #
 # This model is used to check if all cocos work correctly by detecting corresponding broken context.
 #
-# Positive case.
+# Negative case.
 #
 #
 # Copyright statement
@@ -30,6 +29,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
-model CoCoElementInSameLine:
-    state:
-        test1 integer = 1 # no recursive definition occurred, thus everything correct
+model CoCoAssignmentToUnitType:
+    update:
+        V = 1000 mV

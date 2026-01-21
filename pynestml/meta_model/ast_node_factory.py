@@ -192,7 +192,7 @@ class ASTNodeFactory:
                                        binary_operator,
                                        # type: Union(ASTLogicalOperator,ASTBitOperator,ASTComparisonOperator,ASTArithmeticOperator)
                                        rhs,  # type: Union(ASTExpression,ASTSimpleExpression)
-                                       source_position  # type: ASTSourceLocation
+                                       source_position=None  # type: ASTSourceLocation
                                        ):  # type: (...) -> ASTExpression
         """
         The factory method used to create compound expressions, e.g. 10mV + V_m.
@@ -312,12 +312,13 @@ class ASTNodeFactory:
     def create_ast_simple_expression(cls, function_call=None,  # type: Union(ASTFunctionCall,None)
                                      boolean_literal=None,  # type: Union(bool,None)
                                      numeric_literal=None,  # type: Union(float,int)
+                                     unitType=None,
                                      is_inf=False,  # type: bool
                                      variable=None,  # type: ASTVariable
                                      string=None,  # type: Union(str,None)
                                      source_position=None  # type: ASTSourceLocation
                                      ):  # type: (...) -> ASTSimpleExpression
-        return ASTSimpleExpression(function_call, boolean_literal, numeric_literal, is_inf, variable, string,
+        return ASTSimpleExpression(function_call, boolean_literal, numeric_literal, unitType, is_inf, variable, string,
                                    source_position=source_position)
 
     @classmethod

@@ -76,6 +76,7 @@ from pynestml.visitors.ast_builder_visitor import ASTBuilderVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+from pynestml.visitors.unit_type_fixer_visitor import UnitTypeFixerVisitor
 
 
 class ModelParser:
@@ -152,6 +153,27 @@ class ModelParser:
         for model in ast.get_model_list():
             model.accept(ASTSymbolTableVisitor())
             SymbolTable.add_model_scope(model.get_name(), model.get_scope())
+
+
+            print("Model before transformation: ---------------------")
+            print(model)
+
+
+            model.accept(UnitTypeFixerVisitor())
+            model.accept(ASTSymbolTableVisitor())
+
+            print("Model after transformation: ---------------------")
+            print(model)
+
+            model.accept(UnitTypeFixerVisitor())
+            model.accept(ASTSymbolTableVisitor())
+
+            print("Model after transformation 2: ---------------------")
+            print(model)
+
+
+            model.accept(UnitTypeFixerVisitor())
+            model.accept(ASTSymbolTableVisitor())
             Logger.set_current_node(model)
             model.accept(AssignImplicitConversionFactorsVisitor())
             Logger.set_current_node(None)
