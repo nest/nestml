@@ -19,6 +19,11 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+import unittest
+import numpy as np
+
+# try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
     import matplotlib as mpl
     mpl.use("agg")
@@ -26,11 +31,6 @@ try:
     TEST_PLOTS = True
 except BaseException:
     TEST_PLOTS = False
-
-
-import os
-import unittest
-import numpy as np
 
 import nest
 
