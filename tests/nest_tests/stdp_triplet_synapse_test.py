@@ -19,17 +19,14 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
 import numpy as np
 import os
 import pytest
 
 # try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
-    import logging
     import matplotlib as mpl
     mpl.use("agg")
-    logging.getLogger('matplotlib').setLevel(logging.WARNING)    # prevent matplotlib from printing a lot of debug messages when NESTML is running in DEBUG logging_level
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
 except BaseException:
@@ -334,7 +331,7 @@ def plot_comparison(syn_opts, times_spikes_pre, times_spikes_post, times_spikes_
     for _ax in ax:
         _ax.grid(True)
         _ax.set_xlim(0., sim_time)
-        _ax.xaxis.set_major_locator(matplotlib.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
+        _ax.xaxis.set_major_locator(mpl.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
         if not _ax == ax[-1]:
             _ax.set_xticklabels([])
 
