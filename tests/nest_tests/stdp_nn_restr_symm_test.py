@@ -26,7 +26,6 @@ import unittest
 
 # try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
-    import logging
     import matplotlib as mpl
     mpl.use("agg")
     import matplotlib.pyplot as plt
@@ -304,7 +303,7 @@ class NestSTDPNNRestrSymmSynapseTest(unittest.TestCase):
             ax3.set_ylabel("w")
             for _ax in ax:
                 _ax.grid(which="major", axis="both")
-                _ax.xaxis.set_major_locator(matplotlib.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
+                _ax.xaxis.set_major_locator(mpl.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
                 _ax.set_xlim(0., sim_time)
                 _ax.legend()
             fig.savefig("/tmp/stdp_nn_restr_symm_synapse_test" + fname_snip + ".png", dpi=300)

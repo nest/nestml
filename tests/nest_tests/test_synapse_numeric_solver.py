@@ -26,7 +26,6 @@ from scipy.integrate import solve_ivp
 
 # try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
-    import logging
     import matplotlib as mpl
     mpl.use("agg")
     import matplotlib.pyplot as plt
