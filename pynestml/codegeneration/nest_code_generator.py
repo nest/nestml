@@ -113,8 +113,8 @@ class NESTCodeGenerator(CodeGenerator):
     - **gsl_adaptive_step_size_controller**: For the numeric (GSL) solver: how to interpret the absolute and relative tolerance values. Can be changed to trade off integration accuracy with numerical stability. The default value is ``"with_respect_to_solution"``. Can also be set to ``"with_respect_to_derivative"``. (Tolerance values can be specified at runtime as parameters of the model instance.) For further details, see https://www.gnu.org/software/gsl/doc/html/ode-initval.html#adaptive-step-size-control.
     - **numeric_solver**: A string identifying the preferred numeric ODE solver. Supported are ``"rk45"`` and ``"forward-Euler"``.
     - **continuous_state_buffering_method**: Which method to use for buffering state variables between neuron and synapse pairs. When a synapse has a "continuous" input port, connected to a postsynaptic neuron, either the value is obtained taking the synaptic (dendritic, that is, synapse-soma) delay into account, requiring a buffer to store the value at each timepoint (``continuous_state_buffering_method = "continuous_time_buffer"``); or the value is obtained at the times of the somatic spikes of the postsynaptic neuron, ignoring the synaptic delay (``continuous_state_buffering_method == "post_spike_based"``). The former is more physically accurate but requires a large buffer and can require a long time to simulate. The latter ignores the dendritic delay but is much more computationally efficient.
-    - **delay_variable**: A mapping identifying, for each synapse (the name of which is given as a key), the variable or parameter in the model that corresponds with the NEST ``Connection`` class delay property.
-    - **weight_variable**: Like ``delay_variable``, but for synaptic weight.
+    - **delay_variable**: A mapping identifying, for each synapse (the name of which is given as a key), the variable or parameter in the model that corresponds with the NEST ``Connection`` class delay property. (Optional.)
+    - **weight_variable**: Like ``delay_variable``, but for synaptic weight. (Required.)
     - **redirect_build_output**: An optional boolean key for redirecting the build output. Setting the key to ``True``, two files will be created for redirecting the ``stdout`` and the ``stderr`. The ``target_path`` will be used as the default location for creating the two files.
     - **build_output_dir**: An optional string key representing the new path where the files corresponding to the output of the build phase will be created. This key requires that the ``redirect_build_output`` is set to ``True``.
 
@@ -186,8 +186,9 @@ class NESTCodeGenerator(CodeGenerator):
                 self._check_delay_variable_codegen_opt(model)
                 self._check_weight_variable_codegen_opt(model)
 
-                delay_variable = self.get_option("delay_variable")[synapse_name_stripped]
-                CoCoNESTSynapseDelayNotAssignedTo.check_co_co(delay_variable, model)
+                if self.get_option("delay_variable"):
+                    delay_variable = self.get_option("delay_variable")[synapse_name_stripped]
+                    CoCoNESTSynapseDelayNotAssignedTo.check_co_co(delay_variable, model)
 
                 if Logger.has_errors(model.name):
                     raise Exception("Error(s) occurred during code generation")
@@ -267,7 +268,10 @@ class NESTCodeGenerator(CodeGenerator):
 
         self._check_delay_variable_codegen_opt(synapse)
 
-        variables_special_cases = {self.get_option("delay_variable")[synapse_name_stripped]: "get_delay()"}
+        variables_special_cases = {}
+        if self.get_option("delay_variable"):
+            variables_special_cases[self.get_option("delay_variable")[synapse_name_stripped]] = "get_delay()"
+
         self._nest_variable_printer.variables_special_cases = variables_special_cases
         self._nest_variable_printer_no_origin.variables_special_cases = variables_special_cases
 
@@ -487,13 +491,7 @@ class NESTCodeGenerator(CodeGenerator):
     def _check_delay_variable_codegen_opt(self, synapse: ASTModel) -> None:
         synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
 
-        if not self.get_option("delay_variable"):
-            code, message = Messages.get_delay_variable_not_specified()
-            Logger.log_message(synapse, code, message, None, LoggingLevel.ERROR)
-
-            return
-
-        if not (synapse_name_stripped in self.get_option("delay_variable").keys() and ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped])):
+        if self.get_option("delay_variable") and not (synapse_name_stripped in self.get_option("delay_variable").keys() and ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped])):
             code, message = Messages.get_delay_variable_not_found(variable_name=self.get_option("delay_variable")[synapse_name_stripped])
             Logger.log_message(synapse, code, message, None, LoggingLevel.ERROR)
 
@@ -692,7 +690,8 @@ class NESTCodeGenerator(CodeGenerator):
         self._check_delay_variable_codegen_opt(synapse)
 
         synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
-        namespace["nest_codegen_opt_delay_variable"] = self.get_option("delay_variable")[synapse_name_stripped]
+        if self.get_option("delay_variable") and synapse_name_stripped in self.get_option("delay_variable").keys():
+            namespace["nest_codegen_opt_delay_variable"] = self.get_option("delay_variable")[synapse_name_stripped]
 
         # special case for NEST weight variable (state or parameter)
         if synapse_name_stripped in self.get_option("weight_variable").keys() and ASTUtils.get_variable_by_name(synapse, self.get_option("weight_variable")[synapse_name_stripped]):

@@ -13,10 +13,10 @@ model delay_test_synapse:
     pre_spikes <- spike
 
   output:
-    spike(weight real, delay ms)
+    spike
 
   onReceive(pre_spikes):
-    emit_spike(w, d)
+    emit_spike(w)
 
   update:
     x = d
