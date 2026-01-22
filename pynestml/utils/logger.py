@@ -245,7 +245,7 @@ class Logger:
         cls.current_node = node
 
     @classmethod
-    def get_messages(cls, node: Optional[Union[ASTNode, str]] = None, level: Optional[LoggingLevel] = None, message_code: Optional[int] = None) -> List[Tuple[ASTNode, LoggingLevel, str]]:
+    def get_messages(cls, node_or_node_name: Optional[Union[ASTNode, str]] = None, level: Optional[LoggingLevel] = None, message_code: Optional[int] = None, artifact_name: Optional[str] = None) -> List[Tuple[ASTNode, LoggingLevel, str]]:
         """
         Returns all messages which have a certain logging level, or have been reported for a certain node, or both.
 
@@ -253,21 +253,32 @@ class Logger:
         :param level: a logging level
         :return: a list of messages with their levels.
         """
-        if level is None and node is None:
-            return cls.get_log()
-
-        if isinstance(node, str):
-            # search by artifact name
-            node_artifact_name = node
-            node = None
+        if isinstance(node_or_node_name, ASTNode):
+            name_to_search_for = node_or_node_name.name
         else:
-            # search by artifact class object
-            node_artifact_name = None
+            name_to_search_for = node_or_node_name
 
         ret = list()
-        for (artifactName, node_i, logLevel, code, errorPosition, message) in cls.log.values():
-            if (level == logLevel if level is not None else True) and (node if node is not None else True) and (node_artifact_name == artifactName if node is not None else True) and (code == message_code if message_code is not None else True):
-                ret.append((node, logLevel, message))
+        for log_entry in cls.log.values():
+            artifactName, nodeOrNodeName, logLevel, code, _, _ = log_entry
+
+            if level is not None and level != logLevel:
+                continue
+
+            if node_or_node_name is not None:
+                if isinstance(nodeOrNodeName, ASTNode) and name_to_search_for != nodeOrNodeName.name:
+                    continue
+
+                if isinstance(nodeOrNodeName, str) and name_to_search_for != nodeOrNodeName:
+                    continue
+
+            if artifact_name is not None and artifact_name != artifactName:
+                continue
+
+            if message_code is not None and message_code != code:
+                continue
+
+            ret.append(log_entry)
 
         return ret
 
