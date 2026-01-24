@@ -150,7 +150,7 @@ class TestSelfSpikeConvolutions:
         step_time_delta = res['times'][1] - res['times'][0]
         data_array_index = int(58 / step_time_delta)
 
-        expected_entries={
+        expected_entries = {
             'chan_primary0': 0.5945205479701962,
             'chan_secondary0': 0.5945205479701962,
             'concentration0': 0.3589924428735023,

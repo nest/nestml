@@ -133,7 +133,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
 
         if model_case == "nestml":
             post_neuron.receptors = [
-                {"comp_idx": 0, "receptor_type": "AMPA_stdp_synapse_nestml", "params": {'w': 10.0, "d": 0.1, "e_AMPA": -70.0}} #"tau_tr_pre": 40, "tau_tr_post": 40
+                {"comp_idx": 0, "receptor_type": "AMPA_stdp_synapse_nestml", "params": {'w': 10.0, "d": 0.1, "e_AMPA": -70.0}}
             ]
             mm = nest.Create('multimeter', 1, {
                 'record_from': ['v_comp0', 'w0', 'AMPA_stdp_synapse_nestml0', 'pre_trace0', 'post_trace0'], 'interval': .1})
@@ -178,7 +178,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
 
         nest.Simulate(post_spike)
         nest.SetStatus(post_neuron, {'v_comp0': 0.0})
-        nest.Simulate(sim_time-post_spike+2)
+        nest.Simulate(sim_time-post_spike + 2)
 
         res = nest.GetStatus(mm, 'events')[0]
         recorded = dict()

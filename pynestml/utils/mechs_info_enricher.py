@@ -53,6 +53,7 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 from sympy.printing.str import StrPrinter
 
+
 class LowerMinMaxPrinter(StrPrinter):
     """
     Correcting the case change of min/max functions due to sympy parsing.
@@ -62,6 +63,7 @@ class LowerMinMaxPrinter(StrPrinter):
 
     def _print_Max(self, expr):
         return "max(%s)" % ", ".join(self._print(a) for a in expr.args)
+
 
 class MechsInfoEnricher:
     """
