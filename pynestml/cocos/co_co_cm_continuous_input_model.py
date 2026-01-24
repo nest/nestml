@@ -26,11 +26,10 @@ from pynestml.utils.continuous_input_processing import ContinuousInputProcessing
 
 class CoCoCmContinuousInputModel(CoCo):
     @classmethod
-    def check_co_co(cls, neuron: ASTModel):
+    def check_co_co(cls, neuron: ASTModel, global_info):
         """
         Checks if this compartmental condition applies to the handed over neuron.
         If yes, it checks the presence of expected functions and declarations.
         :param neuron: a single neuron instance.
-        :type neuron: ast_neuron
         """
-        return ContinuousInputProcessing.check_co_co(neuron)
+        return ContinuousInputProcessing.check_co_co(neuron, global_info)

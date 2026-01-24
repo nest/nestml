@@ -1,23 +1,29 @@
+# concmech.nestml - Compartmental active ion-channel implementation with concentration mechanism linking.
+#
+# Description
+# +++++++++++
+# Example compartmental model featuring receptors, ion-channels and slow-dynamic concentration mechanism linking.
+#
 # Copyright statement
 # +++++++++++++++++++
-# 
+#
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
-# 
+#
 # NEST is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # NEST is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
+#
 #
 model multichannel_test_model:
     parameters:
@@ -94,8 +100,8 @@ model multichannel_test_model:
         h_NaTa_t' = ( h_inf_NaTa_t(v_comp) - h_NaTa_t ) / (tau_h_NaTa_t(v_comp)*1s)
 
         # equations SKv3_1
-        #inline SKv3_1 real = gbar_SKv3_1 * (z_SKv3_1) * (e_SKv3_1 - v_comp) @mechanism::channel
-        #z_SKv3_1' = ( z_inf_SKv3_1(v_comp) - z_SKv3_1 ) / (tau_z_SKv3_1(v_comp)*1s)
+        inline SKv3_1 real = gbar_SKv3_1 * (z_SKv3_1) * (e_SKv3_1 - v_comp) @mechanism::channel
+        z_SKv3_1' = ( z_inf_SKv3_1(v_comp) - z_SKv3_1 ) / (tau_z_SKv3_1(v_comp)*1s)
 
         # equations SK_E2
         inline SK_E2 real = gbar_SK_E2 * (z_SK_E2) * (e_SK_E2 - v_comp) @mechanism::channel
@@ -214,3 +220,6 @@ model multichannel_test_model:
 
     input:
         spikes_AMPA <- spike
+
+    output:
+        spike

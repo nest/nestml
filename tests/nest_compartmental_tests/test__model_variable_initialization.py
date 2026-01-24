@@ -68,7 +68,7 @@ class TestInitialization():
             target_path="/tmp/nestml-component/",
             module_name="concmech_module",
             suffix="_nestml",
-            logging_level="DEBUG"
+            logging_level="INFO"
         )
 
         nest.Install("concmech_module.so")

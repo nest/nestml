@@ -532,8 +532,11 @@ def process() -> bool:
     # validation -- check cocos for models that do not have errors already
     excluded_models = []
     for model in models:
+        syn_model = False
+        if "neuron_synapse_pairs" in FrontendConfiguration.get_codegen_opts():
+            syn_model = model.name in [(pair["synapse"] + "_nestml") for pair in FrontendConfiguration.get_codegen_opts()["neuron_synapse_pairs"]]
         if not Logger.has_errors(model.name):
-            CoCosManager.check_cocos(model)
+            CoCosManager.check_cocos(model, syn_model=syn_model)
 
         if Logger.has_errors(model.name):
             code, message = Messages.get_model_contains_errors(model.get_name())
