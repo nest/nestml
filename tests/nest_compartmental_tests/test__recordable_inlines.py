@@ -118,6 +118,5 @@ class TestCompartmentalConcmech:
         axs[3].legend()
 
         plt.savefig("rec inline test.png")
-        plt.show()
 
         assert res['open_probability0'][1100] != 0, "the recordable inlines could not be recorded correctly"

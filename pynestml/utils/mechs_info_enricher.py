@@ -45,13 +45,23 @@ from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.utils.ast_vector_parameter_setter_and_printer_factory import ASTVectorParameterSetterAndPrinterFactory
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.model_parser import ModelParser
 from pynestml.visitors.ast_visitor import ASTVisitor
 
+from sympy.printing.str import StrPrinter
+
+class LowerMinMaxPrinter(StrPrinter):
+    """
+    Correcting the case change of min/max functions due to sympy parsing.
+    """
+    def _print_Min(self, expr):
+        return "min(%s)" % ", ".join(self._print(a) for a in expr.args)
+
+    def _print_Max(self, expr):
+        return "max(%s)" % ", ".join(self._print(a) for a in expr.args)
 
 class MechsInfoEnricher:
     """
@@ -76,6 +86,9 @@ class MechsInfoEnricher:
 
     def __init__(self):
         pass
+
+    def sympy_compatible_print(expr):
+        return LowerMinMaxPrinter().doprint(expr)
 
     @classmethod
     def enrich_with_additional_info(cls, neuron: ASTModel, mechs_info: dict):

@@ -104,7 +104,7 @@ class RecsInfoEnricher(MechsInfoEnricher):
             sympy_expr = sympy.parsing.sympy_parser.parse_expr(expr_str)
             sympy_expr = sympy.diff(sympy_expr, "v_comp")
 
-            ast_expression_d = ModelParser.parse_expression(str(sympy_expr))
+            ast_expression_d = ModelParser.parse_expression(cls.sympy_compatible_print(sympy_expr))
             # copy scope of the original inline_expression into the the derivative
             ast_expression_d.update_scope(inline_expression.get_scope())
             ast_expression_d.accept(ASTSymbolTableVisitor())

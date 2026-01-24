@@ -326,20 +326,25 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::update( Time const& origin, con
 
   for ( long lag = from; lag < to; ++lag )
   {
-    const double v_0_prev = *(c_tree_.get_root()->v_comp);
-
     c_tree_.construct_matrix( lag );
     c_tree_.solve_matrix();
 
     // threshold crossing
-    if ( *(c_tree_.get_root()->v_comp) >= V_th_ && v_0_prev < V_th_ )
+    if ( *(c_tree_.get_root()->v_comp) >= V_th_ )
     {
-      set_spiketime( Time::step( origin.get_steps() + lag + 1 ) );
+        if(prev_sub_th)
+        {
+          prev_sub_th = false;
+          set_spiketime( Time::step( origin.get_steps() + lag + 1 ) );
 
-      SpikeEvent se;
-      kernel().event_delivery_manager.send( *this, se, lag );
+          SpikeEvent se;
+          kernel().event_delivery_manager.send( *this, se, lag );
 
-      c_tree_.neuron_currents.postsynaptic_synaptic_processing();
+          c_tree_.neuron_currents.postsynaptic_synaptic_processing();
+        }
+    }else
+    {
+      prev_sub_th = true;
     }
 
     logger_.record_data( origin.get_steps() + lag );
