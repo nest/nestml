@@ -758,10 +758,11 @@ class ASTUtils:
     @classmethod
     def get_post_ports_of_neuron_synapse_pair(cls, neuron, synapse, codegen_opts_pairs):
         for pair in codegen_opts_pairs:
-            if pair["neuron"] == removesuffix(neuron.get_name().split("__with_")[0], FrontendConfiguration.suffix) \
-               and pair["synapse"] == removesuffix(synapse.get_name().split("__with_")[0], FrontendConfiguration.suffix) \
-               and "post_ports" in pair.keys():
-                return pair["post_ports"]
+            if pair["neuron"] == removesuffix(neuron.get_name().split("__with_")[0], FrontendConfiguration.suffix):
+                for synapse_name, syn_opts in pair["synapses"].items():
+                    if synapse_name == removesuffix(synapse.get_name().split("__with_")[0], FrontendConfiguration.suffix) \
+                       and "post_ports" in syn_opts.keys():
+                        return syn_opts["post_ports"]
 
         return []
 

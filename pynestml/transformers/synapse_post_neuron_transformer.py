@@ -88,25 +88,28 @@ class SynapsePostNeuronTransformer(Transformer):
             return False
 
         for neuron_synapse_pair in self._options["neuron_synapse_pairs"]:
-            if not (neuron_name in [neuron_synapse_pair["neuron"], neuron_synapse_pair["neuron"] + FrontendConfiguration.suffix]
-                    and synapse_name in [neuron_synapse_pair["synapse"], neuron_synapse_pair["synapse"] + FrontendConfiguration.suffix]):
+            if not neuron_name in [neuron_synapse_pair["neuron"], neuron_synapse_pair["neuron"] + FrontendConfiguration.suffix]:
                 continue
 
-            if not special_type + "_ports" in neuron_synapse_pair.keys():
-                return False
+            for syn, syn_opts in neuron_synapse_pair["synapses"].items():
+                if syn == synapse_name or syn == synapse_name + FrontendConfiguration.suffix:
+                    # this is the synapse we are searching for...
 
-            post_ports = neuron_synapse_pair[special_type + "_ports"]
-            if not isinstance(post_ports, list):
-                # only one port name given, not a list
-                return port_name == post_ports
+                    if not special_type + "_ports" in syn_opts.keys():
+                        return False
 
-            for post_port in post_ports:
-                if type(post_port) is not str and len(post_port) == 2:  # (syn_port_name, neuron_port_name) tuple
-                    post_port = post_port[0]
-                if type(post_port) is not str and len(post_port) == 1:  # (syn_port_name)
-                    return post_port[0] == port_name
-                if port_name == post_port:
-                    return True
+                    post_ports = syn_opts[special_type + "_ports"]
+                    if not isinstance(post_ports, list):
+                        # only one port name given, not a list
+                        return port_name == post_ports
+
+                    for post_port in post_ports:
+                        if type(post_port) is not str and len(post_port) == 2:  # (syn_port_name, neuron_port_name) tuple
+                            post_port = post_port[0]
+                        if type(post_port) is not str and len(post_port) == 1:  # (syn_port_name)
+                            return post_port[0] == port_name
+                        if port_name == post_port:
+                            return True
 
         return False
 
@@ -155,21 +158,22 @@ class SynapsePostNeuronTransformer(Transformer):
             return False
 
         for neuron_synapse_pair in self._options["neuron_synapse_pairs"]:
-            if not (neuron_name in [neuron_synapse_pair["neuron"], neuron_synapse_pair["neuron"] + FrontendConfiguration.suffix]
-                    and synapse_name in [neuron_synapse_pair["synapse"], neuron_synapse_pair["synapse"] + FrontendConfiguration.suffix]):
+            if not neuron_name in [neuron_synapse_pair["neuron"], neuron_synapse_pair["neuron"] + FrontendConfiguration.suffix]:
                 continue
 
-            if not "post_ports" in neuron_synapse_pair.keys():
-                return None
+            for syn, syn_opts in neuron_synapse_pair["synapses"].items():
+                if syn == synapse_name or syn == synapse_name + FrontendConfiguration.suffix:
+                    # this is the synapse we are searching for...
 
-            post_ports = neuron_synapse_pair["post_ports"]
+                    if not "post_ports" in syn_opts.keys():
+                        return None
 
-            for post_port in post_ports:
-                if type(post_port) is not str and len(post_port) == 2:  # (syn_port_name, neuron_var_name) tuple
-                    if port_name == post_port[0]:
-                        return post_port[1]
+                    post_ports = syn_opts["post_ports"]
 
-            return None
+                    for post_port in post_ports:
+                        if type(post_port) is not str and len(post_port) == 2:  # (syn_port_name, neuron_var_name) tuple
+                            if port_name == post_port[0]:
+                                return post_port[1]
 
         return None
 
@@ -654,7 +658,7 @@ class SynapsePostNeuronTransformer(Transformer):
                 raise Exception("Neuron used in pair (\"" + neuron_name + "\") not found")  # XXX: log error
 
             synapses = []
-            for synapse_name in neuron_synapse_pair["synapse"].keys():
+            for synapse_name in neuron_synapse_pair["synapses"].keys():
                 synapse = ASTUtils.find_model_by_name(synapse_name + FrontendConfiguration.suffix, models)
                 if synapse is None:
                     raise Exception("Synapse used in pair (\"" + synapse_name + "\") not found")  # XXX: log error
@@ -666,7 +670,7 @@ class SynapsePostNeuronTransformer(Transformer):
 
         # remove the synapses used in neuron-synapse pairs, as they can potentially not be generated independently of a neuron and would otherwise result in an error
         for neuron_synapse_pair in self.get_option("neuron_synapse_pairs"):
-            for synapse_name in neuron_synapse_pair["synapse"].keys():
+            for synapse_name in neuron_synapse_pair["synapses"].keys():
                 synapse = ASTUtils.find_model_by_name(synapse_name + FrontendConfiguration.suffix, models)
                 if synapse:
                     model_idx = models.index(synapse)
