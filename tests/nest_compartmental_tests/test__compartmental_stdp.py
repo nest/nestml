@@ -178,7 +178,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
 
         nest.Simulate(post_spike)
         nest.SetStatus(post_neuron, {'v_comp0': 0.0})
-        nest.Simulate(sim_time-post_spike + 2)
+        nest.Simulate(sim_time - post_spike + 2)
 
         res = nest.GetStatus(mm, 'events')[0]
         recorded = dict()
