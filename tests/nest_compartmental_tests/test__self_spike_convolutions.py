@@ -160,14 +160,14 @@ class TestSelfSpikeConvolutions:
             'con_in_primary2': 1.1890410959403923,
             'con_in_secondary3': 1.1890410959403923,
         }
-        fail_emtries = dict()
+        fail_entries = dict()
         fail_message = "Some values have evolved significantly different to the expected values at time 58ms. These are the differences: \n"
         fail_message = fail_message + "Mechanism    Expected    Result    Difference \n"
         for entry_name, entry in res.items():
             if entry_name != 'times' and entry_name != 'senders':
                 print(entry_name, entry[data_array_index])
                 if abs(entry[data_array_index] - expected_entries[entry_name]) >= 0.0000001:
-                    fail_emtries[entry_name] = entry[data_array_index] - expected_entries[entry_name]
-                    fail_message = fail_message + entry_name + ": " + str(expected_entries[entry_name]) + " " + str(entry[data_array_index]) + " " + str(fail_emtries[entry_name]) + "\n"
+                    fail_entries[entry_name] = entry[data_array_index] - expected_entries[entry_name]
+                    fail_message = fail_message + entry_name + ": " + str(expected_entries[entry_name]) + " " + str(entry[data_array_index]) + " " + str(fail_entries[entry_name]) + "\n"
 
-        assert len(fail_emtries) == 0, fail_message
+        assert len(fail_entries) == 0, fail_message
