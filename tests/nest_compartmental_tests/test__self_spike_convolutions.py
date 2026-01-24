@@ -165,7 +165,6 @@ class TestSelfSpikeConvolutions:
         fail_message = fail_message + "Mechanism    Expected    Result    Difference \n"
         for entry_name, entry in res.items():
             if entry_name != 'times' and entry_name != 'senders':
-                print(entry_name, entry[data_array_index])
                 if abs(entry[data_array_index] - expected_entries[entry_name]) >= 0.0000001:
                     fail_entries[entry_name] = entry[data_array_index] - expected_entries[entry_name]
                     fail_message = fail_message + entry_name + ": " + str(expected_entries[entry_name]) + " " + str(entry[data_array_index]) + " " + str(fail_entries[entry_name]) + "\n"
