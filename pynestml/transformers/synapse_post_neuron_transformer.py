@@ -274,9 +274,11 @@ class SynapsePostNeuronTransformer(Transformer):
             ASTUtils.create_state_block(new_neuron)
 
         new_synapses = [synapse.clone() for synapse in synapses]
-        state_vars_that_need_continuous_buffering = []
+        state_vars_that_need_continuous_buffering = {}
 
         for synapse, new_synapse in zip(synapses, new_synapses):
+            state_vars_that_need_continuous_buffering[synapse.name] = []
+
             new_synapse.parent_ = None    # set root element
             new_synapse.accept(ASTParentVisitor())
             new_neuron.accept(ASTSymbolTableVisitor())
@@ -418,16 +420,16 @@ class SynapsePostNeuronTransformer(Transformer):
             for input_block in new_synapse.get_input_blocks():
                 for port in input_block.get_input_ports():
                     if self.is_continuous_port(port.name, new_synapse):
-                        state_vars_that_need_continuous_buffering.append(port.name)
+                        state_vars_that_need_continuous_buffering[synapse.name].append(port.name)
 
             # check that they are not used in the update block
             update_block_var_names = []
             for update_block in synapse.get_update_blocks():
                 update_block_var_names.extend([var.get_complete_name() for var in ASTUtils.collect_variable_names_in_expression(update_block)])
 
-            assert all([var not in update_block_var_names for var in state_vars_that_need_continuous_buffering])
+            assert all([var not in update_block_var_names for var in state_vars_that_need_continuous_buffering[synapse.name]])
 
-            Logger.log_message(None, -1, "Synaptic state variables moved to neuron that will need buffering: " + str(state_vars_that_need_continuous_buffering), None, LoggingLevel.INFO)
+            Logger.log_message(None, -1, "Synaptic state variables moved to neuron that will need buffering: " + str(state_vars_that_need_continuous_buffering[synapse.name]), None, LoggingLevel.INFO)
 
             #
             #   move defining equations for variables from synapse to neuron

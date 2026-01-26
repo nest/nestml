@@ -774,6 +774,7 @@ class NESTCodeGenerator(CodeGenerator):
             if "paired_synapses" in dir(neuron):
                 namespace["analytic_state_variables"] = []
                 for paired_synapse in neuron.paired_synapses:
+                    namespace["analytic_state_variables_moved"][paired_synapse.name] = []
                     for sv in self.analytic_solver[neuron.get_name()]["state_variables"]:
                         moved = False
                         for mv in neuron.recursive_vars_used:
@@ -933,8 +934,6 @@ class NESTCodeGenerator(CodeGenerator):
 
             namespace["gap_junction_membrane_potential_variable_cpp"] = NESTVariablePrinter(expression_printer=None).print(var)
             namespace["gap_junction_port"] = self.get_option("gap_junctions")["gap_current_port"]
-
-        import pdb;pdb.set_trace()
 
         return namespace
 

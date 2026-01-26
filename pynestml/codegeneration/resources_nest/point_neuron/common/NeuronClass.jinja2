@@ -610,13 +610,15 @@ void {{ neuronName }}::pre_run_hook()
 {%-         include "directives_cpp/GSLDifferentiationFunction.jinja2" %}
 {%-     endfor %}
 
-{%-     if paired_synapses is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
+{%  if paired_synapses is defined %}
+{%-     for paired_synapse in paired_synapses %}
+{%-         if (purely_numeric_state_variables_moved[paired_synapse.name] + analytic_state_variables_moved[paired_synapse.name]) | length > 0 %}
 {#          for neuron-synapse co-generation: separate integrator for the emulated integrate_odes() calls below in this template #}
-{%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
-{%-         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
-{%-         include "directives_cpp/GSLDifferentiationFunction.jinja2" %}
-{%-     endif %}
-
+{%-            set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved[paired_synapse.name] + analytic_state_variables_moved[paired_synapse.name]) %}
+{%-            set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-            include "directives_cpp/GSLDifferentiationFunction.jinja2" %}
+{%-         endif %}
+{%-     endfor %}
 {%- endif %}
 
 {%- if has_delay_variables %}
@@ -826,22 +828,25 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%-     endfor %}
 {%- endif %}
 
-
-{%- if purely_numeric_state_variables_moved %}
+{%  if paired_synapses is defined %}
+{%-     for paired_synapse in paired_synapses %}
+{%-         if purely_numeric_state_variables_moved[paired_synapse.name] %}
   /**
    * numeric state variables moved from synapse to neuron should always be integrated, regardless of calls to integrate_odes() in the neuron
   **/
 
   // restore the original values
-{%-     for variable_name in purely_numeric_state_variables_moved %}
-{%-         set var_ast = utils.get_variable_by_name(astnode, variable_name)%}
+{%-             for variable_name in purely_numeric_state_variables_moved[paired_synapse.name] %}
+{%-                 set var_ast = utils.get_variable_by_name(astnode, variable_name)%}
 {{ printer.print(var_ast) }} = {{ variable_name }}__tmp;
-{%-     endfor %}
+{%-             endfor %}
 
-{#          emulate a call to ``integrate_odes(purely_numeric_state_variables_moved)`` #}
-{%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved) %}
-{%-         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
-{%-         include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{#              emulate a call to ``integrate_odes(purely_numeric_state_variables_moved)`` #}
+{%-             set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved[paired_synapse.name]) %}
+{%-             set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-             include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%-         endif %}
+{%-     endfor %}
 {%- endif %}
 
     /**
@@ -1281,27 +1286,33 @@ void
     {
       assert(history_.back().t_ == last_spike_);
 
-{%-     for var in purely_numeric_state_variables_moved|sort %}
+{%-     for paired_synapse in paired_synapses %}
+{%-         for var in purely_numeric_state_variables_moved[paired_synapse.name] | sort %}
       {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{ var }}_;
-{%-     endfor %}
-{%-     for var in analytic_state_variables_moved|sort %}
+{%-         endfor %}
+{%-         for var in analytic_state_variables_moved[paired_synapse.name] |sort %}
       {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{ var }}_;
+{%-         endfor %}
 {%-     endfor %}
     }
     else
     {
-{%-     for var in purely_numeric_state_variables_moved|sort %}
+{%-     for paired_synapse in paired_synapses %}
+{%-     for var in purely_numeric_state_variables_moved[paired_synapse.name]|sort %}
       {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = {{ utils.initial_value_or_zero(astnode, var) }}; // initial value for convolution is always 0
 {%-     endfor %}
-{%-     for var in analytic_state_variables_moved|sort %}
+{%-     for var in analytic_state_variables_moved[paired_synapse.name] | sort %}
       {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = {{ utils.initial_value_or_zero(astnode, var) }}; // initial value for convolution is always 0
+{%-     endfor %}
 {%-     endfor %}
     }
-{%      if paired_synapses is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
+{%      if paired_synapses is defined %}
+{%-     for paired_synapse in paired_synapses %}
+{%      if (purely_numeric_state_variables_moved[paired_synapse.name] + analytic_state_variables_moved[paired_synapse.name]) | length > 0 %}
     /**
      * update state variables transferred from synapse from `last_spike_` to `t_sp_ms`
      *
-     * variables that will be integrated: {{ purely_numeric_state_variables_moved + analytic_state_variables_moved }}
+     * variables that will be integrated: {{ purely_numeric_state_variables_moved[paired_synapse.name] + analytic_state_variables_moved[paired_synapse.name] }}
     **/
 
     const double old___h = V_.__h;
@@ -1310,8 +1321,8 @@ void
     {
       recompute_internal_variables(true);
 {%-         filter indent(6, True) -%}
-{#              emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
-{%-             set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{#              emulate a call to ``integrate_odes(purely_numeric_state_variables_moved[paired_synapse.name] + analytic_state_variables_moved[paired_synapse.name])`` #}
+{%-             set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved[paired_synapse.name] + analytic_state_variables_moved[paired_synapse.name]) %}
 {%-             set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
 {%-             include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
 {%-         endfilter %}
@@ -1345,11 +1356,13 @@ void
     last_spike_ = t_sp_ms;
     history_.push_back( histentry__{{ neuronName }}( last_spike_
         , 0 // access counter
-{%- for var in purely_numeric_state_variables_moved|sort %}
+{%- for paired_synapse in paired_synapses %}
+{%- for var in purely_numeric_state_variables_moved[paired_synapse.name]|sort %}
         , get_{{var}}()
 {%- endfor %}
-{%- for var in analytic_state_variables_moved | sort %}
+{%- for var in analytic_state_variables_moved[paired_synapse.name] | sort %}
         , get_{{ var }}()
+{%- endfor %}
 {%- endfor %}
 {%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
 {%-     for var_name_post in state_vars_that_need_continuous_buffering | sort %}
@@ -1379,15 +1392,15 @@ void
 #}
 
 {%- for var in transferred_variables %}
-{%- with variable_symbol = transferred_variables_syms[var] %}
+{%-     with variable_symbol = transferred_variables_syms[var] %}
 
-{%- if not variable_symbol %}
-{%-     set variable_symbol = astnode.get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE) %}
-{%- endif %}
+{%-         if not variable_symbol %}
+{%-             set variable_symbol = astnode.get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE) %}
+{%-             endif %}
 
-{%- if not var == variable_symbol.get_symbol_name() %}
-{{ raise('Error in resolving variable to symbol') }}
-{%- endif %}
+{%-             if not var == variable_symbol.get_symbol_name() %}
+{{                  raise('Error in resolving variable to symbol') }}
+{%-             endif %}
 
 double
 {{ neuronName }}::get_{{ var }}( double t, const bool before_increment )
@@ -1422,17 +1435,19 @@ double
       std::cout<<"{{ neuronName }}::get_{{ var }}: \tspike occurred at history[i].t_ = " << history_[i].t_ << std::endl;
 #endif
 
-{%- for var_ in purely_numeric_state_variables_moved %}
+{%  if paired_synapses is defined %}
+{%-     for paired_synapse in paired_synapses %}
+{%-         for var_ in purely_numeric_state_variables_moved[paired_synapse.name] %}
       {{ printer.print(utils.get_variable_by_name(astnode, var_)) }} = history_[ i ].{{var_}}_;
-{%- endfor %}
-{%- for var_ in analytic_state_variables_moved %}
+{%-         endfor %}
+{%-         for var_ in analytic_state_variables_moved[paired_synapse.name] %}
       {{ printer.print(utils.get_variable_by_name(astnode, var_)) }} = history_[ i ].{{var_}}_;
-{%- endfor %}
-{%  if paired_synapses is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
+{%-         endfor %}
+{%         if (purely_numeric_state_variables_moved[paired_synapse.name] + analytic_state_variables_moved[paired_synapse.name]) | length > 0 %}
       /**
        * update state variables transferred from synapse from `history[i].t_` to `t`
        *
-       * variables that will be integrated: {{ purely_numeric_state_variables_moved + analytic_state_variables_moved }}
+       * variables that will be integrated: {{ purely_numeric_state_variables_moved[paired_synapse.name] + analytic_state_variables_moved[paired_synapse.name] }}
       **/
 
       if ( t - history_[ i ].t_ >= nest::kernel().connection_manager.get_stdp_eps() )
@@ -1443,15 +1458,17 @@ double
         recompute_internal_variables(true);
 
 {#      emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
-{%- filter indent(8, True) %}
-{%-     set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
-{%-     set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
-{%-     include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
-{%- endfilter %}
+{%-             filter indent(8, True) %}
+{%-                 set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%-                 set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-                 include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%-             endfilter %}
 
         V_.__h = old___h;
         recompute_internal_variables(true);
       }
+{%-         endif %}
+{%-     endfor %}
 {%- endif %}
 #ifdef DEBUG
       std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{var}}: \treturning " << {{ printer.print(utils.get_variable_by_name(astnode, var)) }} << std::endl;
@@ -1465,12 +1482,17 @@ double
   // this case occurs when the trace was requested at a time precisely at that of the first spike in the history
   if ( (!before_increment) and t == history_[ 0 ].t_)
   {
-{%- for var_ in purely_numeric_state_variables_moved %}
+
+{%  if paired_synapses is defined %}
+{%-     for paired_synapse in paired_synapses %}
+{%-         for var_ in purely_numeric_state_variables_moved[paired_synapse.name] %}
     {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = history_[ 0 ].{{var_}}_;
-{%- endfor %}
-{%- for var_ in analytic_state_variables_moved %}
+{%-         endfor %}
+{%-         for var_ in analytic_state_variables_moved %}
     {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = history_[ 0 ].{{var_}}_;
-{%- endfor %}
+{%-         endfor %}
+{%-     endfor %}
+{%  endif %}
 
 #ifdef DEBUG
     std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{var}}: \ttrace requested at exact time of history entry 0, returning " << {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }} << std::endl;
@@ -1492,17 +1514,21 @@ double
   }
 
   // set to initial value
-{%- for var_ in purely_numeric_state_variables_moved %}
+{%  if paired_synapses is defined %}
+{%-     for paired_synapse in paired_synapses %}
+{%-         for var_ in purely_numeric_state_variables_moved[paired_synapse.name] %}
   {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
-{%- endfor %}
-{%- for var_ in analytic_state_variables_moved %}
+{%-         endfor %}
+
+{%-         for var_ in analytic_state_variables_moved[paired_synapse.name] %}
   {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
-{%- endfor %}
-{%-     if paired_synapses is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
+{%-         endfor %}
+
+{%-         if (purely_numeric_state_variables_moved[paired_synapse.name] + analytic_state_variables_moved[paired_synapse.name]) | length > 0 %}
   /**
    * update state variables transferred from synapse from initial condition to `t`
    *
-   * variables that will be integrated: {{ purely_numeric_state_variables_moved + analytic_state_variables_moved }}
+   * variables that will be integrated: {{ purely_numeric_state_variables_moved[paired_synapse.name] + analytic_state_variables_moved[paired_synapse.name] }}
   **/
 
   if (t > 1E-12)
@@ -1512,15 +1538,17 @@ double
     recompute_internal_variables(true);
 
 {# emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
-{%- filter indent(8, True) %}
-{%-     set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
-{%-     set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
-{%-     include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
-{%- endfilter %}
+{%-         filter indent(8, True) %}
+{%-             set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved[paired_synapse.name] + analytic_state_variables_moved[paired_synapse.name]) %}
+{%-             set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-             include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%-         endfilter %}
 
     V_.__h = old___h;
     recompute_internal_variables(true);
   }
+{%-         endif %}
+{%-     endfor %}
 {%- endif %}
   return {{ printer.print(utils.get_variable_by_name(astnode, var)) }};
 }

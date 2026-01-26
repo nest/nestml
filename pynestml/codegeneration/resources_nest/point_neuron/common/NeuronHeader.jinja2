@@ -179,7 +179,7 @@ extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% e
 
 
 {%- if paired_synapses is defined %}
-{%-     for paired_synapse in paired_synapses %}
+{%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
 
 /**
  * entry in the spiking history
@@ -195,8 +195,8 @@ public:
 {%- for var in analytic_state_variables_moved[paired_synapse]|sort %}
       , double {{ var }}
 {%- endfor %}
-{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
-{%-     for state_var in state_vars_that_need_continuous_buffering | sort %}
+{%- if state_vars_that_need_continuous_buffering[paired_synapse.name] | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
+{%-     for state_var in state_vars_that_need_continuous_buffering[paired_synapse.name] | sort %}
       , double {{ state_var }}
 {%-     endfor %}
 {%- endif %}
@@ -206,8 +206,8 @@ public:
 {%- for var in (purely_numeric_state_variables_moved[paired_synapse] + analytic_state_variables_moved[paired_synapse]) | sort %}
   , {{ var }}_( {{ var }} )
 {%- endfor %}
-{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
-{%-     for state_var in state_vars_that_need_continuous_buffering | sort %}
+{%- if state_vars_that_need_continuous_buffering[paired_synapse.name] | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
+{%-     for state_var in state_vars_that_need_continuous_buffering[paired_synapse.name] | sort %}
   , {{ state_var }}_( {{ state_var }} )
 {%-     endfor %}
 {%- endif %}
@@ -222,13 +222,12 @@ public:
   double {{ var }}_;
 
 {%-     set is_inline_getter = false %}
-{%-     for paired_synapse_original_model in paired_synapse_original_models %}
-{%-         set inline = utils.get_inline_expression_by_constructed_rhs_name(paired_synapse_original_model, var) %}
-{%-         if inline and utils.inline_aliases_convolution(inline) %}
+{%-     set inline = utils.get_inline_expression_by_constructed_rhs_name(paired_synapse_original_model, var) %}
+{%-     if inline and utils.inline_aliases_convolution(inline) %}
   double get_{{ inline.get_variable_name() + "__for_" + paired_synapse_original_model.get_name() }}() const     // getter for an inline expression
-{%-             set is_inline_getter = true %}
-{%-         endif %}
-{%-     endfor %}
+{%-         set is_inline_getter = true %}
+{%-     endif %}
+
 {%-     if not is_inline_getter %}
   double get_{{ var }}() const
 {%-     endif %}
@@ -237,26 +236,26 @@ public:
   }
 {%- endfor %}
 
-{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
-{%-     for state_var in state_vars_that_need_continuous_buffering %}
+{%- if state_vars_that_need_continuous_buffering[paired_synapse.name] | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
+{%-     for state_var in state_vars_that_need_continuous_buffering[paired_synapse.name] %}
   double {{ state_var }}_;
 {%-     endfor %}
 {%- endif %}
 };
-{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
+{%- if state_vars_that_need_continuous_buffering[paired_synapse.name] | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
 
 class continuous_variable_histentry_{{ neuronName }}
 {
 public:
   continuous_variable_histentry_{{ neuronName }}( double t,
-{%-     for state_var in state_vars_that_need_continuous_buffering %}
+{%-     for state_var in state_vars_that_need_continuous_buffering[paired_synapse.name] %}
       double {{ state_var }}{% if not loop.last %}, {% endif %}
 {%-     endfor %} );
 
   double t_;              //!< point in time for history entry
   size_t access_counter_;
 
-{%-     for state_var in state_vars_that_need_continuous_buffering %}
+{%-     for state_var in state_vars_that_need_continuous_buffering[paired_synapse.name] %}
   double {{ state_var }};
 {%-     endfor %}
 };
@@ -405,13 +404,13 @@ public:
    */
   void register_stdp_connection( double t_first_read, double delay );
 
-{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
+{%- if state_vars_that_need_continuous_buffering[paired_synapse.name] | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
 
   /**
    * write_continuous_variable_history
   **/
   void write_continuous_variable_history(nest::Time const &t,
-{%-     for state_var in state_vars_that_need_continuous_buffering %}
+{%-     for state_var in state_vars_that_need_continuous_buffering[paired_synapse.name] %}
       const double {{ state_var }}{% if not loop.last %}, {% endif %}
 {%-     endfor %});
 
@@ -470,22 +469,22 @@ public:
 {%- endif %}
 
 {%- if paired_synapses is defined %}
-
+{%-    for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
   // -------------------------------------------------------------------------
-  //   Getters/setters for variables transferred from synapse
+  //   Getters/setters for variables transferred from synapse {{ paired_synapse.name }}
   // -------------------------------------------------------------------------
 
-{%-     for var in transferred_variables %}
+{%-     for var in transferred_variables[paired_synapse.name] %}
   double get_{{ var }}( double t, const bool before_increment = true );
 {%-     endfor %}
 
-{%-     if state_vars_that_need_continuous_buffering | length > 0 %}
+{%-     if state_vars_that_need_continuous_buffering[paired_synapse.name] | length > 0 %}
 
   // -------------------------------------------------------------------------
   //   Getters/setters for variables that need continuous time buffering
   // -------------------------------------------------------------------------
 
-{%-         for var in state_vars_that_need_continuous_buffering %}
+{%-         for var in state_vars_that_need_continuous_buffering[paired_synapse.name] %}
   double get_{{ var }}( double t, const bool before_increment = true );
 {%-         endfor %}
 {%-     endif %}
@@ -549,8 +548,10 @@ private:
   std::deque< histentry__{{neuronName}} > history_;
 
   // cache for initial values
-{%- for var in transferred_variables + state_vars_that_need_continuous_buffering %}
+{%- for paired_synapse in paired_synapses %}
+{%-     for var in transferred_variables[paired_synapse.name] + state_vars_that_need_continuous_buffering[paired_synapse.name] %}
   double {{var}}__iv;
+{%-     endfor %}
 {%- endfor %}
 
 
