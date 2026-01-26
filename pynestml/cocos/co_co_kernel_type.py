@@ -35,7 +35,7 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 class CoCoKernelType(CoCo):
     """
-    Ensures that all defined kernels are untyped (for direct functions of time), or have a type equivalent to 1/s**-order, where order is the differential order of the kernel (e.g. 2 for ``kernel g'' = ...``).
+    Ensures that all defined kernels are untyped (for direct functions of time), or have a type equivalent to 1/s**-order, where order is the differential order of the kernel (e.g. 2 for ``kernel g"" = ...``).
     """
 
     @classmethod
@@ -69,7 +69,7 @@ class KernelTypeVisitor(ASTVisitor):
                 or (var.get_differential_order() > 0
                     and not expr.type.is_castable_to(PredefinedTypes.get_type("ms")**-var.get_differential_order())):
                 actual_type_str = str(expr.type)
-                if 'unit' in dir(expr.type) \
+                if "unit" in dir(expr.type) \
                         and expr.type.unit is not None \
                         and expr.type.unit.unit is not None:
                     actual_type_str = str(expr.type.unit.unit)

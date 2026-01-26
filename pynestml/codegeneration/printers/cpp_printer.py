@@ -66,19 +66,19 @@ class CppPrinter(ModelPrinter):
 
     def print_assignment(self, node: ASTAssignment) -> str:
         ret = self._expression_printer.print(node.lhs)
-        ret += ' '
+        ret += " "
         if node.is_compound_quotient:
-            ret += '/='
+            ret += "/="
         elif node.is_compound_product:
-            ret += '*='
+            ret += "*="
         elif node.is_compound_minus:
-            ret += '-='
+            ret += "-="
         elif node.is_compound_sum:
-            ret += '+='
+            ret += "+="
         else:
-            ret += '='
+            ret += "="
 
-        ret += ' ' + self.print(node.rhs)
+        ret += " " + self.print(node.rhs)
 
         return ret
 
@@ -89,7 +89,7 @@ class CppPrinter(ModelPrinter):
         :return: the corresponding delay parameter
         """
         assert isinstance(variable, VariableSymbol), \
-            '(PyNestML.CodeGeneration.Printer) No or wrong type of variable symbol provided (%s)!' % type(variable)
+            "(PyNestML.CodeGeneration.Printer) No or wrong type of variable symbol provided (%s)!" % type(variable)
         delay_parameter = variable.get_delay_parameter()
         delay_parameter_var = ASTVariable(delay_parameter, scope=variable.get_corresponding_scope())
         symbol = delay_parameter_var.get_scope().resolve_to_symbol(delay_parameter_var.get_complete_name(),

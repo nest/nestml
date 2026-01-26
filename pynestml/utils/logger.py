@@ -105,7 +105,7 @@ class Logger:
     @classmethod
     def set_log(cls, log, counter):
         """
-        Restores log from the 'log' variable
+        Restores log from the "log" variable
 
         :param log: the log
         :param counter: the counter
@@ -134,9 +134,9 @@ class Logger:
         from pynestml.meta_model.ast_node import ASTNode
         from pynestml.utils.ast_source_location import ASTSourceLocation
         assert (node is None or isinstance(node, ASTNode)), \
-            '(PyNestML.Logger) Wrong type of node provided (%s)!' % type(node)
+            "(PyNestML.Logger) Wrong type of node provided (%s)!" % type(node)
         assert (error_position is None or isinstance(error_position, ASTSourceLocation)), \
-            '(PyNestML.Logger) Wrong type of error position provided (%s)!' % type(error_position)
+            "(PyNestML.Logger) Wrong type of error position provided (%s)!" % type(error_position)
         from pynestml.meta_model.ast_model import ASTModel
 
         if isinstance(node, ASTModel):
@@ -166,11 +166,11 @@ class Logger:
             else:
                 node_name = node.get_name()
 
-            to_print = '[' + str(cls.curr_message) + ','
-            to_print = (to_print + (node_name + ', ' if node is not None else
-                                    cls.current_node.get_name() + ', ' if cls.current_node is not None else 'GLOBAL, '))
+            to_print = "[" + str(cls.curr_message) + ","
+            to_print = (to_print + (node_name + ", " if node is not None else
+                                    cls.current_node.get_name() + ", " if cls.current_node is not None else "GLOBAL, "))
             to_print = to_print + str(log_level.name)
-            to_print = to_print + (', ' + str(error_position) if error_position is not None else '') + ']: '
+            to_print = to_print + (", " + str(error_position) if error_position is not None else "") + "]: "
             to_print = to_print + str(message)
             print(to_print)
 
@@ -182,19 +182,19 @@ class Logger:
         :param string: a single string representing the level.
         :return: a single logging level.
         """
-        if string == 'DEBUG':
+        if string == "DEBUG":
             return LoggingLevel.DEBUG
 
-        if string == 'INFO':
+        if string == "INFO":
             return LoggingLevel.INFO
 
-        if string == 'WARNING' or string == 'WARNINGS':
+        if string == "WARNING" or string == "WARNINGS":
             return LoggingLevel.WARNING
 
-        if string == 'ERROR' or string == 'ERRORS':
+        if string == "ERROR" or string == "ERRORS":
             return LoggingLevel.ERROR
 
-        if string == 'NO' or string == 'NONE':
+        if string == "NO" or string == "NONE":
             return LoggingLevel.NO
 
         raise Exception("Tried to convert unknown string \"" + string + "\" to logging level")
@@ -207,19 +207,19 @@ class Logger:
         :return: a string representing the logging level.
         """
         if level == LoggingLevel.DEBUG:
-            return 'DEBUG'
+            return "DEBUG"
 
         if level == LoggingLevel.INFO:
-            return 'INFO'
+            return "INFO"
 
         if level == LoggingLevel.WARNING:
-            return 'WARNING'
+            return "WARNING"
 
         if level == LoggingLevel.ERROR:
-            return 'ERROR'
+            return "ERROR"
 
         if level == LoggingLevel.NO:
-            return 'NO'
+            return "NO"
 
         raise Exception("Tried to convert unknown logging level \"" + str(level) + "\" to string")
 
@@ -287,36 +287,36 @@ class Logger:
         Returns the log in a format which can be used to be stored to a file.
         :return: a string containing the log
         """
-        ret = '['
+        ret = "["
         for messageNr in cls.log.keys():
             (artifactName, node, logLevel, code, errorPosition, message) = cls.log[messageNr]
-            ret += '{' + \
-                   '"filename":"' + \
+            ret += "{" + \
+                   "\"filename\":\"" + \
                    artifactName + \
-                   '", ' + \
-                   '"nodeName":"' + \
-                   (node.get_name() if node is not None else 'GLOBAL') + '", ' + \
-                   '"severity":"' \
-                   + str(logLevel.name) + '", '
+                   "\", " + \
+                   "\"nodeName\":\"" + \
+                   (node.get_name() if node is not None else "GLOBAL") + "\", " + \
+                   "\"severity\":\"" \
+                   + str(logLevel.name) + "\", "
 
             if code is not None:
-                ret += '"code":"' + \
+                ret += "\"code\":\"" + \
                        code.name + \
-                       '", '
-            ret += '"row":"' + \
-                   (str(errorPosition.get_start_line()) if errorPosition is not None else '') + \
-                   '", ' + \
-                   '"col":"' \
-                   + (str(errorPosition.get_start_column()) if errorPosition is not None else '') + \
-                   '", ' + \
-                   '"message":"' + str(message).replace('"', "'") + '"}'
-            ret += ','
+                       "\", "
+            ret += "\"row\":\"" + \
+                   (str(errorPosition.get_start_line()) if errorPosition is not None else "") + \
+                   "\", " + \
+                   "\"col\":\"" \
+                   + (str(errorPosition.get_start_column()) if errorPosition is not None else "") + \
+                   "\", " + \
+                   "\"message\":\"" + str(message).replace("\"", ""\") + ""}'
+            ret += ","
 
         if len(cls.log.keys()) == 0:
-            parsed = json.loads('[]', object_pairs_hook=OrderedDict)
+            parsed = json.loads("[]", object_pairs_hook=OrderedDict)
         else:
             ret = ret[:-1]  # delete the last ","
-            ret += ']'
+            ret += "]"
             parsed = json.loads(ret, object_pairs_hook=OrderedDict)
 
         return json.dumps(parsed, indent=2, sort_keys=False)

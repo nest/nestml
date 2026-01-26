@@ -31,11 +31,11 @@ class ASTAssignment(ASTNode):
     This class is used to store assignments.
     Grammar:
         assignment : lhs_variable=variable
-            (directAssignment='='       |
-            compoundSum='+='     |
-            compoundMinus='-='   |
-            compoundProduct='*=' |
-            compoundQuotient='/=') rhs;
+            (directAssignment="="       |
+            compoundSum="+="     |
+            compoundMinus="-="   |
+            compoundProduct="*=" |
+            compoundQuotient="/=") rhs;
 
     Attributes:
         lhs = None

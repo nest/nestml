@@ -85,73 +85,73 @@ class GeNNFunctionCallPrinter(FunctionCallPrinter):
 
         if function_name == PredefinedFunctions.CLIP:
             # the arguments of this function must be swapped and are therefore [v_max, v_min, v]
-            return 'min({2!s}, max({1!s}, {0!s}))'
+            return "min({2!s}, max({1!s}, {0!s}))"
 
         if function_name == PredefinedFunctions.MAX:
-            return 'max({!s}, {!s})'
+            return "max({!s}, {!s})"
 
         if function_name == PredefinedFunctions.MIN:
-            return 'min({!s}, {!s})'
+            return "min({!s}, {!s})"
 
         if function_name == PredefinedFunctions.ABS:
-            return 'abs({!s})'
+            return "abs({!s})"
 
         if function_name == PredefinedFunctions.EXP:
-            return 'exp({!s})'
+            return "exp({!s})"
 
         if function_name == PredefinedFunctions.LN:
-            return 'log({!s})'
+            return "log({!s})"
 
         if function_name == PredefinedFunctions.LOG10:
-            return 'log10({!s})'
+            return "log10({!s})"
 
         if function_name == PredefinedFunctions.COS:
-            return 'cos({!s})'
+            return "cos({!s})"
 
         if function_name == PredefinedFunctions.SIN:
-            return 'sin({!s})'
+            return "sin({!s})"
 
         if function_name == PredefinedFunctions.TAN:
-            return 'tan({!s})'
+            return "tan({!s})"
 
         if function_name == PredefinedFunctions.COSH:
-            return 'cosh({!s})'
+            return "cosh({!s})"
 
         if function_name == PredefinedFunctions.SINH:
-            return 'sinh({!s})'
+            return "sinh({!s})"
 
         if function_name == PredefinedFunctions.TANH:
-            return 'tanh({!s})'
+            return "tanh({!s})"
 
         if function_name == PredefinedFunctions.ERF:
-            return 'erf({!s})'
+            return "erf({!s})"
 
         if function_name == PredefinedFunctions.ERFC:
-            return 'erfc({!s})'
+            return "erfc({!s})"
 
         if function_name == PredefinedFunctions.CEIL:
-            return 'ceil({!s})'
+            return "ceil({!s})"
 
         if function_name == PredefinedFunctions.FLOOR:
-            return 'floor({!s})'
+            return "floor({!s})"
 
         if function_name == PredefinedFunctions.ROUND:
-            return 'round({!s})'
+            return "round({!s})"
 
         if function_name == PredefinedFunctions.EXPM1:
-            return 'expm1({!s})'
+            return "expm1({!s})"
 
         if function_name == PredefinedFunctions.PRINT:
-            return 'cout << {!s}'
+            return "cout << {!s}"
 
         if function_name == PredefinedFunctions.PRINTLN:
-            return 'cout << {!s} << endl'
+            return "cout << {!s} << endl"
 
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
-            return function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
+            return function_name + "(" + ", ".join(["{!s}" for _ in range(n_args)]) + ")"
 
-        return function_name + '()'
+        return function_name + "()"
 
     def _print_function_call_argument_list(self, function_call: ASTFunctionCall) -> Tuple[str, ...]:
         ret = []
@@ -168,7 +168,7 @@ class GeNNFunctionCallPrinter(FunctionCallPrinter):
         :return: the converted print string with corresponding variables, if any
         """
         stmt = function_call.get_args()[0].get_string()
-        stmt = stmt[stmt.index('"') + 1: stmt.rindex('"')]  # Remove the double quotes from the string
+        stmt = stmt[stmt.index("\"") + 1: stmt.rindex("\"")]  # Remove the double quotes from the string
         scope = function_call.get_scope()
         return self.__convert_print_statement_str(stmt, scope)
 
@@ -197,13 +197,13 @@ class GeNNFunctionCallPrinter(FunctionCallPrinter):
         :param scope: scope of the variables in the argument, if any
         :return: the converted string to NEST
         """
-        pattern = re.compile(r'\{[a-zA-Z_][a-zA-Z0-9_]*\}')  # Match the variables enclosed within '{ }'
+        pattern = re.compile(r'\{[a-zA-Z_][a-zA-Z0-9_]*\}")  # Match the variables enclosed within "{ }'
         match = pattern.search(stmt)
         if match:
-            var_name = match.group(0)[match.group(0).find('{') + 1:match.group(0).find('}')]
+            var_name = match.group(0)[match.group(0).find("{") + 1:match.group(0).find("}")]
             left, right = stmt.split(match.group(0), 1)  # Split on the first occurrence of a variable
-            fun_left = (lambda lhs: self.__convert_print_statement_str(lhs, scope) + ' << ' if lhs else '')
-            fun_right = (lambda rhs: ' << ' + self.__convert_print_statement_str(rhs, scope) if rhs else '')
+            fun_left = (lambda lhs: self.__convert_print_statement_str(lhs, scope) + " << " if lhs else "")
+            fun_right = (lambda rhs: " << " + self.__convert_print_statement_str(rhs, scope) if rhs else "")
             ast_var = ASTVariable(var_name, scope=scope)
 
             # set the `_is_numeric` value for the variable so that the variable is printed with the correct origin
@@ -214,7 +214,7 @@ class GeNNFunctionCallPrinter(FunctionCallPrinter):
 
             # concatenate unit separated by a space with the right part of the string
             if ASTUtils.get_unit_name(ast_var):
-                right = ' ' + ASTUtils.get_unit_name(ast_var) + right
+                right = " " + ASTUtils.get_unit_name(ast_var) + right
             return fun_left(left) + self._expression_printer.print(ast_var) + fun_right(right)
 
-        return '"' + stmt + '"'  # format bare string in C++ (add double quotes)
+        return "\"" + stmt + "\""  # format bare string in C++ (add double quotes)

@@ -140,7 +140,7 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
 
             return "input->inputs[" + var_name + "]"
 
-        return variable_symbol.get_symbol_name() + '_grid_sum_'
+        return variable_symbol.get_symbol_name() + "_grid_sum_"
 
     def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:
         assert all([isinstance(s, str) for s in self._state_symbols])

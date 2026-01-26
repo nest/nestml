@@ -48,11 +48,11 @@ class ASTBuildingTest(unittest.TestCase):
 
     def test(self):
         for filename in os.listdir(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                                 os.path.join('..', 'models')))):
+                                                                 os.path.join("..", "models")))):
             if filename.endswith(".nestml"):
                 print("Start creating AST for " + filename + " ..."),
                 input_file = FileStream(
-                    os.path.join(os.path.dirname(__file__), os.path.join(os.path.join('..', 'models'), filename)))
+                    os.path.join(os.path.dirname(__file__), os.path.join(os.path.join("..", "models"), filename)))
                 lexer = PyNestMLLexer(input_file)
                 lexer._errHandler = BailErrorStrategy()
                 lexer._errHandler.reset(lexer)
@@ -74,5 +74,5 @@ class ASTBuildingTest(unittest.TestCase):
                 assert isinstance(ast, ASTNestMLCompilationUnit)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

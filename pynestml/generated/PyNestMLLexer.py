@@ -364,18 +364,18 @@ class PyNestMLLexer(PyNestMLLexerBase):
     modeNames = [ "DEFAULT_MODE" ]
 
     literalNames = [ "<INVALID>",
-            "'integer'", "'real'", "'string'", "'boolean'", "'void'", "'function'", 
-            "'inline'", "'return'", "'if'", "'elif'", "'else'", "'for'", 
-            "'while'", "'in'", "'step'", "'inf'", "'and'", "'or'", "'not'", 
-            "'recordable'", "'kernel'", "'model'", "'state'", "'parameters'", 
-            "'internals'", "'update'", "'equations'", "'input'", "'output'", 
-            "'continuous'", "'onReceive'", "'onCondition'", "'spike'", "'inhibitory'", 
-            "'excitatory'", "'@homogeneous'", "'@heterogeneous'", "'@'", 
-            "'...'", "'('", "')'", "'+'", "'~'", "'|'", "'^'", "'&'", "'['", 
-            "'<-'", "']'", "'[['", "']]'", "'<<'", "'>>'", "'<'", "'>'", 
-            "'<='", "'+='", "'-='", "'*='", "'/='", "'=='", "'!='", "'<>'", 
-            "'>='", "','", "'-'", "'='", "'*'", "'**'", "'/'", "'%'", "'?'", 
-            "':'", "'::'", "';'", "'''", "'.'" ]
+            ""integer"", ""real"", ""string"", ""boolean"", ""void"", ""function"", 
+            ""inline"", ""return"", ""if"", ""elif"", ""else"", ""for"", 
+            ""while"", ""in"", ""step"", ""inf"", ""and"", ""or"", ""not"", 
+            ""recordable"", ""kernel"", ""model"", ""state"", ""parameters"", 
+            ""internals"", ""update"", ""equations"", ""input"", ""output"", 
+            ""continuous"", ""onReceive"", ""onCondition"", ""spike"", ""inhibitory"", 
+            ""excitatory"", ""@homogeneous"", ""@heterogeneous"", ""@"", 
+            ""..."", ""("", "")"", ""+"", ""~"", ""|"", ""^"", ""&"", ""["", 
+            ""<-"", ""]"", ""[["", ""]]"", ""<<"", "">>"", ""<"", "">"", 
+            ""<="", ""+="", ""-="", ""*="", ""/="", ""=="", ""!="", ""<>"", 
+            "">="", "","", ""-"", ""="", ""*"", ""**"", ""/"", ""%"", ""?"", 
+            "":"", ""::"", "";"", """"\", \"".'" ]
 
     symbolicNames = [ "<INVALID>",
             "INDENT", "DEDENT", "KERNEL_JOINING", "WS", "LINE_ESCAPE", "SL_COMMENT", 

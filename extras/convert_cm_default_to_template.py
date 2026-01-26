@@ -32,50 +32,50 @@ import argparse
 def get_replacement_patterns():
     repl_patterns = {
         # include guards
-        'CM_DEFAULT_H'          : 'CM_{cm_unique_suffix | upper }}_H',
-        'CM_TREE_H'             : 'CM_TREE_{{cm_unique_suffix | upper }}_H',
+        "CM_DEFAULT_H"          : "CM_{cm_unique_suffix | upper }}_H",
+        "CM_TREE_H"             : "CM_TREE_{{cm_unique_suffix | upper }}_H",
         # file names
-        'cm_default'            : '{{neuronSpecificFileNamesCmSyns[\"main\"]}}',
-        'cm_tree'               : '{{neuronSpecificFileNamesCmSyns[\"tree\"]}}',
-        'cm_neuroncurrents': '{{neuronSpecificFileNamesCmSyns[\"neuroncurrents\"]}}',
+        "cm_default"            : "{{neuronSpecificFileNamesCmSyns[\\"main\\"]}}",
+        "cm_tree"               : "{{neuronSpecificFileNamesCmSyns[\\"tree\\"]}}",
+        "cm_neuroncurrents": "{{neuronSpecificFileNamesCmSyns[\\"neuroncurrents\\"]}}",
         # class names
-        'CompTree'              : 'CompTree{{cm_unique_suffix}}',
-        'Compartment'           : 'Compartment{{cm_unique_suffix}}',
-        'CompartmentCurrents'   : 'CompartmentCurrents{{cm_unique_suffix}}',
+        "CompTree"              : "CompTree{{cm_unique_suffix}}",
+        "Compartment"           : "Compartment{{cm_unique_suffix}}",
+        "CompartmentCurrents"   : "CompartmentCurrents{{cm_unique_suffix}}",
     }
     return repl_patterns
 
 
 def get_trailing_characters():
     trailing_characters = [
-        ' ', # declarations
-        '::', # function definition
-        '(', # constructor, destructor,...
-        '*', # pointer declarations
-        '&', # references
-        '.h', # includes
+        " ", # declarations
+        "::", # function definition
+        "(", # constructor, destructor,...
+        "*", # pointer declarations
+        "&", # references
+        ".h", # includes
     ]
     return trailing_characters
 
 def get_leading_characters():
     leading_characters = [
-        'class ',
+        "class ",
     ]
     return leading_characters
 
 def get_excluded_substrings():
     excluded_substrings = {
-        'UnknownCompartment': '#'
+        "UnknownCompartment": "#"
     }
     return excluded_substrings
 
 
 def get_replacement_filenames():
     repl_fnames = {
-        'cm_default.h': '@NEURON_NAME@.h.jinja2',
-        'cm_default.cpp': '@NEURON_NAME@.cpp.jinja2',
-        'cm_tree.h': 'cm_tree_@NEURON_NAME@.h.jinja2',
-        'cm_tree.cpp': 'cm_tree_@NEURON_NAME@.cpp.jinja2'
+        "cm_default.h": "@NEURON_NAME@.h.jinja2",
+        "cm_default.cpp": "@NEURON_NAME@.cpp.jinja2",
+        "cm_tree.h": "cm_tree_@NEURON_NAME@.h.jinja2",
+        "cm_tree.cpp": "cm_tree_@NEURON_NAME@.cpp.jinja2"
     }
     return repl_fnames
 
@@ -86,7 +86,7 @@ def replace_with_exclusion(source_string, target_string, line):
         line.replace(source_string, target_string)
 
         for exclstr in get_excluded_substrings():
-            line.replace('#'*len(exclstr), exclstr)
+            line.replace("#"*len(exclstr), exclstr)
 
     else:
         line.replace(source_string, target_string)
@@ -95,15 +95,15 @@ def replace_with_exclusion(source_string, target_string, line):
 def parse_command_line():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-s', '--source-path', dest='source_path',
-                        action='store', type=str,
-                        default='',
-                        help='Path to the nest-simulator source code')
+    parser.add_argument("-s", "--source-path", dest="source_path",
+                        action="store", type=str,
+                        default="",
+                        help="Path to the nest-simulator source code")
 
-    parser.add_argument('-t', '--target-path', dest='target_path',
-                        action='store', type=str,
-                        default='../pynestml/codegeneration/resources_nest/cm_templates',
-                        help='Path to the nest-simulator source code')
+    parser.add_argument("-t", "--target-path", dest="target_path",
+                        action="store", type=str,
+                        default="../pynestml/codegeneration/resources_nest/cm_templates",
+                        help="Path to the nest-simulator source code")
 
     return parser.parse_args()
 

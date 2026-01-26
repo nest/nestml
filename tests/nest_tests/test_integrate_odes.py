@@ -238,7 +238,7 @@ class TestIntegrateODEs:
 
     def test_integrate_odes_higher_order(self):
         r"""
-        Tests for higher-order ODEs of the form F(x'',x',x)=0, integrate_odes(x) integrates the full dynamics of x.
+        Tests for higher-order ODEs of the form F(x"",x',x)=0, integrate_odes(x) integrates the full dynamics of x.
         """
         resolution = 0.1
         simtime = 15.
@@ -284,17 +284,17 @@ class TestIntegrateODEs:
 
     def test_integrate_odes_numeric_higher_order(self):
         r"""
-        Tests for higher-order ODEs of the form F(x'',x',x)=0, integrate_odes(x) integrates the full dynamics of x with a numeric solver.
+        Tests for higher-order ODEs of the form F(x"",x',x)=0, integrate_odes(x) integrates the full dynamics of x with a numeric solver.
         """
         resolution = 0.1
         simtime = 800.
         params_nestml = {"V_peak": 0.0, "a": 4.0, "b": 80.5, "E_L": -70.6,
-                         "g_L": 300.0, 'E_exc': 20.0, 'E_inh': -85.0,
-                         'tau_syn_exc': 40.0, 'tau_syn_inh': 20.0}
+                         "g_L": 300.0, "E_exc": 20.0, "E_inh": -85.0,
+                         "tau_syn_exc": 40.0, "tau_syn_inh": 20.0}
 
         params_nest = {"V_peak": 0.0, "a": 4.0, "b": 80.5, "E_L": -70.6,
-                       "g_L": 300.0, 'E_ex': 20.0, 'E_in': -85.0,
-                       'tau_syn_ex': 40.0, 'tau_syn_in': 20.0}
+                       "g_L": 300.0, "E_ex": 20.0, "E_in": -85.0,
+                       "tau_syn_ex": 40.0, "tau_syn_in": 20.0}
 
         for model in ["aeif_cond_alpha_alt_neuron_nestml", "aeif_cond_alpha"]:
             nest.set_verbosity("M_ALL")

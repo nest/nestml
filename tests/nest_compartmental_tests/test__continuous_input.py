@@ -55,7 +55,7 @@ class TestContinuousInput:
             os.makedirs(target_path)
 
         print(
-            f"Compiled nestml model 'cm_main_cm_default_nestml' not found, installing in:"
+            f"Compiled nestml model "cm_main_cm_default_nestml" not found, installing in:"
             f"    {target_path}"
         )
 
@@ -75,9 +75,9 @@ class TestContinuousInput:
     def test_continuous_input(self):
         """We test the continuous input mechanism by just comparing the input current at a certain critical point in
         time to a previously achieved value at this point"""
-        cm = nest.Create('continuous_test_model_nestml')
+        cm = nest.Create("continuous_test_model_nestml")
 
-        soma_params = {'C_m': 10.0, 'g_C': 0.0, 'g_L': 1.5, 'e_L': -70.0}
+        soma_params = {"C_m": 10.0, "g_C": 0.0, "g_L": 1.5, "e_L": -70.0}
 
         cm.compartments = [
             {"parent_idx": -1, "params": soma_params}
@@ -92,33 +92,33 @@ class TestContinuousInput:
 
         nest.Connect(dcg, cm, syn_spec={"synapse_model": "static_synapse", "weight": 1.0, "delay": 0.1, "receptor_type": 0})
 
-        sg1 = nest.Create('spike_generator', 1, {'spike_times': [205]})
+        sg1 = nest.Create("spike_generator", 1, {"spike_times": [205]})
 
-        nest.Connect(sg1, cm, syn_spec={'synapse_model': 'static_synapse', 'weight': 3.0, 'delay': 0.5, 'receptor_type': 1})
+        nest.Connect(sg1, cm, syn_spec={"synapse_model": "static_synapse", "weight": 3.0, "delay": 0.5, "receptor_type": 1})
 
-        mm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'i_tot_con_in0', 'i_tot_AMPA0'], 'interval': .1})
+        mm = nest.Create("multimeter", 1, {"record_from": ["v_comp0", "i_tot_con_in0", "i_tot_AMPA0"], "interval": .1})
 
         nest.Connect(mm, cm)
 
         nest.Simulate(1000.)
 
-        res = nest.GetStatus(mm, 'events')[0]
+        res = nest.GetStatus(mm, "events")[0]
 
         fig, axs = plt.subplots(2)
 
-        axs[0].plot(res['times'], res['v_comp0'], c='b', label='V_m_0')
-        axs[1].plot(res['times'], res['i_tot_con_in0'], c='r', label='continuous')
-        axs[1].plot(res['times'], res['i_tot_AMPA0'], c='g', label='synapse')
+        axs[0].plot(res["times"], res["v_comp0"], c="b", label="V_m_0")
+        axs[1].plot(res["times"], res["i_tot_con_in0"], c="r", label="continuous")
+        axs[1].plot(res["times"], res["i_tot_AMPA0"], c="g", label="synapse")
 
-        axs[0].set_title('V_m_0')
-        axs[1].set_title('inputs')
+        axs[0].set_title("V_m_0")
+        axs[1].set_title("inputs")
 
         axs[0].legend()
         axs[1].legend()
 
         plt.savefig("continuous input test.png")
 
-        step_time_delta = res['times'][1] - res['times'][0]
+        step_time_delta = res["times"][1] - res["times"][0]
         data_array_index = int(212 / step_time_delta)
 
-        assert 19.9 < res['i_tot_con_in0'][data_array_index] < 20.1, ("the current (left) is not close enough to expected (right). (" + str(res['i_tot_con_in0'][data_array_index]) + " != " + "20.0 +- 0.1" + ")")
+        assert 19.9 < res["i_tot_con_in0"][data_array_index] < 20.1, ("the current (left) is not close enough to expected (right). (" + str(res["i_tot_con_in0"][data_array_index]) + " != " + "20.0 +- 0.1" + ")")

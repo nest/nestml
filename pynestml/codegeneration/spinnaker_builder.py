@@ -77,10 +77,10 @@ class SpiNNakerBuilder(Builder):
         try:
             os.chdir(install_path)
 
-            make_cmd = ['make']
+            make_cmd = ["make"]
 
             # check if we run on win
-            if sys.platform.startswith('win'):
+            if sys.platform.startswith("win"):
                 shell = True
             else:
                 shell = False

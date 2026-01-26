@@ -80,9 +80,9 @@ class LatexFunctionCallPrinter(FunctionCallPrinter):
 
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
-            result += '(' + ', '.join(['%s' for _ in range(n_args)]) + ')'
+            result += "(" + ", ".join(["%s" for _ in range(n_args)]) + ")"
         else:
-            result += '()'
+            result += "()"
 
         return result % self._print_function_call_argument_list(function_call)
 

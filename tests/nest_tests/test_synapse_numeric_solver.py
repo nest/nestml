@@ -62,7 +62,7 @@ class TestSynapseNumericSolver:
             t_span=[0, sim_time],  # interval of integration
             y0=initial_state,  # initial state
             args=params,  # parameters
-            method='RK45',
+            method="RK45",
             t_eval=np.arange(0, sim_time + 0.01, 1.0),
             rtol=1e-8,  # relative tolerance
             atol=1e-8  # absolute tolerance
@@ -139,23 +139,23 @@ class TestSynapseNumericSolver:
             times = np.arange(0., sim_time + 0.01, sim_step_size)
 
             ax[0].plot(times, x, label="NESTML")
-            ax[0].scatter(times, x, marker='x')
-            ax[0].plot(times, sol_arr[:, 0], '--', label="scipy")
-            ax[0].scatter(times, sol_arr[:, 0], marker='o')
+            ax[0].scatter(times, x, marker="x")
+            ax[0].plot(times, sol_arr[:, 0], "--", label="scipy")
+            ax[0].scatter(times, sol_arr[:, 0], marker="o")
             ax[0].set_ylabel("x")
 
             ax[1].plot(times, y, label="NESTML")
-            ax[1].scatter(times, y, marker='x')
-            ax[1].plot(times, sol_arr[:, 1], '--', label="scipy")
-            ax[1].scatter(times, sol_arr[:, 1], marker='o')
+            ax[1].scatter(times, y, marker="x")
+            ax[1].plot(times, sol_arr[:, 1], "--", label="scipy")
+            ax[1].scatter(times, sol_arr[:, 1], marker="o")
             ax[1].set_ylabel("y")
 
             for _ax in ax:
                 _ax.set_xlabel("time")
-                _ax.scatter(spike_times, np.zeros_like(spike_times), marker='d', color='r')
+                _ax.scatter(spike_times, np.zeros_like(spike_times), marker="d", color="r")
 
             handles, labels = ax[-1].get_legend_handles_labels()
-            fig.legend(handles, labels, loc='upper center')
+            fig.legend(handles, labels, loc="upper center")
             plt.savefig("non_linear_synapse.png")
 
         np.testing.assert_allclose(x, sol_arr[:, 0])

@@ -46,7 +46,7 @@ class CoCoVCompDefined(CoCo):
         """
         from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
 
-        if not FrontendConfiguration.get_target_platform().upper() == 'NEST_COMPARTMENTAL':
+        if not FrontendConfiguration.get_target_platform().upper() == "NEST_COMPARTMENTAL":
             return
 
         enforced_variable_name = NESTCompartmentalCodeGenerator._default_options["compartmental_variable_name"]

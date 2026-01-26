@@ -168,7 +168,7 @@ class Messages:
 
     @classmethod
     def get_input_path_not_found(cls, path) -> Tuple[MessageCode, str]:
-        message = 'Input path ("%s") not found!' % (path)
+        message = "Input path (\"%s\") not found!" % (path)
         return MessageCode.INPUT_PATH_NOT_FOUND, message
 
     @classmethod
@@ -456,9 +456,9 @@ class Messages:
         :return: a message
         """
         if missing:
-            message = block + ' block not defined!'
+            message = block + " block not defined!"
         else:
-            message = block + ' block defined more than once!'
+            message = block + " block defined more than once!"
 
         return MessageCode.BLOCK_NOT_CORRECT, message
 
@@ -845,7 +845,7 @@ class Messages:
         """
         Returns a message indicating that the type of a kernel is wrong.
         :param kernel_name: the name of the kernel
-        :param differential_order: differential order of the kernel left-hand side, e.g. 2 if the kernel is g''
+        :param differential_order: differential order of the kernel left-hand side, e.g. 2 if the kernel is g""
         :param actual_type: the name of the actual type that was found in the model
         """
         if differential_order == 0:
@@ -876,7 +876,7 @@ class Messages:
 
     @classmethod
     def get_no_files_in_input_path(cls, path: str) -> Tuple[MessageCode, str]:
-        message = "No files found matching '*.nestml' in provided input path \"" + path + "\""
+        message = "No files found matching "*.nestml" in provided input path \"" + path + "\""
         return MessageCode.NO_FILES_IN_INPUT_PATH, message
 
     @classmethod

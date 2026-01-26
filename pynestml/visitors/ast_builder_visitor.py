@@ -54,10 +54,10 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             models.append(self.visit(child))
 
         # extract the name of the artifact from the context
-        if hasattr(ctx.start.source[1], 'fileName'):
+        if hasattr(ctx.start.source[1], "fileName"):
             artifact_name = ntpath.basename(ctx.start.source[1].fileName)
         else:
-            artifact_name = 'parsed_from_string'
+            artifact_name = "parsed_from_string"
 
         compilation_unit = ASTNodeFactory.create_ast_nestml_compilation_unit(list_of_models=models,
                                                                              source_position=create_source_pos(ctx),
@@ -506,10 +506,10 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     def visitModel(self, ctx):
         name = str(ctx.NAME()) if ctx.NAME() is not None else None
         body = self.visit(ctx.modelBody()) if ctx.modelBody() is not None else None
-        if hasattr(ctx.start.source[1], 'fileName'):
+        if hasattr(ctx.start.source[1], "fileName"):
             artifact_name = ntpath.basename(ctx.start.source[1].fileName)
         else:
-            artifact_name = 'parsed from string'
+            artifact_name = "parsed from string"
         model = ASTNodeFactory.create_ast_model(name=name + FrontendConfiguration.suffix, body=body, source_position=create_source_pos(ctx),
                                                 artifact_name=artifact_name)
         # update the comments
@@ -586,11 +586,11 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
                 declarations.append(self.visit(child.declaration()))
         block_type = ctx.blockType.text  # the text field stores the exact name of the token, e.g., state
         source_pos = create_source_pos(ctx)
-        if block_type == 'state':
+        if block_type == "state":
             ret = ASTNodeFactory.create_ast_block_with_variables(True, False, False, declarations, source_pos)
-        elif block_type == 'parameters':
+        elif block_type == "parameters":
             ret = ASTNodeFactory.create_ast_block_with_variables(False, True, False, declarations, source_pos)
-        elif block_type == 'internals':
+        elif block_type == "internals":
             ret = ASTNodeFactory.create_ast_block_with_variables(False, False, True, declarations, source_pos)
         else:
             raise RuntimeError("(PyNestML.ASTBuilder) Unspecified type (=%s) of var-block." % str(ctx.blockType))
@@ -697,7 +697,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             update_node_comments(ret, self.__comments.visit(ctx))
             return ret
 
-        raise RuntimeError('(PyNestML.ASTBuilder) Type of output buffer not recognized.')
+        raise RuntimeError("(PyNestML.ASTBuilder) Type of output buffer not recognized.")
 
     # Visit a parse tree produced by PyNESTMLParser#function.
     def visitFunction(self, ctx):
