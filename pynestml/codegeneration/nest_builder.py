@@ -118,10 +118,10 @@ class NESTBuilder(Builder):
         nest_path = self.get_option("nest_path")
 
         if not os.path.isdir(target_path):
-            raise InvalidPathException('Target path (' + target_path + ') is not a directory!')
+            raise InvalidPathException("Target path (" + target_path + ") is not a directory!")
 
         if nest_path is None or (not os.path.isdir(nest_path)):
-            raise InvalidPathException('NEST path (' + str(nest_path) + ') is not a directory!')
+            raise InvalidPathException("NEST path (" + str(nest_path) + ") is not a directory!")
 
         install_prefix = ""
         if install_path:

@@ -97,7 +97,7 @@ for dirpath, _, fnames in os.walk(source_dir):
                 try:
                     line_src = source_file.readline()
                 except UnicodeDecodeError as err:
-                    print("Unable to decode bytes in '{0}': {1}".format(tested_file, err))
+                    print("Unable to decode bytes in \"{0}\": {1}".format(tested_file, err))
                     total_errors += 1
                     break
                 if (extension == 'py' and line_src.strip() == '#!/usr/bin/env python3'):
@@ -105,7 +105,7 @@ for dirpath, _, fnames in os.walk(source_dir):
                 line_exp = template_line.replace('{{file_name}}', fname)
                 if line_src != line_exp:
                     fname = os.path.relpath(tested_file)
-                    print("[COPYRIGHT-HEADER-CHECK] {0}: expected '{1}', found '{2}'.".format(
+                    print("[COPYRIGHT-HEADER-CHECK] {0}: expected \"{1}\", found \"{2}\".".format(
                         fname, line_exp.rstrip('\n'), line_src.rstrip('\n')))
                     print("... {}\\n".format(fname))
                     total_errors += 1

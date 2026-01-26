@@ -218,7 +218,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             return ASTNodeFactory.create_ast_ternary_expression(condition=condition, if_true=if_true,
                                                                 if_not=if_not, source_position=source_pos)
 
-        raise RuntimeError('Type of rhs @%s,%s not recognized!' % (ctx.start.line, ctx.start.column))
+        raise RuntimeError("Type of rhs @%s,%s not recognized!" % (ctx.start.line, ctx.start.column))
 
     # Visit a parse tree produced by PyNESTMLParser#simpleExpression.
     def visitSimpleExpression(self, ctx):
@@ -593,7 +593,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         elif block_type == 'internals':
             ret = ASTNodeFactory.create_ast_block_with_variables(False, False, True, declarations, source_pos)
         else:
-            raise RuntimeError('(PyNestML.ASTBuilder) Unspecified type (=%s) of var-block.' % str(ctx.blockType))
+            raise RuntimeError("(PyNestML.ASTBuilder) Unspecified type (=%s) of var-block." % str(ctx.blockType))
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret
 

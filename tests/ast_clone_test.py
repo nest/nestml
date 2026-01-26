@@ -49,7 +49,7 @@ class ASTCloneTest(unittest.TestCase):
 
     @classmethod
     def _test_single_input_path(cls, input_path):
-        print('Start creating AST for ' + input_path + ' ...'),
+        print("Start creating AST for " + input_path + " ..."),
         input_file = FileStream(input_path)
         lexer = PyNestMLLexer(input_file)
         lexer._errHandler = BailErrorStrategy()

@@ -58,12 +58,12 @@ class SpiNNakerBuilder(Builder):
         target_path = FrontendConfiguration.get_target_path()
 
         if not os.path.isdir(target_path):
-            raise InvalidPathException('Target path (' + target_path + ') is not a directory!')
+            raise InvalidPathException("Target path (" + target_path + ") is not a directory!")
 
         install_path = FrontendConfiguration.get_install_path()
 
         if install_path is None or not os.path.isdir(install_path):
-            raise InvalidPathException('Installation path (' + str(install_path) + ') is not a directory!')
+            raise InvalidPathException("Installation path (" + str(install_path) + ") is not a directory!")
 
         generated_file_names = os.listdir(target_path)
         generated_file_names_neuron_py = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "*.py") and not "impl.py" in fn and not "example" in fn]
@@ -295,7 +295,7 @@ class SpiNNakerBuilder(Builder):
                                       cwd=str(os.path.join(install_path, "c_models", "makefiles")))
             except subprocess.CalledProcessError:
                 raise GeneratedCodeBuildException(
-                    'Error occurred during \'make\'! More detailed error messages can be found in stdout.')
+                    "Error occurred during \"make\"! More detailed error messages can be found in stdout.")
 
             # # rename the aplx file so sPyNNaker can find it
             # generated_file_names_aplx = [fn for fn in os.listdir(os.path.join(install_path, "python_models8", "model_binaries")) if fnmatch.fnmatch(fn, "*.aplx")]

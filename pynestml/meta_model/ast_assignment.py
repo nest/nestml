@@ -179,7 +179,7 @@ class ASTAssignment(ASTNode):
             result = ASTNodeFactory.create_ast_arithmetic_operator(is_plus_op=True,
                                                                    source_position=self.get_source_position())
         else:
-            raise RuntimeError('Type of compound operator not recognized!')
+            raise RuntimeError("Type of compound operator not recognized!")
         result.update_scope(self.get_scope())
         return result
 

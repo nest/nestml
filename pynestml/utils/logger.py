@@ -197,7 +197,7 @@ class Logger:
         if string == 'NO' or string == 'NONE':
             return LoggingLevel.NO
 
-        raise Exception("Tried to convert unknown string '" + string + "' to logging level")
+        raise Exception("Tried to convert unknown string \"" + string + "\" to logging level")
 
     @classmethod
     def level_to_string(cls, level: LoggingLevel) -> str:
@@ -221,7 +221,7 @@ class Logger:
         if level == LoggingLevel.NO:
             return 'NO'
 
-        raise Exception("Tried to convert unknown logging level '" + str(level) + "' to string")
+        raise Exception("Tried to convert unknown logging level \"" + str(level) + "\" to string")
 
     @classmethod
     def set_logging_level(cls, level: LoggingLevel) -> None:

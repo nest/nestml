@@ -88,7 +88,7 @@ def test_plasticity_dynamics():
     nest.Simulate(15)
 
     print("Spike times of presynaptic neuron :", pre_spikes.spike_times)
-    print("Spike times of postsynaptic neuron:", sr.events['times'])
+    print("Spike times of postsynaptic neuron:", sr.events["times"])
     print(wr.events)
     syn = nest.GetConnections(pre_spikes, neuron)
     print(syn.get())
