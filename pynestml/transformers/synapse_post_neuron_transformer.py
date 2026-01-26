@@ -92,7 +92,7 @@ class SynapsePostNeuronTransformer(Transformer):
                 continue
 
             for syn, syn_opts in neuron_synapse_pair["synapses"].items():
-                if syn == synapse_name or syn == synapse_name + FrontendConfiguration.suffix:
+                if syn == synapse_name or syn + FrontendConfiguration.suffix == synapse_name:
                     # this is the synapse we are searching for...
 
                     if not special_type + "_ports" in syn_opts.keys():
@@ -244,7 +244,7 @@ class SynapsePostNeuronTransformer(Transformer):
 
         return visitor._variable_names
 
-    def transform_neuron_synapse_pair_(self, neuron: ASTModel, synapses: Iterable[ASTModel]):
+    def transform_synapses_and_post_neuron_(self, neuron: ASTModel, synapses: Iterable[ASTModel]):
         r"""
         "Co-generation" or in-tandem generation of neuron and synapse code.
 
@@ -256,6 +256,7 @@ class SynapsePostNeuronTransformer(Transformer):
         assert len(neuron.get_update_blocks()) <= 1, "Only one update block supported per neuron for now."
 
         name_separator_str = "__with_"
+        n_cogenerated_synapses = len(synapses)
 
         new_neuron = neuron.clone()
         new_neuron.parent_ = None    # set root element
@@ -606,7 +607,11 @@ class SynapsePostNeuronTransformer(Transformer):
             #    rename synapse
             #
 
-            new_synapse_name = synapse.get_name() + name_separator_str + neuron.get_name()
+            if n_cogenerated_synapses == 1:
+                new_synapse_name = synapse.get_name() + name_separator_str + neuron.get_name()
+            else:
+                assert n_cogenerated_synapses > 1
+                new_synapse_name = synapse.get_name() + name_separator_str + new_neuron.get_name()
             new_synapse.set_name(new_synapse_name)
             new_synapse.paired_neuron = new_neuron
             new_neuron.paired_synapses.append(new_synapse)
@@ -634,7 +639,7 @@ class SynapsePostNeuronTransformer(Transformer):
         #     rename neuron
         #
 
-        new_neuron_name = neuron.get_name() + name_separator_str + "_".join([synapse.get_name() for synapse in synapses])
+        new_neuron_name = neuron.get_name() + name_separator_str + "_and_".join([synapse.get_name() for synapse in synapses])
         new_neuron.unpaired_name = neuron.get_name()
         new_neuron.set_name(new_neuron_name)
         new_neuron.state_vars_that_need_continuous_buffering = state_vars_that_need_continuous_buffering
@@ -664,7 +669,7 @@ class SynapsePostNeuronTransformer(Transformer):
                     raise Exception("Synapse used in pair (\"" + synapse_name + "\") not found")  # XXX: log error
                 synapses.append(synapse)
 
-            new_neuron, new_synapses = self.transform_neuron_synapse_pair_(neuron, synapses)
+            new_neuron, new_synapses = self.transform_synapses_and_post_neuron_(neuron, synapses)
             models.append(new_neuron)
             models.extend(new_synapses)
 

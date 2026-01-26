@@ -153,7 +153,7 @@ class Synapse_{{ astnode.name }}(Synapse):
     self._timestep = timestep
     self.recompute_internal_variables(self._timestep)
 
-{%- if paired_synapse is defined %}
+{%- if paired_synapses is defined %}
     # -----------------------------
     #    code for paired synapse
     # -----------------------------

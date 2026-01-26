@@ -53,7 +53,8 @@ class TestNeuronWithMultipleDifferentSynapses:
         """Generate the model code"""
 
         files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
-                 os.path.join("models", "synapses", "stdp_nn_symm_synapse.nestml")]
+                 os.path.join("models", "synapses", "stdp_nn_symm_synapse.nestml"),
+                 os.path.join("models", "synapses", "stdp_nn_restr_symm_synapse.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,
@@ -61,12 +62,12 @@ class TestNeuronWithMultipleDifferentSynapses:
                              module_name="nestmlmodule",
                              suffix="_nestml",
                              codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                                     "synapses": {"stdp_nn_symm_synapse": {"post_ports": ["post_spikes"]}}}],
+                                                                     "synapses": {"stdp_nn_symm_synapse": {"post_ports": ["post_spikes"]},
+                                                                                  "stdp_nn_restr_symm_synapse": {"post_ports": ["post_spikes"]}}}],
                                            "delay_variable": {"stdp_nn_symm_synapse": "d",
                                                               "stdp_nn_restr_symm_synapse": "d"},
                                            "weight_variable": {"stdp_nn_symm_synapse": "w",
                                                                "stdp_nn_restr_symm_synapse": "w"}})
-
 
     def test_stdp_nn_synapse(self):
         nest.ResetKernel()

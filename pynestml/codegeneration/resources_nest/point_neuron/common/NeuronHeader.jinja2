@@ -152,12 +152,16 @@ namespace {{names_namespace}}
 extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );
 {%-     endfor %}
 
-{%-     if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
+{%-     if paired_synapses is defined %}
+{%-         for paired_synapse in paired_synapses %}
+{%-             if (purely_numeric_state_variables_moved[paired_synapse] + analytic_state_variables_moved[paired_synapse]) | length > 0 %}
 {#  for neuron-synapse co-generation: separate integrator for the emulated/dummy integrate_odes() below in NeuronClass.jinja2 #}
-{%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
-{%-         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
-{%-         set s = utils.integrate_odes_args_str_from_function_call(ast) %}
+{%-                 set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved[paired_synapse] + analytic_state_variables_moved[paired_synapse]) %}
+{%-                 set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-                 set s = utils.integrate_odes_args_str_from_function_call(ast) %}
 extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );
+{%-             endif %}
+{%-         endfor %}
 {%-     endif %}
 
 {%- endif %}
@@ -174,20 +178,21 @@ extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% e
 {%- endif %}
 
 
-{%- if paired_synapse is defined %}
+{%- if paired_synapses is defined %}
+{%-     for paired_synapse in paired_synapses %}
 
 /**
  * entry in the spiking history
 **/
-class histentry__{{ neuronName }}
+class histentry__{{ paired_synapse.name }}
 {
 public:
-  histentry__{{ neuronName }}( double t
+  histentry__{{ paired_synapse.name }}( double t
       , size_t access_counter
-{%- for var in purely_numeric_state_variables_moved|sort %}
+{%- for var in purely_numeric_state_variables_moved[paired_synapse]|sort %}
       , double {{ var }}
 {%- endfor %}
-{%- for var in analytic_state_variables_moved|sort %}
+{%- for var in analytic_state_variables_moved[paired_synapse]|sort %}
       , double {{ var }}
 {%- endfor %}
 {%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
@@ -198,7 +203,7 @@ public:
   )
   : t_( t )
   , access_counter_( access_counter )
-{%- for var in (purely_numeric_state_variables_moved + analytic_state_variables_moved) | sort %}
+{%- for var in (purely_numeric_state_variables_moved[paired_synapse] + analytic_state_variables_moved[paired_synapse]) | sort %}
   , {{ var }}_( {{ var }} )
 {%- endfor %}
 {%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
@@ -212,19 +217,24 @@ public:
   double t_;              //!< point in time when spike occurred (in ms)
   size_t access_counter_; //!< access counter to enable removal of the entry, once all neurons read it
 
-{%- for var in (purely_numeric_state_variables_moved + analytic_state_variables_moved) | sort %}
+
+{%- for var in (purely_numeric_state_variables_moved[paired_synapse] + analytic_state_variables_moved[paired_synapse]) | sort %}
   double {{ var }}_;
 
-{%-     set inline = utils.get_inline_expression_by_constructed_rhs_name(paired_synapse_original_model, var) %}
-{%-     if inline and utils.inline_aliases_convolution(inline) %}
+{%-     set is_inline_getter = false %}
+{%-     for paired_synapse_original_model in paired_synapse_original_models %}
+{%-         set inline = utils.get_inline_expression_by_constructed_rhs_name(paired_synapse_original_model, var) %}
+{%-         if inline and utils.inline_aliases_convolution(inline) %}
   double get_{{ inline.get_variable_name() + "__for_" + paired_synapse_original_model.get_name() }}() const     // getter for an inline expression
-{%-     else %}
+{%-             set is_inline_getter = true %}
+{%-         endif %}
+{%-     endfor %}
+{%-     if not is_inline_getter %}
   double get_{{ var }}() const
 {%-     endif %}
   {
     return {{ var }}_;
   }
-
 {%- endfor %}
 
 {%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
@@ -251,6 +261,7 @@ public:
 {%-     endfor %}
 };
 {%- endif %}
+{%- endfor %}
 {%- endif %}
 
 /* BeginDocumentation
@@ -373,7 +384,7 @@ public:
   void get_status(DictionaryDatum&) const override;
   void set_status(const DictionaryDatum&) override;
 
-{% if paired_synapse is defined %}
+{% if paired_synapses is defined %}
   // support for spike archiving
 
   /**
@@ -458,7 +469,7 @@ public:
 {%-     endfilter %}
 {%- endif %}
 
-{%- if paired_synapse is defined %}
+{%- if paired_synapses is defined %}
 
   // -------------------------------------------------------------------------
   //   Getters/setters for variables transferred from synapse
@@ -499,7 +510,7 @@ public:
 {%- endif %}
 
 protected:
-{%- if paired_synapse is defined %}
+{%- if paired_synapses is defined %}
   // support for spike archiving
 
   /**
@@ -522,7 +533,7 @@ private:
   void recompute_internal_variables(bool exclude_timestep=false);
 
 
-{%- if paired_synapse is defined %}
+{%- if paired_synapses is defined %}
   // support for spike archiving
 
   // number of incoming connections from stdp connectors.
@@ -752,11 +763,11 @@ private:
       {{variable_name}},
 {%-     endfor %}
       // moved state variables from synapse (numeric)
-{%-     for variable_name in purely_numeric_state_variables_moved|sort %}
+{%-     for variable_name in purely_numeric_state_variables_moved[paired_synapse]|sort %}
       {{variable_name}},
 {%-     endfor %}
       // moved state variables from synapse (analytic)
-{%-     for variable_name in analytic_state_variables_moved|sort %}
+{%-     for variable_name in analytic_state_variables_moved[paired_synapse]|sort %}
       {{variable_name}},
 {%-     endfor %}
 {%-   else %}
@@ -975,12 +986,14 @@ private:
   friend int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );
 {%-     endfor %}
 
-{%-     if paired_synapse is defined %}
+{%-     if paired_synapses is defined %}
+{%-         for paired_synapse in paired_synapses %}
 {#  for neuron-synapse co-generation: separate integrator for the emulated/dummy integrate_odes() below in NeuronClass.jinja2 #}
-{%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
-{%-         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
-{%-         set s = utils.integrate_odes_args_str_from_function_call(ast) %}
+{%-             set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved[paired_synapse] + analytic_state_variables_moved[paired_synapse]) %}
+{%-             set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-             set s = utils.integrate_odes_args_str_from_function_call(ast) %}
   friend int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );
+{%-         endfor %}
 {%-     endif %}
 {%- endif %}
 

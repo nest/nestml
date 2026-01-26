@@ -8,8 +8,10 @@
 {%- if uses_analytic_solver %}
 {%-     set analytic_state_variables_ = analytic_state_variables.copy() %}
 
-{%-     if paired_synapse is defined %}
-{%-         set tmp = analytic_state_variables_.extend(analytic_state_variables_moved) %}
+{%-     if paired_synapses is defined %}
+{%-         for paired_synapse in paired_synapses %}
+{%-             set tmp = analytic_state_variables_.extend(analytic_state_variables_moved[paired_synapse.name]) %}
+{%-         endfor %}
 {%-     endif %}
 
 {%-     if ast.get_args() | length > 0 %}
@@ -23,7 +25,14 @@
 {%- endif %}
 
 {%- if uses_numeric_solver %}
-{%-     set numeric_state_variables_to_be_integrated = numeric_state_variables + purely_numeric_state_variables_moved %}
+{%-     set numeric_state_variables_to_be_integrated = numeric_state_variables %}
+
+{%-     if paired_synapses is defined %}
+{%-         for paired_synapse in paired_synapses %}
+{%-             set tmp = numeric_state_variables_to_be_integrated.extend(purely_numeric_state_variables_moved[paired_synapse.name]) %}
+{%-         endfor %}
+{%-     endif %}
+
 {%-     if ast.get_args() | length > 0 %}
 {%-         set numeric_state_variables_to_be_integrated = utils.filter_variables_list(numeric_state_variables_to_be_integrated, ast.get_args()) %}
 {%-     endif %}
@@ -51,19 +60,27 @@ double {{ printer.print(utils.get_state_variable_by_name(astnode, inline_expr)) 
 {%-     endfor %}
 {%- endfor %}
 
-{%      set numeric_state_variables_to_be_integrated = numeric_state_variables + purely_numeric_state_variables_moved %}
-{%-     if ast.get_args() | length > 0 %}
-{%-         set numeric_state_variables_to_be_integrated = utils.filter_variables_list(numeric_state_variables_to_be_integrated, ast.get_args()) %}
+{%-     set numeric_state_variables_to_be_integrated_unfiltered = numeric_state_variables %}
+
+{%-     if paired_synapses is defined %}
+{%-         for paired_synapse in paired_synapses %}
+{%-             set tmp = numeric_state_variables_to_be_integrated_unfiltered.extend(purely_numeric_state_variables_moved[paired_synapse.name]) %}
+{%-         endfor %}
 {%-     endif %}
-{%- for variable_name in numeric_state_variables + numeric_state_variables_moved %}
-{%-   set update_expr = numeric_update_expressions[variable_name] %}
-{%-   set variable_symbol = variable_symbols[variable_name] %}
+
+{%-     if ast.get_args() | length > 0 %}
+{%-         set numeric_state_variables_to_be_integrated = utils.filter_variables_list(numeric_state_variables_to_be_integrated_unfiltered, ast.get_args()) %}
+{%-     endif %}
+
+{%- for variable_name in numeric_state_variables_to_be_integrated_unfiltered %}
+{%-     set update_expr = numeric_update_expressions[variable_name] %}
+{%-     set variable_symbol = variable_symbols[variable_name] %}
 const scalar f_{{ variable_symbol.get_symbol_name() }} = {% if ast.get_args() | length > 0 %}{% if variable_name in numeric_state_variables_to_be_integrated + utils.all_convolution_variable_names(astnode) %}{{ gsl_printer.print(update_expr) }}{% else %}0{% endif %}{% else %}{{ gsl_printer.print(update_expr) }}{% endif %};
 {%- endfor %}
 
-{%- for variable_name in numeric_state_variables + numeric_state_variables_moved %}
-{%-   set update_expr = numeric_update_expressions[variable_name] %}
-{%-   set variable_symbol = variable_symbols[variable_name] %}
+{%- for variable_name in numeric_state_variables_to_be_integrated_unfiltered %}
+{%-     set update_expr = numeric_update_expressions[variable_name] %}
+{%-     set variable_symbol = variable_symbols[variable_name] %}
 {{ variable_name }} += {% if ast.get_args() | length > 0 %}{% if variable_name in numeric_state_variables_to_be_integrated + utils.all_convolution_variable_names(astnode) %}dt * f_{{ variable_symbol.get_symbol_name() }}{% else %}0{% endif %}{% else %}dt * f_{{ variable_symbol.get_symbol_name() }}{% endif %};
 {%- endfor %}
 

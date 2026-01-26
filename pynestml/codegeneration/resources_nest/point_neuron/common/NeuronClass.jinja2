@@ -122,9 +122,9 @@ template <> void RecordablesMap<{{ neuronName }}>::create()
 {%-   endfor %}
 {%- else %}
     // add state variables to recordables map
-{%-   for variable in recordable_state_variables %}
+{%-     for variable in recordable_state_variables %}
    insert_({{names_namespace}}::_{{ variable.get_complete_name() }}, &{{ neuronName }}::get_{{ printer_no_origin.print(variable) }});
-{%-   endfor %}
+{%-     endfor %}
 {%- endif %}
 {%- endif %}
 
@@ -301,7 +301,7 @@ std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_i
 {%- if has_state_vectors %}
   recordablesMap_.create(*this);
 {%- endif %}
-{%- if paired_synapse is defined %}
+{%- if paired_synapses is defined %}
   n_incoming_ = __n.n_incoming_;
   max_delay_ = __n.max_delay_;
   last_spike_ = __n.last_spike_;
@@ -406,7 +406,7 @@ void {{ neuronName }}::init_state_internal_()
 {%- endfilter %}
 {%- endif %}
 
-{%- if paired_synapse is defined %}
+{%- if paired_synapses is defined %}
   // state variables for archiving state for paired synapse
   n_incoming_ = 0;
   max_delay_ = 0;
@@ -610,7 +610,7 @@ void {{ neuronName }}::pre_run_hook()
 {%-         include "directives_cpp/GSLDifferentiationFunction.jinja2" %}
 {%-     endfor %}
 
-{%-     if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
+{%-     if paired_synapses is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
 {#          for neuron-synapse co-generation: separate integrator for the emulated integrate_odes() calls below in this template #}
 {%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
 {%-         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
@@ -1175,7 +1175,7 @@ void
 
 {% endfor %}
 
-{%- if paired_synapse is defined %}
+{%- if paired_synapses is defined %}
 // -------------------------------------------------------------------------
 //   Methods for neuron/synapse co-generation
 // -------------------------------------------------------------------------
@@ -1297,7 +1297,7 @@ void
       {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = {{ utils.initial_value_or_zero(astnode, var) }}; // initial value for convolution is always 0
 {%-     endfor %}
     }
-{%      if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
+{%      if paired_synapses is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
     /**
      * update state variables transferred from synapse from `last_spike_` to `t_sp_ms`
      *
@@ -1428,7 +1428,7 @@ double
 {%- for var_ in analytic_state_variables_moved %}
       {{ printer.print(utils.get_variable_by_name(astnode, var_)) }} = history_[ i ].{{var_}}_;
 {%- endfor %}
-{%  if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
+{%  if paired_synapses is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
       /**
        * update state variables transferred from synapse from `history[i].t_` to `t`
        *
@@ -1498,7 +1498,7 @@ double
 {%- for var_ in analytic_state_variables_moved %}
   {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
 {%- endfor %}
-{%-     if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
+{%-     if paired_synapses is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
   /**
    * update state variables transferred from synapse from initial condition to `t`
    *

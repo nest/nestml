@@ -710,7 +710,7 @@ class NESTCodeGenerator(CodeGenerator):
         """
         namespace = self._get_model_namespace(neuron)
 
-        if "paired_synapse" in dir(neuron):
+        if "paired_synapses" in dir(neuron):
             if "state_vars_that_need_continuous_buffering" in dir(neuron):
                 assert self.get_option("continuous_state_buffering_method") in ["continuous_time_buffer", "post_spike_based"]
                 namespace["state_vars_that_need_continuous_buffering"] = neuron.state_vars_that_need_continuous_buffering
@@ -736,10 +736,10 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace["state_vars_that_need_continuous_buffering"] = []
             if "extra_on_emit_spike_stmts_from_synapse" in dir(neuron):
                 namespace["extra_on_emit_spike_stmts_from_synapse"] = neuron.extra_on_emit_spike_stmts_from_synapse
-            namespace["paired_synapse"] = neuron.paired_synapse
-            if "paired_synapse_original_model" in dir(neuron):
-                namespace["paired_synapse_original_model"] = neuron.paired_synapse_original_model
-            namespace["paired_synapse_name"] = neuron.paired_synapse.get_name()
+            namespace["paired_synapses"] = neuron.paired_synapses
+            if "paired_synapse_original_models" in dir(neuron):
+                namespace["paired_synapse_original_models"] = neuron.paired_synapse_original_models
+            namespace["paired_synapse_names"] = [syn.get_name() for syn in neuron.paired_synapses]
             namespace["post_spike_updates"] = neuron.post_spike_updates
             namespace["transferred_variables"] = neuron._transferred_variables
             namespace["transferred_variables_syms"] = {var_name: neuron.scope.resolve_to_symbol(
@@ -769,23 +769,26 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace["uses_analytic_solver"] = neuron.get_name() in self.analytic_solver.keys() \
             and self.analytic_solver[neuron.get_name()] is not None
-        namespace["analytic_state_variables_moved"] = []
+        namespace["analytic_state_variables_moved"] = {}
         if namespace["uses_analytic_solver"]:
-            if "paired_synapse" in dir(neuron):
+            if "paired_synapses" in dir(neuron):
                 namespace["analytic_state_variables"] = []
-                for sv in self.analytic_solver[neuron.get_name()]["state_variables"]:
-                    moved = False
-                    for mv in neuron.recursive_vars_used:
-                        name_snip = mv + "__"
-                        if name_snip == sv[:len(name_snip)]:
-                            # this variable was moved from synapse to neuron
-                            if not sv in namespace["analytic_state_variables_moved"]:
-                                namespace["analytic_state_variables_moved"].append(sv)
-                                moved = True
-                    if not moved:
-                        namespace["analytic_state_variables"].append(sv)
-                namespace["variable_symbols"].update({sym: neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(
-                    sym, SymbolKind.VARIABLE) for sym in namespace["analytic_state_variables_moved"]})
+                for paired_synapse in neuron.paired_synapses:
+                    for sv in self.analytic_solver[neuron.get_name()]["state_variables"]:
+                        moved = False
+                        for mv in neuron.recursive_vars_used:
+                            name_snip = mv + "__"
+                            print(name_snip)
+
+                            if name_snip == sv[:len(name_snip)]:
+                                # this variable was moved from synapse to neuron
+                                if not sv in namespace["analytic_state_variables_moved"][paired_synapse.name]:
+                                    namespace["analytic_state_variables_moved"][paired_synapse.name].append(sv)
+                                    moved = True
+                        if not moved:
+                            namespace["analytic_state_variables"].append(sv)
+                    namespace["variable_symbols"].update({sym: neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(
+                        sym, SymbolKind.VARIABLE) for sym in namespace["analytic_state_variables_moved"][paired_synapse.name]})
             else:
                 namespace["analytic_state_variables"] = self.analytic_solver[neuron.get_name()]["state_variables"]
 
@@ -795,7 +798,7 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace["initial_values"][sym] = expr
 
             namespace["update_expressions"] = {}
-            for sym in namespace["analytic_state_variables"] + namespace["analytic_state_variables_moved"]:
+            for sym in namespace["analytic_state_variables"] + [var for sublist in namespace["analytic_state_variables_moved"].values() for var in sublist]:
                 expr_str = self.analytic_solver[neuron.get_name()]["update_expressions"][sym]
                 expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr_str)
                 expr_ast = ModelParser.parse_expression(expr_str)
@@ -829,25 +832,27 @@ class NESTCodeGenerator(CodeGenerator):
         _names = self.non_equations_state_variables[neuron.get_name()]
         _names = [ASTUtils.to_ode_toolbox_processed_name(var.get_complete_name()) for var in _names]
         namespace["non_equations_state_variables"] = _names
-        namespace["purely_numeric_state_variables_moved"] = []
 
         if namespace["uses_numeric_solver"]:
-            namespace["numeric_state_variables_moved"] = []
-            if "paired_synapse" in dir(neuron):
+            namespace["purely_numeric_state_variables_moved"] = {}
+            namespace["numeric_state_variables_moved"] = {}
+            if "paired_synapses" in dir(neuron):
                 namespace["numeric_state_variables"] = []
-                for sv in self.numeric_solver[neuron.get_name()]["state_variables"]:
-                    moved = False
-                    for mv in neuron.recursive_vars_used:
-                        name_snip = mv + "__"
-                        if name_snip == sv[:len(name_snip)]:
-                            # this variable was moved from synapse to neuron
-                            if not sv in namespace["numeric_state_variables_moved"]:
-                                namespace["numeric_state_variables_moved"].append(sv)
-                                moved = True
-                    if not moved:
-                        namespace["numeric_state_variables"].append(sv)
-                namespace["variable_symbols"].update({sym: neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(
-                    sym, SymbolKind.VARIABLE) for sym in namespace["numeric_state_variables_moved"]})
+                for paired_synapse in neuron.paired_synapses:
+                    namespace["numeric_state_variables"][paired_synapse.name] = []
+                    for sv in self.numeric_solver[neuron.get_name()]["state_variables"]:
+                        moved = False
+                        for mv in neuron.recursive_vars_used:
+                            name_snip = mv + "__"
+                            if name_snip == sv[:len(name_snip)]:
+                                # this variable was moved from synapse to neuron
+                                if not sv in namespace["numeric_state_variables_moved"][paired_synapse.name]:
+                                    namespace["numeric_state_variables_moved"][paired_synapse.name].append(sv)
+                                    moved = True
+                        if not moved:
+                            namespace["numeric_state_variables"][paired_synapse.name].append(sv)
+                    namespace["variable_symbols"].update({sym: neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(
+                        sym, SymbolKind.VARIABLE) for sym in namespace["numeric_state_variables_moved"][paired_synapse.name]})
             else:
                 namespace["numeric_state_variables"] = self.numeric_solver[neuron.get_name()]["state_variables"]
 
@@ -864,14 +869,15 @@ class NESTCodeGenerator(CodeGenerator):
 
             if namespace["uses_numeric_solver"]:
                 if "analytic_state_variables_moved" in namespace.keys():
-                    namespace["purely_numeric_state_variables_moved"] = list(
-                        set(namespace["numeric_state_variables_moved"]) - set(namespace["analytic_state_variables_moved"]))
+                    for paired_synapse in neuron.paired_synapses:
+                        namespace["purely_numeric_state_variables_moved"][paired_synapse.name] = list(
+                            set(namespace["numeric_state_variables_moved"][paired_synapse.name]) - set(namespace["analytic_state_variables_moved"][paired_synapse.name]))
 
                 else:
-                    namespace["purely_numeric_state_variables_moved"] = namespace["numeric_state_variables_moved"]
+                    namespace["purely_numeric_state_variables_moved"][paired_synapse.name] = namespace["numeric_state_variables_moved"][paired_synapse.name]
 
             namespace["numeric_update_expressions"] = {}
-            for sym in namespace["numeric_state_variables"] + namespace["numeric_state_variables_moved"]:
+            for sym in namespace["numeric_state_variables"] + [var for sublist in namespace["numeric_state_variables_moved"].values() for var in sublist]:
                 expr_str = self.numeric_solver[neuron.get_name()]["update_expressions"][sym]
                 expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr_str)
                 expr_ast = ModelParser.parse_expression(expr_str)
@@ -886,9 +892,10 @@ class NESTCodeGenerator(CodeGenerator):
                     expr_ast.accept(marks_delay_vars_visitor)
 
             # for each ASTVariable: set its origin (if numeric in ode_state[], otherwise in S_)
-            numeric_state_variable_names = namespace["numeric_state_variables"] + namespace["purely_numeric_state_variables_moved"]
+            numeric_state_variable_names = namespace["numeric_state_variables"] + [var for sublist in namespace["purely_numeric_state_variables_moved"].values() for var in sublist]
             if "analytic_state_variables_moved" in namespace.keys():
-                numeric_state_variable_names.extend(namespace["analytic_state_variables_moved"])
+                for paired_synapse in neuron.paired_synapses:
+                    numeric_state_variable_names.extend(namespace["analytic_state_variables_moved"][paired_synapse.name])
             namespace["numerical_state_symbols"] = numeric_state_variable_names
             ASTUtils.assign_numeric_non_numeric_state_variables(neuron, numeric_state_variable_names, namespace["numeric_update_expressions"] if "numeric_update_expressions" in namespace.keys() else None, namespace["update_expressions"] if "update_expressions" in namespace.keys() else None)
         namespace["spike_updates"] = neuron.spike_updates
@@ -926,6 +933,8 @@ class NESTCodeGenerator(CodeGenerator):
 
             namespace["gap_junction_membrane_potential_variable_cpp"] = NESTVariablePrinter(expression_printer=None).print(var)
             namespace["gap_junction_port"] = self.get_option("gap_junctions")["gap_current_port"]
+
+        import pdb;pdb.set_trace()
 
         return namespace
 
