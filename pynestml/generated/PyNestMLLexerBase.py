@@ -86,7 +86,7 @@ class PyNestMLLexerBase(Lexer):
             for i in range(len(self.tokens) - 1, -1, -1):
                 if self.tokens[i].type == Token.EOF:
                     self.tokens.pop(i)
-            self.emitToken(self.commonToken(PyNestMLParser.NEWLINE, "\n"))
+            self.emitToken(self.commonToken(PyNestMLParser.NEWLINE, '\n'))
             while self.indents:
                 self.emitToken(self.createDedent())
                 self.indents.pop()
@@ -112,7 +112,7 @@ class PyNestMLLexerBase(Lexer):
     def getIndentationCount(spaces):
         count = 0
         for ch in spaces:
-            if ch == "\t":
+            if ch == '\t':
                 count += 8 - (count % 8)
             else:
                 count += 1
@@ -141,7 +141,7 @@ class PyNestMLLexerBase(Lexer):
         else:
             nextnext_eof = False
         if self.opened > 0 or nextnext_eof is False and (
-                la_char == "\r" or la_char == "\n" or la_char == "\f" or la_char == "#"):
+                la_char == '\r' or la_char == '\n' or la_char == '\f' or la_char == '#'):
             # Emit a newline token but in the comments channel (2).
             # This newline is used as a separator between comments while parsing.
             indent = self.getIndentationCount(spaces)
@@ -149,7 +149,7 @@ class PyNestMLLexerBase(Lexer):
         else:
             indent = self.getIndentationCount(spaces)
             previous = self.indents[-1] if self.indents else 0
-            self.emitToken(self.commonToken(self.NEWLINE, newLine, indent=indent))  # NEWLINE is actually the "\n" char
+            self.emitToken(self.commonToken(self.NEWLINE, newLine, indent=indent))  # NEWLINE is actually the '\n' char
             if indent == previous:
                 self.skip()
             elif indent > previous:
