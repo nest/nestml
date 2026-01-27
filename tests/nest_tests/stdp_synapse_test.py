@@ -58,8 +58,8 @@ class TestNestSTDPSynapse:
 
         jit_codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                       "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}}],
-                                           "delay_variable": {"stdp_synapse": "d"},
-                                           "weight_variable": {"stdp_synapse": "w"}}
+                            "delay_variable": {"stdp_synapse": "d"},
+                            "weight_variable": {"stdp_synapse": "w"}}
 
         if not NESTTools.detect_nest_version().startswith("v2"):
             jit_codegen_opts["neuron_parent_class"] = "StructuralPlasticityNode"

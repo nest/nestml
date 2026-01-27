@@ -350,8 +350,7 @@ class SynapsePostNeuronTransformer(Transformer):
 
             recursive_vars_used = ASTUtils.recursive_necessary_variables_search(syn_to_neuron_state_vars, synapse)
             new_neuron.recursive_vars_used.extend(recursive_vars_used)
-            new_neuron._transferred_variables[synapse.name].extend([neuron_state_var + var_name_suffix
-                                                for neuron_state_var in syn_to_neuron_state_vars if new_synapse.get_kernel_by_name(neuron_state_var) is None])
+            new_neuron._transferred_variables[synapse.name].extend([neuron_state_var + var_name_suffix for neuron_state_var in syn_to_neuron_state_vars if new_synapse.get_kernel_by_name(neuron_state_var) is None])
 
             # all state variables that will be moved from synapse to neuron
             syn_to_neuron_state_vars = []
@@ -359,8 +358,7 @@ class SynapsePostNeuronTransformer(Transformer):
                 if ASTUtils.get_state_variable_by_name(synapse, var_name) or ASTUtils.get_inline_expression_by_name(synapse, var_name) or ASTUtils.get_kernel_by_name(synapse, var_name):
                     syn_to_neuron_state_vars.append(var_name)
 
-            Logger.log_message(None, -1, "State variables that will be moved from synapse to neuron: " + str(syn_to_neuron_state_vars),
-                            None, LoggingLevel.INFO)
+            Logger.log_message(None, -1, "State variables that will be moved from synapse to neuron: " + str(syn_to_neuron_state_vars), None, LoggingLevel.INFO)
 
             #
             #   collect all the parameters
@@ -394,8 +392,7 @@ class SynapsePostNeuronTransformer(Transformer):
             syn_to_neuron_params.extend([var for var in vars_used if var in all_declared_params])
             syn_to_neuron_params = list(set(syn_to_neuron_params))
 
-            Logger.log_message(None, -1, "Parameters that will be copied from synapse to neuron: " + str(syn_to_neuron_params),
-                            None, LoggingLevel.INFO)
+            Logger.log_message(None, -1, "Parameters that will be copied from synapse to neuron: " + str(syn_to_neuron_params), None, LoggingLevel.INFO)
 
             #
             #   collect all the internal parameters
@@ -447,14 +444,13 @@ class SynapsePostNeuronTransformer(Transformer):
                         post_port_names.append(port.name)
 
             for state_var in syn_to_neuron_state_vars:
-                Logger.log_message(None, -1, "Moving state var defining equation(s) " + str(state_var),
-                                None, LoggingLevel.INFO)
+                Logger.log_message(None, -1, "Moving state var defining equation(s) " + str(state_var), None, LoggingLevel.INFO)
                 # move the ODE so a solver will be generated for it by ODE-toolbox
                 decls = ASTUtils.equations_from_block_to_block(state_var,
-                                                            new_synapse.get_equations_blocks()[0],
-                                                            new_neuron.get_equations_blocks()[0],
-                                                            var_name_suffix,
-                                                            mode="move")
+                                                               new_synapse.get_equations_blocks()[0],
+                                                               new_neuron.get_equations_blocks()[0],
+                                                               var_name_suffix,
+                                                               mode="move")
                 ASTUtils.add_suffix_to_variable_names2(post_port_names + syn_to_neuron_state_vars + syn_to_neuron_params, decls, var_name_suffix)
                 ASTUtils.replace_post_moved_variable_names(decls, [name + var_name_suffix for name in post_connected_continuous_input_ports], post_variable_names)
                 ASTUtils.remove_state_var_from_integrate_odes_calls(new_synapse, state_var)
@@ -466,8 +462,7 @@ class SynapsePostNeuronTransformer(Transformer):
             #
 
             for state_var in syn_to_neuron_state_vars:
-                Logger.log_message(None, -1, "Moving state variables for equation(s) " + str(state_var),
-                                None, LoggingLevel.INFO)
+                Logger.log_message(None, -1, "Moving state variables for equation(s) " + str(state_var), None, LoggingLevel.INFO)
                 ASTUtils.move_decls(var_name=state_var,
                                     from_block=new_synapse.get_state_blocks()[0],
                                     to_block=new_neuron.get_state_blocks()[0],
@@ -519,9 +514,9 @@ class SynapsePostNeuronTransformer(Transformer):
                             stmts = post_receive_block.get_stmts_body().get_stmts()
                             for stmt in stmts:
                                 if stmt.is_small_stmt() \
-                                and stmt.small_stmt.is_assignment() \
-                                and ASTUtils.depends_only_on_vars(stmt.small_stmt.get_assignment().rhs, recursive_vars_used + all_declared_params) \
-                                and stmt.small_stmt.get_assignment().get_variable().get_complete_name() in syn_to_neuron_params + syn_to_neuron_state_vars:
+                                   and stmt.small_stmt.is_assignment() \
+                                   and ASTUtils.depends_only_on_vars(stmt.small_stmt.get_assignment().rhs, recursive_vars_used + all_declared_params) \
+                                   and stmt.small_stmt.get_assignment().get_variable().get_complete_name() in syn_to_neuron_params + syn_to_neuron_state_vars:
                                     Logger.log_message(None, -1, "\tMoving statement " + str(stmt).strip(), None, LoggingLevel.INFO)
 
                                     collected_on_post_stmts.append(stmt)
@@ -638,7 +633,6 @@ class SynapsePostNeuronTransformer(Transformer):
 
             ASTUtils.update_blocktype_for_common_parameters(new_synapse)
 
-
         #
         #     rename neuron
         #
@@ -652,7 +646,6 @@ class SynapsePostNeuronTransformer(Transformer):
         ASTUtils.remove_empty_state_blocks(new_neuron)
         new_neuron.accept(ASTParentVisitor())
         new_neuron.accept(ast_symbol_table_visitor)
-
 
         Logger.log_message(None, -1, "Successfully constructed neuron-synapse pair "
                            + new_neuron.name + ", " + new_synapse.name, None, LoggingLevel.INFO)

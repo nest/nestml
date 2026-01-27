@@ -749,8 +749,7 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["transferred_variables"] = neuron._transferred_variables
             namespace["transferred_variables_syms"] = {}
             for paired_synapse, original_synapse in zip(neuron.paired_synapses, neuron.paired_synapse_original_models):
-                namespace["transferred_variables_syms"][original_synapse.name] = {var_name: neuron.scope.resolve_to_symbol(
-                var_name, SymbolKind.VARIABLE) for var_name in namespace["transferred_variables"][original_synapse.name]}
+                namespace["transferred_variables_syms"][original_synapse.name] = {var_name: neuron.scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE) for var_name in namespace["transferred_variables"][original_synapse.name]}
             assert not any([v is None for v in namespace["transferred_variables_syms"].values()])
             # {var_name: ASTUtils.get_declaration_by_name(neuron.get_initial_values_blocks(), var_name) for var_name in namespace["transferred_variables"]}
 
