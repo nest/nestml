@@ -263,9 +263,9 @@ class SynapsePostNeuronTransformer(Transformer):
         new_neuron.accept(ASTParentVisitor())
         new_neuron.paired_synapses = []
         new_neuron.paired_synapse_original_models = []
-        new_neuron._transferred_variables = []
+        new_neuron._transferred_variables = {}
         new_neuron.recursive_vars_used = []
-        new_neuron.extra_on_emit_spike_stmts_from_synapse = []
+        new_neuron.extra_on_emit_spike_stmts_from_synapse = {}
 
         if not new_neuron.get_equations_blocks():
             ASTUtils.create_equations_block(new_neuron)
@@ -278,6 +278,8 @@ class SynapsePostNeuronTransformer(Transformer):
 
         for synapse, new_synapse in zip(synapses, new_synapses):
             state_vars_that_need_continuous_buffering[synapse.name] = []
+            new_neuron._transferred_variables[synapse.name] = []
+            new_neuron.extra_on_emit_spike_stmts_from_synapse[synapse.name] = []
 
             new_synapse.parent_ = None    # set root element
             new_synapse.accept(ASTParentVisitor())
@@ -348,7 +350,7 @@ class SynapsePostNeuronTransformer(Transformer):
 
             recursive_vars_used = ASTUtils.recursive_necessary_variables_search(syn_to_neuron_state_vars, synapse)
             new_neuron.recursive_vars_used.extend(recursive_vars_used)
-            new_neuron._transferred_variables.extend([neuron_state_var + var_name_suffix
+            new_neuron._transferred_variables[synapse.name].extend([neuron_state_var + var_name_suffix
                                                 for neuron_state_var in syn_to_neuron_state_vars if new_synapse.get_kernel_by_name(neuron_state_var) is None])
 
             # all state variables that will be moved from synapse to neuron
@@ -587,7 +589,7 @@ class SynapsePostNeuronTransformer(Transformer):
                 ASTUtils.add_suffix_to_variable_names(stmt, var_name_suffix, altscope=synapse.get_scope())
                 ASTUtils.set_new_scope(stmt, new_neuron.get_scope())
 
-            new_neuron.extra_on_emit_spike_stmts_from_synapse.extend(extra_on_emit_spike_stmts_from_synapse)
+            new_neuron.extra_on_emit_spike_stmts_from_synapse[synapse.name].extend(extra_on_emit_spike_stmts_from_synapse)
 
             #
             #    replace occurrences of the variables in expressions in the original synapse with calls to the corresponding neuron getters

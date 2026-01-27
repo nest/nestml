@@ -9,8 +9,8 @@
 {%-     set analytic_state_variables_ = analytic_state_variables.copy() %}
 
 {%-     if paired_synapses is defined %}
-{%-         for paired_synapse in paired_synapses %}
-{%-             set tmp = analytic_state_variables_.extend(analytic_state_variables_moved[paired_synapse.name]) %}
+{%-         for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
+{%-             set tmp = analytic_state_variables_.extend(analytic_state_variables_moved[paired_synapse_original_model.name]) %}
 {%-         endfor %}
 {%-     endif %}
 
@@ -28,8 +28,8 @@
 {%-     set numeric_state_variables_to_be_integrated = numeric_state_variables %}
 
 {%-     if paired_synapses is defined %}
-{%-         for paired_synapse in paired_synapses %}
-{%-             set tmp = numeric_state_variables_to_be_integrated.extend(purely_numeric_state_variables_moved[paired_synapse.name]) %}
+{%-         for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
+{%-             set tmp = numeric_state_variables_to_be_integrated.extend(purely_numeric_state_variables_moved[paired_synapse_original_model.name]) %}
 {%-         endfor %}
 {%-     endif %}
 
@@ -63,8 +63,8 @@ double {{ printer.print(utils.get_state_variable_by_name(astnode, inline_expr)) 
 {%-     set numeric_state_variables_to_be_integrated_unfiltered = numeric_state_variables %}
 
 {%-     if paired_synapses is defined %}
-{%-         for paired_synapse in paired_synapses %}
-{%-             set tmp = numeric_state_variables_to_be_integrated_unfiltered.extend(purely_numeric_state_variables_moved[paired_synapse.name]) %}
+{%-         for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
+{%-             set tmp = numeric_state_variables_to_be_integrated_unfiltered.extend(purely_numeric_state_variables_moved[paired_synapse_original_model.name]) %}
 {%-         endfor %}
 {%-     endif %}
 

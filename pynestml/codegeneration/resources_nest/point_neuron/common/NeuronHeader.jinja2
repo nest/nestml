@@ -153,10 +153,10 @@ extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% e
 {%-     endfor %}
 
 {%-     if paired_synapses is defined %}
-{%-         for paired_synapse in paired_synapses %}
-{%-             if (purely_numeric_state_variables_moved[paired_synapse] + analytic_state_variables_moved[paired_synapse]) | length > 0 %}
+{%-         for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
+{%-             if (purely_numeric_state_variables_moved[paired_synapse_original_model.name] + analytic_state_variables_moved[paired_synapse_original_model.name]) | length > 0 %}
 {#  for neuron-synapse co-generation: separate integrator for the emulated/dummy integrate_odes() below in NeuronClass.jinja2 #}
-{%-                 set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved[paired_synapse] + analytic_state_variables_moved[paired_synapse]) %}
+{%-                 set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved[paired_synapse_original_model.name] + analytic_state_variables_moved[paired_synapse_original_model.name]) %}
 {%-                 set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
 {%-                 set s = utils.integrate_odes_args_str_from_function_call(ast) %}
 extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );
@@ -184,33 +184,36 @@ extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% e
 /**
  * entry in the spiking history
 **/
-class histentry__{{ paired_synapse.name }}
+class histentry__{{ neuronName }}
 {
 public:
-  histentry__{{ paired_synapse.name }}( double t
+  histentry__{{ neuronName }}( double t
       , size_t access_counter
-{%- for var in purely_numeric_state_variables_moved[paired_synapse]|sort %}
+{%-         for var in purely_numeric_state_variables_moved[paired_synapse_original_model.name]|sort %}
       , double {{ var }}
-{%- endfor %}
-{%- for var in analytic_state_variables_moved[paired_synapse]|sort %}
+{%-         endfor %}
+
+{%-         for var in analytic_state_variables_moved[paired_synapse_original_model.name]|sort %}
       , double {{ var }}
-{%- endfor %}
-{%- if state_vars_that_need_continuous_buffering[paired_synapse.name] | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
-{%-     for state_var in state_vars_that_need_continuous_buffering[paired_synapse.name] | sort %}
+{%-         endfor %}
+
+{%-         if state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
+{%-             for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | sort %}
       , double {{ state_var }}
-{%-     endfor %}
-{%- endif %}
+{%-             endfor %}
+{%-         endif %}
   )
   : t_( t )
   , access_counter_( access_counter )
-{%- for var in (purely_numeric_state_variables_moved[paired_synapse] + analytic_state_variables_moved[paired_synapse]) | sort %}
+{%-         for var in (purely_numeric_state_variables_moved[paired_synapse_original_model.name] + analytic_state_variables_moved[paired_synapse_original_model.name]) | sort %}
   , {{ var }}_( {{ var }} )
-{%- endfor %}
-{%- if state_vars_that_need_continuous_buffering[paired_synapse.name] | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
-{%-     for state_var in state_vars_that_need_continuous_buffering[paired_synapse.name] | sort %}
+{%-         endfor %}
+
+{%-         if state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
+{%-             for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | sort %}
   , {{ state_var }}_( {{ state_var }} )
-{%-     endfor %}
-{%- endif %}
+{%-             endfor %}
+{%-         endif %}
   {
   }
 
@@ -218,49 +221,52 @@ public:
   size_t access_counter_; //!< access counter to enable removal of the entry, once all neurons read it
 
 
-{%- for var in (purely_numeric_state_variables_moved[paired_synapse] + analytic_state_variables_moved[paired_synapse]) | sort %}
+{%-         for var in (purely_numeric_state_variables_moved[paired_synapse_original_model.name] + analytic_state_variables_moved[paired_synapse_original_model.name]) | sort %}
   double {{ var }}_;
 
-{%-     set is_inline_getter = false %}
-{%-     set inline = utils.get_inline_expression_by_constructed_rhs_name(paired_synapse_original_model, var) %}
-{%-     if inline and utils.inline_aliases_convolution(inline) %}
+{%-             set is_inline_getter = false %}
+{%-             set inline = utils.get_inline_expression_by_constructed_rhs_name(paired_synapse_original_model, var) %}
+{%-             if inline and utils.inline_aliases_convolution(inline) %}
   double get_{{ inline.get_variable_name() + "__for_" + paired_synapse_original_model.get_name() }}() const     // getter for an inline expression
-{%-         set is_inline_getter = true %}
-{%-     endif %}
+{%-                 set is_inline_getter = true %}
+{%-             endif %}
 
-{%-     if not is_inline_getter %}
+{%-             if not is_inline_getter %}
   double get_{{ var }}() const
-{%-     endif %}
+{%-             endif %}
   {
     return {{ var }}_;
   }
-{%- endfor %}
+{%-         endfor %}
 
-{%- if state_vars_that_need_continuous_buffering[paired_synapse.name] | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
-{%-     for state_var in state_vars_that_need_continuous_buffering[paired_synapse.name] %}
+{%-         if state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
+{%-             for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] %}
   double {{ state_var }}_;
-{%-     endfor %}
-{%- endif %}
+{%-             endfor %}
+{%-         endif %}
 };
-{%- if state_vars_that_need_continuous_buffering[paired_synapse.name] | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
+{%-         if state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
 
-class continuous_variable_histentry_{{ neuronName }}
+/**
+ * History entry for continuous variable buffering. Note that continuous-variable history entries are on a per-synapse-type basis.
+**/
+class continuous_variable_histentry_{{ neuronName }}__for_{{ paired_synapse_original_model.name }}
 {
 public:
-  continuous_variable_histentry_{{ neuronName }}( double t,
-{%-     for state_var in state_vars_that_need_continuous_buffering[paired_synapse.name] %}
+  continuous_variable_histentry_{{ neuronName }}__for_{{ paired_synapse_original_model.name }}( double t,
+{%-             for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] %}
       double {{ state_var }}{% if not loop.last %}, {% endif %}
-{%-     endfor %} );
+{%-             endfor %} );
 
   double t_;              //!< point in time for history entry
   size_t access_counter_;
 
-{%-     for state_var in state_vars_that_need_continuous_buffering[paired_synapse.name] %}
+{%-             for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] %}
   double {{ state_var }};
-{%-     endfor %}
+{%-             endfor %}
 };
-{%- endif %}
-{%- endfor %}
+{%-         endif %}
+{%-     endfor %}
 {%- endif %}
 
 /* BeginDocumentation
@@ -274,16 +280,16 @@ public:
   Parameters:
   The following parameters can be set in the status dictionary.
 {% for parameter in neuron.get_parameter_symbols() -%}
-{% if parameter.has_comment() -%}
+{%     if parameter.has_comment() -%}
     {{parameter.get_symbol_name()}} [{{parameter.get_type_symbol().print_symbol()}}] {{parameter.print_comment()}}
-{% endif -%}
+{%     endif -%}
 {% endfor %}
 
   Dynamic state variables:
 {% for state in neuron.get_state_symbols() -%}
-{% if state.has_comment() -%}
+{%     if state.has_comment() -%}
     {{state.get_symbol_name()}} [{{state.get_type_symbol().print_symbol()}}] {{state.print_comment()}}
-{% endif -%}
+{%     endif -%}
 {% endfor %}
 
   Sends: {{ output_event.OutputEvent() }}
@@ -404,15 +410,15 @@ public:
    */
   void register_stdp_connection( double t_first_read, double delay );
 
-{%- if state_vars_that_need_continuous_buffering[paired_synapse.name] | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
+{%-     if any(state_vars_that_need_continuous_buffering.values()) and continuous_state_buffering_method == "continuous_time_buffer" %}
 
   /**
    * write_continuous_variable_history
   **/
   void write_continuous_variable_history(nest::Time const &t,
-{%-     for state_var in state_vars_that_need_continuous_buffering[paired_synapse.name] %}
+{%-         for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] %}
       const double {{ state_var }}{% if not loop.last %}, {% endif %}
-{%-     endfor %});
+{%-         endfor %});
 
   void get_continuous_variable_history( double t1,
     double t2,
@@ -420,9 +426,10 @@ public:
     std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* finish );
 
   std::deque< continuous_variable_histentry_{{ neuronName }} > continuous_variable_history_;
+{%-     endif %}
 {%- endif %}
-{%- endif %}
-{%- if neuron.get_state_symbols()|length > 0 %}
+
+{%- if neuron.get_state_symbols() | length > 0 %}
   // -------------------------------------------------------------------------
   //   Getters/setters for state block
   // -------------------------------------------------------------------------
@@ -474,20 +481,21 @@ public:
   //   Getters/setters for variables transferred from synapse {{ paired_synapse.name }}
   // -------------------------------------------------------------------------
 
-{%-     for var in transferred_variables[paired_synapse.name] %}
+{%-         for var in transferred_variables[paired_synapse_original_model.name] %}
   double get_{{ var }}( double t, const bool before_increment = true );
-{%-     endfor %}
+{%-         endfor %}
 
-{%-     if state_vars_that_need_continuous_buffering[paired_synapse.name] | length > 0 %}
+{%-         if state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | length > 0 %}
 
   // -------------------------------------------------------------------------
   //   Getters/setters for variables that need continuous time buffering
   // -------------------------------------------------------------------------
 
-{%-         for var in state_vars_that_need_continuous_buffering[paired_synapse.name] %}
+{%-             for var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] %}
   double get_{{ var }}( double t, const bool before_increment = true );
-{%-         endfor %}
-{%-     endif %}
+{%-             endfor %}
+{%-         endif %}
+{%-    endfor %}
 {%- endif %}
 
   // -------------------------------------------------------------------------
@@ -545,16 +553,14 @@ private:
   double last_spike_;
 
   // spiking history needed by stdp synapses
-  std::deque< histentry__{{neuronName}} > history_;
+  std::deque< histentry__{{ neuronName }} > history_;
 
   // cache for initial values
-{%- for paired_synapse in paired_synapses %}
-{%-     for var in transferred_variables[paired_synapse.name] + state_vars_that_need_continuous_buffering[paired_synapse.name] %}
+{%- for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
+{%-     for var in transferred_variables[paired_synapse_original_model.name] + state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] %}
   double {{var}}__iv;
 {%-     endfor %}
 {%- endfor %}
-
-
 {%- endif %}
 
 private:
@@ -764,11 +770,11 @@ private:
       {{variable_name}},
 {%-     endfor %}
       // moved state variables from synapse (numeric)
-{%-     for variable_name in purely_numeric_state_variables_moved[paired_synapse]|sort %}
+{%-     for variable_name in purely_numeric_state_variables_moved[paired_synapse_original_model.name]|sort %}
       {{variable_name}},
 {%-     endfor %}
       // moved state variables from synapse (analytic)
-{%-     for variable_name in analytic_state_variables_moved[paired_synapse]|sort %}
+{%-     for variable_name in analytic_state_variables_moved[paired_synapse_original_model.name]|sort %}
       {{variable_name}},
 {%-     endfor %}
 {%-   else %}
@@ -988,9 +994,9 @@ private:
 {%-     endfor %}
 
 {%-     if paired_synapses is defined %}
-{%-         for paired_synapse in paired_synapses %}
+{%-         for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
 {#  for neuron-synapse co-generation: separate integrator for the emulated/dummy integrate_odes() below in NeuronClass.jinja2 #}
-{%-             set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved[paired_synapse] + analytic_state_variables_moved[paired_synapse]) %}
+{%-             set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved[paired_synapse_original_model.name] + analytic_state_variables_moved[paired_synapse_original_model.name]) %}
 {%-             set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
 {%-             set s = utils.integrate_odes_args_str_from_function_call(ast) %}
   friend int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );

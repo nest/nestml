@@ -711,7 +711,7 @@ public:
     t.register_stdp_connection( t_lastspike_ - get_delay(), get_delay() );
   }
 
-{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering | length > 0 %}
+{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering[astnode.name.split("__with_")[0]] | length > 0 %}
 {%-     if continuous_state_buffering_method == "continuous_time_buffer" %}
 void get_entry_from_continuous_variable_history(double t,
                                                 std::deque< continuous_variable_histentry_{{ paired_neuron_name }} >::iterator& start,
@@ -723,8 +723,8 @@ void get_entry_from_continuous_variable_history(double t,
   {
     // return initial value
     histentry.t_ = 0.;
-{%-         for state_var in paired_neuron.state_vars_that_need_continuous_buffering %}
-    histentry.{{ state_var }} = {{ state_vars_that_need_continuous_buffering_transformed_iv[state_var] }};
+{%-         for state_var in paired_neuron.state_vars_that_need_continuous_buffering[astnode.name.split("__with_")[0]] %}
+    histentry.{{ state_var }} = {{ state_vars_that_need_continuous_buffering_transformed_iv[astnode.name.split("__with_")[0]][state_var] }};
 {%-         endfor %}
     return;
   }
@@ -812,12 +812,12 @@ void get_entry_from_continuous_variable_history(double t,
       double t0 = t_last_update_;
 {%- endif %}
 
-{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
+{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering[astnode.name.split("__with_")[0]] | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
       // get continuous-time history entries in relevant range (t1, t2] from post-synaptic neuron
       std::deque< continuous_variable_histentry_{{ paired_neuron_name }} >::iterator continuous_history_start;
       std::deque< continuous_variable_histentry_{{ paired_neuron_name }} >::iterator continuous_history_finish;
 
-      ((post_neuron_t*)(__target))->get_continuous_variable_history( t_lastspike_ ,
+      ((post_neuron_t*)(__target))->get_continuous_variable_history__for_{{ astnode.name.split("__with_")[0] }}( t_lastspike_,
         __t_spike,
         &continuous_history_start,
         &continuous_history_finish );
@@ -838,14 +838,14 @@ void get_entry_from_continuous_variable_history(double t,
         // get_history() should make sure that ``start->t_ > t_lastspike_ - dendritic_delay``, i.e. minus_dt < 0
         assert( minus_dt < -kernel().connection_manager.get_stdp_eps() );
 
-{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering | length > 0 %}
+{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering[astnode.name.split("__with_")[0]] | length > 0 %}
         /**
          * grab state variables from the postsynaptic neuron at the time of the post spike
         **/
 
 {#- post spike based: grab the entry from the post spiking history buffer #}
 {%-     if continuous_state_buffering_method == "post_spike_based" %}
-{%-         for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
+{%-         for var_name in paired_neuron.state_vars_that_need_continuous_buffering[astnode.name.split("__with_")[0]] %}
 {%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
         const double __{{ var_name }} = start->{{ var_name }}_;
 {%-         endfor %}
@@ -857,12 +857,12 @@ void get_entry_from_continuous_variable_history(double t,
       std::cout << "Grabbing continuous_variable_history at t = " << start->t_ + __dendritic_delay << "\n";
 #endif
         continuous_variable_histentry_{{ paired_neuron_name }} histentry(0.,
-{%-         for state_var in paired_neuron.state_vars_that_need_continuous_buffering %}
-      {{ state_vars_that_need_continuous_buffering_transformed_iv[state_var] }}{% if not loop.last %},{% endif %}
+{%-         for state_var in paired_neuron.state_vars_that_need_continuous_buffering[astnode.name.split("__with_")[0]] %}
+      {{ state_vars_that_need_continuous_buffering_transformed_iv[astnode.name.split("__with_")[0]][state_var] }}{% if not loop.last %},{% endif %}
 {%-         endfor %});
         get_entry_from_continuous_variable_history(start->t_ + __dendritic_delay, continuous_history_start, continuous_history_finish, histentry);
 
-{%-         for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
+{%-         for var_name in paired_neuron.state_vars_that_need_continuous_buffering[astnode.name.split("__with_")[0]] %}
 {%-             set var = utils.get_parameter_variable_by_name(astnode, var_name) %}
         const double __{{ var_name }} = histentry.{{ var_name }};
 {%-         endfor %}
@@ -941,12 +941,12 @@ void get_entry_from_continuous_variable_history(double t,
     {
       auto get_t = [__t_spike](){ return __t_spike; };    // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
-{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering | length > 0 %}
+{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering[astnode.name.split("__with_")[0]] | length > 0 %}
 
         /**
          * grab state variables from the postsynaptic neuron (at the "current" simulation time, which corresponds to t_pre)
         **/
-{%      for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
+{%      for var_name in paired_neuron.state_vars_that_need_continuous_buffering[astnode.name.split("__with_")[0]] %}
 {%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
         const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}();
 {%-     endfor %}
@@ -989,12 +989,12 @@ void get_entry_from_continuous_variable_history(double t,
     {
       auto get_t = [__t_spike](){ return __t_spike; };    // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
-{%  if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering | length > 0 %}
+{%  if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering[astnode.name.split("__with_")[0]] | length > 0 %}
 
         /**
          * grab state variables from the postsynaptic neuron (at the "current" simulation time, which corresponds to t_pre)
         **/
-{%      for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
+{%      for var_name in paired_neuron.state_vars_that_need_continuous_buffering[astnode.name.split("__with_")[0]] %}
 {%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
         const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}();
 {%-     endfor %}
@@ -1562,7 +1562,7 @@ inline void
 
   auto get_t = [t_trig](){ return t_trig; };    // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
-{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
+{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering[astnode.name.split("__with_")[0]] | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
 #error "For third-factor plasticity combining spiking and continuous-time inputs, \"continuous_time_buffer\" is not supported yet!"
 {%- endif %}
 
@@ -1594,14 +1594,14 @@ inline void
      * update synapse internal state from `t_last_update_` to `start->t_ + dendritic_delay`
     **/
 
-{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering | length > 0 %}
+{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering[astnode.name.split("__with_")[0]] | length > 0 %}
         /**
          * grab state variables from the postsynaptic neuron at the time of the post spike
         **/
 
 {#- post spike based: grab the entry from the post spiking history buffer #}
 {%-     if continuous_state_buffering_method == "post_spike_based" %}
-{%-         for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
+{%-         for var_name in paired_neuron.state_vars_that_need_continuous_buffering[astnode.name.split("__with_")[0]] %}
 {%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
         const double __{{ var_name }} = start->{{ var_name }}_;
 {%-         endfor %}
