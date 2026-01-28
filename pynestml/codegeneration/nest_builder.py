@@ -56,14 +56,14 @@ def __add_library_to_sli(lib_path):
 
 
 def add_libraries_to_sli(paths: Union[str, Sequence[str]]):
-    ""'
+    """
     This method can be used to add external modules to SLI environment
 
     Parameters
     ----------
     paths
         paths to external nest modules
-    ""'
+    """
     if isinstance(paths, str):
         paths = [paths]
     for path in paths:
@@ -137,9 +137,9 @@ class NESTBuilder(Builder):
 
         n_compiler_processes = min(n_cpu, self.get_option("max_n_compiler_processes"))
 
-        nest_config_path = f"-Dwith-nest={os.path.join(nest_path, "bin", "nest-config")}"
+        nest_config_path = "-Dwith-nest=" + os.path.join(nest_path, "bin", "nest-config")
         cmake_cmd = ["cmake", nest_config_path, install_prefix, "."]
-        make_all_cmd = ["make", f'-j{n_compiler_processes}", "all']
+        make_all_cmd = ["make", "-j" + str(n_compiler_processes), "all"]
         make_install_cmd = ["make", "install"]
 
         # remove CMakeCache.txt if exists
@@ -153,8 +153,8 @@ class NESTBuilder(Builder):
         else:
             shell = False
 
-        stages_exception = {"cmake": f"Error occurred during cmake! More detailed error messages can be found in {error_location}.", "build": f"Error occurred during "make all"! More detailed error messages can be found in {error_location}.",
-                            "install":  f"Error occurred during "make install"! More detailed error messages can be found in {error_location}."}
+        stages_exception = {"cmake": f"Error occurred during cmake! More detailed error messages can be found in {error_location}.", "build": f"Error occurred during \"make all\"! More detailed error messages can be found in {error_location}.",
+                            "install":  f"Error occurred during \"make install\"! More detailed error messages can be found in {error_location}."}
         current_stage = ""
 
         stdout = self._options["stdout"]

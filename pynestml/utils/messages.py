@@ -876,7 +876,7 @@ class Messages:
 
     @classmethod
     def get_no_files_in_input_path(cls, path: str) -> Tuple[MessageCode, str]:
-        message = "No files found matching "*.nestml" in provided input path \"" + path + "\""
+        message = "No files found matching \"*.nestml\" in provided input path \"" + path + "\""
         return MessageCode.NO_FILES_IN_INPUT_PATH, message
 
     @classmethod

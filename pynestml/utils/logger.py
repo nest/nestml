@@ -309,7 +309,7 @@ class Logger:
                    "\"col\":\"" \
                    + (str(errorPosition.get_start_column()) if errorPosition is not None else "") + \
                    "\", " + \
-                   "\"message\":\"" + str(message).replace("\"", ""\") + ""}'
+                   "\"message\":\"" + str(message) + "\"}"
             ret += ","
 
         if len(cls.log.keys()) == 0:

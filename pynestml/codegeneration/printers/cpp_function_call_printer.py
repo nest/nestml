@@ -197,7 +197,7 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         :param scope: scope of the variables in the argument, if any
         :return: the converted string to NEST
         """
-        pattern = re.compile(r'\{[a-zA-Z_][a-zA-Z0-9_]*\}")  # Match the variables enclosed within "{ }'
+        pattern = re.compile(r"\{[a-zA-Z_][a-zA-Z0-9_]*\}")  # Match the variables enclosed within "{ }"
         match = pattern.search(stmt)
         if match:
             var_name = match.group(0)[match.group(0).find("{") + 1:match.group(0).find("}")]
