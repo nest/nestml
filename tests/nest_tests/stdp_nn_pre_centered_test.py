@@ -66,8 +66,7 @@ class NestSTDPNNSynapseTest(unittest.TestCase):
                              codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                            "neuron_parent_class_include": "structural_plasticity_node.h",
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                                     "synapse": "stdp_nn_pre_centered_synapse",
-                                                                     "post_ports": ["post_spikes"]}],
+                                                                     "synapses": {"stdp_nn_pre_centered_synapse": {"post_ports": ["post_spikes"]}}}],
                                            "delay_variable": {"stdp_nn_pre_centered_synapse": "d"},
                                            "weight_variable": {"stdp_nn_pre_centered_synapse": "w"}})
 

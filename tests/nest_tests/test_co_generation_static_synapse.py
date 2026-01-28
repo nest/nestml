@@ -45,6 +45,6 @@ def test_co_generation_static_synapse():
                          logging_level="INFO",
                          suffix="_nestml",
                          codegen_opts={"neuron_synapse_pairs": [{"neuron": "hill_tononi_neuron",
-                                                                 "synapse": "static_synapse"}],
+                                                                 "synapses": {"static_synapse": {}}}],
                                        "delay_variable": {"static_synapse": "d"},
                                        "weight_variable": {"static_synapse": "w"}})

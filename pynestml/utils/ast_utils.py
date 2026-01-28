@@ -529,6 +529,16 @@ class ASTUtils:
             model.get_body().get_body_elements().remove(equations_block_to_remove)
 
     @classmethod
+    def remove_empty_state_blocks(cls, model: ASTModel) -> None:
+        state_blocks_to_remove = []
+        for blk in model.get_state_blocks():
+            if not blk.get_declarations():
+                state_blocks_to_remove.append(blk)
+
+        for block_to_remove in state_blocks_to_remove:
+            model.get_body().get_body_elements().remove(block_to_remove)
+
+    @classmethod
     def contains_convolve_call(cls, variable: VariableSymbol) -> bool:
         """
         Indicates whether the declaring rhs of this variable symbol has a convolve() in it.
@@ -748,10 +758,11 @@ class ASTUtils:
     @classmethod
     def get_post_ports_of_neuron_synapse_pair(cls, neuron, synapse, codegen_opts_pairs):
         for pair in codegen_opts_pairs:
-            if pair["neuron"] == removesuffix(neuron.get_name().split("__with_")[0], FrontendConfiguration.suffix) \
-               and pair["synapse"] == removesuffix(synapse.get_name().split("__with_")[0], FrontendConfiguration.suffix) \
-               and "post_ports" in pair.keys():
-                return pair["post_ports"]
+            if pair["neuron"] == removesuffix(neuron.get_name().split("__with_")[0], FrontendConfiguration.suffix):
+                for synapse_name, syn_opts in pair["synapses"].items():
+                    if synapse_name == removesuffix(synapse.get_name().split("__with_")[0], FrontendConfiguration.suffix) \
+                       and "post_ports" in syn_opts.keys():
+                        return syn_opts["post_ports"]
 
         return []
 

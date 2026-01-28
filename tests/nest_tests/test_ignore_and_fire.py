@@ -48,8 +48,7 @@ class TestIgnoreAndFire:
         """Generate the model code"""
 
         codegen_opts = {"neuron_synapse_pairs": [{"neuron": "ignore_and_fire_neuron",
-                                                  "synapse": "stdp_synapse",
-                                                  "post_ports": ["post_spikes"]}],
+                                                  "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}}],
                         "delay_variable": {"stdp_synapse": "d"},
                         "weight_variable": {"stdp_synapse": "w"}}
 

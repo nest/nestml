@@ -44,8 +44,7 @@ class TestWeightVariableSpecified:
                              logging_level="DEBUG",
                              suffix="_nestml",
                              codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                                     "synapse": "stdp_synapse",
-                                                                     "post_ports": ["post_spikes"]}],
+                                                                     "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}}],
                                            "delay_variable": {"stdp_synapse": "d"}})
 
 
@@ -71,8 +70,7 @@ class TestSynapseWeightGetSet:
                              codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                            "neuron_parent_class_include": "structural_plasticity_node.h",
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                                     "synapse": "stdp_synapse",
-                                                                     "post_ports": ["post_spikes"]}],
+                                                                     "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}}],
                                            "delay_variable": {"weight_test_plastic_synapse": "d",
                                                               "weight_test_assigned_synapse": "d",
                                                               "stdp_synapse": "d"},
