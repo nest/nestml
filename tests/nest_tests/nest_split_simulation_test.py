@@ -19,24 +19,24 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-
 import numpy as np
 import os
 import pytest
 import unittest
 
-import nest
-
-from pynestml.frontend.pynestml_frontend import generate_nest_target
-from pynestml.codegeneration.nest_tools import NESTTools
-
-
+# try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
-    import matplotlib
+    import matplotlib as mpl
+    mpl.use("agg")
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
 except BaseException:
     TEST_PLOTS = False
+
+import nest
+
+from pynestml.frontend.pynestml_frontend import generate_nest_target
+from pynestml.codegeneration.nest_tools import NESTTools
 
 
 class NestSplitSimulationTest(unittest.TestCase):

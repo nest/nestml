@@ -27,7 +27,7 @@ neuron like dynamics interacting by point events is described in
 References
 ++++++++++
 
-.. [1] Rotter S,  Diesmann M (1999). Exact simulation of
+.. [1] Rotter S, Diesmann M (1999). Exact simulation of
        time-invariant linear systems with applications to neuronal
        modeling. Biologial Cybernetics 81:381-402.
        DOI: https://doi.org/10.1007/s004220050570
@@ -50,15 +50,15 @@ Parameters
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-    
-    "tau_m", "ms", "10ms", "Membrane time constant"    
-    "C_m", "pF", "250pF", "Capacity of the membrane"    
-    "refr_T", "ms", "2ms", "Duration of refractory period"    
-    "tau_syn", "ms", "2ms", "Time constant of synaptic current"    
-    "E_L", "mV", "-70mV", "Resting membrane potential"    
-    "V_reset", "mV", "-70mV", "Reset potential of the membrane"    
-    "V_th", "mV", "-55mV", "Spike threshold"    
-    "V_min", "mV", "-inf * 1mV", "Absolute lower value for the membrane potential"    
+
+    "tau_m", "ms", "10ms", "Membrane time constant"
+    "C_m", "pF", "250pF", "Capacity of the membrane"
+    "refr_T", "ms", "2ms", "Duration of refractory period"
+    "tau_syn", "ms", "2ms", "Time constant of synaptic current"
+    "E_L", "mV", "-70mV", "Resting membrane potential"
+    "V_reset", "mV", "-70mV", "Reset potential of the membrane"
+    "V_th", "mV", "-55mV", "Spike threshold"
+    "V_min", "mV", "-inf * 1mV", "Absolute lower value for the membrane potential"
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -70,9 +70,9 @@ State variables
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-    
-    "V_m", "mV", "E_L", "Membrane potential"    
-    "refr_t", "ms", "0ms", "Refractory period timer"    
+
+    "V_m", "mV", "E_L", "Membrane potential"
+    "refr_t", "ms", "0ms", "Refractory period timer"
     "is_refractory", "boolean", "false", ""
 
 
@@ -84,7 +84,7 @@ Equations
 
 
 .. math::
-   \frac{ dV_{m} } { dt }= \frac{ -(V_{m} - E_{L}) } { \tau_{m} } + \text{convolve}(K_{\delta}, spikes) \cdot (\frac{ \mathrm{mV} } { \mathrm{ms} }) + \frac 1 { C_{m} } \left( { (I_{e} + I_{stim}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac{ -(V_{m} - E_{L}) } { \tau_{m} } + \text{convolve}(K_{\delta}, spikes) \cdot (\frac{ \mathrm{mV} } { \mathrm{ms} }) + \frac 1 { C_{m} } \left( { (I_{e} + I_{stim}) } \right)
 
 
 

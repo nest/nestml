@@ -6,7 +6,6 @@
 #
 # A version of the aeif_cond_beta neuron model that contains an ``integrate_odes()`` call without arguments. For testing gap junction code generation.
 #
-#
 # Copyright statement
 # +++++++++++++++++++
 #
@@ -61,11 +60,11 @@ model aeif_cond_beta_neuron:
 
     parameters:
         # membrane parameters
-        C_m pF = 281.0 pF         # Membrane Capacitance
+        C_m pF = 281.0 pF         # Membrane capacitance
         t_ref ms = 0.0 ms         # Refractory period
         V_reset mV = -60.0 mV     # Reset Potential
         g_L nS = 30.0 nS          # Leak Conductance
-        E_L mV = -70.6 mV         # Leak reversal Potential (aka resting potential)
+        E_L mV = -70.6 mV         # Leak reversal potential (a.k.a. resting potential)
 
         # spike adaptation parameters
         a nS = 4 nS               # Subthreshold adaptation

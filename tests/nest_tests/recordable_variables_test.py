@@ -23,17 +23,18 @@ import numpy as np
 import unittest
 import os
 
-import nest
-
-from pynestml.frontend.pynestml_frontend import generate_nest_target
-
+# try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
-    import matplotlib
+    import matplotlib as mpl
+    mpl.use("agg")
     import matplotlib.pyplot as plt
-
     TEST_PLOTS = True
 except BaseException:
     TEST_PLOTS = False
+
+import nest
+
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
 class RecordableVariablesTest(unittest.TestCase):

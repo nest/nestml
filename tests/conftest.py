@@ -1,15 +1,6 @@
-# CoCoFunctionCallNotConsistentWrongArgNumber.nestml
-# ##################################################
+# -*- coding: utf-8 -*-
 #
-# Description
-# +++++++++++
-#
-# This model is used to test if broken CoCos are identified correctly. Here, if function calls have the right number of arguments.
-#
-# Negative case.
-#
-# Copyright statement
-# +++++++++++++++++++
+# conftest.py
 #
 # This file is part of NEST.
 #
@@ -27,7 +18,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-#
-model CoCoFunctionCallNotConsistentWrongArgNumber:
-    state:
-        test integer = max(1,2,3) # wrong number of args
+
+import logging
+
+
+def pytest_configure(config):
+    # prevent matplotlib and other packages from printing a lot of debug messages when NESTML is running in DEBUG logging_level
+    logging.getLogger('matplotlib').setLevel(logging.ERROR)
+    logging.getLogger('graphviz').setLevel(logging.ERROR)
+    logging.getLogger('PIL').setLevel(logging.ERROR)
