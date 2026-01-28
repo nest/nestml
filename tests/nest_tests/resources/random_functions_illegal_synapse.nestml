@@ -1,24 +1,24 @@
 # random_functions_illegal_synapse.nestml
 # #######################################
-# 
-# 
+#
+#
 # Copyright statement
 # +++++++++++++++++++
-# 
+#
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
-# 
+#
 # NEST is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # NEST is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -30,7 +30,6 @@ model random_functions_illegal_synapse:
         post_trace real = 0.
 
     parameters:
-        d ms = 1 ms    # Synaptic transmission delay
         lambda real = .01
         tau_tr_pre ms = random_normal(110 ms, 55 ms)
         tau_tr_post ms = random_normal(5 ms, 2.5 ms)
@@ -49,7 +48,7 @@ model random_functions_illegal_synapse:
         post_spikes <- spike
 
     output:
-        spike(weight real, delay ms)
+        spike
 
     onReceive(post_spikes):
         post_trace += 1
@@ -66,7 +65,7 @@ model random_functions_illegal_synapse:
         w = max(Wmin, w_)
 
         # deliver spike to postsynaptic partner
-        emit_spike(w, d)
+        emit_spike(w)
 
     update:
         integrate_odes()

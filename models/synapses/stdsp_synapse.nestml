@@ -45,7 +45,6 @@ model stdsp_synapse:
         w real = 100. [[w >= 0]]    # dummy synaptic weight -- just so weight can be recorded. Actual weight is only ever 0 or Wmax
 
     parameters:
-        d ms = 1 ms    # Synaptic transmission delay
 
         tau_pre_trace ms = 80 ms
         lambda_h real = 1.
@@ -71,7 +70,7 @@ model stdsp_synapse:
         dAP_trace pA <- continuous
 
     output:
-        spike(weight real, delay ms)
+        spike
 
     onReceive(post_spikes):
         time_since_last_spike ms = t - t_last_pre_spike
@@ -100,7 +99,7 @@ model stdsp_synapse:
             w = Wmax
 
             # deliver spike to postsynaptic partner
-            emit_spike(w, d)
+            emit_spike(w)
         else:
             # set a dummy "weight" so the weight can be recorded
             w = 0.

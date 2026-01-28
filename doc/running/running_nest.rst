@@ -186,7 +186,7 @@ Multiple spiking input ports with vectors in NEST
 
 See :ref:`Multiple input ports with vectors` for an example with input ports defined as vectors.
 
-Each connection in NEST is denoted by a receiver port or ``rport`` number which is an integer that starts with 0. All default connections in NEST have the ``rport`` 0. NESTML routes the spikes with ``excitatory`` and ``inhibitory`` qualifiers into separate input buffers, whereas NEST identifies them with the same ``rport`` number.
+Each connection in NEST is denoted by a receiver port or ``rport`` number which is an integer that starts with 0. All default connections in NEST have the ``rport`` 0.
 
 During the code generation for NEST, NESTML maintains an internal mapping between NEST ``rports`` and NESTML input ports. A list of port names defined in a model and their corresponding ``rport`` numbers can be queried from the status dictionary using the NEST API. For neurons with multiple input ports, the ``receptor_type`` values in the ``nest.Connect()`` call start from 1 as the default ``receptor_type`` 0 is excluded to avoid any accidental connections.
 
@@ -212,7 +212,7 @@ The above code querying for ``receptor_types`` gives a list of port names and NE
      - 1
    * - NMDA_spikes
      - 2
-   * - FOO_0
+   * - FOO_0 XXXXX _VEC_IDX_
      - 3
    * - FOO_1
      - 4
@@ -253,14 +253,6 @@ Note that the receptor ports for continuous input ports are numbered starting fr
 
 Generating code
 ---------------
-
-Output event attributes
-~~~~~~~~~~~~~~~~~~~~~~~
-
-In neuron models, no spike event attributes are supported.
-
-In synapse models, precisely two spike event attributes are supported: a synaptic weight (as a real number) and a synaptic (dendritic) delay (in milliseconds).
-
 
 Generating code for plastic synapses
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -314,12 +306,48 @@ By default, the "continuous-time" based buffer is selected. This covers the most
 As a computationally more efficient alternative, a spike-based buffer can be selected. In this case, the third factor is not stored every timestep, but only upon the occurrence of postsynaptic (somatic) spikes. Because of the existence of a nonzero dendritic delay, the time at which the somatic spike is observed at the synapse is delayed, and the time at which the third factor is sampled should match the time of the spike at the synapse, rather than the soma. When the spike-based buffering method is used, the dendritic delay is therefore ignored, because the third factor is sampled instead at the time of the somatic spike.
 
 
+Dendritic delays
+~~~~~~~~~~~~~~~~
+
+In NEST, all synapses are expected to specify a nonzero dendritic delay, that is, the delay between arrival of a spike at the dendritic spine and the time at which its effects are felt at the soma (or conversely, the delay between a somatic action potential and the arrival at the dendritic spine due to dendritic backpropagation). Dendritic delays are managed entirely by NEST and can in principle not be read from or written to from inside the NESTML model. However, in some cases it can be useful to read the delay from inside the synapse. This can be achieved by using the code generator option ``delay_variable``.
+
+For example, given the following model:
+
+.. code:: nestml
+
+   model my_synapse:
+       parameters:
+           d ms = 1 ms
+
+the variable might be specified as:
+
+.. code-block:: python
+
+   generate_target(...,
+                   codegen_opts={...,
+                                 "delay_variable": {"my_synapse": "d"}})
+
+The parameter can then be set in NEST:
+
+.. code-block:: python
+
+   nest.Connect(pre, post, syn_spec={"delay": 2.5})
+
+and subsequently read out from NESTML:
+
+.. code:: nestml
+
+   model my_synapse:
+       onReceive(pre_spikes):
+           print("dendritic delay = {d}")
+
+This will print the string ``dendritic_delay = 2.5``.
 
 
-Dendritic delay and synaptic weight
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Synaptic weights
+~~~~~~~~~~~~~~~~
 
-In NEST, all synapses are expected to specify a nonzero dendritic delay, that is, the delay between arrival of a spike at the dendritic spine and the time at which its effects are felt at the soma (or conversely, the delay between a somatic action potential and the arrival at the dendritic spine due to dendritic backpropagation). As delays and weights are hard-wired into the NEST C++ base classes for the NESTML synapse classes, special annotations must be made in the NESTML model to indicate which state variables or parameters correspond to weight and delay. To indicate the correspondence, use the code generator options ``delay_variable`` and ``weight_variable``. For example, given the following model:
+As synaptic weights are hard-wired into the NEST C++ base class for the NESTML synapse class, a special annotations must be made on the NESTML side to indicate which state variable or parameter corresponds to the weight. To indicate the correspondence, use the code generator option ``weight_variable``. For example, given the following model:
 
 .. code:: nestml
 
@@ -327,16 +355,12 @@ In NEST, all synapses are expected to specify a nonzero dendritic delay, that is
        state:
            w real = 1.
 
-       parameters:
-           dend_delay ms = 1 ms
-
-the variables might be specified as:
+the variable might be specified as:
 
 .. code-block:: python
 
    generate_target(...,
                    codegen_opts={...,
-                                 "delay_variable": {"my_synapse": "dend_delay"},
                                  "weight_variable": {"my_synapse": "w"}})
 
 
@@ -365,6 +389,51 @@ Random numbers
 --------------
 
 In case random numbers are needed inside the synapse, the random number generator belonging to the postsynaptic target is used.
+
+
+Performance optimisations
+-------------------------
+
+In neuron models, incoming spikes are by default buffered into a queue (a ``std::vector``) before being processed. This implementation is the most generic, allowing, for example, spikes with both positive and negative weights arriving at one and the same input port to be handled differently according to the sign. However, the queue can cause a degradation in runtime performance on the order of 10%. If no conditional processing of the incoming spikes is necessary, and all spikes are treated in the same, linear, time-invariant (LTI) manner, then no queue is necessary as all spike weights can be simply added together into a single floating-point variable. The code generator option ``linear_time_invariant_spiking_input_ports`` can be used to indicate for which ports the spikes can be treated in an LTI-manner.
+
+For instance, if spikes arriving at the same port are handled differently according to sign of the weight:
+
+.. code:: nestml
+
+   internals:
+       unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+
+   input:
+       spike_in_port <- spike
+
+   onReceive(spike_in_port):
+       # route the incoming spike on the basis of the weight: less than zero means an inhibitory spike; greater than zero means an excitatory spike
+       psc pA = unit_psc * sift(spike_in_port, t)    # obtain the postsynaptic current by integrating area under the curve of the spike
+       if psc > 0:
+           I_syn_exc += psc
+       else:
+           I_syn_inh -= psc
+
+then the system is not LTI and a queue is necessary.
+
+However, if two separate ports are used (and weights are subsequently processed in an LTI manner), the model can be formulated in a mathematically equivalent way:
+
+.. code:: nestml
+
+   internals:
+       unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+
+   input:
+       spike_in_port_exc <- spike
+       spike_in_port_inh <- spike
+
+   onReceive(spike_in_port_exc):
+        I_syn_exc += unit_psc * sift(spike_in_port_exc, t)
+
+   onReceive(spike_in_port_inh):
+        I_syn_inh += unit_psc * sift(spike_in_port_inh, t)
+
+In this case, the ``linear_time_invariant_spiking_input_ports`` option can be used to specify that both ``spike_in_port_exc`` and ``spike_in_port_inh`` are LTI ports, for better runtime performance.
 
 
 References

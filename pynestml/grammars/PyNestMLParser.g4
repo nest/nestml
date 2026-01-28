@@ -121,14 +121,16 @@ parser grammar PyNestMLParser;
                     | logicalOr=OR_KEYWORD;
 
   /**
-   * ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
+   * ASTVariable: A variable used in expressions. Can optionally be a vector, have a differential order, and attributes.
+   * If it is a vector, the square brackets contain a variable declaration (used for example as in ``onReceive(my_vector_input_port[i integer])``).
    * @attribute name: The name of the variable without the differential order, e.g. V_m
    * @attribute vectorParameter: An optional array parameter, e.g., 'tau_syn ms[n_receptors]'.
    * @attribute differentialOrder: The corresponding differential order, e.g. 2
   **/
   variable : name=NAME
-             (LEFT_SQUARE_BRACKET vectorParameter=expression RIGHT_SQUARE_BRACKET)?
-             (DIFFERENTIAL_ORDER)*;
+             (LEFT_SQUARE_BRACKET vectorParameter=expressionOrParameter RIGHT_SQUARE_BRACKET)?
+             (DIFFERENTIAL_ORDER)*
+             (FULLSTOP attribute=variable)?;
 
   /**
    * ASTFunctionCall Represents a function call, e.g. myFun("a", "b").
@@ -255,7 +257,7 @@ parser grammar PyNestMLParser;
    * ASTOnReceiveBlock
    * @attribute stmtsBody implementation of the dynamics
   **/
-  onReceiveBlock : ON_RECEIVE_KEYWORD LEFT_PAREN inputPortName=NAME (COMMA constParameter)* RIGHT_PAREN COLON
+  onReceiveBlock : ON_RECEIVE_KEYWORD LEFT_PAREN inputPortVariable=variable (COMMA constParameter)* RIGHT_PAREN COLON
                    NEWLINE INDENT stmtsBody DEDENT;
 
   /**
@@ -297,7 +299,7 @@ parser grammar PyNestMLParser;
    * @attribute continuousInputPort: A list of continous-time input ports.
   **/
   inputBlock : INPUT_KEYWORD COLON
-               NEWLINE INDENT ((spikeInputPort | continuousInputPort) (LEFT_PAREN (parameter (COMMA parameter)*)? RIGHT_PAREN)?)+ DEDENT;
+               NEWLINE INDENT (spikeInputPort | continuousInputPort)+ DEDENT;
 
   /**
    * ASTInputPort represents a single input port.
@@ -308,20 +310,16 @@ parser grammar PyNestMLParser;
   **/
   spikeInputPort : name=NAME
                    (LEFT_SQUARE_BRACKET sizeParameter=expression RIGHT_SQUARE_BRACKET)?
-                   LEFT_ANGLE_MINUS inputQualifier*
-                   SPIKE_KEYWORD NEWLINE;
+                   LEFT_ANGLE_MINUS SPIKE_KEYWORD
+                   (LEFT_PAREN (parameter (COMMA parameter)*)? RIGHT_PAREN)?
+                   NEWLINE;
 
   continuousInputPort : name = NAME
                         (LEFT_SQUARE_BRACKET sizeParameter=expression RIGHT_SQUARE_BRACKET)?
                         dataType
-                        LEFT_ANGLE_MINUS CONTINUOUS_KEYWORD NEWLINE;
-
-  /**
-   * ASTInputQualifier represents the qualifier of an inputPort. Only valid for spiking inputs.
-   * @attribute isInhibitory: Indicates that this spiking input port is inhibitory.
-   * @attribute isExcitatory: Indicates that this spiking input port is excitatory.
-  **/
-  inputQualifier : isInhibitory=INHIBITORY_KEYWORD | isExcitatory=EXCITATORY_KEYWORD;
+                        LEFT_ANGLE_MINUS CONTINUOUS_KEYWORD
+                        (LEFT_PAREN (parameter (COMMA parameter)*)? RIGHT_PAREN)?
+                        NEWLINE;
 
   /**
    * ASTOutputBlock Represents the output block of the model, i.e., declarations of output ports.
@@ -329,7 +327,7 @@ parser grammar PyNestMLParser;
    * @attribute isContinuous: true if and only if the model has a continuous-time output.
   **/
   outputBlock : OUTPUT_KEYWORD COLON
-                NEWLINE INDENT ((isSpike=SPIKE_KEYWORD (LEFT_PAREN (attribute=parameter (COMMA attribute=parameter)*)? RIGHT_PAREN)?) | isContinuous=CONTINUOUS_KEYWORD)
+                NEWLINE INDENT (isSpike=SPIKE_KEYWORD | isContinuous=CONTINUOUS_KEYWORD)
                 NEWLINE DEDENT;
 
   /**
@@ -348,6 +346,8 @@ parser grammar PyNestMLParser;
    * @attribute dataType: The corresponding data type.
   **/
   parameter : NAME dataType;
+
+  expressionOrParameter : parameter | expression;
 
   /**
    * ASTConstParameter represents a single parameter consisting of a name and a literal default value, e.g. ``foo=42``.
