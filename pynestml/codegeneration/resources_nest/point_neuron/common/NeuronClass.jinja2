@@ -1172,7 +1172,7 @@ void {{ neuronName }}::handle(nest::CurrentEvent& e)
 {%- endif %}
 
 // -------------------------------------------------------------------------
-//   Methods corresponding to event handlers
+//   Methods corresponding to spiking event handlers in the NESTML model
 // -------------------------------------------------------------------------
 
 {%- for blk in neuron.get_on_receive_blocks() %}

@@ -776,24 +776,32 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["uses_analytic_solver"] = neuron.get_name() in self.analytic_solver.keys() \
             and self.analytic_solver[neuron.get_name()] is not None
         namespace["analytic_state_variables_moved"] = {}
+
         if namespace["uses_analytic_solver"]:
             if "paired_synapses" in dir(neuron):
+
                 namespace["analytic_state_variables"] = []
                 for paired_synapse, paired_synapse_original_model in zip(neuron.paired_synapses, neuron.paired_synapse_original_models):
                     namespace["analytic_state_variables_moved"][paired_synapse_original_model.name] = []
+
+                for paired_synapse, paired_synapse_original_model in zip(neuron.paired_synapses, neuron.paired_synapse_original_models):
                     for sv in self.analytic_solver[neuron.get_name()]["state_variables"]:
                         moved = False
-                        for mv in neuron.recursive_vars_used:
+                        for mv in neuron.recursive_vars_used[paired_synapse_original_model.name]:
                             name_snip = mv + "__"
-                            print(name_snip)
 
-                            if name_snip == sv[:len(name_snip)]:
-                                # this variable was moved from synapse to neuron
-                                if not sv in namespace["analytic_state_variables_moved"][paired_synapse_original_model.name]:
-                                    namespace["analytic_state_variables_moved"][paired_synapse_original_model.name].append(sv)
+                            if len(sv.split("__for_")) > 1:
+                                synapse_name = sv.split("__for_")[1]
+
+                                if name_snip == sv[:len(name_snip)]:
+                                    # this variable was moved from synapse to neuron
                                     moved = True
-                        if not moved:
+                                    if not sv in namespace["analytic_state_variables_moved"][synapse_name]:
+                                        namespace["analytic_state_variables_moved"][synapse_name].append(sv)
+
+                        if not moved and not sv in namespace["analytic_state_variables"]:
                             namespace["analytic_state_variables"].append(sv)
+
                     namespace["variable_symbols"].update({sym: neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(
                         sym, SymbolKind.VARIABLE) for sym in namespace["analytic_state_variables_moved"][paired_synapse_original_model.name]})
             else:
@@ -857,7 +865,7 @@ class NESTCodeGenerator(CodeGenerator):
                     namespace["numeric_state_variables"][paired_synapse_original_model.name] = []
                     for sv in self.numeric_solver[neuron.get_name()]["state_variables"]:
                         moved = False
-                        for mv in neuron.recursive_vars_used:
+                        for mv in neuron.recursive_vars_used[paired_synapse_original_model.name]:
                             name_snip = mv + "__"
                             if name_snip == sv[:len(name_snip)]:
                                 # this variable was moved from synapse to neuron

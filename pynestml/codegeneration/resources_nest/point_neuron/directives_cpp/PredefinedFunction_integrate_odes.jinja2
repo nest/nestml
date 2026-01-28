@@ -7,11 +7,15 @@
 {%- if uses_analytic_solver %}
 {%-     set analytic_state_variables_ = analytic_state_variables.copy() %}
 
+// 1 analytic_state_variables{{ ", ".join(analytic_state_variables_) }}
+
 {%-     if paired_synapses is defined %}
 {%-         for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
 {%-             set tmp = analytic_state_variables_.extend(analytic_state_variables_moved[paired_synapse_original_model.name]) %}
 {%-         endfor %}
 {%-     endif %}
+
+// 2 analytic_state_variables{{ ", ".join(analytic_state_variables_) }}
 
 {%-     if ast.get_args() | length > 0 %}
 {%-         set analytic_state_variables_ = utils.filter_variables_list(analytic_state_variables_, ast.get_args()) %}

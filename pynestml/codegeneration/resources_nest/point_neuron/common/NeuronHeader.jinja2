@@ -179,22 +179,23 @@ extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% e
 
 
 {%- if paired_synapses is defined %}
-{%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
 
 /**
- * entry in the spiking history
+ * Entry in the spiking history, storing the time of the last (postsynaptic) spike and the state of the variables transferred from synapse models to neuron model at that time.
 **/
 class histentry__{{ neuronName }}
 {
 public:
   histentry__{{ neuronName }}( double t
       , size_t access_counter
+
+{%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
 {%-         for var in purely_numeric_state_variables_moved[paired_synapse_original_model.name]|sort %}
-      , double {{ var }}
+      , double {{ var }} //numeric for {{ paired_synapse_original_model.name}}
 {%-         endfor %}
 
 {%-         for var in analytic_state_variables_moved[paired_synapse_original_model.name]|sort %}
-      , double {{ var }}
+      , double {{ var }} // analyticfor {{ paired_synapse_original_model.name}}
 {%-         endfor %}
 
 {%-         if state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
@@ -202,9 +203,11 @@ public:
       , double {{ state_var }}
 {%-             endfor %}
 {%-         endif %}
+{%-     endfor %}
   )
   : t_( t )
   , access_counter_( access_counter )
+{%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
 {%-         for var in (purely_numeric_state_variables_moved[paired_synapse_original_model.name] + analytic_state_variables_moved[paired_synapse_original_model.name]) | sort %}
   , {{ var }}_( {{ var }} )
 {%-         endfor %}
@@ -214,6 +217,7 @@ public:
   , {{ state_var }}_( {{ state_var }} )
 {%-             endfor %}
 {%-         endif %}
+{%-     endfor %}
   {
   }
 
@@ -221,6 +225,7 @@ public:
   size_t access_counter_; //!< access counter to enable removal of the entry, once all neurons read it
 
 
+{%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
 {%-         for var in (purely_numeric_state_variables_moved[paired_synapse_original_model.name] + analytic_state_variables_moved[paired_synapse_original_model.name]) | sort %}
   double {{ var }}_;
 
@@ -244,11 +249,14 @@ public:
   double {{ state_var }}_;
 {%-             endfor %}
 {%-         endif %}
+{%-     endfor %}
 };
+
+{%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
 {%-         if state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
 
 /**
- * History entry for continuous variable buffering. Note that continuous-variable history entries are on a per-synapse-type basis.
+ * Entry in the spiking history for continuous variable buffering. Note that continuous-variable history entries are on a per-synapse-type basis.
 **/
 class continuous_variable_histentry_{{ neuronName }}__for_{{ paired_synapse_original_model.name }}
 {
