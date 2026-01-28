@@ -254,14 +254,6 @@ Note that the receptor ports for continuous input ports are numbered starting fr
 Generating code
 ---------------
 
-Output event attributes
-~~~~~~~~~~~~~~~~~~~~~~~
-
-In neuron models, no spike event attributes are supported.
-
-In synapse models, precisely two spike event attributes are supported: a synaptic weight (as a real number) and a synaptic (dendritic) delay (in milliseconds).
-
-
 Generating code for plastic synapses
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
