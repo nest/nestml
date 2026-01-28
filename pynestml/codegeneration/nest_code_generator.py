@@ -25,7 +25,6 @@ import datetime
 import re
 
 import odetoolbox
-from nestmlmodule import neuron
 import pynestml
 
 from pynestml.cocos.co_co_nest_synapse_delay_not_assigned_to import CoCoNESTSynapseDelayNotAssignedTo
