@@ -30,7 +30,7 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
     import matplotlib
-    matplotlib.use('Agg')
+    matplotlib.use("Agg")
     import matplotlib.ticker
     import matplotlib.pyplot as plt
     TEST_PLOTS = True

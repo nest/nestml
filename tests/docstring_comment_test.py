@@ -54,17 +54,17 @@ class TestDocstringComment:
         Logger.init_logger(LoggingLevel.ERROR)
 
     def test_docstring_success(self):
-        self.run_docstring_test('valid')
+        self.run_docstring_test("valid")
 
     @pytest.mark.xfail(strict=True)
     def test_docstring_failure(self):
-        self.run_docstring_test('invalid')
+        self.run_docstring_test("invalid")
 
     def run_docstring_test(self, case: str):
-        assert case in ['valid', 'invalid']
+        assert case in ["valid", "invalid"]
         input_file = FileStream(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), case)),
-                         'DocstringCommentTest.nestml'))
+                         "DocstringCommentTest.nestml"))
         lexer = PyNestMLLexer(input_file)
         lexer._errHandler = BailErrorStrategy()
         lexer._errHandler.reset(lexer)

@@ -20,7 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-expression : left=expression (plusOp='+'  | minusOp='-') right=expression
+expression : left=expression (plusOp="+"  | minusOp="-") right=expression
 """
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages

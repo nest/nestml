@@ -20,7 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 __all__ = [
-    'illegal_variable_name_transformer',
-    'synapse_post_neuron_transformer',
-    'transformer'
+    "illegal_variable_name_transformer",
+    "synapse_post_neuron_transformer",
+    "transformer"
 ]

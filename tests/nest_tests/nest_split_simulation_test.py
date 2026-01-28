@@ -67,14 +67,14 @@ class NestSplitSimulationTest(unittest.TestCase):
         nest.SetKernelStatus({"resolution": .1})
         neuron = nest.Create(neuron_model_name)
 
-        spikegenerator = nest.Create('spike_generator',
-                                     params={'spike_times': spike_times, 'spike_weights': spike_weights})
+        spikegenerator = nest.Create("spike_generator",
+                                     params={"spike_times": spike_times, "spike_weights": spike_weights})
 
         nest.Connect(spikegenerator, neuron)
 
-        multimeter = nest.Create('multimeter')
+        multimeter = nest.Create("multimeter")
 
-        multimeter.set({"record_from": ['V_m']})
+        multimeter.set({"record_from": ["V_m"]})
 
         nest.Connect(multimeter, neuron)
 
@@ -85,13 +85,13 @@ class NestSplitSimulationTest(unittest.TestCase):
             nest.Simulate(T_sim)
 
         ts = multimeter.get("events")["times"]
-        Vms = multimeter.get("events")['V_m']
+        Vms = multimeter.get("events")["V_m"]
 
         if TEST_PLOTS:
             fig, ax = plt.subplots(2, 1)
-            ax[0].plot(ts, Vms, label='V_m')
+            ax[0].plot(ts, Vms, label="V_m")
             for _ax in ax:
-                _ax.legend(loc='upper right')
+                _ax.legend(loc="upper right")
                 _ax.grid()
             plt.savefig("/tmp/nestml_nest_split_simulation_test_[T_sim=" + str(T_sim) + "]_[split=" + str(split) + "].png")
 
