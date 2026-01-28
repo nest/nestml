@@ -25,6 +25,7 @@ import datetime
 import re
 
 import odetoolbox
+from nestmlmodule import neuron
 import pynestml
 
 from pynestml.cocos.co_co_nest_synapse_delay_not_assigned_to import CoCoNESTSynapseDelayNotAssignedTo
@@ -890,7 +891,7 @@ class NESTCodeGenerator(CodeGenerator):
             for sym, expr in self.numeric_solver[neuron.get_name()]["initial_values"].items():
                 namespace["initial_values"][sym] = expr
 
-            if namespace["uses_numeric_solver"]:
+            if "paired_synapses" in dir(neuron):
                 if "analytic_state_variables_moved" in namespace.keys():
                     for paired_synapse in neuron.paired_synapses:
                         namespace["purely_numeric_state_variables_moved"][paired_synapse.name] = list(
@@ -900,7 +901,11 @@ class NESTCodeGenerator(CodeGenerator):
                     namespace["purely_numeric_state_variables_moved"][paired_synapse.name] = namespace["numeric_state_variables_moved"][paired_synapse.name]
 
             namespace["numeric_update_expressions"] = {}
-            for sym in namespace["numeric_state_variables"] + [var for sublist in namespace["numeric_state_variables_moved"].values() for var in sublist]:
+            sym_list = namespace["numeric_state_variables"]
+            if "paired_synapses" in dir(neuron):
+                sym_list.extend([var for sublist in namespace["numeric_state_variables_moved"].values() for var in sublist])
+
+            for sym in sym_list:
                 expr_str = self.numeric_solver[neuron.get_name()]["update_expressions"][sym]
                 expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr_str)
                 expr_ast = ModelParser.parse_expression(expr_str)
@@ -915,10 +920,12 @@ class NESTCodeGenerator(CodeGenerator):
                     expr_ast.accept(marks_delay_vars_visitor)
 
             # for each ASTVariable: set its origin (if numeric in ode_state[], otherwise in S_)
-            numeric_state_variable_names = namespace["numeric_state_variables"] + [var for sublist in namespace["purely_numeric_state_variables_moved"].values() for var in sublist]
-            if "analytic_state_variables_moved" in namespace.keys():
-                for paired_synapse in neuron.paired_synapses:
-                    numeric_state_variable_names.extend(namespace["analytic_state_variables_moved"][paired_synapse.name])
+            numeric_state_variable_names = namespace["numeric_state_variables"]
+            if "paired_synapses" in dir(neuron):
+                numeric_state_variable_names.extend([var for sublist in namespace["purely_numeric_state_variables_moved"].values() for var in sublist])
+                if "analytic_state_variables_moved" in namespace.keys():
+                    for paired_synapse in neuron.paired_synapses:
+                        numeric_state_variable_names.extend(namespace["analytic_state_variables_moved"][paired_synapse.name])
             namespace["numerical_state_symbols"] = numeric_state_variable_names
             ASTUtils.assign_numeric_non_numeric_state_variables(neuron, numeric_state_variable_names, namespace["numeric_update_expressions"] if "numeric_update_expressions" in namespace.keys() else None, namespace["update_expressions"] if "update_expressions" in namespace.keys() else None)
         namespace["spike_updates"] = neuron.spike_updates
