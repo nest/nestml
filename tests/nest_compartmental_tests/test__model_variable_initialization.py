@@ -59,7 +59,7 @@ class TestInitialization():
             os.makedirs(target_path)
 
         print(
-            f"Compiled nestml model "cm_main_cm_default_nestml" not found, installing in:"
+            f"Compiled nestml model \"cm_main_cm_default_nestml\" not found, installing in:"
             f"    {target_path}"
         )
 
