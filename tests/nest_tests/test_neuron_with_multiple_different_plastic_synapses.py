@@ -194,8 +194,8 @@ class TestNeuronWithMultipleDifferentSynapses:
 
         # Plot spikes
         ax.scatter(data_p1['times'], np.ones(len(data_p1['times'])), c='blue', label='p1', s=20)
-        ax.scatter(data_p2['times'], 2*np.ones(len(data_p2['times'])), c='green', label='p2', s=20)
-        ax.scatter(data_post['times'], 3*np.ones(len(data_post['times'])), c='red', label='post', s=20)
+        ax.scatter(data_p2['times'], 2 * np.ones(len(data_p2['times'])), c='green', label='p2', s=20)
+        ax.scatter(data_post['times'], 3 * np.ones(len(data_post['times'])), c='red', label='post', s=20)
 
         ax.set_yticks([1, 2, 3])
         ax.set_yticklabels(['p1', 'p2', 'post'])
