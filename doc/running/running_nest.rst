@@ -269,14 +269,14 @@ Synaptic and neuronal models should ideally be formulated independently of each 
 
 To prevent this redundancy, these values should only be stored and computed once; ideally in the instances of the neuron models, where the spike timings are readily available. To achieve this, NESTML has the capability to process a synapse model as a pair together with the (postsynaptic) neuron model that it will connect to when the network is instantiated in the simulation. A list of these (neuron, synapse) pairs can be provided as code generator options when invoking the NESTML toolchain to generate code. During code generation, state variables that depend only on postsynaptic spike timing are then automatically identified and moved from the NESTML synapse model into the neuron model by the toolchain. In the generated code, at the points where the respective variables are used by the synapse (for instance, where they are used in calculating the change in synaptic strength), the variable references are replaced by function calls into the postsynaptic neuron instance. All parameters that are only used by these postsynaptic dynamics (for instance, time constants) are also moved to reduce the memory requirements for the synapse. Detecting and moving the state, parameters, and dynamics (ODEs) from synapse to neuron is carried out fully autonomously. We refer to this feature as the "co-generation" of neuron and synapse. It enables flexibility and separation of concerns in the model formalisations without compromising on performance.
 
-When NESTML is invoked to generate code for plastic synapses, the (neuron, synapse) pairs can be specified as a list of two-element dictionaries of the form :code:`{"neuron": "neuron_model_name", "synapse": "synapse_model_name"}`, for example:
+When NESTML is invoked to generate code for plastic synapses, the synapses that will be co-generated with the postsynaptic neuron can be specified as a list of dictionaries of the form :code:`{"neuron": "neuron_model_name", "synapses": {"synapse_model_name": ...}}`, for example:
 
 .. code-block:: python
 
    generate_target(...,
                    codegen_opts={...,
                                  "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                           "synapse": "third_factor_stdp"}]})
+                                                           "synapses": {"third_factor_stdp": {}}}]})
 
 Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to connect the input port on the synapse with the right variable of the postsynaptic neuron:
 
@@ -285,11 +285,10 @@ Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to 
    generate_target(...,
                    codegen_opts={...,
                                  "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                           "synapse": "third_factor_stdp",
-                                                           "post_ports": ["post_spikes",
-                                                                          ["I_post_dend", "I_dend"]]}]})
+                                                           "synapses": {"third_factor_stdp": {"post_ports": ["post_spikes",
+                                                                                                             ["I_post_dend", "I_dend"]]}}}]})
 
-This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``. Note that inline expressions can also be used; in this example in case ``I_dend`` had been an inline expression in the postsynaptic neuron.
+This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated in tandem with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``. Note that inline expressions can also be used; in this example in case ``I_dend`` had been an inline expression in the postsynaptic neuron.
 
 To prevent the NESTML code generator from moving specific variables from synapse into postsynaptic neuron, the code generation option ``strictly_synaptic_vars`` may be used (see https://nestml.readthedocs.io/en/latest/pynestml.transformers.html#pynestml.transformers.synapse_post_neuron_transformer.SynapsePostNeuronTransformer).
 
@@ -300,8 +299,7 @@ Simulation of volume-transmitted neuromodulation in NEST can be done using "volu
    generate_target(...,
                    codegen_opts={...,
                                  "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                           "synapse": "third_factor_stdp",
-                                                            "vt_ports": ["dopa_spikes"]}]})
+                                                           "synapses": {"third_factor_stdp": {"vt_ports": ["dopa_spikes"]}}}]})
 
 
 Third-factor plasticity
