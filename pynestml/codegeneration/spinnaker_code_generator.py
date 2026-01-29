@@ -133,7 +133,7 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
 class CustomPythonStandaloneCodeGenerator(PythonStandaloneCodeGenerator):
     def _get_model_namespace(self, astnode: ASTModel) -> Dict:
         namespace = super()._get_model_namespace(astnode)
-        namespace["numeric_parameter_values"], namespace["numeric_initial_state_values"] = PythonStandaloneTargetTools.get_neuron_numerical_initial_values(astnode.file_path)
+        namespace["numeric_parameter_values"], namespace["numeric_internal_values"], namespace["numeric_initial_state_values"] = PythonStandaloneTargetTools.get_neuron_numerical_initial_values(astnode.file_path)
 
         return namespace
 

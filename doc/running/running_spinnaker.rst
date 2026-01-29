@@ -46,6 +46,13 @@ Generating code
       PYTHONPATH=$HOME/nestml/spinnaker-install python3 -m pytest -s --pdb ./tests/spinnaker_tests/test_spinnaker_iaf_psc_exp.py
 
 
+Data types
+^^^^^^^^^^
+
+- The NESTML data type ``real`` will be rendered as a 32-bit fixpoint number, which consists of a 16-bit integer part and a 15-bit fractional part. Additionally, one bit is used for the sign of the number, where negative numbers are stored with two's complement notation.
+- The NESTML data type ``integer`` will be rendered as ``int32_t``.
+
+
 Further reading
 ~~~~~~~~~~~~~~~
 

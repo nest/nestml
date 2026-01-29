@@ -1,17 +1,27 @@
 # stdsp_synapse - Synapse model for spike-timing dependent plasticity with postsynaptic third-factor modulation
 # #############################################################################################################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
+# Note that in this particular STDP synapse model, the weight is not allowed to be negative. In case an inhibitory STDP synapse needs to be modeled, this model (with weight >= 0 at all times) can be connected to a postsynaptic neuron at its appropriate (inhibitory) input port. The sign of the postsynaptic response is thus handled in the postsynaptic neuron.
+#
+#
 # References
 # ++++++++++
-# 
+#
+# .. [1] NESTML "sequence learning" tutorial https://nestml.readthedocs.io/en/latest/tutorials/sequence_learning/sequence_learning.html
+#
+# .. [2] Younes Bouhadjar. A brain inspired sequence learning algorithm and foundations of a memristive hardware implementation Younes Bouhadjar (PhD thesis, RWTH Aachen). https://doi.org/10.18154/RWTH-2023-03627
+#
+# .. [3] Bouhadjar Y, Wouters DJ, Diesmann M, Tetzlaff T (2022) Sequence learning, prediction, and replay in networks of spiking neurons. PLoS Comput Biol 18(6): e1010233. https://doi.org/10.1371/journal.pcbi.1010233
+#
+#
 # Copyright statement
 # +++++++++++++++++++
 #
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
 #
 # NEST is free software: you can redistribute it and/or modify
@@ -27,13 +37,12 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
-#
 model stdsp_synapse:
     state:
         permanence real = 1.
         t_last_pre_spike ms = 0 ms
         pre_trace real = 0.
-        w real = 100.    # dummy synaptic weight
+        w real = 100. [[w >= 0]]    # dummy synaptic weight -- just so weight can be recorded. Actual weight is only ever 0 or Wmax
 
     parameters:
         d ms = 1 ms    # Synaptic transmission delay
@@ -43,7 +52,6 @@ model stdsp_synapse:
         zt pA = 1 pA
         lambda_plus real = .01
         lambda_minus real = 1.
-        Wmax real = 100.
         permanence_max real = 100.
         permanence_min real = 0.
         dt_min ms = 4 ms
@@ -51,7 +59,8 @@ model stdsp_synapse:
 
         permanence_threshold real = 10.
 
-        Wmin real = 0.
+        Wmin real = 0. [[Wmin >= 0]]
+        Wmax real = 100. [[Wmax >= 0]]
 
     equations:
         pre_trace' = -pre_trace / tau_pre_trace

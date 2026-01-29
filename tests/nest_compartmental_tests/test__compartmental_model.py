@@ -105,7 +105,7 @@ class TestCM():
             target_path=target_path,
             module_name="cm_defaultmodule",
             suffix="_nestml",
-            logging_level="ERROR"
+            logging_level="DEBUG"
         )
 
     def get_model(self, reinstall_flag=True):
