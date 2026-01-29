@@ -40,7 +40,7 @@ class PythonStandaloneTargetTools:
     """
     @classmethod
     def _get_model_parameters_and_state(cls, nestml_file_name: str):
-        suffix = ""
+        suffix = "_nestml"
         module_name = FrontendConfiguration.get_module_name()
         target_path = tempfile.mkdtemp(prefix="nestml_python_target_", suffix="", dir=".")    # dir = "." is necessary for Python import
         # this has to run in a different process, because otherwise the frontend configuration gets overwritten
@@ -74,6 +74,7 @@ class PythonStandaloneTargetTools:
             state_list = neuron.State_.ode_state_variable_name_to_index.keys()
         else:
             state_list = [p for p in dir(neuron.State_) if not "__" in p]
+
         state_vars = {p: getattr(neuron, "get_" + p)() for p in state_list}
 
         return parameters, internals, state_vars
@@ -99,4 +100,4 @@ class PythonStandaloneTargetTools:
             Logger.log_message(None, -1, "The model parameters were successfully queried from Python standalone target.",
                                None, LoggingLevel.INFO)
 
-        return parameters, state
+        return parameters, internals, state
