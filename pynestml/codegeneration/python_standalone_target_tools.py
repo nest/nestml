@@ -100,4 +100,4 @@ class PythonStandaloneTargetTools:
             Logger.log_message(None, -1, "The model parameters were successfully queried from Python standalone target.",
                                None, LoggingLevel.INFO)
 
-        return parameters, state
+        return parameters, internals, state

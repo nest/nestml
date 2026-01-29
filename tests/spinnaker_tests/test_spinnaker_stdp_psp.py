@@ -49,13 +49,11 @@ class TestSpiNNakerSTDPPSP:
         target_path = "spinnaker-target"
         install_path = "spinnaker-install"
         logging_level = "DEBUG"
-        module_name = "nestmlmodule"
         suffix = "_nestml"
         generate_spinnaker_target(input_path,
                                   target_path=target_path,
                                   install_path=install_path,
                                   logging_level=logging_level,
-                                  module_name=module_name,
                                   suffix=suffix,
                                   codegen_opts=codegen_opts)
 
