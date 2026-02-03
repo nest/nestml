@@ -144,6 +144,9 @@ nest::Compartment{{cm_unique_suffix}}::construct_matrix_coupling_elements()
 nest::CompTree{{cm_unique_suffix}}::CompTree{{cm_unique_suffix}}()
   : root_( -1, -1 )
   , size_( 0 )
+  , g_vals(new std::vector< double >)
+  , i_vals(new std::vector< double >)
+  , neuron_currents(g_vals, i_vals)
 {
   compartments_.resize( 0 );
   leafs_.resize( 0 );
@@ -541,7 +544,7 @@ void
 nest::CompTree{{cm_unique_suffix}}::construct_matrix( const long lag )
 {
   // compute all channel currents, receptor currents, and input currents
-  std::vector< std::pair< double, double > > comps_gi = neuron_currents.f_numstep( v_comp_vec, lag );
+  neuron_currents.f_numstep( v_comp_vec, lag );
 
   #pragma omp simd
   for( size_t i = 0; i < v_comp_vec.size(); i++ ){
@@ -551,8 +554,8 @@ nest::CompTree{{cm_unique_suffix}}::construct_matrix( const long lag )
     ff_vec[i] = ca__div__dt_vec[i] * v_comp_vec[i] + gl__times__el_vec[i];
 
     // add all currents to compartment
-    gg_vec[i] += comps_gi[i].first;
-    ff_vec[i] += comps_gi[i].second;
+    gg_vec[i] += (*g_vals)[i];
+    ff_vec[i] += (*i_vals)[i];
   }
   for ( auto compartment_it = compartments_.begin(); compartment_it != compartments_.end(); ++compartment_it )
   {

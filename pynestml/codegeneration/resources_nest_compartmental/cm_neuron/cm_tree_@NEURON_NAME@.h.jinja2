@@ -209,6 +209,9 @@ public:
   CompTree{{cm_unique_suffix}}();
   ~CompTree{{cm_unique_suffix}}(){};
 
+  std::vector< double >* g_vals;
+  std::vector< double >* i_vals;
+
   NeuronCurrents{{cm_unique_suffix}} neuron_currents;
 
   // initialization functions for tree structure

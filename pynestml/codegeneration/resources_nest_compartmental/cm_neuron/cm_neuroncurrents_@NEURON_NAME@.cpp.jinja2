@@ -379,14 +379,12 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::pre_run_hook() {
     }
 }
 
-std::pair< std::vector< double >, std::vector< double > > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(std::vector< double > v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if channel_info["Dependencies"]["receptors"]|length %}
-                        {% endif %}{% for inline in channel_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if channel_info["Dependencies"]["channels"]|length %}
-                        {% endif %}{% for inline in channel_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if channel_info["Dependencies"]["continuous"]|length %}
-                        {% endif %}{% for inline in channel_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %})
+void nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(const std::vector< double >& v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, const std::vector< double >& {{ode.lhs.name}}{% endfor %}{% if channel_info["Dependencies"]["receptors"]|length %}
+                        {% endif %}{% for inline in channel_info["Dependencies"]["receptors"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}{% if channel_info["Dependencies"]["channels"]|length %}
+                        {% endif %}{% for inline in channel_info["Dependencies"]["channels"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}{% if channel_info["Dependencies"]["continuous"]|length %}
+                        {% endif %}{% for inline in channel_info["Dependencies"]["continuous"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}
+                        , std::vector< double >& i_val, std::vector< double >& g_val)
 {
-    std::vector< double > g_val(neuron_{{ ion_channel_name }}_channel_count, 0.);
-    std::vector< double > i_val(neuron_{{ ion_channel_name }}_channel_count, 0.);
-
         std::vector< double > d_i_tot_dv(neuron_{{ ion_channel_name }}_channel_count, 0.);
 
         {% if "time_resolution_var" in channel_info %}
@@ -439,9 +437,6 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{ion_channel_na
         {%- endif %}
     {%- endfor %}
     }
-
-    return std::make_pair(g_val, i_val);
-
 }
 
 void nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_update()
@@ -771,10 +766,10 @@ void nest::{{ concentration_name }}{{cm_unique_suffix}}::pre_run_hook() {
     }
 }
 
-void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(std::vector< double > v_comp{% for ode in concentration_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if concentration_info["Dependencies"]["receptors"]|length %}
-                        {% endif %}{% for inline in concentration_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["channels"]|length %}
-                        {% endif %}{% for inline in concentration_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["continuous"]|length %}
-                        {% endif %}{% for inline in concentration_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %})
+void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(const std::vector< double >& v_comp{% for ode in concentration_info["Dependencies"]["concentrations"] %}, const std::vector< double >& {{ode.lhs.name}}{% endfor %}{% if concentration_info["Dependencies"]["receptors"]|length %}
+                        {% endif %}{% for inline in concentration_info["Dependencies"]["receptors"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["channels"]|length %}
+                        {% endif %}{% for inline in concentration_info["Dependencies"]["channels"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["continuous"]|length %}
+                        {% endif %}{% for inline in concentration_info["Dependencies"]["continuous"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %})
 {
     {% if "time_resolution_var" in concentration_info %}
         std::vector< double > {{ printer_no_origin.print(concentration_info["time_resolution_var"]) }}(neuron_{{ concentration_name }}_concentration_count, Time::get_resolution().get_ms());
@@ -1080,13 +1075,12 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::pre_run_hook()
   }
 }
 
-std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}}{{cm_unique_suffix}}::f_numstep(std::vector< double > v_comp, const long lag {% for ode in receptor_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if receptor_info["Dependencies"]["receptors"]|length %}
-                        {% endif %}{% for inline in receptor_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if receptor_info["Dependencies"]["channels"]|length %}
-                        {% endif %}{% for inline in receptor_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if receptor_info["Dependencies"]["continuous"]|length %}
-                        {% endif %}{% for inline in receptor_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %})
+void nest::{{receptor_name}}{{cm_unique_suffix}}::f_numstep(const std::vector< double >& v_comp, const long& lag {% for ode in receptor_info["Dependencies"]["concentrations"] %}, const std::vector< double >& {{ode.lhs.name}}{% endfor %}{% if receptor_info["Dependencies"]["receptors"]|length %}
+                        {% endif %}{% for inline in receptor_info["Dependencies"]["receptors"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}{% if receptor_info["Dependencies"]["channels"]|length %}
+                        {% endif %}{% for inline in receptor_info["Dependencies"]["channels"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}{% if receptor_info["Dependencies"]["continuous"]|length %}
+                        {% endif %}{% for inline in receptor_info["Dependencies"]["continuous"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}
+                        , std::vector< double >& i_val, std::vector< double >& g_val)
 {
-    std::vector< double > g_val(neuron_{{ receptor_name }}_receptor_count, 0.);
-    std::vector< double > i_val(neuron_{{ receptor_name }}_receptor_count, 0.);
     std::vector< double > d_i_tot_dv(neuron_{{ receptor_name }}_receptor_count, 0.);
 
     {%- for ode_variable, ode_info in receptor_info["ODEs"].items() %}
@@ -1153,9 +1147,6 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}
         {%- endif %}
     {%- endfor %}
     }
-
-  return std::make_pair(g_val, i_val);
-
 }
 
 void nest::{{receptor_name}}{{cm_unique_suffix}}::f_update()
@@ -1565,10 +1556,11 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::postsynap
     {%- set rec_dep = set(receptor_info["Dependencies"]["receptors"]).union(synapse_info["Dependencies"]["receptors"])%}
     {%- set chan_dep = set(receptor_info["Dependencies"]["channels"]).union(synapse_info["Dependencies"]["channels"])%}
     {%- set con_in_dep = set(receptor_info["Dependencies"]["continuous"]).union(synapse_info["Dependencies"]["continuous"])%}
-std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep(std::vector< double > v_comp, const long lag {% for ode in conc_dep %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if rec_dep|length %}
-                        {% endif %}{% for inline in rec_dep %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if chan_dep|length %}
-                        {% endif %}{% for inline in chan_dep %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if con_in_dep|length %}
-                        {% endif %}{% for inline in con_in_dep %}, std::vector< double > {{inline.variable_name}}{% endfor %})
+void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep(const std::vector< double >& v_comp, const long& lag {% for ode in conc_dep %}, const std::vector< double >& {{ode.lhs.name}}{% endfor %}{% if rec_dep|length %}
+                        {% endif %}{% for inline in rec_dep %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}{% if chan_dep|length %}
+                        {% endif %}{% for inline in chan_dep %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}{% if con_in_dep|length %}
+                        {% endif %}{% for inline in con_in_dep %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}
+                        , std::vector< double >& i_val, std::vector< double >& g_val)
 {
     {%- endwith %}
 
@@ -1639,8 +1631,6 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}
         s_val[i] = delayed_spikes[i].tick();
     }
 
-    std::vector< double > g_val(neuron_{{ receptor_name }}_receptor_count, 0.);
-    std::vector< double > i_val(neuron_{{ receptor_name }}_receptor_count, 0.);
     std::vector< double > d_i_tot_dv(neuron_{{ receptor_name }}_receptor_count, 0.);
 
     {%- for ode_variable, ode_info in receptor_info["ODEs"].items() %}
@@ -1704,9 +1694,6 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}
         {%- endif %}
     {%- endfor %}
     }
-
-  return std::make_pair(g_val, i_val);
-
 }
 
 void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_update()
@@ -1965,13 +1952,12 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::pre_run_hook()
   }
 }
 
-std::pair< std::vector< double >, std::vector< double > > nest::{{continuous_name}}{{cm_unique_suffix}}::f_numstep(std::vector< double > v_comp, const long lag {% for ode in continuous_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if continuous_info["Dependencies"]["receptors"]|length %}
-                        {% endif %}{% for inline in continuous_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if continuous_info["Dependencies"]["channels"]|length %}
-                        {% endif %}{% for inline in continuous_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if continuous_info["Dependencies"]["continuous"]|length %}
-                        {% endif %}{% for inline in continuous_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %})
+void nest::{{continuous_name}}{{cm_unique_suffix}}::f_numstep(const std::vector< double >& v_comp, const long& lag {% for ode in continuous_info["Dependencies"]["concentrations"] %}, const std::vector< double >& {{ode.lhs.name}}{% endfor %}{% if continuous_info["Dependencies"]["receptors"]|length %}
+                        {% endif %}{% for inline in continuous_info["Dependencies"]["receptors"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}{% if continuous_info["Dependencies"]["channels"]|length %}
+                        {% endif %}{% for inline in continuous_info["Dependencies"]["channels"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}{% if continuous_info["Dependencies"]["continuous"]|length %}
+                        {% endif %}{% for inline in continuous_info["Dependencies"]["continuous"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}
+                        , std::vector< double >& i_val, std::vector< double >& g_val)
 {
-    std::vector< double > g_val(neuron_{{ continuous_name }}_continuous_input_count, 0.);
-    std::vector< double > i_val(neuron_{{ continuous_name }}_continuous_input_count, 0.);
     std::vector< double > d_i_tot_dv(neuron_{{ continuous_name }}_continuous_input_count, 0.);
 
     {% if "time_resolution_var" in continuous_info %}
@@ -2039,9 +2025,6 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{continuous_nam
         {%- endif %}
     {%- endfor %}
     }
-
-  return std::make_pair(g_val, i_val);
-
 }
 
 void nest::{{continuous_name}}{{cm_unique_suffix}}::f_update()

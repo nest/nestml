@@ -340,7 +340,7 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::update( Time const& origin, con
           SpikeEvent se;
           kernel().event_delivery_manager.send( *this, se, lag );
 
-          c_tree_.neuron_currents.postsynaptic_synaptic_processing();
+          c_tree_.neuron_currents.f_self_spike();
         }
     }else
     {

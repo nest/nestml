@@ -199,7 +199,7 @@ class ASTMechanismInformationCollector(object):
                             search_functions = cls.extend_function_call_list_name_based_restricted(search_functions,
                                                                                                    local_function_call_collector.all_function_calls,
                                                                                                    search_functions + found_functions)
-                            # IMPLEMENT CATCH NONDEFINED!!!
+
                     search_functions.remove(function_call)
 
                 elif len(search_variables) > 0:
@@ -386,7 +386,6 @@ class ASTMechanismInformationCollector(object):
             owned = list()
             updated_owned = mechanism_info["States"] + mechanism_info["Parameters"] + mechanism_info["Internals"]
 
-            loop_counter = 0
             while set([v.get_name() for v in owned]) != set([v.get_name() for v in updated_owned]) or set(
                     [v.get_name() for v in dependencies]) != set([v.get_name() for v in updated_dependencies]):
                 owned = updated_owned
@@ -395,7 +394,6 @@ class ASTMechanismInformationCollector(object):
                 block.accept(collector)
                 updated_owned = collector.owned
                 updated_dependencies = collector.dependencies
-                loop_counter += 1
 
             mechanism_info["Blocks"] = dict()
             mechanism_info["Blocks"]["dependencies"] = dependencies
