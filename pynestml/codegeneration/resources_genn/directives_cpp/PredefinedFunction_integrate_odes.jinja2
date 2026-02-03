@@ -25,7 +25,7 @@
 {%- endif %}
 
 {%- if uses_numeric_solver %}
-{%-     set numeric_state_variables_to_be_integrated = numeric_state_variables %}
+{%-     set numeric_state_variables_to_be_integrated = numeric_state_variables.copy() %}
 
 {%-     if paired_synapses is defined %}
 {%-         for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
@@ -60,7 +60,7 @@ double {{ printer.print(utils.get_state_variable_by_name(astnode, inline_expr)) 
 {%-     endfor %}
 {%- endfor %}
 
-{%-     set numeric_state_variables_to_be_integrated_unfiltered = numeric_state_variables %}
+{%-     set numeric_state_variables_to_be_integrated_unfiltered = numeric_state_variables.copy() %}
 
 {%-     if paired_synapses is defined %}
 {%-         for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}

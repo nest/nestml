@@ -261,7 +261,7 @@ class Synapse_{{ astnode.name }}(Synapse):
     """
 {%- filter indent(4) %}
 
-{%-     set analytic_state_variables_ = analytic_state_variables %}
+{%-     set analytic_state_variables_ = analytic_state_variables.copy() %}
 {%-     if ast.get_args() | length > 0 %}
 {%-         set analytic_state_variables_ = utils.filter_variables_list(analytic_state_variables_, ast.get_args()) %}
 {%-     endif %}
