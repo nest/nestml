@@ -232,56 +232,56 @@ class Synapse_{{ astnode.name }}(Synapse):
   # -------------------------------------------------------------------------
   #   Getters/setters for parameters block
   # -------------------------------------------------------------------------
-{% filter indent(2, True) -%}
-{%- for variable_symbol in astnode.get_parameter_symbols() %}
-{%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-   include "directives_py/MemberVariableGetterSetter.jinja2" %}
-{%- endfor %}
+{%  filter indent(2, True) -%}
+{%-     for variable_symbol in astnode.get_parameter_symbols() %}
+{%-         set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-         include "directives_py/MemberVariableGetterSetter.jinja2" %}
+{%-     endfor %}
 {%- endfilter %}
 
-{% if astnode.get_equations_blocks()|length > 0 %}
+{%  if astnode.get_equations_blocks() | length > 0 %}
   # -------------------------------------------------------------------------
   #   Numeric + analytic solver stepping function
   # -------------------------------------------------------------------------
 
-{%- for ast in utils.get_all_integrate_odes_calls_unique(astnode) %}
+{%-     for ast in utils.get_all_integrate_odes_calls_unique(astnode) %}
 
-{%- if uses_numeric_solver %}
-{%  filter indent(2) %}
-{%-     include "directives_py/GSLDifferentiationFunction.jinja2" %}
-{%- endfilter %}
-{%- endif %}
+{%-         if uses_numeric_solver %}
+{%              filter indent(2) %}
+{%-                 include "directives_py/GSLDifferentiationFunction.jinja2" %}
+{%-             endfilter %}
+{%-         endif %}
 
   def _integrate_odes{% if ast.get_args() | length > 0 %}_{{ utils.integrate_odes_args_str_from_function_call(ast) }}{% endif %}(self, origin: float, timestep: float):
     r"""Integrate {% if ast.get_args() | length > 0 %}a subset of {% endif %}ODE(s) defined in the model equation block by one timestep.
-{%- if ast.get_args() | length > 0 %}
-
-    The variables that will be integrated are: {{ ", ".join(utils.integrate_odes_args_strs_from_function_call(ast)) }}
-{%- endif %}
     """
-{%- filter indent(4) %}
 
-{%-     set analytic_state_variables_ = analytic_state_variables.copy() %}
-{%-     if ast.get_args() | length > 0 %}
-{%-         set analytic_state_variables_ = utils.filter_variables_list(analytic_state_variables_, ast.get_args()) %}
-{%-     endif %}
+{%-         if uses_analytic_solver %}
+{%-             set analytic_state_variables_ = analytic_state_variables.copy() %}
+{%-             if ast.get_args() | length > 0 %}
+{%-                 set analytic_state_variables_ = utils.filter_variables_list(analytic_state_variables_, ast.get_args()) %}
+{%-             endif %}
 
-{#-      always integrate convolutions in time #}
-{%-      for var in analytic_state_variables %}
-{%-          if "__X__" in var %}
-{%-              set tmp = analytic_state_variables_.append(var) %}
-{%-          endif %}
-{%-      endfor %}
+{#-              always integrate convolutions in time #}
+{%-              for var in analytic_state_variables %}
+{%-                  if "__X__" in var %}
+{%-                      set tmp = analytic_state_variables_.append(var) %}
+{%-                  endif %}
+{%-              endfor %}
+    # analytic solver: integrating variables {{ ", ".join(analytic_state_variables_) }}
+{%-             filter indent(4) %}
+{%-                 include "directives_py/AnalyticIntegrationStep_begin.jinja2" %}
+{%-             endfilter %}
+{%-         endif %}
 
-{%-     include "directives_py/AnalyticIntegrationStep_begin.jinja2" %}
+{%-         if uses_numeric_solver %}
+{%-             include "directives_py/GSLIntegrationStep.jinja2" %}
+{%-         endif %}
 
-{%-     if uses_numeric_solver %}
-{%-        include "directives_py/GSLIntegrationStep.jinja2" %}
-{%-     endif %}
-
-{%-     include "directives_py/AnalyticIntegrationStep_end.jinja2" %}
-{%- endfilter %}
-{%- endfor %}
+{%-         filter indent(4) %}
+{%-             include "directives_py/AnalyticIntegrationStep_end.jinja2" %}
+{%-         endfilter %}
+{%-     endfor %}
 {%- endif %}
 
   def step(self, origin: float, timestep: float) -> None:
@@ -293,7 +293,7 @@ class Synapse_{{ astnode.name }}(Synapse):
     #     integrate variables related to convolutions
     # -------------------------------------------------------------------------
 
-{%- with analytic_state_variables_ = analytic_state_variables_from_convolutions %}
+{%- with analytic_state_variables_ = analytic_state_variables_from_convolutions.copy() %}
 {%-     include "directives_py/AnalyticIntegrationStep_begin.jinja2" %}
 {%- endwith %}
 
