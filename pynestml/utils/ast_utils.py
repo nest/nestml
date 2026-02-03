@@ -2588,8 +2588,9 @@ class ASTUtils:
         model.accept(visitor)
 
         if "extra_on_emit_spike_stmts_from_synapse" in dir(model):
-            for expr in model.extra_on_emit_spike_stmts_from_synapse:
-                expr.accept(visitor)
+            for synapse_name, exprs in model.extra_on_emit_spike_stmts_from_synapse.items():
+                for expr in exprs:
+                    expr.accept(visitor)
 
         if update_expressions:
             for expr in update_expressions.values():
