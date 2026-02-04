@@ -732,11 +732,11 @@ class NESTCodeGenerator(CodeGenerator):
                         if neuron.get_initial_value(var_name_transformed) is None:
                             if var_name_transformed in [sym.name for sym in neuron.get_inline_expression_symbols()]:
                                 # the postsynaptic variable is actually an inline expression: initial value is 0
-                                namespace["state_vars_that_need_continuous_buffering_transformed_iv"][original_synapse.name][var_name] = "0"
+                                namespace["state_vars_that_need_continuous_buffering_transformed_iv"][var_name] = "0"
                             else:
                                 raise Exception("State variable \"" + str(var_name_transformed) + "\" was not found in the neuron model \"" + neuron.name + "\"")
                         else:
-                            namespace["state_vars_that_need_continuous_buffering_transformed_iv"][original_synapse.name][var_name] = self._nest_printer.print(neuron.get_initial_value(var_name_transformed))
+                            namespace["state_vars_that_need_continuous_buffering_transformed_iv"][var_name] = self._nest_printer.print(neuron.get_initial_value(var_name_transformed))
             else:
                 namespace["state_vars_that_need_continuous_buffering"] = []
             if "extra_on_emit_spike_stmts_from_synapse" in dir(neuron):

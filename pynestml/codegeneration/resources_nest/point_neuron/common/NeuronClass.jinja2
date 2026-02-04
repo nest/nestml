@@ -70,21 +70,21 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "{{ neuronName }}.h"
 
 
-{%- if paired_synapses is defined %}
+{%- if paired_synapses is defined
+     and any(state_vars_that_need_continuous_buffering.values())
+     and continuous_state_buffering_method == "continuous_time_buffer" %}
+continuous_variable_histentry_{{ neuronName }}::continuous_variable_histentry_{{ neuronName }}( double t,
 {%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
-{%-         if state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
-continuous_variable_histentry_{{ neuronName }}__for_{{ paired_synapse_original_model.name }}::continuous_variable_histentry_{{ neuronName }}__for_{{ paired_synapse_original_model.name }}( double t,
-{%-             for state_var in state_vars_that_need_continuous_buffering %}
+{%-             for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | sort %}
       double {{ state_var }}{% if not loop.last %}, {% endif %}
 {%-             endfor %} )
 : t_( t )
 , access_counter_ ( 0 )
-{%-             for state_var in state_vars_that_need_continuous_buffering %}
+{%-             for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | sort %}
 , {{ state_var }}( {{ state_var }} )
 {%-             endfor %}
 {
 }
-{%-         endif %}
 {%-     endfor %}
 {%- endif %}
 
@@ -986,7 +986,7 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     std::cout << "[neuron " << this << "] Writing history at time " << nest::Time(nest::Time::step( origin.get_steps() + lag + 1 )).get_ms() << "\n";
 #endif
     write_continuous_variable_history_{{ paired_synapse_original_model.name }}( nest::Time(nest::Time::step( origin.get_steps() + lag + 1 )),
-{%-             for state_var_name in state_vars_that_need_continuous_buffering_transformed[paired_synapse_original_model.name] %}
+{%-             for state_var_name in state_vars_that_need_continuous_buffering_transformed[paired_synapse_original_model.name] | sort %}
 {%-                 set state_var = utils.get_variable_by_name(astnode, state_var_name) %}
       {{ printer.print(state_var) }}{% if not loop.last %}, {% endif %}
 {%-             endfor %}
@@ -1021,16 +1021,16 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%- endif %}
 }
 
-{%- if paired_synapses is defined and continuous_state_buffering_method == "continuous_time_buffer" %}
-{%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
-{%-         if state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | length > 0 %}
-void {{neuronName}}::get_continuous_variable_history__for_{{ paired_synapse_original_model.name }}( double t1,
+{%- if paired_synapses is defined
+     and any(state_vars_that_need_continuous_buffering.values())
+     and continuous_state_buffering_method == "continuous_time_buffer" %}
+void {{ neuronName }}::get_continuous_variable_history( double t1,
   double t2,
-  std::deque< continuous_variable_histentry_{{ neuronName }}__for_{{ paired_synapse_original_model.name }} >::iterator* start,
-  std::deque< continuous_variable_histentry_{{ neuronName }}__for_{{ paired_synapse_original_model.name }} >::iterator* finish )
+  std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* start,
+  std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* finish )
 {
 #ifdef DEBUG
-  std::cout << "{{neuronName}}::get_continuous_variable_history__for_{{ paired_synapse_original_model.name }}" << std::endl;
+  std::cout << "{{ neuronName }}::get_continuous_variable_history" << std::endl;
 #endif
   *finish = continuous_variable_history_.end();
   if ( continuous_variable_history_.empty() )
@@ -1040,7 +1040,7 @@ void {{neuronName}}::get_continuous_variable_history__for_{{ paired_synapse_orig
   }
   else
   {
-    std::deque< continuous_variable_histentry_{{ neuronName }}__for_{{ paired_synapse_original_model.name }} >::iterator runner = continuous_variable_history_.begin();
+    std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator runner = continuous_variable_history_.begin();
 
     // To have a well defined discretization of the integral, we make sure
     // that we exclude the entry at t1 but include the one at t2 by subtracting
@@ -1059,13 +1059,15 @@ void {{neuronName}}::get_continuous_variable_history__for_{{ paired_synapse_orig
   }
 }
 
-void {{neuronName}}::write_continuous_variable_history_{{ paired_synapse_original_model.name }}(nest::Time const &t,
-{%-             for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] %}
+void {{ neuronName }}::write_continuous_variable_history(nest::Time const &t,
+{%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
+{%-         for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | sort %}
       const double {{ state_var }}{% if not loop.last %}, {% endif %}
-{%-             endfor %})
+{%-         endfor %}
+{%-     endfor %})
 {
 #ifdef DEBUG
-  std::cout << "{{neuronName}}::write_continuous_variable_history_{{ paired_synapse_original_model.name }}()" << std::endl;
+  std::cout << "{{ neuronName }}::write_continuous_variable_history_{{ paired_synapse_original_model.name }}()" << std::endl;
 #endif
   const double t_ms = t.get_ms();
 
@@ -1089,16 +1091,16 @@ void {{neuronName}}::write_continuous_variable_history_{{ paired_synapse_origina
   }
 #endif
 
-  continuous_variable_history_.push_back( continuous_variable_histentry_{{ neuronName }}__for_{{ paired_synapse_original_model.name }}( t_ms,
-{%-             for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] %}
+  continuous_variable_history_.push_back( continuous_variable_histentry_{{ neuronName }}( t_ms,
+{%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
+{%-         for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | sort %}
       {{ state_var }}{% if not loop.last %}, {% endif %}
-{%-             endfor %}) );
+{%-         endfor %}
+{%-     endfor %}) );
 #ifdef DEBUG
-  std::cout << "[neuron " << this << "] \thistory size = " << continuous_variable_history_.size() << std::endl;
+  std::cout << "[neuron " << this << "] \tcontinuous variable history size = " << continuous_variable_history_.size() << std::endl;
 #endif
 }
-{%-         endif %}
-{%-     endfor %}
 {%- endif %}
 
 // Do not move this function as inline to h-file. It depends on ``universal_data_logger_impl.h`` being included here.
@@ -1157,7 +1159,7 @@ void {{ neuronName }}::handle(nest::SpikeEvent &e)
 void {{ neuronName }}::handle(nest::CurrentEvent& e)
 {
 #ifdef DEBUG
-  std::cout << "[neuron " << this << "] {{neuronName}}::handle(CurrentEvent)" << std::endl;
+  std::cout << "[neuron " << this << "] {{ neuronName }}::handle(CurrentEvent)" << std::endl;
 #endif
   assert(e.get_delay_steps() > 0);
   assert( e.get_rport() < B_.continuous_inputs_.size() );

@@ -181,7 +181,9 @@ extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% e
 {%- if paired_synapses is defined %}
 
 /**
- * Entry in the spiking history, storing the time of the last (postsynaptic) spike and the state of the variables transferred from synapse models to neuron model at that time.
+ * Entry in the spiking history, storing the time of the last spike time and the state of the variables transferred from synapse models to neuron model at that time.
+ *
+ * From the perspective of the synapse(s) which will read from this buffer later, this is the _post_-synaptic neuron.
 **/
 class histentry__{{ neuronName }}
 {
@@ -252,29 +254,34 @@ public:
 {%-     endfor %}
 };
 
-{%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
-{%-         if state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
+
+{%-     if any(state_vars_that_need_continuous_buffering.values()) and continuous_state_buffering_method == "continuous_time_buffer" %}
 
 /**
- * Entry in the spiking history for continuous variable buffering. Note that continuous-variable history entries are on a per-synapse-type basis.
+ * Entry in the spiking history for continuous variable buffering, storing the time at which values were recorded, and the state of the variables needed by the synapse model(s) at that time.
+ *
+ * From the perspective of the synapse(s) which will read from this buffer later, this is the _post_-synaptic neuron.
 **/
-class continuous_variable_histentry_{{ neuronName }}__for_{{ paired_synapse_original_model.name }}
+class continuous_variable_histentry_{{ neuronName }}
 {
 public:
-  continuous_variable_histentry_{{ neuronName }}__for_{{ paired_synapse_original_model.name }}( double t,
+  continuous_variable_histentry_{{ neuronName }}( double t,
+{%-         for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
 {%-             for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] %}
       double {{ state_var }}{% if not loop.last %}, {% endif %}
-{%-             endfor %} );
+{%-             endfor %}
+{%-         endfor %} );
 
   double t_;              //!< point in time for history entry
   size_t access_counter_;
 
+{%-         for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
 {%-             for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] %}
   double {{ state_var }};
 {%-             endfor %}
+{%-         endfor %}
 };
-{%-         endif %}
-{%-     endfor %}
+{%-     endif %}
 {%- endif %}
 
 /* BeginDocumentation
@@ -282,7 +289,7 @@ public:
 
   Description:
 {% filter indent(2) %}
-  {{neuron.print_comment()}}
+  {{ neuron.print_comment() }}
 {%- endfilter %}
 
   Parameters:
@@ -421,13 +428,18 @@ public:
 {%-     if any(state_vars_that_need_continuous_buffering.values()) and continuous_state_buffering_method == "continuous_time_buffer" %}
 
   /**
-   * write_continuous_variable_history
+   * Write continuous variable history
   **/
   void write_continuous_variable_history(nest::Time const &t,
-{%-         for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] %}
+{%-         for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
+{%-             for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | sort %}
       const double {{ state_var }}{% if not loop.last %}, {% endif %}
+{%-             endfor %});
 {%-         endfor %});
 
+  /**
+   * Get continuous variable history in a given interval
+  **/
   void get_continuous_variable_history( double t1,
     double t2,
     std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* start,
@@ -499,7 +511,7 @@ public:
   //   Getters/setters for variables that need continuous time buffering
   // -------------------------------------------------------------------------
 
-{%-             for var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] %}
+{%-             for var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | sort %}
   double get_{{ var }}( double t, const bool before_increment = true );
 {%-             endfor %}
 {%-         endif %}
