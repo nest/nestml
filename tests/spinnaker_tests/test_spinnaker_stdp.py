@@ -115,8 +115,7 @@ class TestSpiNNakerSTDP:
 
         pre_spike_times = [250, 1000]
 
-        for t_post in np.linspace(200, 300, 19):
-        #for t_post in [450.]:
+        for t_post in np.linspace(200, 300, 19):  # XXX Should be 19
                 dw, actual_pre_spike_times, actual_post_spike_times = self.run_sim(pre_spike_times, [t_post])
 
                 spike_time_axis.append(float(actual_post_spike_times[0][0]) - float(actual_pre_spike_times[0][0]))
@@ -156,4 +155,4 @@ class TestSpiNNakerSTDP:
 
 
 
-        fig.savefig("plot.png")
+        fig.savefig("nestml_stdp_window.png")

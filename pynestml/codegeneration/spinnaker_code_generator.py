@@ -31,6 +31,7 @@ from pynestml.codegeneration.printers.spinnaker_cpp_expression_printer import Sp
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
 from pynestml.codegeneration.printers.cpp_printer import CppPrinter
 from pynestml.codegeneration.printers.c_simple_expression_printer import CSimpleExpressionPrinter
+from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.spinnaker_constant_printer import SpiNNakerConstantPrinter
 from pynestml.codegeneration.printers.gsl_variable_printer import GSLVariablePrinter
@@ -106,6 +107,14 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         self._gsl_variable_printer = GSLVariablePrinter(None)
         self._gsl_function_call_printer = SpinnakerGSLFunctionCallPrinter(None)
 
+        self._gsl_function_call_printer_no_origin = SpinnakerGSLFunctionCallPrinter(None)
+        self._gsl_variable_printer_no_origin = GSLVariablePrinter(None, with_origin=False)
+        self._gsl_printer_no_origin = CppExpressionPrinter(simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer_no_origin,
+                                                                                                                constant_printer=self._constant_printer,
+                                                                                                                function_call_printer=self._gsl_function_call_printer))
+        self._gsl_variable_printer_no_origin._expression_printer = self._gsl_printer_no_origin
+        self._gsl_function_call_printer_no_origin._expression_printer = self._gsl_printer_no_origin
+
         if for_neuron:
             self._gsl_printer = CppExpressionPrinter(
             simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
@@ -133,7 +142,9 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
 class CustomPythonStandaloneCodeGenerator(PythonStandaloneCodeGenerator):
     def _get_model_namespace(self, astnode: ASTModel) -> Dict:
         namespace = super()._get_model_namespace(astnode)
-        namespace["numeric_parameter_values"], namespace["numeric_internal_values"], namespace["numeric_initial_state_values"] = PythonStandaloneTargetTools.get_neuron_numerical_initial_values(astnode.file_path)
+        if "neuron" in astnode.name:
+            # TODO: PythonStandaloneTargetTools does not contain getter for synapse values yet
+            namespace["numeric_parameter_values"], namespace["numeric_internal_values"], namespace["numeric_initial_state_values"] = PythonStandaloneTargetTools.get_neuron_numerical_initial_values(astnode.file_path)
 
         return namespace
 

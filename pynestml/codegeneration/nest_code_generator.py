@@ -514,6 +514,8 @@ class NESTCodeGenerator(CodeGenerator):
     def _get_model_namespace(self, astnode: ASTModel) -> Dict:
         namespace = {}
 
+        namespace["FrontendConfiguration"] = FrontendConfiguration
+
         namespace["nestml_version"] = pynestml.__version__
         namespace["now"] = datetime.datetime.utcnow()
         namespace["tracing"] = FrontendConfiguration.is_dev
@@ -733,12 +735,26 @@ class NESTCodeGenerator(CodeGenerator):
         """
         namespace = self._get_model_namespace(neuron)
 
+        codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
+
+        if "neuron_synapse_pairs" in codegen_and_builder_opts.keys():
+            for neuron_synapse_pair in codegen_and_builder_opts["neuron_synapse_pairs"]:
+                if neuron_synapse_pair["neuron"] + FrontendConfiguration.suffix == neuron.name:
+                    # override "paired_synapse" in case NESTCodeGenerator is run without the SynapsePostNeuronTransformer having been run (for instance, when NESTCodeGenerator is wrapped inside SynapsePostNeuronTransformer)
+                    namespace["paired_synapse"] = neuron_synapse_pair["synapse"]
+                    class NameReturner:
+                        def __init__(self, name: str):
+                            self.name_ = name
+                        def get_name(self):
+                            return self.name_
+                    namespace["paired_synapse_original_model"] = NameReturner(neuron_synapse_pair["synapse"])
+                    break
+
         if "paired_synapse" in dir(neuron):
             if "state_vars_that_need_continuous_buffering" in dir(neuron):
                 assert self.get_option("continuous_state_buffering_method") in ["continuous_time_buffer", "post_spike_based"]
                 namespace["state_vars_that_need_continuous_buffering"] = neuron.state_vars_that_need_continuous_buffering
 
-                codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
                 xfrm = SynapsePostNeuronTransformer(codegen_and_builder_opts)
                 namespace["state_vars_that_need_continuous_buffering_transformed"] = [xfrm.get_neuron_var_name_from_syn_port_name(port_name, removesuffix(neuron.unpaired_name, FrontendConfiguration.suffix), removesuffix(neuron.paired_synapse.get_name().split("__with_")[0], FrontendConfiguration.suffix)) for port_name in neuron.state_vars_that_need_continuous_buffering]
                 for i, item in enumerate(namespace["state_vars_that_need_continuous_buffering_transformed"]):

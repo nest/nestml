@@ -324,32 +324,22 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         i += 1
 {%- endfor %}
                 
-        if self.__neuromodulation:
-            self.__neuromodulation.write_parameters(
-                spec, region, global_weight_scale, synapse_weight_scales)
-
-    @property
-    def _n_header_bytes(self) -> int:
-        """
-        :rtype: int
-        """
-        # The header contains a single timestamp
-        n_bytes = TIME_STAMP_BYTES + BYTES_PER_SHORT
-
-        # The actual number of bytes is in a word-aligned struct, so work out
-        # the number of bytes as a number of words
-        return int(math.ceil(float(n_bytes) / BYTES_PER_WORD)) * BYTES_PER_WORD
-
-    @overrides(AbstractPlasticSynapseDynamics.
-               get_n_words_for_plastic_connections)
+    @overrides(AbstractPlasticSynapseDynamics.get_n_words_for_plastic_connections)
     def get_n_words_for_plastic_connections(self, n_connections: int) -> int:
         """
         Get the number of 32-bit words for `n_connections` in a single row.
         :param n_connections:
         """
+        n_header_words_per_row = 2   # XXX timestamp and pre trace at that time?
+        #n_header_words_per_row = 0
+        
         n_state_variables = {{ synapse.get_state_symbols() | length }}    # number of state variables per connection (i.e. for a single synapse model)
 
-        return n_state_variables * n_connections
+        pp_size_words = n_state_variables * n_connections
+        fp_size_words = n_connections
+        print("[NESTML synapse] get_n_words_for_plastic_connections(n_connections = " + str(n_connections) + "): returning " + str(n_header_words_per_row + pp_size_words + fp_size_words))
+
+        return n_header_words_per_row + pp_size_words + fp_size_words
 
     @overrides(AbstractPlasticSynapseDynamics.get_plastic_synaptic_data)
     def get_plastic_synaptic_data(
@@ -359,9 +349,33 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
             max_n_synapses: int, max_atoms_per_core: int) -> Tuple[
                 List[NDArray[uint32]], List[NDArray[uint32]],
                 NDArray[uint32], NDArray[uint32]]:
-        assert False
-        print("[NESTML synapse] get_plastic_synaptic_data")
-        raise Exception("oh not")
+        """
+        Convert from a list of tuples (source, target, weight, delay) into raw memory (``pp_data`` and ``fp_data``).
+
+        The data is returned once for each row.
+
+        Fixed data words are 16-bit ("half-word"/"short"). Typically: 3 bits of padding; 4 bits of delay; 1 bit of type; 8 bits of neuron ID.
+
+        The row into which connection should go is given by `connection_row_indices`, and the total number of rows is given by `n_rows`.
+
+        Lengths are returned as an array made up of an integer for each row, for each of the fixed-plastic and plastic-plastic regions.
+
+        :param ~numpy.ndarray connections: The connections to get data for
+        :param ~numpy.ndarray connection_row_indices:
+            The row into which each connection should go
+        :param int n_rows: The total number of rows
+        :param int n_synapse_types: The number of synapse types
+        :param int max_n_synapses: The maximum number of synapses to generate
+        :param int max_atoms_per_core: The maximum number of atoms on a core
+        :return: (fp_data (2D), pp_data (2D), fp_size (1D), pp_size (1D))
+        :rtype:
+            tuple(~numpy.ndarray, ~numpy.ndarray, ~numpy.ndarray,
+            ~numpy.ndarray)
+        """
+        n_connections = len(connections)
+
+        print("[NESTML synapse] get_plastic_synaptic_data(n_connections = " + str(n_connections) + ")")
+
         n_synapse_type_bits = get_n_bits(n_synapse_types)
         n_neuron_id_bits = get_n_bits(max_atoms_per_core)
         neuron_id_mask = (1 << n_neuron_id_bits) - 1
@@ -371,20 +385,18 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         #
 
         fixed_plastic = (
-            (connections["delay"].astype(uint16) <<
-             (n_neuron_id_bits + n_synapse_type_bits)) |
-            (connections["synapse_type"].astype(uint16)
-             << n_neuron_id_bits) |
-            (connections["target"].astype(uint16) & neuron_id_mask))
+            (connections["delay"].astype(uint16) << (n_neuron_id_bits + n_synapse_type_bits))
+            | (connections["synapse_type"].astype(uint16) << n_neuron_id_bits)
+            | (connections["target"].astype(uint16) & neuron_id_mask))
         fixed_plastic_rows = self.convert_per_connection_data_to_rows(
             connection_row_indices, n_rows,
-            fixed_plastic.view(dtype=uint8).reshape((-1, 2)),
+            fixed_plastic.view(dtype=uint8).reshape((-1, BYTES_PER_SHORT)),
             max_n_synapses)
         fp_size = self.get_n_items(fixed_plastic_rows, BYTES_PER_SHORT)
         if self.__pad_to_length is not None:
             # Pad the data
-            fixed_plastic_rows = self._pad_row(
-                fixed_plastic_rows, BYTES_PER_SHORT)
+            fixed_plastic_rows = self._pad_row(fixed_plastic_rows, BYTES_PER_SHORT)
+
         fp_data = self.get_words(fixed_plastic_rows)
 
         #
@@ -392,7 +404,6 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         #
 
         n_state_variables = {{ synapse.get_state_symbols() | length }}    # number of state variables per connection (i.e. for a single synapse model)
-        n_connections = len(connections["weight"])
 
         # If neuromodulation...
         if self.__neuromodulation:
@@ -404,26 +415,32 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
 {%-     set state_var_idx = loop.index0 %}
 {%-     if state_var_sym.name == "w" %}  {# XXXX use codegen opts for "w" instead #}
             plastic_plastic[connection_idx * n_state_variables + {{ state_var_idx }}] = connections["weight"][connection_idx]
-{%-     endif %}
+{%-     else %}
             # XXX: what about other initial values, can they be put into/extracted from ConnectionsArray? Otherwise, do we use printing initial values directly from the NESTML model?
+            plastic_plastic[connection_idx * n_state_variables + {{ state_var_idx }}] = 0
+{%-     endif %}
 {%- endfor %}
 
         # Convert the plastic data into groups of bytes per connection and then into rows
-        plastic_plastic_bytes = plastic_plastic.view(dtype=uint8).reshape((-1, 4 * n_state_variables * n_connections))    # 4 bytes per word
+        plastic_plastic_bytes = plastic_plastic.view(dtype=uint8).reshape((-1, 4 * n_state_variables))    # 4 bytes per word
         plastic_plastic_row_data = self.convert_per_connection_data_to_rows(connection_row_indices, n_rows, plastic_plastic_bytes, max_n_synapses)
 
         # pp_size = fp_size in words => fp_size * no_bytes / 4 (bytes)
         if self.__pad_to_length is not None:
             # Pad the data
+            print("[NESTML synapse] Exception: padding rows not supported!")
             raise Exception("Padding rows not supported!") # XXX can we get away with this?
-            plastic_plastic_row_data = self._pad_row(
-                plastic_plastic_row_data, bytes_per_connection=4 * n_state_variables)
-        plastic_headers = numpy.zeros((n_rows, self._n_header_bytes), dtype=uint8)
-        plastic_plastic_rows = [numpy.concatenate((plastic_headers[i], plastic_plastic_row_data[i])) for i in range(n_rows)]
+            #plastic_plastic_row_data = self._pad_row(
+            #    plastic_plastic_row_data, bytes_per_connection=4 * n_state_variables)
+
+        plastic_headers: np.ndarray[uint8] = numpy.zeros((n_rows, 8), dtype=uint8)   # timestamp and trace at that time -- measured in bytes (4 bytes per word!)
+        plastic_plastic_rows: np.ndarray[uint8] = [numpy.concatenate((plastic_headers[i, :], plastic_plastic_row_data[i])) for i in range(n_rows)]
         pp_size = self.get_n_items(plastic_plastic_rows, BYTES_PER_WORD)
         pp_data = self.get_words(plastic_plastic_rows)
 
-        import pdb;pdb.set_trace()
+        print("[NESTML synapse] \treturning fp_data = " + str(fp_data) + ", pp_data = " + str(pp_data) + ", fp_size = " + str(fp_size) + ", pp_size = " + str(pp_size))
+        #import pdb;pdb.set_trace()
+
         return fp_data, pp_data, fp_size, pp_size
 
     def _pad_row(self, rows: List[NDArray],
@@ -433,6 +450,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         :param int no_bytes_per_connection:
         :rtype: list(~numpy.ndarray)
         """
+        raise NotImplementedException
         pad_len = self.__pad_to_length or 1
         # Row elements are (individual) bytes
         return [
@@ -463,29 +481,34 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
                                fp_size: NDArray[uint32]) -> NDArray[integer]:
         # Each fixed-plastic synapse is a half-word and fp_size is in half
         # words so just return it
-        return fp_size
+     #3333   return fp_size
+         print("[NESTML synapse] get_n_synapses_in_rows()")
+         raise NotImplementedError()
 
     @overrides(AbstractPlasticSynapseDynamics.read_plastic_synaptic_data)
     def read_plastic_synaptic_data(
-            self, n_synapse_types: int, pp_size: NDArray[uint32],
-            pp_data: List[NDArray[uint32]], fp_size: NDArray[uint32],
+            self,
+            n_synapse_types: int,
+            pp_size: NDArray[uint32],
+            pp_data: List[NDArray[uint32]],
+            fp_size: NDArray[uint32],
             fp_data: List[NDArray[uint32]],
             max_atoms_per_core: int) -> ConnectionsArray:
         """
-        Read the connections indicated in the connection indices from the
-        data in `pp_data` and `fp_data`.
+        Convert from raw memory (``pp_data`` and ``fp_data``) into a list of tuples (source, target, weight, delay).
         """
         print("[NESTML synapse] read_plastic_synaptic_data")
-        assert False
-        raise Exception("oh not")
         n_rows = len(fp_size)
 
         n_synapse_type_bits = get_n_bits(n_synapse_types)
         n_neuron_id_bits = get_n_bits(max_atoms_per_core)
         neuron_id_mask = (1 << n_neuron_id_bits) - 1
 
+        # the header size
+        n_header_words = 2
+
         data_fixed = numpy.concatenate([fp_data[i].view(dtype=uint16)[0:fp_size[i]] for i in range(n_rows)])
-        pp_without_headers = [row.view(dtype=uint8)[self._n_header_bytes:] for row in pp_data]
+        pp_without_headers = [row.view(dtype=uint8)[(4*n_header_words):] for row in pp_data]
 
         if self.__neuromodulation:
             raise Exception("Neuromodulation not supported!")
@@ -502,7 +525,9 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         connections["target"] = data_fixed & neuron_id_mask
         connections["weight"] = numpy.concatenate([pp[:size * 4 * n_state_variables].view(uint32)[::n_state_variables] for pp, size in zip(pp_without_headers, fp_size)])
         connections["delay"] = data_fixed >> (n_neuron_id_bits + n_synapse_type_bits)
-        import pdb;pdb.set_trace()
+
+        #import pdb;pdb.set_trace()
+        print("[NESTML synapse] Returning connections: " + str(connections))
 
         return connections
 
@@ -547,13 +572,10 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         :param n_words: The number of words the synapses must fit in
         """
         # Subtract the header size that will always exist
-        n_header_words = self._n_header_bytes // BYTES_PER_WORD
-        n_words_space = n_words - n_header_words
+        n_header_words = 2
 
         # Get plastic plastic size per connection
         n_state_variables = {{ synapse.get_state_symbols() | length }}    # number of state variables per connection (i.e. for a single synapse model)
-
-        bytes_per_pp = 4 * n_state_variables
 
         if self.__neuromodulation:
             raise Exception("Neuromodulation not supported!")
@@ -561,11 +583,11 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         # The fixed plastic size per connection is 2 bytes
         bytes_per_fp = BYTES_PER_SHORT
 
-        # Maximum possible connections, ignoring word alignment
-        n_connections = (n_words_space * BYTES_PER_WORD) // (bytes_per_pp + bytes_per_fp)
+        # n_words = 2 + n_connections * (.5 + n_state_variables)
 
-        if n_connections > 0:
-            n_connections -= 1   # a bit of margin for safety (???)
+        # Maximum possible connections, ignoring word alignment
+        import math
+        n_connections = int(math.floor((n_words - 2) / (.5 + n_state_variables)))
 
         #check_length_padded = False
 
@@ -574,49 +596,6 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         #    n_connections -= 1
 
         return n_connections
-
-    """@property
-    @overrides(AbstractGenerateOnMachine.gen_matrix_id)
-    def gen_matrix_id(self) -> int:
-        return MatrixGeneratorID.STDP_MATRIX.value
-
-    @overrides(AbstractGenerateOnMachine.gen_matrix_params)
-    def gen_matrix_params(
-            self, synaptic_matrix_offset: int, delayed_matrix_offset: int,
-            app_edge: ProjectionApplicationEdge,
-            synapse_info: SynapseInformation, max_row_info: MaxRowInfo,
-            max_pre_atoms_per_core: int, max_post_atoms_per_core: int
-            ) -> NDArray[uint32]:
-        raise Exception("gen_matrix_params")
-        vertex = app_edge.post_vertex
-        n_synapse_type_bits = get_n_bits(
-            vertex.neuron_impl.get_n_synapse_types())
-        n_synapse_index_bits = get_n_bits(max_post_atoms_per_core)
-        max_delay = app_edge.post_vertex.splitter.max_support_delay()
-        max_delay_bits = get_n_bits(max_delay)
-        n_half_words = 10
-        half_word = 0
-        if self.__neuromodulation:
-            n_half_words += 1
-            half_word = 0
-        write_row_number_to_header = 0
-        row_offset = 0
-        return numpy.array([
-            synaptic_matrix_offset, delayed_matrix_offset,
-            max_row_info.undelayed_max_n_synapses,
-            max_row_info.delayed_max_n_synapses,
-            max_row_info.undelayed_max_words, max_row_info.delayed_max_words,
-            synapse_info.synapse_type, n_synapse_type_bits,
-            n_synapse_index_bits, app_edge.n_delay_stages + 1,
-            max_delay, max_delay_bits, app_edge.pre_vertex.n_atoms,
-            max_pre_atoms_per_core, self._n_header_bytes // BYTES_PER_SHORT,
-            n_half_words, half_word, write_row_number_to_header, row_offset],
-            dtype=uint32)
-
-    @property
-    @overrides(AbstractGenerateOnMachine.gen_matrix_params_size_in_bytes)
-    def gen_matrix_params_size_in_bytes(self) -> int:
-        return 19 * BYTES_PER_WORD"""
 
     @property
     @overrides(AbstractPlasticSynapseDynamics.changes_during_run)

@@ -163,6 +163,4 @@ class TestSpiNNakerIafPscExp:
         )
         plt.savefig("spinnaker_ignore_and_fire.png")
 
-        import pdb;pdb.set_trace()
-
         p.end()
