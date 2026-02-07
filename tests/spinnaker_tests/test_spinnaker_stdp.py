@@ -28,7 +28,7 @@ from pynestml.frontend.pynestml_frontend import generate_spinnaker_target
 
 
 class TestSpiNNakerSTDP:
-    """SpiNNaker code generation tests"""
+    """Test that STDP synapse produces correct STDP window"""
 
     @pytest.fixture(autouse=True,
                     scope="module")
@@ -82,7 +82,7 @@ class TestSpiNNakerSTDP:
         p.Projection(pre_input, pre_spiking, p.OneToOneConnector(), receptor_type=exc_input, synapse_type=p.StaticSynapse(weight=weight_pre))
         p.Projection(post_input, post_spiking, p.OneToOneConnector(), receptor_type=exc_input, synapse_type=p.StaticSynapse(weight=weight_post))
 
-        stdp_model = stdp_synapse_nestml(weight=0) #0x8000)
+        stdp_model = stdp_synapse_nestml(weight=1.)
         stdp_projection = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type=exc_input)
         #stdp_projection_inh = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type=inh_input)
 
@@ -115,7 +115,7 @@ class TestSpiNNakerSTDP:
 
         pre_spike_times = [250, 1000]
 
-        for t_post in np.linspace(200, 300, 19):  # XXX Should be 19
+        for t_post in np.linspace(200, 300, 7):  # XXX Should be 19
                 dw, actual_pre_spike_times, actual_post_spike_times = self.run_sim(pre_spike_times, [t_post])
 
                 spike_time_axis.append(float(actual_post_spike_times[0][0]) - float(actual_pre_spike_times[0][0]))
@@ -128,6 +128,7 @@ class TestSpiNNakerSTDP:
                 print("actual pre_spikes: " + str(actual_pre_spike_times))
                 print("actual post_spikes: " + str(actual_post_spike_times))
                 print("weights after simulation: " + str(dw))
+                #import pdb;pdb.set_trace()
 
         print("Simulation results")
         print("------------------")

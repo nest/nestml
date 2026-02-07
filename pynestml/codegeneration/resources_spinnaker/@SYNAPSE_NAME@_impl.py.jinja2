@@ -86,6 +86,34 @@ if TYPE_CHECKING:
 TIME_STAMP_BYTES = BYTES_PER_WORD
 
 
+def s16_15_to_float(fixp_x: int) -> float:
+    """Converts a Q16.15 fixed-point 32-bit integer back to a float.
+    
+    The format assumes:
+    Bit 31: Sign bit
+    Bits 15-30: Integer part
+    Bits 0-14: Fractional part (denominator of 2^15)
+    """
+    # 1. Extract the sign: bit 31
+    # We shift right by 31 to get the lone bit
+    sign = (fixp_x >> 31) & 0x1
+    
+    # 2. Extract the integer part: bits 15 through 30
+    # Masking with 0xFFFF (16 ones) after shifting right by 15
+    integer_part = (fixp_x >> 15) & 0xFFFF
+    
+    # 3. Extract the fractional part: bits 0 through 14
+    # Masking with 0x7FFF (15 ones)
+    fractional_part = fixp_x & 0x7FFF
+    
+    # 4. Reconstruct the absolute magnitude
+    # Fraction is the integer value divided by the scaling factor 2^15
+    float_val = integer_part + (fractional_part / (2**15))
+    
+    # 5. Apply the sign
+    return -float_val if sign == 1 else float_val
+
+    
 
 def float_to_s16_15(x: float) -> int:
     """Converts a float to a Q16.15 fixed-point 32-bit integer.
@@ -414,7 +442,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
 {%- for state_var_sym in synapse.get_state_symbols() %}
 {%-     set state_var_idx = loop.index0 %}
 {%-     if state_var_sym.name == "w" %}  {# XXXX use codegen opts for "w" instead #}
-            plastic_plastic[connection_idx * n_state_variables + {{ state_var_idx }}] = connections["weight"][connection_idx]
+            plastic_plastic[connection_idx * n_state_variables + {{ state_var_idx }}] = float_to_s16_15(connections["weight"][connection_idx])
 {%-     else %}
             # XXX: what about other initial values, can they be put into/extracted from ConnectionsArray? Otherwise, do we use printing initial values directly from the NESTML model?
             plastic_plastic[connection_idx * n_state_variables + {{ state_var_idx }}] = 0
@@ -523,10 +551,9 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         connections = numpy.zeros(data_fixed.size, dtype=NUMPY_CONNECTORS_DTYPE)
         connections["source"] = numpy.concatenate([numpy.repeat(i, fp_size[i]) for i in range(len(fp_size))])
         connections["target"] = data_fixed & neuron_id_mask
-        connections["weight"] = numpy.concatenate([pp[:size * 4 * n_state_variables].view(uint32)[::n_state_variables] for pp, size in zip(pp_without_headers, fp_size)])
+        connections["weight"] = s16_15_to_float(numpy.concatenate([pp[:size * 4 * n_state_variables].view(uint32)[::n_state_variables] for pp, size in zip(pp_without_headers, fp_size)]).astype(uint32))
         connections["delay"] = data_fixed >> (n_neuron_id_bits + n_synapse_type_bits)
 
-        #import pdb;pdb.set_trace()
         print("[NESTML synapse] Returning connections: " + str(connections))
 
         return connections
