@@ -66,7 +66,6 @@ class TestSpiNNakerSTDP:
 #        p.reset()
         p.setup(timestep=1.0)
         exc_input = "exc_spikes"
-        inh_input = "inh_spikes"
 
         #inputs for pre and post synaptic neurons
         pre_input = p.Population(1, p.SpikeSourceArray(spike_times=[0]), label="pre_input")
@@ -83,8 +82,8 @@ class TestSpiNNakerSTDP:
         p.Projection(post_input, post_spiking, p.OneToOneConnector(), receptor_type=exc_input, synapse_type=p.StaticSynapse(weight=weight_post))
 
         stdp_model = stdp_synapse_nestml(weight=1.)
-        stdp_projection = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type=exc_input)
-        #stdp_projection_inh = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type=inh_input)
+        stdp_projection = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type="ignore_spikes")   # connect to a port where incoming spikes are ignored, so the STDP synapse itself does not change the postsynaptic spike timing
+#        stdp_projection = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type="exc_spikes")   # connect to a port where incoming spikes are ignored, so the STDP synapse itself does not change the postsynaptic spike timing
 
         #record spikes
         pre_spiking.record(["spikes"])
@@ -120,15 +119,11 @@ class TestSpiNNakerSTDP:
 
                 spike_time_axis.append(float(actual_post_spike_times[0][0]) - float(actual_pre_spike_times[0][0]))
 
-                if dw > 16000:   # XXX TODO REMOVE THIS IF...THEN..ELSE
-                    res_weights.append(dw - 32768)
-                else:
-                    res_weights.append(dw)
+                res_weights.append(dw)
 
                 print("actual pre_spikes: " + str(actual_pre_spike_times))
                 print("actual post_spikes: " + str(actual_post_spike_times))
                 print("weights after simulation: " + str(dw))
-                #import pdb;pdb.set_trace()
 
         print("Simulation results")
         print("------------------")
