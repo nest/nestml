@@ -53,6 +53,22 @@ Data types
 - The NESTML data type ``integer`` will be rendered as ``int32_t``.
 
 
+Use cases/examples
+~~~~~~~~~~~~~~~~~~
+
+Ignore-and-fire neuron
+^^^^^^^^^^^^^^^^^^^^^^
+
+...
+
+
+STDP synapse
+^^^^^^^^^^^^
+
+.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/running/running_spinnaker_figs/stdp_window.png
+   :alt: Comparison between STDP window functions based on SpiNNaker simulation (orange crosses) and hand-coded Python "ground truth" simulation.
+
+
 Further reading
 ~~~~~~~~~~~~~~~
 
