@@ -1,0 +1,49 @@
+# test_continuous_third_factor_in_modulatory_spikes_handler_synapse
+# #################################################################
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+model test_continuous_third_factor_in_modulatory_spikes_handler_synapse:
+    state:
+        w real = 1.0
+        e_trace_d_read real = 0.0
+        e_trace_d_mod real = 0.0
+
+    parameters:
+        d ms = 1 ms                 # Synaptic transmission delay
+
+    input:
+        pre_spikes <- spike
+        post_spikes <- spike
+        mod_spikes <- spike
+        e_trace_d real <- continuous
+
+    output:
+        spike(w real, d ms)
+
+    onReceive(pre_spikes):
+        e_trace_d_read = e_trace_d
+        println("e_trace_d_read: {e_trace_d_read}")
+        emit_spike(w, d)
+
+    onReceive(mod_spikes):
+        e_trace_d_mod = e_trace_d
+        println("e_trace_d_mod: {e_trace_d_mod}")
