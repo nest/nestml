@@ -241,7 +241,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         """
 
         # Otherwise, it is static or neuromodulation, so return ourselves
-        return self
+        return synapse_dynamics
 
     @overrides(AbstractPlasticSynapseDynamics.get_value)
     def get_value(self, key: str) -> Any:
@@ -321,8 +321,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         size = n_parameters * BYTES_PER_WORD * n_synapse_types
 
         if self.__neuromodulation:
-            size += self.__neuromodulation.get_parameters_sdram_usage_in_bytes(
-                n_neurons, n_synapse_types)
+            raise NotImplementedError
 
         print("[NESTML synapse] get_parameters_sdram_usage_in_bytes(n_neurons = " + str(n_neurons) + ", n_synapse_types = " + str(n_synapse_types) + ") = " + str(size) + " bytes")
 

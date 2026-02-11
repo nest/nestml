@@ -45,6 +45,22 @@ Generating code
 
       PYTHONPATH=$HOME/nestml/spinnaker-install python3 -m pytest -s --pdb ./tests/spinnaker_tests/test_spinnaker_iaf_psc_exp.py
 
+Optionally, create a little helper script to run the test anew (replace ``USERNAME`` with your username):
+
+.. code-block:: bash
+
+   #!/bin/bash
+
+   cd $HOME/nestml
+
+   mv -v /users/USERNAME/nestml/spinnaker-target /users/USERNAME/nestml/spinnaker-target-$(date +%Y-%m-%d_%H-%M-%S.%N | cut -b1-23)
+   mv -v /users/USERNAME/nestml/spinnaker-install /users/USERNAME/nestml/spinnaker-install-$(date +%Y-%m-%d_%H-%M-%S.%N | cut -b1-23)
+
+   # need to create this directory first, otherwise it gets ignored in the PYTHONPATH!
+   mkdir /users/USERNAME/nestml/spinnaker-install
+
+   PATH=$PATH:/users/USERNAME/.local/bin PYTHONPATH=/users/USERNAME/nestml/spinnaker-install:$PYTHONPATH python3 -m pytest  -o log_cli=true -o log_cli_level="DEBUG" -s --pdb /home/nestml/tests/spinnaker_tests/test_spinnaker_iaf_psc_exp.py
+
 
 Data types
 ^^^^^^^^^^
