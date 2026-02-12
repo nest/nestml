@@ -207,8 +207,6 @@ class TestSpiNNakerSTDPWindow:
 
         p.end()
 
-        import pdb;pdb.set_trace()
-
         return dw, pre_spike_times, post_spike_times
 
 

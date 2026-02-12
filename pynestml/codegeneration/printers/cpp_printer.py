@@ -79,9 +79,6 @@ class CppPrinter(ModelPrinter):
             ret += '='
 
         ret += ' ' + self.print(node.rhs)
-        print("IN CppPrinter:: print_assignment()")
-        if self.print(node.rhs) == "1":
-           import pdb;pdb.set_trace()
 
         return ret
 

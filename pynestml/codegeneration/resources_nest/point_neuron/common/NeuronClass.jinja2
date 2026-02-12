@@ -307,9 +307,9 @@ std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_i
   last_spike_ = __n.last_spike_;
 
   // cache initial values
-{%- for var_name in transferred_variables %}
+{%- for var_name in variables_moved_from_synapse_to_neuron %}
 {%-     set var = utils.get_variable_by_name(astnode, var_name) %}
-{%-     set variable_symbol = transferred_variables_syms[var_name] %}
+{%-     set variable_symbol = variables_moved_from_synapse_to_neuron_syms[var_name] %}
 {%-     if not var_name == variable_symbol.get_symbol_name() %}
 {{ raise('Error in resolving variable to symbol') }}
 {%-     endif %}
@@ -413,9 +413,9 @@ void {{ neuronName }}::init_state_internal_()
   last_spike_ = -1.;
 
   // cache initial values
-{%- for var_name in transferred_variables %}
+{%- for var_name in variables_moved_from_synapse_to_neuron %}
 {%-     set var = utils.get_variable_by_name(astnode, var_name) %}
-{%-     set variable_symbol = transferred_variables_syms[var_name] %}
+{%-     set variable_symbol = variables_moved_from_synapse_to_neuron_syms[var_name] %}
 {%-     if not var_name == variable_symbol.get_symbol_name() %}
 {{ raise('Error in resolving variable to symbol') }}
 {%-     endif %}
@@ -1378,16 +1378,16 @@ void
 	generate getter functions for the transferred variables
 #}
 
-{%- for var in transferred_variables %}
-{%- with variable_symbol = transferred_variables_syms[var] %}
+{%- for var in variables_moved_from_synapse_to_neuron %}
+{%-     with variable_symbol = variables_moved_from_synapse_to_neuron_syms[var] %}
 
-{%- if not variable_symbol %}
-{%-     set variable_symbol = astnode.get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE) %}
-{%- endif %}
+{%-         if not variable_symbol %}
+{%-             set variable_symbol = astnode.get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE) %}
+{%-         endif %}
 
-{%- if not var == variable_symbol.get_symbol_name() %}
-{{ raise('Error in resolving variable to symbol') }}
-{%- endif %}
+{%-         if not var == variable_symbol.get_symbol_name() %}
+{{              raise('Error in resolving variable to symbol') }}
+{%-         endif %}
 
 double
 {{ neuronName }}::get_{{ var }}( double t, const bool before_increment )

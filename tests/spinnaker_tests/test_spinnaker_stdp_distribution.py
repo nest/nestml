@@ -168,8 +168,6 @@ class TestSpiNNakerSTDPDistribution:
         p.end()
         print(w)
 
-        import pdb;pdb.set_trace()
-
         return times, v_post_neuron, w, pre_spike_times, post_spike_times
 
 

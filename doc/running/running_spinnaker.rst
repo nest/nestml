@@ -1,13 +1,16 @@
 SpiNNaker target
 ----------------
 
-*NESTML features supported:* :doc:`neurons </nestml_language/neurons_in_nestml>`
+*NESTML features supported:* :doc:`neurons </nestml_language/neurons_in_nestml>`, :doc:`synapses </nestml_language/synapses_in_nestml>`
+
+.. warning::
+
+   SpiNNaker support is in an early stage of development. Expect missing features and bugs. If you want to use or contribute to this target, please reach out to the developers via GitHub or the NEST-users mailing list.
 
 Introduction
 ~~~~~~~~~~~~
 
-SpiNNaker [FB20]_ was first publicly mentioned in 1998. It is a neuromorphic architecture based on ARM microprocessors connected into a network. The project emerged from the research question of efficiently integrating associative memory in Very Large Scale Integration (VLSI) architectures. After some research, it was clear that the architecture would come down to a neuromorphic architecture. Earlier implementations mainly focused on analog implementations of neurons and synapses combined with digital communication, However, Furber's previous involvement with ARM and asynchronous digital circuits led to a design based on ARM microprocessors implementing the model and network details in software. As mentioned in the introduction to neuromorphic computing, handling many communication messages is a challenge. Following the biological example is hard to achieve, as to be generally applicable would mean building a physical connection between each neuron, which apart from spatial problems also hinders scalability. This was previously solved by using a bus system with, compared to biological spikes, short digital messages encoding a unique address of the source neuron as the spike. Because of the short pulse, spikes generated simultaneously can be serialized without breaking the concepts found in nature. This protocol is called Address Event Representation (AER [Mah92]_). Each spike is a broadcast message on the bus, where
-each neuron determines if it should receive the spike through the address of the source neuron [Mah92]_.
+SpiNNaker [FB20]_ was first publicly mentioned in 1998. It is a neuromorphic architecture based on ARM microprocessors connected into a network. The project emerged from the research question of efficiently integrating associative memory in Very Large Scale Integration (VLSI) architectures. After some research, it was clear that the architecture would come down to a neuromorphic architecture. Earlier implementations mainly focused on analog implementations of neurons and synapses combined with digital communication, However, Furber's previous involvement with ARM and asynchronous digital circuits led to a design based on ARM microprocessors implementing the model and network details in software. As mentioned in the introduction to neuromorphic computing, handling many communication messages is a challenge. Following the biological example is hard to achieve, as to be generally applicable would mean building a physical connection between each neuron, which apart from spatial problems also hinders scalability. This was previously solved by using a bus system with, compared to biological spikes, short digital messages encoding a unique address of the source neuron as the spike. Because of the short pulse, spikes generated simultaneously can be serialized without breaking the concepts found in nature. This protocol is called Address Event Representation (AER [Mah92]_). Each spike is a broadcast message on the bus, where each neuron determines if it should receive the spike through the address of the source neuron [Mah92]_.
 
 As this solution uses a single bus, the scalability of the system is dependent on the bus throughput. This let the team around SpiNNaker to switch from a bus system to a packet-switched network, where packets can be routed to specified targets. Instead of being bound to the fixed specification of bus throughput, this now also allows scaling the network capacity by adding more routers. They call this Multicast Packet-Switched AER. With this architecture, they were able to achieve a system with 1 million processors called SpiNNaker1M. All information about SpiNNaker presented in this chapter comes from the book "SpiNNaker: A Spiking Neural Network Architecture" [FB20]_.
 
@@ -19,7 +22,7 @@ Generating code
 
    .. code-block:: bash
 
-      apptainer build spinnaker-apptainer.sif spinnaker-apptainer.def 
+      apptainer build spinnaker-apptainer.sif spinnaker-apptainer.def
       apptainer overlay create --size 4096 spinnaker-overlay.img
 
 2. Run the Apptainer image:
@@ -69,6 +72,24 @@ Data types
 - The NESTML data type ``integer`` will be rendered as ``int32_t``.
 
 
+Code generation for synapses
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Synaptic and neuronal models should ideally be formulated independently of each other, so that each neuron can be combined with each synapse for maximum flexibility. When a synaptic plasticity rule (such as STDP) is formulated as a computational model, the plasticity rule is often expressed as a function of the timing of pre- and postsynaptic spikes, which are used in the dynamics of the weight update for that particular rule. Note that as each neuron is typically connected to hundreds or thousands of other neurons via synapses on its axon, each of those synapses will observe the same presynaptic spike times, and store and numerically integrate them in exactly the same way, causing a very large redundancy in memory and computation.
+
+To prevent this redundancy, these values should only be stored and computed once; ideally in the instances of the neuron models, where the spike timings are readily available. To achieve this, NESTML has the capability to process a synapse model as a pair together with the (presynaptic) neuron model that it will connect to when the network is instantiated in the simulation. A list of these (neuron, synapse) pairs can be provided as code generator options when invoking the NESTML toolchain to generate code. During code generation, state variables that depend only on presynaptic spike timing are automatically identified and moved from the NESTML synapse model into the neuron model by the toolchain. In the generated code, at the points where the respective variables are used by the synapse (for instance, where they are used in calculating the change in synaptic strength), the variable references are replaced by function calls into the necessary memory space (more precisely, the header words at the start of each row). All parameters that are only used by these presynaptic dynamics (for instance, time constants) are also moved to reduce the memory requirements for the synapse. Detecting and moving the state, parameters, and dynamics (ODEs) from synapse to neuron is carried out fully autonomously. We refer to this feature as the "co-generation" of neuron and synapse. It enables flexibility and separation of concerns in the model formalisations without compromising on performance.
+
+When NESTML is invoked to generate code for plastic synapses, the (neuron, synapse) pairs can be specified as a list of two-element dictionaries of the form :code:`{"neuron": "neuron_model_name", "synapse": "synapse_model_name"}`. Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to connect the postsynaptic spiking input port on the synapse with the postsynaptic neuron. For example:
+
+.. code-block:: python
+
+   generate_target(...,
+                   codegen_opts={...,
+                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
+                                                           "synapse": "stdp_synapse"
+                                                           "post_ports": ["post_spikes"]}]})
+
+
 Use cases/examples
 ~~~~~~~~~~~~~~~~~~
 
@@ -80,6 +101,8 @@ Ignore-and-fire neuron
 
 STDP synapse
 ^^^^^^^^^^^^
+
+Additive STDP model.
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/running/running_spinnaker_figs/stdp_window.png
    :alt: Comparison between STDP window functions based on SpiNNaker simulation (orange crosses) and hand-coded Python "ground truth" simulation.

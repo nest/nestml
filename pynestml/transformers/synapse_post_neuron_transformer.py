@@ -327,15 +327,14 @@ class SynapsePostNeuronTransformer(Transformer):
         #
 
         recursive_vars_used = ASTUtils.recursive_necessary_variables_search(syn_to_neuron_state_vars, synapse)
-        new_neuron.recursive_vars_used = recursive_vars_used
-        new_neuron._transferred_variables = [neuron_state_var + var_name_suffix
-                                             for neuron_state_var in syn_to_neuron_state_vars if new_synapse.get_kernel_by_name(neuron_state_var) is None]
 
         # all state variables that will be moved from synapse to neuron
         syn_to_neuron_state_vars = []
         for var_name in recursive_vars_used:
             if ASTUtils.get_state_variable_by_name(synapse, var_name) or ASTUtils.get_inline_expression_by_name(synapse, var_name) or ASTUtils.get_kernel_by_name(synapse, var_name):
                 syn_to_neuron_state_vars.append(var_name)
+
+        new_neuron.variables_moved_from_synapse_to_neuron = syn_to_neuron_state_vars    # XXX: it would be better not to set this as a member variable of the neuron, but to pass it as an extra argument to the code generator; but for now this is the easiest way to get this information to the code generator
 
         Logger.log_message(None, -1, "State variables that will be moved from synapse to neuron: " + str(syn_to_neuron_state_vars),
                            None, LoggingLevel.INFO)

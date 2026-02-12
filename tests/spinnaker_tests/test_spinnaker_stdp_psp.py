@@ -92,14 +92,6 @@ class TestSpiNNakerSTDPPSP:
         i_syn_exc_post_neuron = post_neuron.get_data("I_syn_exc")
         i_syn_exc_post_neuron = np.array(i_syn_exc_post_neuron.segments[0].filter(name="I_syn_exc")[0])
 
-        """pre_neo = pre_input.get_data("spikes")
-        post_neo = post_neuron.get_data("spikes")
-
-        pre_spike_times = pre_neo.segments[0].spiketrains
-        post_spike_times = post_neo.segments[0].spiketrains
-
-        import pdb;pdb.set_trace()"""
-
         p.end()
 
         return times, v_post_neuron, i_syn_exc_post_neuron

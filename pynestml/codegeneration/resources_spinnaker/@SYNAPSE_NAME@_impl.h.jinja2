@@ -108,19 +108,10 @@ typedef struct {
 } plasticity_weight_region_data_t;
 
 
-
-// stuff from timing.h
-
 typedef struct post_trace_t {
     int16_t post_tr;
     uint32_t last_spike_time;
 } post_trace_t;
-
-//! The type of pre-spike traces
-typedef struct pre_trace_t {
-    int16_t pre_tr;
-} pre_trace_t;
-
 
 
 /**
@@ -128,20 +119,6 @@ typedef struct pre_trace_t {
  * https://github.com/SpiNNakerManchester/sPyNNaker/blob/master/neural_modelling/src/neuron/plasticity/synapse_dynamics.h
 **/
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-// stuff from post_events.h
 
 
 //---------------------------------------
@@ -287,9 +264,12 @@ static inline synapse_state_t synapse_structure_get_update_state(
 typedef struct {
     //! The event time
     uint32_t prev_time;
-    //! The event trace
-    pre_trace_t prev_trace;
-} pre_event_history_t;
+
+    //! The header for this synaptic row
+{%- for var in variables_moved_from_synapse_to_neuron %}
+    accum {{ var.name }};
+{%- endfor %}
+} synapse_row_plastic_header_t;
 
 //! The type of configuration parameters in SDRAM (written by host)
 typedef struct stdp_params {
@@ -340,7 +320,7 @@ void state_t_to_synapse_word(const synapse_state_t *state, synapse_word_t *synap
 {%- for sym in synapse.get_state_symbols() %}
     synapse_word->{{ sym.get_symbol_name() }} = TYPECAST_TO_UINT32_T(state->{{ sym.get_symbol_name() }});    // use the typecast to copy bit-for-bit. If we don't do this, the compiler will do a data conversion, discarding and shifting the fractional bits.
 //    log_info("[NESTML synapse] ~~~~~~~~~~~~~ assigning 0x%x to 0x%x", state->{{ sym.get_symbol_name() }}, synapse_word->{{ sym.get_symbol_name() }});
-{%- endfor %}    
+{%- endfor %}
 }
 
 
@@ -351,7 +331,7 @@ synapse_state_t synapse_word_to_state_t(const size_t const *synapse_word, const 
     return (synapse_state_t) {
 {%- for sym in synapse.get_state_symbols() %}
        .{{ sym.get_symbol_name() }} = *(synapse_word + {{ loop.index0 }}),
-{%- endfor %}    
+{%- endfor %}
     };
 }
 
@@ -359,7 +339,7 @@ synapse_state_t synapse_word_to_state_t(const size_t const *synapse_word, const 
 void state_t_to_synapse_word(const synapse_state_t state, size_t *synapse_word, const size_t synapse_word_len) {
 {%- for sym in synapse.get_state_symbols() %}
     *(synapse_word + {{ loop.index0 }}) = state.{{ sym.get_symbol_name() }};
-{%- endfor %}    
+{%- endfor %}
 }
 
 */
