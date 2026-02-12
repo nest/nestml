@@ -127,7 +127,7 @@ class SynapseRemovePostPortTransformer(Transformer):
         new_neuron.set_name(new_neuron_name)
         new_neuron.paired_synapse = new_synapse
         new_neuron.recursive_vars_used = []
-        new_neuron._transferred_variables = []
+        new_neuron._syn_to_neuron_state_vars = []
 
         #
         #    rename synapse

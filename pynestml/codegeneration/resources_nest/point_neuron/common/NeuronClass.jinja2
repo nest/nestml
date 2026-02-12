@@ -307,9 +307,9 @@ std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_i
   last_spike_ = __n.last_spike_;
 
   // cache initial values
-{%- for var_name in transferred_variables %}
+{%- for var_name in syn_to_neuron_state_vars %}
 {%-     set var = utils.get_variable_by_name(astnode, var_name) %}
-{%-     set variable_symbol = transferred_variables_syms[var_name] %}
+{%-     set variable_symbol = syn_to_neuron_state_vars_syms[var_name] %}
 {%-     if not var_name == variable_symbol.get_symbol_name() %}
 {{ raise('Error in resolving variable to symbol') }}
 {%-     endif %}
@@ -413,9 +413,9 @@ void {{ neuronName }}::init_state_internal_()
   last_spike_ = -1.;
 
   // cache initial values
-{%- for var_name in transferred_variables %}
+{%- for var_name in syn_to_neuron_state_vars %}
 {%-     set var = utils.get_variable_by_name(astnode, var_name) %}
-{%-     set variable_symbol = transferred_variables_syms[var_name] %}
+{%-     set variable_symbol = syn_to_neuron_state_vars_syms[var_name] %}
 {%-     if not var_name == variable_symbol.get_symbol_name() %}
 {{ raise('Error in resolving variable to symbol') }}
 {%-     endif %}
@@ -1378,8 +1378,8 @@ void
 	generate getter functions for the transferred variables
 #}
 
-{%- for var in transferred_variables %}
-{%- with variable_symbol = transferred_variables_syms[var] %}
+{%- for var in syn_to_neuron_state_vars %}
+{%- with variable_symbol = syn_to_neuron_state_vars_syms[var] %}
 
 {%- if not variable_symbol %}
 {%-     set variable_symbol = astnode.get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE) %}
