@@ -598,7 +598,7 @@ class NESTCodeGenerator(CodeGenerator):
         xfrm.set_options({"neuron_synapse_pairs": self.get_option("neuron_synapse_pairs")})
         namespace["post_ports"] = xfrm.get_post_port_names(synapse, None, synapse.name.removesuffix("_nestml"))
         namespace["spiking_post_ports"] = xfrm.get_spiking_post_port_names(synapse, None, synapse.name)
-        namespace["variables_moved_from_synapse_to_neuron"] = []
+        namespace["syn_to_neuron_state_vars"] = []
 
         if "paired_neuron" in dir(synapse):
             # synapse is being co-generated with neuron
@@ -607,8 +607,8 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["post_ports"] = synapse.post_port_names
             namespace["spiking_post_ports"] = synapse.spiking_post_port_names
 
-            if "variables_moved_from_synapse_to_neuron" in dir(synapse.paired_neuron):
-                namespace["variables_moved_from_synapse_to_neuron"] = synapse.variables_moved_from_synapse_to_neuron
+            if "syn_to_neuron_state_vars" in dir(synapse.paired_neuron):
+                namespace["syn_to_neuron_state_vars"] = synapse.syn_to_neuron_state_vars
 
             if "state_vars_that_need_continuous_buffering" in dir(synapse.paired_neuron):
                 namespace["state_vars_that_need_continuous_buffering"] = synapse.paired_neuron.state_vars_that_need_continuous_buffering
@@ -784,10 +784,9 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace["paired_synapse_original_model"] = neuron.paired_synapse_original_model
             namespace["paired_synapse_name"] = neuron.paired_synapse.get_name()
             namespace["post_spike_updates"] = neuron.post_spike_updates
-            namespace["variables_moved_from_synapse_to_neuron"] = neuron.variables_moved_from_synapse_to_neuron
-            namespace["variables_moved_from_synapse_to_neuron_syms"] = {var_name: neuron.scope.resolve_to_symbol(
-                var_name, SymbolKind.VARIABLE) for var_name in namespace["variables_moved_from_synapse_to_neuron"]}
-            assert not any([v is None for v in namespace["variables_moved_from_synapse_to_neuron_syms"].values()])
+            namespace["syn_to_neuron_state_vars"] = [var_name + "__for_" + neuron.paired_synapse_original_model.get_name() for var_name in neuron._syn_to_neuron_state_vars]
+            namespace["syn_to_neuron_state_vars_syms"] = {var_name: neuron.scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE) for var_name in namespace["syn_to_neuron_state_vars"]}
+            assert not any([v is None for v in namespace["syn_to_neuron_state_vars_syms"].values()])
 
         namespace["neuronName"] = neuron.get_name()
         namespace["neuron"] = neuron
@@ -817,13 +816,14 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace["analytic_state_variables"] = []
                 for sv in self.analytic_solver[neuron.get_name()]["state_variables"]:
                     moved = False
-                    for mv in neuron.variables_moved_from_synapse_to_neuron:
-                        name_snip = mv + "__"
-                        if name_snip == sv[:len(name_snip)]:
-                            # this variable was moved from synapse to neuron
-                            if not sv in namespace["analytic_state_variables_moved"]:
-                                namespace["analytic_state_variables_moved"].append(sv)
-                                moved = True
+                    if "recursive_vars_used" in dir(neuron):
+                        for mv in neuron.recursive_vars_used:
+                            name_snip = mv + "__"
+                            if name_snip == sv[:len(name_snip)]:
+                                # this variable was moved from synapse to neuron
+                                if not sv in namespace["analytic_state_variables_moved"]:
+                                    namespace["analytic_state_variables_moved"].append(sv)
+                                    moved = True
                     if not moved:
                         namespace["analytic_state_variables"].append(sv)
                 namespace["variable_symbols"].update({sym: neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(
@@ -879,7 +879,7 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace["numeric_state_variables"] = []
                 for sv in self.numeric_solver[neuron.get_name()]["state_variables"]:
                     moved = False
-                    for mv in neuron.variables_moved_from_synapse_to_neuron:
+                    for mv in neuron.syn_to_neuron_state_vars:
                         name_snip = mv + "__"
                         if name_snip == sv[:len(name_snip)]:
                             # this variable was moved from synapse to neuron

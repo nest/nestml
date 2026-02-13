@@ -258,7 +258,7 @@ static void process_pre_spike(synapse_state_t *state, uint32_t time) {
 static void process_plastic_synapse(
         uint32_t control_word,
         uint32_t last_pre_time,
-{%- for var in variables_moved_from_synapse_to_neuron %}
+{%- for var in syn_to_neuron_state_vars %}
 		accum {{ var.name }},
 {%- endfor %}
         weight_t *ring_buffers, uint32_t pre_spike_time,
@@ -485,7 +485,7 @@ bool synapse_dynamics_process_plastic_synapses(
 //        log_info("[NESTML synapse] old plastic word[%d] = %x\n", i, plastic_words[i * plastic_synapse_word_stride]);
         process_plastic_synapse(control_word,
                                 last_pre_time,
-{%- for var in variables_moved_from_synapse_to_neuron %}
+{%- for var in syn_to_neuron_state_vars %}
 		                        plastic_region_address->history.{{ var.name }},
 {%- endfor %}
                                 plastic_region_address->history.prev_trace,
