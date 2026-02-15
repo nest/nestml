@@ -520,14 +520,6 @@ def process() -> bool:
     code_generator = code_generator_from_target_name(FrontendConfiguration.get_target_platform())
     unused_opts_codegen = code_generator.set_options(FrontendConfiguration.get_codegen_opts())
 
-
-#!!
-    #give spinnaker code generator codegen_cpp and codegen_py codegenopts
-    #if FrontendConfiguration.get_target_platform().upper() in ["SPINNAKER"]:
-     #   print("HALLO test")
-      #  code_generator.codegen_cpp.set_options(FrontendConfiguration.get_codegen_opts())
-
-
     # initialise builder
     _builder, unused_opts_builder = builder_from_target_name(FrontendConfiguration.get_target_platform(),
                                                              options=FrontendConfiguration.get_codegen_opts())
