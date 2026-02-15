@@ -157,17 +157,17 @@ class SynapsePostNeuronTransformer(Transformer):
         if self.option_exists("weight_variable") and removesuffix(synapse.get_name(), FrontendConfiguration.suffix) in self.get_option("weight_variable").keys() and self.get_option("weight_variable")[removesuffix(synapse.get_name(), FrontendConfiguration.suffix)]:
             strictly_synaptic_vars.add(self.get_option("weight_variable")[removesuffix(synapse.get_name(), FrontendConfiguration.suffix)])
 
-        syn_to_neuron_state_vars = ASTUtils.collect_variables_affected_by_ports(synapse, post_port_names, strictly_synaptic_vars=strictly_synaptic_vars)
-        new_neuron._syn_to_neuron_state_vars = syn_to_neuron_state_vars
+        affected_vars = ASTUtils.collect_variables_affected_by_ports(synapse, post_port_names, strictly_synaptic_vars=strictly_synaptic_vars)
+        new_neuron._syn_to_neuron_state_vars = [var for var in affected_vars if not (synapse.get_kernel_by_name(var) or neuron.get_kernel_by_name(var))]
 
-        Logger.log_message(None, -1, "State variables that will be moved from synapse to neuron: " + str(syn_to_neuron_state_vars),
+        Logger.log_message(None, -1, "State variables that will be moved from synapse to neuron: " + str(affected_vars),
                            None, LoggingLevel.INFO)
 
         #
         #   collect all the parameters
         #
 
-        syn_to_neuron_params, all_declared_params = ASTUtils.collect_parameters_needed_for_state_vars(synapse, syn_to_neuron_state_vars)
+        syn_to_neuron_params, all_declared_params = ASTUtils.collect_parameters_needed_for_state_vars(synapse, affected_vars)
 
         Logger.log_message(None, -1, "Parameters that will be copied from synapse to neuron: " + str(syn_to_neuron_params),
                            None, LoggingLevel.INFO)
@@ -219,32 +219,32 @@ class SynapsePostNeuronTransformer(Transformer):
         if not new_neuron.get_equations_blocks():
             ASTUtils.create_equations_block(new_neuron)
 
-        for state_var in syn_to_neuron_state_vars:
-            Logger.log_message(None, -1, "Moving state var defining equation(s) " + str(state_var),
+        for var in affected_vars:
+            Logger.log_message(None, -1, "Moving state var defining equation(s) " + str(var),
                                None, LoggingLevel.INFO)
             # move the ODE so a solver will be generated for it by ODE-toolbox
-            decls = ASTUtils.equations_from_block_to_block(state_var,
+            decls = ASTUtils.equations_from_block_to_block(var,
                                                            new_synapse.get_equations_blocks()[0],
                                                            new_neuron.get_equations_blocks()[0],
                                                            var_name_suffix,
                                                            mode="move")
-            ASTUtils.add_suffix_to_variable_names2(post_port_names + syn_to_neuron_state_vars + syn_to_neuron_params, decls, var_name_suffix)
+            ASTUtils.add_suffix_to_variable_names2(post_port_names + affected_vars + syn_to_neuron_params, decls, var_name_suffix)
             ASTUtils.replace_post_moved_variable_names(decls, [name + var_name_suffix for name in post_connected_continuous_input_ports], post_variable_names)
-            ASTUtils.remove_state_var_from_integrate_odes_calls(new_synapse, state_var)
-            # ASTUtils.add_integrate_odes_call_to_update_block(new_neuron, state_var)   # the moved state variables are never needed inside the neuron, their values are only read out from the side of the synapse. Therefore they do not have to be added to integrate_odes() calls; we just have to make sure the value has been updated before the end of the timestep
+            ASTUtils.remove_state_var_from_integrate_odes_calls(new_synapse, var)
+            # ASTUtils.add_integrate_odes_call_to_update_block(new_neuron, var)   # the moved state variables are never needed inside the neuron, their values are only read out from the side of the synapse. Therefore they do not have to be added to integrate_odes() calls; we just have to make sure the value has been updated before the end of the timestep
             # for now, moved variables are integrated separately in time in set_spiketime()
 
         #
         #    move initial values for equations
         #
 
-        if syn_to_neuron_state_vars and not new_neuron.get_state_blocks():
+        if affected_vars and not new_neuron.get_state_blocks():
             ASTUtils.create_state_block(new_neuron)
 
-        for state_var in syn_to_neuron_state_vars:
-            Logger.log_message(None, -1, "Moving state variables for equation(s) " + str(state_var),
+        for var in affected_vars:
+            Logger.log_message(None, -1, "Moving state variables for equation(s) " + str(var),
                                None, LoggingLevel.INFO)
-            ASTUtils.move_decls(var_name=state_var,
+            ASTUtils.move_decls(var_name=var,
                                 from_block=new_synapse.get_state_blocks()[0],
                                 to_block=new_neuron.get_state_blocks()[0],
                                 var_name_suffix=var_name_suffix,
@@ -287,7 +287,7 @@ class SynapsePostNeuronTransformer(Transformer):
         # find all statements in post receive block
         collected_on_post_stmts = []
 
-        recursive_vars_used = ASTUtils.recursive_necessary_variables_search(syn_to_neuron_state_vars, synapse)
+        recursive_vars_used = ASTUtils.recursive_necessary_variables_search(affected_vars, synapse)
 
         new_neuron.recursive_vars_used = recursive_vars_used
 
@@ -301,7 +301,7 @@ class SynapsePostNeuronTransformer(Transformer):
                             if stmt.is_small_stmt() \
                                and stmt.small_stmt.is_assignment() \
                                and ASTUtils.depends_only_on_vars(stmt.small_stmt.get_assignment().rhs, recursive_vars_used + all_declared_params) \
-                               and stmt.small_stmt.get_assignment().get_variable().get_complete_name() in syn_to_neuron_params + syn_to_neuron_state_vars:
+                               and stmt.small_stmt.get_assignment().get_variable().get_complete_name() in syn_to_neuron_params + affected_vars:
                                 Logger.log_message(None, -1, "\tMoving statement " + str(stmt).strip(), None, LoggingLevel.INFO)
 
                                 collected_on_post_stmts.append(stmt)
@@ -332,9 +332,9 @@ class SynapsePostNeuronTransformer(Transformer):
                     post_variable_names.append(self.get_neuron_var_name_from_syn_port_name(
                         port.get_name(), neuron.name, synapse.name))
 
-        for state_var in post_connected_continuous_input_ports:
-            Logger.log_message(None, -1, "\t• Replacing variable " + str(state_var), None, LoggingLevel.INFO)
-            ASTUtils.replace_with_external_variable(state_var, new_synapse, "", None, "__" + state_var)
+        for var in post_connected_continuous_input_ports:
+            Logger.log_message(None, -1, "\t• Replacing variable " + str(var), None, LoggingLevel.INFO)
+            ASTUtils.replace_with_external_variable(var, new_synapse, "", None, "__" + var)
 
         #
         #    copy parameters
@@ -369,9 +369,9 @@ class SynapsePostNeuronTransformer(Transformer):
 
         Logger.log_message(
             None, -1, "In synapse: replacing variables with suffixed external variable references", None, LoggingLevel.INFO)
-        for state_var in syn_to_neuron_state_vars:
-            Logger.log_message(None, -1, "\t• Replacing variable " + str(state_var), None, LoggingLevel.INFO)
-            ASTUtils.replace_with_external_variable(state_var, new_synapse, var_name_suffix, new_neuron.get_scope())
+        for var in affected_vars:
+            Logger.log_message(None, -1, "\t• Replacing variable " + str(var), None, LoggingLevel.INFO)
+            ASTUtils.replace_with_external_variable(var, new_synapse, var_name_suffix, new_neuron.get_scope())
 
         #
         #     remove newly added equation blocks again if they are empty
