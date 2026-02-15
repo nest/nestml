@@ -311,9 +311,9 @@ std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_i
 {%-     set var = utils.get_variable_by_name(astnode, var_name) %}
 {%-     set variable_symbol = syn_to_neuron_state_vars_syms[var_name] %}
 {%-     if not var_name == variable_symbol.get_symbol_name() %}
-{{ raise('Error in resolving variable to symbol') }}
+{{          raise('Error in resolving variable to symbol') }}
 {%-     endif %}
-  {{var_name}}__iv = {{printer.print(var)}};
+  {{ var_name }}__iv = {{ printer.print(var) }};
 {%- endfor %}
 {%- endif %}
 }
