@@ -19,7 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Union
+import copy
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Set, Union
 
 import re
 import sympy
@@ -1767,7 +1768,7 @@ class ASTUtils:
         return decls
 
     @classmethod
-    def recursive_dependent_variables_search(cls, vars: List[str], model: ASTModel) -> List[str]:
+    def recursive_dependent_variables_search(cls, vars: Iterable[str], model: ASTModel) -> Set[str]:
         """
         Collect all the variable names used in the defining expressions of a list of variables.
         :param vars: list of variable names moved from synapse to neuron
@@ -1778,15 +1779,11 @@ class ASTUtils:
         for var in vars:
             assert type(var) is str
 
-        vars_used = vars.copy()
-        i = 0
-        while i < len(vars_used):
-            new_vars = ASTUtils.get_dependent_variables(vars_used[i], model)
-            new_vars = list(set(new_vars) - set(vars_used))
-            vars_used.extend(new_vars)
-            i += 1
+        dep_vars: Set[str] = set(vars)
+        for var in vars:
+            dep_vars |= ASTUtils.get_dependent_variables(var, model)
 
-        return list(set(vars_used))
+        return dep_vars
 
     @classmethod
     def recursive_necessary_variables_search(cls, vars: List[str], model: ASTModel) -> List[str]:
@@ -1933,23 +1930,8 @@ class ASTUtils:
         return visitor.vars
 
     @classmethod
-    def get_all_variables_assigned_to(cls, node: ASTNode):
-        class GetDependentVariablesVisitor(ASTVisitor):
-            def __init__(self):
-                super().__init__()
-                self.vars = set()
-
-            def visit_assignment(self, node: ASTAssignment) -> None:
-                self.vars.add(node.lhs.get_name())
-
-        visitor = GetDependentVariablesVisitor()
-        node.accept(visitor)
-
-        return visitor.vars
-
-    @classmethod
-    def get_dependent_variables(cls, var: str, model: ASTExpression) -> List[ASTVariable]:
-        r"""Return a list of all left-hand side variables in the model that depend on ``var`` in their right-hand side."""
+    def get_dependent_variables(cls, var: str, model: ASTNode) -> Set[str]:
+        r"""Return a set of all left-hand side variables in the model that depend on ``var`` in their right-hand side."""
         class GetDependentVariablesVisitor(ASTVisitor):
             def __init__(self):
                 super().__init__()
@@ -1970,7 +1952,7 @@ class ASTUtils:
             def visit_kernel(self, node: ASTKernel) -> None:
                 for expr in node.get_expressions():
                     # exclude the special case "t" because a function-of-time kernel might depend on t
-                    if not var == "t" and var in ASTUtils.get_all_variables_names_in_expression(expr):
+                    if not var == PredefinedVariables.TIME_CONSTANT and var in ASTUtils.get_all_variables_names_in_expression(expr):
                         self.vars |= set([var.get_name() for var in node.get_variables()])
 
             def visit_assignment(self, node: ASTAssignment) -> None:
@@ -2652,14 +2634,16 @@ class ASTUtils:
         return None
 
     @classmethod
-    def collect_variables_affected_by_ports(cls, model, post_port_names, strictly_synaptic_vars=None):
+    def collect_variables_affected_by_ports(cls, model, post_port_names, strictly_synaptic_vars: Optional[Set[str]] = None):
 
         if not strictly_synaptic_vars:
-            strictly_synaptic_vars = []
+            strictly_synaptic_vars: Set[str] = set()
 
-        if not "t" in strictly_synaptic_vars:
-            strictly_synaptic_vars.append("t")
-            #
+        strictly_synaptic_vars = set(strictly_synaptic_vars)    # make a copy
+
+        strictly_synaptic_vars.add(PredefinedVariables.TIME_CONSTANT)
+
+        #
         #   determine which variables and dynamics in synapse can be transferred to neuron
         #
 
@@ -2680,11 +2664,11 @@ class ASTUtils:
         for input_block in model.get_input_blocks():
             for port in input_block.get_input_ports():
                 if port.name not in post_port_names:
-                    strictly_synaptic_vars += ASTUtils.get_all_variables_assigned_to(model.get_on_receive_block(port.name))
+                    strictly_synaptic_vars |= ASTUtils.get_all_variables_assigned_to(model.get_on_receive_block(port.name))
 
         # exclude all variables that are assigned to in the ``update`` block
         for update_block in model.get_update_blocks():
-            strictly_synaptic_vars += ASTUtils.get_all_variables_assigned_to(update_block)
+            strictly_synaptic_vars |= ASTUtils.get_all_variables_assigned_to(update_block)
 
         # exclude convolutions if they are not with a postsynaptic variable
         convolve_with_not_post_vars = ASTUtils.get_convolve_vars_exclude_port(model.get_equations_blocks(), post_port_names, model)
@@ -2693,7 +2677,7 @@ class ASTUtils:
         strictly_synaptic_vars_dependent = ASTUtils.recursive_dependent_variables_search(strictly_synaptic_vars, model)
 
         # do set subtraction
-        syn_to_neuron_state_vars = list(set(all_state_vars) - (set(strictly_synaptic_vars) | set(convolve_with_not_post_vars) | set(strictly_synaptic_vars_dependent)))
+        syn_to_neuron_state_vars = list(set(all_state_vars) - (strictly_synaptic_vars | set(convolve_with_not_post_vars) | set(strictly_synaptic_vars_dependent)))
 
         #
         #   collect all the variable/parameter/kernel/function/etc. names used in defining expressions of `syn_to_neuron_state_vars`
@@ -2710,24 +2694,22 @@ class ASTUtils:
         return syn_to_neuron_state_vars
 
     @classmethod
-    def get_all_variables_assigned_to(cls, node):
+    def get_all_variables_assigned_to(cls, node: ASTNode) -> Set[str]:
         r"""Return a list of all variables that are assigned to in ``node``."""
         class ASTAssignedToVariablesFinderVisitor(ASTVisitor):
-            _variable_names = []
-
-            def __init__(self, synapse):
-                super(ASTAssignedToVariablesFinderVisitor, self).__init__()
-                self.synapse = synapse
+            def __init__(self):
+                super().__init__()
+                self._variable_names = set()
 
             def visit_assignment(self, node):
                 symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_complete_name(), SymbolKind.VARIABLE)
                 assert symbol is not None    # should have been checked in a CoCo before
-                self._variable_names.append(node.get_variable().get_name())
+                self._variable_names.add(node.get_variable().get_name())
 
         if node is None:
-            return []
+            return set()
 
-        visitor = ASTAssignedToVariablesFinderVisitor(node)
+        visitor = ASTAssignedToVariablesFinderVisitor()
         node.accept(visitor)
 
         return visitor._variable_names
