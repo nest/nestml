@@ -138,6 +138,8 @@ inline {{ function_declaration.FunctionDeclaration(function, "nest::"~ion_channe
 
 {%- with %}
 {%- for ion_channel_name, channel_info in chan_info.items() %}
+    {%- set non_vec_vars = channel_info["non_vec_vars"] %}
+    //{{ non_vec_vars }}
 
 // {{ion_channel_name}} channel //////////////////////////////////////////////////////////////////
 void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t comp_ass)
@@ -165,21 +167,21 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
         // state variable {{pure_variable_name}}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+ion_channel_name+"_channel_count-1") -}});
+        {{variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+ion_channel_name+"_channel_count-1", non_vec_vars) -}});
         {%- endfor %}
 
         {% for variable_type, variable_info in channel_info["Parameters"].items() %}
         // channel parameter {{variable_type }}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+ion_channel_name+"_channel_count-1") -}});
+        {{variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+ion_channel_name+"_channel_count-1", non_vec_vars) -}});
         {%- endfor %}
 
         {% for variable_type, variable_info in channel_info["Internals"].items() %}
         // channel parameter {{variable_type }}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+ion_channel_name+"_channel_count-1") -}});
+        {{variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+ion_channel_name+"_channel_count-1", non_vec_vars) -}});
         {%- endfor %}
 
         {% for state in channel_info["Dependencies"]["global"] %}
@@ -206,8 +208,6 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
       {{ variable }}.push_back(0);
         {%- endif %}
       {%- endfor %}
-
-      self_spikes.push_back(false);
     }
 }
 
@@ -243,7 +243,7 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
         // state variable {{pure_variable_name }}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+ion_channel_name+"_channel_count-1") -}});
+        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+ion_channel_name+"_channel_count-1", non_vec_vars) -}});
         {%- endfor %}
 
         {%- for variable_type, variable_info in channel_info["States"].items() %}
@@ -266,7 +266,7 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
         // channel parameter {{variable_type }}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+ion_channel_name+"_channel_count-1") -}});
+        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+ion_channel_name+"_channel_count-1", non_vec_vars) -}});
         {%- endfor %}
 
         {%- for variable_type, variable_info in channel_info["Parameters"].items() %}
@@ -281,7 +281,7 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
         // state variable {{pure_variable_name }}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+ion_channel_name+"_channel_count-1") -}});
+        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+ion_channel_name+"_channel_count-1", non_vec_vars) -}});
         {%- endfor %}
 
         {% for state in channel_info["Dependencies"]["global"] %}
@@ -308,8 +308,6 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
             {{ variable }}.push_back(0);
         {%- endif %}
       {%- endfor %}
-
-        self_spikes.push_back(false);
     }
 }
 
@@ -360,13 +358,13 @@ void calibrate() {
 void nest::{{ion_channel_name}}{{cm_unique_suffix}}::pre_run_hook() {
 {%- endif %}
     {% if "time_resolution_var" in channel_info %}
-    std::vector< double > {{ printer_no_origin.print(channel_info["time_resolution_var"]) }}(neuron_{{ ion_channel_name }}_channel_count, Time::get_resolution().get_ms());
+    double {{ printer_no_origin.print(channel_info["time_resolution_var"]) }} = Time::get_resolution().get_ms();
     {% endif %}
     for(std::size_t i = 0; i < neuron_{{ ion_channel_name }}_channel_count; i++){
                     // set propagators to ode toolbox returned value
   {%- for convolution, convolution_info in channel_info["convolutions"].items() %}
   {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
-    {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+    {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["init_expression"], "i", non_vec_vars) }};
   {%- endfor %}
   {%- endfor %}
 
@@ -385,32 +383,25 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(const std::vector
                         {% endif %}{% for inline in channel_info["Dependencies"]["continuous"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}
                         , std::vector< double >& i_val, std::vector< double >& g_val)
 {
-        std::vector< double > d_i_tot_dv(neuron_{{ ion_channel_name }}_channel_count, 0.);
-
         {% if "time_resolution_var" in channel_info %}
-    std::vector< double > {{ printer_no_origin.print(channel_info["time_resolution_var"]) }}(neuron_{{ ion_channel_name }}_channel_count, Time::get_resolution().get_ms());
+    double {{ printer_no_origin.print(channel_info["time_resolution_var"]) }} = Time::get_resolution().get_ms();
     {% endif %}
 
-        {%- for ode_variable, ode_info in channel_info["ODEs"].items() %}
-            {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-        std::vector< double > {{ propagator }}(neuron_{{ ion_channel_name }}_channel_count, 0);
-            {%- endfor %}
-        {%- endfor %}
         #pragma omp simd
         for(std::size_t i = 0; i < neuron_{{ ion_channel_name }}_channel_count; i++){
         {%- for convolution, convolution_info in channel_info["convolutions"].items() %}
       {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
-      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i") }};
-      {{state_variable_name}}[i] += self_spikes[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i", non_vec_vars) }};
+      {{state_variable_name}}[i] += self_spikes * {{ vector_printer.print(state_variable_info["init_expression"], "i", non_vec_vars) }};
       {%- endfor %}
       {%- endfor %}
 
         {%- for ode_variable, ode_info in channel_info["ODEs"].items() %}
             {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-            {{ propagator }}[i] = {{ vector_printer.print(propagator_info["init_expression"], "i") }};
+            double {{ propagator }} = {{ vector_printer.print(propagator_info["init_expression"], "i", non_vec_vars) }};
             {%- endfor %}
             {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
-            {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i") }};
+            {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i", non_vec_vars) }};
             {%- endfor %}
         {%- endfor %}
 
@@ -418,12 +409,12 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(const std::vector
         {%- set inline_expression_d = channel_info["inline_derivative"] %}
 
             // compute the conductance of the {{ion_channel_name}} channel
-            this->i_tot_{{ion_channel_name}}[i] = {{ vector_printer.print(inline_expression.get_expression(), "i") }};
+            i_tot_{{ion_channel_name}}[i] = {{ vector_printer.print(inline_expression.get_expression(), "i", non_vec_vars) }};
 
             // derivative
-            d_i_tot_dv[i] = {{ vector_printer.print(inline_expression_d, "i") }};
-            g_val[i] = - d_i_tot_dv[i];
-            i_val[i] = this->i_tot_{{ion_channel_name}}[i] - d_i_tot_dv[i] * v_comp[i];
+            double d_i_tot_dv = {{ vector_printer.print(inline_expression_d, "i", non_vec_vars) }};
+            g_val[i] = - d_i_tot_dv;
+            i_val[i] = i_tot_{{ion_channel_name}}[i] - d_i_tot_dv * v_comp[i];
         }
     f_update();
 
@@ -433,7 +424,7 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(const std::vector
         {%- if variable_info.is_recordable %}
         {%- set variable = variable_info.variable_name %}
         {%- set rhs_expression = variable_info.expression %}
-        {{ variable }}[i] = {{ vector_printer.print(rhs_expression, "i") }};
+        {{ variable }}[i] = {{ vector_printer.print(rhs_expression, "i", non_vec_vars) }};
         {%- endif %}
     {%- endfor %}
     }
@@ -442,19 +433,19 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(const std::vector
 void nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_update()
 {
     double __resolution = Time::get_resolution().get_ms();
+    #pragma omp simd
     for(std::size_t i = 0; i < neuron_{{ ion_channel_name }}_channel_count; i++){
     {%- if channel_info["Blocks"] %}
         {%- if channel_info["Blocks"]["UpdateBlock"] %}
         {%- set function = channel_info["Blocks"]["UpdateBlock"] %}
         {%-   filter indent(2,True) %}
         {%-   with ast = function.get_stmts_body() %}
-        {%- set printer = vector_printer %}
+        {%- set printer = vector_printer.printer(black_list = non_vec_vars) %}
         {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}
         {%- endif %}
     {%- endif %}
-        self_spikes[i] = false;
     }
 }
 
@@ -462,13 +453,12 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_self_spike()
 {
     double __resolution = Time::get_resolution().get_ms();
     for(std::size_t i = 0; i < neuron_{{ ion_channel_name }}_channel_count; i++){
-        self_spikes[i] = true;
     {%- if channel_info["Blocks"] %}
         {%- if channel_info["Blocks"]["SelfSpikesFunction"] %}
         {%- set function = channel_info["Blocks"]["SelfSpikesFunction"] %}
         {%-   filter indent(2,True) %}
         {%-   with ast = function.get_stmts_body() %}
-        {%- set printer = vector_printer %}
+        {%- set printer = vector_printer.printer(black_list = non_vec_vars) %}
         {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}
@@ -505,6 +495,7 @@ std::vector< double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::distribute
 //////////////////////////////// concentrations
 {%- with %}
 {%- for concentration_name, concentration_info in conc_info.items() %}
+    {%- set non_vec_vars = concentration_info["non_vec_vars"] %}
 
 // {{ concentration_name }} concentration /////////////////////////////////////////////////////
 
@@ -534,7 +525,7 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
             {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
             {%- set rhs_expression = variable_info["transformed_solutions"][0]["states"][variable_name]["init_expression"] %}
             {%- if variable_name == concentration_name %}
-                {{ concentration_name }}[neuron_{{ concentration_name }}_concentration_count-1] = {{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count-1") -}};
+                {{ concentration_name }}[neuron_{{ concentration_name }}_concentration_count-1] = {{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count-1", non_vec_vars) -}};
             {%- endif %}
         {%- endfor %}
 
@@ -542,21 +533,21 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
         // state variable {{pure_variable_name }}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count-1") -}});
+        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count-1", non_vec_vars) -}});
         {%- endfor %}
 
         {% for variable_type, variable_info in concentration_info["Parameters"].items() %}
         // channel parameter {{variable_type }}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count-1") -}});
+        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count-1", non_vec_vars) -}});
         {%- endfor %}
 
         {% for variable_type, variable_info in concentration_info["Internals"].items() %}
         // channel parameter {{variable_type }}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count-1") -}});
+        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count-1", non_vec_vars) -}});
         {%- endfor %}
 
             // set propagators to ode toolbox returned value
@@ -579,8 +570,6 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
       {{ variable }}.push_back(0);
         {%- endif %}
       {%- endfor %}
-
-        self_spikes.push_back(false);
     }
 }
 
@@ -616,7 +605,7 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
             {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
             {%- set rhs_expression = variable_info["transformed_solutions"][0]["states"][variable_name]["init_expression"] %}
             {%- if variable_name == concentration_name %}
-                {{ concentration_name }}[neuron_{{ concentration_name }}_concentration_count-1] = {{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count-1") -}};
+                {{ concentration_name }}[neuron_{{ concentration_name }}_concentration_count-1] = {{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count-1", non_vec_vars) -}};
             {%- endif %}
         {%- endfor %}
 
@@ -624,7 +613,7 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
         // state variable {{pure_variable_name }}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count-1") -}});
+        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count-1", non_vec_vars) -}});
         {%- endfor %}
 
         {%- for variable_type, variable_info in concentration_info["States"].items() %}
@@ -647,7 +636,7 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
         // channel parameter {{variable_type }}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count-1") -}});
+        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count-1", non_vec_vars) -}});
         {%- endfor %}
 
         {%- for variable_type, variable_info in concentration_info["Parameters"].items() %}
@@ -662,7 +651,7 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
         // state variable {{pure_variable_name }}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count-1") -}});
+        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count-1", non_vec_vars) -}});
         {%- endfor %}
 
         // set propagators to ode toolbox returned value
@@ -685,8 +674,6 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
       {{ variable }}.push_back(0);
         {%- endif %}
       {%- endfor %}
-
-        self_spikes.push_back(false);
     }
 }
 
@@ -740,20 +727,20 @@ void nest::{{ concentration_name }}{{cm_unique_suffix}}::calibrate() {
 void nest::{{ concentration_name }}{{cm_unique_suffix}}::pre_run_hook() {
 {%- endif %}
     {% if "time_resolution_var" in concentration_info %}
-    std::vector< double > {{ printer_no_origin.print(concentration_info["time_resolution_var"]) }}(neuron_{{ concentration_name }}_concentration_count, Time::get_resolution().get_ms());
+    double {{ printer_no_origin.print(concentration_info["time_resolution_var"]) }} = Time::get_resolution().get_ms();
     {% endif %}
     for(std::size_t concentration_id = 0; concentration_id < neuron_{{ concentration_name }}_concentration_count; concentration_id++){
     // states
     {%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name }}[concentration_id] = {{ vector_printer.print(rhs_expression, "concentration_id") }};
+        {{ variable.name }}[concentration_id] = {{ vector_printer.print(rhs_expression, "concentration_id", non_vec_vars) }};
     {%- endfor %}
 
             // set propagators to ode toolbox returned value
   {%- for convolution, convolution_info in concentration_info["convolutions"].items() %}
   {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
-    {{state_variable_name}}[concentration_id] = {{ vector_printer.print(state_variable_info["init_expression"], "concentration_id") }};
+    {{state_variable_name}}[concentration_id] = {{ vector_printer.print(state_variable_info["init_expression"], "concentration_id", non_vec_vars) }};
   {%- endfor %}
   {%- endfor %}
 
@@ -772,30 +759,24 @@ void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(const std::ve
                         {% endif %}{% for inline in concentration_info["Dependencies"]["continuous"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %})
 {
     {% if "time_resolution_var" in concentration_info %}
-        std::vector< double > {{ printer_no_origin.print(concentration_info["time_resolution_var"]) }}(neuron_{{ concentration_name }}_concentration_count, Time::get_resolution().get_ms());
+        double {{ printer_no_origin.print(concentration_info["time_resolution_var"]) }} = Time::get_resolution().get_ms();
     {% endif %}
-
-        {%- for ode_variable, ode_info in concentration_info["ODEs"].items() %}
-            {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-        std::vector< double > {{ propagator }}(neuron_{{ concentration_name }}_concentration_count, 0);
-            {%- endfor %}
-        {%- endfor %}
 
         #pragma omp simd
         for(std::size_t i = 0; i < neuron_{{ concentration_name }}_concentration_count; i++){
         {%- for convolution, convolution_info in concentration_info["convolutions"].items() %}
       {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
-      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i") }};
-      {{state_variable_name}}[i] += self_spikes[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i", non_vec_vars) }};
+      {{state_variable_name}}[i] += self_spikes * {{ vector_printer.print(state_variable_info["init_expression"], "i", non_vec_vars) }};
       {%- endfor %}
       {%- endfor %}
 
         {%- for ode_variable, ode_info in concentration_info["ODEs"].items() %}
             {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-            {{ propagator }}[i] = {{ vector_printer.print(propagator_info["init_expression"], "i") }};
+            double {{ propagator }} = {{ vector_printer.print(propagator_info["init_expression"], "i", non_vec_vars) }};
             {%- endfor %}
             {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
-            {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i") }};
+            {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i", non_vec_vars) }};
             {%- endfor %}
         {%- endfor %}
         }
@@ -808,7 +789,7 @@ void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(const std::ve
         {%- if variable_info.is_recordable %}
         {%- set variable = variable_info.variable_name %}
         {%- set rhs_expression = variable_info.expression %}
-        {{ variable }}[i] = {{ vector_printer.print(rhs_expression, "i") }};
+        {{ variable }}[i] = {{ vector_printer.print(rhs_expression, "i", non_vec_vars) }};
         {%- endif %}
     {%- endfor %}
     }
@@ -823,13 +804,12 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::f_update()
         {%- set function = concentration_info["Blocks"]["UpdateBlock"] %}
         {%-   filter indent(2,True) %}
         {%-   with ast = function.get_stmts_body() %}
-        {%- set printer = vector_printer %}
+        {%- set printer = vector_printer.printer(black_list = non_vec_vars) %}
         {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}
         {%- endif %}
     {%- endif %}
-        self_spikes[i] = false;
     }
 }
 
@@ -837,13 +817,12 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::f_self_spike()
 {
     double __resolution = Time::get_resolution().get_ms();
     for(std::size_t i = 0; i < neuron_{{ concentration_name }}_concentration_count; i++){
-        self_spikes[i] = true;
     {%- if concentration_info["Blocks"] %}
         {%- if concentration_info["Blocks"]["SelfSpikesFunction"] %}
         {%- set function = concentration_info["Blocks"]["SelfSpikesFunction"] %}
         {%-   filter indent(2,True) %}
         {%-   with ast = function.get_stmts_body() %}
-        {%- set printer = vector_printer %}
+        {%- set printer = vector_printer.printer(black_list = non_vec_vars) %}
         {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}
@@ -882,6 +861,7 @@ std::vector< double > nest::{{concentration_name}}{{cm_unique_suffix}}::distribu
 
 {%- for receptor_name, receptor_info in recs_info.items() %}
 // {{receptor_name}} receptor ////////////////////////////////////////////////////////////////
+    {%- set non_vec_vars = receptor_info["non_vec_vars"] %}
 
 void nest::{{receptor_name}}{{cm_unique_suffix}}::new_receptor(std::size_t comp_ass, const long rec_index)
 {
@@ -894,14 +874,14 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::new_receptor(std::size_t comp_
     // state variable {{pure_variable_name }}
     {%- set variable = variable_info["ASTVariable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1") -}});
+    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1", non_vec_vars) -}});
     {%- endfor %}
 
     {% for variable_type, variable_info in receptor_info["Parameters"].items() %}
     // receptor parameter {{variable_type }}
     {%- set variable = variable_info["ASTVariable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1") -}});
+    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1", non_vec_vars) -}});
     {%- endfor %}
 
     // set propagators to ode toolbox returned value
@@ -929,8 +909,6 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::new_receptor(std::size_t comp_
       {{ variable }}.push_back(0);
         {%- endif %}
       {%- endfor %}
-
-    self_spikes.push_back(false);
 }
 
 void nest::{{receptor_name}}{{cm_unique_suffix}}::new_receptor(std::size_t comp_ass, const long rec_index, const DictionaryDatum& receptor_params)
@@ -945,7 +923,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::new_receptor(std::size_t comp_
     // state variable {{pure_variable_name }}
     {%- set variable = variable_info["ASTVariable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1") -}});
+    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1", non_vec_vars) -}});
     {%- endfor %}
 
     {%- for variable_type, variable_info in receptor_info["States"].items() %}
@@ -966,7 +944,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::new_receptor(std::size_t comp_
     // receptor parameter {{variable_type }}
     {%- set variable = variable_info["ASTVariable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1") -}});
+    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1", non_vec_vars) -}});
     {%- endfor %}
 
     {%- for variable_type, variable_info in receptor_info["Parameters"].items() %}
@@ -1000,8 +978,6 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::new_receptor(std::size_t comp_
       {{ variable }}.push_back(0);
         {%- endif %}
       {%- endfor %}
-
-    self_spikes.push_back(false);
 }
 
 void
@@ -1043,17 +1019,13 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::pre_run_hook()
 {%- endif %}
 {
 
-    std::vector< double > {{ printer_no_origin.print(receptor_info["analytic_helpers"]["__h"]["ASTVariable"]) }}(neuron_{{ receptor_name }}_receptor_count, Time::get_resolution().get_ms());
-
-  {%- for state_name, state_declaration in receptor_info["States"].items() %}
-    std::vector< double > {{state_name}} = (neuron_{{ receptor_name }}_receptor_count, {{ printer_no_origin.print(state_declaration["rhs_expression"])}});
-  {%- endfor %}
+    double {{ printer_no_origin.print(receptor_info["analytic_helpers"]["__h"]["ASTVariable"]) }} = Time::get_resolution().get_ms();
 
   for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
     // set propagators to ode toolbox returned value
   {%- for convolution, convolution_info in receptor_info["convolutions"].items() %}
   {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
-    {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+    {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["init_expression"], "i", non_vec_vars) }};
   {%- endfor %}
   {%- endfor %}
 
@@ -1066,7 +1038,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::pre_run_hook()
 
     // user declared internals in order they were declared
   {%- for internal_name, internal_declaration in receptor_info["internals_used_declared"] %}
-    {{internal_name}}[i] = {{ vector_printer.print(internal_declaration.get_expression(), "i") }};
+    {{internal_name}}[i] = {{ vector_printer.print(internal_declaration.get_expression(), "i", non_vec_vars) }};
   {%- endfor %}
 
   s_val = std::vector<double>(neuron_{{ receptor_name }}_receptor_count, 0);
@@ -1081,15 +1053,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::f_numstep(const std::vector< d
                         {% endif %}{% for inline in receptor_info["Dependencies"]["continuous"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}
                         , std::vector< double >& i_val, std::vector< double >& g_val)
 {
-    std::vector< double > d_i_tot_dv(neuron_{{ receptor_name }}_receptor_count, 0.);
-
-    {%- for ode_variable, ode_info in receptor_info["ODEs"].items() %}
-            {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-    std::vector< double > {{ propagator }}(neuron_{{ receptor_name }}_receptor_count, 0);
-            {%- endfor %}
-    {%- endfor %}
-
-    {% if receptor_info["ODEs"].items()|length %} std::vector< double > {{ printer_no_origin.print(receptor_info["analytic_helpers"]["__h"]["ASTVariable"]) }}(neuron_{{ receptor_name }}_receptor_count, Time::get_resolution().get_ms()); {% endif %}
+    {% if receptor_info["ODEs"].items()|length %} double {{ printer_no_origin.print(receptor_info["analytic_helpers"]["__h"]["ASTVariable"]) }} = Time::get_resolution().get_ms(); {% endif %}
 
   for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
       // get spikes
@@ -1101,21 +1065,21 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::f_numstep(const std::vector< d
   for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
       {%- for ode_variable, ode_info in receptor_info["ODEs"].items() %}
           {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-      {{ propagator }}[i] = {{ vector_printer.print(propagator_info["init_expression"], "i") }};
+      double {{ propagator }} = {{ vector_printer.print(propagator_info["init_expression"], "i", non_vec_vars) }};
           {%- endfor %}
           {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
-      {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i") }};
+      {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i", non_vec_vars) }};
           {%- endfor %}
       {%- endfor %}
 
       // update kernel state variable / compute recaptic conductance
       {%- for convolution, convolution_info in receptor_info["convolutions"].items() %}
       {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
-      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i") }};
+      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i", non_vec_vars) }};
           {%- if convolution_info["spikes"]["name"] == "self_spikes" %}
-      {{state_variable_name}}[i] += self_spikes[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+      {{state_variable_name}}[i] += self_spikes * {{ vector_printer.print(state_variable_info["init_expression"], "i", non_vec_vars) }};
           {%- else %}
-      {{state_variable_name}}[i] += s_val[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+      {{state_variable_name}}[i] += s_val[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i", non_vec_vars) }};
           {%- endif %}
       {%- endfor %}
       {%- endfor %}
@@ -1123,16 +1087,16 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::f_numstep(const std::vector< d
       // total current
       // this expression should be the transformed inline expression
 
-      this->i_tot_{{receptor_name}}[i] = {{ vector_printer.print(receptor_info["root_expression"].get_expression(), "i") }};
+      i_tot_{{receptor_name}}[i] = {{ vector_printer.print(receptor_info["root_expression"].get_expression(), "i", non_vec_vars) }};
 
       // derivative of that expression
       // voltage derivative of total current
       // compute derivative with respect to current with sympy
-      d_i_tot_dv[i] = {{ vector_printer.print(receptor_info["inline_derivative"], "i") }};
+      double d_i_tot_dv = {{ vector_printer.print(receptor_info["inline_derivative"], "i", non_vec_vars) }};
 
       // for numerical integration
-      g_val[i] = - d_i_tot_dv[i];
-      i_val[i] = this->i_tot_{{receptor_name}}[i] - d_i_tot_dv[i] * v_comp[i];
+      g_val[i] = - d_i_tot_dv;
+      i_val[i] = i_tot_{{receptor_name}}[i] - d_i_tot_dv * v_comp[i];
   }
 
   f_update();
@@ -1143,7 +1107,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::f_numstep(const std::vector< d
         {%- if variable_info.is_recordable %}
         {%- set variable = variable_info.variable_name %}
         {%- set rhs_expression = variable_info.expression %}
-        {{ variable }}[i] = {{ vector_printer.print(rhs_expression, "i") }};
+        {{ variable }}[i] = {{ vector_printer.print(rhs_expression, "i", non_vec_vars) }};
         {%- endif %}
     {%- endfor %}
     }
@@ -1158,13 +1122,12 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::f_update()
         {%- set function = receptor_info["Blocks"]["UpdateBlock"] %}
         {%-   filter indent(2,True) %}
         {%-   with ast = function.get_stmts_body() %}
-        {%- set printer = vector_printer %}
+        {%- set printer = vector_printer.printer(black_list = non_vec_vars) %}
         {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}
         {%- endif %}
     {%- endif %}
-        self_spikes[i] = false;
     }
 }
 
@@ -1172,13 +1135,12 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::f_self_spike()
 {
     double __resolution = Time::get_resolution().get_ms();
     for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
-        self_spikes[i] = true;
     {%- if receptor_info["Blocks"] %}
         {%- if receptor_info["Blocks"]["SelfSpikesFunction"] %}
         {%- set function = receptor_info["Blocks"]["SelfSpikesFunction"] %}
         {%-   filter indent(2,True) %}
         {%-   with ast = function.get_stmts_body() %}
-        {%- set printer = vector_printer %}
+        {%- set printer = vector_printer.printer(black_list = non_vec_vars) %}
         {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}
@@ -1221,6 +1183,8 @@ std::vector< double > nest::{{receptor_name}}{{cm_unique_suffix}}::distribute_sh
 ////////////////////////////////////// receptors with synapses attached
 {%- for synapse_name, synapse_info in syns_info.items() %}
 {%- for receptor_name, receptor_info in recs_info.items() %}
+    {%- set non_vec_vars = receptor_info["non_vec_vars"] + synapse_info["non_vec_vars"] %}
+
 // {{receptor_name}} receptor ////////////////////////////////////////////////////////////////
 
 void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_receptor(std::size_t comp_ass, const long syn_index)
@@ -1235,14 +1199,14 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
     // state variable {{pure_variable_name }}
     {%- set variable = variable_info["ASTVariable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1") -}});
+    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1", non_vec_vars) -}});
     {%- endfor %}
 
     {% for variable_type, variable_info in receptor_info["Parameters"].items() %}
     // receptor parameter {{variable_type }}
     {%- set variable = variable_info["ASTVariable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1") -}});
+    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1", non_vec_vars) -}});
     {%- endfor %}
 
     // set propagators to ode toolbox returned value
@@ -1277,14 +1241,14 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
     // state variable {{pure_variable_name }}
     {%- set variable = variable_info["ASTVariable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1") -}});
+    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1", non_vec_vars) -}});
     {%- endfor %}
 
     {% for variable_type, variable_info in synapse_info["Parameters"].items() %}
     // receptor parameter {{variable_type }}
     {%- set variable = variable_info["ASTVariable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1") -}});
+    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1", non_vec_vars) -}});
     {%- endfor %}
 
     // user declared internals in order they were declared
@@ -1313,8 +1277,6 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
   {{variable.get_symbol_name()}}.push_back(0);
       {%- endfor %}
     {%- endfor %}
-
-    self_spikes.push_back(false);
 }
 
 void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_receptor(std::size_t comp_ass, const long syn_index, const DictionaryDatum& receptor_params)
@@ -1334,7 +1296,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
     // state variable {{pure_variable_name }}
     {%- set variable = variable_info["ASTVariable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count") -}});
+    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count", non_vec_vars) -}});
     {%- endfor %}
 
     {%- for variable_type, variable_info in receptor_info["States"].items() %}
@@ -1355,7 +1317,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
     // receptor parameter {{variable_type }}
     {%- set variable = variable_info["ASTVariable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1") -}});
+    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1", non_vec_vars) -}});
     {%- endfor %}
 
     {%- for variable_type, variable_info in receptor_info["Parameters"].items() %}
@@ -1396,7 +1358,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
     // state variable {{pure_variable_name }}
     {%- set variable = variable_info["ASTVariable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1") -}});
+    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1", non_vec_vars) -}});
     {%- endfor %}
     {%- for variable_type, variable_info in synapse_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
@@ -1408,7 +1370,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
     // receptor parameter {{variable_type }}
     {%- set variable = variable_info["ASTVariable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1") -}});
+    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+receptor_name+"_receptor_count-1", non_vec_vars) -}});
     {%- endfor %}
     {%- for variable_type, variable_info in synapse_info["Parameters"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
@@ -1442,8 +1404,6 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
     {{variable.get_symbol_name()}}.push_back(0);
       {%- endfor %}
     {%- endfor %}
-
-    self_spikes.push_back(false);
 }
 
 void
@@ -1502,23 +1462,19 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::pre_run_h
 {%- endif %}
 {
 
-    std::vector< double > {{ printer_no_origin.print(receptor_info["analytic_helpers"]["__h"]["ASTVariable"]) }}(neuron_{{ receptor_name }}_receptor_count, Time::get_resolution().get_ms());
-
-  {%- for state_name, state_declaration in receptor_info["States"].items() %}
-    std::vector< double > {{state_name}} = (neuron_{{ receptor_name }}_receptor_count, {{ printer_no_origin.print(state_declaration["rhs_expression"])}});
-  {%- endfor %}
+  double {{ printer_no_origin.print(receptor_info["analytic_helpers"]["__h"]["ASTVariable"]) }} = Time::get_resolution().get_ms();
 
   for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
     // set propagators to ode toolbox returned value
   {%- for convolution, convolution_info in receptor_info["convolutions"].items() %}
   {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
-    {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+    {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["init_expression"], "i", non_vec_vars) }};
   {%- endfor %}
   {%- endfor %}
 
   {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
   {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
-    {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+    {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["init_expression"], "i", non_vec_vars) }};
   {%- endfor %}
   {%- endfor %}
 
@@ -1531,7 +1487,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::pre_run_h
 
     // user declared internals in order they were declared
   {%- for internal_name, internal_declaration in receptor_info["internals_used_declared"] %}
-    {{internal_name}}[i] = {{ vector_printer.print(internal_declaration.get_expression(), "i") }};
+    {{internal_name}}[i] = {{ vector_printer.print(internal_declaration.get_expression(), "i", non_vec_vars) }};
   {%- endfor %}
 
   s_val = std::vector<double>(neuron_{{ receptor_name }}_receptor_count, 0);
@@ -1545,8 +1501,9 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::postsynap
         {%- set function = synapse_info["PostSpikeFunction"] %}
         {%-   filter indent(2,True) %}
         {%-   with ast = function.get_stmts_body() %}
-            {%- set printer = vector_printer %}
+            {%- with printer = vector_printer.printer(black_list = non_vec_vars) %}
         {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
+            {%- endwith %}
         {%-   endwith %}
         {%-   endfilter %}
     }
@@ -1576,7 +1533,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep
             {%- set function = synapse_info["PreSpikeFunction"] %}
             {%-   filter indent(2,True) %}
             {%-   with ast = function.get_stmts_body() %}
-                {%- set printer = vector_printer %}
+                {%- set printer = vector_printer.printer(black_list = non_vec_vars) %}
             {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
             {%-   endwith %}
             {%-   endfilter %}
@@ -1588,19 +1545,19 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep
         //inlines and convolutions
     {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
       {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
-      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i") }};
-      {{state_variable_name}}[i] += {%- if convolution_info["post_port"] %}self_spikes[i]{%- else %}s_val[i]{%- endif %} * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i", non_vec_vars) }};
+      {{state_variable_name}}[i] += {%- if convolution_info["post_port"] %}self_spikes{%- else %}s_val[i]{%- endif %} * {{ vector_printer.print(state_variable_info["init_expression"], "i", non_vec_vars) }};
       {%- endfor %}
     {%- endfor %}
     {%- for inline, inline_info in synapse_info["Inlines"].items() %}
-        {{ inline }}[i] = {{ vector_printer.print(inline_info["inline_expression"].get_expression(), "i") }};
+        {{ inline }}[i] = {{ vector_printer.print(inline_info["inline_expression"].get_expression(), "i", non_vec_vars) }};
     {%- endfor %}
         //update block
         {%- if synapse_info["UpdateBlock"] %}
         {%- set function = synapse_info["UpdateBlock"] %}
         {%-   filter indent(2,True) %}
         {%-   with ast = function.get_stmts_body() %}
-        {%- set printer = vector_printer %}
+        {%- set printer = vector_printer.printer(black_list = non_vec_vars) %}
         {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}
@@ -1608,20 +1565,17 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep
     }
 
     {% if synapse_info["ODEs"].items()|length %}
-    std::vector< double > {{ printer_no_origin.print(synapse_info["time_resolution_var"]) }}(neuron_{{ receptor_name }}_receptor_count, Time::get_resolution().get_ms());
+    double {{ printer_no_origin.print(synapse_info["time_resolution_var"]) }} = Time::get_resolution().get_ms();
     {% endif %}
-    {%- for ode_variable, ode_info in synapse_info["ODEs"].items() %}
-          {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-      std::vector< double > {{ propagator }}(neuron_{{ receptor_name }}_receptor_count, 0);
-          {%- endfor %}
-    {%- endfor %}
+
+    #pragma omp simd
     for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
         {%- for ode_variable, ode_info in synapse_info["ODEs"].items() %}
           {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-      {{ propagator }}[i] = {{ vector_printer.print(propagator_info["init_expression"], "i") }};
+      double {{ propagator }} = {{ vector_printer.print(propagator_info["init_expression"], "i", non_vec_vars) }};
           {%- endfor %}
           {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
-      {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i") }};
+      {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i", non_vec_vars) }};
           {%- endfor %}
       {%- endfor %}
     }
@@ -1631,15 +1585,9 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep
         s_val[i] = delayed_spikes[i].tick();
     }
 
-    std::vector< double > d_i_tot_dv(neuron_{{ receptor_name }}_receptor_count, 0.);
-
-    {%- for ode_variable, ode_info in receptor_info["ODEs"].items() %}
-            {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-    std::vector< double > {{ propagator }}(neuron_{{ receptor_name }}_receptor_count, 0);
-            {%- endfor %}
-    {%- endfor %}
-
-    {% if receptor_info["ODEs"].items()|length %} std::vector< double > {{ printer_no_origin.print(receptor_info["analytic_helpers"]["__h"]["ASTVariable"]) }}(neuron_{{ receptor_name }}_receptor_count, Time::get_resolution().get_ms()); {% endif %}
+    {% if receptor_info["ODEs"].items()|length %}
+  double {{ printer_no_origin.print(receptor_info["analytic_helpers"]["__h"]["ASTVariable"]) }} = Time::get_resolution().get_ms();
+    {% endif %}
 
 
 
@@ -1648,21 +1596,21 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep
   for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
       {%- for ode_variable, ode_info in receptor_info["ODEs"].items() %}
           {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-      {{ propagator }}[i] = {{ vector_printer.print(propagator_info["init_expression"], "i") }};
+      double {{ propagator }} = {{ vector_printer.print(propagator_info["init_expression"], "i", non_vec_vars) }};
           {%- endfor %}
           {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
-      {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i") }};
+      {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i", non_vec_vars) }};
           {%- endfor %}
       {%- endfor %}
 
       // update kernel state variable / compute synaptic conductance
       {%- for convolution, convolution_info in receptor_info["convolutions"].items() %}
       {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
-      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i") }};
+      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i", non_vec_vars) }};
           {%- if convolution_info["spikes"]["name"] == "self_spikes" %}
-      {{state_variable_name}}[i] += self_spikes[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+      {{state_variable_name}}[i] += self_spikes * {{ vector_printer.print(state_variable_info["init_expression"], "i", non_vec_vars) }};
           {%- else %}
-      {{state_variable_name}}[i] += s_val[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+      {{state_variable_name}}[i] += s_val[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i", non_vec_vars) }};
           {%- endif %}
       {%- endfor %}
       {%- endfor %}
@@ -1670,27 +1618,28 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep
       // total current
       // this expression should be the transformed inline expression
 
-      this->i_tot_{{receptor_name}}[i] = {{ vector_printer.print(receptor_info["root_expression"].get_expression(), "i") }};
+      i_tot_{{receptor_name}}[i] = {{ vector_printer.print(receptor_info["root_expression"].get_expression(), "i", non_vec_vars) }};
 
       // derivative of that expression
       // voltage derivative of total current
       // compute derivative with respect to current with sympy
-      d_i_tot_dv[i] = {{ vector_printer.print(receptor_info["inline_derivative"], "i") }};
+      double d_i_tot_dv = {{ vector_printer.print(receptor_info["inline_derivative"], "i", non_vec_vars) }};
 
       // for numerical integration
-      g_val[i] = - d_i_tot_dv[i];
-      i_val[i] = this->i_tot_{{receptor_name}}[i] - d_i_tot_dv[i] * v_comp[i];
+      g_val[i] = - d_i_tot_dv;
+      i_val[i] = i_tot_{{receptor_name}}[i] - d_i_tot_dv * v_comp[i];
     }
 
   f_update();
 
     //update recordable inlines
+    #pragma omp simd
     for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
     {%- for variable_info in receptor_info["SecondaryInlineExpressions"] %}
         {%- if variable_info.is_recordable %}
         {%- set variable = variable_info.variable_name %}
         {%- set rhs_expression = variable_info.expression %}
-        {{ variable }}[i] = {{ vector_printer.print(rhs_expression, "i") }};
+        {{ variable }}[i] = {{ vector_printer.print(rhs_expression, "i", non_vec_vars) }};
         {%- endif %}
     {%- endfor %}
     }
@@ -1705,13 +1654,12 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_update(
         {%- set function = receptor_info["Blocks"]["UpdateBlock"] %}
         {%-   filter indent(2,True) %}
         {%-   with ast = function.get_stmts_body() %}
-        {%- set printer = vector_printer %}
+        {%- set printer = vector_printer.printer(black_list = non_vec_vars) %}
         {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}
         {%- endif %}
     {%- endif %}
-        self_spikes[i] = false;
     }
 }
 
@@ -1719,13 +1667,12 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_self_sp
 {
     double __resolution = Time::get_resolution().get_ms();
     for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
-        self_spikes[i] = true;
     {%- if receptor_info["Blocks"] %}
         {%- if receptor_info["Blocks"]["SelfSpikesFunction"] %}
         {%- set function = receptor_info["Blocks"]["SelfSpikesFunction"] %}
         {%-   filter indent(2,True) %}
         {%-   with ast = function.get_stmts_body() %}
-        {%- set printer = vector_printer %}
+        {%- set printer = vector_printer.printer(black_list = non_vec_vars) %}
         {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}
@@ -1739,7 +1686,7 @@ inline {{ function_declaration.FunctionDeclaration(function, "nest::"~receptor_n
 {
 {%-   filter indent(2,True) %}
 {%-   with ast = function.get_stmts_body() %}
-    {%- set printer = vector_printer %}
+    {%- set printer = vector_printer.printer(black_list = non_vec_vars) %}
 {%-     include "directives/StmtsBody.jinja2" %}
 {%-   endwith %}
 {%-   endfilter %}
@@ -1772,6 +1719,7 @@ std::vector< double > nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_
 
 {%- for continuous_name, continuous_info in con_in_info.items() %}
 // {{continuous_name}} continuous input ///////////////////////////////////////////////////
+    {%- set non_vec_vars = continuous_info["non_vec_vars"] %}
 
 void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::size_t comp_ass, const long con_in_index)
 {
@@ -1784,14 +1732,14 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::si
     // state variable {{pure_variable_name }}
     {%- set variable = variable_info["ASTVariable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+continuous_name+"_continuous_input_count") -}});
+    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+continuous_name+"_continuous_input_count", non_vec_vars) -}});
     {%- endfor %}
 
     {% for variable_type, variable_info in continuous_info["Parameters"].items() %}
     // parameter {{variable_type }}
     {%- set variable = variable_info["ASTVariable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+continuous_name+"_continuous_input_count") -}});
+    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+continuous_name+"_continuous_input_count", non_vec_vars) -}});
     {%- endfor %}
 
     // user declared internals in order they were declared
@@ -1819,8 +1767,6 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::si
       {{ variable }}.push_back(0);
         {%- endif %}
       {%- endfor %}
-
-    self_spikes.push_back(false);
 }
 
 void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::size_t comp_ass, const long con_in_index, const DictionaryDatum& con_in_params)
@@ -1835,7 +1781,7 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::si
     // state variable {{pure_variable_name }}
     {%- set variable = variable_info["ASTVariable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+continuous_name+"_continuous_input_count-1") -}});
+    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+continuous_name+"_continuous_input_count-1", non_vec_vars) -}});
     {%- endfor %}
     {%- for variable_type, variable_info in continuous_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
@@ -1855,7 +1801,7 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::si
     // continuous parameter {{variable_type }}
     {%- set variable = variable_info["ASTVariable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+continuous_name+"_continuous_input_count-1") -}});
+    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+continuous_name+"_continuous_input_count-1", non_vec_vars) -}});
     {%- endfor %}
 
     {%- for variable_type, variable_info in continuous_info["Parameters"].items() %}
@@ -1889,8 +1835,6 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::si
       {{ variable }}.push_back(0);
         {%- endif %}
       {%- endfor %}
-
-    self_spikes.push_back(false);
 }
 
 void
@@ -1924,18 +1868,18 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::pre_run_hook()
 {%- endif %}
 {
   {% if "time_resolution_var" in continuous_info %}
-    std::vector< double > {{ printer_no_origin.print(continuous_info["time_resolution_var"]) }}(neuron_{{ continuous_name }}_continuous_input_count, Time::get_resolution().get_ms());
+    double {{ printer_no_origin.print(continuous_info["time_resolution_var"]) }} = Time::get_resolution().get_ms();
     {% endif %}
   for(std::size_t i = 0; i < neuron_{{ continuous_name }}_continuous_input_count; i++){
      // user declared internals in order they were declared
     {%- for internal_name, internal_declaration in continuous_info["Internals"] %}
-    {{internal_name}}[i] = {{ vector_printer.print(internal_declaration.get_expression(), "i") }};
+    {{internal_name}}[i] = {{ vector_printer.print(internal_declaration.get_expression(), "i", non_vec_vars) }};
   {%- endfor %}
 
         // set propagators to ode toolbox returned value
   {%- for convolution, convolution_info in continuous_info["convolutions"].items() %}
   {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
-    {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+    {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["init_expression"], "i", non_vec_vars) }};
   {%- endfor %}
   {%- endfor %}
 
@@ -1958,17 +1902,10 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::f_numstep(const std::vector<
                         {% endif %}{% for inline in continuous_info["Dependencies"]["continuous"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}
                         , std::vector< double >& i_val, std::vector< double >& g_val)
 {
-    std::vector< double > d_i_tot_dv(neuron_{{ continuous_name }}_continuous_input_count, 0.);
 
     {% if "time_resolution_var" in continuous_info %}
-    std::vector< double > {{ printer_no_origin.print(continuous_info["time_resolution_var"]) }}(neuron_{{ continuous_name }}_continuous_input_count, Time::get_resolution().get_ms());
+    double {{ printer_no_origin.print(continuous_info["time_resolution_var"]) }} = Time::get_resolution().get_ms();
     {% endif %}
-
-    {%- for ode_variable, ode_info in continuous_info["ODEs"].items() %}
-            {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-    std::vector< double > {{ propagator }}(neuron_{{ continuous_name }}_continuous_input_count, 0);
-            {%- endfor %}
-    {%- endfor %}
 
     {% for port_name, port_info in continuous_info["Continuous"].items() %}
     std::vector< double > {{ port_name }}(neuron_{{ continuous_name }}_continuous_input_count, 0.);
@@ -1984,44 +1921,45 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::f_numstep(const std::vector<
   for(std::size_t i = 0; i < neuron_{{ continuous_name }}_continuous_input_count; i++){
       {%- for convolution, convolution_info in continuous_info["convolutions"].items() %}
       {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
-      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i") }};
-      {{state_variable_name}}[i] += self_spikes[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i", non_vec_vars) }};
+      {{state_variable_name}}[i] += self_spikes * {{ vector_printer.print(state_variable_info["init_expression"], "i", non_vec_vars) }};
       {%- endfor %}
       {%- endfor %}
 
       //update ODE state variable
       {%- for ode_variable, ode_info in continuous_info["ODEs"].items() %}
           {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-      {{ propagator }}[i] = {{ vector_printer.print(propagator_info["init_expression"], "i") }};
+      double {{ propagator }} = {{ vector_printer.print(propagator_info["init_expression"], "i", non_vec_vars) }};
           {%- endfor %}
           {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
-      {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i") }};
+      {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i", non_vec_vars) }};
           {%- endfor %}
       {%- endfor %}
 
       // total current
       // this expression should be the transformed inline expression
-      this->i_tot_{{continuous_name}}[i] = {{ vector_printer.print(continuous_info["root_expression"].get_expression(), "i") }};
+      i_tot_{{continuous_name}}[i] = {{ vector_printer.print(continuous_info["root_expression"].get_expression(), "i", non_vec_vars) }};
 
       // derivative of that expression
       // voltage derivative of total current
       // compute derivative with respect to current with sympy
-      d_i_tot_dv[i] = {{ vector_printer.print(continuous_info["inline_derivative"], "i") }};
+      double d_i_tot_dv = {{ vector_printer.print(continuous_info["inline_derivative"], "i", non_vec_vars) }};
 
       // for numerical integration
-      g_val[i] = - d_i_tot_dv[i];
-      i_val[i] = this->i_tot_{{continuous_name}}[i] - d_i_tot_dv[i] * v_comp[i];
+      g_val[i] = - d_i_tot_dv;
+      i_val[i] = i_tot_{{continuous_name}}[i] - d_i_tot_dv * v_comp[i];
   }
 
   f_update();
 
     //update recordable inlines
+    #pragma omp simd
     for(std::size_t i = 0; i < neuron_{{ continuous_name }}_continuous_input_count; i++){
     {%- for variable_info in continuous_info["SecondaryInlineExpressions"] %}
         {%- if variable_info.is_recordable %}
         {%- set variable = variable_info.variable_name %}
         {%- set rhs_expression = variable_info.expression %}
-        {{ variable }}[i] = {{ vector_printer.print(rhs_expression, "i") }};
+        {{ variable }}[i] = {{ vector_printer.print(rhs_expression, "i", non_vec_vars) }};
         {%- endif %}
     {%- endfor %}
     }
@@ -2036,13 +1974,12 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::f_update()
         {%- set function = continuous_info["Blocks"]["UpdateBlock"] %}
         {%-   filter indent(2,True) %}
         {%-   with ast = function.get_stmts_body() %}
-        {%- set printer = vector_printer %}
+        {%- set printer = vector_printer.printer(black_list = non_vec_vars) %}
         {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}
         {%- endif %}
     {%- endif %}
-        self_spikes[i] = false;
     }
 }
 
@@ -2050,13 +1987,12 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::f_self_spike()
 {
     double __resolution = Time::get_resolution().get_ms();
     for(std::size_t i = 0; i < neuron_{{ continuous_name }}_continuous_input_count; i++){
-        self_spikes[i] = true;
     {%- if continuous_info["Blocks"] %}
         {%- if continuous_info["Blocks"]["SelfSpikesFunction"] %}
         {%- set function = continuous_info["Blocks"]["SelfSpikesFunction"] %}
         {%-   filter indent(2,True) %}
         {%-   with ast = function.get_stmts_body() %}
-        {%- set printer = vector_printer %}
+        {%- set printer = vector_printer.printer(black_list = non_vec_vars) %}
         {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}

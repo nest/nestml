@@ -53,7 +53,8 @@ DynamicRecordablesMap< {{neuronSpecificFileNamesCmSyns["main"]}} >::create( {{ne
 
 nest::{{neuronSpecificFileNamesCmSyns["main"]}}::{{neuronSpecificFileNamesCmSyns["main"]}}()
   : ArchivingNode()
-  , c_tree_()
+  , self_spikes( new bool(false) )
+  , c_tree_(self_spikes)
   , syn_buffers_( 0 )
   , logger_( *this )
   , V_th_( -55.0 )
@@ -68,6 +69,7 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::{{neuronSpecificFileNamesCmSyns
   , syn_buffers_( n.syn_buffers_ )
   , logger_( *this )
   , V_th_( n.V_th_ )
+  , self_spikes( n.self_spikes )
 {
   recordables_values.resize( 0 );
 }
@@ -329,22 +331,25 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::update( Time const& origin, con
     c_tree_.construct_matrix( lag );
     c_tree_.solve_matrix();
 
+    *self_spikes = false;
+
     // threshold crossing
     if ( *(c_tree_.get_root()->v_comp) >= V_th_ )
     {
-        if(prev_sub_th)
+        if(!thr_mem)
         {
-          prev_sub_th = false;
           set_spiketime( Time::step( origin.get_steps() + lag + 1 ) );
 
           SpikeEvent se;
           kernel().event_delivery_manager.send( *this, se, lag );
 
           c_tree_.neuron_currents.f_self_spike();
+          *self_spikes = true;
+          thr_mem = true;
         }
     }else
     {
-      prev_sub_th = true;
+      thr_mem = false;
     }
 
     logger_.record_data( origin.get_steps() + lag );

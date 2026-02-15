@@ -103,11 +103,11 @@ private:
     //zero recordable variable in case of zero contribution channel
     double zero_recordable = 0;
 
-    std::vector< bool > self_spikes;
+    const bool& self_spikes;
 
 public:
     // constructor, destructor
-    {{ion_channel_name}}{{cm_unique_suffix}}(){};
+    {{ion_channel_name}}{{cm_unique_suffix}}(bool& global_self_spikes) : self_spikes(global_self_spikes) {};
     ~{{ion_channel_name}}{{cm_unique_suffix}}(){};
 
     void new_channel(std::size_t comp_ass);
@@ -212,11 +212,11 @@ private:
     //zero recordable variable in case of zero contribution concentration
     double zero_recordable = 0;
 
-    std::vector< bool > self_spikes;
+    const bool& self_spikes;
 
 public:
     // constructor, destructor
-    {{ concentration_name }}{{cm_unique_suffix}}(){};
+    {{ concentration_name }}{{cm_unique_suffix}}(bool& global_self_spikes) : self_spikes(global_self_spikes) {};
     ~{{ concentration_name }}{{cm_unique_suffix}}(){};
 
     void new_concentration(std::size_t comp_ass);
@@ -329,11 +329,11 @@ private:
   // spike buffer
   std::vector< RingBuffer* > {{receptor_info["buffer_name"]}}_;
 
-    std::vector< bool > self_spikes;
+    const bool& self_spikes;
 
 public:
   // constructor, destructor
-  {{receptor_name}}{{cm_unique_suffix}}(){};
+  {{receptor_name}}{{cm_unique_suffix}}(bool& global_self_spikes) : self_spikes(global_self_spikes) {};
   ~{{receptor_name}}{{cm_unique_suffix}}(){};
 
   void new_receptor(std::size_t comp_ass, const long rec_index);
@@ -524,11 +524,11 @@ private:
   std::vector< double > {{inline_name}};
   {%- endfor %}
 
-    std::vector< bool > self_spikes;
+    const bool& self_spikes;
 
 public:
   // constructor, destructor
-  {{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}(){};
+  {{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}(bool& global_self_spikes) : self_spikes(global_self_spikes) {};
   ~{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}(){};
 
   void new_receptor(std::size_t comp_ass, const long syn_index);
@@ -656,11 +656,11 @@ private:
   std::vector< RingBuffer* > {{ port_name }}_;
   {% endfor %}
 
-    std::vector< bool > self_spikes;
+    const bool& self_spikes;
 
 public:
   // constructor, destructor
-  {{continuous_name}}{{cm_unique_suffix}}(){};
+  {{continuous_name}}{{cm_unique_suffix}}(bool& global_self_spikes) : self_spikes(global_self_spikes) {};
   ~{{continuous_name}}{{cm_unique_suffix}}(){};
 
   void new_continuous_input(std::size_t comp_ass, const long con_in_index);
@@ -753,8 +753,8 @@ private:
     {%- for synapse_name, synapse_info in syns_info.items() %}
   {{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}} {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}};
 
-  std::vector< double > i_vals_{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}};
-  std::vector< double > g_vals_{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}};
+  std::vector< double > i_vals_{{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}};
+  std::vector< double > g_vals_{{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}};
     {% endfor -%}
 {% endfor -%}
 
@@ -807,9 +807,26 @@ private:
   std::vector< double >* i_vals_comp;
 
 public:
-  NeuronCurrents{{cm_unique_suffix}}(std::vector< double >* g_vals, std::vector< double >* i_vals) :
-    g_vals_comp(g_vals),
-    i_vals_comp(i_vals)
+  NeuronCurrents{{cm_unique_suffix}}(std::vector< double >* g_vals, std::vector< double >* i_vals, bool* self_spikes)
+    : g_vals_comp(g_vals)
+    , i_vals_comp(i_vals)
+  {%- for ion_channel_name, channel_info in chan_info.items() %}
+    , {{ion_channel_name}}{{channel_suffix}}( {{ion_channel_name}}{{cm_unique_suffix}}( *self_spikes ) )
+  {% endfor -%}
+  {%- for concentration_name, concentration_info in conc_info.items() %}
+    , {{concentration_name}}{{concentration_suffix}}( {{concentration_name}}{{cm_unique_suffix}}( *self_spikes ) )
+  {% endfor -%}
+  {%- for receptor_name, receptor_info in recs_info.items() %}
+    , {{receptor_name}}{{receptor_suffix}}( {{receptor_name}}{{cm_unique_suffix}}( *self_spikes ) )
+  {% endfor -%}
+  {%- for receptor_name, receptor_info in recs_info.items() %}
+    {%- for synapse_name, synapse_info in syns_info.items() %}
+    , {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}( {{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}( *self_spikes ) )
+    {% endfor -%}
+  {% endfor -%}
+  {%- for continuous_name, continuous_info in con_in_info.items() %}
+    , {{continuous_name}}{{continuous_suffix}}( {{continuous_name}}{{cm_unique_suffix}}( *self_spikes ) )
+  {% endfor -%}
     {};
   ~NeuronCurrents{{cm_unique_suffix}}(){};
 

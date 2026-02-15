@@ -104,7 +104,24 @@ class MechsInfoEnricher:
         mechs_info = cls.transform_ode_solutions(neuron, mechs_info)
         mechs_info = cls.transform_convolutions_analytic_solutions_generall(neuron, mechs_info)
         mechs_info = cls.enrich_mechanism_specific(neuron, mechs_info)
+        mechs_info = cls.create_non_vec_variables(mechs_info)
         return mechs_info
+
+    @classmethod
+    def create_non_vec_variables(cls, mechs_info: dict):
+        enriched_mechs_info = copy.copy(mechs_info)
+        for mechanism_name, mechanism_info in mechs_info.items():
+            non_vec_vars = ["self_spikes"]
+            if "time_resolution_var" in mechanism_info:
+                non_vec_vars.append(mechanism_info["time_resolution_var"].name)
+
+            for ode_variable, ode_info in mechanism_info["ODEs"].items():
+                for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items():
+                    non_vec_vars.append(propagator)
+
+            enriched_mechs_info[mechanism_name]["non_vec_vars"] = non_vec_vars
+
+        return enriched_mechs_info
 
     @classmethod
     def get_transformed_ode_equations(cls, mechs_info: dict):

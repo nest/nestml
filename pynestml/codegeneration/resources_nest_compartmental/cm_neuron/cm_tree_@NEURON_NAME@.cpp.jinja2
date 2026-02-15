@@ -141,12 +141,12 @@ nest::Compartment{{cm_unique_suffix}}::construct_matrix_coupling_elements()
 }
 
 
-nest::CompTree{{cm_unique_suffix}}::CompTree{{cm_unique_suffix}}()
+nest::CompTree{{cm_unique_suffix}}::CompTree{{cm_unique_suffix}}(bool* self_spikes)
   : root_( -1, -1 )
   , size_( 0 )
   , g_vals(new std::vector< double >)
   , i_vals(new std::vector< double >)
-  , neuron_currents(g_vals, i_vals)
+  , neuron_currents(g_vals, i_vals, self_spikes)
 {
   compartments_.resize( 0 );
   leafs_.resize( 0 );

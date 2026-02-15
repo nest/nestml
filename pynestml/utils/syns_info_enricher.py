@@ -63,9 +63,24 @@ class SynsInfoEnricher:
         synapse_info = cls.extract_infunction_declarations(synapse_info)
 
         synapse_info = cls.transform_convolutions_analytic_solutions(synapse, synapse_info)
+        synapse_info = cls.create_non_vec_variables(synapse_info)
         syns_info[synapse.get_name()] = synapse_info
 
         return syns_info
+
+    @classmethod
+    def create_non_vec_variables(cls, synapse_info: dict):
+        non_vec_vars = ["self_spikes"]
+        if "time_resolution_var" in synapse_info:
+            non_vec_vars.append(synapse_info["time_resolution_var"].name)
+
+        for ode_variable, ode_info in synapse_info["ODEs"].items():
+            for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items():
+                non_vec_vars.append(propagator)
+
+        synapse_info["non_vec_vars"] = non_vec_vars
+
+        return synapse_info
 
     @classmethod
     def add_propagators_to_internals(cls, neuron, mechs_info):

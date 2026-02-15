@@ -13,9 +13,9 @@ for (long i=0; i < get_{{declarations.print_size_parameter(ast)}}(); i++) {
 {%-     endif %}
 {%-   else %}
 {%-     if ast.has_expression() %}
-{{variable.get_symbol_name()}}[{{ printer.std_vector_parameter }}] = {{printer.print(ast.get_expression())}};
+{{variable.get_symbol_name()}}[{{ printer.vector_parameter }}] = {{printer.print(ast.get_expression())}};
 {%-     else %}
-{{variable.get_symbol_name()}}[{{ printer.std_vector_parameter }}] = 0;
+{{variable.get_symbol_name()}}[{{ printer.vector_parameter }}] = 0;
 {%-     endif %}
 {%-   endif %}
 {%- endfor -%}

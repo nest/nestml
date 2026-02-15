@@ -255,6 +255,9 @@ public:
   void set_status( const DictionaryDatum& );
 
 private:
+  bool* self_spikes;
+  bool thr_mem = true;
+
   void add_compartment_( DictionaryDatum& dd );
   void add_receptor_( DictionaryDatum& dd );
 
