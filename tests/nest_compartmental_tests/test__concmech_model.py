@@ -18,7 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
+import datetime
 import os
 
 import pytest
@@ -47,9 +47,14 @@ class TestCompartmentalConcmech:
             "resources",
             "concmech.nestml"
         )
+
+        gen_time = datetime.datetime.now()
+        gen_name = "TestCompartmentalConcmech " + str(gen_time)
+        os.makedirs("./target/" + gen_name, exist_ok=True)
         target_path = os.path.join(
             tests_path,
-            "target/"
+            "target/",
+            gen_name+"/"
         )
 
         if not os.path.exists(target_path):

@@ -23,6 +23,7 @@ from collections import defaultdict
 
 from odetoolbox import analysis
 from pynestml.cocos.co_cos_manager import CoCosManager
+from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 
 from pynestml.symbol_table.symbol_table import SymbolTable
 
@@ -52,6 +53,9 @@ from pynestml.utils.model_parser import ModelParser
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 from sympy.printing.str import StrPrinter
+
+import sympy
+from sympy.parsing.sympy_parser import parse_expr
 
 
 class LowerMinMaxPrinter(StrPrinter):
@@ -105,6 +109,70 @@ class MechsInfoEnricher:
         mechs_info = cls.transform_convolutions_analytic_solutions_generall(neuron, mechs_info)
         mechs_info = cls.enrich_mechanism_specific(neuron, mechs_info)
         mechs_info = cls.create_non_vec_variables(mechs_info)
+        mechs_info = cls.global_common_subexpression_elimination(neuron, mechs_info)
+        return mechs_info
+
+    @classmethod
+    def global_common_subexpression_elimination(cls, neuron: ASTModel, mechs_info: dict):
+        nestml_printer = NESTMLPrinter()
+        for mechanism_name, mechanism_info in mechs_info.items():
+            simd_body_expressions = []
+            expression_association = []
+
+            for ode_variable, ode_info in mechanism_info["ODEs"].items():
+                for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items():
+                    simd_body_expressions.append(parse_expr(cls._ode_toolbox_printer.print(propagator_info["init_expression"])))
+                    expression_association.append(["ODEs", ode_variable, "transformed_solutions", 0, "propagators", propagator, "init_expression"])
+
+                for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items():
+                    simd_body_expressions.append(parse_expr(cls._ode_toolbox_printer.print(state_solution_info["update_expression"])))
+                    expression_association.append(["ODEs", ode_variable, "transformed_solutions", 0, "states", state, "update_expression"])
+
+            if isinstance(mechanism_info["root_expression"], ASTInlineExpression):
+                simd_body_expressions.append(parse_expr(cls._ode_toolbox_printer.print(mechanism_info["root_expression"].expression)))
+                expression_association.append(["root_expression"])
+
+                simd_body_expressions.append(parse_expr(cls._ode_toolbox_printer.print(mechanism_info["inline_derivative"])))
+                expression_association.append(["inline_derivative"])
+            else:
+                simd_body_expressions.append(parse_expr(cls._ode_toolbox_printer.print(mechanism_info["root_expression"].rhs)))
+                expression_association.append(["root_expression"])
+
+            symb = sympy.numbered_symbols("simd_cse_tmp_"+mechanism_name)
+
+            replacements, reduced_exprs = sympy.cse(simd_body_expressions, symbols=symb)
+
+            simd_cse_replacements = dict()
+            for replacement in replacements:
+                parsed_replacement = ModelParser.parse_expression(cls.sympy_compatible_print(replacement[1]))
+                parsed_replacement.update_scope(neuron.get_equations_blocks()[0].get_scope())
+                parsed_replacement.accept(ASTSymbolTableVisitor())
+
+                simd_cse_replacements[cls.sympy_compatible_print(replacement[0])] = parsed_replacement
+                mechanism_info["non_vec_vars"].append(cls.sympy_compatible_print(replacement[0]))
+
+                ASTUtils.add_declaration_to_state_block(neuron, cls.sympy_compatible_print(replacement[0]), "0")
+
+            mechanism_info["cse_replacements"] = simd_cse_replacements
+
+            for reduced_expr, association in zip(reduced_exprs, expression_association):
+
+                expression = ModelParser.parse_expression(cls.sympy_compatible_print(reduced_expr))
+                expression.update_scope(neuron.get_equations_blocks()[0].get_scope())
+                expression.accept(ASTSymbolTableVisitor())
+
+                original = mechanism_info
+                for key in association[:-1]:
+                    original = original[key]
+
+                original[association[-1]] = expression
+
+            SymbolTable.delete_model_scope(neuron.get_name())
+            symbol_table_visitor = ASTSymbolTableVisitor()
+            neuron.accept(symbol_table_visitor)
+            CoCosManager.check_cocos(neuron, after_ast_rewrite=True)
+            SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
+
         return mechs_info
 
     @classmethod
