@@ -992,7 +992,7 @@ class ASTUtils:
     def add_kernel_to_variable(cls, kernel: ASTKernel):
         r"""
         Adds the kernel as the defining equation.
-        If the definition of the kernel is e.g. `g"" = ...` then variable symbols `g` and `g'` will have their kernel definition and variable type set.
+        If the definition of the kernel is e.g. `g'' = ...` then variable symbols `g` and `g'` will have their kernel definition and variable type set.
         :param kernel: a single kernel object.
         """
         if len(kernel.get_variables()) == 1 \
