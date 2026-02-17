@@ -1,8 +1,8 @@
 iaf_psc_exp_htum_neuron
 #######################
 
-
 iaf_psc_exp_htum - Leaky integrate-and-fire model with separate relative and absolute refractory period
+
 
 Description
 +++++++++++
@@ -22,17 +22,18 @@ larger or equal to the absolute refractory time. If equal, the
 refractoriness of the model if equivalent to the other models of NEST.
 
 .. note::
+
    This neuron model can only be used in combination with a fixed
    simulation resolution (timestep size).
 
 .. note::
+
    If tau_m is very close to tau_syn_exc or tau_syn_inh, numerical problems
    may arise due to singularities in the propagator matrics. If this is
    the case, replace equal-valued parameters by a single parameter.
 
-   For details, please see ``IAF_neurons_singularity.ipynb`` in
-   the NEST source code (``docs/model_details``).
-
+For details, please see ``IAF_neurons_singularity.ipynb`` in
+the NEST source code (``docs/model_details``).
 
 References
 ++++++++++
@@ -52,6 +53,25 @@ References
        networks. Neurocomputing 38-40:565-571.
        DOI: https://doi.org/10.1016/S0925-2312(01)00409-X
 
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
 Parameters
@@ -66,11 +86,11 @@ Parameters
     "tau_syn_inh", "ms", "2ms", "Time constant of inhibitory synaptic current"    
     "tau_syn_exc", "ms", "2ms", "Time constant of excitatory synaptic current"    
     "t_ref_abs", "ms", "2ms", "Absolute refractory period"    
-    "t_ref_tot", "ms", "2ms", "total refractory period, if t_ref_abs == t_ref_tot iaf_psc_exp_htum equivalent to iaf_psc_exp"    
+    "t_ref_tot", "ms", "2ms", "Total refractory period, if t_ref_abs == t_ref_tot iaf_psc_exp_htum equivalent to iaf_psc_exp"    
     "E_L", "mV", "-70mV", "Resting potential"    
-    "V_reset", "mV", "-70.0mV - E_L", "Reset value of the membrane potentia. lRELATIVE TO RESTING POTENTIAL(!) I.e. the real threshold is (V_reset + E_L)."    
+    "V_reset", "mV", "-70.0mV - E_L", "Reset value of the membrane potential, RELATIVE TO RESTING POTENTIAL(!) I.e. the real threshold is (V_reset + E_L)."    
     "V_th", "mV", "-55.0mV - E_L", "Threshold, RELATIVE TO RESTING POTENTIAL(!) I.e. the real threshold is (E_L + V_th)"    
-    "I_e", "pA", "0pA", "constant external input current"
+    "I_e", "pA", "0pA", "Constant external input current"
 
 
 
@@ -109,4 +129,4 @@ The model source code can be found in the NESTML models repository here: `iaf_ps
 
 .. footer::
 
-   Generated at 2024-05-22 14:51:14.504836
+   Generated at 2026-02-04 14:40:55.834330

@@ -45,23 +45,23 @@ EXIT_BAD_HEADER = 1
 source_dir = os.getcwd()
 
 exclude_dirs = [
-    '.git',
-    'pynestml/generated',
-    'extras',
-    'build',
-    'doc'
+    ".git",
+    "pynestml/generated",
+    "extras",
+    "build",
+    "doc"
 ]
 
 # match all file names against these regular expressions. if a match
 # is found the file is excluded from the check
-exclude_file_patterns = ['\.#.*', '#.*', '.*~', '.*.bak']
+exclude_file_patterns = ["\.#.*", "#.*", ".*~", ".*.bak"]
 exclude_file_regex = [re.compile(pattern) for pattern in exclude_file_patterns]
 
 exclude_files = [
 ]
 
 templates = {
-    ('py', 'pyx', 'pxd'): 'py',
+    ("py", "pyx", "pxd"): "py",
 }
 
 template_contents = {}
@@ -91,22 +91,22 @@ for dirpath, _, fnames in os.walk(source_dir):
         if any([exclude_file in tested_file for exclude_file in exclude_files]):
             continue
 
-        with open(tested_file, encoding='utf-8') as source_file:
+        with open(tested_file, encoding="utf-8") as source_file:
             total_files += 1
             for template_line in template_contents[extension]:
                 try:
                     line_src = source_file.readline()
                 except UnicodeDecodeError as err:
-                    print("Unable to decode bytes in '{0}': {1}".format(tested_file, err))
+                    print("Unable to decode bytes in \"{0}\": {1}".format(tested_file, err))
                     total_errors += 1
                     break
-                if (extension == 'py' and line_src.strip() == '#!/usr/bin/env python3'):
+                if (extension == "py" and line_src.strip() == "#!/usr/bin/env python3"):
                     line_src = source_file.readline()
-                line_exp = template_line.replace('{{file_name}}', fname)
+                line_exp = template_line.replace("{{file_name}}", fname)
                 if line_src != line_exp:
                     fname = os.path.relpath(tested_file)
-                    print("[COPYRIGHT-HEADER-CHECK] {0}: expected '{1}', found '{2}'.".format(
-                        fname, line_exp.rstrip('\n'), line_src.rstrip('\n')))
+                    print("[COPYRIGHT-HEADER-CHECK] {0}: expected \"{1}\", found \"{2}\".".format(
+                        fname, line_exp.rstrip("\n"), line_src.rstrip("\n")))
                     print("... {}\\n".format(fname))
                     total_errors += 1
                     break

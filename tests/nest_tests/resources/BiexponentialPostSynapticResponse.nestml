@@ -1,30 +1,28 @@
 # BiexponentialPostSynapticResponse.nestml
 # ########################################
-# 
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # Bi-exponential ("beta function") postsynaptic response
-# 
-# 
+#
 # Copyright statement
 # +++++++++++++++++++
-# 
+#
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
-# 
+#
 # NEST is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # NEST is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
@@ -48,10 +46,10 @@ model biexp_postsynaptic_response_neuron:
 
     equations:
         kernel g_ex' = -g_ex / tau_syn_decay_E + h_ex,
-            h_ex' = -h_ex / tau_syn_rise_E
+               h_ex' = -h_ex / tau_syn_rise_E
 
         kernel g_in' = -g_in / tau_syn_decay_I + g_in$,
-            g_in$' = -g_in$ / tau_syn_rise_I
+               g_in$' = -g_in$ / tau_syn_rise_I
 
         kernel g_gap = g_gap_const * (exp(-t/tau_syn_decay_gap) - exp(-t/tau_syn_rise_gap))
         kernel g_GABA'' = -(g_GABA + g_GABA' * (tau_syn_decay_E + tau_syn_rise_E)) / (tau_syn_decay_E * tau_syn_rise_E)
@@ -65,27 +63,27 @@ model biexp_postsynaptic_response_neuron:
         V_m' = (-I_leak - I_syn_exc - I_syn_inh - I_syn_gap - I_syn_GABA + I_e + I_stim) / C_m
 
     parameters:
-        E_L mV = -70.0mV # Leak reversal Potential (aka resting potential)
-        C_m pF = 250.0pF # Capacity of the membrane
-        refr_T ms = 2.0ms # Refractory period
-        V_th mV = -55.0mV      # Threshold Potential
-        V_reset mV = -60.0mV   # Reset Potential
-        E_ex mV = 0mV          # Excitatory reversal Potential
-        E_in mV = -85.0mV      # Inhibitory reversal Potential
-        E_gap mV = -60.0mV      # Inhibitory reversal Potential
-        g_L nS = 16.6667nS     # Leak Conductance
-        tau_syn_rise_I ms = .2 ms    # Synaptic Time Constant Excitatory Synapse
-        tau_syn_decay_I ms = 2 ms   # Synaptic Time Constant for Inhibitory Synapse
+        E_L mV = -70 mV        # Leak reversal potential (a.k.a. resting potential)
+        C_m pF = 250 pF        # Capacity of the membrane
+        refr_T ms = 2 ms       # Refractory period
+        V_th mV = -55 mV       # Threshold potential
+        V_reset mV = -60 mV    # Reset potential
+        E_ex mV = 0 mV         # Excitatory reversal potential
+        E_in mV = -85 mV       # Inhibitory reversal potential
+        E_gap mV = -60 mV      # Inhibitory reversal potential
+        g_L nS = 16.6667 nS    # Leak Conductance
+        tau_syn_rise_I ms = .2 ms    # Synaptic time constant for excitatory synapse
+        tau_syn_decay_I ms = 2 ms    # Synaptic time constant for inhibitory synapse
 
-        tau_syn_rise_E ms = 2 ms    # Synaptic Time Constant Excitatory Synapse
-        tau_syn_decay_E ms = 5 ms   # Synaptic Time Constant for Inhibitory Synapse
+        tau_syn_rise_E ms = 2 ms    # Synaptic time constant for excitatory synapse
+        tau_syn_decay_E ms = 5 ms   # Synaptic time constant for inhibitory synapse
 
-        tau_syn_rise_gap ms = 10 ms    # Synaptic Time Constant Excitatory Synapse
-        tau_syn_decay_gap ms = 11 ms   # Synaptic Time Constant for Inhibitory Synapse
+        tau_syn_rise_gap ms = 10 ms    # Synaptic time constant for excitatory synapse
+        tau_syn_decay_gap ms = 11 ms   # Synaptic time constant for inhibitory synapse
 
-        I_e pA = 0pA            # Constant Current
-        F_E nS = 0nS            # Constant External input conductance (excitatory).
-        F_I nS = 0nS            # Constant External input conductance (inhibitory).
+        I_e pA = 0pA            # Constant current
+        F_E nS = 0nS            # Constant external input conductance (excitatory)
+        F_I nS = 0nS            # Constant external input conductance (inhibitory)
 
     internals:
         # time of peak conductance excursion after spike arrival at t = 0

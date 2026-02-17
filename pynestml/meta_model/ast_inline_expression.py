@@ -30,7 +30,7 @@ class ASTInlineExpression(ASTNode):
     Stores a single declaration of an inline expression, e.g.,
         inline v_init mV = V_m - 50mV.
     Grammar:
-        inline : (recordable='recordable')? INLINE_KEYWORD variableName=NAME datatype '=' rhs;
+        inline : (recordable="recordable")? INLINE_KEYWORD variableName=NAME datatype "=" rhs;
     Attributes:
         is_recordable = False
         variable_name = None

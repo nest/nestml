@@ -47,20 +47,20 @@ class PrintCodeGeneratorTest(unittest.TestCase):
         Logger.init_logger(LoggingLevel.INFO)
 
         self.target_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                             os.path.join(os.pardir, 'target'))))
+                                                             os.path.join(os.pardir, "target"))))
 
     def test_simple_print_statment(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            'resources', 'SimplePrintStatement.nestml'))))
+            "resources", "SimplePrintStatement.nestml"))))
 
         params = list()
-        params.append('--input_path')
+        params.append("--input_path")
         params.append(input_path)
-        params.append('--logging_level')
-        params.append('INFO')
-        params.append('--target_path')
+        params.append("--logging_level")
+        params.append("INFO")
+        params.append("--target_path")
         params.append(self.target_path)
-        params.append('--dev')
+        params.append("--dev")
         FrontendConfiguration.parse_config(params)
         compilation_unit = ModelParser.parse_file(input_path)
 
@@ -68,21 +68,21 @@ class PrintCodeGeneratorTest(unittest.TestCase):
         nestCodeGenerator.generate_code(compilation_unit.get_model_list())
 
         with open(str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-                os.pardir, 'target', 'simple_print_test.cpp')))), 'r') as reader:
-            self.assertEqual(reader.read().count('std::cout'), 5)
+                os.pardir, "target", "simple_print_test.cpp")))), "r") as reader:
+            self.assertEqual(reader.read().count("std::cout"), 5)
 
     def test_print_statement_with_variables(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            'resources', 'PrintStatementWithVariables.nestml'))))
+            "resources", "PrintStatementWithVariables.nestml"))))
 
         params = list()
-        params.append('--input_path')
+        params.append("--input_path")
         params.append(input_path)
-        params.append('--logging_level')
-        params.append('INFO')
-        params.append('--target_path')
+        params.append("--logging_level")
+        params.append("INFO")
+        params.append("--target_path")
         params.append(self.target_path)
-        params.append('--dev')
+        params.append("--dev")
         FrontendConfiguration.parse_config(params)
         compilation_unit = ModelParser.parse_file(input_path)
 
@@ -90,21 +90,21 @@ class PrintCodeGeneratorTest(unittest.TestCase):
         nestCodeGenerator.generate_code(compilation_unit.get_model_list())
 
         with open(str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-                os.pardir, 'target', 'print_test_variables.cpp')))), 'r') as reader:
-            self.assertEqual(reader.read().count('std::cout'), 6)
+                os.pardir, "target", "print_test_variables.cpp")))), "r") as reader:
+            self.assertEqual(reader.read().count("std::cout"), 6)
 
     def test_print_variables_with_different_units(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            'resources', 'PrintVariablesWithDifferentButCompatibleUnits.nestml'))))
+            "resources", "PrintVariablesWithDifferentButCompatibleUnits.nestml"))))
 
         params = list()
-        params.append('--input_path')
+        params.append("--input_path")
         params.append(input_path)
-        params.append('--logging_level')
-        params.append('INFO')
-        params.append('--target_path')
+        params.append("--logging_level")
+        params.append("INFO")
+        params.append("--target_path")
         params.append(self.target_path)
-        params.append('--dev')
+        params.append("--dev")
         FrontendConfiguration.parse_config(params)
         compilation_unit = ModelParser.parse_file(input_path)
 
@@ -112,21 +112,21 @@ class PrintCodeGeneratorTest(unittest.TestCase):
         nestCodeGenerator.generate_code(compilation_unit.get_model_list())
 
         with open(str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-                os.pardir, 'target', 'print_variable.cpp')))), 'r') as reader:
-            self.assertEqual(reader.read().count('std::cout'), 5)
+                os.pardir, "target", "print_variable.cpp")))), "r") as reader:
+            self.assertEqual(reader.read().count("std::cout"), 5)
 
     def test_print_statment_in_function(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            'resources', 'PrintStatementInFunction.nestml'))))
+            "resources", "PrintStatementInFunction.nestml"))))
 
         params = list()
-        params.append('--input_path')
+        params.append("--input_path")
         params.append(input_path)
-        params.append('--logging_level')
-        params.append('INFO')
-        params.append('--target_path')
+        params.append("--logging_level")
+        params.append("INFO")
+        params.append("--target_path")
         params.append(self.target_path)
-        params.append('--dev')
+        params.append("--dev")
         FrontendConfiguration.parse_config(params)
         compilation_unit = ModelParser.parse_file(input_path)
 
@@ -134,8 +134,8 @@ class PrintCodeGeneratorTest(unittest.TestCase):
         nestCodeGenerator.generate_code(compilation_unit.get_model_list())
 
         with open(str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-                os.pardir, 'target', 'print_test_function.cpp')))), 'r') as reader:
-            self.assertEqual(reader.read().count('std::cout'), 5)
+                os.pardir, "target", "print_test_function.cpp")))), "r") as reader:
+            self.assertEqual(reader.read().count("std::cout"), 5)
 
     def tearDown(self):
         import shutil
