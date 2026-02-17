@@ -11,6 +11,6 @@ neuron_recording_record_bit(SPIKE_RECORDING_BITFIELD, neuron_index);
 send_spike(timer_count, time, neuron_index);
 {%- else %}
 {#-     weight and delay parameters given -- emit_spike() called from within synapse #}
-#error "Synapse code generation not supported yet for SpiNNaker"
+//#error "Synapse code generation not supported yet for SpiNNaker"
 {%- endif %}
 // end generated code for emit_spike() function

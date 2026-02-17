@@ -30,7 +30,8 @@ class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
     Printer for ASTFunctionCall in C Spinnaker API  syntax.
     """
 
-    def print_function_call(self, node: ASTFunctionCall) -> str:
+#!! function_call was called node before
+    def print_function_call(self, function_call: ASTFunctionCall) -> str:
         r"""
         Converts a single handed over function call to C Spinnaker API syntax.
 
@@ -44,7 +45,64 @@ class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
         s
             The function call string in C syntax.
         """
+
+
+        assert isinstance(function_call, ASTFunctionCall)
+
+#taken from previous version of print_function_call()
+
+        if function_call.get_name() in [PredefinedFunctions.TIME_RESOLUTION, PredefinedFunctions.TIME_TIMESTEP]:
+            # context dependent; we assume the template contains the necessary definitions
+            return 'parameter->__h'
+
+        if function_call.get_name() == PredefinedFunctions.TIME_STEPS:
+            raise Exception("time_steps() function not yet implemented")
+
+        if function_call.get_name() == PredefinedFunctions.RANDOM_NORMAL:
+            raise Exception("rng functions not yet implemented")
+
+        if function_call.get_name() == PredefinedFunctions.RANDOM_UNIFORM:
+            raise Exception("rng functions not yet implemented")
+
+#structure taken from python_function_call_printer.py
+        function_name = self._print_function_call_format_string(function_call)
+
+
+#        import pdb
+ #       pdb.set_trace()
+
+        if ASTUtils.needs_arguments(function_call):
+            if function_call.get_name() == PredefinedFunctions.PRINT or function_call.get_name() == PredefinedFunctions.PRINT:
+                return function_name.format(self._print_print_statement(function_call))
+
+            return function_name.format(*self._print_function_call_argument_list(function_call))
+
+        return function_name
+
+
+
+
+        """ original function
         function_name = node.get_name()
+
+#!!
+
+        import pdb
+        pdb.set_trace()
+
+
+#!! TODO add cases for min and max
+        if function_name == PredefinedFunctions.MIN:
+            raise Exception("min() not implemented yet")
+
+
+        if function_name == PredefinedFunctions.MAX:
+            raise Exception("max() not implemented yet")
+
+#!! TODO add case for EXP
+
+        if function_name == PredefinedFunctions.EXP:
+            raise Exception("exp() not implemented yet")
 
         if function_name in [PredefinedFunctions.TIME_RESOLUTION, PredefinedFunctions.TIME_TIMESTEP]:
             # context dependent; we assume the template contains the necessary definitions
@@ -60,6 +118,18 @@ class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
             raise Exception("rng functions not yet implemented")
 
         return super().print_function_call(node)
+    """
+
+
+#!!
+    def _print_function_call_argument_list(self, function_call: ASTFunctionCall) -> tuple[str, ...]:
+        ret = []
+
+        for arg in function_call.get_args():
+            ret.append(self._expression_printer.print(arg))
+
+        return tuple(ret)
+
 
     def _print_function_call_format_string(self, function_call: ASTFunctionCall) -> str:
         r"""
@@ -75,6 +145,13 @@ class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
         s
             The function call string in C syntax.
         """
+
+#!!
+
+ #       import pdb
+  #      pdb.set_trace()
+
+
         function_name = function_call.get_name()
 
         if function_name == PredefinedFunctions.CLIP:

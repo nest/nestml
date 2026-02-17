@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# spinnaker_c_variable_printer.py
+# python_variable_printer.py
 #
 # This file is part of NEST.
 #
@@ -21,12 +21,10 @@
 
 from __future__ import annotations
 
-from pynestml.utils.ast_utils import ASTUtils
-
-from pynestml.codegeneration.spinnaker_code_generator_utils import SPINNAKERCodeGeneratorUtils
-from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
-from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
+from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
+from pynestml.codegeneration.printers.variable_printer import VariablePrinter
+from pynestml.codegeneration.python_code_generator_utils import PythonCodeGeneratorUtils
 from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_units import PredefinedUnits
@@ -38,44 +36,58 @@ from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
 
-class SpinnakerCVariablePrinter(CppVariablePrinter):
+class SpiNNakerPythonVariablePrinter(VariablePrinter):
     r"""
-    Variable printer for C syntax and the Spinnaker API.
+    Variable printer for Python syntax.
     """
-    def __init__(self, expression_printer: ExpressionPrinter, with_origin: bool = True, with_vector_parameter: bool = True, variables_special_cases: Optional[Dict[str, str]] = None) -> None:
+
+    def __init__(self, expression_printer: ExpressionPrinter, with_origin: bool = True, with_vector_parameter: bool = True) -> None:
         super().__init__(expression_printer)
         self.with_origin = with_origin
         self.with_vector_parameter = with_vector_parameter
-        self._state_symbols = []
 
-        self.variables_special_cases = variables_special_cases
+    @classmethod
+    def _print_python_name(cls, variable_name: str) -> str:
+        """
+        Converts a handed over name to the corresponding Python naming guideline. This is chosen to be compatible with the naming strategy for ode-toolbox, such that the variable name in a NESTML statement like "G_ahp' += 1" will be converted into "G_ahp__d".
 
+        :param variable_name: a single name.
+        :return: a string representation
+        """
+        differential_order = variable_name.count("\"")
+        if differential_order > 0:
+            return variable_name.replace("\"", "").replace("$", "__DOLLAR") + "__" + "d" * differential_order
 
-
+        return variable_name.replace("$", "__DOLLAR")
 
     def print_variable(self, variable: ASTVariable) -> str:
         """
-        Converts a single variable to Spinnaker processable format.
+        Converts a single variable to nest processable format.
         :param variable: a single variable.
-        :return: a Spinnaker processable format.
+        :return: a string representation
         """
         assert isinstance(variable, ASTVariable)
 
+        # print external variables (such as a variable in the synapse that needs to call the getter method on the postsynaptic partner)
         if isinstance(variable, ASTExternalVariable):
-#!!
-#            import pdb
-#            pdb.set_trace()
+            _name = str(variable)
+            if variable.get_alternate_name():
+                if not variable._altscope:
+                    # get the value from the postsynaptic partner continuous-time buffer (for post_connected_continuous_input_ports); this has been buffered in a local temp variable starting with "__"
+                    return variable.get_alternate_name()
 
+                # get the value from the postsynaptic partner (without time specified)
+                # the disadvantage of this approach is that the time the value is to be obtained is not explicitly specified, so we will actually get the value at the end of the min_delay timestep
+                return "__target.get_" + variable.get_alternate_name() + "()"
 
-            return "state->post_trace"
-#            return variable.name + "________EXT" # XXX REMOVE THIS LINE
-            raise Exception("SpiNNaker does not suport external variables")
+            # grab the value from the postsynaptic spiking history buffer
+            return "start.get_" + _name + "()"
 
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
-            return "REAL_CONST(2.718282)"
+            return "math.e"
 
         if variable.get_name() == PredefinedVariables.PI_CONSTANT:
-            return "REAL_CONST(3.14159)"
+            return "math.pi"
 
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         if symbol is None:
@@ -100,7 +112,8 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
             s = ""
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
-            s += self._print_buffer_value(variable)
+            s += self._print(variable, symbol, with_origin=self.with_origin) + vector_param
+            s += vector_param
             if not units_conversion_factor == 1:
                 s += ")"
             return s
@@ -116,47 +129,20 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
 
         return self._print(variable, symbol, with_origin=self.with_origin) + vector_param
 
-    def _print_delay_variable(self, variable: ASTVariable) -> str:
+    def _print_delay_variable(self, variable: ASTVariable):
         """
-        Converts a delay variable to SPINNAKER processable format
+        Converts a delay variable to NEST processable format
         :param variable:
         :return:
         """
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
-        if symbol and symbol.is_state() and symbol.has_delay_parameter():
-            return "get_delayed_" + variable.get_name() + "()"
-
+        if symbol:
+            if symbol.is_state() and symbol.has_delay_parameter():
+                return "get_delayed_" + variable.get_name() + "()"
         return ""
 
-    def _print_buffer_value(self, variable: ASTVariable) -> str:
-        """
-        Converts for a handed over symbol the corresponding name of the buffer to a SPINNAKER processable format.
-        :param variable: a single variable symbol.
-        :return: the corresponding representation as a string
-        """
-        variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
-        if variable_symbol.is_spike_input_port():
-            var_name = variable_symbol.get_symbol_name().upper()
-            if variable.get_vector_parameter() is not None:
-                vector_parameter = ASTUtils.get_numeric_vector_size(variable)
-                var_name = var_name + "_" + str(vector_parameter)
-
-            return "input->inputs[" + var_name + "]"
-
-        if variable_symbol.is_continuous_input_port():
-            var_name = variable_symbol.get_symbol_name().upper()
-            if variable.get_vector_parameter() is not None:
-                vector_parameter = ASTUtils.get_numeric_vector_size(variable)
-                var_name = var_name + "_" + str(vector_parameter)
-
-            return "input->inputs[" + var_name + "]"
-
-        return variable_symbol.get_symbol_name() + "_grid_sum_"
-
-    def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:
-        assert all([isinstance(s, str) for s in self._state_symbols])
-
-        variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
+    def _print(self, variable, symbol, with_origin: bool = True) -> str:
+        variable_name = SpiNNakerPythonVariablePrinter._print_python_name(variable.get_complete_name())
 
         if symbol.is_local():
             return variable_name
@@ -165,6 +151,6 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
             return self._print_delay_variable(variable)
 
         if with_origin:
-            return SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols) % variable_name
+            return PythonCodeGeneratorUtils.print_symbol_origin(symbol, variable) % variable_name
 
-        return variable_name
+        return "self._nestml_model_variables[\"" + variable_name + "\"]"
