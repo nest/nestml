@@ -2027,7 +2027,7 @@ class ASTUtils:
     @classmethod
     def get_all_variables_names_in_expression(cls, expr: ASTExpression) -> List[str]:
         r"""
-        Get variable names of any order (foo, foo", foo"', etc. will result in "foo" being added to the list returned)
+        Get variable names of any order (foo, foo', foo'', etc. will result in "foo" being added to the list returned)
         """
         if not expr:
             return []
