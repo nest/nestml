@@ -41,7 +41,7 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 def get_model_doc_title(model_fname: str):
     with open(model_fname) as f:
         model = f.read()
-        return re.compile(r'[^#]*###').search(model).group()[3:-3].strip()
+        return re.compile(r"[^#]*###").search(model).group()[3:-3].strip()
 
 
 @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),

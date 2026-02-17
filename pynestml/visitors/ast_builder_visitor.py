@@ -223,7 +223,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     # Visit a parse tree produced by PyNESTMLParser#simpleExpression.
     def visitSimpleExpression(self, ctx):
         function_call = (self.visit(ctx.functionCall()) if ctx.functionCall() is not None else None)
-        boolean_literal = ((True if re.match(r'[Tt]rue', str(
+        boolean_literal = ((True if re.match(r"[Tt]rue", str(
             ctx.BOOLEAN_LITERAL())) else False) if ctx.BOOLEAN_LITERAL() is not None else None)
         if ctx.UNSIGNED_INTEGER() is not None:
             numeric_literal = int(str(ctx.UNSIGNED_INTEGER()))

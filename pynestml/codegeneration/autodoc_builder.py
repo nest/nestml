@@ -32,7 +32,7 @@ from pynestml.frontend.frontend_configuration import FrontendConfiguration
 def get_model_doc_title(model_fname: str):
     with open(model_fname) as f:
         model = f.read()
-        return re.compile(r'[^#]*###').search(model).group()[3:-3].strip()
+        return re.compile(r"[^#]*###").search(model).group()[3:-3].strip()
 
 
 class AutodocBuilder(Builder):

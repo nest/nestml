@@ -24,6 +24,6 @@ import logging
 
 def pytest_configure(config):
     # prevent matplotlib and other packages from printing a lot of debug messages when NESTML is running in DEBUG logging_level
-    logging.getLogger('matplotlib').setLevel(logging.ERROR)
-    logging.getLogger('graphviz').setLevel(logging.ERROR)
-    logging.getLogger('PIL').setLevel(logging.ERROR)
+    logging.getLogger("matplotlib").setLevel(logging.ERROR)
+    logging.getLogger("graphviz").setLevel(logging.ERROR)
+    logging.getLogger("PIL").setLevel(logging.ERROR)

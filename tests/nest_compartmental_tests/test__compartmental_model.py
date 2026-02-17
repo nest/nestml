@@ -288,8 +288,8 @@ class TestCM():
                          c="b", ls="--", lw=2., label="active dend")
             ax_soma.plot(res_act_nestml["times"], res_act_nestml["v_comp0"],
                          c="r", ls=":", lw=2., label="active dend")
-            ax_soma.set_xlabel(r'$t$ (ms)')
-            ax_soma.set_ylabel(r'$v_{soma}$ (mV)')
+            ax_soma.set_xlabel(r"$t$ (ms)")
+            ax_soma.set_ylabel(r"$v_{soma}$ (mV)")
             ax_soma.set_ylim((-90., 40.))
             if w_legends:
                 ax_soma.legend(loc=0)
@@ -303,8 +303,8 @@ class TestCM():
                 label="passive dend")
             ax_dend.plot(res_act_nest["times"], res_act_nest["v_comp1"],
                          c="r", ls="--", lw=2., label="active dend")
-            ax_dend.set_xlabel(r'$t$ (ms)')
-            ax_dend.set_ylabel(r'$v_{dend}$ (mV)')
+            ax_dend.set_xlabel(r"$t$ (ms)")
+            ax_dend.set_ylabel(r"$v_{dend}$ (mV)")
             ax_dend.set_ylim((-90., 40.))
             if w_legends:
                 ax_dend.legend(loc=0)
@@ -320,8 +320,8 @@ class TestCM():
                 label="passive dend")
             ax_soma.plot(res_act_nestml["times"], res_act_nestml["v_comp0"],
                          c="b", ls="--", lw=2., label="active dend")
-            ax_soma.set_xlabel(r'$t$ (ms)')
-            ax_soma.set_ylabel(r'$v_{soma}$ (mV)')
+            ax_soma.set_xlabel(r"$t$ (ms)")
+            ax_soma.set_ylabel(r"$v_{soma}$ (mV)")
             ax_soma.set_ylim((-90., 40.))
             if w_legends:
                 ax_soma.legend(loc=0)
@@ -335,8 +335,8 @@ class TestCM():
                 label="passive dend")
             ax_dend.plot(res_act_nestml["times"], res_act_nestml["v_comp1"],
                          c="r", ls="--", lw=2., label="active dend")
-            ax_dend.set_xlabel(r'$t$ (ms)')
-            ax_dend.set_ylabel(r'$v_{dend}$ (mV)')
+            ax_dend.set_xlabel(r"$t$ (ms)")
+            ax_dend.set_ylabel(r"$v_{dend}$ (mV)")
             ax_dend.set_ylim((-90., 40.))
             if w_legends:
                 ax_dend.legend(loc=0)
@@ -368,8 +368,8 @@ class TestCM():
                          c="r", ls="--", lw=2., label="h_Na active dend")
             ax_soma.plot(res_act_nest["times"], res_act_nest["n_K_0"],
                          c="g", ls="--", lw=2., label="n_K active dend")
-            ax_soma.set_xlabel(r'$t$ (ms)')
-            ax_soma.set_ylabel(r'svar')
+            ax_soma.set_xlabel(r"$t$ (ms)")
+            ax_soma.set_ylabel(r"svar")
             ax_soma.set_ylim((0., 1.))
             if w_legends:
                 ax_soma.legend(loc=0)
@@ -397,8 +397,8 @@ class TestCM():
                          c="r", ls="--", lw=2., label="h_Na active dend")
             ax_dend.plot(res_act_nest["times"], res_act_nest["n_K_1"],
                          c="g", ls="--", lw=2., label="n_K active dend")
-            ax_dend.set_xlabel(r'$t$ (ms)')
-            ax_dend.set_ylabel(r'svar')
+            ax_dend.set_xlabel(r"$t$ (ms)")
+            ax_dend.set_ylabel(r"svar")
             ax_dend.set_ylim((0., 1.))
             if w_legends:
                 ax_dend.legend(loc=0)
@@ -428,8 +428,8 @@ class TestCM():
                          c="r", ls="--", lw=2., label="h_Na active dend")
             ax_soma.plot(res_act_nestml["times"], res_act_nestml["n_K0"],
                          c="g", ls="--", lw=2., label="n_K active dend")
-            ax_soma.set_xlabel(r'$t$ (ms)')
-            ax_soma.set_ylabel(r'svar')
+            ax_soma.set_xlabel(r"$t$ (ms)")
+            ax_soma.set_ylabel(r"svar")
             ax_soma.set_ylim((0., 1.))
             if w_legends:
                 ax_soma.legend(loc=0)
@@ -457,8 +457,8 @@ class TestCM():
                          c="r", ls="--", lw=2., label="h_Na active dend")
             ax_dend.plot(res_act_nestml["times"], res_act_nestml["n_K1"],
                          c="g", ls="--", lw=2., label="n_K active dend")
-            ax_dend.set_xlabel(r'$t$ (ms)')
-            ax_dend.set_ylabel(r'svar')
+            ax_dend.set_xlabel(r"$t$ (ms)")
+            ax_dend.set_ylabel(r"svar")
             ax_dend.set_ylim((0., 1.))
             if w_legends:
                 ax_dend.legend(loc=0)
@@ -494,8 +494,8 @@ class TestCM():
                 ls="--",
                 lw=2.,
                 label="NMDA active dend")
-            ax_dend.set_xlabel(r'$t$ (ms)')
-            ax_dend.set_ylabel(r'$g_{syn1}$ (uS)')
+            ax_dend.set_xlabel(r"$t$ (ms)")
+            ax_dend.set_ylabel(r"$g_{syn1}$ (uS)")
             if w_legends:
                 ax_dend.legend(loc=0)
             # plot traces for dendritic compartment
@@ -516,8 +516,8 @@ class TestCM():
                          c="b", ls="--", lw=2., label="AMPA active dend")
             ax_dend.plot(res_act_nestml["times"], res_act_nestml["g_AN_NMDA1"],
                          c="r", ls="--", lw=2., label="NMDA active dend")
-            ax_dend.set_xlabel(r'$t$ (ms)')
-            ax_dend.set_ylabel(r'$g_{syn1}$ (uS)')
+            ax_dend.set_xlabel(r"$t$ (ms)")
+            ax_dend.set_ylabel(r"$g_{syn1}$ (uS)")
             if w_legends:
                 ax_dend.legend(loc=0)
 

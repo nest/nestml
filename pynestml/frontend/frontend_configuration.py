@@ -233,7 +233,7 @@ appropriate numeric solver otherwise.
             if not module_name.endswith("module"):
                 raise Exception("Invalid module name specified (\"" + module_name
                                 + "\"): the module name should end with the word \"module\"")
-            if not re.match(r'[a-zA-Z_][a-zA-Z0-9_]*\Z', module_name):
+            if not re.match(r"[a-zA-Z_][a-zA-Z0-9_]*\Z", module_name):
                 raise Exception("The specified module name (\"" + module_name
                                 + "\") cannot be parsed as a C variable name")
             cls.module_name = module_name
