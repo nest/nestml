@@ -161,7 +161,7 @@ class NestSTDPNeuromodTest(unittest.TestCase):
 
         # set up custom synapse models
         wr = nest.Create("weight_recorder")
-        wr_ref = nest.Create('weight_recorder')
+        wr_ref = nest.Create("weight_recorder")
         nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
                        {"weight_recorder": wr[0], "w": 1., "d": delay, "receptor_type": 0,
                         "volume_transmitter": vt})

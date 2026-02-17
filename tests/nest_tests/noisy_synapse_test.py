@@ -47,7 +47,7 @@ class NoisySynapseTest(unittest.TestCase):
     def setUp(self):
         """Generate and build the model code"""
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                       os.path.join(os.pardir, os.pardir, 'models', 'synapses', 'noisy_synapse.nestml'))))
+                                                       os.path.join(os.pardir, os.pardir, "models", "synapses", "noisy_synapse.nestml"))))
         generate_nest_target(input_path=input_path,
                              target_path="/tmp/nestml-noisy-synapse",
                              logging_level="INFO",
@@ -93,11 +93,11 @@ class NoisySynapseTest(unittest.TestCase):
 
         nest.set_verbosity("M_WARNING")
 
-        post_weights = {'parrot': []}
+        post_weights = {"parrot": []}
 
-        nest.SetKernelStatus({'resolution': resolution})
+        nest.SetKernelStatus({"resolution": resolution})
 
-        wr = nest.Create('weight_recorder')
+        wr = nest.Create("weight_recorder")
         nest.CopyModel(synapse_model_name, "noisy_synapse_nestml_rec",
                        {"weight_recorder": wr[0], "w": 1., "d": 1., "receptor_type": 0})
 
@@ -113,7 +113,7 @@ class NoisySynapseTest(unittest.TestCase):
         mm = nest.Create("multimeter", params={"record_from": ["V_m"]})
 
         nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
-        nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={'synapse_model': 'noisy_synapse_nestml_rec'})
+        nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "noisy_synapse_nestml_rec"})
         nest.Connect(mm, post_neuron)
         nest.Connect(pre_neuron, spikedet_pre)
 
@@ -128,7 +128,7 @@ class NoisySynapseTest(unittest.TestCase):
             nest.Simulate(resolution)
             t += resolution
             t_hist.append(t)
-            w_hist.append(nest.GetStatus(syn)[0]['w'])
+            w_hist.append(nest.GetStatus(syn)[0]["w"])
 
         # plot
         if TEST_PLOTS:
@@ -150,7 +150,7 @@ class NoisySynapseTest(unittest.TestCase):
             ax[1].plot(timevec, V_m, label="nestml", alpha=.7, linestyle=":")
             ax[1].set_ylabel("V_m")
 
-            ax[2].plot(wr.get('events')['times'], wr.get('events')['weights'], marker="o", label="w")
+            ax[2].plot(wr.get("events")["times"], wr.get("events")["weights"], marker="o", label="w")
 
             for _ax in ax:
                 _ax.grid(which="major", axis="both")

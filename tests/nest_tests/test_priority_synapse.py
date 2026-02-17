@@ -107,7 +107,7 @@ class TestSynapsePriority:
             nest.Install("nestml_module")
         except Exception:
             pass
-        nest.SetKernelStatus({'resolution': resolution})
+        nest.SetKernelStatus({"resolution": resolution})
 
         print("Pre spike times: " + str(pre_spike_times))
         print("Post spike times: " + str(post_spike_times))
@@ -133,7 +133,7 @@ class TestSynapsePriority:
 
         nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
         nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
-        nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={'synapse_model': 'syn_nestml'})
+        nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "syn_nestml"})
         # nest.Connect(mm, post_neuron)
         nest.Connect(pre_neuron, spikedet_pre)
         nest.Connect(post_neuron, spikedet_post)

@@ -63,8 +63,8 @@ class RecordableVariablesTest(unittest.TestCase):
         sg = nest.Create("spike_generator", params={"spike_times": [20., 80.]})
         nest.Connect(sg, neuron)
 
-        mm = nest.Create('multimeter', params={'record_from': ['V_ex', 'V_rel', 'V_m', 'I_kernel__X__spikes'],
-                                               'interval': 0.1})
+        mm = nest.Create("multimeter", params={"record_from": ["V_ex", "V_rel", "V_m", "I_kernel__X__spikes"],
+                                               "interval": 0.1})
         nest.Connect(mm, neuron)
 
         nest.Simulate(100.)

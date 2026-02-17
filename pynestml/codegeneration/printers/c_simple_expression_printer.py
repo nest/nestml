@@ -49,16 +49,16 @@ class CSimpleExpressionPrinter(SimpleExpressionPrinter):
             return f"{n:#.{CSimpleExpressionPrinter.n_float_digits}g}".rstrip("0")    # make sure decimal point is always included
 
         if node.is_inf_literal:
-            return 'INFINITY'
+            return "INFINITY"
 
         if node.is_string():
             return str(node.get_string())
 
         if node.is_boolean_true:
-            return 'true'
+            return "true"
 
         if node.is_boolean_false:
-            return 'false'
+            return "false"
 
         if node.is_variable() or node.is_delay_variable():
             return self._variable_printer.print(node.get_variable())

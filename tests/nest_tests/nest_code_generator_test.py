@@ -49,20 +49,20 @@ class CodeGeneratorTest(unittest.TestCase):
         Logger.init_logger(LoggingLevel.INFO)
 
         self.target_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, 'target'))))
+            os.pardir, os.pardir, "target"))))
 
     def test_iaf_psc_alpha(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, 'models', 'neurons', 'iaf_psc_alpha_neuron.nestml'))))
+            os.pardir, os.pardir, "models", "neurons", "iaf_psc_alpha_neuron.nestml"))))
 
         params = list()
-        params.append('--input_path')
+        params.append("--input_path")
         params.append(input_path)
-        params.append('--logging_level')
-        params.append('INFO')
-        params.append('--target_path')
+        params.append("--logging_level")
+        params.append("INFO")
+        params.append("--target_path")
         params.append(self.target_path)
-        params.append('--dev')
+        params.append("--dev")
         FrontendConfiguration.parse_config(params)
 
         compilation_unit = ModelParser.parse_file(input_path)
@@ -72,16 +72,16 @@ class CodeGeneratorTest(unittest.TestCase):
 
     def test_iaf_psc_delta(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, 'models', 'neurons', 'iaf_psc_delta_neuron.nestml'))))
+            os.pardir, os.pardir, "models", "neurons", "iaf_psc_delta_neuron.nestml"))))
 
         params = list()
-        params.append('--input_path')
+        params.append("--input_path")
         params.append(input_path)
-        params.append('--logging_level')
-        params.append('INFO')
-        params.append('--target_path')
+        params.append("--logging_level")
+        params.append("INFO")
+        params.append("--target_path")
         params.append(self.target_path)
-        params.append('--dev')
+        params.append("--dev")
         FrontendConfiguration.parse_config(params)
 
         compilation_unit = ModelParser.parse_file(input_path)
@@ -91,16 +91,16 @@ class CodeGeneratorTest(unittest.TestCase):
 
     def test_iaf_cond_alpha_functional(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, 'models', 'neurons', 'iaf_cond_alpha_neuron.nestml'))))
+            os.pardir, os.pardir, "models", "neurons", "iaf_cond_alpha_neuron.nestml"))))
 
         params = list()
-        params.append('--input_path')
+        params.append("--input_path")
         params.append(input_path)
-        params.append('--logging_level')
-        params.append('INFO')
-        params.append('--target_path')
+        params.append("--logging_level")
+        params.append("INFO")
+        params.append("--target_path")
         params.append(self.target_path)
-        params.append('--dev')
+        params.append("--dev")
         FrontendConfiguration.parse_config(params)
 
         compilation_unit = ModelParser.parse_file(input_path)
@@ -112,32 +112,32 @@ class CodeGeneratorTest(unittest.TestCase):
 
     def test_iaf_psc_alpha_with_codegen_opts(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, 'models', 'neurons', 'iaf_psc_alpha_neuron.nestml'))))
+            os.pardir, os.pardir, "models", "neurons", "iaf_psc_alpha_neuron.nestml"))))
 
         code_opts_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                           os.path.join('resources', 'code_options.json'))))
+                                                           os.path.join("resources", "code_options.json"))))
         codegen_opts = {"templates": {
             "path": "resources_nest/point_neuron",
             "model_templates": {
-                "neuron": ['@NEURON_NAME@.cpp.jinja2', '@NEURON_NAME@.h.jinja2'],
+                "neuron": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"],
                 "synapse": []
             },
-            "module_templates": ['setup/CMakeLists.txt.jinja2',
-                                 'setup/@MODULE_NAME@.h.jinja2', 'setup/@MODULE_NAME@.cpp.jinja2']
+            "module_templates": ["setup/CMakeLists.txt.jinja2",
+                                 "setup/@MODULE_NAME@.h.jinja2", "setup/@MODULE_NAME@.cpp.jinja2"]
         }}
 
-        with open(code_opts_path, 'w+') as f:
+        with open(code_opts_path, "w+") as f:
             json.dump(codegen_opts, f)
 
         params = list()
-        params.append('--input_path')
+        params.append("--input_path")
         params.append(input_path)
-        params.append('--logging_level')
-        params.append('INFO')
-        params.append('--target_path')
+        params.append("--logging_level")
+        params.append("INFO")
+        params.append("--target_path")
         params.append(self.target_path)
-        params.append('--dev')
-        params.append('--codegen_opts')
+        params.append("--dev")
+        params.append("--codegen_opts")
         params.append(code_opts_path)
         FrontendConfiguration.parse_config(params)
 
