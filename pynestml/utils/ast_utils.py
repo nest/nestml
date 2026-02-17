@@ -992,7 +992,7 @@ class ASTUtils:
     def add_kernel_to_variable(cls, kernel: ASTKernel):
         r"""
         Adds the kernel as the defining equation.
-        If the definition of the kernel is e.g. `g"" = ...` then variable symbols `g` and `g'` will have their kernel definition and variable type set.
+        If the definition of the kernel is e.g. `g'' = ...` then variable symbols `g` and `g'` will have their kernel definition and variable type set.
         :param kernel: a single kernel object.
         """
         if len(kernel.get_variables()) == 1 \
@@ -1844,7 +1844,7 @@ class ASTUtils:
     @classmethod
     def update_initial_values_for_odes(cls, model: ASTModel, solver_dicts: List[dict]) -> None:
         """
-        Update initial values for original ODE declarations (e.g. V_m", g_ahp"') that are present in the model before ODE-toolbox processing, with the formatted variable names and initial values returned by ODE-toolbox.
+        Update initial values for original ODE declarations (e.g. V_m', g_ahp'') that are present in the model before ODE-toolbox processing, with the formatted variable names and initial values returned by ODE-toolbox.
         """
         from pynestml.utils.model_parser import ModelParser
         from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
@@ -2027,7 +2027,7 @@ class ASTUtils:
     @classmethod
     def get_all_variables_names_in_expression(cls, expr: ASTExpression) -> List[str]:
         r"""
-        Get variable names of any order (foo, foo", foo"', etc. will result in "foo" being added to the list returned)
+        Get variable names of any order (foo, foo', foo'', etc. will result in "foo" being added to the list returned)
         """
         if not expr:
             return []
@@ -2333,7 +2333,7 @@ class ASTUtils:
     @classmethod
     def replace_variable_names_in_expressions(cls, model: ASTModel, solver_dicts: List[dict]) -> None:
         """
-        Replace all occurrences of variables names in NESTML format (e.g. `g_ex$""`)` with the ode-toolbox formatted
+        Replace all occurrences of variables names in NESTML format (e.g. `g_ex$''`)` with the ode-toolbox formatted
         variable name (e.g. `g_ex__DOLLAR__d__d`).
 
         Variables aliasing convolutions should already have been covered by replace_convolution_aliasing_inlines().
