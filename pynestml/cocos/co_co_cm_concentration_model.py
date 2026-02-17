@@ -27,10 +27,10 @@ from pynestml.utils.concentration_processing import ConcentrationProcessing
 class CoCoCmConcentrationModel(CoCo):
 
     @classmethod
-    def check_co_co(cls, model: ASTModel):
+    def check_co_co(cls, model: ASTModel, global_info):
         """
         Check if this compartmental condition applies to the handed over neuron.
         If yes, it checks the presence of expected functions and declarations.
         :param model: a single neuron instance.
         """
-        return ConcentrationProcessing.check_co_co(model)
+        return ConcentrationProcessing.check_co_co(model, global_info)

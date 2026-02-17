@@ -68,7 +68,7 @@ class TestCompartmentalMechDisabled():
             target_path="/tmp/nestml-component/",
             module_name="concmech_mockup_module",
             suffix="_nestml",
-            logging_level="DEBUG"
+            logging_level="INFO"
         )
 
         nest.Install("concmech_mockup_module.so")
@@ -91,9 +91,11 @@ class TestCompartmentalMechDisabled():
 
         sg1 = nest.Create('spike_generator', 1, {'spike_times': [100.]})
 
-        nest.Connect(sg1, cm, syn_spec={'synapse_model': 'static_synapse', 'weight': 4.0, 'delay': 0.5, 'receptor_type': 0})
+        nest.Connect(sg1, cm,
+                     syn_spec={'synapse_model': 'static_synapse', 'weight': 4.0, 'delay': 0.5, 'receptor_type': 0})
 
-        mm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'c_Ca0', 'i_tot_Ca_LVAst0', 'i_tot_Ca_HVA0', 'i_tot_SK_E20'], 'interval': .1})
+        mm = nest.Create('multimeter', 1,
+                         {'record_from': ['v_comp0', 'c_Ca0', 'Ca_LVAst0', 'Ca_HVA0', 'SK_E20'], 'interval': .1})
 
         nest.Connect(mm, cm)
 
@@ -104,14 +106,14 @@ class TestCompartmentalMechDisabled():
         step_time_delta = res['times'][1] - res['times'][0]
         data_array_index = int(200 / step_time_delta)
 
-        expected_conc = 2.8159902294145262e-05
+        expected_conc = 0.0001
 
         fig, axs = plt.subplots(4)
 
         axs[0].plot(res['times'], res['v_comp0'], c='r', label='V_m_0')
         axs[1].plot(res['times'], res['c_Ca0'], c='y', label='c_Ca_0')
-        axs[2].plot(res['times'], res['i_tot_Ca_HVA0'], c='b', label='i_tot_Ca_HVA0')
-        axs[3].plot(res['times'], res['i_tot_SK_E20'], c='b', label='i_tot_SK_E20')
+        axs[2].plot(res['times'], res['Ca_HVA0'], c='b', label='i_tot_Ca_HVA0')
+        axs[3].plot(res['times'], res['SK_E20'], c='b', label='i_tot_SK_E20')
 
         axs[0].set_title('V_m_0')
         axs[1].set_title('c_Ca_0')
@@ -125,4 +127,4 @@ class TestCompartmentalMechDisabled():
 
         plt.savefig("interaction with disabled mechanism test.png")
 
-        assert res['c_Ca0'][data_array_index] == expected_conc, ("the concentration (left) is not as expected (right). (" + str(res['c_Ca0'][data_array_index]) + "!=" + str(expected_conc) + ")")
+        assert abs(res['c_Ca0'][data_array_index] - expected_conc) <= 0.0000001, ("the concentration (left) is not as expected (right). (" + str(res['c_Ca0'][data_array_index]) + "!=" + str(expected_conc) + ")")

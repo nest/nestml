@@ -53,7 +53,8 @@ DynamicRecordablesMap< {{neuronSpecificFileNamesCmSyns["main"]}} >::create( {{ne
 
 nest::{{neuronSpecificFileNamesCmSyns["main"]}}::{{neuronSpecificFileNamesCmSyns["main"]}}()
   : ArchivingNode()
-  , c_tree_()
+  , self_spikes( new bool(false) )
+  , c_tree_(self_spikes)
   , syn_buffers_( 0 )
   , logger_( *this )
   , V_th_( -55.0 )
@@ -68,6 +69,7 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::{{neuronSpecificFileNamesCmSyns
   , syn_buffers_( n.syn_buffers_ )
   , logger_( *this )
   , V_th_( n.V_th_ )
+  , self_spikes( n.self_spikes )
 {
   recordables_values.resize( 0 );
 }
@@ -207,6 +209,19 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::set_status( const DictionaryDat
    * recordables map
    */
   init_recordables_pointers_();
+
+  /**
+   * Set new values for any recordable and potentially evolving states
+   * explicitly defined in the model or implicitly created during
+   * code generation.
+   */
+  std::map< Name, double* > recordables = c_tree_.get_recordables();
+  for(auto recordable : recordables){
+      if(statusdict->known(recordable.first)){
+          *recordable.second = getValue< double >(statusdict, recordable.first);
+          statusdict->remove(recordable.first);
+      }
+  }
 }
 void
 nest::{{neuronSpecificFileNamesCmSyns["main"]}}::add_compartment_( DictionaryDatum& dd )
@@ -313,18 +328,28 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::update( Time const& origin, con
 
   for ( long lag = from; lag < to; ++lag )
   {
-    const double v_0_prev = *(c_tree_.get_root()->v_comp);
-
     c_tree_.construct_matrix( lag );
     c_tree_.solve_matrix();
 
-    // threshold crossing
-    if ( *(c_tree_.get_root()->v_comp) >= V_th_ && v_0_prev < V_th_ )
-    {
-      set_spiketime( Time::step( origin.get_steps() + lag + 1 ) );
+    *self_spikes = false;
 
-      SpikeEvent se;
-      kernel().event_delivery_manager.send( *this, se, lag );
+    // threshold crossing
+    if ( *(c_tree_.get_root()->v_comp) >= V_th_ )
+    {
+        if(!thr_mem)
+        {
+          set_spiketime( Time::step( origin.get_steps() + lag + 1 ) );
+
+          SpikeEvent se;
+          kernel().event_delivery_manager.send( *this, se, lag );
+
+          c_tree_.neuron_currents.f_self_spike();
+          *self_spikes = true;
+          thr_mem = true;
+        }
+    }else
+    {
+      thr_mem = false;
     }
 
     logger_.record_data( origin.get_steps() + lag );
@@ -366,5 +391,252 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::handle( DataLoggingRequest& e )
 {
   logger_.handle( e );
 }
+
+{%- if paired_synapse is defined %}
+// -------------------------------------------------------------------------
+//   Methods for neuron/synapse co-generation
+// -------------------------------------------------------------------------
+
+inline double
+{{neuronName}}::get_spiketime_ms() const
+{
+  return last_spike_;
+}
+
+void
+{{neuronName}}::register_stdp_connection( double t_first_read, double delay )
+{
+  // Mark all entries in the deque, which we will not read in future as read by
+  // this input input, so that we safely increment the incoming number of
+  // connections afterwards without leaving spikes in the history.
+  // For details see bug #218. MH 08-04-22
+
+  for ( std::deque< histentry__{{neuronName}} >::iterator runner = history_.begin();
+        runner != history_.end() and ( t_first_read - runner->t_ > -1.0 * nest::kernel().connection_manager.get_stdp_eps() );
+        ++runner )
+  {
+    ( runner->access_counter_ )++;
+  }
+
+  n_incoming_++;
+
+  max_delay_ = std::max( delay, max_delay_ );
+}
+
+
+void
+{{neuronName}}::get_history__( double t1,
+  double t2,
+  std::deque< histentry__{{neuronName}} >::iterator* start,
+  std::deque< histentry__{{neuronName}} >::iterator* finish )
+{
+  *finish = history_.end();
+  if ( history_.empty() )
+  {
+    *start = *finish;
+    return;
+  }
+  std::deque< histentry__{{neuronName}} >::reverse_iterator runner = history_.rbegin();
+  const double t2_lim = t2 + nest::kernel().connection_manager.get_stdp_eps();
+  const double t1_lim = t1 + nest::kernel().connection_manager.get_stdp_eps();
+  while ( runner != history_.rend() and runner->t_ >= t2_lim )
+  {
+    ++runner;
+  }
+  *finish = runner.base();
+  while ( runner != history_.rend() and runner->t_ >= t1_lim )
+  {
+    runner->access_counter_++;
+    ++runner;
+  }
+  *start = runner.base();
+}
+
+void
+{{neuronName}}::set_spiketime( nest::Time const& t_sp, double offset )
+{
+  {{neuron_parent_class}}::set_spiketime( t_sp, offset );
+
+  unsigned int num_transferred_variables = 0;
+{%-     for var in transferred_variables %}
+  ++num_transferred_variables; {# XXX: TODO: make this into a const member variable #}
+{%-     endfor %}
+
+  const double t_sp_ms = t_sp.get_ms() - offset;
+
+  if ( n_incoming_ )
+  {
+    // prune all spikes from history which are no longer needed
+    // only remove a spike if:
+    // - its access counter indicates it has been read out by all connected
+    //     STDP synapses, and
+    // - there is another, later spike, that is strictly more than
+    //     (min_global_delay + max_delay_ + eps) away from the new spike (at t_sp_ms)
+    while ( history_.size() > 1 )
+    {
+      const double next_t_sp = history_[ 1 ].t_;
+      // Note that ``access_counter`` now has an extra multiplicative factor equal (``n_incoming_``) to the number of trace values that exist, so that spikes are removed from the history only after they have been read out for the sake of computing each trace.
+      // see https://www.frontiersin.org/files/Articles/1382/fncom-04-00141-r1/image_m/fncom-04-00141-g003.jpg (Potjans et al. 2010)
+
+      if ( history_.front().access_counter_ >= n_incoming_ * num_transferred_variables
+           and t_sp_ms - next_t_sp > max_delay_ + nest::Time::delay_steps_to_ms(nest::kernel().connection_manager.get_min_delay()) + nest::kernel().connection_manager.get_stdp_eps() )
+      {
+        history_.pop_front();
+      }
+      else
+      {
+        break;
+      }
+    }
+
+    if (history_.size() > 0)
+    {
+      assert(history_.back().t_ == last_spike_);
+
+    /**
+      * print extra on-emit statements transferred from synapse
+    **/
+
+{%-     filter indent(4, True) %}
+{%-     for stmt in extra_on_emit_spike_stmts_from_synapse %}
+{%-         include "directives_cpp/Statement.jinja2" %}
+{%-     endfor %}
+{%-     endfilter %}
+
+    /**
+      * print updates due to convolutions
+    **/
+
+{%-     for _, spike_update in post_spike_updates.items() %}
+    {{ printer.print(utils.get_variable_by_name(astnode, spike_update.get_variable().get_complete_name())) }} += 1.;
+{%-     endfor %}
+
+    last_spike_ = t_sp_ms;
+    history_.push_back( histentry__{{neuronName}}( last_spike_, 0) );
+  }
+  else
+  {
+    last_spike_ = t_sp_ms;
+  }
+}
+
+
+void
+{{neuronName}}::clear_history()
+{
+  last_spike_ = -1.0;
+  history_.clear();
+}
+
+
+{#
+	generate getter functions for the transferred variables
+#}
+
+{%- for var in transferred_variables %}
+{%- with variable_symbol = transferred_variables_syms[var] %}
+
+{%- if not var == variable_symbol.get_symbol_name() %}
+{{ raise('Error in resolving variable to symbol') }}
+{%- endif %}
+
+double
+{{neuronName}}::get_{{var}}( double t, const bool before_increment )
+{
+#ifdef DEBUG
+  std::cout << "{{neuronName}}::get_{{var}}: getting value at t = " << t << std::endl;
+#endif
+
+  // case when the neuron has not yet spiked
+  if ( history_.empty() )
+  {
+#ifdef DEBUG
+    std::cout << "{{neuronName}}::get_{{var}}: \thistory empty, returning initial value = " << {{var}}__iv << std::endl;
+#endif
+    // return initial value
+    return {{var}}__iv;
+  }
+
+  // search for the latest post spike in the history buffer that came strictly before `t`
+  int i = history_.size() - 1;
+  double eps = 0.;
+  if ( before_increment )
+  {
+   eps = nest::kernel().connection_manager.get_stdp_eps();
+  }
+  while ( i >= 0 )
+  {
+    if ( t - history_[ i ].t_ >= eps )
+    {
+#ifdef DEBUG
+      std::cout<<"{{neuronName}}::get_{{var}}: \tspike occurred at history[i].t_ = " << history_[i].t_ << std::endl;
+#endif
+
+      /**
+       * update state variables transferred from synapse from `history[i].t_` to `t`
+       *
+       * variables that will be integrated: {{ purely_numeric_state_variables_moved + analytic_state_variables_moved }}
+      **/
+
+      if ( t - history_[ i ].t_ >= nest::kernel().connection_manager.get_stdp_eps() )
+      {
+        const double old___h = V_.__h;
+        V_.__h = t - history_[i].t_;
+        assert(V_.__h > 0);
+        recompute_internal_variables(true);
+
+        V_.__h = old___h;
+        recompute_internal_variables(true);
+      }
+
+#ifdef DEBUG
+      std::cout << "{{neuronName}}::get_{{var}}: \treturning " << {{ printer.print(utils.get_variable_by_name(astnode, var)) }} << std::endl;
+#endif
+      return {{ printer.print(utils.get_variable_by_name(astnode, var)) }};       // type: {{declarations.print_variable_type(variable_symbol)}}
+    }
+    --i;
+  }
+
+  // this case occurs when the trace was requested at a time precisely at that of the first spike in the history
+  if ( (!before_increment) and t == history_[ 0 ].t_)
+  {
+
+#ifdef DEBUG
+    std::cout << "{{neuronName}}::get_{{var}}: \ttrace requested at exact time of history entry 0, returning " << {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }} << std::endl;
+#endif
+    return {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }};
+  }
+
+  // this case occurs when the trace was requested at a time before the first spike in the history
+  // return initial value propagated in time
+#ifdef DEBUG
+  std::cout << "{{neuronName}}::get_{{var}}: \tfall-through, returning initial value = " << {{var}}__iv << std::endl;
+#endif
+
+  if (t == 0.)
+  {
+    return 0.;  // initial value for convolution is always 0
+  }
+
+  /**
+   * update state variables transferred from synapse from initial condition to `t`
+   *
+   * variables that will be integrated: {{ purely_numeric_state_variables_moved + analytic_state_variables_moved }}
+  **/
+
+  const double old___h = V_.__h;
+  V_.__h = t;   // from time 0 to the requested time
+  assert(V_.__h > 0);
+  recompute_internal_variables(true);
+
+  V_.__h = old___h;
+  recompute_internal_variables(true);
+
+  return {{ printer.print(utils.get_variable_by_name(astnode, var)) }};
+}
+{%- endwith -%}
+{%- endfor %}
+
+{%- endif %}
 
 } // namespace

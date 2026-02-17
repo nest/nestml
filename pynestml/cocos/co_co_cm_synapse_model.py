@@ -31,6 +31,6 @@ class CoCoCmSynapseModel(CoCo):
         """
         Checks if this compartmental condition applies to the handed over neuron.
         If yes, it checks the presence of expected functions and declarations.
-        :param model: a single neuron instance.
+        :param model: a single synapse instance.
         """
         return SynapseProcessing.check_co_co(model)

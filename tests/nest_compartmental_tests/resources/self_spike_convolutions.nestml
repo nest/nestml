@@ -1,0 +1,78 @@
+# self_spike_convolutions.nestml
+# ###########################
+#
+#
+# Description
+# +++++++++++
+#
+# This model is used to test convolutions with the
+# self_spikes variable.
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+model self_spikes_convolutions:
+    state:
+        v_comp real = 0.0
+
+        concentration real = 0.0
+
+    parameters:
+        w_bap real = 0.0
+        e_bap real = 0.0
+
+        g_norm_bap real = 1.0
+        tau_r_bap real = .2
+        tau_d_bap real = 3.
+
+    equations:
+        # double exponential conductance profile to implement backpropagating action potential
+        kernel g_bap = g_norm_bap * ( - exp(-t / tau_r_bap) + exp(-t / tau_d_bap) )
+        inline bap real = w_bap * convolve(g_bap, self_spikes) * (e_bap - v_comp)   @mechanism::channel
+
+        kernel kern = exp(-t / 10.0)
+        inline secondary real = convolve(kern, self_spikes)
+
+        inline chan_primary real = convolve(kern, self_spikes)                              @mechanism::channel
+
+        inline chan_secondary real = secondary                                              @mechanism::channel
+
+        inline rec_primary real = convolve(kern, in_spikes1) + convolve(kern, self_spikes)   @mechanism::receptor
+
+        inline rec_secondary real = convolve(kern, in_spikes2) + secondary                   @mechanism::receptor
+
+        inline con_in_primary real = in_continuous1*convolve(kern, self_spikes)              @mechanism::continuous_input
+
+        inline con_in_secondary real = in_continuous2*secondary                                            @mechanism::continuous_input
+
+        concentration' = (secondary-(concentration/2)) / 10 ms                              @mechanism::concentration
+
+    input:
+        self_spikes <- spike
+
+        in_spikes1 <- spike
+        in_spikes2 <- spike
+        in_continuous1 real <- continuous
+        in_continuous2 real <- continuous
+
+    output:
+        spike
