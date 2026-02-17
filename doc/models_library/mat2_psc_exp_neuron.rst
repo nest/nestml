@@ -82,8 +82,8 @@ Parameters
     "tau_syn_inh", "ms", "3ms", "Time constant of postsynaptic inhibitory currents"    
     "tau_1", "ms", "10ms", "Short time constant of adaptive threshold"    
     "tau_2", "ms", "200ms", "Long time constant of adaptive threshold"    
-    "alpha_1", "mV", "37mV", "Amplitude of short time threshold adaption [3]"    
-    "alpha_2", "mV", "2mV", "Amplitude of long time threshold adaption [3]"    
+    "alpha_1", "mV", "37mV", "Amplitude of short time threshold adaptation [3]"    
+    "alpha_2", "mV", "2mV", "Amplitude of long time threshold adaptation [3]"    
     "omega", "mV", "19mV", "Resting spike threshold (absolute value, not relative to E_L)"    
     "I_e", "pA", "0pA", "constant external input current"
 

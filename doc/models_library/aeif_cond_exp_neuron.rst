@@ -79,8 +79,8 @@ Parameters
     
     "C_m", "pF", "281.0pF", "membrane parametersMembrane capacitance"    
     "refr_T", "ms", "2ms", "Duration of refractory period"    
-    "V_reset", "mV", "-60.0mV", "Reset Potential"    
-    "g_L", "nS", "30.0nS", "Leak Conductance"    
+    "V_reset", "mV", "-60.0mV", "Reset potential"    
+    "g_L", "nS", "30.0nS", "Leak conductance"    
     "E_L", "mV", "-70.6mV", "Leak reversal potential (a.k.a. resting potential)"    
     "a", "nS", "4nS", "spike adaptation parametersSubthreshold adaptation"    
     "b", "pA", "80.5pA", "Spike-triggered adaptation"    
@@ -88,10 +88,10 @@ Parameters
     "tau_w", "ms", "144.0ms", "Adaptation time constant"    
     "V_th", "mV", "-50.4mV", "Spike initiation threshold"    
     "V_peak", "mV", "0mV", "Spike detection threshold"    
-    "E_exc", "mV", "0mV", "synaptic parametersExcitatory reversal Potential"    
-    "tau_syn_exc", "ms", "0.2ms", "Synaptic Time Constant Excitatory Synapse"    
-    "E_inh", "mV", "-85.0mV", "Inhibitory reversal Potential"    
-    "tau_syn_inh", "ms", "2.0ms", "Synaptic Time Constant for Inhibitory Synapse"    
+    "E_exc", "mV", "0mV", "synaptic parametersExcitatory reversal potential"    
+    "tau_syn_exc", "ms", "0.2ms", "Synaptic Time Constant excitatory synapse"    
+    "E_inh", "mV", "-85.0mV", "Inhibitory reversal potential"    
+    "tau_syn_inh", "ms", "2.0ms", "Synaptic time constant for inhibitory synapse"    
     "I_e", "pA", "0pA", "constant external input current"
 
 

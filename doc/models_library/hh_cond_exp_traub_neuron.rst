@@ -15,10 +15,10 @@ The key differences between the current model and the model in [2]_ are:
 
 - This model is a point neuron, not a compartmental model.
 - This model includes only I_Na and I_K, with simpler I_K dynamics than
-in [2]_, so it has only three instead of eight gating variables;
-in particular, all Ca dynamics have been removed.
+  in [2]_, so it has only three instead of eight gating variables;
+  in particular, all Ca dynamics have been removed.
 - Incoming spikes induce an instantaneous conductance change followed by
-exponential decay instead of activation over time.
+  exponential decay instead of activation over time.
 
 This model is primarily provided as reference implementation for hh_coba
 example of the Brette et al (2007) review. Default parameter values are chosen
@@ -77,11 +77,11 @@ Parameters
     :widths: auto
 
     
-    "g_Na", "nS", "20000nS", "Na Conductance"    
-    "g_K", "nS", "6000nS", "K Conductance"    
-    "g_L", "nS", "10nS", "Leak Conductance"    
+    "g_Na", "nS", "20000nS", "Na conductance"    
+    "g_K", "nS", "6000nS", "K conductance"    
+    "g_L", "nS", "10nS", "Leak conductance"    
     "C_m", "pF", "200pF", "Membrane capacitance"    
-    "E_Na", "mV", "50mV", "Reversal potentials"    
+    "E_Na", "mV", "50mV", "Sodium reversal potential"    
     "E_K", "mV", "-90mV", "Potassium reversal potential"    
     "E_L", "mV", "-60mV", "Leak reversal potential (a.k.a. resting potential)"    
     "V_T", "mV", "-63mV", "Voltage offset that controls dynamics. For default"    
@@ -90,12 +90,12 @@ Parameters
     "refr_T", "ms", "2ms", "Duration of refractory period"    
     "E_exc", "mV", "0mV", "Excitatory synaptic reversal potential"    
     "E_inh", "mV", "-80mV", "Inhibitory synaptic reversal potential"    
-    "alpha_n_init", "1 / ms", "0.032 / (ms * mV) * (15mV - E_L) / (exp((15mV - E_L) / 5mV) - 1.0)", ""    
+    "alpha_n_init", "1 / ms", "0.032 / (ms * mV) * (15mV - E_L) / (exp((15mV - E_L) / 5mV) - 1)", ""    
     "beta_n_init", "1 / ms", "0.5 / ms * exp((10mV - E_L) / 40mV)", ""    
-    "alpha_m_init", "1 / ms", "0.32 / (ms * mV) * (13mV - E_L) / (exp((13mV - E_L) / 4mV) - 1.0)", ""    
-    "beta_m_init", "1 / ms", "0.28 / (ms * mV) * (E_L - 40mV) / (exp((E_L - 40mV) / 5mV) - 1.0)", ""    
+    "alpha_m_init", "1 / ms", "0.32 / (ms * mV) * (13mV - E_L) / (exp((13mV - E_L) / 4mV) - 1)", ""    
+    "beta_m_init", "1 / ms", "0.28 / (ms * mV) * (E_L - 40mV) / (exp((E_L - 40mV) / 5mV) - 1)", ""    
     "alpha_h_init", "1 / ms", "0.128 / ms * exp((17mV - E_L) / 18mV)", ""    
-    "beta_h_init", "1 / ms", "(4.0 / (1.0 + exp((40mV - E_L) / 5mV))) / ms", ""    
+    "beta_h_init", "1 / ms", "(4 / (1 + exp((40mV - E_L) / 5mV))) / ms", ""    
     "I_e", "pA", "0pA", "constant external input current"
 
 

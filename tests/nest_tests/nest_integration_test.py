@@ -63,7 +63,7 @@ class TestNestIntegration:
                                          "models/neurons/iaf_psc_alpha_neuron.nestml",
                                          "models/neurons/iaf_psc_exp_neuron.nestml",
                                          "models/neurons/iaf_psc_delta_neuron.nestml"],
-                             target_path="/tmp/nestml-allmodels2",
+                             target_path="/tmp/nestml-allmodels",
                              logging_level="DEBUG",
                              module_name="nestml_allmodels_module",
                              suffix="_nestml",

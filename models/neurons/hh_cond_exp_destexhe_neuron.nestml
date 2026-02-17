@@ -85,15 +85,15 @@ model hh_cond_exp_destexhe_neuron:
 
         # channel dynamics
         inline V_rel mV = V_m - V_T
-        inline alpha_n 1/ms = 0.032/(ms* mV) * (15. mV - V_rel) / (exp((15. mV - V_rel) / 5. mV) - 1.)
-        inline beta_n 1/ms = 0.5 /ms * exp((10. mV - V_rel) / 40. mV)
-        inline alpha_m 1/ms = 0.32/(ms* mV) * (13. mV - V_rel) / (exp((13. mV - V_rel) / 4. mV) - 1.)
-        inline beta_m 1/ms = 0.28/(ms* mV) * (V_rel - 40. mV) / (exp((V_rel - 40. mV) / 5. mV) - 1.)
-        inline alpha_h 1/ms = 0.128/ms * exp((17. mV - V_rel) / 18. mV)
-        inline beta_h 1/ms = (4. / (1. + exp((40. mV - V_rel) / 5. mV))) / ms
+        inline alpha_n 1/ms = 0.032 / (ms * mV) * (15 mV - V_rel) / (exp((15 mV - V_rel) / 5 mV) - 1)
+        inline beta_n 1/ms = 0.5 / ms * exp((10 mV - V_rel) / 40 mV)
+        inline alpha_m 1/ms = 0.32 / (ms * mV) * (13 mV - V_rel) / (exp((13 mV - V_rel) / 4 mV) - 1)
+        inline beta_m 1/ms = 0.28 / (ms * mV) * (V_rel - 40 mV) / (exp((V_rel - 40 mV) / 5 mV) - 1)
+        inline alpha_h 1/ms = 0.128 / ms * exp((17 mV - V_rel) / 18 mV)
+        inline beta_h 1/ms = (4 / (1 + exp((40 mV - V_rel) / 5 mV))) / ms
 
-        inline alpha_p 1/ms = 0.0001/(ms * mV) * (V_m + 30. mV) / (1. - exp(-(V_m + 30. mV) / 9. mV))
-        inline beta_p 1/ms = -0.0001/(ms * mV) * (V_m + 30. mV) / (1. - exp((V_m + 30. mV) / 9. mV))
+        inline alpha_p 1/ms = 0.0001 / (ms * mV) * (V_m + 30 mV) / (1 - exp(-(V_m + 30 mV) / 9 mV))
+        inline beta_p 1/ms = -0.0001 / (ms * mV) * (V_m + 30 mV) / (1 - exp((V_m + 30 mV) / 9 mV))
 
         Act_m' = (alpha_m - (alpha_m + beta_m) * Act_m)
         Act_h' = (alpha_h - (alpha_h + beta_h) * Act_h)
@@ -102,21 +102,21 @@ model hh_cond_exp_destexhe_neuron:
         Noninact_p' = (alpha_p - (alpha_p + beta_p) * Noninact_p)
 
     parameters:
-        g_Na nS = 17318.0nS        # Na Conductance
-        g_K nS = 3463.6nS          # K Conductance
-        g_L nS = 15.5862nS         # Leak Conductance
-        C_m pF = 346.36pF          # Membrane capacitance
-        E_Na mV = 60mV             # Reversal potentials
-        E_K mV = -90.mV            # Potassium reversal potential
-        E_L mV = -80.mV            # Leak reversal potential (a.k.a. resting potential)
-        V_T mV = -58.0mV           # Voltage offset that controls dynamics. For default
+        g_Na nS = 17318 nS         # Na conductance
+        g_K nS = 3463.6 nS         # K conductance
+        g_L nS = 15.5862 nS        # Leak conductance
+        C_m pF = 346.36 pF         # Membrane capacitance
+        E_Na mV = 60 mV            # Reversal potentials
+        E_K mV = -90 mV            # Potassium reversal potential
+        E_L mV = -80 mV            # Leak reversal potential (a.k.a. resting potential)
+        V_T mV = -58 mV            # Voltage offset that controls dynamics. For default
                                    # parameters, V_T = -63mV results in a threshold around -50mV.
-        tau_syn_exc ms = 2.7ms     # Synaptic Time Constant Excitatory Synapse
-        tau_syn_inh ms = 10.5ms    # Synaptic Time Constant for Inhibitory Synapse
-        E_exc mV = 0.0 mV          # Excitatory synaptic reversal potential
-        E_inh mV = -75.0mV         # Inhibitory synaptic reversal potential
+        tau_syn_exc ms = 2.7 ms    # Synaptic time constant for excitatory synapse
+        tau_syn_inh ms = 10.5 ms   # Synaptic time constant for inhibitory synapse
+        E_exc mV = 0 mV            # Excitatory synaptic reversal potential
+        E_inh mV = -75 mV          # Inhibitory synaptic reversal potential
 
-        g_M nS = 173.18 nS        # Conductance of non-inactivating K+ channel
+        g_M nS = 173.18 nS         # Conductance of non-inactivating K+ channel
 
         # Conductance OU noise
         g_noise_exc0 uS = 0.012 uS		# Mean of the excitatory noise conductance
@@ -124,15 +124,15 @@ model hh_cond_exp_destexhe_neuron:
         sigma_noise_exc uS = 0.003 uS	# Standard deviation of the excitatory noise conductance
         sigma_noise_inh uS = 0.0066 uS	# Standard deviation of the inhibitory noise conductance
 
-        alpha_n_init 1/ms = 0.032 / (ms * mV) * (15 mV - V_m) / (exp((15 mV - V_m) / 5 mV) - 1.)
+        alpha_n_init 1/ms = 0.032 / (ms * mV) * (15 mV - V_m) / (exp((15 mV - V_m) / 5 mV) - 1)
         beta_n_init 1/ms = 0.5 / ms * exp((10 mV - V_m) / 40 mV)
-        alpha_m_init 1/ms = 0.32 / (ms * mV) * (13 mV - V_m) / (exp((13 mV - V_m) / 4 mV) - 1.)
-        beta_m_init 1/ms = 0.28 / (ms * mV) * (V_m - 40 mV) / (exp((V_m - 40 mV) / 5 mV) - 1.)
+        alpha_m_init 1/ms = 0.32 / (ms * mV) * (13 mV - V_m) / (exp((13 mV - V_m) / 4 mV) - 1)
+        beta_m_init 1/ms = 0.28 / (ms * mV) * (V_m - 40 mV) / (exp((V_m - 40 mV) / 5 mV) - 1)
         alpha_h_init 1/ms = 0.128 / ms * exp((17 mV - V_m) / 18 mV)
-        beta_h_init 1/ms = (4. / (1. + exp((40 mV - V_m) / 5 mV))) / ms
+        beta_h_init 1/ms = (4 / (1 + exp((40 mV - V_m) / 5 mV))) / ms
 
-        alpha_p_init 1/ms = 0.0001 / (ms * mV) * (V_m + 30 mV) / (1. - exp(-(V_m + 30 mV) / 9. mV))
-        beta_p_init 1/ms = -0.0001 / (ms * mV) * (V_m + 30 mV) / (1. - exp((V_m + 30 mV) / 9. mV))
+        alpha_p_init 1/ms = 0.0001 / (ms * mV) * (V_m + 30 mV) / (1 - exp(-(V_m + 30 mV) / 9 mV))
+        beta_p_init 1/ms = -0.0001 / (ms * mV) * (V_m + 30 mV) / (1 - exp((V_m + 30 mV) / 9 mV))
 
         refr_T ms = 2 ms          # Duration of refractory period
 

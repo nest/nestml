@@ -84,18 +84,18 @@ model hh_psc_alpha_neuron:
         inline I_L pA = g_L * (V_m - E_L)
 
         # Act_n
-        inline alpha_n real = (0.01 * (V_m / mV + 55.)) / (1. - exp(-(V_m / mV + 55.) / 10.))
-        inline beta_n real = 0.125 * exp(-(V_m / mV + 65.) / 80.)
+        inline alpha_n real = (0.01 * (V_m / mV + 55)) / (1. - exp(-(V_m / mV + 55) / 10))
+        inline beta_n real = 0.125 * exp(-(V_m / mV + 65) / 80)
         Act_n' = (alpha_n * (1 - Act_n) - beta_n * Act_n) / ms # n-variable
 
         # Act_m
-        inline alpha_m real = (0.1 * (V_m / mV + 40.)) / (1. - exp(-(V_m / mV + 40.) / 10.))
-        inline beta_m real = 4. * exp(-(V_m / mV + 65.) / 18.)
+        inline alpha_m real = (0.1 * (V_m / mV + 40)) / (1. - exp(-(V_m / mV + 40) / 10))
+        inline beta_m real = 4 * exp(-(V_m / mV + 65) / 18)
         Act_m' = (alpha_m * (1 - Act_m) - beta_m * Act_m) / ms # m-variable
 
         # Inact_h'
-        inline alpha_h real = 0.07 * exp(-(V_m / mV + 65.) / 20.)
-        inline beta_h real = 1. / (1. + exp(-(V_m / mV + 35.) / 10.))
+        inline alpha_h real = 0.07 * exp(-(V_m / mV + 65) / 20)
+        inline beta_h real = 1 / (1 + exp(-(V_m / mV + 35) / 10))
         Inact_h' = (alpha_h * (1 - Inact_h) - beta_h * Inact_h) / ms # h-variable
 
         V_m' = (-(I_Na + I_K + I_L) + I_e + I_stim + I_syn_exc - I_syn_inh) / C_m
@@ -119,12 +119,12 @@ model hh_psc_alpha_neuron:
         I_e pA = 0 pA
 
     internals:
-        alpha_n_init real = (0.01 * (V_m_init / mV + 55.)) / (1. - exp(-(V_m_init / mV + 55.) / 10.))
-        beta_n_init real = 0.125 * exp(-(V_m_init / mV + 65.) / 80.)
-        alpha_m_init real = (0.1 * (V_m_init / mV + 40.)) / (1. - exp(-(V_m_init / mV + 40.) / 10.))
-        beta_m_init real = 4. * exp(-(V_m_init / mV + 65.) / 18.)
-        alpha_h_init real = 0.07 * exp(-(V_m_init / mV + 65.) / 20.)
-        beta_h_init real = 1. / (1. + exp(-(V_m_init / mV + 35.) / 10.))
+        alpha_n_init real = (0.01 * (V_m_init / mV + 55)) / (1 - exp(-(V_m_init / mV + 55) / 10))
+        beta_n_init real = 0.125 * exp(-(V_m_init / mV + 65) / 80)
+        alpha_m_init real = (0.1 * (V_m_init / mV + 40)) / (1 - exp(-(V_m_init / mV + 40) / 10))
+        beta_m_init real = 4 * exp(-(V_m_init / mV + 65) / 18)
+        alpha_h_init real = 0.07 * exp(-(V_m_init / mV + 65) / 20)
+        beta_h_init real = 1 / (1 + exp(-(V_m_init / mV + 35) / 10))
 
     input:
         exc_spikes <- excitatory spike
