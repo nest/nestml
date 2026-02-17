@@ -238,7 +238,7 @@ class TestIntegrateODEs:
 
     def test_integrate_odes_higher_order(self):
         r"""
-        Tests for higher-order ODEs of the form F(x"",x',x)=0, integrate_odes(x) integrates the full dynamics of x.
+        Tests for higher-order ODEs of the form F(x'',x',x)=0, integrate_odes(x) integrates the full dynamics of x.
         """
         resolution = 0.1
         simtime = 15.
