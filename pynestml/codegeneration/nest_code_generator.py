@@ -268,10 +268,7 @@ class NESTCodeGenerator(CodeGenerator):
         synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
 
         self._check_delay_variable_codegen_opt(synapse)
-#!! this causes error that set is not scriptable
-#        variables_special_cases = {self.get_option("delay_variable")[synapse_name_stripped]: "get_delay()"}
-
-        variables_special_cases = {"delay_variable":self.get_option("delay_variable")}
+        variables_special_cases = {"delay_variable": self.get_option("delay_variable")}
 
         self._nest_variable_printer.variables_special_cases = variables_special_cases
         self._nest_variable_printer_no_origin.variables_special_cases = variables_special_cases
@@ -596,16 +593,22 @@ class NESTCodeGenerator(CodeGenerator):
 
         xfrm = SynapsePostNeuronTransformer()
         xfrm.set_options({"neuron_synapse_pairs": self.get_option("neuron_synapse_pairs")})
-        namespace["post_ports"] = xfrm.get_post_port_names(synapse, None, synapse.name.removesuffix("_nestml"))
-        namespace["spiking_post_ports"] = xfrm.get_spiking_post_port_names(synapse, None, synapse.name)
+
+        codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
+
+        optional_properties = ["pre_ports", "post_ports", "vt_ports", "spiking_post_ports"]
+        for k in optional_properties:
+            if k in dir(synapse):
+                namespace[k] = eval("synapse.k")
+            else:
+                namespace[k] = []
+
         namespace["syn_to_neuron_state_vars"] = []
 
         if "paired_neuron" in dir(synapse):
             # synapse is being co-generated with neuron
             namespace["paired_neuron"] = synapse.paired_neuron
             namespace["paired_neuron_name"] = synapse.paired_neuron.get_name()
-            namespace["post_ports"] = synapse.post_port_names
-            namespace["spiking_post_ports"] = synapse.spiking_post_port_names
 
             if "syn_to_neuron_state_vars" in dir(synapse.paired_neuron):
                 namespace["syn_to_neuron_state_vars"] = synapse.syn_to_neuron_state_vars
@@ -630,18 +633,6 @@ class NESTCodeGenerator(CodeGenerator):
             if "neuron_synapse_pairs" in FrontendConfiguration.get_codegen_opts().keys():
                 post_ports = ASTUtils.get_post_ports_of_neuron_synapse_pair(synapse.paired_neuron, synapse, FrontendConfiguration.get_codegen_opts()["neuron_synapse_pairs"])
                 namespace["continuous_post_ports"] = [v for v in post_ports if isinstance(v, tuple) or isinstance(v, list)]
-
-            namespace["vt_ports"] = synapse.vt_port_names
-            namespace["pre_ports"] = list(set(all_input_port_names) - set(namespace["post_ports"]) - set(namespace["vt_ports"]))
-        else:
-            opts = FrontendConfiguration.get_codegen_opts()
-            if "neuron_synapse_pairs" in opts:
-                assert len(opts["neuron_synapse_pairs"]) == 1, "Only one pair supported for now!"
-                namespace["post_ports"] = opts["neuron_synapse_pairs"][0]["post_ports"]
-                namespace["pre_ports"] = list(set(all_input_port_names) - set(namespace["post_ports"]))
-            else:
-                # separate (not neuron+synapse co-generated)
-                namespace["pre_ports"] = all_input_port_names
 
         assert len(namespace["pre_ports"]) <= 1, "Synapses only support one spiking input port"
 
@@ -718,10 +709,13 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["spike_updates"] = synapse.spike_updates
 
         # special case for NEST delay variable (state or parameter)
-        self._check_delay_variable_codegen_opt(synapse)
+        # self._check_delay_variable_codegen_opt(synapse)
 
-        synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
-        namespace["nest_codegen_opt_delay_variable"] = self.get_option("delay_variable")[synapse_name_stripped]
+        try:
+            synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
+            namespace["nest_codegen_opt_delay_variable"] = self.get_option("delay_variable")[synapse_name_stripped]
+        except:
+            namespace["nest_codegen_opt_delay_variable"] = ""
 
         # special case for NEST weight variable (state or parameter)
         if synapse_name_stripped in self.get_option("weight_variable").keys() and ASTUtils.get_variable_by_name(synapse, self.get_option("weight_variable")[synapse_name_stripped]):

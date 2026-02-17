@@ -54,7 +54,9 @@ from pynestml.codegeneration.printers.spinnaker_python_simple_expression_printer
 from pynestml.codegeneration.printers.spinnaker_python_type_symbol_printer import SpinnakerPythonTypeSymbolPrinter
 from pynestml.codegeneration.python_standalone_code_generator import PythonStandaloneCodeGenerator
 from pynestml.codegeneration.python_standalone_target_tools import PythonStandaloneTargetTools
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.utils.string_utils import removesuffix
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 
@@ -138,11 +140,16 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         self._ode_toolbox_variable_printer._expression_printer = self._ode_toolbox_printer
         self._ode_toolbox_function_call_printer._expression_printer = self._ode_toolbox_printer
 
+    def generate_synapse_code(self, synapse: ASTModel) -> None:
+        self.generate_model_code(synapse.get_name(),
+                                 model_templates=self._model_templates["synapse"],
+                                 template_namespace=self._get_synapse_model_namespace(synapse),
+                                 model_name_escape_string="@SYNAPSE_NAME@")
 
 class CustomPythonStandaloneCodeGenerator(PythonStandaloneCodeGenerator):
     def _get_model_namespace(self, astnode: ASTModel) -> Dict:
         namespace = super()._get_model_namespace(astnode)
-        if "neuron" in astnode.name:
+        if "neuron" in astnode.name.split("__with_")[0]:
             # TODO: PythonStandaloneTargetTools does not contain getter for synapse values yet
             namespace["numeric_parameter_values"], namespace["numeric_internal_values"], namespace["numeric_initial_state_values"] = PythonStandaloneTargetTools.get_neuron_numerical_initial_values(astnode.file_path)
 
@@ -288,14 +295,10 @@ class SpiNNakerCodeGenerator(CodeGenerator):
     def generate_code(self, models: Sequence[ASTModel]) -> None:
         for model in models:
             cloned_model = model.clone()
-            cloned_model.file_path = model.file_path
             cloned_model.accept(ASTSymbolTableVisitor())
             if "paired_neuron" in dir(model):
+                # model is a synapse
                 cloned_model.paired_neuron = model.paired_neuron
-                cloned_model.spiking_post_port_names = model.spiking_post_port_names
-                cloned_model.post_port_names = model.post_port_names
-            if "vt_port_names" in dir(model):
-                cloned_model.vt_port_names = model.vt_port_names
 
             neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
             if model in neurons:
@@ -310,11 +313,6 @@ class SpiNNakerCodeGenerator(CodeGenerator):
 
             cloned_model = model.clone()
             cloned_model.accept(ASTSymbolTableVisitor())
-            cloned_model.file_path = model.file_path
             if "paired_neuron" in dir(model):
                 cloned_model.paired_neuron = model.paired_neuron
-                cloned_model.spiking_post_port_names = model.spiking_post_port_names
-                cloned_model.post_port_names = model.post_port_names
-            if "vt_port_names" in dir(model):
-                cloned_model.vt_port_names = model.vt_port_names
             self.codegen_py.generate_code([cloned_model])

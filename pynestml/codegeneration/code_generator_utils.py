@@ -99,6 +99,10 @@ class CodeGeneratorUtils:
         return CodeGeneratorUtils.is_special_port("post", port_name, neuron_name, synapse_name, neuron_synapse_pairs=neuron_synapse_pairs)
 
     @classmethod
+    def is_pre_port(cls, port_name: str, neuron_name: str, synapse_name: str, neuron_synapse_pairs) -> bool:
+        return not (CodeGeneratorUtils.is_post_port(port_name, neuron_name, synapse_name, neuron_synapse_pairs) or CodeGeneratorUtils.is_vt_port(port_name, neuron_name, synapse_name, neuron_synapse_pairs))
+
+    @classmethod
     def is_vt_port(cls, port_name: str, neuron_name: str, synapse_name: str, neuron_synapse_pairs) -> bool:
         return CodeGeneratorUtils.is_special_port("vt", port_name, neuron_name, synapse_name, neuron_synapse_pairs=neuron_synapse_pairs)
 
@@ -113,6 +117,16 @@ class CodeGeneratorUtils:
         return post_port_names
 
     @classmethod
+    def get_spiking_pre_port_names(cls, synapse: ASTModel, neuron_name: str, synapse_name: str, neuron_synapse_pairs):
+        pre_port_names = []
+        for input_block in synapse.get_input_blocks():
+            for port in input_block.get_input_ports():
+                if CodeGeneratorUtils.is_pre_port(port.name, neuron_name, synapse_name, neuron_synapse_pairs) and port.is_spike():
+                    pre_port_names.append(port.get_name())
+
+        return pre_port_names
+
+    @classmethod
     def get_post_port_names(cls, synapse: ASTModel, neuron_name: str, synapse_name: str, neuron_synapse_pairs):
         post_port_names = []
         for input_block in synapse.get_input_blocks():
@@ -121,6 +135,16 @@ class CodeGeneratorUtils:
                     post_port_names.append(port.get_name())
 
         return post_port_names
+
+    @classmethod
+    def get_pre_port_names(cls, synapse: ASTModel, neuron_name: str, synapse_name: str, neuron_synapse_pairs):
+        pre_port_names = []
+        for input_block in synapse.get_input_blocks():
+            for port in input_block.get_input_ports():
+                if CodeGeneratorUtils.is_pre_port(port.name, neuron_name, synapse_name, neuron_synapse_pairs=neuron_synapse_pairs):
+                    pre_port_names.append(port.get_name())
+
+        return pre_port_names
 
     @classmethod
     def get_vt_port_names(cls, synapse: ASTModel, neuron_name: str, synapse_name: str, neuron_synapse_pairs):
