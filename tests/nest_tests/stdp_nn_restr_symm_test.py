@@ -24,19 +24,20 @@ import os
 import pytest
 import unittest
 
+# try to import matplotlib; set the result in the flag TEST_PLOTS
+try:
+    import matplotlib as mpl
+    mpl.use("agg")
+    import matplotlib.pyplot as plt
+    TEST_PLOTS = True
+except BaseException:
+    TEST_PLOTS = False
+
 import nest
 
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
-try:
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.ticker
-    import matplotlib.pyplot as plt
-    TEST_PLOTS = True
-except Exception:
-    TEST_PLOTS = False
 
 sim_mdl = True
 sim_ref = True
@@ -302,7 +303,7 @@ class NestSTDPNNRestrSymmSynapseTest(unittest.TestCase):
             ax3.set_ylabel("w")
             for _ax in ax:
                 _ax.grid(which="major", axis="both")
-                _ax.xaxis.set_major_locator(matplotlib.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
+                _ax.xaxis.set_major_locator(mpl.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
                 _ax.set_xlim(0., sim_time)
                 _ax.legend()
             fig.savefig("/tmp/stdp_nn_restr_symm_synapse_test" + fname_snip + ".png", dpi=300)

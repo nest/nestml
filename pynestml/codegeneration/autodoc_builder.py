@@ -21,7 +21,6 @@
 
 from typing import Optional, Mapping, Any
 
-import matplotlib.pyplot as plt
 import numpy as np
 import os
 import re
@@ -100,6 +99,7 @@ class AutodocBuilder(Builder):
     def _test_model_current_pulse(self, model_name, I_min=-100E-12, I_max=500E-12, N=6,
                                   model_opts=None, model_initial_state=None):
         r"""Make current pulse curve"""
+        import matplotlib.pyplot as plt
         import nest
 
         t_stop = 125.1    # [ms]
@@ -162,6 +162,7 @@ class AutodocBuilder(Builder):
 
     def _test_model_fI_curve(self, model_name, model_opts=None, model_initial_state=None):
         r"""Make f-I curve"""
+        import matplotlib.pyplot as plt
         import nest
 
         t_stop = 10000.  # [ms]
@@ -217,6 +218,7 @@ class AutodocBuilder(Builder):
 
     def _test_model_psp(self, model_name, max_weight: float = 10., model_opts=None,
                         model_initial_state=None):
+        import matplotlib.pyplot as plt
         import nest
 
         nest.ResetKernel()
