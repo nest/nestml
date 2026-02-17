@@ -1,8 +1,8 @@
 hh_moto_5ht_neuron
 ##################
 
-
 hh_moto_5ht_nestml - a motor neuron model in HH formalism with 5HT modulation
+
 
 Description
 +++++++++++
@@ -32,6 +32,25 @@ See also
 
 hh_psc_alpha
 
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
 Parameters
@@ -61,7 +80,7 @@ Parameters
     "tau_syn_ex", "ms", "0.2ms", "Rise time of the excitatory synaptic alpha function"    
     "tau_syn_in", "ms", "2.0ms", "Rise time of the inhibitory synaptic alpha function"    
     "I_e", "pA", "0pA", "Constant current"    
-    "V_m_init", "mV", "-65.0mV", ""    
+    "V_m_init", "mV", "-65mV", ""    
     "hc_tau", "ms", "50.0ms", ""    
     "mc_tau", "ms", "15.0ms", ""    
     "p_tau", "ms", "400.0ms", ""    
@@ -78,9 +97,8 @@ State variables
 
     
     "V_m", "mV", "V_m_init", "Membrane potential"    
-    "V_m_old", "mV", "V_m_init", "Membrane potential"    
+    "V_m_old", "mV", "V_m_init", "Membrane potential at previous timestep"    
     "refr_t", "ms", "0ms", "Refractory period timer"    
-    "is_refractory", "boolean", "false", ""    
     "Ca_in", "mmol", "Ca_in_init", "Inside Calcium concentration"    
     "Act_m", "real", "alpha_m(V_m_init) / (alpha_m(V_m_init) + beta_m(V_m_init))", ""    
     "Act_h", "real", "h_inf(V_m_init)", ""    
@@ -99,6 +117,9 @@ Equations
 
 .. math::
    \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L} + I_{Ca,N} + I_{Ca,L} + I_{K,Ca}) + I_{stim} + I_{e} + I_{syn,inh} + I_{syn,exc}) } \right) 
+
+.. math::
+   \frac{ drefr_{t} } { dt }= \frac{ -1000.0 \cdot \mathrm{ms} } { \mathrm{s} }
 
 .. math::
    \frac{ dInact_{n} } { dt }= \frac{ (\text{n_inf}(V_{m}) - Inact_{n}) } { \text{n_tau}(V_{m}) }
@@ -133,4 +154,4 @@ The model source code can be found in the NESTML models repository here: `hh_mot
 
 .. footer::
 
-   Generated at 2024-05-22 14:51:14.627082
+   Generated at 2026-02-04 14:40:55.739283

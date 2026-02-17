@@ -1,14 +1,34 @@
 # iaf_psc_exp_multisynapse - Leaky integrate-and-fire neuron model with multiple ports
 # ####################################################################################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # Used in NESTML unit testing.
-# 
+#
 # For more information about the model, see iaf_psc_exp in the ``models`` directory.
-# 
+#
 # For more information about "multisynapse" models, please refer to the NESTML documentation.
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
 model iaf_psc_exp_multisynapse_vectors_neuron:
     state:
