@@ -27,13 +27,13 @@ import nest
 
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
+# try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.ticker
+    import matplotlib as mpl
+    mpl.use("agg")
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
-except Exception:
+except BaseException:
     TEST_PLOTS = False
 
 sim_mdl = True
@@ -301,7 +301,7 @@ class TestNESTContinuousBenchmarking:
             ax3.set_ylabel("w")
             for _ax in ax:
                 _ax.grid(which="major", axis="both")
-                _ax.xaxis.set_major_locator(matplotlib.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
+                _ax.xaxis.set_major_locator(mpl.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
                 _ax.set_xlim(0., sim_time)
                 _ax.legend()
             fig.savefig("/tmp/stdp_synapse_test" + fname_snip + ".png", dpi=300)
