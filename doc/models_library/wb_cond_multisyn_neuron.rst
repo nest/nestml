@@ -1,8 +1,8 @@
 wb_cond_multisyn_neuron
 #######################
 
-
 wb_cond_multisyn - Wang-Buzsaki model with multiple synapses
+
 
 Description
 +++++++++++
@@ -28,6 +28,25 @@ See also
 
 wb_cond_multisyn
 
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
 Parameters
@@ -40,13 +59,13 @@ Parameters
     "g_Na", "nS", "3500.0nS", "Sodium peak conductance"    
     "g_K", "nS", "900.0nS", "Potassium peak conductance"    
     "g_L", "nS", "10nS", "Leak conductance"    
-    "C_m", "pF", "100.0pF", "Membrane Capacitance"    
+    "C_m", "pF", "100.0pF", "Membrane capacitance"    
     "E_Na", "mV", "55.0mV", "Sodium reversal potential"    
-    "E_K", "mV", "-90.0mV", "Potassium reversal potentia"    
-    "E_L", "mV", "-65.0mV", "Leak reversal Potential (aka resting potential)"    
-    "V_Tr", "mV", "-55.0mV", "Spike Threshold"    
+    "E_K", "mV", "-90.0mV", "Potassium reversal potential"    
+    "E_L", "mV", "-65.0mV", "Leak reversal potential (a.k.a. resting potential)"    
+    "V_Tr", "mV", "-55.0mV", "Spike threshold"    
     "refr_T", "ms", "2ms", "Duration of refractory period"    
-    "AMPA_g_peak", "nS", "0.1nS", "Parameters for synapse of type AMPA, GABA_A, GABA_B and NMDApeak conductance"    
+    "AMPA_g_peak", "nS", "0.1nS", "peak conductance"    
     "AMPA_E_rev", "mV", "0.0mV", "reversal potential"    
     "AMPA_Tau_1", "ms", "0.5ms", "rise time"    
     "AMPA_Tau_2", "ms", "2.4ms", "decay time, Tau_1 < Tau_2"    
@@ -79,7 +98,6 @@ State variables
     "V_m", "mV", "-65.0mV", "Membrane potential"    
     "V_m_old", "mV", "E_L", "Membrane potential at previous timestep for threshold check"    
     "refr_t", "ms", "0ms", "Refractory period timer"    
-    "is_refractory", "boolean", "false", ""    
     "Inact_h", "real", "alpha_h_init / (alpha_h_init + beta_h_init)", "Inactivation variable h for Na"    
     "Act_n", "real", "alpha_n_init / (alpha_n_init + beta_n_init)", "Activation variable n for K"    
     "g_AMPA", "real", "0", ""    
@@ -108,6 +126,9 @@ Equations
 .. math::
    \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L}) + I_{e} + I_{stim} + I_{syn}) } \right) 
 
+.. math::
+   \frac{ drefr_{t} } { dt }= \frac{ -1000.0 \cdot \mathrm{ms} } { \mathrm{s} }
+
 
 
 Source code
@@ -120,4 +141,4 @@ The model source code can be found in the NESTML models repository here: `wb_con
 
 .. footer::
 
-   Generated at 2024-05-22 14:51:14.559256
+   Generated at 2026-02-04 14:40:55.439548

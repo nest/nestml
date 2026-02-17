@@ -1,8 +1,8 @@
 iaf_psc_alpha_neuron
 ####################
 
-
 iaf_psc_alpha - Leaky integrate-and-fire neuron model
+
 
 Description
 +++++++++++
@@ -16,7 +16,7 @@ during which the membrane potential is clamped to the resting potential.
 
 The general framework for the consistent formulation of systems with
 neuron like dynamics interacting by point events is described in
-[1]_.  A flow chart can be found in [2]_.
+[1]_. A flow chart can be found in [2]_.
 
 Critical tests for the formulation of the neuron model are the
 comparisons of simulation results for different computation step
@@ -28,12 +28,13 @@ enough to exhibit non-trivial dynamics and simple enough compute
 relevant measures analytically.
 
 .. note::
+
    If tau_m is very close to tau_syn_exc or tau_syn_inh, numerical problems
    may arise due to singularities in the propagator matrics. If this is
    the case, replace equal-valued parameters by a single parameter.
 
-   For details, please see ``IAF_neurons_singularity.ipynb`` in
-   the NEST source code (``docs/model_details``).
+For details, please see ``IAF_neurons_singularity.ipynb`` in
+the NEST source code (``docs/model_details``).
 
 
 References
@@ -58,6 +59,25 @@ See also
 
 iaf_psc_delta, iaf_psc_exp, iaf_cond_alpha
 
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
 Parameters
@@ -66,15 +86,15 @@ Parameters
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-
-    "C_m", "pF", "250pF", "Capacitance of the membrane"
-    "tau_m", "ms", "10ms", "Membrane time constant"
-    "tau_syn_inh", "ms", "2ms", "Time constant of synaptic current"
-    "tau_syn_exc", "ms", "2ms", "Time constant of synaptic current"
-    "refr_T", "ms", "2ms", "Duration of refractory period"
-    "E_L", "mV", "-70mV", "Resting potential"
-    "V_reset", "mV", "-70mV", "Reset potential of the membrane"
-    "V_th", "mV", "-55mV", "Spike threshold potential"
+    
+    "C_m", "pF", "250pF", "Capacitance of the membrane"    
+    "tau_m", "ms", "10ms", "Membrane time constant"    
+    "tau_syn_inh", "ms", "2ms", "Time constant of synaptic current"    
+    "tau_syn_exc", "ms", "2ms", "Time constant of synaptic current"    
+    "refr_T", "ms", "2ms", "Duration of refractory period"    
+    "E_L", "mV", "-70mV", "Resting potential"    
+    "V_reset", "mV", "-70mV", "Reset potential of the membrane"    
+    "V_th", "mV", "-55mV", "Spike threshold potential"    
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -86,10 +106,9 @@ State variables
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-
-    "V_m", "mV", "E_L", ""
+    
+    "V_m", "mV", "E_L", ""    
     "refr_t", "ms", "0ms", "Refractory period timer"
-    "is_refractory", "boolean", "false", ""
 
 
 
@@ -101,6 +120,9 @@ Equations
 
 .. math::
    \frac{ dV_{m} } { dt }= \frac{ -(V_{m} - E_{L}) } { \tau_{m} } + \frac{ I } { C_{m} }
+
+.. math::
+   \frac{ drefr_{t} } { dt }= \frac{ -1000.0 \cdot \mathrm{ms} } { \mathrm{s} }
 
 
 
@@ -114,4 +136,4 @@ The model source code can be found in the NESTML models repository here: `iaf_ps
 
 .. footer::
 
-   Generated at 2024-05-22 14:51:14.609049
+   Generated at 2026-02-04 14:40:55.096368
