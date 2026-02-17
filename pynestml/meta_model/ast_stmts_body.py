@@ -44,10 +44,10 @@ class ASTStmtsBody(ASTNode):
         """
         from pynestml.meta_model.ast_stmt import ASTStmt
         assert (stmts is not None and isinstance(stmts, list)), \
-            '(PyNestML.ASTBlock) No or wrong type of statements provided (%s)!' % type(stmts)
+            "(PyNestML.ASTBlock) No or wrong type of statements provided (%s)!" % type(stmts)
         for stmt in stmts:
             assert (stmt is not None and isinstance(stmt, ASTStmt)), \
-                '(PyNestML.ASTBlock) No or wrong type of statement provided (%s)!' % type(stmt)
+                "(PyNestML.ASTBlock) No or wrong type of statement provided (%s)!" % type(stmt)
 
         super(ASTStmtsBody, self).__init__(*args, **kwargs)
         self.stmts = stmts

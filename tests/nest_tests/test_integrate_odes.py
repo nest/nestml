@@ -25,22 +25,20 @@ import pytest
 import scipy
 import scipy.signal
 
+# try to import matplotlib; set the result in the flag TEST_PLOTS
+try:
+    import matplotlib as mpl
+    mpl.use("agg")
+    import matplotlib.pyplot as plt
+    TEST_PLOTS = True
+except BaseException:
+    TEST_PLOTS = False
+
 import nest
 
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target, generate_target
 from pynestml.utils.logger import LoggingLevel, Logger
-
-try:
-    import matplotlib
-
-    matplotlib.use("Agg")
-    import matplotlib.ticker
-    import matplotlib.pyplot as plt
-
-    TEST_PLOTS = True
-except Exception:
-    TEST_PLOTS = False
 
 
 @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
@@ -289,12 +287,12 @@ class TestIntegrateODEs:
         resolution = 0.1
         simtime = 800.
         params_nestml = {"V_peak": 0.0, "a": 4.0, "b": 80.5, "E_L": -70.6,
-                         "g_L": 300.0, 'E_exc': 20.0, 'E_inh': -85.0,
-                         'tau_syn_exc': 40.0, 'tau_syn_inh': 20.0}
+                         "g_L": 300.0, "E_exc": 20.0, "E_inh": -85.0,
+                         "tau_syn_exc": 40.0, "tau_syn_inh": 20.0}
 
         params_nest = {"V_peak": 0.0, "a": 4.0, "b": 80.5, "E_L": -70.6,
-                       "g_L": 300.0, 'E_ex': 20.0, 'E_in': -85.0,
-                       'tau_syn_ex': 40.0, 'tau_syn_in': 20.0}
+                       "g_L": 300.0, "E_ex": 20.0, "E_in": -85.0,
+                       "tau_syn_ex": 40.0, "tau_syn_in": 20.0}
 
         for model in ["aeif_cond_alpha_alt_neuron_nestml", "aeif_cond_alpha"]:
             nest.set_verbosity("M_ALL")

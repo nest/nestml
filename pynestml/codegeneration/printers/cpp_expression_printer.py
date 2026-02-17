@@ -29,6 +29,7 @@ from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.utils.ast_source_location import ASTSourceLocation
 
 
@@ -205,6 +206,10 @@ class CppExpressionPrinter(ExpressionPrinter):
             return lhs + " * " + rhs
 
         if op.is_div_op:
+            if isinstance(node.get_rhs(), ASTSimpleExpression) and node.get_rhs().is_numeric_literal() and type(node.get_rhs().get_numeric_literal()) in [int, float]:
+                # make sure that division is always a floating point division, not C-style int division
+                return lhs + " / ((double)(" + rhs + "))"
+
             return lhs + " / " + rhs
 
         if op.is_modulo_op:

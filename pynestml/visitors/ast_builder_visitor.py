@@ -54,10 +54,10 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             models.append(self.visit(child))
 
         # extract the name of the artifact from the context
-        if hasattr(ctx.start.source[1], 'fileName'):
+        if hasattr(ctx.start.source[1], "fileName"):
             artifact_name = ntpath.basename(ctx.start.source[1].fileName)
         else:
-            artifact_name = 'parsed_from_string'
+            artifact_name = "parsed_from_string"
 
         compilation_unit = ASTNodeFactory.create_ast_nestml_compilation_unit(list_of_models=models,
                                                                              source_position=create_source_pos(ctx),
@@ -218,12 +218,12 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             return ASTNodeFactory.create_ast_ternary_expression(condition=condition, if_true=if_true,
                                                                 if_not=if_not, source_position=source_pos)
 
-        raise RuntimeError('Type of rhs @%s,%s not recognized!' % (ctx.start.line, ctx.start.column))
+        raise RuntimeError("Type of rhs @%s,%s not recognized!" % (ctx.start.line, ctx.start.column))
 
     # Visit a parse tree produced by PyNESTMLParser#simpleExpression.
     def visitSimpleExpression(self, ctx):
         function_call = (self.visit(ctx.functionCall()) if ctx.functionCall() is not None else None)
-        boolean_literal = ((True if re.match(r'[Tt]rue', str(
+        boolean_literal = ((True if re.match(r"[Tt]rue", str(
             ctx.BOOLEAN_LITERAL())) else False) if ctx.BOOLEAN_LITERAL() is not None else None)
         if ctx.UNSIGNED_INTEGER() is not None:
             numeric_literal = int(str(ctx.UNSIGNED_INTEGER()))
@@ -506,7 +506,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     def visitModel(self, ctx):
         name = str(ctx.NAME()) if ctx.NAME() is not None else ""
         body = self.visit(ctx.modelBody()) if ctx.modelBody() is not None else None
-        if hasattr(ctx.start.source[1], 'fileName'):
+        if hasattr(ctx.start.source[1], "fileName"):
             file_path = ctx.start.source[1].fileName
             artifact_name = ntpath.basename(ctx.start.source[1].fileName)
         else:
@@ -588,14 +588,14 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
                 declarations.append(self.visit(child.declaration()))
         block_type = ctx.blockType.text  # the text field stores the exact name of the token, e.g., state
         source_pos = create_source_pos(ctx)
-        if block_type == 'state':
+        if block_type == "state":
             ret = ASTNodeFactory.create_ast_block_with_variables(True, False, False, declarations, source_pos)
-        elif block_type == 'parameters':
+        elif block_type == "parameters":
             ret = ASTNodeFactory.create_ast_block_with_variables(False, True, False, declarations, source_pos)
-        elif block_type == 'internals':
+        elif block_type == "internals":
             ret = ASTNodeFactory.create_ast_block_with_variables(False, False, True, declarations, source_pos)
         else:
-            raise RuntimeError('(PyNestML.ASTBuilder) Unspecified type (=%s) of var-block.' % str(ctx.blockType))
+            raise RuntimeError("(PyNestML.ASTBuilder) Unspecified type (=%s) of var-block." % str(ctx.blockType))
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret
 
@@ -699,7 +699,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             update_node_comments(ret, self.__comments.visit(ctx))
             return ret
 
-        raise RuntimeError('(PyNestML.ASTBuilder) Type of output buffer not recognized.')
+        raise RuntimeError("(PyNestML.ASTBuilder) Type of output buffer not recognized.")
 
     # Visit a parse tree produced by PyNESTMLParser#function.
     def visitFunction(self, ctx):

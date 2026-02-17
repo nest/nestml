@@ -1,8 +1,8 @@
 izhikevich_psc_alpha_neuron
 ###########################
 
-
 izhikevich_psc_alpha - Detailed Izhikevich neuron model with alpha-kernel post-synaptic current
+
 
 Description
 +++++++++++
@@ -25,7 +25,7 @@ On each spike arrival, the membrane potential is subject to an alpha-kernel curr
 
 .. math::
 
-  I_syn = I_0 \cdot t \cdot \exp\left(-t/\tau_{syn}\right) / \tau_{syn}
+   I_syn = I_0 \cdot t \cdot \exp\left(-t/\tau_{syn}\right) / \tau_{syn}
 
 See also
 ++++++++
@@ -38,6 +38,25 @@ References
 
 .. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
 
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
 Parameters
@@ -73,8 +92,7 @@ State variables
     
     "V_m", "mV", "-65mV", "Membrane potential"    
     "U_m", "pA", "0pA", "Membrane potential recovery variable"    
-    "refr_t", "ms", "0ms", "Refractory period timer"    
-    "is_refractory", "boolean", "false", ""
+    "refr_t", "ms", "0ms", "Refractory period timer"
 
 
 
@@ -90,6 +108,9 @@ Equations
 .. math::
    \frac{ dU_{m} } { dt }= a \cdot (b \cdot (V_{m} - V_{r}) - U_{m})
 
+.. math::
+   \frac{ drefr_{t} } { dt }= \frac{ -1000.0 \cdot \mathrm{ms} } { \mathrm{s} }
+
 
 
 Source code
@@ -102,4 +123,4 @@ The model source code can be found in the NESTML models repository here: `izhike
 
 .. footer::
 
-   Generated at 2024-05-22 14:51:14.580406
+   Generated at 2026-02-04 14:40:55.104229

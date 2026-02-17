@@ -303,9 +303,9 @@ def get_in_comment(ctx, tokens, strip_delim: bool = True) -> Optional[str]:
                 comment = replace_delimiters(possibleComment.text)
             else:
                 comment = possibleComment.text
-            if len(comment) > 0 and comment[-1] == '\n':
+            if len(comment) > 0 and comment[-1] == "\n":
                 comment = comment[:-1]
-            if len(comment) > 1 and comment[-1] == '\n' and comment[-2] == '\r':
+            if len(comment) > 1 and comment[-1] == "\n" and comment[-2] == "\r":
                 comment = comment[:-2]
             return comment
         # While parsing blocks separately, there can be cases where the ctx.start (possibleComment) can begin with a new line.
@@ -325,4 +325,4 @@ def replace_delimiters(comment: str) -> str:
         # strip initial character hash
         comment = comment[1:]
 
-    return comment.replace('\n#', '').replace('\r\n#', '')
+    return comment.replace("\n#", "").replace("\r\n#", "")

@@ -106,7 +106,7 @@ class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
 
         if function_name in [PredefinedFunctions.TIME_RESOLUTION, PredefinedFunctions.TIME_TIMESTEP]:
             # context dependent; we assume the template contains the necessary definitions
-            return 'parameter->__h'
+            return "parameter->__h"
 
         if function_name == PredefinedFunctions.TIME_STEPS:
             raise Exception("time_steps() function not yet implemented")
@@ -156,43 +156,43 @@ class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
 
         if function_name == PredefinedFunctions.CLIP:
             # the arguments of this function must be swapped and are therefore [v_max, v_min, v]
-            return 'MIN({2!s}, MAX({1!s}, {0!s}))'
+            return "MIN({2!s}, MAX({1!s}, {0!s}))"
 
         if function_name == PredefinedFunctions.MAX:
-            return 'MAX({!s}, {!s})'
+            return "MAX({!s}, {!s})"
 
         if function_name == PredefinedFunctions.MIN:
-            return 'MIN({!s}, {!s})'
+            return "MIN({!s}, {!s})"
 
         if function_name == PredefinedFunctions.EXP:
-            return 'expk({!s})'
+            return "expk({!s})"
 
         if function_name == PredefinedFunctions.LN:
-            return 'logk({!s})'
+            return "logk({!s})"
 
         if function_name == PredefinedFunctions.POW:
-            return '(expk({1!s} * logk({0!s})))'
+            return "(expk({1!s} * logk({0!s})))"
 
         if function_name == PredefinedFunctions.LOG10:
-            return '(kdivk(logk({!s}), REAL_CONST(2.303)))'
+            return "(kdivk(logk({!s}), REAL_CONST(2.303)))"
 
         if function_name == PredefinedFunctions.COS:
-            return 'cos({!s})'
+            return "cos({!s})"
 
         if function_name == PredefinedFunctions.SIN:
-            return 'sin({!s})'
+            return "sin({!s})"
 
         if function_name == PredefinedFunctions.TAN:
-            return 'tan({!s})'
+            return "tan({!s})"
 
         if function_name == PredefinedFunctions.COSH:
-            return '(HALF * (expk({!s}) + expk(-{!s})))'
+            return "(HALF * (expk({!s}) + expk(-{!s})))"
 
         if function_name == PredefinedFunctions.SINH:
-            return '(HALF * (expk({!s}) - expk(-{!s})))'
+            return "(HALF * (expk({!s}) - expk(-{!s})))"
 
         if function_name == PredefinedFunctions.TANH:
-            return 'kdik((expk({!s}) - expk(-{!s})), (expk({!s}) + expk(-{!s})))'
+            return "kdik((expk({!s}) - expk(-{!s})), (expk({!s}) + expk(-{!s})))"
 
         if function_name == PredefinedFunctions.ERF:
             raise Exception("Erf not defined for spinnaker")
@@ -204,13 +204,13 @@ class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
             raise Exception("Expm1 not defined for spinnaker")
 
         if function_name == PredefinedFunctions.PRINT:
-            return 'printf("%s", {!s})'
+            return "printf(\"%s\", {!s})"
 
         if function_name == PredefinedFunctions.PRINTLN:
-            return 'printf("%s\n",{!s})'
+            return "printf(\"%s\n\",{!s})"
 
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
-            return function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
+            return function_name + "(" + ", ".join(["{!s}" for _ in range(n_args)]) + ")"
 
-        return function_name + '()'
+        return function_name + "()"

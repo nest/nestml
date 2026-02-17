@@ -59,11 +59,11 @@ class ASTModel(ASTNode):
         """
         super(ASTModel, self).__init__(*args, **kwargs)
         assert isinstance(name, str), \
-            'No or wrong type of model name provided (%s)!' % type(name)
+            "No or wrong type of model name provided (%s)!" % type(name)
         assert isinstance(body, ASTModelBody) or isinstance(body, ASTModelBody), \
-            'No or wrong type of model body provided (%s)!' % type(body)
+            "No or wrong type of model body provided (%s)!" % type(body)
         assert (artifact_name is not None and isinstance(artifact_name, str)), \
-            'No or wrong type of artifact name provided (%s)!' % type(artifact_name)
+            "No or wrong type of artifact name provided (%s)!" % type(artifact_name)
 
         self.name = name
         self.body = body
@@ -519,9 +519,9 @@ class ASTModel(ASTNode):
         if self.get_comment() is None or len(self.get_comment()) == 0:
             return prefix
 
-        ret = ''
+        ret = ""
         for comment in self.get_comment():
-            ret += prefix + comment + '\n'
+            ret += prefix + comment + "\n"
 
         return ret
 
