@@ -47,3 +47,4 @@ model test_continuous_third_factor_in_modulatory_spikes_handler_synapse:
     onReceive(mod_spikes):
         e_trace_d_mod = e_trace_d
         println("e_trace_d_mod: {e_trace_d_mod}")
+
