@@ -28,7 +28,7 @@ try:
     import logging
     import matplotlib as mpl
     mpl.use("agg")
-    logging.getLogger('matplotlib').setLevel(logging.WARNING)    # prevent matplotlib from printing a lot of debug messages when NESTML is running in DEBUG logging_level
+    logging.getLogger("matplotlib").setLevel(logging.WARNING)    # prevent matplotlib from printing a lot of debug messages when NESTML is running in DEBUG logging_level
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
 except BaseException:
