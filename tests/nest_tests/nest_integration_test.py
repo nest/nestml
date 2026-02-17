@@ -169,6 +169,8 @@ class TestNestIntegration:
         I_stim_vec = np.linspace(10E-12, 1E-9, 3)  # [A]
         for i, I_stim in enumerate(I_stim_vec):
             nest.ResetKernel()
+            nest.set_verbosity("M_ERROR")
+            nest.print_time = False
             if kernel_opts:
                 nest.SetKernelStatus(kernel_opts)
 
@@ -250,8 +252,9 @@ class TestNestIntegration:
         rate_testant = float("nan") * np.ones_like(I_stim_vec)
         rate_reference = float("nan") * np.ones_like(I_stim_vec)
         for i, I_stim in enumerate(I_stim_vec):
-
             nest.ResetKernel()
+            nest.set_verbosity("M_ERROR")
+            nest.print_time = False
             if kernel_opts:
                 nest.SetKernelStatus(kernel_opts)
 
@@ -355,6 +358,8 @@ class TestNestIntegration:
         spike_weights = np.linspace(1, max_weight, 11)
 
         nest.ResetKernel()
+        nest.set_verbosity("M_ERROR")
+        nest.print_time = False
         if kernel_opts:
             nest.SetKernelStatus(kernel_opts)
 
