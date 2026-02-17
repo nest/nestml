@@ -50,8 +50,8 @@ class ASTSimpleExpression(ASTExpressionNode):
 
     """
 
-    def __init__(self, function_call: ASTFunctionCall = None, boolean_literal: bool = None,
-                 numeric_literal: Union[int, float] = None, is_inf: bool = False,
+    def __init__(self, function_call: Optional[ASTFunctionCall] = None, boolean_literal: Optional[bool] = None,
+                 numeric_literal: Optional[Union[int, float]] = None, is_inf: bool = False,
                  variable: ASTVariable = None, string: str = None, has_delay: bool = False, *args, **kwargs):
         """
         Standard constructor.
@@ -178,7 +178,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         else:
             return None
 
-    def get_numeric_literal(self):
+    def get_numeric_literal(self) -> Union[int, float]:
         """
         Returns the value of the numeric literal.
         :return: the value of the numeric literal.

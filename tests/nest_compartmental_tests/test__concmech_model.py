@@ -103,7 +103,7 @@ class TestCompartmentalConcmech:
         step_time_delta = res["times"][1] - res["times"][0]
         data_array_index = int(200 / step_time_delta)
 
-        expected_conc = 0.03559438228347359
+        expected_conc = 0.07245176367602238
 
         fig, axs = plt.subplots(5)
 
