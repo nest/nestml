@@ -1844,7 +1844,7 @@ class ASTUtils:
     @classmethod
     def update_initial_values_for_odes(cls, model: ASTModel, solver_dicts: List[dict]) -> None:
         """
-        Update initial values for original ODE declarations (e.g. V_m", g_ahp"') that are present in the model before ODE-toolbox processing, with the formatted variable names and initial values returned by ODE-toolbox.
+        Update initial values for original ODE declarations (e.g. V_m', g_ahp'') that are present in the model before ODE-toolbox processing, with the formatted variable names and initial values returned by ODE-toolbox.
         """
         from pynestml.utils.model_parser import ModelParser
         from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
