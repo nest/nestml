@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1771420617758,
+  "lastUpdate": 1771420647592,
   "repoUrl": "https://github.com/nest/nestml",
   "entries": {
     "Benchmark": [
@@ -81,6 +81,33 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.1683360870047127",
             "extra": "mean: 3.20686511240001 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "clinssen",
+            "username": "clinssen"
+          },
+          "committer": {
+            "name": "clinssen",
+            "username": "clinssen"
+          },
+          "id": "f6740dbd897036508656674b748e69479ab27fcb",
+          "message": "CoCos test should invoke CoCosManager to run CoCos",
+          "timestamp": "2026-02-04T18:30:36Z",
+          "url": "https://github.com/nest/nestml/pull/1306/commits/f6740dbd897036508656674b748e69479ab27fcb"
+        },
+        "date": 1771420646701,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/nest_continuous_benchmarking/test_nest_continuous_benchmarking.py::TestNESTContinuousBenchmarking::test_stdp_nn_synapse",
+            "value": 0.30882222431814627,
+            "unit": "iter/sec",
+            "range": "stddev: 0.18266269338816002",
+            "extra": "mean: 3.238108922399988 sec\nrounds: 5"
           }
         ]
       }
