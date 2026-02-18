@@ -148,7 +148,7 @@ class VariableSymbol(Symbol):
     def get_namespace_decorator(self, namespace):
         if namespace in self.namespace_decorators.keys():
             return self.namespace_decorators[namespace]
-        return ''
+        return ""
 
     def has_vector_parameter(self):
         """
@@ -295,14 +295,14 @@ class VariableSymbol(Symbol):
         if self.get_referenced_object() is not None:
             source_position = str(self.get_referenced_object().get_source_position())
         else:
-            source_position = 'predefined'
-        vector_value = self.get_vector_parameter() if self.has_vector_parameter() else 'none'
+            source_position = "predefined"
+        vector_value = self.get_vector_parameter() if self.has_vector_parameter() else "none"
         typ_e = self.get_type_symbol().print_symbol()
-        recordable = 'recordable, ' if self.is_recordable else ''
-        func = 'inline, ' if self.is_inline_expression else ''
-        return 'VariableSymbol[' + self.get_symbol_name() + ', type=' \
-               + typ_e + ', ' + str(self.block_type) + ', ' + recordable + func \
-               + 'array parameter=' + vector_value + ', @' + source_position + ')'
+        recordable = "recordable, " if self.is_recordable else ""
+        func = "inline, " if self.is_inline_expression else ""
+        return "VariableSymbol[" + self.get_symbol_name() + ", type=" \
+               + typ_e + ", " + str(self.block_type) + ", " + recordable + func \
+               + "array parameter=" + vector_value + ", @" + source_position + ")"
 
     def get_type_symbol(self):
         """
@@ -412,11 +412,11 @@ class VariableSymbol(Symbol):
         Prints the stored comment.
         :return: the corresponding comment.
         """
-        ret = ''
+        ret = ""
         if not self.has_comment():
-            return ''
+            return ""
         # in the last part, delete the new line if it is the last comment, otherwise there is an ugly gap
         # between the comment and the element
         for comment in self.get_comment():
-            ret += prefix + comment + ('\n' if self.get_comment().index(comment) < len(self.get_comment()) - 1 else '')
+            ret += prefix + comment + ("\n" if self.get_comment().index(comment) < len(self.get_comment()) - 1 else "")
         return ret

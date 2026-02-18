@@ -74,6 +74,8 @@ class NESTCodeGeneratorUtils:
 
         The neuron and synapse models can be passed directly as strings in NESTML syntax, or as filenames, in which case the NESTML model is loaded from the given filename.
 
+        This function will create temporary paths for the generated code. This is especially useful in a Jupyter notebook, where the same cell (that invokes the code generation) may be run over and over again. For more control over where the code is generated, please use the function :python:`pynestml.frontend.pynestml_frontend.generate_nest_target()`.
+
         Returns
         -------
         If a synapse is specified, returns a tuple (module_name, mangled_neuron_name, mangled_synapse_name) containing the names that can be used in ``nest.Install()``, ``nest.Create()`` and ``nest.Connect()`` calls. If no synapse is specified, returns a tuple (module_name, mangled_neuron_name).
@@ -132,6 +134,8 @@ class NESTCodeGeneratorUtils:
             mangled_synapse_name = synapse_model_name + "_nestml__with_" + neuron_model_name + "_nestml"
 
         if codegen_opts:
+            if "neuron_synapse_pairs" in codegen_opts.keys():
+                raise Exception("Neuron and synapse pairs are specified in both ``codegen_opts`` and as parameters to the function ``generate_code_for()``. This could result in inconsistencies. Consider using the function ``pynestml.frontend.pynestml_frontend.generate_nest_target()`` instead.")
             _codegen_opts.update(codegen_opts)
 
         if logging_level.upper() != "DEBUG":

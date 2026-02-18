@@ -13,7 +13,6 @@
 # Outgoing spike events induce a change of the adaptation and relative refractory conductances by q_sfa and q_rr,
 # respectively. Otherwise these conductances decay exponentially with time constants tau_sfa and tau_rr, respectively.
 #
-#
 # References
 # ++++++++++
 #
@@ -26,12 +25,10 @@
 #        mathematical modeling of neural systems. Cambridge, MA: MIT Press.
 #        https://pure.mpg.de/pubman/faces/ViewItemOverviewPage.jsp?itemId=item_3006127
 #
-#
 # See also
 # ++++++++
 #
 # aeif_cond_alpha, aeif_cond_exp, iaf_chxk_2008
-#
 #
 # Copyright statement
 # +++++++++++++++++++
@@ -56,25 +53,25 @@
 model iaf_cond_exp_sfa_rr_neuron:
 
     state:
-        V_m mV = E_L # membrane potential
-        refr_t ms = 0 ms          # Refractory period timer
+        V_m mV = E_L        # Membrane potential
+        refr_t ms = 0 ms    # Refractory period timer
         g_sfa nS = 0 nS     # inputs from the sfa conductance
         g_rr nS = 0 nS      # inputs from the rr conductance
 
     equations:
-        kernel g_inh = exp(-t/tau_syn_inh) # inputs from the inh conductance
-        kernel g_exc = exp(-t/tau_syn_exc) # inputs from the exc conductance
+        kernel g_inh = exp(-t/tau_syn_inh)    # inputs from the inh conductance
+        kernel g_exc = exp(-t/tau_syn_exc)    # inputs from the exc conductance
 
         g_sfa' = -g_sfa / tau_sfa
         g_rr' = -g_rr / tau_rr
 
-        inline I_syn_exc pA = unit_psg * convolve(g_exc, exc_spikes) * ( V_m - E_exc )
-        inline I_syn_inh pA = unit_psg * convolve(g_inh, inh_spikes) * ( V_m - E_inh )
-        inline I_L pA = g_L * ( V_m - E_L )
-        inline I_sfa pA = g_sfa * ( V_m - E_sfa )
-        inline I_rr pA = g_rr * ( V_m - E_rr )
+        inline I_syn_exc pA = unit_psg * convolve(g_exc, exc_spikes) * (V_m - E_exc)
+        inline I_syn_inh pA = unit_psg * convolve(g_inh, inh_spikes) * (V_m - E_inh)
+        inline I_L pA = g_L * (V_m - E_L)
+        inline I_sfa pA = g_sfa * (V_m - E_sfa)
+        inline I_rr pA = g_rr * (V_m - E_rr)
 
-        V_m' = ( -I_L + I_e + I_stim - I_syn_exc - I_syn_inh - I_sfa - I_rr ) / C_m
+        V_m' = (-I_L + I_e + I_stim - I_syn_exc - I_syn_inh - I_sfa - I_rr) / C_m
         refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
 
     parameters:
@@ -85,7 +82,7 @@ model iaf_cond_exp_sfa_rr_neuron:
         C_m pF = 289.5 pF        # Membrane capacitance
         E_exc mV = 0 mV          # Excitatory reversal potential
         E_inh mV = -75.0 mV      # Inhibitory reversal potential
-        E_L mV = -70.0 mV        # Leak reversal potential (aka resting potential)
+        E_L mV = -70.0 mV        # Leak reversal potential (a.k.a. resting potential)
         tau_syn_exc ms = 1.5 ms  # Synaptic time constant of excitatory synapse
         tau_syn_inh ms = 10.0 ms # Synaptic time constant of inhibitory synapse
         q_sfa nS = 14.48 nS      # Outgoing spike activated quantal spike-frequency adaptation conductance increase

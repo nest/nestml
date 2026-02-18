@@ -162,17 +162,17 @@ class Messages:
         :param file_path: the path to the file
         :return: message code tuple
         """
-        message = 'Start processing \'' + file_path + '\'!'
+        message = "Start processing \"" + file_path + "\"!"
         return MessageCode.START_PROCESSING_FILE, message
 
     @classmethod
     def get_input_path_not_found(cls, path) -> Tuple[MessageCode, str]:
-        message = 'Input path ("%s") not found!' % (path)
+        message = "Input path (\"%s\") not found!" % (path)
         return MessageCode.INPUT_PATH_NOT_FOUND, message
 
     @classmethod
     def get_unknown_target_platform(cls, target: str) -> Tuple[MessageCode, str]:
-        message = "Unknown target: '" + target + "'"
+        message = "Unknown target: \"" + target + "\""
         return MessageCode.UNKNOWN_TARGET, message
 
     @classmethod
@@ -181,44 +181,44 @@ class Messages:
         Returns a message indicating that no code will be generated on this run.
         :return: a message
         """
-        message = 'No target specified: no code will be generated'
+        message = "No target specified: no code will be generated"
         return MessageCode.NO_CODE_GENERATED, message
 
     @classmethod
     def get_lexer_error(cls, msg) -> Tuple[MessageCode, str]:
-        message = 'Error occurred during lexing: ' + msg
+        message = "Error occurred during lexing: " + msg
         return MessageCode.LEXER_ERROR, message
 
     @classmethod
     def get_parser_error(cls, msg) -> Tuple[MessageCode, str]:
-        message = 'Error occurred during parsing: ' + msg
+        message = "Error occurred during parsing: " + msg
         return MessageCode.PARSER_ERROR, message
 
     @classmethod
     def get_binary_operation_not_defined(cls, lhs, operator, rhs) -> Tuple[MessageCode, str]:
-        message = 'Operation %s %s %s is not defined!' % (lhs, operator, rhs)
+        message = "Operation %s %s %s is not defined!" % (lhs, operator, rhs)
         return MessageCode.OPERATION_NOT_DEFINED, message
 
     @classmethod
     def get_binary_operation_type_could_not_be_derived(
             cls, lhs, operator, rhs, lhs_type, rhs_type) -> Tuple[MessageCode, str]:
-        message = 'The type of the expression (left-hand side = \'%s\'; binary operator = \'%s\'; right-hand side = \'%s\') could not be derived: left-hand side has type \'%s\' whereas right-hand side has type \'%s\'!' % (
+        message = "The type of the expression (left-hand side = \"%s\"; binary operator = \"%s\"; right-hand side = \"%s\") could not be derived: left-hand side has type \"%s\" whereas right-hand side has type \"%s\"!" % (
             lhs, operator, rhs, lhs_type, rhs_type)
         return MessageCode.TYPE_MISMATCH, message
 
     @classmethod
     def get_unary_operation_not_defined(cls, operator, term) -> Tuple[MessageCode, str]:
-        message = 'Operation %s%s is not defined!' % (operator, term)
+        message = "Operation %s%s is not defined!" % (operator, term)
         return MessageCode.OPERATION_NOT_DEFINED, message
 
     @classmethod
     def get_convolve_needs_buffer_parameter(cls) -> Tuple[MessageCode, str]:
-        message = 'Convolve requires a buffer variable as second parameter!'
+        message = "Convolve requires a buffer variable as second parameter!"
         return MessageCode.CONVOLVE_NEEDS_BUFFER_PARAMETER, message
 
     @classmethod
     def get_implicit_magnitude_conversion(cls, lhs, rhs, conversion_factor) -> Tuple[MessageCode, str]:
-        message = 'Implicit magnitude conversion from %s to %s with factor %s ' % (
+        message = "Implicit magnitude conversion from %s to %s with factor %s " % (
             lhs.print_symbol(), rhs.print_symbol(), conversion_factor)
         return MessageCode.IMPLICIT_CAST, message
 
@@ -240,12 +240,12 @@ class Messages:
         :return: a message
         """
         if not castable:
-            message = str(arg_nr) + '. argument of function-call \'%s\' at is wrongly typed! Expected \'%s\',' \
-                                    ' found \'%s\'!' % (function_call.get_name(), got_type.print_symbol(),
+            message = str(arg_nr) + ". argument of function-call \"%s\" at is wrongly typed! Expected \"%s\"," \
+                                    " found \"%s\"!" % (function_call.get_name(), got_type.print_symbol(),
                                                         expected_type.print_symbol())
         else:
-            message = str(arg_nr) + '. argument of function-call \'%s\' is wrongly typed! ' \
-                                    'Implicit cast from \'%s\' to \'%s\'.' % (function_call.get_name(),
+            message = str(arg_nr) + ". argument of function-call \"%s\" is wrongly typed! " \
+                                    "Implicit cast from \"%s\" to \"%s\"." % (function_call.get_name(),
                                                                               got_type.print_symbol(),
                                                                               expected_type.print_symbol())
         return MessageCode.FUNCTION_CALL_TYPE_ERROR, message
@@ -257,7 +257,7 @@ class Messages:
         :param rhs: an rhs
         :return: a message
         """
-        message = 'Type of \'%s\' could not be derived!' % rhs
+        message = "Type of \"%s\" could not be derived!" % rhs
         return MessageCode.TYPE_NOT_DERIVABLE, message
 
     @classmethod
@@ -269,7 +269,7 @@ class Messages:
         :param lhs_type: the type of the lhs
         :return: a message
         """
-        message = 'Implicit casting from (compatible) type \'%s\' to \'%s\'.' % (
+        message = "Implicit casting from (compatible) type \"%s\" to \"%s\"." % (
             rhs_type, lhs_type)
         return MessageCode.IMPLICIT_CAST, message
 
@@ -289,7 +289,7 @@ class Messages:
         :param lhs_type: the type of the lhs
         :return: a message
         """
-        message = 'Type of lhs \'%s\' does not correspond to rhs \'%s\'! LHS: \'%s\', RHS: \'%s\'!' % (
+        message = "Type of lhs \"%s\" does not correspond to rhs \"%s\"! LHS: \"%s\", RHS: \"%s\"!" % (
             lhs_expression, rhs_expression, lhs_type.print_symbol(), rhs_type.print_symbol())
         return MessageCode.CAST_NOT_POSSIBLE, message
 
@@ -301,7 +301,7 @@ class Messages:
         :param got_type: the actual type
         :return: a message
         """
-        message = 'Actual type different from expected. Expected: \'%s\', got: \'%s\'!' % (
+        message = "Actual type different from expected. Expected: \"%s\", got: \"%s\"!" % (
             expected_type.print_symbol(), got_type.print_symbol())
         return MessageCode.TYPE_DIFFERENT_FROM_EXPECTED, message
 
@@ -312,7 +312,7 @@ class Messages:
         :param variable_name: the name of the variable
         :return: a message
         """
-        message = 'No variable \'%s\' found!' % variable_name
+        message = "No variable \"%s\" found!" % variable_name
         return MessageCode.NO_VARIABLE_FOUND, message
 
     @classmethod
@@ -322,7 +322,7 @@ class Messages:
         :param input_port_name: a input_port name
         :return: a message
         """
-        message = 'No type declared for spiking input port \'%s\'!' % input_port_name
+        message = "No type declared for spiking input port \"%s\"!" % input_port_name
         return MessageCode.SPIKE_INPUT_PORT_TYPE_NOT_DEFINED, message
 
     @classmethod
@@ -332,7 +332,7 @@ class Messages:
         :param model_name: the name of the model
         :return: a message
         """
-        message = 'Model \'' + model_name + '\' contains errors. No code generated!'
+        message = "Model \"" + model_name + "\" contains errors. No code generated!"
         return MessageCode.MODEL_CONTAINS_ERRORS, message
 
     @classmethod
@@ -342,7 +342,7 @@ class Messages:
         :param model_name: the name of the model
         :return: a message
         """
-        message = 'Starts processing of the model \'' + model_name + '\''
+        message = "Starts processing of the model \"" + model_name + "\""
         return MessageCode.START_PROCESSING_MODEL, message
 
     @classmethod
@@ -353,7 +353,7 @@ class Messages:
         :param path: the path to the file
         :return: a message
         """
-        message = 'Successfully generated code for the model: \'' + model_name + '\' in: \'' + path + '\' !'
+        message = "Successfully generated code for the model: \"" + model_name + "\" in: \"" + path + "\" !"
         return MessageCode.CODE_SUCCESSFULLY_GENERATED, message
 
     @classmethod
@@ -363,7 +363,7 @@ class Messages:
         :param path: the path to the generated file
         :return: a message
         """
-        message = 'Successfully generated NEST module code in \'' + path + '\' !'
+        message = "Successfully generated NEST module code in \"" + path + "\" !"
         return MessageCode.MODULE_SUCCESSFULLY_GENERATED, message
 
     @classmethod
@@ -373,7 +373,7 @@ class Messages:
         :param variable_name: a variable name
         :return: a message
         """
-        message = 'Variable \'%s\' used before declaration!' % variable_name
+        message = "Variable \"%s\" used before declaration!" % variable_name
         return MessageCode.VARIABLE_USED_BEFORE_DECLARATION, message
 
     @classmethod
@@ -383,7 +383,7 @@ class Messages:
         :param variable_name: a variable name
         :return: a message
         """
-        message = 'Variable \'%s\' not defined!' % variable_name
+        message = "Variable \"%s\" not defined!" % variable_name
         return MessageCode.NO_VARIABLE_FOUND, message
 
     @classmethod
@@ -393,7 +393,7 @@ class Messages:
         :param variable_name: a variable name
         :return: a message
         """
-        message = 'Variable \'%s\' defined recursively!' % variable_name
+        message = "Variable \"%s\" defined recursively!" % variable_name
         return MessageCode.VARIABLE_DEFINED_RECURSIVELY, message
 
     @classmethod
@@ -403,7 +403,7 @@ class Messages:
         :param buffer_name: a buffer name
         :return: a message
         """
-        message = 'Value assigned to buffer \'%s\'!' % buffer_name
+        message = "Value assigned to buffer \"%s\"!" % buffer_name
         return MessageCode.VALUE_ASSIGNED_TO_BUFFER, message
 
     @classmethod
@@ -413,7 +413,7 @@ class Messages:
         :param func_name: the name of the function
         :return: a message
         """
-        message = 'First argument of \'%s\' not a kernel or equation!' % func_name
+        message = "First argument of \"%s\" not a kernel or equation!" % func_name
         return MessageCode.ARG_NOT_KERNEL_OR_EQUATION, message
 
     @classmethod
@@ -423,7 +423,7 @@ class Messages:
         :param func_name: the name of the function
         :return: a message
         """
-        message = 'Second argument of \'%s\' not a spiking input port!' % func_name
+        message = "Second argument of \"%s\" not a spiking input port!" % func_name
         return MessageCode.ARG_NOT_SPIKE_INPUT, message
 
     @classmethod
@@ -433,7 +433,7 @@ class Messages:
         :param unit: the name of the unit
         :return: a message
         """
-        message = 'Numeric numerator of unit \'%s\' not 1!' % unit
+        message = "Numeric numerator of unit \"%s\" not 1!" % unit
         return MessageCode.NUMERATOR_NOT_ONE, message
 
     @classmethod
@@ -443,7 +443,7 @@ class Messages:
         :param lhs: the name of the variable
         :return: a message
         """
-        message = 'Order of differential equation for %s is not declared!' % lhs
+        message = "Order of differential equation for %s is not declared!" % lhs
         return MessageCode.ORDER_NOT_DECLARED, message
 
     @classmethod
@@ -455,9 +455,9 @@ class Messages:
         :return: a message
         """
         if missing:
-            message = block + ' block not defined!'
+            message = block + " block not defined!"
         else:
-            message = block + ' block defined more than once!'
+            message = block + " block defined more than once!"
 
         return MessageCode.BLOCK_NOT_CORRECT, message
 
@@ -468,7 +468,7 @@ class Messages:
         :param variable_name: the name of the variable of an equation which is not defined in an equations block
         :return: a message
         """
-        message = 'Ode equation lhs-variable \'%s\' not defined in state block!' % variable_name
+        message = "Ode equation lhs-variable \"%s\" not defined in state block!" % variable_name
         return MessageCode.VARIABLE_NOT_IN_STATE_BLOCK, message
 
     @classmethod
@@ -480,7 +480,7 @@ class Messages:
         :param got: the given number of arguments
         :return: a message
         """
-        message = 'Wrong number of arguments in function-call \'%s\'! Expected \'%s\', found \'%s\'.' % (function_call, expected, got)
+        message = "Wrong number of arguments in function-call \"%s\"! Expected \"%s\", found \"%s\"." % (function_call, expected, got)
         return MessageCode.WRONG_NUMBER_OF_ARGS, message
 
     @classmethod
@@ -490,7 +490,7 @@ class Messages:
         :param name: the name of the rhs variable
         :return: a message
         """
-        message = 'Function variable \'%s\' has no right-hand side!' % name
+        message = "Function variable \"%s\" has no right-hand side!" % name
         return MessageCode.NO_RHS, message
 
     @classmethod
@@ -500,7 +500,7 @@ class Messages:
         :param names: a list of variables
         :return: a message
         """
-        message = 'Function declared with several variables (%s)!' % names
+        message = "Function declared with several variables (%s)!" % names
         return MessageCode.SEVERAL_LHS, message
 
     @classmethod
@@ -512,9 +512,9 @@ class Messages:
         :return: a message
         """
         if predefined:
-            message = 'Predefined function \'%s\' redeclared!' % name
+            message = "Predefined function \"%s\" redeclared!" % name
         else:
-            message = 'Function \'%s\' redeclared!' % name
+            message = "Function \"%s\" redeclared!" % name
 
         return MessageCode.FUNCTION_REDECLARED, message
 
@@ -525,7 +525,7 @@ class Messages:
         :param name: the name of the variable which does not have a defined ode
         :return: a message
         """
-        message = 'Variable \'%s\' not provided with an ODE!' % name
+        message = "Variable \"%s\" not provided with an ODE!" % name
         return MessageCode.NO_ODE, message
 
     @classmethod
@@ -535,7 +535,7 @@ class Messages:
         :param name: the name of the variable which does not have a initial value
         :return: a message
         """
-        message = 'Initial value of ode variable \'%s\' not provided!' % name
+        message = "Initial value of ode variable \"%s\" not provided!" % name
         return MessageCode.NO_INIT_VALUE, message
 
     @classmethod
@@ -545,7 +545,7 @@ class Messages:
         :param name: the name of the model which has been redeclared.
         :return: a message
         """
-        message = 'Model \'%s\' redeclared!' % name
+        message = "Model \"%s\" redeclared!" % name
         return MessageCode.MODEL_REDECLARED, message
 
     @classmethod
@@ -555,7 +555,7 @@ class Messages:
         :param name: the name of the function which collides to nest
         :return: a message
         """
-        message = 'Function \'%s\' collides with NEST namespace!' % name
+        message = "Function \"%s\" collides with NEST namespace!" % name
         return MessageCode.NEST_COLLISION, message
 
     @classmethod
@@ -565,7 +565,7 @@ class Messages:
         :param name: the name of the kernel
         :return: message
         """
-        message = 'Kernel \'%s\' used outside convolve!' % name
+        message = "Kernel \"%s\" used outside convolve!" % name
         return MessageCode.KERNEL_OUTSIDE_CONVOLVE, message
 
     @classmethod
@@ -577,7 +577,7 @@ class Messages:
         :param art2: the second artifact name
         :return: a message
         """
-        message = 'Name collision of \'%s\' in \'%s\' and \'%s\'!' % (
+        message = "Name collision of \"%s\" in \"%s\" and \"%s\"!" % (
             name, art1, art2)
         return MessageCode.NAME_COLLISION, message
 
@@ -588,7 +588,7 @@ class Messages:
         :param name: the name of the variable for which a type has not been specified.
         :return: a message
         """
-        message = 'Data type of \'%s\' at not specified!' % name
+        message = "Data type of \"%s\" at not specified!" % name
         return MessageCode.TYPE_NOT_SPECIFIED, message
 
     @classmethod
@@ -598,7 +598,7 @@ class Messages:
         :param name: the name of the element for which a type is not allowed.
         :return: a message
         """
-        message = 'No data type allowed for \'%s\'!' % name
+        message = "No data type allowed for \"%s\"!" % name
         return MessageCode.NO_TYPE_ALLOWED, message
 
     @classmethod
@@ -608,7 +608,7 @@ class Messages:
         :param name: the name of variable to which an assignment is not allowed.
         :return: a message
         """
-        message = 'Assignment to \'%s\' not allowed!' % name
+        message = "Assignment to \"%s\" not allowed!" % name
         return MessageCode.NO_ASSIGNMENT_ALLOWED, message
 
     @classmethod
@@ -618,7 +618,7 @@ class Messages:
         :param name: the name of the variable
         :return: a message
         """
-        message = '\'%s\' not a variable!' % name
+        message = "\"%s\" not a variable!" % name
         return MessageCode.NOT_A_VARIABLE, message
 
     @classmethod
@@ -628,7 +628,7 @@ class Messages:
         :param keyword: the keyword which has been used multiple times
         :return: a message
         """
-        message = 'Buffer specified with multiple \'%s\' keywords!' % keyword
+        message = "Buffer specified with multiple \"%s\" keywords!" % keyword
         return MessageCode.MULTIPLE_KEYWORDS, message
 
     @classmethod
@@ -639,7 +639,7 @@ class Messages:
         :param non_vector: the non-vector lhs
         :return: a message
         """
-        message = 'Vector value \'%s\' used in a non-vector declaration of variables \'%s\'!' % (
+        message = "Vector value \"%s\" used in a non-vector declaration of variables \"%s\"!" % (
             vector, non_vector)
         return MessageCode.VECTOR_IN_NON_VECTOR, message
 
@@ -653,9 +653,9 @@ class Messages:
         :return: a message
         """
         if predefined:
-            message = 'Predefined variable \'%s\' redeclared!' % name
+            message = "Predefined variable \"%s\" redeclared!" % name
         else:
-            message = 'Variable \'%s\' redeclared !' % name
+            message = "Variable \"%s\" redeclared !" % name
 
         return MessageCode.VARIABLE_REDECLARED, message
 
@@ -665,7 +665,7 @@ class Messages:
         Indicates that a given function has no return statement although required.
         :return: a message
         """
-        message = 'Return statement expected!'
+        message = "Return statement expected!"
         return MessageCode.NO_RETURN, message
 
     @classmethod
@@ -676,7 +676,7 @@ class Messages:
         :param name: the statement.
         :return: a message
         """
-        message = '\'%s\' not the last statement!' % name
+        message = "\"%s\" not the last statement!" % name
         return MessageCode.NOT_LAST_STATEMENT, message
 
     @classmethod
@@ -686,7 +686,7 @@ class Messages:
         :param name: the name of the function.
         :return: a message
         """
-        message = 'Function \'%s\' is not declared!' % name
+        message = "Function \"%s\" is not declared!" % name
         return MessageCode.FUNCTION_NOT_DECLARED, message
 
     @classmethod
@@ -696,7 +696,7 @@ class Messages:
         :param name: the name which could not be resolved
         :return: a message
         """
-        message = 'Could not resolve symbol \'%s\'!' % name
+        message = "Could not resolve symbol \"%s\"!" % name
         return MessageCode.SYMBOL_NOT_RESOLVED, message
 
     @classmethod
@@ -706,7 +706,7 @@ class Messages:
         :param name: the name of the unit.
         :return: a new code,message tuple
         """
-        message = 'Unit does not exist (%s).' % name
+        message = "Unit does not exist (%s)." % name
         return MessageCode.NO_UNIT, message
 
     @classmethod
@@ -717,27 +717,27 @@ class Messages:
         :param name: the name of the variable
         :return: a nes code,message tuple
         """
-        message = 'Not convertible unit \'%s\' used, 1 assumed as factor!' % name
+        message = "Not convertible unit \"%s\" used, 1 assumed as factor!" % name
         return MessageCode.NOT_NEUROSCIENCE_UNIT, message
 
     @classmethod
     def get_ode_needs_consistent_units(cls, name: str, differential_order: int, lhs_type, rhs_type) -> Tuple[MessageCode, str]:
-        message = 'ODE definition for \''
+        message = "ODE definition for \""
         if differential_order > 1:
-            message += 'd^' + str(differential_order) + ' ' + \
-                name + ' / dt^' + str(differential_order) + '\''
+            message += "d^" + str(differential_order) + " " + \
+                name + " / dt^" + str(differential_order) + "\""
         if differential_order > 0:
-            message += 'd ' + name + ' / dt\''
+            message += "d " + name + " / dt\""
         else:
-            message += '\'' + str(name) + '\''
-        message += ' has inconsistent units: expected \'' + \
-            lhs_type.print_symbol() + '\', got \'' + rhs_type.print_symbol() + '\''
+            message += "\"" + str(name) + "\""
+        message += " has inconsistent units: expected \"" + \
+            lhs_type.print_symbol() + "\", got \"" + rhs_type.print_symbol() + "\""
         return MessageCode.ODE_NEEDS_CONSISTENT_UNITS, message
 
     @classmethod
     def get_ode_function_needs_consistent_units(cls, name: str, declared_type, expression_type) -> Tuple[MessageCode, str]:
-        message = 'ODE function definition for \'' + name + '\' has inconsistent units: expected \'' + \
-            declared_type.print_symbol() + '\', got \'' + expression_type.print_symbol() + '\''
+        message = "ODE function definition for \"" + name + "\" has inconsistent units: expected \"" + \
+            declared_type.print_symbol() + "\", got \"" + expression_type.print_symbol() + "\""
         return MessageCode.ODE_FUNCTION_NEEDS_CONSISTENT_UNITS, message
 
     @classmethod
@@ -747,7 +747,7 @@ class Messages:
         :param name: the name of the variable
         :return: a tuple containing message code and message text
         """
-        message = 'Variable \'%s\' has the same name as a physical unit!' % name
+        message = "Variable \"%s\" has the same name as a physical unit!" % name
         return MessageCode.VARIABLE_WITH_SAME_NAME_AS_UNIT, message
 
     @classmethod
@@ -757,7 +757,7 @@ class Messages:
         :param name: the name of the model
         :return: a code, message tuple
         """
-        message = 'Starting code generation for model \'%s\'' % name
+        message = "Starting code generation for model \"%s\"" % name
         return MessageCode.ANALYSING_TRANSFORMING_MODEL, message
 
     @classmethod
@@ -776,10 +776,10 @@ class Messages:
         :param name: the name of the model
         :return: a code, message tuple
         """
-        message = 'In function \'' + function_name + '\': actual derived type of templated parameter ' + \
-            str(failing_arg_idx + 1) + ' is \'' + failing_arg_type_str + '\', which is inconsistent with that of parameter(s) ' + \
-            ', '.join([str(_ + 1) for _ in other_args_idx]) + \
-            ', which has/have type \'' + other_type_str + '\''
+        message = "In function \"" + function_name + "\": actual derived type of templated parameter " + \
+            str(failing_arg_idx + 1) + " is \"" + failing_arg_type_str + "\", which is inconsistent with that of parameter(s) " + \
+            ", ".join([str(_ + 1) for _ in other_args_idx]) + \
+            ", which has/have type \"" + other_type_str + "\""
         return MessageCode.TEMPLATED_ARG_TYPES_INCONSISTENT, message
 
     @classmethod
@@ -806,7 +806,7 @@ class Messages:
         Unknown type or unit literal.
         :param provided_type_str: the provided type as a string
         """
-        message = "Unknown type or unit literal: " + provided_type_str
+        message = "Unknown type or unit literal: \"" + provided_type_str + "\""
         return MessageCode.UNKNOWN_TYPE, message
 
     @classmethod
@@ -824,7 +824,7 @@ class Messages:
         Indicates that an emit_spike() function was called, but no spiking output port has been defined.
         :return: a (code, message) tuple
         """
-        message = 'emit_spike() function was called, but no spiking output port has been defined!'
+        message = "emit_spike() function was called, but no spiking output port has been defined!"
         return MessageCode.EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT, message
 
     @classmethod
@@ -836,7 +836,7 @@ class Messages:
         """
         Returns a message indicating that the type of a kernel is wrong.
         :param kernel_name: the name of the kernel
-        :param differential_order: differential order of the kernel left-hand side, e.g. 2 if the kernel is g''
+        :param differential_order: differential order of the kernel left-hand side, e.g. 2 if the kernel is g""
         :param actual_type: the name of the actual type that was found in the model
         """
         if differential_order == 0:
@@ -845,7 +845,7 @@ class Messages:
             assert differential_order > 0
             expected_type_str = "s**-%d" % differential_order
 
-        message = 'Kernel \'%s\' was found to be of type \'%s\' (should be %s)!' % (kernel_name, actual_type, expected_type_str)
+        message = "Kernel \"%s\" was found to be of type \"%s\" (should be %s)!" % (kernel_name, actual_type, expected_type_str)
 
         return MessageCode.KERNEL_WRONG_TYPE, message
 
@@ -861,18 +861,18 @@ class Messages:
         :param actual_type: the name of the actual type that was found in the model
         :param expected_type: the name of the type that was expected
         """
-        message = 'Initial value \'%s\' was found to be of type \'%s\' (should be %s)!' % (
+        message = "Initial value \"%s\" was found to be of type \"%s\" (should be %s)!" % (
             iv_name, actual_type, expected_type)
         return MessageCode.KERNEL_IV_WRONG_TYPE, message
 
     @classmethod
     def get_no_files_in_input_path(cls, path: str) -> Tuple[MessageCode, str]:
-        message = "No files found matching '*.nestml' in provided input path '" + path + "'"
+        message = "No files found matching \"*.nestml\" in provided input path \"" + path + "\""
         return MessageCode.NO_FILES_IN_INPUT_PATH, message
 
     @classmethod
     def get_state_variables_not_initialized(cls, var_name: str) -> Tuple[MessageCode, str]:
-        message = "The variable \'%s\' is not initialized." % var_name
+        message = "The variable \"%s\" is not initialized." % var_name
         return MessageCode.STATE_VARIABLES_NOT_INITIALZED, message
 
     @classmethod
@@ -883,25 +883,25 @@ class Messages:
     @classmethod
     def get_template_root_path_created(cls, templates_root_dir: str) -> Tuple[MessageCode, str]:
         message = "Given template root path is not an absolute path. " \
-                  "Creating the absolute path with default templates directory '" + \
-            templates_root_dir + "'"
+                  "Creating the absolute path with default templates directory \"" + \
+            templates_root_dir + "\""
         return MessageCode.TEMPLATE_ROOT_PATH_CREATED, message
 
     @classmethod
     def get_vector_parameter_wrong_block(cls, var, block) -> Tuple[MessageCode, str]:
-        message = "The vector parameter '" + var + "' is declared in the wrong block '" + block + "'. " \
+        message = "The vector parameter \"" + var + "\" is declared in the wrong block \"" + block + "\". " \
                   "The vector parameter can only be declared in parameters or internals block."
         return MessageCode.VECTOR_PARAMETER_WRONG_BLOCK, message
 
     @classmethod
     def get_vector_parameter_wrong_type(cls, var) -> Tuple[MessageCode, str]:
-        message = "The vector parameter '" + var + "' is of the wrong type. " \
+        message = "The vector parameter \"" + var + "\" is of the wrong type. " \
                   "The vector parameter can be only of type integer."
         return MessageCode.VECTOR_PARAMETER_WRONG_TYPE, message
 
     @classmethod
     def get_vector_parameter_wrong_size(cls, var, value) -> Tuple[MessageCode, str]:
-        message = "The vector parameter '" + var + "' has value '" + value + "' " \
+        message = "The vector parameter \"" + var + "\" has value \"" + value + "\" " \
                   "which is less than or equal to 0."
         return MessageCode.VECTOR_PARAMETER_WRONG_SIZE, message
 
@@ -917,7 +917,7 @@ class Messages:
 
     @classmethod
     def get_function_is_delay_variable(cls, func) -> Tuple[MessageCode, str]:
-        message = "Function '" + func + "' is not a function but a delay variable."
+        message = "Function \"" + func + "\" is not a function but a delay variable."
         return MessageCode.DELAY_VARIABLE, message
 
     @classmethod
@@ -933,10 +933,10 @@ class Messages:
         :return: a message
         """
 
-        message = "No gating variables found inside declaration of '" + \
-            cm_inline_expr.variable_name + "', "
-        message += "\nmeaning no variable ends with the suffix '_" + \
-            ion_channel_name + "' here. "
+        message = "No gating variables found inside declaration of \"" + \
+            cm_inline_expr.variable_name + "\", "
+        message += "\nmeaning no variable ends with the suffix \"_" + \
+            ion_channel_name + "\" here. "
         message += "This suffix indicates that a variable is a gating variable. "
         message += "At least one gating variable is expected to exist."
 
@@ -948,9 +948,9 @@ class Messages:
             cm_inline_expr: ASTInlineExpression,
             bad_variable_name: str,
             ion_channel_name: str) -> Tuple[MessageCode, str]:
-        message = "Variable name '" + bad_variable_name + \
-            "' seems to be used multiple times"
-        message += "' inside inline expression '" + cm_inline_expr.variable_name + "'. "
+        message = "Variable name \"" + bad_variable_name + \
+            "\" seems to be used multiple times"
+        message += "\" inside inline expression \"" + cm_inline_expr.variable_name + "\". "
         message += "\nVariables are not allowed to occur multiple times here."
 
         return MessageCode.CM_VARIABLE_NAME_MULTI_USE, message
@@ -961,25 +961,25 @@ class Messages:
             ion_channel_name: str,
             variable_name: str,
             function_name: str) -> Tuple[MessageCode, str]:
-        message = "Implementation of a function called '" + function_name + "' not found. "
-        message += "It is expected because of variable '" + \
-            variable_name + "' in the ion channel '" + ion_channel_name + "'"
+        message = "Implementation of a function called \"" + function_name + "\" not found. "
+        message += "It is expected because of variable \"" + \
+            variable_name + "\" in the ion channel \"" + ion_channel_name + "\""
         return MessageCode.CM_FUNCTION_MISSING, message
 
     @classmethod
     def get_expected_cm_function_wrong_args_count(
             cls, ion_channel_name: str, variable_name, astfun: ASTFunction) -> Tuple[MessageCode, str]:
-        message = "Function '" + astfun.name + \
-            "' is expected to have exactly one Argument. "
-        message += "It is related to variable '" + variable_name + \
-            "' in the ion channel '" + ion_channel_name + "'"
+        message = "Function \"" + astfun.name + \
+            "\" is expected to have exactly one Argument. "
+        message += "It is related to variable \"" + variable_name + \
+            "\" in the ion channel \"" + ion_channel_name + "\""
         return MessageCode.CM_FUNCTION_BAD_NUMBER_ARGS, message
 
     @classmethod
     def get_expected_cm_function_bad_return_type(
             cls, ion_channel_name: str, astfun: ASTFunction) -> Tuple[MessageCode, str]:
-        message = "'" + ion_channel_name + "' channel function '" + \
-            astfun.name + "' must return real. "
+        message = "\"" + ion_channel_name + "\" channel function \"" + \
+            astfun.name + "\" must return real. "
         return MessageCode.CM_FUNCTION_BAD_RETURN_TYPE, message
 
     @classmethod
@@ -988,8 +988,8 @@ class Messages:
                                                     expected_variables_to_reason: dict) -> Tuple[MessageCode, str]:
         message = "The following variables not found:\n"
         for missing_var, proper_location in missing_variable_to_proper_block.items():
-            message += "Variable with name '" + missing_var
-            message += "' not found but expected to exist inside of " + \
+            message += "Variable with name \"" + missing_var
+            message += "\" not found but expected to exist inside of " + \
                 proper_location + " because of position "
             message += str(
                 expected_variables_to_reason[missing_var].get_source_position()) + "\n"
@@ -1002,8 +1002,8 @@ class Messages:
 
     @classmethod
     def get_v_comp_variable_value_missing(cls, neuron_name: str, missing_variable_name) -> Tuple[MessageCode, str]:
-        message = "Missing state variable '" + missing_variable_name
-        message += "' inside of neuron '" + neuron_name + "'. "
+        message = "Missing state variable \"" + missing_variable_name
+        message += "\" inside of neuron \"" + neuron_name + "\". "
         message += "You have passed NEST_COMPARTMENTAL flag to the generator, thereby activating compartmental mode."
         message += "In this mode, such variable must be declared in the state block.\n"
         message += "This variable represents the dynamically calculated value of membrane potential "
@@ -1012,7 +1012,7 @@ class Messages:
 
     @classmethod
     def get_syns_bad_buffer_count(cls, buffers: set, synapse_name: str) -> Tuple[MessageCode, str]:
-        message = "Synapse `\'%s\' uses the following input buffers: %s" % (
+        message = "Synapse `\"%s\" uses the following input buffers: %s" % (
             synapse_name, buffers)
         message += " However exaxtly one spike input buffer per synapse is allowed."
         return MessageCode.SYNS_BAD_BUFFER_COUNT, message
@@ -1029,32 +1029,32 @@ class Messages:
 
     @classmethod
     def get_target_path_info(cls, target_dir: str) -> Tuple[MessageCode, str]:
-        message = "Target platform code will be generated in directory: '" + target_dir + "'"
+        message = "Target platform code will be generated in directory: \"" + target_dir + "\""
         return MessageCode.TARGET_PATH_INFO, message
 
     @classmethod
     def get_install_path_info(cls, install_path: str) -> Tuple[MessageCode, str]:
-        message = "Target platform code will be installed in directory: '" + install_path + "'"
+        message = "Target platform code will be installed in directory: \"" + install_path + "\""
         return MessageCode.INSTALL_PATH_INFO, message
 
     @classmethod
     def get_creating_target_path(cls, target_path: str) -> Tuple[MessageCode, str]:
-        message = "Creating target directory: '" + target_path + "'"
+        message = "Creating target directory: \"" + target_path + "\""
         return MessageCode.CREATING_TARGET_PATH, message
 
     @classmethod
     def get_creating_install_path(cls, install_path: str) -> Tuple[MessageCode, str]:
-        message = "Creating installation directory: '" + install_path + "'"
+        message = "Creating installation directory: \"" + install_path + "\""
         return MessageCode.CREATING_INSTALL_PATH, message
 
     @classmethod
     def get_integrate_odes_wrong_arg(cls, arg: str) -> Tuple[MessageCode, str]:
-        message = "Parameter provided to integrate_odes() function is not a state variable: '" + arg + "'"
+        message = "Parameter provided to integrate_odes() function is not a state variable: \"" + arg + "\""
         return MessageCode.INTEGRATE_ODES_WRONG_ARG, message
 
     @classmethod
     def get_integrate_odes_arg_higher_order(cls, arg: str) -> Tuple[MessageCode, str]:
-        message = "Parameter provided to integrate_odes() function is a state variable of higher order: '" + arg + "'"
+        message = "Parameter provided to integrate_odes() function is a state variable of higher order: \"" + arg + "\""
         return MessageCode.INTEGRATE_ODES_ARG_HIGHER_ORDER, message
 
     @classmethod
@@ -1079,7 +1079,7 @@ class Messages:
         :param function_name: the offending function
         :return: the error message
         """
-        message = "Function " + function_name + " with the return-type 'void' cannot be used in expressions."
+        message = "Function " + function_name + " with the return-type \"void\" cannot be used in expressions."
         return MessageCode.VOID_FUNCTION_ON_RHS, message
 
     @classmethod
@@ -1141,7 +1141,7 @@ class Messages:
 
     @classmethod
     def get_random_functions_legally_used(cls, name: str) -> Tuple[MessageCode, str]:
-        message = "The function '" + name + "' can only be used in the update, onReceive, or onCondition blocks."
+        message = "The function \"" + name + "\" can only be used in the update, onReceive, or onCondition blocks."
         return MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED, message
 
     @classmethod
@@ -1173,12 +1173,12 @@ class Messages:
 
     @classmethod
     def get_delay_variable_not_found(cls, variable_name: str) -> Tuple[MessageCode, str]:
-        message = "Delay variable '" + variable_name + "' not found in synapse. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delays"
+        message = "Delay variable \"" + variable_name + "\" not found in synapse. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
 
         return MessageCode.DELAY_VARIABLE_NOT_FOUND, message
 
     @classmethod
     def get_weight_variable_not_found(cls, variable_name: str) -> Tuple[MessageCode, str]:
-        message = "Weight variable '" + variable_name + "' not found in synapse. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#synaptic-weight"
+        message = "Weight variable \"" + variable_name + "\" not found in synapse. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
 
         return MessageCode.WEIGHT_VARIABLE_NOT_FOUND, message

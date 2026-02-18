@@ -1,12 +1,10 @@
 # event_priority_test_neuron
 # ##########################
 #
-#
 # Description
 # +++++++++++
 #
 # This model is used to test the sequencing of event handlers in neuron models.
-#
 #
 # Copyright statement
 # +++++++++++++++++++

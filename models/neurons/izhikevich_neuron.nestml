@@ -11,7 +11,6 @@
 #    dV_{m}/dt &= 0.04 V_{m}^2 + 5 V_{m} + 140 - U_{m} + I\\
 #    dU_{m}/dt &= a (b V_{m} - U_{m})
 #
-#
 # .. math::
 #
 #    &\text{if}\;\; V_{m} \geq V_{th}:\\
@@ -29,12 +28,10 @@
 #
 # This model will instead be simulated using the numerical solver that is recommended by ODE-toolbox during code generation.
 #
-#
 # References
 # ++++++++++
 #
 # .. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
-#
 #
 # Copyright statement
 # +++++++++++++++++++

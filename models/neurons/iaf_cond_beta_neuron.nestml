@@ -8,8 +8,7 @@
 # conductance-based synapses. Incoming spike events induce a post-synaptic change
 # of conductance modelled by a beta function. The beta function
 # is normalised such that an event of weight 1.0 results in a peak current of
-# 1 nS at :math:`t = \tau_{rise\_[ex|in]}`.
-#
+# 1 nS at :math:`t = \tau_\text{rise\_[ex|in]}`.
 #
 # References
 # ++++++++++
@@ -21,14 +20,14 @@
 #        DOI: https://doi.org/10.1023/B:JCNS.0000014108.03012.81
 # .. [2] Bernander O, Douglas RJ, Martin KAC, Koch C (1991). Synaptic background
 #        activity influences spatiotemporal integration in single pyramidal
-#        cells.  Proceedings of the National Academy of Science USA,
+#        cells. Proceedings of the National Academy of Science USA,
 #        88(24):11569-11573.
 #        DOI: https://doi.org/10.1073/pnas.88.24.11569
 # .. [3] Kuhn A, Rotter S (2004) Neuronal integration of synaptic input in
 #        the fluctuation- driven regime. Journal of Neuroscience,
 #        24(10):2345-2356
 #        DOI: https://doi.org/10.1523/JNEUROSCI.3349-03.2004
-# .. [4] Rotter S,  Diesmann M (1999). Exact simulation of time-invariant linear
+# .. [4] Rotter S, Diesmann M (1999). Exact simulation of time-invariant linear
 #        systems with applications to neuronal modeling. Biologial Cybernetics
 #        81:381-402.
 #        DOI: https://doi.org/10.1007/s004220050570
@@ -36,12 +35,10 @@
 #        in De Schutter, Computational Modeling Methods for Neuroscientists,
 #        MIT Press.
 #
-#
 # See also
 # ++++++++
 #
 # iaf_cond_exp, iaf_cond_alpha
-#
 #
 # Copyright statement
 # +++++++++++++++++++
@@ -65,7 +62,7 @@
 #
 model iaf_cond_beta_neuron:
     state:
-        V_m mV = E_L    # Membrane potential
+        V_m mV = E_L        # Membrane potential
         refr_t ms = 0 ms    # Refractory period timer
 
         # inputs from the inhibitory conductance
@@ -85,16 +82,16 @@ model iaf_cond_beta_neuron:
 
         inline I_syn_exc pA = (F_E + unit_psg * convolve(g_ex, exc_spikes)) * (V_m - E_ex)
         inline I_syn_inh pA = (F_I + unit_psg * convolve(g_in, inh_spikes)) * (V_m - E_in)
-        inline I_leak pA = g_L * (V_m - E_L)  # pA = nS * mV
+        inline I_leak pA = g_L * (V_m - E_L)
 
-        V_m' =  (-I_leak - I_syn_exc - I_syn_inh + I_e + I_stim ) / C_m
+        V_m' = (-I_leak - I_syn_exc - I_syn_inh + I_e + I_stim) / C_m
         refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
 
     parameters:
         C_m pF = 250 pF              # Capacitance of the membrane
         g_L nS = 16.6667 nS          # Leak conductance
-        E_L mV = -70 mV              # Leak reversal potential (aka resting potential)
-        refr_T ms = 2 ms         # Duration of refractory period
+        E_L mV = -70 mV              # Leak reversal potential (a.k.a. resting potential)
+        refr_T ms = 2 ms             # Duration of refractory period
         V_th mV = -55 mV             # Threshold potential
         V_reset mV = -60 mV          # Reset potential
 
@@ -104,8 +101,8 @@ model iaf_cond_beta_neuron:
         tau_syn_decay_I ms = 2 ms    # Synaptic time constant for inhibitory synapse
         tau_syn_rise_E ms = .2 ms    # Synaptic time constant excitatory synapse
         tau_syn_decay_E ms = 2 ms    # Synaptic time constant for inhibitory synapse
-        F_E nS = 0 nS                # Constant external input conductance (excitatory).
-        F_I nS = 0 nS                # Constant external input conductance (inhibitory).
+        F_E nS = 0 nS                # Constant external input conductance (excitatory)
+        F_I nS = 0 nS                # Constant external input conductance (inhibitory)
 
         # constant external input current
         I_e pA = 0 pA

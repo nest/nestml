@@ -58,8 +58,8 @@ class NestDeclarationsHelper:
         :return: a string presentation of the variable symbol's type
         """
         if variable_symbol.has_vector_parameter():
-            return 'std::vector< ' + self.type_symbol_printer.print(variable_symbol.get_type_symbol()) + \
-                   ' > '
+            return "std::vector< " + self.type_symbol_printer.print(variable_symbol.get_type_symbol()) + \
+                   " > "
 
         return self.type_symbol_printer.print(variable_symbol.get_type_symbol())
 
@@ -74,7 +74,7 @@ class NestDeclarationsHelper:
         """
 
         assert isinstance(ast_declaration, ASTDeclaration), \
-            '(PyNestML.CodeGeneration.DeclarationsHelper) No or wrong type of declaration provided (%s)!' % type(
+            "(PyNestML.CodeGeneration.DeclarationsHelper) No or wrong type of declaration provided (%s)!" % type(
                 ast_declaration)
         ret = list()
         for var in ast_declaration.get_variables():
@@ -106,7 +106,7 @@ class NestDeclarationsHelper:
         :return: the corresponding delay parameter
         """
         assert isinstance(variable, VariableSymbol), \
-            '(PyNestML.CodeGeneration.Printer) No or wrong type of variable symbol provided (%s)!' % type(variable)
+            "(PyNestML.CodeGeneration.Printer) No or wrong type of variable symbol provided (%s)!" % type(variable)
         delay_parameter = variable.get_delay_parameter()
         delay_parameter_var = ASTVariable(delay_parameter, scope=variable.get_corresponding_scope())
         symbol = delay_parameter_var.get_scope().resolve_to_symbol(delay_parameter_var.get_complete_name(),

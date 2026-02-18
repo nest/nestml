@@ -88,8 +88,6 @@ The incoming spikes could have been equivalently handled with an ``onReceive`` e
 
    onReceive(spike_in_port):
        I_syn += sift(spike_in_port, t)
-
-
 Multiple input ports
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -184,6 +182,7 @@ In order to hold the membrane potential at the reset voltage during refractorine
 
 .. code-block:: nestml
 
+   equations:
        I_syn' = ...
        V_m' = ...
        refr_t' = -1 / s    # Count down towards zero
@@ -196,7 +195,7 @@ In order to hold the membrane potential at the reset voltage during refractorine
            # neuron not refractory
            integrate_odes(I_syn, V_m)
 
-Note that in some cases, the finite resolution by which real numbers are expressed (as floating point numbers) in computers, can cause unexpected behaviors. If the simulation resolution is not exactly representable as a float (say, Δt = 0.1 ms) then it could be the case that after 20 simulation steps, the timer has not reached zero, but a very small value very close to zero (say, 0.00000001 ms), causing the refractory period to end only in the next timestep. If this kind of behavior is undesired, the simulation resolution and refractory period can be chosen as powers of two (which can be represented exactly as floating points), or a small "epsilon" value can be included in the comparison in the model:
+Note that in some cases, the finite resolution by which real numbers are expressed (as floating point numbers) in computers, can cause unexpected behaviors. If the simulation resolution is not exactly representable as a float (say, :math:`\Delta t` = 0.1 ms) then it could be the case that after 20 simulation steps, the timer has not reached zero, but a very small value very close to zero (say, 0.00000001 ms), causing the refractory period to end only in the next timestep. If this kind of behavior is undesired, the simulation resolution and refractory period can be chosen as powers of two (which can be represented exactly as floating points), or a small "epsilon" value can be included in the comparison in the model:
 
 .. code-block:: nestml
 

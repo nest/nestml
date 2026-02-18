@@ -54,17 +54,17 @@ class ASTCompoundStmt(ASTNode):
         :type for_stmt: ASTForStmt
         """
         assert (if_stmt is None or isinstance(if_stmt, ASTIfStmt)), \
-            '(PyNestML.ASTCompoundStmt) Wrong type of if-statement provided (%s)!' % type(if_stmt)
+            "(PyNestML.ASTCompoundStmt) Wrong type of if-statement provided (%s)!" % type(if_stmt)
         assert (while_stmt is None or isinstance(while_stmt, ASTWhileStmt)), \
-            '(PyNestML.ASTCompoundStmt) Wrong type of while-statement provided (%s)!' % type(while_stmt)
+            "(PyNestML.ASTCompoundStmt) Wrong type of while-statement provided (%s)!" % type(while_stmt)
         assert (for_stmt is None or isinstance(for_stmt, ASTForStmt)), \
-            '(PyNestML.ASTCompoundStmt) Wrong type of for-statement provided (%s)!' % type(for_stmt)
+            "(PyNestML.ASTCompoundStmt) Wrong type of for-statement provided (%s)!" % type(for_stmt)
         super(ASTCompoundStmt, self).__init__(*args, **kwargs)
         self.if_stmt = if_stmt
         self.while_stmt = while_stmt
         self.for_stmt = for_stmt
         assert self.is_if_stmt() + self.is_while_stmt() + self.is_for_stmt() == 1, \
-            '(PyNestML.ASTCompoundStmt) Please provide precisely one if, while or for statement'
+            "(PyNestML.ASTCompoundStmt) Please provide precisely one if, while or for statement"
 
     def clone(self):
         """

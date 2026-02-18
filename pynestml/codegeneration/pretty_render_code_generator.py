@@ -55,8 +55,8 @@ class PrettyRenderCodeGenerator(CodeGenerator):
         neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
 
         # Load the custom lexer
-        lexer_fname = os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'extras', 'syntax-highlighting', 'pygments', 'pygments_nestml.py'))
-        self.lexer = load_lexer_from_file(lexer_fname, 'NESTMLLexer')
+        lexer_fname = os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "extras", "syntax-highlighting", "pygments", "pygments_nestml.py"))
+        self.lexer = load_lexer_from_file(lexer_fname, "NESTMLLexer")
 
         self.setup_template_env()
 
@@ -72,11 +72,11 @@ class PrettyRenderCodeGenerator(CodeGenerator):
 
     def _get_model_namespace(self, model: ASTModel):
         # Read the source code file
-        with open(model.file_path, 'r') as f:
+        with open(model.file_path, "r") as f:
             code = f.read()
 
         # Create the HTML formatter
-        formatter = HtmlFormatter(full=True, style='colorful')
+        formatter = HtmlFormatter(full=True, style="colorful")
 
         # Highlight the code
         highlighted_code_html = highlight(code, self.lexer, formatter)

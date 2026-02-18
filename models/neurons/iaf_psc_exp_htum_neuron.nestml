@@ -32,7 +32,6 @@
 # For details, please see ``IAF_neurons_singularity.ipynb`` in
 # the NEST source code (``docs/model_details``).
 #
-#
 # References
 # ++++++++++
 #
@@ -50,7 +49,6 @@
 #        space analysis of synchronous spiking in cortical neural
 #        networks. Neurocomputing 38-40:565-571.
 #        DOI: https://doi.org/10.1016/S0925-2312(01)00409-X
-#
 #
 # Copyright statement
 # +++++++++++++++++++
@@ -86,13 +84,13 @@ model iaf_psc_exp_htum_neuron:
         V_m' = -V_m / tau_m + (I_syn + I_e + I_stim) / C_m
 
     parameters:
-        C_m  pF = 250 pF            # Capacitance of the membrane
-        tau_m  ms = 10 ms           # Membrane time constant
+        C_m pF = 250 pF             # Capacitance of the membrane
+        tau_m ms = 10 ms            # Membrane time constant
         tau_syn_inh ms = 2 ms       # Time constant of inhibitory synaptic current
         tau_syn_exc ms = 2 ms       # Time constant of excitatory synaptic current
         t_ref_abs ms = 2 ms         # Absolute refractory period
-        t_ref_tot   ms = 2 ms     [[t_ref_tot >= t_ref_abs]]    # total refractory period, if t_ref_abs == t_ref_tot iaf_psc_exp_htum equivalent to iaf_psc_exp
-        E_L     mV = -70 mV         # Resting potential
+        t_ref_tot ms = 2 ms [[t_ref_tot >= t_ref_abs]]    # Total refractory period, if t_ref_abs == t_ref_tot iaf_psc_exp_htum equivalent to iaf_psc_exp
+        E_L mV = -70 mV             # Resting potential
         V_reset mV = -70.0 mV - E_L # Reset value of the membrane potential, RELATIVE TO RESTING POTENTIAL(!) I.e. the real threshold is (V_reset + E_L).
         V_th mV = -55.0 mV - E_L    # Threshold, RELATIVE TO RESTING POTENTIAL(!) I.e. the real threshold is (E_L + V_th)
 

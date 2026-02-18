@@ -35,7 +35,7 @@ class ASTOutputBlock(ASTNode):
       @attribute spike true if and only if the neuron has a spike output.
       @attribute continuous true if and only if the neuron has a continuous time output.
     Grammar:
-        outputBlock: 'output' BLOCK_OPEN ('spike' | 'continuous') ;
+        outputBlock: "output" BLOCK_OPEN ("spike" | "continuous") ;
     Attributes:
         type = None
     """

@@ -1,14 +1,12 @@
 # stdp_saturating_synapse - Synapse model for spike-timing dependent plasticity
 # #############################################################################
 #
-#
 # Description
 # +++++++++++
 #
 # For testing neuron/synapse co-generation.
 #
 # Just like ``stdp_synapse``, except that the ``pre_trace`` and ``post_trace`` increment are dependent on themselves and another parameter.
-#
 #
 # Copyright statement
 # +++++++++++++++++++
@@ -63,14 +61,14 @@ model stdp_saturating_synapse:
         post_trace += foobar - .1 * post_trace
 
         # potentiate synapse
-        w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
+        w_ real = Wmax * (w / Wmax  + (lambda * (1. - (w / Wmax))**mu_plus * pre_trace))
         w = min(Wmax, w_)
 
     onReceive(pre_spikes):
         pre_trace += xyzzy - .1 * pre_trace
 
         # depress synapse
-        w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
+        w_ real = Wmax * (w / Wmax  - (alpha * lambda * (w / Wmax)**mu_minus * post_trace))
         w = max(Wmin, w_)
 
         # deliver spike to postsynaptic partner

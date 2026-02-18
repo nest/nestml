@@ -27,7 +27,7 @@
 # .. note::
 #
 #    The default refractory period for ``aeif`` models is zero, consistent with the model definition in
-#    Brette & Gerstner [1]_.  Thus, an ``aeif`` neuron with default parameters can fire multiple spikes in a single
+#    Brette & Gerstner [1]_. Thus, an ``aeif`` neuron with default parameters can fire multiple spikes in a single
 #    time step, which can lead to exploding spike numbers and extreme slow-down of simulations.
 #    To avoid such unphysiological behavior, you should set a refractory time ``refr_t > 0``.
 #
@@ -45,7 +45,6 @@
 # ++++++++
 #
 # iaf_cond_exp, aeif_cond_alpha
-#
 #
 # Copyright statement
 # +++++++++++++++++++
@@ -70,8 +69,8 @@
 model aeif_cond_exp_neuron:
 
     state:
-        V_m mV = E_L   # Membrane potential
-        w pA = 0 pA    # Spike-adaptation current
+        V_m mV = E_L        # Membrane potential
+        w pA = 0 pA         # Spike-adaptation current
         refr_t ms = 0 ms    # Refractory period timer
         g_syn_exc nS = 0 nS
         g_syn_inh nS = 0 nS
@@ -94,25 +93,25 @@ model aeif_cond_exp_neuron:
 
     parameters:
         # membrane parameters
-        C_m pF = 281.0 pF       # Membrane Capacitance
+        C_m pF = 281 pF         # Membrane capacitance
         refr_T ms = 2 ms        # Duration of refractory period
-        V_reset mV = -60.0 mV   # Reset Potential
-        g_L nS = 30.0 nS        # Leak Conductance
-        E_L mV = -70.6 mV       # Leak reversal Potential (aka resting potential)
+        V_reset mV = -60 mV     # Reset potential
+        g_L nS = 30 nS          # Leak conductance
+        E_L mV = -70.6 mV       # Leak reversal potential (a.k.a. resting potential)
 
         # spike adaptation parameters
         a nS = 4 nS             # Subthreshold adaptation
         b pA = 80.5 pA          # Spike-triggered adaptation
-        Delta_T mV = 2.0 mV     # Slope factor
-        tau_w ms = 144.0 ms     # Adaptation time constant
+        Delta_T mV = 2 mV       # Slope factor
+        tau_w ms = 144 ms       # Adaptation time constant
         V_th mV = -50.4 mV      # Spike initiation threshold
         V_peak mV = 0 mV        # Spike detection threshold
 
         # synaptic parameters
         E_exc mV = 0 mV            # Excitatory reversal Potential
         tau_syn_exc ms = 0.2 ms    # Synaptic Time Constant Excitatory Synapse
-        E_inh mV = -85.0 mV        # Inhibitory reversal Potential
-        tau_syn_inh ms = 2.0 ms    # Synaptic Time Constant for Inhibitory Synapse
+        E_inh mV = -85 mV          # Inhibitory reversal Potential
+        tau_syn_inh ms = 2 ms      # Synaptic Time Constant for Inhibitory Synapse
 
         # constant external input current
         I_e pA = 0 pA

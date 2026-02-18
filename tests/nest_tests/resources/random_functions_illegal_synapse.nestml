@@ -1,7 +1,6 @@
 # random_functions_illegal_synapse.nestml
 # #######################################
 #
-#
 # Copyright statement
 # +++++++++++++++++++
 #
@@ -21,7 +20,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
 #
 model random_functions_illegal_synapse:
     state:
@@ -54,14 +52,14 @@ model random_functions_illegal_synapse:
         post_trace += 1
 
         # potentiate synapse
-        w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
+        w_ real = Wmax * (w / Wmax  + (lambda * (1. - (w / Wmax))**mu_plus * pre_trace))
         w = min(Wmax, w_)
 
     onReceive(pre_spikes):
         pre_trace += 1
 
         # depress synapse
-        w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
+        w_ real = Wmax * (w / Wmax  - (alpha * lambda * (w / Wmax)**mu_minus * post_trace))
         w = max(Wmin, w_)
 
         # deliver spike to postsynaptic partner

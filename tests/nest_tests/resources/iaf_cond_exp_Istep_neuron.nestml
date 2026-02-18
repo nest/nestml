@@ -10,15 +10,35 @@
 # ++++++++++
 #
 # .. [1] Meffin H, Burkitt AN, Grayden DB (2004). An analytical
-# model for the large, fluctuating synaptic conductance state typical of
-# neocortical neurons in vivo. Journal of Computational Neuroscience,
-# 16:159-175.
-# DOI: https://doi.org/10.1023/B:JCNS.0000014108.03012.81
+#        model for the large, fluctuating synaptic conductance state typical of
+#        neocortical neurons in vivo. Journal of Computational Neuroscience,
+#        16:159-175.
+#        DOI: https://doi.org/10.1023/B:JCNS.0000014108.03012.81
 #
 # See also
 # ++++++++
 #
 # iaf_psc_delta, iaf_psc_exp, iaf_cond_exp
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
 model iaf_cond_exp_Istep_neuron:
     state:
@@ -32,10 +52,10 @@ model iaf_cond_exp_Istep_neuron:
         kernel g_in = exp(-t/tau_syn_in) # inputs from the inh conductance
         kernel g_ex = exp(-t/tau_syn_ex) # inputs from the exc conductance
 
-        inline I_syn_ex pA = convolve(g_ex, exc_spikes) * nS * ( V_m - E_ex )
-        inline I_syn_in pA = convolve(g_in, inh_spikes) * nS * ( V_m - E_in )
-        inline I_leak pA = g_L * ( V_m - E_L )
-        V_m' = ( -I_leak - I_syn_ex - I_syn_in + I_e + I_stim + I_step_now ) / C_m
+        inline I_syn_ex pA = convolve(g_ex, exc_spikes) * nS * (V_m - E_ex)
+        inline I_syn_in pA = convolve(g_in, inh_spikes) * nS * (V_m - E_in)
+        inline I_leak pA = g_L * (V_m - E_L)
+        V_m' = (-I_leak - I_syn_ex - I_syn_in + I_e + I_stim + I_step_now) / C_m
 
     parameters:
         V_th mV = -55 mV        # Threshold potential
@@ -45,7 +65,7 @@ model iaf_cond_exp_Istep_neuron:
         C_m pF = 250 pF         # Membrane capacitance
         E_ex mV = 0 mV          # Excitatory reversal potential
         E_in mV = -85 mV        # Inhibitory reversal potential
-        E_L mV = -70 mV         # Leak reversal potential (aka resting potential)
+        E_L mV = -70 mV         # Leak reversal potential (a.k.a. resting potential)
         tau_syn_ex ms = 0.2 ms  # Synaptic time constant of excitatory synapse
         tau_syn_in ms = 2 ms    # Synaptic time constant of inhibitory synapse
 

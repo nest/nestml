@@ -1,12 +1,10 @@
 # event_priority_test_synapse
 # ###########################
 #
-#
 # Description
 # +++++++++++
 #
 # This model is used to test the sequencing of event handlers in synapse models.
-#
 #
 # Copyright statement
 # +++++++++++++++++++
