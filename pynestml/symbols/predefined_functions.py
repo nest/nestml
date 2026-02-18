@@ -384,7 +384,7 @@ class PredefinedFunctions:
         Registers the delta function.
         """
         params = list()
-        params.append(PredefinedTypes.get_type('ms'))
+        params.append(PredefinedTypes.get_type("ms"))
         symbol = FunctionSymbol(name=cls.DELTA, param_types=params,
                                 return_type=PredefinedTypes.get_real_type(),
                                 element_reference=None, is_predefined=True)

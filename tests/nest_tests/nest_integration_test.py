@@ -25,22 +25,23 @@ import re
 
 import nest
 
-from pynestml.codegeneration.nest_tools import NESTTools
-from pynestml.frontend.pynestml_frontend import generate_nest_target
-
+# try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
-    import matplotlib
+    import matplotlib as mpl
+    mpl.use("agg")
     import matplotlib.pyplot as plt
-
     TEST_PLOTS = True
 except BaseException:
     TEST_PLOTS = False
+
+from pynestml.codegeneration.nest_tools import NESTTools
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
 def get_model_doc_title(model_fname: str):
     with open(model_fname) as f:
         model = f.read()
-        return re.compile(r'[^#]*###').search(model).group()[3:-3].strip()
+        return re.compile(r"[^#]*###").search(model).group()[3:-3].strip()
 
 
 @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
@@ -73,7 +74,7 @@ class TestNestIntegration:
 
         generate_nest_target(input_path=["models/neurons/aeif_cond_exp_neuron.nestml",
                                          "models/neurons/aeif_cond_alpha_neuron.nestml"],
-                             target_path="/tmp/nestml-alt-allmodels",
+                             target_path="/tmp/nestml-alt-allmodels2",
                              logging_level="DEBUG",
                              module_name="nestml_alt_allmodels_module",
                              suffix="_alt_nestml",
@@ -83,7 +84,7 @@ class TestNestIntegration:
         alt_codegen_opts = {**codegen_opts, **{"numeric_solver": "forward-Euler"}}
 
         generate_nest_target(input_path="models/neurons/izhikevich_neuron.nestml",
-                             target_path="/tmp/nestml-alt-int-allmodels",
+                             target_path="/tmp/nestml-alt-int-allmodels2",
                              logging_level="DEBUG",
                              module_name="nestml_alt_int_allmodels_module",
                              suffix="_alt_int_nestml",
@@ -168,6 +169,8 @@ class TestNestIntegration:
         I_stim_vec = np.linspace(10E-12, 1E-9, 3)  # [A]
         for i, I_stim in enumerate(I_stim_vec):
             nest.ResetKernel()
+            nest.set_verbosity("M_ERROR")
+            nest.print_time = False
             if kernel_opts:
                 nest.SetKernelStatus(kernel_opts)
 
@@ -249,8 +252,9 @@ class TestNestIntegration:
         rate_testant = float("nan") * np.ones_like(I_stim_vec)
         rate_reference = float("nan") * np.ones_like(I_stim_vec)
         for i, I_stim in enumerate(I_stim_vec):
-
             nest.ResetKernel()
+            nest.set_verbosity("M_ERROR")
+            nest.print_time = False
             if kernel_opts:
                 nest.SetKernelStatus(kernel_opts)
 
@@ -354,6 +358,8 @@ class TestNestIntegration:
         spike_weights = np.linspace(1, max_weight, 11)
 
         nest.ResetKernel()
+        nest.set_verbosity("M_ERROR")
+        nest.print_time = False
         if kernel_opts:
             nest.SetKernelStatus(kernel_opts)
 

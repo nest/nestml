@@ -61,7 +61,7 @@ class FunctionCallConsistencyVisitor(ASTVisitor):
         """
         func_name = node.get_name()
 
-        if func_name == 'convolve':
+        if func_name == "convolve":
             # check if the number of arguments is the same as in the symbol
             if len(node.get_args()) != 2:
                 code, message = Messages.get_wrong_number_of_args(str(node), 2, len(node.get_args()))

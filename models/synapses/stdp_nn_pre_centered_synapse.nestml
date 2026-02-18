@@ -51,7 +51,6 @@
 #        models of synaptic plasticity based on spike timing,
 #        Biol. Cybern. 98, 459--478
 #
-#
 # Copyright statement
 # +++++++++++++++++++
 #
@@ -107,7 +106,7 @@ model stdp_nn_pre_centered_synapse:
         post_trace = 1
 
         # potentiate synapse
-        w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
+        w_ real = Wmax * (w / Wmax + (lambda * (1. - (w / Wmax))**mu_plus * pre_trace))
         w = min(Wmax, w_)
 
         pre_trace = 0
@@ -116,7 +115,7 @@ model stdp_nn_pre_centered_synapse:
         pre_trace += 1
 
         # depress synapse
-        w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
+        w_ real = Wmax * (w / Wmax - (alpha * lambda * (w / Wmax)**mu_minus * post_trace))
         w = max(Wmin, w_)
 
         # deliver spike to postsynaptic partner

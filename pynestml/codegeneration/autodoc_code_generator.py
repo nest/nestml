@@ -48,11 +48,11 @@ class AutoDocCodeGenerator(CodeGenerator):
     """
     def __init__(self):
         # setup the template environment
-        env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'resources_autodoc')))
-        self._template_nestml_models_index = env.get_template('nestml_models_index.jinja2')
+        env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), "resources_autodoc")))
+        self._template_nestml_models_index = env.get_template("nestml_models_index.jinja2")
         # setup the module class template
-        self._template_neuron_nestml_model = env.get_template('nestml_neuron_model.jinja2')
-        self._template_synapse_nestml_model = env.get_template('nestml_synapse_model.jinja2')
+        self._template_neuron_nestml_model = env.get_template("nestml_neuron_model.jinja2")
+        self._template_synapse_nestml_model = env.get_template("nestml_synapse_model.jinja2")
 
         variable_printer = LatexVariablePrinter(None)
         function_call_printer = LatexFunctionCallPrinter(None)
@@ -83,7 +83,7 @@ class AutoDocCodeGenerator(CodeGenerator):
         Generate model documentation and index page for each neuron and synapse that is provided.
         """
         nestml_models_index = self._template_nestml_models_index.render(self.setup_index_generation_helpers(neurons, synapses))
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), 'index.rst')), 'w+') as f:
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), "index.rst")), "w+") as f:
             f.write(str(nestml_models_index))
 
     def generate_neuron_code(self, neuron: ASTModel):
@@ -93,8 +93,8 @@ class AutoDocCodeGenerator(CodeGenerator):
         """
         nestml_model_doc = self._template_neuron_nestml_model.render(self.setup_neuron_model_generation_helpers(neuron))
         neuron_name = neuron.get_name()
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron_name)) + '.rst',
-                  'w+') as f:
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron_name)) + ".rst",
+                  "w+") as f:
             f.write(str(nestml_model_doc))
 
     def generate_synapse_code(self, synapse: ASTModel):
@@ -103,8 +103,8 @@ class AutoDocCodeGenerator(CodeGenerator):
         :param synapse: a single synapse object.
         """
         nestml_model_doc = self._template_synapse_nestml_model.render(self.setup_synapse_model_generation_helpers(synapse))
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), synapse.get_name())) + '.rst',
-                  'w+') as f:
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), synapse.get_name())) + ".rst",
+                  "w+") as f:
             f.write(str(nestml_model_doc))
 
     def setup_neuron_model_generation_helpers(self, neuron: ASTModel):
@@ -117,17 +117,17 @@ class AutoDocCodeGenerator(CodeGenerator):
         """
         namespace = dict()
 
-        namespace['now'] = datetime.datetime.utcnow()
-        namespace['neuron'] = neuron
-        namespace['neuronName'] = neuron.get_name()
-        namespace['printer'] = self._printer
-        namespace['assignments'] = NestAssignmentsHelper()
-        namespace['utils'] = ASTUtils()
+        namespace["now"] = datetime.datetime.utcnow()
+        namespace["neuron"] = neuron
+        namespace["neuronName"] = neuron.get_name()
+        namespace["printer"] = self._printer
+        namespace["assignments"] = NestAssignmentsHelper()
+        namespace["utils"] = ASTUtils()
 
         import textwrap
         pre_comments_bak = neuron.pre_comments
         neuron.pre_comments = []
-        namespace['model_source_code'] = textwrap.indent(neuron.__str__(), "   ")
+        namespace["model_source_code"] = textwrap.indent(neuron.__str__(), "   ")
         neuron.pre_comments = pre_comments_bak
 
         return namespace
@@ -142,16 +142,16 @@ class AutoDocCodeGenerator(CodeGenerator):
         """
         namespace = dict()
 
-        namespace['now'] = datetime.datetime.utcnow()
-        namespace['synapse'] = synapse
-        namespace['synapseName'] = synapse.get_name()
-        namespace['printer'] = self._printer
-        namespace['assignments'] = NestAssignmentsHelper()
-        namespace['utils'] = ASTUtils()
+        namespace["now"] = datetime.datetime.utcnow()
+        namespace["synapse"] = synapse
+        namespace["synapseName"] = synapse.get_name()
+        namespace["printer"] = self._printer
+        namespace["assignments"] = NestAssignmentsHelper()
+        namespace["utils"] = ASTUtils()
 
         pre_comments_bak = synapse.pre_comments
         synapse.pre_comments = []
-        namespace['model_source_code'] = textwrap.indent(synapse.__str__(), "   ")
+        namespace["model_source_code"] = textwrap.indent(synapse.__str__(), "   ")
         synapse.pre_comments = pre_comments_bak
 
         return namespace
@@ -167,11 +167,11 @@ class AutoDocCodeGenerator(CodeGenerator):
 
         namespace = dict()
 
-        namespace['now'] = datetime.datetime.utcnow()
-        namespace['neurons'] = neurons
-        namespace['synapses'] = synapses
-        namespace['printer'] = self._printer
-        namespace['assignments'] = NestAssignmentsHelper()
-        namespace['utils'] = ASTUtils()
+        namespace["now"] = datetime.datetime.utcnow()
+        namespace["neurons"] = neurons
+        namespace["synapses"] = synapses
+        namespace["printer"] = self._printer
+        namespace["assignments"] = NestAssignmentsHelper()
+        namespace["utils"] = ASTUtils()
 
         return namespace
