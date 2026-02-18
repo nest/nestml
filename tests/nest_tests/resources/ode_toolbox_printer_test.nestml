@@ -1,12 +1,10 @@
 # ode_toolbox_printer_test.nestml
 # ###############################
 #
-#
 # Description
 # +++++++++++
 #
 # This model is used to test vector operations with NEST.
-#
 #
 # Copyright statement
 # +++++++++++++++++++
@@ -27,7 +25,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
+#
 model ode_toolbox_printer_test:
     state:
         I_syn pA**-1 = 0 pA**-1

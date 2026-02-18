@@ -57,12 +57,12 @@ class MagnitudeCompatibilityTest(unittest.TestCase):
         Logger.init_logger(LoggingLevel.INFO)
         model = ModelParser.parse_file(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                       'resources', 'MagnitudeCompatibilityTest.nestml'))))
+                                                       "resources", "MagnitudeCompatibilityTest.nestml"))))
         # Logger.setCurrentNeuron(model.getNeuronList()[0])
         ExpressionTestVisitor().handle(model)
         # Logger.setCurrentNeuron(None)
         # assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 2)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

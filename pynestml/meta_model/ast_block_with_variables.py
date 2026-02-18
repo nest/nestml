@@ -36,7 +36,7 @@ class ASTBlockWithVariables(ASTNode):
     attribute internal: true if the varblock is a state internal.
     Grammar:
          blockWithVariables:
-            blockType=('state'|'parameters'|'internals')
+            blockType=("state"|"parameters"|"internals")
             BLOCK_OPEN
               (declaration | NEWLINE)*
             BLOCK_CLOSE;
@@ -65,11 +65,11 @@ class ASTBlockWithVariables(ASTNode):
         """
         super(ASTBlockWithVariables, self).__init__(*args, **kwargs)
         assert (is_internals or is_parameters or is_state), \
-            '(PyNESTML.AST.BlockWithVariables) Type of variable block specified!'
+            "(PyNESTML.AST.BlockWithVariables) Type of variable block specified!"
         assert ((is_internals + is_parameters + is_state) == 1), \
-            '(PyNestML.AST.BlockWithVariables) Type of block ambiguous!'
+            "(PyNestML.AST.BlockWithVariables) Type of block ambiguous!"
         assert (declarations is None or isinstance(declarations, list)), \
-            '(PyNESTML.AST.BlockWithVariables) Wrong type of declaration provided (%s)!' % type(declarations)
+            "(PyNESTML.AST.BlockWithVariables) Wrong type of declaration provided (%s)!" % type(declarations)
         self.declarations = declarations
         self.is_internals = is_internals
         self.is_parameters = is_parameters

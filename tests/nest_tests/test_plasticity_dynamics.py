@@ -24,19 +24,19 @@ import numpy as np
 import os
 import pytest
 
+# try to import matplotlib; set the result in the flag TEST_PLOTS
+try:
+    import matplotlib as mpl
+    mpl.use("agg")
+    import matplotlib.pyplot as plt
+    TEST_PLOTS = True
+except BaseException:
+    TEST_PLOTS = False
+
 import nest
 
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
-
-try:
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.ticker
-    import matplotlib.pyplot as plt
-    TEST_PLOTS = True
-except Exception:
-    TEST_PLOTS = False
 
 
 @pytest.fixture(autouse=True,
@@ -65,30 +65,30 @@ def test_plasticity_dynamics():
     nest.resolution = .01
     nest.Install("nestmlmodule")
 
-    pre_spikes = nest.Create('spike_train_injector', params={'spike_times': [1., 10.]})
-    post_driver_spikes = nest.Create('spike_train_injector', params={'spike_times': [1., 5., 8.]})
-    neuron = nest.Create('test_plasticity_dynamics_neuron_nestml__with_test_plasticity_dynamics_synapse_nestml')
-    sr = nest.Create('spike_recorder')
-    wr = nest.Create('weight_recorder')
-    nest.SetDefaults('test_plasticity_dynamics_synapse_nestml__with_test_plasticity_dynamics_neuron_nestml', {'weight_recorder': wr})
-    rec_types = nest.GetDefaults('test_plasticity_dynamics_neuron_nestml__with_test_plasticity_dynamics_synapse_nestml')['receptor_types']
+    pre_spikes = nest.Create("spike_train_injector", params={"spike_times": [1., 10.]})
+    post_driver_spikes = nest.Create("spike_train_injector", params={"spike_times": [1., 5., 8.]})
+    neuron = nest.Create("test_plasticity_dynamics_neuron_nestml__with_test_plasticity_dynamics_synapse_nestml")
+    sr = nest.Create("spike_recorder")
+    wr = nest.Create("weight_recorder")
+    nest.SetDefaults("test_plasticity_dynamics_synapse_nestml__with_test_plasticity_dynamics_neuron_nestml", {"weight_recorder": wr})
+    rec_types = nest.GetDefaults("test_plasticity_dynamics_neuron_nestml__with_test_plasticity_dynamics_synapse_nestml")["receptor_types"]
 
     # Create plastic synapse with pre_spikes as presynaptic neuron
     nest.Connect(pre_spikes, neuron,
-                 syn_spec={'synapse_model': 'test_plasticity_dynamics_synapse_nestml__with_test_plasticity_dynamics_neuron_nestml',
-                           'receptor_type': rec_types['SPIKES_PLASTIC']})
+                 syn_spec={"synapse_model": "test_plasticity_dynamics_synapse_nestml__with_test_plasticity_dynamics_neuron_nestml",
+                           "receptor_type": rec_types["SPIKES_PLASTIC"]})
 
     # Add connection from post_driver_spikes to elicit spikes in postsynaptic neuron without triggering
     # plasticity mechanism. Note that neuron will spike 1 ms later than the times set in post_driver_spikes
     nest.Connect(post_driver_spikes, neuron,
-                 syn_spec={'synapse_model': 'static_synapse',
-                           'receptor_type': rec_types['SPIKES_PARROT']})
+                 syn_spec={"synapse_model": "static_synapse",
+                           "receptor_type": rec_types["SPIKES_PARROT"]})
 
     nest.Connect(neuron, sr)
     nest.Simulate(15)
 
     print("Spike times of presynaptic neuron :", pre_spikes.spike_times)
-    print("Spike times of postsynaptic neuron:", sr.events['times'])
+    print("Spike times of postsynaptic neuron:", sr.events["times"])
     print(wr.events)
     syn = nest.GetConnections(pre_spikes, neuron)
     print(syn.get())
