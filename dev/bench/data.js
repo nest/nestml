@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1771409097606,
+  "lastUpdate": 1771410426133,
   "repoUrl": "https://github.com/nest/nestml",
   "entries": {
     "Benchmark": [
@@ -27,6 +27,33 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.1603181723675924",
             "extra": "mean: 3.1515310932000147 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "clinssen",
+            "username": "clinssen"
+          },
+          "committer": {
+            "name": "clinssen",
+            "username": "clinssen"
+          },
+          "id": "30efbc23fd9294efd7bb227c46807d9c2dff4ea6",
+          "message": "Revise input and output ports in NESTML",
+          "timestamp": "2026-02-04T18:30:36Z",
+          "url": "https://github.com/nest/nestml/pull/1299/commits/30efbc23fd9294efd7bb227c46807d9c2dff4ea6"
+        },
+        "date": 1771410425596,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/nest_continuous_benchmarking/test_nest_continuous_benchmarking.py::TestNESTContinuousBenchmarking::test_stdp_nn_synapse",
+            "value": 0.3199610544428411,
+            "unit": "iter/sec",
+            "range": "stddev: 0.15822515281076668",
+            "extra": "mean: 3.1253803739999966 sec\nrounds: 5"
           }
         ]
       }
