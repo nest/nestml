@@ -2243,42 +2243,42 @@ class ASTUtils:
         from sympy import sympify
 
         units = {
-            'V': volt,                      # Volt
-            'mV': milli * volt,             # Millivolt (10^-3 V)
-            'uV': micro * volt,             # Microvolt (10^-6 V)
-            'nV': nano * volt,              # Nanovolt (10^-9 V)
+            "V": volt,                      # Volt
+            "mV": milli * volt,             # Millivolt (10^-3 V)
+            "uV": micro * volt,             # Microvolt (10^-6 V)
+            "nV": nano * volt,              # Nanovolt (10^-9 V)
 
-            'S': siemens,                    # Ampere
-            'nS': nano * siemens,                    # Ampere
+            "S": siemens,                   # Siemens
+            "nS": nano * siemens,           # Nanosiemens
 
-            'A': ampere,                    # Ampere
-            'mA': milli * ampere,           # Milliampere (10^-3 A)
-            'uA': micro * ampere,           # Microampere (10^-6 A)
-            'nA': nano * ampere,            # Nanoampere (10^-9 A)
+            "A": ampere,                    # Ampere
+            "mA": milli * ampere,           # Milliampere (10^-3 A)
+            "uA": micro * ampere,           # Microampere (10^-6 A)
+            "nA": nano * ampere,            # Nanoampere (10^-9 A)
 
-            'Ohm': ohm,                     # Ohm
-            'kOhm': kilo * ohm,             # Kiloohm (10^3 Ohm)
-            'MOhm': mega * ohm,             # Megaohm (10^6 Ohm)
+            "Ohm": ohm,                     # Ohm
+            "kOhm": kilo * ohm,             # Kiloohm (10^3 Ohm)
+            "MOhm": mega * ohm,             # Megaohm (10^6 Ohm)
 
-            'F': farad,                     # Farad
-            'uF': micro * farad,            # Microfarad (10^-6 F)
-            'nF': nano * farad,             # Nanofarad (10^-9 F)
-            'pF': pico * farad,             # Picofarad (10^-12 F)
-            'fF': femto * farad,            # Femtofarad (10^-15 F)
+            "F": farad,                     # Farad
+            "uF": micro * farad,            # Microfarad (10^-6 F)
+            "nF": nano * farad,             # Nanofarad (10^-9 F)
+            "pF": pico * farad,             # Picofarad (10^-12 F)
+            "fF": femto * farad,            # Femtofarad (10^-15 F)
 
-            's': second,                    # Second
-            'ms': milli * second,           # Millisecond (10^-3 s)
-            'us': micro * second,           # Microsecond (10^-6 s)
-            'ns': nano * second,            # Nanosecond (10^-9 s)
+            "s": second,                    # Second
+            "ms": milli * second,           # Millisecond (10^-3 s)
+            "us": micro * second,           # Microsecond (10^-6 s)
+            "ns": nano * second,            # Nanosecond (10^-9 s)
 
-            'Hz': hertz,                    # Hertz (1/s)
-            'kHz': kilo * hertz,            # Kilohertz (10^3 Hz)
-            'MHz': mega * hertz,            # Megahertz (10^6 Hz)
+            "Hz": hertz,                    # Hertz (1/s)
+            "kHz": kilo * hertz,            # Kilohertz (10^3 Hz)
+            "MHz": mega * hertz,            # Megahertz (10^6 Hz)
 
-            'm': meter,                     # Meter
-            'mm': milli * meter,            # Millimeter (10^-3 m)
-            'um': micro * meter,            # Micrometer (10^-6 m)
-            'nm': nano * meter,             # Nanometer (10^-9 m)
+            "m": meter,                     # Meter
+            "mm": milli * meter,            # Millimeter (10^-3 m)
+            "um": micro * meter,            # Micrometer (10^-6 m)
+            "nm": nano * meter,             # Nanometer (10^-9 m)
         }
 
         from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
