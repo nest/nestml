@@ -48,11 +48,11 @@ model non_linear_synapse:
         pre_spikes <- spike
 
     output:
-        spike(weight real, delay ms)
+        spike
 
     onReceive(pre_spikes):
         w += x * y
-        emit_spike(w, d)
+        emit_spike(w)
 
     update:
         integrate_odes()

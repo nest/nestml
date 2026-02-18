@@ -29,18 +29,17 @@
 model noisy_synapse:
     parameters:
         w real = 1     # Synaptic weight
-        d ms = 1 ms    # Synaptic transmission delay
         A_noise real = .4
 
     input:
         pre_spikes <- spike
 
     output:
-        spike(weight real, delay ms)
+        spike
 
     onReceive(pre_spikes):
         # temporary variable for the "weight" that will be transmitted
         w_ real = w + A_noise * random_normal(0, 1)
 
         # deliver spike to postsynaptic partner
-        emit_spike(w_, d)
+        emit_spike(w_)

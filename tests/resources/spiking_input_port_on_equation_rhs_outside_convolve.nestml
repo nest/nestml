@@ -1,12 +1,7 @@
-# CoCoInputPortWithRedundantTypes.nestml
-# ######################################
+# spiking_input_port_on_equation_rhs_outside_convolve
+# ###################################################
 #
-# Description
-# +++++++++++
 #
-# This model is used to test if broken CoCos are identified correctly. Here, if each input port is defined uniquely, i.e., no redundant keywords are used.
-#
-# Positive case.
 #
 # Copyright statement
 # +++++++++++++++++++
@@ -28,6 +23,15 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
-model CoCoInputPortWithRedundantTypes:
+model spiking_input_port_on_equation_rhs_outside_convolve_neuron:
+    state:
+        x real = 0.
+
+    equations:
+        x' = spikes_in_port
+
     input:
-        spikeInh <- inhibitory spike # no redundant keywords used, thus correct
+        spikes_in_port <- spike
+
+    update:
+        integrate_odes()

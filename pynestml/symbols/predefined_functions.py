@@ -64,6 +64,7 @@ class PredefinedFunctions:
     DELTA = "delta"
     INTEGRATE_ODES = "integrate_odes"
     CONVOLVE = "convolve"
+    SIFT = "sift"
     name2function = {}   # type: Mapping[str, FunctionSymbol]
 
     @classmethod
@@ -106,6 +107,7 @@ class PredefinedFunctions:
         cls.__register_floor_function()
         cls.__register_round_function()
         cls.__register_convolve()
+        cls.__register_sift()
 
     @classmethod
     def register_function(cls, name, params, return_type, element_reference):
@@ -512,12 +514,25 @@ class PredefinedFunctions:
         Registers the convolve function into the system.
         """
         params = list()
-        params.append(PredefinedTypes.get_real_type())
-        params.append(PredefinedTypes.get_real_type())
+        params.append(PredefinedTypes.get_real_type())    # kernel
+        params.append(PredefinedTypes.get_template_type(0))    # spike input buffer
         symbol = FunctionSymbol(name=cls.CONVOLVE, param_types=params,
-                                return_type=PredefinedTypes.get_real_type(),
+                                return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.CONVOLVE] = symbol
+
+    @classmethod
+    def __register_sift(cls):
+        """
+        Registers the sift function into the system.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_template_type(0))    # spike input buffer
+        params.append(PredefinedTypes.get_type("ms"))    # predefined variable ``t``
+        symbol = FunctionSymbol(name=cls.SIFT, param_types=params,
+                                return_type=PredefinedTypes.get_real_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.SIFT] = symbol
 
     @classmethod
     def get_function_symbols(cls):

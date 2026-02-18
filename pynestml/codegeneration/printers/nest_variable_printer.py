@@ -28,6 +28,7 @@ from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePri
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.meta_model.ast_external_variable import ASTExternalVariable
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
@@ -53,9 +54,20 @@ class NESTVariablePrinter(CppVariablePrinter):
         # self.postsynaptic_getter_string_ = "start->get_%s()"   # XXX: TODO: see https://github.com/nest/nestml/issues/1163
         # self.postsynaptic_getter_string_ = "((post_neuron_t*)(__target))->get_%s(t_hist_entry_ms)"
         self.postsynaptic_getter_string_ = "((post_neuron_t*)(__target))->get_%s(get_t())"
+        self.buffers_are_zero = True
+
+    def set_buffers_to_zero(self, buffers_are_zero: bool):
+        self.buffers_are_zero = buffers_are_zero
+        return ""
 
     def set_getter_string(self, s):
+        r"""Returns the empty string, because this method can be called from inside the Jinja template"""
         self.postsynaptic_getter_string_ = s
+        return ""
+
+    def set_cpp_variable_suffix(self, s):
+        r"""Returns the empty string, because this method can be called from inside the Jinja template"""
+        self.cpp_variable_suffix = s
         return ""
 
     def print_variable(self, variable: ASTVariable) -> str:
@@ -97,6 +109,9 @@ class NESTVariablePrinter(CppVariablePrinter):
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
 
         if symbol is None:
+            symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+
+        if symbol is None:
             # test if variable name can be resolved to a type
             if PredefinedUnits.is_unit(variable.get_complete_name()):
                 return str(NESTUnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
@@ -119,6 +134,10 @@ class NESTVariablePrinter(CppVariablePrinter):
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
             if self.cpp_variable_suffix == "":
+                if self.buffers_are_zero and symbol.is_spike_input_port():
+                    # XXX do this in a derived class
+                    return "0.0"
+
                 s += "B_."
             s += self._print_buffer_value(variable)
             if not units_conversion_factor == 1:
@@ -152,14 +171,13 @@ class NESTVariablePrinter(CppVariablePrinter):
 
         return ""
 
-    def _print_buffer_value(self, variable: ASTVariable) -> str:
-        """
-        Converts for a handed over symbol the corresponding name of the buffer to a nest processable format.
-        :param variable: a single variable symbol.
-        :return: the corresponding representation as a string
-        """
+    def __print_buffer_value(self, variable: ASTVariable) -> str:
+
         variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         if variable_symbol.is_spike_input_port():
+            if self.buffers_are_zero:
+                return "0.0"   # XXX this should be spun off to a NESTVariablePrinterWithFactorsAsZeros
+
             var_name = variable_symbol.get_symbol_name().upper()
             if variable.has_vector_parameter():
                 if variable.get_vector_parameter().is_variable():
@@ -167,13 +185,27 @@ class NESTVariablePrinter(CppVariablePrinter):
                     var_name += "_0 + " + variable.get_vector_parameter().get_variable().get_name()
                 else:
                     var_name += "_" + str(variable.get_vector_parameter())
-            return "spike_inputs_grid_sum_[" + var_name + " - MIN_SPIKE_RECEPTOR]"
+
+            # no vector indices
+            return "__spike_input_" + str(variable)
 
         if self.cpp_variable_suffix:
             return variable_symbol.get_symbol_name() + self.cpp_variable_suffix
 
+        # case of continuous-time input port
         assert variable_symbol.is_continuous_input_port()
         return "continuous_inputs_grid_sum_[" + variable.get_name().upper() + "]"
+
+    def _print_buffer_value(self, variable: ASTVariable) -> str:
+        """
+        Converts for a handed over symbol the corresponding name of the buffer to a nest processable format.
+        :param variable: a single variable symbol.
+        :return: the corresponding representation as a string
+        """
+        if variable.get_implicit_conversion_factor() and not variable.get_implicit_conversion_factor() == 1:
+            return "(" + str(variable.get_implicit_conversion_factor()) + " * (" + self.__print_buffer_value(variable) + "))"
+
+        return self.__print_buffer_value(variable)
 
     def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:
         variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
@@ -184,7 +216,11 @@ class NESTVariablePrinter(CppVariablePrinter):
         if variable.is_delay_variable():
             return self._print_delay_variable(variable)
 
-        if with_origin:
+        with_origin_ = with_origin
+        if symbol.is_spike_input_port():
+            with_origin_ = False
+
+        if with_origin_ and NESTCodeGeneratorUtils.print_symbol_origin(symbol, variable):
             return NESTCodeGeneratorUtils.print_symbol_origin(symbol, variable) % variable_name
 
         return variable_name

@@ -39,7 +39,7 @@ model test_plasticity_dynamics_synapse:
         post_spikes <- spike
 
     output:
-        spike(weight real, delay ms)
+        spike
 
     onReceive(post_spikes):
         if t_last_pre_spike < t and t <= (t_last_pre_spike + 1*ms):
@@ -47,4 +47,4 @@ model test_plasticity_dynamics_synapse:
 
     onReceive(pre_spikes):
         t_last_pre_spike = t
-        emit_spike(w, d)
+        emit_spike(w)

@@ -99,13 +99,23 @@ model iaf_psc_exp_neuron:
         # constant external input current
         I_e pA = 0 pA
 
+    internals:
+        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        spike_in_port <- spike
         I_stim pA <- continuous
 
     output:
         spike
+
+    onReceive(spike_in_port):
+        # route the incoming spike on the basis of the sign of the postsynaptic current: less than zero means an inhibitory spike; greater than zero means an excitatory spike
+        psc pA = unit_psc * sift(spike_in_port, t)    # obtain the postsynaptic current by integrating area under the curve of the spike
+        if psc > 0 pA:
+            I_syn_exc += psc
+        else:
+            I_syn_inh -= psc
 
     update:
         if refr_t > 0 ms:
@@ -114,12 +124,6 @@ model iaf_psc_exp_neuron:
         else:
             # neuron not refractory
             integrate_odes(I_syn_exc, I_syn_inh, V_m)
-
-    onReceive(exc_spikes):
-        I_syn_exc += exc_spikes * pA * s
-
-    onReceive(inh_spikes):
-        I_syn_inh += inh_spikes * pA * s
 
     onCondition(refr_t <= 0 ms and V_m >= V_th):
         # threshold crossing

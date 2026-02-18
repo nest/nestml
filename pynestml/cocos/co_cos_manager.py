@@ -42,7 +42,6 @@ from pynestml.cocos.co_co_inline_expressions_have_rhs import CoCoInlineExpressio
 from pynestml.cocos.co_co_inline_expression_not_assigned_to import CoCoInlineExpressionNotAssignedTo
 from pynestml.cocos.co_co_inline_max_one_lhs import CoCoInlineMaxOneLhs
 from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
-from pynestml.cocos.co_co_input_port_qualifier_unique import CoCoInputPortQualifierUnique
 from pynestml.cocos.co_co_internals_assigned_only_in_internals_block import CoCoInternalsAssignedOnlyInInternalsBlock
 from pynestml.cocos.co_co_integrate_odes_called_if_equations_defined import CoCoIntegrateOdesCalledIfEquationsDefined
 from pynestml.cocos.co_co_invariant_is_boolean import CoCoInvariantIsBoolean
@@ -54,12 +53,14 @@ from pynestml.cocos.co_co_no_nest_name_space_collision import CoCoNoNestNameSpac
 from pynestml.cocos.co_co_no_duplicate_compilation_unit_names import CoCoNoDuplicateCompilationUnitNames
 from pynestml.cocos.co_co_odes_have_consistent_units import CoCoOdesHaveConsistentUnits
 from pynestml.cocos.co_co_ode_functions_have_consistent_units import CoCoOdeFunctionsHaveConsistentUnits
+from pynestml.cocos.co_co_on_receive_vectors_should_be_constant_size import CoCoOnReceiveVectorsShouldBeConstantSize
 from pynestml.cocos.co_co_output_port_defined_if_emit_call import CoCoOutputPortDefinedIfEmitCall
 from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import CoCoParametersAssignedOnlyInParameterBlock
 from pynestml.cocos.co_co_priorities_correctly_specified import CoCoPrioritiesCorrectlySpecified
 from pynestml.cocos.co_co_resolution_func_legally_used import CoCoResolutionFuncLegallyUsed
 from pynestml.cocos.co_co_resolution_func_used import CoCoResolutionOrStepsFuncUsed
 from pynestml.cocos.co_co_simple_delta_function import CoCoSimpleDeltaFunction
+from pynestml.cocos.co_co_spike_input_ports_appear_only_in_equation_rhs_and_event_handlers import CoCoSpikeInputPortsAppearOnlyInEquationRHSAndEventHandlers
 from pynestml.cocos.co_co_state_variables_initialized import CoCoStateVariablesInitialized
 from pynestml.cocos.co_co_timestep_function_legally_used import CoCoTimestepFuncLegallyUsed
 from pynestml.cocos.co_co_user_defined_function_correctly_defined import CoCoUserDefinedFunctionCorrectlyDefined
@@ -99,6 +100,14 @@ class CoCosManager:
         :param node: a single model instance
         """
         CoCoEachBlockDefinedAtMostOnce.check_co_co(node)
+
+    @classmethod
+    def check_input_ports_appear_only_in_equation_rhs_and_event_handlers(cls, node: ASTModel):
+        """
+        Checks if in the handed over model, each block is defined at most once and mandatory blocks are defined.
+        :param node: a single model instance
+        """
+        CoCoSpikeInputPortsAppearOnlyInEquationRHSAndEventHandlers.check_co_co(node)
 
     @classmethod
     def check_function_declared_and_correctly_typed(cls, model: ASTModel):
@@ -210,14 +219,6 @@ class CoCosManager:
         :param model: a single model object.
         """
         CoCoNoNestNameSpaceCollision.check_co_co(model)
-
-    @classmethod
-    def check_input_port_qualifier_unique(cls, model: ASTModel):
-        """
-        Checks that no spiking input ports are defined with redundant qualifiers.
-        :param model: a single model object.
-        """
-        CoCoInputPortQualifierUnique.check_co_co(model)
 
     @classmethod
     def check_kernel_type(cls, model: ASTModel) -> None:
@@ -420,6 +421,13 @@ class CoCosManager:
         CoCoVectorInputPortsCorrectSizeType.check_co_co(model)
 
     @classmethod
+    def check_on_receive_vectors_should_be_constant_size(cls, model: ASTModel):
+        """
+        :param model: a single model object
+        """
+        CoCoOnReceiveVectorsShouldBeConstantSize.check_co_co(model)
+
+    @classmethod
     def check_co_co_nest_random_functions_legally_used(cls, model: ASTModel):
         """
         Checks if the random number functions are used only in the update block.
@@ -451,7 +459,6 @@ class CoCosManager:
         cls.check_order_of_equations_correct(model)
         cls.check_numerator_of_unit_is_one_if_numeric(model)
         cls.check_no_nest_namespace_collisions(model)
-        cls.check_input_port_qualifier_unique(model)
         cls.check_parameters_not_assigned_outside_parameters_block(model)
         cls.check_internals_not_assigned_outside_internals_block(model)
         cls.check_user_defined_function_correctly_built(model)
@@ -468,12 +475,12 @@ class CoCosManager:
             cls.check_ode_functions_have_consistent_units(model)
             cls.check_correct_usage_of_kernels(model)
             cls.check_resolution_func_used(model)    # ``__h = resolution()`` is added after transformations; put this check inside the ``if`` to make sure it's not always triggered
+            cls.check_expression_correct(model)
             if FrontendConfiguration.get_target_platform().upper() != "NEST_COMPARTMENTAL":
                 cls.check_integrate_odes_called_if_equations_defined(model)
         cls.check_invariant_type_correct(model)
         cls.check_vector_in_non_vector_declaration_detected(model)
         cls.check_convolve_has_correct_parameter(model)
-        cls.check_expression_correct(model)
         cls.check_simple_delta_function(model)
         cls.check_function_argument_template_types_consistent(model)
         cls.check_vector_parameter_declaration(model)
@@ -482,5 +489,6 @@ class CoCosManager:
         cls.check_resolution_func_legally_used(model)
         cls.check_input_port_size_type(model)
         cls.check_timestep_func_legally_used(model)
+        cls.check_input_ports_appear_only_in_equation_rhs_and_event_handlers(model)
 
         Logger.set_current_node(None)

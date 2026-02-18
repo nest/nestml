@@ -100,11 +100,9 @@ class Neuron_{{neuronName}}(Neuron):
 {%- endif %}
 {%- for port in neuron.get_spike_input_ports() %}
 {%-     if port.has_vector_parameter() %}
-    {{ port.get_symbol_name() }}: List[float] = []
-    spike_received_{{ port.get_symbol_name() }}: List[bool] = []
+    {{ port.get_symbol_name() }}: List[float] = []    # buffer for the spiking input port (weighted delta pulses)
 {%-     else %}
-    {{ port.get_symbol_name() }}: float = 0.
-    spike_received_{{ port.get_symbol_name() }}: bool = False
+    {{ port.get_symbol_name() }}: List[float] = []    # buffer for the spiking input port (weighted delta pulses)
 {%-     endif %}
 {%- endfor %}
 
@@ -267,9 +265,11 @@ class Neuron_{{neuronName}}(Neuron):
     #     integrate variables related to convolutions
     # -------------------------------------------------------------------------
 
-{%- with analytic_state_variables_ = analytic_state_variables_from_convolutions %}
-{%-     include "directives_py/AnalyticIntegrationStep_begin.jinja2" %}
-{%- endwith %}
+{%- filter indent(4, True) -%}
+{%-     with analytic_state_variables_ = analytic_state_variables_from_convolutions %}
+{%-         include "directives_py/AnalyticIntegrationStep_begin.jinja2" %}
+{%-     endwith %}
+{%- endfilter %}
 
     # -------------------------------------------------------------------------
     #     NESTML generated code for the update block
@@ -288,9 +288,11 @@ class Neuron_{{neuronName}}(Neuron):
     #     integrate variables related to convolutions
     # -------------------------------------------------------------------------
 
-{%- with analytic_state_variables_ = analytic_state_variables_from_convolutions %}
-{%-     include "directives_py/AnalyticIntegrationStep_end.jinja2" %}
-{%- endwith %}
+{%- filter indent(4, True) -%}
+{%-     with analytic_state_variables_ = analytic_state_variables_from_convolutions %}
+{%-         include "directives_py/AnalyticIntegrationStep_end.jinja2" %}
+{%-     endwith %}
+{%- endfilter %}
 
     # -------------------------------------------------------------------------
     #     process spikes from buffers
@@ -304,9 +306,10 @@ class Neuron_{{neuronName}}(Neuron):
     # -------------------------------------------------------------------------
 
 {%  for blk in neuron.get_on_receive_blocks() %}
-{%-     set inport = blk.get_port_name() %}
-    if self.B_.spike_received_{{ inport }}:
-      self.on_receive_block_{{ blk.get_port_name() }}()
+    # loop over all spikes received since last timestep
+    n_spikes_received: int = len(self.B_.{{ utils.port_name_printer(blk.get_input_port_variable()) }})
+    for i in range(n_spikes_received):
+      self.on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}()
 {%- endfor %}
 
     # -------------------------------------------------------------------------
@@ -314,8 +317,7 @@ class Neuron_{{neuronName}}(Neuron):
     # -------------------------------------------------------------------------
 
 {%- for port in neuron.get_spike_input_ports() %}
-    self.B_.{{port.get_symbol_name()}} = 0.
-    self.B_.spike_received_{{port.get_symbol_name()}} = False
+    self.B_.{{ port.get_symbol_name() }} = []
 {%- endfor %}
 
 
@@ -341,9 +343,9 @@ class Neuron_{{neuronName}}(Neuron):
 
   def handle(self, t_spike: float, w: float, port_name: str) -> None:
 {%-     for port in neuron.get_spike_input_ports() %}
-    if port_name == "{{port.name}}":
-      self.B_.{{port.get_symbol_name()}} += abs(w)
-      self.B_.spike_received_{{port.get_symbol_name()}} = True
+    if port_name == "{{ port.name }}":
+      self.B_.{{ port.get_symbol_name() }}.append(w)    # add weighted spike to buffer
+{%-         set ast_input_port = utils.get_input_port_by_name(astnode.get_input_blocks(), port.name) %}
       return
 {%-     endfor %}
     raise Exception("Received a spike on unknown input port \"" + port_name + "\" at t = " + "{0:E}".format(t_spike))
@@ -351,7 +353,7 @@ class Neuron_{{neuronName}}(Neuron):
   def get_spiking_input_ports(self) -> List[str]:
     return [
 {%-     for port in neuron.get_spike_input_ports() %}
-            "{{port.name}}",
+            "{{ port.name }}",
 {%-     endfor %}
     ]
 {%- endif %}
@@ -362,7 +364,11 @@ class Neuron_{{neuronName}}(Neuron):
 
 {%- for blk in neuron.get_on_receive_blocks() %}
 {%-     set ast = blk.get_stmts_body() %}
-  def on_receive_block_{{ blk.get_port_name() }}(self):
+{%-     set port = blk.get_input_port_variable() %}
+{%      set ast_input_port = utils.get_input_port_by_name(astnode.get_input_blocks(), port.name) %}
+  def on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}(self):
+    # first, grab all the buffer values from the buffers
+    B__{{ utils.port_name_printer(blk.get_input_port_variable()) }} = self.B_.{{ utils.port_name_printer(blk.get_input_port_variable()) }}.pop()
 {%-     filter indent(4, True) -%}
 {%-         include "directives_py/StmtsBody.jinja2" %}
 {%-     endfilter %}

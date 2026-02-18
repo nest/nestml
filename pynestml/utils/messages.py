@@ -58,7 +58,6 @@ class MessageCode(Enum):
     ARG_NOT_SPIKE_INPUT = 20
     NUMERATOR_NOT_ONE = 21
     ORDER_NOT_DECLARED = 22
-    CONTINUOUS_INPUT_PORT_WITH_QUALIFIERS = 23
     BLOCK_NOT_CORRECT = 24
     VARIABLE_NOT_IN_STATE_BLOCK = 25
     WRONG_NUMBER_OF_ARGS = 26
@@ -88,7 +87,6 @@ class MessageCode(Enum):
     TYPE_MISMATCH = 50
     NEURON_SOLVED_BY_GSL = 52
     NO_UNIT = 53
-    NOT_NEUROSCIENCE_UNIT = 54
     INTERNAL_WARNING = 55
     OPERATION_NOT_DEFINED = 56
     INPUT_PATH_NOT_FOUND = 58
@@ -142,12 +140,13 @@ class MessageCode(Enum):
     RANDOM_FUNCTIONS_LEGALLY_USED = 113
     EXPONENT_MUST_BE_INTEGER = 114
     EMIT_SPIKE_OUTPUT_PORT_TYPE_DIFFERS = 115
-    CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES = 116
+    SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED = 116
     INTEGRATE_ODES_ARG_HIGHER_ORDER = 117
-    DELAY_VARIABLE_NOT_SPECIFIED = 118
-    WEIGHT_VARIABLE_NOT_SPECIFIED = 119
-    DELAY_VARIABLE_NOT_FOUND = 120
-    WEIGHT_VARIABLE_NOT_FOUND = 121
+    CONVOLVE_NEEDS_BUFFER_PARAMETER = 119
+    SPIKE_INPUT_PORT_IN_EQUATION_RHS_OUTSIDE_CONVOLVE = 120
+    DELAY_VARIABLE_NOT_SPECIFIED = 121
+    WEIGHT_VARIABLE_NOT_SPECIFIED = 122
+    DELAY_VARIABLE_NOT_FOUND = 123
 
 
 class Messages:
@@ -829,14 +828,6 @@ class Messages:
         return MessageCode.EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT, message
 
     @classmethod
-    def get_output_port_type_differs(cls) -> Tuple[MessageCode, str]:
-        """
-        Indicates that an emit_spike() function was called, but with different parameter types than the output port was defined with.
-        """
-        message = "emit_spike() function was called, but with different parameter types than the output port was defined with!"
-        return MessageCode.EMIT_SPIKE_OUTPUT_PORT_TYPE_DIFFERS, message
-
-    @classmethod
     def get_kernel_wrong_type(cls,
                               kernel_name: str,
                               differential_order: int,
@@ -1154,9 +1145,19 @@ class Messages:
         return MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED, message
 
     @classmethod
-    def get_continuous_output_port_cannot_have_attributes(cls) -> Tuple[MessageCode, str]:
-        message = "continuous time output port may not have attributes."
-        return MessageCode.CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES, message
+    def get_spike_input_port_appears_outside_equation_rhs_and_event_handler(cls, name):
+        message = "Spiking input port names (in this case '" + name + "') can only be used in the right-hand side of equations or in an onReceive block!"
+        return MessageCode.SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED, message
+
+    @classmethod
+    def get_vector_input_ports_should_be_of_constant_size(cls):
+        message = "Vector input ports should be of constant size (this is a limitation of NEST Simulator)"
+        return MessageCode.VECTOR_INPUT_PORTS_SHOULD_BE_OF_CONSTANT_SIZE, message
+
+    @classmethod
+    def get_spike_input_port_in_equation_rhs_outside_convolve(cls):
+        message = "Spike input port appears in right-hand side of equation outside of convolve(). This is a known issue (see https://github.com/nest/nestml/pull/1050)."
+        return MessageCode.SPIKE_INPUT_PORT_IN_EQUATION_RHS_OUTSIDE_CONVOLVE, message
 
     @classmethod
     def get_delay_variable_not_specified(cls) -> Tuple[MessageCode, str]:
@@ -1166,7 +1167,7 @@ class Messages:
 
     @classmethod
     def get_weight_variable_not_specified(cls) -> Tuple[MessageCode, str]:
-        message = "Weight variable is not specified for synapse model. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
+        message = "Weight variable is not specified for synapse model. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delays"
 
         return MessageCode.WEIGHT_VARIABLE_NOT_SPECIFIED, message
 

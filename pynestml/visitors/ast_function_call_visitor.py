@@ -18,15 +18,18 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 
-from pynestml.symbols.predefined_units import PredefinedUnits
-
+from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
+from pynestml.meta_model.ast_input_port import ASTInputPort
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
+from pynestml.symbols.predefined_units import PredefinedUnits
+from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.template_type_symbol import TemplateTypeSymbol
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.void_type_symbol import VoidTypeSymbol
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import LoggingLevel, Logger
@@ -52,6 +55,16 @@ class ASTFunctionCallVisitor(ASTVisitor):
         scope = node.get_scope()
         function_name = node.get_function_call().get_name()
         method_symbol = scope.resolve_to_symbol(function_name, SymbolKind.FUNCTION)
+
+        # return type of the convolve function is the type of the second parameter (the spike input buffer)
+        if function_name == PredefinedFunctions.CONVOLVE:
+            buffer_parameter = node.get_function_call().get_args()[1]
+
+            assert buffer_parameter.get_variable() is not None
+
+            # convolve with a train of delta pulses --> the type of the convolve call is [1]
+            node.type = RealTypeSymbol()
+            return
 
         # check if this is a delay variable
         symbol = ASTUtils.get_delay_variable_symbol(node.get_function_call())
@@ -91,24 +104,6 @@ class ASTFunctionCallVisitor(ASTVisitor):
                 return_type = ErrorTypeSymbol()
 
         return_type.referenced_object = node
-
-        # return type of the convolve function is the type of the second parameter multiplied by the unit of time (s)
-        if function_name == PredefinedFunctions.CONVOLVE:
-            buffer_parameter = node.get_function_call().get_args()[1]
-
-            if buffer_parameter.get_variable() is not None:
-                buffer_name = buffer_parameter.get_variable().get_name()
-                buffer_symbol_resolve = scope.resolve_to_symbol(buffer_name, SymbolKind.VARIABLE)
-                if buffer_symbol_resolve is not None:
-                    node.type = buffer_symbol_resolve.get_type_symbol() * UnitTypeSymbol(PredefinedUnits.get_unit("s"))
-                    return
-
-            # getting here means there is an error with the parameters to convolve
-            code, message = Messages.get_convolve_needs_buffer_parameter()
-            Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR)
-            node.type = ErrorTypeSymbol()
-            return
 
         if isinstance(method_symbol.get_return_type(), VoidTypeSymbol):
             code, message = Messages.get_void_function_on_rhs(function_name)

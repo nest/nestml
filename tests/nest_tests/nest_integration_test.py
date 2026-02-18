@@ -182,19 +182,19 @@ class TestNestIntegration:
                 # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
                 pass
 
-            neuron1 = nest.Create(nest_model_name, params=nest_model_parameters)
-            neuron2 = nest.Create(nestml_model_name, params=nestml_model_parameters)
+            nest_neuron = nest.Create(nest_model_name, params=nest_model_parameters)
+            nestml_neuron = nest.Create(nestml_model_name, params=nestml_model_parameters)
             if model_initial_state is not None:
-                nest.SetStatus(neuron1, model_initial_state)
-                nest.SetStatus(neuron2, model_initial_state)
+                nest.SetStatus(nest_neuron, model_initial_state)
+                nest.SetStatus(nestml_neuron, model_initial_state)
 
             # if gsl_error_tol is not None:
-            #     nest.SetStatus(neuron2, {"gsl_error_tol": gsl_error_tol})
+            #     nest.SetStatus(nestml_neuron, {"gsl_error_tol": gsl_error_tol})
 
             dc = nest.Create("dc_generator", params={"amplitude": 0.})
 
-            nest.Connect(dc, neuron1)
-            nest.Connect(dc, neuron2)
+            nest.Connect(dc, nest_neuron)
+            nest.Connect(dc, nestml_neuron)
 
             multimeter1 = nest.Create("multimeter")
             multimeter2 = nest.Create("multimeter")
@@ -203,8 +203,8 @@ class TestNestIntegration:
             nest.SetStatus(multimeter1, {"record_from": [V_m_specifier]})
             nest.SetStatus(multimeter2, {"record_from": [V_m_specifier]})
 
-            nest.Connect(multimeter1, neuron1)
-            nest.Connect(multimeter2, neuron2)
+            nest.Connect(multimeter1, nest_neuron)
+            nest.Connect(multimeter2, nestml_neuron)
 
             if NESTTools.detect_nest_version().startswith("v2"):
                 sd_reference = nest.Create("spike_detector")
@@ -213,8 +213,8 @@ class TestNestIntegration:
                 sd_reference = nest.Create("spike_recorder")
                 sd_testant = nest.Create("spike_recorder")
 
-            nest.Connect(neuron1, sd_reference)
-            nest.Connect(neuron2, sd_testant)
+            nest.Connect(nest_neuron, sd_reference)
+            nest.Connect(nestml_neuron, sd_testant)
 
             nest.Simulate(t_pulse_start)
             dc.amplitude = I_stim * 1E12  # 1E12: convert A to pA
@@ -266,19 +266,19 @@ class TestNestIntegration:
                 # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
                 pass
 
-            neuron1 = nest.Create(nest_model_name, params=nest_model_parameters)
-            neuron2 = nest.Create(nestml_model_name, params=nestml_model_parameters)
+            nest_neuron = nest.Create(nest_model_name, params=nest_model_parameters)
+            nestml_neuron = nest.Create(nestml_model_name, params=nestml_model_parameters)
             if model_initial_state is not None:
-                nest.SetStatus(neuron1, model_initial_state)
-                nest.SetStatus(neuron2, model_initial_state)
+                nest.SetStatus(nest_neuron, model_initial_state)
+                nest.SetStatus(nestml_neuron, model_initial_state)
 
             # if gsl_error_tol is not None:
-            #     nest.SetStatus(neuron2, {"gsl_error_tol": gsl_error_tol})
+            #     nest.SetStatus(nestml_neuron, {"gsl_error_tol": gsl_error_tol})
 
             dc = nest.Create("dc_generator", params={"amplitude": 1E12 * I_stim})  # 1E12: convert A to pA
 
-            nest.Connect(dc, neuron1)
-            nest.Connect(dc, neuron2)
+            nest.Connect(dc, nest_neuron)
+            nest.Connect(dc, nestml_neuron)
 
             multimeter1 = nest.Create("multimeter")
             multimeter2 = nest.Create("multimeter")
@@ -287,8 +287,8 @@ class TestNestIntegration:
             nest.SetStatus(multimeter1, {"record_from": [V_m_specifier]})
             nest.SetStatus(multimeter2, {"record_from": [V_m_specifier]})
 
-            nest.Connect(multimeter1, neuron1)
-            nest.Connect(multimeter2, neuron2)
+            nest.Connect(multimeter1, nest_neuron)
+            nest.Connect(multimeter2, nestml_neuron)
 
             if NESTTools.detect_nest_version().startswith("v2"):
                 sd_reference = nest.Create("spike_detector")
@@ -297,8 +297,8 @@ class TestNestIntegration:
                 sd_reference = nest.Create("spike_recorder")
                 sd_testant = nest.Create("spike_recorder")
 
-            nest.Connect(neuron1, sd_reference)
-            nest.Connect(neuron2, sd_testant)
+            nest.Connect(nest_neuron, sd_reference)
+            nest.Connect(nestml_neuron, sd_testant)
 
             nest.Simulate(t_stop)
 
@@ -371,26 +371,35 @@ class TestNestIntegration:
             # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
             pass
 
-        neuron1 = nest.Create(nest_model_name, params=nest_model_parameters)
-        neuron2 = nest.Create(nestml_model_name, params=nestml_model_parameters)
+        nest_neuron = nest.Create(nest_model_name, params=nest_model_parameters)
+        nestml_neuron = nest.Create(nestml_model_name, params=nestml_model_parameters)
 
         if model_initial_state is not None:
-            nest.SetStatus(neuron1, model_initial_state)
-            nest.SetStatus(neuron2, model_initial_state)
+            nest.SetStatus(nest_neuron, model_initial_state)
+            nest.SetStatus(nestml_neuron, model_initial_state)
 
         # if gsl_error_tol is not None:
-        #     nest.SetStatus(neuron2, {"gsl_error_tol": gsl_error_tol})
+        #     nest.SetStatus(nestml_neuron, {"gsl_error_tol": gsl_error_tol})
 
         spikegenerator = nest.Create("spike_generator",
                                      params={"spike_times": spike_times, "spike_weights": spike_weights})
+        nest.Connect(spikegenerator, nest_neuron, syn_spec=syn_spec)
 
-        nest.Connect(spikegenerator, neuron1, syn_spec=syn_spec)
-        nest.Connect(spikegenerator, neuron2, syn_spec=syn_spec)
+        if len(nestml_neuron.get("receptor_types")) > 1:
+            # this NESTML neuron is written as having separate input ports for excitatory and inhibitory spikes
+            syn_spec_nestml = syn_spec
+            if syn_spec_nestml is None:
+                syn_spec_nestml = {}
+            syn_spec_nestml.update({"receptor_type": nestml_neuron.get("receptor_types")["EXC_SPIKES"]})
+            nest.Connect(spikegenerator, nestml_neuron, syn_spec=syn_spec_nestml)
+        else:
+            # this NESTML neuron is written as having one input port for excitatory and inhibitory spikes (with sign of the weight telling the difference)
+            nest.Connect(spikegenerator, nestml_neuron, syn_spec=syn_spec)
 
         spike_recorder1 = nest.Create("spike_recorder")
         spike_recorder2 = nest.Create("spike_recorder")
-        nest.Connect(neuron1, spike_recorder1)
-        nest.Connect(neuron2, spike_recorder2)
+        nest.Connect(nest_neuron, spike_recorder1)
+        nest.Connect(nestml_neuron, spike_recorder2)
 
         multimeter1 = nest.Create("multimeter")
         multimeter2 = nest.Create("multimeter")
@@ -399,8 +408,8 @@ class TestNestIntegration:
         nest.SetStatus(multimeter1, {"record_from": [V_m_specifier]})
         nest.SetStatus(multimeter2, {"record_from": [V_m_specifier]})
 
-        nest.Connect(multimeter1, neuron1)
-        nest.Connect(multimeter2, neuron2)
+        nest.Connect(multimeter1, nest_neuron)
+        nest.Connect(multimeter2, nestml_neuron)
 
         nest.Simulate(400.)
 

@@ -56,7 +56,6 @@ class TestPlasticSynapseWeightSign:
         r"""Generate the model code"""
 
         codegen_opts = {"neuron_synapse_pairs": [],
-                        "delay_variable": {},
                         "weight_variable": {}}
 
         files = [os.path.join("models", "neurons", self.neuron_model_name + ".nestml")]
@@ -65,7 +64,6 @@ class TestPlasticSynapseWeightSign:
             codegen_opts["neuron_synapse_pairs"].append({"neuron": self.neuron_model_name,
                                                          "synapse": synapse_model_name,
                                                          "post_ports": ["post_spikes"]})
-            codegen_opts["delay_variable"][synapse_model_name] = "d"
             codegen_opts["weight_variable"][synapse_model_name] = "w"
 
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, os.pardir, s))) for s in files]

@@ -151,8 +151,9 @@ class ASTModelBody(ASTNode):
 
     def get_on_receive_block(self, port_name) -> Optional[ASTOnReceiveBlock]:
         for elem in self.get_body_elements():
-            if isinstance(elem, ASTOnReceiveBlock) and elem.port_name == port_name:
+            if isinstance(elem, ASTOnReceiveBlock) and elem.input_port_variable.name == port_name:
                 return elem
+
         return None
 
     def get_on_receive_blocks(self) -> List[ASTOnReceiveBlock]:
@@ -174,6 +175,14 @@ class ASTModelBody(ASTNode):
         on_receive_blocks.extend(priority_to_receive_block[None])
 
         return on_receive_blocks
+
+    def get_on_condition_block(self, port_name) -> Optional[ASTOnConditionBlock]:
+        for elem in self.get_body_elements():
+            assert not "." in elem.input_port_variable.name
+            if isinstance(elem, ASTOnConditionBlock) and elem.input_port_variable.name == port_name:
+                return elem
+
+        return None
 
     def get_on_condition_blocks(self) -> List[ASTOnConditionBlock]:
         on_condition_blocks = []

@@ -1,12 +1,6 @@
-# CoCoValueAssignedToInputPort.nestml
-# ###################################
+# spiking_input_port_on_equation_rhs_outside_convolve
+# ###################################################
 #
-# Description
-# +++++++++++
-#
-# This model is used to test if broken CoCos are identified correctly. Here, if assignment of values to input ports is detected.
-#
-# Positive case.
 #
 # Copyright statement
 # +++++++++++++++++++
@@ -28,9 +22,15 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
-model CoCoValueAssignedToInputPort:
-    input:
-        spikeInh <- inhibitory spike
+model spiking_input_port_on_equation_rhs_outside_convolve2_neuron:
+    state:
+        x real = 0.
 
-    update: # input port not assigned to, thus everything is correct
-        test integer = spikeInh * s + 10
+    equations:
+        x' = spikes_in_port
+
+    input:
+        spikes_in_port <- spike
+
+    update:
+        integrate_odes()

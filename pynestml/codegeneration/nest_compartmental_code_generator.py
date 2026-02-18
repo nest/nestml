@@ -74,6 +74,7 @@ from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.syns_info_enricher import SynsInfoEnricher
 from pynestml.utils.synapse_processing import SynapseProcessing
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
@@ -417,6 +418,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         assert len(neuron.get_equations_blocks()) == 1, "Only one equations block supported for now"
         assert len(neuron.get_state_blocks()) == 1, "Only one state block supported for now"
+        neuron.accept(ASTParentVisitor())
 
         equations_block = neuron.get_equations_blocks()[0]
 
@@ -433,7 +435,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         # if they have delta kernels, use sympy to expand the expression, then
         # find the convolve calls and replace them with constant value 1
         # then return every subexpression that had that convolve() replaced
-        delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
+        delta_factors = ASTUtils.get_delta_factors_from_input_port_references(neuron)
+        delta_factors |= ASTUtils.get_delta_factors_from_convolutions(neuron)
 
         # goes through all convolve() inside equations block
         # extracts what kernel is paired with what spike buffer
@@ -525,6 +528,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         # find any spike update expressions defined by the user
         spike_updates = self.get_spike_update_expressions(
             neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
+
+        neuron.accept(ASTParentVisitor())
 
         return spike_updates
 

@@ -1,10 +1,10 @@
-# CoCoOutputPortTypeIfEmitCall.nestml
-# ###################################
+# CoCoOnReceiveVectorsShouldBeConstantSize.nestml
+# ###############################################
 #
 # Description
 # +++++++++++
 #
-# This model is used to test if broken CoCos are identified correctly. Here, test that an error is raised when the emit_spike() function is called with different parameter types than are defined in the spiking output port.
+# This test is used to test the usage of onReceive blocks for vector ports of variable length.
 #
 # Copyright statement
 # +++++++++++++++++++
@@ -26,9 +26,12 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
-model output_port_types_neuron:
-    output:
-        spike(foo real)
+model CoCoOnReceiveVectorsShouldBeConstantSize:
+    state:
+        GABA_spikes_sum real = 0
 
-    update:
-        emit_spike(1 ms)
+    input:
+        GABA_spikes[5] <- spike
+
+    onReceive(GABA_spikes[i integer]):
+        GABA_spikes_sum += sift(GABA_spikes[i], 1)

@@ -60,8 +60,6 @@ class TestSynapsePriority:
                                                                     {"neuron": "iaf_psc_delta_neuron",
                                                                      "synapse": "event_inv_priority_test_synapse",
                                                                      "post_ports": ["post_spikes"]}],
-                                           "delay_variable": {"event_priority_test_synapse": "d",
-                                                              "event_inv_priority_test_synapse": "d"},
                                            "weight_variable": {"event_priority_test_synapse": "w",
                                                                "event_inv_priority_test_synapse": "w"}})
 
@@ -112,10 +110,8 @@ class TestSynapsePriority:
         print("Pre spike times: " + str(pre_spike_times))
         print("Post spike times: " + str(post_spike_times))
 
-        # wr = nest.Create('weight_recorder')
         nest.CopyModel(synapse_model_name, "syn_nestml",
-                       {"d": delay})
-        #    {"weight_recorder": wr[0], "d": delay})
+                       {"delay": delay})
 
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",

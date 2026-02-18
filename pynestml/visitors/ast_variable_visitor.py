@@ -19,11 +19,16 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import MessageCode
+from pynestml.utils.unit_type import UnitType
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
@@ -32,11 +37,10 @@ class ASTVariableVisitor(ASTVisitor):
     This visitor visits a single variable and updates its type.
     """
 
-    def visit_simple_expression(self, node):
+    def visit_simple_expression(self, node: ASTSimpleExpression):
         """
         Visits a single variable as contained in a simple expression and derives its type.
         :param node: a single simple expression
-        :type node: ASTSimpleExpression
         """
         assert isinstance(node, ASTSimpleExpression), \
             "(PyNestML.Visitor.VariableVisitor) No or wrong type of simple expression provided (%s)!" % type(node)
@@ -49,7 +53,19 @@ class ASTVariableVisitor(ASTVisitor):
 
         # update the type of the variable according to its symbol type.
         if var_resolve is not None:
-            node.type = var_resolve.get_type_symbol()
+            inport = ASTUtils.get_input_port_by_name(ASTUtils.find_parent_node_by_type(node, ASTModel).get_input_blocks(), node.get_variable().get_name())
+            if inport and inport.is_spike():
+                # this variable represents a spiking input port
+                if ASTUtils.find_parent_node_by_type(node, ASTEquationsBlock):
+                    # it appears in an equations block; units are [units of attribute / s]
+                    node.type = var_resolve.get_type_symbol()    # the type of the base port is [1/s]
+                else:
+                    # it appears in an equations block; units are [units of attribute]
+                    node.type = var_resolve.get_type_symbol()
+            else:
+                # variable does not represent a spiking input port
+                node.type = var_resolve.get_type_symbol()
+
             node.type.referenced_object = node
             return
 

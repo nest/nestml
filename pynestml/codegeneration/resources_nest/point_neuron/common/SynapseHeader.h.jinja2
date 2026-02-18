@@ -326,7 +326,7 @@ public:
 {%- for variable_symbol in synapse.get_parameter_symbols() %}
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     if not isHomogeneous  and not (variable_symbol.get_symbol_name() == nest_codegen_opt_delay_variable) %}
+{%-     if not isHomogeneous and not (variable_symbol.get_symbol_name() == nest_codegen_opt_delay_variable) %}
 {%-         include 'directives_cpp/MemberDeclaration.jinja2' %}
 {%-     elif isHomogeneous %}
     // N.B. the parameter `{{ printer.print(variable) }}` is defined in the common properties class
@@ -1209,7 +1209,7 @@ void
   }
 {%- endif %}
 
-{%- if nest_codegen_opt_delay_variable != "delay" %}
+{%- if nest_codegen_opt_delay_variable and nest_codegen_opt_delay_variable != "delay" %}
   if (__d->known({{ synapseName }}_names::_{{ nest_codegen_opt_delay_variable }}) and __d->known(names::delay))
   {
     throw BadProperty( "To prevent inconsistencies, please set either 'delay' or '{{ nest_codegen_opt_delay_variable }}' variable; not both at the same time." );

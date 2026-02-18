@@ -27,21 +27,44 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
 model input_ports:
+    internals:
+        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+
     state:
         bar pA = 0 pA
         foo_spikes pA = 0 pA
         my_spikes_ip pA = 0 pA
 
     input:
-        AMPA_spikes <- excitatory spike
-        GABA_spikes <- inhibitory spike
+        AMPA_spikes <- spike
+        GABA_spikes <- spike
         NMDA_spikes <- spike
         foo[2] <- spike
-        my_spikes[3] <- excitatory spike
-        my_spikes2[3] <- inhibitory spike
+        my_spikes[3] <- spike
+        my_spikes2[3] <- spike
         I_stim pA <- continuous
 
-    update:
-        bar += (NMDA_spikes + 2 * AMPA_spikes - 3 * GABA_spikes) * (pA * s)
-        foo_spikes += (foo[0] + 5.5 * foo[1]) * (pA * s)
-        my_spikes_ip += (my_spikes[0] + my_spikes[1] - my_spikes2[1]) * (pA * s)
+    onReceive(NMDA_spikes):
+        bar += sift(NMDA_spikes, unit_psc)
+
+    onReceive(AMPA_spikes):
+        bar += 2 * sift(AMPA_spikes, unit_psc)
+
+    onReceive(GABA_spikes):
+        bar += 3 * sift(GABA_spikes, unit_psc)
+
+    onReceive(foo[0]):
+        foo_spikes += sift(foo[0], unit_psc)
+
+    onReceive(foo[1]):
+        foo_spikes += 5.5 * sift(foo[1], unit_psc)
+
+    onReceive(my_spikes[0]):
+        my_spikes_ip += sift(my_spikes[0], unit_psc)
+
+    onReceive(my_spikes[1]):
+        my_spikes_ip += sift(my_spikes[1], unit_psc)
+
+    onReceive(my_spikes2[1]):
+        print("SPIKE RECEIVED 3")
+        my_spikes_ip -= sift(my_spikes2[1], unit_psc)

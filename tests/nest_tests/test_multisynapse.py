@@ -19,10 +19,11 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import nest
 import numpy as np
 import os
 import pytest
+
+import nest
 
 # try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
@@ -119,7 +120,7 @@ class TestNestMultiSynapse:
             fig.savefig("/tmp/test_multisynapse.png")
 
         # testing
-        np.testing.assert_almost_equal(V_m[-1], -72.77625579314515)
+        np.testing.assert_almost_equal(V_m[-1], -72.58743039242219)
 
     def test_multisynapse_with_vector_input_ports(self):
         input_path = os.path.join(os.path.realpath(os.path.join(
@@ -149,13 +150,13 @@ class TestNestMultiSynapse:
         receptor_types = nest.GetStatus(neuron, "receptor_types")[0]
 
         sg = nest.Create("spike_generator", params={"spike_times": [20., 80.]})
-        nest.Connect(sg, neuron, syn_spec={"receptor_type": receptor_types["SPIKES_0"], "weight": 1000., "delay": 0.1})
+        nest.Connect(sg, neuron, syn_spec={"receptor_type": receptor_types["SPIKES_VEC_IDX_0"], "weight": 1000., "delay": 0.1})
 
         sg2 = nest.Create("spike_generator", params={"spike_times": [40., 60.]})
-        nest.Connect(sg2, neuron, syn_spec={"receptor_type": receptor_types["SPIKES_1"], "weight": 1000., "delay": 0.1})
+        nest.Connect(sg2, neuron, syn_spec={"receptor_type": receptor_types["SPIKES_VEC_IDX_1"], "weight": 1000., "delay": 0.1})
 
         sg3 = nest.Create("spike_generator", params={"spike_times": [30., 70.]})
-        nest.Connect(sg3, neuron, syn_spec={"receptor_type": receptor_types["SPIKES_2"], "weight": 500., "delay": 0.1})
+        nest.Connect(sg3, neuron, syn_spec={"receptor_type": receptor_types["SPIKES_VEC_IDX_2"], "weight": 500., "delay": 0.1})
 
         mm = nest.Create("multimeter", params={"record_from": [
             "I_kernel1__X__spikes_0", "I_kernel2__X__spikes_1", "I_kernel3__X__spikes_2"], "interval": nest.resolution})

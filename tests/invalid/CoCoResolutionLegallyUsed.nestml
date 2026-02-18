@@ -40,7 +40,6 @@ model resolution_legally_used_synapse:
     parameters:
         tau ms = 10 ms
         w real = 1    # dummy weight variable
-        d ms = 1 ms   # dummy delay variable
 
     update:
         integrate_odes()

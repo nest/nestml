@@ -23,6 +23,8 @@ import numpy as np
 import os
 import pytest
 
+import nest
+
 # try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
     import matplotlib as mpl
