@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1771420754697,
+  "lastUpdate": 1771463147641,
   "repoUrl": "https://github.com/nest/nestml",
   "entries": {
     "Benchmark": [
@@ -243,6 +243,33 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.22494327321861668",
             "extra": "mean: 2.8391518240000098 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "clinssen",
+            "username": "clinssen"
+          },
+          "committer": {
+            "name": "clinssen",
+            "username": "clinssen"
+          },
+          "id": "70748672954db0e8c7ff00c93f36160d675c9e21",
+          "message": "Change NESTML units printing to include a space",
+          "timestamp": "2026-02-04T18:30:36Z",
+          "url": "https://github.com/nest/nestml/pull/1322/commits/70748672954db0e8c7ff00c93f36160d675c9e21"
+        },
+        "date": 1771463147233,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/nest_continuous_benchmarking/test_nest_continuous_benchmarking.py::TestNESTContinuousBenchmarking::test_stdp_nn_synapse",
+            "value": 0.3104265846700642,
+            "unit": "iter/sec",
+            "range": "stddev: 0.19674275961981494",
+            "extra": "mean: 3.2213735852000127 sec\nrounds: 5"
           }
         ]
       }
