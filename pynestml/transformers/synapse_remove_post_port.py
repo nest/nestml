@@ -21,11 +21,18 @@
 
 from __future__ import annotations
 
-from typing import Optional, Mapping, Any, Union, Sequence
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
+
+from typing import Iterable, Optional, Mapping, Any, Union
 
 from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
-from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.transformers.transformer import Transformer
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
@@ -100,7 +107,9 @@ class SynapseRemovePostPortTransformer(Transformer):
 
         return new_neuron, new_synapse
 
-    def transform(self, models: Union[ASTNode, Sequence[ASTNode]]) -> Union[ASTNode, Sequence[ASTNode]]:
+    @override
+    def transform(self, models: Union[ASTModel, Iterable[ASTModel]]) -> Union[ASTModel, Iterable[ASTModel]]:
+        assert isinstance(models, Iterable), "This transformer needs more than one model as input."
         for neuron_synapse_pair in self.get_option("neuron_synapse_pairs"):
             neuron_name = neuron_synapse_pair["neuron"]
             synapse_name = neuron_synapse_pair["synapse"]

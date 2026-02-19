@@ -21,12 +21,20 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Mapping, Any, Union, Sequence
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
+
+from typing import Iterable, Optional, Mapping, Any, Union, Sequence
 
 import re
 
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.transformers.transformer import Transformer
@@ -50,7 +58,8 @@ class InlineExpressionExpansionTransformer(Transformer):
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super(Transformer, self).__init__(options)
 
-    def transform(self, models: Union[ASTNode, Sequence[ASTNode]]) -> Union[ASTNode, Sequence[ASTNode]]:
+    @override
+    def transform(self, models: Union[ASTModel, Iterable[ASTModel]]) -> Union[ASTModel, Iterable[ASTModel]]:
         single = False
         if isinstance(models, ASTNode):
             single = True
@@ -71,7 +80,7 @@ class InlineExpressionExpansionTransformer(Transformer):
 
         return models
 
-    def make_inline_expressions_self_contained(self, inline_expressions: List[ASTInlineExpression]) -> List[ASTInlineExpression]:
+    def make_inline_expressions_self_contained(self, inline_expressions: Iterable[ASTInlineExpression]) -> Iterable[ASTInlineExpression]:
         r"""
         Make inline expressions self contained, i.e. without any references to other inline expressions.
 

@@ -21,7 +21,14 @@
 
 from __future__ import annotations
 
-from typing import Any, List, Sequence, Mapping, Optional, Set, Union
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
+
+from typing import Any, Iterable, Mapping, Optional, Set, Union
 
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
@@ -421,7 +428,12 @@ class SynapsePostNeuronTransformer(Transformer):
 
         return new_neuron, new_synapse
 
-    def transform(self, models: Union[ASTNode, Sequence[ASTNode]]) -> Union[ASTNode, Sequence[ASTNode]]:
+    @override
+    def transform(self, models: Union[ASTModel, Iterable[ASTModel]]) -> Union[ASTModel, Iterable[ASTModel]]:
+        assert isinstance(models, Iterable), "This transformer needs more than one model as input."
+
+        models = set(models)
+
         for neuron_synapse_pair in self.get_option("neuron_synapse_pairs"):
             neuron_name = neuron_synapse_pair["neuron"]
             synapse_name = neuron_synapse_pair["synapse"]
@@ -434,15 +446,14 @@ class SynapsePostNeuronTransformer(Transformer):
                 raise Exception("Synapse used in pair (\"" + synapse_name + "\") not found")  # XXX: log error
 
             new_neuron, new_synapse = self.transform_neuron_synapse_pair_(neuron, synapse)
-            models.append(new_neuron)
-            models.append(new_synapse)
+            models.add(new_neuron)
+            models.add(new_synapse)
 
         # remove the synapses used in neuron-synapse pairs, as they can potentially not be generated independently of a neuron and would otherwise result in an error
         for neuron_synapse_pair in self.get_option("neuron_synapse_pairs"):
             synapse_name = neuron_synapse_pair["synapse"]
             synapse = ASTUtils.find_model_by_name(synapse_name + FrontendConfiguration.suffix, models)
             if synapse:
-                model_idx = models.index(synapse)
-                models.pop(model_idx)
+                models.remove(synapse)
 
         return models
