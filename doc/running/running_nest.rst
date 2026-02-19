@@ -367,6 +367,12 @@ Random numbers
 In case random numbers are needed inside the synapse, the random number generator belonging to the postsynaptic target is used.
 
 
+Running with MPI
+----------------
+
+When running NEST simulation scripts via MPI, make sure to run the NESTML code generation step in a separate, single-process script first. This then produces a dynamic library (.so or .dll file) that can be used in the MPI context (using ``nest.Install()``). Running NESTML itself in the MPI context would result in compilation/build errors.
+
+
 References
 ----------
 
