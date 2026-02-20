@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# test_neuron_with_multiple_different_plastic_synapses.py
+# test_neuron_with_multiple_different_plastic_synapses_vt.py
 #
 # This file is part of NEST.
 #
@@ -22,6 +22,8 @@
 import numpy as np
 import os
 import pytest
+import shutil
+import tempfile
 
 import nest
 
@@ -43,45 +45,73 @@ sim_ref = True
 
 @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                     reason="This test does not support NEST 2")
-class TestNeuronWithMultipleDifferentSynapses:
-    r"""Test that code can be generated when a postsynaptic neuron is connected to by several different synapse models"""
+class TestNeuronWithMultipleDifferentSynapsesVt:
+    r"""Test that code can be generated when a postsynaptic neuron is connected to by several different synapse models, as well as a volume transmitter connecting to the synapses"""
     neuron_model_name = "iaf_psc_exp_neuron_nestml__with_stdp_nn_symm_synapse_nestml_and_stdp_nn_restr_symm_synapse_nestml"
     synapse1_model_name = "stdp_nn_symm_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
     synapse2_model_name = "stdp_nn_restr_symm_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
 
     @pytest.fixture(scope="module", autouse=True)
     def setUp(self):
-        """Generate the model code"""
+        r"""Generate the model code.
 
-        files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
-                 os.path.join("models", "synapses", "stdp_nn_symm_synapse.nestml"),
-                 os.path.join("models", "synapses", "stdp_nn_restr_symm_synapse.nestml")]
-        input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, s))) for s in files]
-        generate_nest_target(input_path=input_path,
-                             logging_level="DEBUG",
-                             module_name="nestmlmodule",
-                             suffix="_nestml",
-                             codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                                     "synapses": {"stdp_nn_symm_synapse": {"post_ports": ["post_spikes"]},
-                                                                                  "stdp_nn_restr_symm_synapse": {"post_ports": ["post_spikes"]}}}],
-                                           "delay_variable": {"stdp_nn_symm_synapse": "d",
-                                                              "stdp_nn_restr_symm_synapse": "d"},
-                                           "weight_variable": {"stdp_nn_symm_synapse": "w",
-                                                               "stdp_nn_restr_symm_synapse": "w"}})
+        Add an extra dummy input port "mod_spikes" to the synapse models and write back to a temporary file so the neuromodulation can be tested.
+        """
+        # Original model paths
+        model_files = {
+            "neuron": os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
+            "synapse1": os.path.join("models", "synapses", "stdp_nn_symm_synapse.nestml"),
+            "synapse2": os.path.join("models", "synapses", "stdp_nn_restr_symm_synapse.nestml")
+        }
 
-    def test_stdp_nn_synapse(self):
-        nest.ResetKernel()
-        nest.set_verbosity("M_ALL")
-        nest.Install("nestmlmodule")
+        # Resolve absolute paths
+        base_path = os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.pardir))
+        neuron_path = os.path.join(base_path, model_files["neuron"])
+        syn1_path = os.path.join(base_path, model_files["synapse1"])
+        syn2_path = os.path.join(base_path, model_files["synapse2"])
 
-        post_neuron = nest.Create(TestNeuronWithMultipleDifferentSynapses.neuron_model_name)
-        pre_neuron1 = nest.Create("parrot_neuron")
-        pre_neuron2 = nest.Create("parrot_neuron")
+        # Create temporary files for the edited synapses
+        tmp_syn1 = tempfile.NamedTemporaryFile(suffix="_symm.nestml", mode='w', delete=False)
+        tmp_syn2 = tempfile.NamedTemporaryFile(suffix="_restr_symm.nestml", mode='w', delete=False)
 
-        nest.Connect(pre_neuron1, post_neuron, syn_spec={"synapse_model": TestNeuronWithMultipleDifferentSynapses.synapse1_model_name})
-        nest.Connect(pre_neuron2, post_neuron, syn_spec={"synapse_model": TestNeuronWithMultipleDifferentSynapses.synapse2_model_name})
+        tmp_paths = [tmp_syn1.name, tmp_syn2.name]
 
+        def edit_nestml(src_path, dest_file):
+            with open(src_path, 'r') as f:
+                for line in f:
+                    dest_file.write(line)
+                    if "input:" in line:
+                        dest_file.write("        mod_spikes <- spike\n")
+            dest_file.close()
+
+        try:
+            # Perform the edits
+            edit_nestml(syn1_path, tmp_syn1)
+            edit_nestml(syn2_path, tmp_syn2)
+
+            # Final input list for PyNESTML
+            input_path = [neuron_path, tmp_syn1.name, tmp_syn2.name]
+            generate_nest_target(input_path=input_path,
+                                logging_level="DEBUG",
+                                module_name="nestmlmodule",
+                                suffix="_nestml",
+                                codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
+                                                                        "synapses": {"stdp_nn_symm_synapse": {"post_ports": ["post_spikes"],
+                                                                                                            "vt_ports": ["mod_spikes"]},
+                                                                                     "stdp_nn_restr_symm_synapse": {"post_ports": ["post_spikes"],
+                                                                                                                    "vt_ports": ["mod_spikes"]}}}],
+                                            "delay_variable": {"stdp_nn_symm_synapse": "d",
+                                                                "stdp_nn_restr_symm_synapse": "d"},
+                                            "weight_variable": {"stdp_nn_symm_synapse": "w",
+                                                                "stdp_nn_restr_symm_synapse": "w"}})
+        finally:
+            # # Clean up temporary files
+            # for p in tmp_paths:
+            #     if os.path.exists(p):
+            #         os.remove(p)
+            pass
+
+    def test_neuron_with_multiple_different_synapses_vt(self):
         # Helper to read the single connection weight between a given pre and the post neuron
         def read_weight(pre, post):
             conns = nest.GetConnections(source=pre, target=post)
@@ -98,11 +128,16 @@ class TestNeuronWithMultipleDifferentSynapses:
         nest.ResetKernel()
         nest.set_verbosity("M_ALL")
         nest.Install("nestmlmodule")
-        post = nest.Create(TestNeuronWithMultipleDifferentSynapses.neuron_model_name)
+        vt = nest.Create("volume_transmitter")
+        post = nest.Create(TestNeuronWithMultipleDifferentSynapsesVt.neuron_model_name)
         p1 = nest.Create("parrot_neuron")
         p2 = nest.Create("parrot_neuron")
-        nest.Connect(p1, post, syn_spec={"synapse_model": TestNeuronWithMultipleDifferentSynapses.synapse1_model_name})
-        nest.Connect(p2, post, syn_spec={"synapse_model": TestNeuronWithMultipleDifferentSynapses.synapse2_model_name})
+
+        nest.CopyModel(TestNeuronWithMultipleDifferentSynapsesVt.synapse1_model_name, "synapse1", {"volume_transmitter": vt})
+        nest.CopyModel(TestNeuronWithMultipleDifferentSynapsesVt.synapse2_model_name, "synapse2", {"volume_transmitter": vt})
+
+        nest.Connect(p1, post, syn_spec={"synapse_model": "synapse1"})
+        nest.Connect(p2, post, syn_spec={"synapse_model": "synapse2"})
 
         # Create spike recorders for Experiment A
         sr_p1_A = nest.Create("spike_recorder")
@@ -143,11 +178,16 @@ class TestNeuronWithMultipleDifferentSynapses:
         nest.ResetKernel()
         nest.set_verbosity("M_ALL")
         nest.Install("nestmlmodule")
-        post = nest.Create(TestNeuronWithMultipleDifferentSynapses.neuron_model_name)
+        vt = nest.Create("volume_transmitter")
+
+        nest.CopyModel(TestNeuronWithMultipleDifferentSynapsesVt.synapse1_model_name, "synapse1", {"volume_transmitter": vt})
+        nest.CopyModel(TestNeuronWithMultipleDifferentSynapsesVt.synapse2_model_name, "synapse2", {"volume_transmitter": vt})
+
+        post = nest.Create(TestNeuronWithMultipleDifferentSynapsesVt.neuron_model_name)
         p1 = nest.Create("parrot_neuron")
         p2 = nest.Create("parrot_neuron")
-        nest.Connect(p1, post, syn_spec={"synapse_model": TestNeuronWithMultipleDifferentSynapses.synapse1_model_name})
-        nest.Connect(p2, post, syn_spec={"synapse_model": TestNeuronWithMultipleDifferentSynapses.synapse2_model_name})
+        nest.Connect(p1, post, syn_spec={"synapse_model": "synapse1"})
+        nest.Connect(p2, post, syn_spec={"synapse_model": "synapse2"})
 
         # Create spike recorders for Experiment B
         sr_p1_B = nest.Create("spike_recorder")

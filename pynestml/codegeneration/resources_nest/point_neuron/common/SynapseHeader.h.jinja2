@@ -1078,7 +1078,7 @@ void
   typedef {{ paired_neuron_name }} post_neuron_t;
   {{ paired_neuron_name }}* __target = static_cast< {{ paired_neuron_name }}* >(get_target(tid));
   assert(__target);
-{%      for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
+{%      for var_name in paired_neuron.state_vars_that_need_continuous_buffering[astnode.name.split("__with_")[0]] %}
 {%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
   const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}();
 {%-     endfor %}
@@ -1575,7 +1575,7 @@ inline void
   {{ paired_neuron_name }}* __target = static_cast< {{ paired_neuron_name }}* >(get_target(tid));
   assert(__target);
 
-{%      for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
+{%      for var_name in paired_neuron.state_vars_that_need_continuous_buffering[astnode.name.split("__with_")[0]] %}
 {%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
   const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}();
 {%-     endfor %}
