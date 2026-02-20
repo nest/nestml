@@ -24,19 +24,20 @@ import os
 import pytest
 import unittest
 
+# try to import matplotlib; set the result in the flag TEST_PLOTS
+try:
+    import matplotlib as mpl
+    mpl.use("agg")
+    import matplotlib.pyplot as plt
+    TEST_PLOTS = True
+except BaseException:
+    TEST_PLOTS = False
+
 import nest
 
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
-try:
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.ticker
-    import matplotlib.pyplot as plt
-    TEST_PLOTS = True
-except Exception:
-    TEST_PLOTS = False
 
 sim_mdl = True
 sim_ref = True
@@ -159,7 +160,7 @@ class NestSTDPNeuromodTest(unittest.TestCase):
 
         # set up custom synapse models
         wr = nest.Create("weight_recorder")
-        wr_ref = nest.Create('weight_recorder')
+        wr_ref = nest.Create("weight_recorder")
         nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
                        {"weight_recorder": wr[0], "w": 1., "d": delay, "receptor_type": 0,
                         "volume_transmitter": vt})
@@ -329,7 +330,7 @@ class NestSTDPNeuromodTest(unittest.TestCase):
 
             for _ax in ax:
                 _ax.grid(which="major", axis="both")
-                _ax.xaxis.set_major_locator(matplotlib.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
+                _ax.xaxis.set_major_locator(mpl.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
                 _ax.set_xlim(0., sim_time)
                 _ax.legend()
             fig.savefig("/tmp/stdp_dopa_synapse_test" + fname_snip + ".png", dpi=300)

@@ -3,24 +3,15 @@ on:
     types: [opened, reopened, edited, synchronize]
 
 jobs:
-  fork_pr_requires_review:
-    environment: ${{ (github.event.pull_request.head.repo.full_name == github.repository && 'internal') || 'external' }}
+  benchmark:
+    name: Continuous Benchmarking
     runs-on: ubuntu-latest
     steps:
-      - run: true
-
-  benchmark_fork_pr_branch:
-    needs: fork_pr_requires_review
-    name: Continuous Benchmarking Fork PRs with Bencher
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
-
-      - uses: bencherdev/bencher@main
 
       # Setup Python version
       - name: Setup Python 3.9
@@ -67,27 +58,20 @@ jobs:
           echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
           python setup.py install
 
-      - name: Track Fork PR Benchmarks with Bencher
+      - name: Run benchmark
         env:
           LD_LIBRARY_PATH: ${{ env.NEST_INSTALL }}/lib/nest
         run: |
           echo "NEST_INSTALL = $NEST_INSTALL"
-          LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ env.NEST_INSTALL }}/lib/nest bencher run \
-          --iter 3 \
-          --project nestml \
-          --token '${{ secrets.BENCHER_API_TOKEN }}' \
-          --branch '${{ github.event.number }}/merge' \
-          --branch-start-point '${{ github.base_ref }}' \
-          --branch-start-point-hash '${{ github.event.pull_request.base.sha }}' \
-          --branch-reset \
-          --github-actions "${{ secrets.GITHUB_TOKEN }}" \
-          --testbed ubuntu-latest \
-          --threshold-measure latency \
-          --threshold-test percentage \
-          --threshold-max-sample-size 64 \
-          --threshold-upper-boundary 0.10 \
-          --thresholds-reset \
-          --adapter python_pytest \
-          --file results.json \
-          --err \
-          'LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ env.NEST_INSTALL }}/lib/nest python3 -m pytest --benchmark-json results.json -s $GITHUB_WORKSPACE/tests/nest_continuous_benchmarking/test_nest_continuous_benchmarking.py'
+          LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ env.NEST_INSTALL }}/lib/nest python3 -m pytest --benchmark-json results.json -s $GITHUB_WORKSPACE/tests/nest_continuous_benchmarking/test_nest_continuous_benchmarking.py
+
+      - name: Progress benchmark results
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: 'pytest'
+          output-file-path: results.json
+          fail-on-alert: true
+          comment-on-alert: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          alert-threshold: '120%'

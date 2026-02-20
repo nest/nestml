@@ -1,30 +1,30 @@
-# Example compartmental model for NESTML
-# 
+# cm_default.nestml
+# #################
+#
 # Description
 # +++++++++++
-# Corresponds to standard compartmental model implemented in NEST.
-# 
-# 
+#
+# Example compartmental model for NESTML. Corresponds to standard compartmental model implemented in NEST.
+#
 # Copyright statement
 # +++++++++++++++++++
-# 
+#
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
-# 
+#
 # NEST is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # NEST is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
 #
 model cm_default:
 
@@ -111,19 +111,19 @@ model cm_default:
         inline K real = gbar_K * n_K * (e_K - v_comp) @mechanism::channel
 
         ### synapses, characterized by convolution(s) with spike input ###
-        kernel g_AMPA = g_norm_AMPA * ( - exp(-t / tau_r_AMPA) + exp(-t / tau_d_AMPA) )
+        kernel g_AMPA = g_norm_AMPA * (- exp(-t / tau_r_AMPA) + exp(-t / tau_d_AMPA))
         inline AMPA real = convolve(g_AMPA, spikes_AMPA) * (e_AMPA - v_comp) @mechanism::receptor
 
-        kernel g_GABA = g_norm_GABA * ( - exp(-t / tau_r_GABA) + exp(-t / tau_d_GABA) )
-        inline GABA real = convolve(g_GABA, spikes_GABA) * (e_GABA - v_comp ) @mechanism::receptor
+        kernel g_GABA = g_norm_GABA * (- exp(-t / tau_r_GABA) + exp(-t / tau_d_GABA))
+        inline GABA real = convolve(g_GABA, spikes_GABA) * (e_GABA - v_comp) @mechanism::receptor
 
-        kernel g_NMDA = g_norm_NMDA * ( - exp(-t / tau_r_NMDA) + exp(-t / tau_d_NMDA) )
-        inline NMDA real = convolve(g_NMDA, spikes_NMDA) * (e_NMDA - v_comp ) / (1. + 0.3 * exp( -.1 * v_comp )) @mechanism::receptor
+        kernel g_NMDA = g_norm_NMDA * (- exp(-t / tau_r_NMDA) + exp(-t / tau_d_NMDA))
+        inline NMDA real = convolve(g_NMDA, spikes_NMDA) * (e_NMDA - v_comp) / (1. + 0.3 * exp(-.1 * v_comp)) @mechanism::receptor
 
-        kernel g_AN_AMPA = g_norm_AN_AMPA * ( - exp(-t / tau_r_AN_AMPA) + exp(-t / tau_d_AN_AMPA) )
-        kernel g_AN_NMDA = g_norm_AN_NMDA * ( - exp(-t / tau_r_AN_NMDA) + exp(-t / tau_d_AN_NMDA) )
+        kernel g_AN_AMPA = g_norm_AN_AMPA * (- exp(-t / tau_r_AN_AMPA) + exp(-t / tau_d_AN_AMPA))
+        kernel g_AN_NMDA = g_norm_AN_NMDA * (- exp(-t / tau_r_AN_NMDA) + exp(-t / tau_d_AN_NMDA))
         inline AMPA_NMDA real = convolve(g_AN_AMPA, spikes_AN) * (e_AN_AMPA - v_comp) + NMDA_ratio * \
-                                convolve(g_AN_NMDA, spikes_AN) * (e_AN_NMDA - v_comp) / (1. + 0.3 * exp( -.1 * v_comp )) @mechanism::receptor
+                                convolve(g_AN_NMDA, spikes_AN) * (e_AN_NMDA - v_comp) / (1. + 0.3 * exp(-.1 * v_comp)) @mechanism::receptor
 
     # functions K
     function n_inf_K (v_comp real) real:
@@ -148,20 +148,20 @@ model cm_default:
 
 
     internals:
-        tp_AMPA real = (tau_r_AMPA * tau_d_AMPA) / (tau_d_AMPA - tau_r_AMPA) * ln( tau_d_AMPA / tau_r_AMPA )
-        g_norm_AMPA real =  1. / ( -exp( -tp_AMPA / tau_r_AMPA ) + exp( -tp_AMPA / tau_d_AMPA ) )
+        tp_AMPA real = (tau_r_AMPA * tau_d_AMPA) / (tau_d_AMPA - tau_r_AMPA) * ln(tau_d_AMPA / tau_r_AMPA)
+        g_norm_AMPA real =  1. / (-exp(-tp_AMPA / tau_r_AMPA) + exp(-tp_AMPA / tau_d_AMPA))
 
-        tp_GABA real = (tau_r_GABA * tau_d_GABA) / (tau_d_GABA - tau_r_GABA) * ln( tau_d_GABA / tau_r_GABA )
-        g_norm_GABA real =  1. / ( -exp( -tp_GABA / tau_r_GABA ) + exp( -tp_GABA / tau_d_GABA ) )
+        tp_GABA real = (tau_r_GABA * tau_d_GABA) / (tau_d_GABA - tau_r_GABA) * ln(tau_d_GABA / tau_r_GABA)
+        g_norm_GABA real =  1. / (-exp(-tp_GABA / tau_r_GABA) + exp(-tp_GABA / tau_d_GABA))
 
-        tp_NMDA real = (tau_r_NMDA * tau_d_NMDA) / (tau_d_NMDA - tau_r_NMDA) * ln( tau_d_NMDA / tau_r_NMDA )
-        g_norm_NMDA real =  1. / ( -exp( -tp_NMDA / tau_r_NMDA ) + exp( -tp_NMDA / tau_d_NMDA ) )
+        tp_NMDA real = (tau_r_NMDA * tau_d_NMDA) / (tau_d_NMDA - tau_r_NMDA) * ln(tau_d_NMDA / tau_r_NMDA)
+        g_norm_NMDA real =  1. / (-exp(-tp_NMDA / tau_r_NMDA) + exp(-tp_NMDA / tau_d_NMDA))
 
-        tp_AN_AMPA real = (tau_r_AN_AMPA * tau_d_AN_AMPA) / (tau_d_AN_AMPA - tau_r_AN_AMPA) * ln( tau_d_AN_AMPA / tau_r_AN_AMPA )
-        g_norm_AN_AMPA real =  1. / ( -exp( -tp_AN_AMPA / tau_r_AN_AMPA ) + exp( -tp_AN_AMPA / tau_d_AN_AMPA ) )
+        tp_AN_AMPA real = (tau_r_AN_AMPA * tau_d_AN_AMPA) / (tau_d_AN_AMPA - tau_r_AN_AMPA) * ln(tau_d_AN_AMPA / tau_r_AN_AMPA)
+        g_norm_AN_AMPA real =  1. / (-exp(-tp_AN_AMPA / tau_r_AN_AMPA) + exp(-tp_AN_AMPA / tau_d_AN_AMPA))
 
-        tp_AN_NMDA real = (tau_r_AN_NMDA * tau_d_AN_NMDA) / (tau_d_AN_NMDA - tau_r_AN_NMDA) * ln( tau_d_AN_NMDA / tau_r_AN_NMDA )
-        g_norm_AN_NMDA real =  1. / ( -exp( -tp_AN_NMDA / tau_r_AN_NMDA ) + exp( -tp_AN_NMDA / tau_d_AN_NMDA ) )
+        tp_AN_NMDA real = (tau_r_AN_NMDA * tau_d_AN_NMDA) / (tau_d_AN_NMDA - tau_r_AN_NMDA) * ln(tau_d_AN_NMDA / tau_r_AN_NMDA)
+        g_norm_AN_NMDA real =  1. / (-exp(-tp_AN_NMDA / tau_r_AN_NMDA) + exp(-tp_AN_NMDA / tau_d_AN_NMDA))
 
     input:
         spikes_AMPA <- spike

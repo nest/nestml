@@ -49,10 +49,10 @@ class ExpressionTestVisitor(ASTVisitor):
         _equals = variable_symbol.get_type_symbol().equals(_expr.type) \
             or variable_symbol.get_type_symbol().differs_only_in_magnitude(_expr.type)
 
-        message = 'line ' + str(_expr.get_source_position()) + ' : LHS = ' + \
+        message = "line " + str(_expr.get_source_position()) + " : LHS = " + \
                   variable_symbol.get_type_symbol().get_symbol_name() + \
-                  ' RHS = ' + _expr.type.get_symbol_name() + \
-                  ' Equal ? ' + str(_equals)
+                  " RHS = " + _expr.type.get_symbol_name() + \
+                  " Equal ? " + str(_equals)
 
         if isinstance(_expr.type, UnitTypeSymbol):
             message += " Neuroscience Factor: " + \
@@ -87,7 +87,7 @@ class TestExpressionTypeCalculation:
         Logger.init_logger(LoggingLevel.INFO)
         model = ModelParser.parse_file(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                       'resources', 'ExpressionTypeTest.nestml'))))
+                                                       "resources", "ExpressionTypeTest.nestml"))))
         Logger.set_current_node(model.get_model_list()[0])
         model.accept(ExpressionTestVisitor())
         Logger.set_current_node(None)

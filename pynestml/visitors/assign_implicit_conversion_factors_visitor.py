@@ -173,7 +173,7 @@ class AssignImplicitConversionFactorsVisitor(ASTVisitor):
         """
         func_name = node.get_name()
 
-        if func_name == 'convolve':
+        if func_name == "convolve":
             return
 
         symbol = node.get_scope().resolve_to_symbol(node.get_name(), SymbolKind.FUNCTION)
@@ -265,7 +265,7 @@ class AssignImplicitConversionFactorsVisitor(ASTVisitor):
             if isinstance(stmt, ASTSmallStmt) and stmt.is_return_stmt():
                 # first check if the return is the last one in this block of statements
                 if stmts.index(c_stmt) != (len(stmts) - 1):
-                    code, message = Messages.get_not_last_statement('Return')
+                    code, message = Messages.get_not_last_statement("Return")
                     Logger.log_message(error_position=stmt.get_source_position(),
                                        code=code, message=message,
                                        log_level=LoggingLevel.WARNING)

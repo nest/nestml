@@ -61,7 +61,7 @@ class UnitTypeSymbol(TypeSymbol):
             return self.multiply_by(other)
         if other.is_numeric_primitive():
             return self
-        return self.binary_operation_not_defined_error('*', other)
+        return self.binary_operation_not_defined_error("*", other)
 
     def multiply_by(self, other):
         from pynestml.symbols.predefined_types import PredefinedTypes
@@ -75,7 +75,7 @@ class UnitTypeSymbol(TypeSymbol):
             return self.divide_by(other)
         if other.is_numeric_primitive():
             return self
-        return self.binary_operation_not_defined_error('/', other)
+        return self.binary_operation_not_defined_error("/", other)
 
     def __div__(self, other):
         return self.__truediv__(other)
@@ -91,7 +91,7 @@ class UnitTypeSymbol(TypeSymbol):
         return self
 
     def __invert__(self):
-        return self.unary_operation_not_defined_error('~')
+        return self.unary_operation_not_defined_error("~")
 
     def __pow__(self, power, modulo=None):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
@@ -100,7 +100,7 @@ class UnitTypeSymbol(TypeSymbol):
         if isinstance(power, int) \
                 or isinstance(power, float):
             return self.to_the_power_of(power)
-        return self.binary_operation_not_defined_error('**', power)
+        return self.binary_operation_not_defined_error("**", power)
 
     def to_the_power_of(self, power):
         from pynestml.symbols.predefined_types import PredefinedTypes
@@ -117,7 +117,7 @@ class UnitTypeSymbol(TypeSymbol):
             return self.warn_implicit_cast_from_to(other, self)
         if other.is_instance_of(UnitTypeSymbol):
             return self.add_or_sub_another_unit(other)
-        return self.binary_operation_not_defined_error('+', other)
+        return self.binary_operation_not_defined_error("+", other)
 
     def __sub__(self, other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
@@ -127,7 +127,7 @@ class UnitTypeSymbol(TypeSymbol):
             return self.warn_implicit_cast_from_to(other, self)
         if other.is_instance_of(UnitTypeSymbol):
             return self.add_or_sub_another_unit(other)
-        return self.binary_operation_not_defined_error('-', other)
+        return self.binary_operation_not_defined_error("-", other)
 
     def add_or_sub_another_unit(self, other):
         if self.equals(other):
@@ -146,7 +146,7 @@ class UnitTypeSymbol(TypeSymbol):
 
             return self
 
-        return self.binary_operation_not_defined_error('+/-', other)
+        return self.binary_operation_not_defined_error("+/-", other)
 
     @classmethod
     def get_conversion_factor(cls, _from, to) -> Optional[float]:
