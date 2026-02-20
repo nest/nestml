@@ -55,11 +55,9 @@ class TestSaturatingSTDP:
                              logging_level="INFO",
                              suffix="_nestml",
                              codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_neuron",
-                                                                     "synapse": "stdp_saturating_synapse",
-                                                                     "post_ports": ["post_spikes"]},
+                                                                     "synapses": {"stdp_saturating_synapse": {"post_ports": ["post_spikes"]}}},
                                                                     {"neuron": "izhikevich_neuron",
-                                                                     "synapse": "stdp_saturating_synapse",
-                                                                     "post_ports": ["post_spikes"]}],
+                                                                     "synapses": {"stdp_saturating_synapse": {"post_ports": ["post_spikes"]}}}],
                                            "delay_variable": {"stdp_saturating_synapse": "d"},
                                            "weight_variable": {"stdp_saturating_synapse": "w"}})
 

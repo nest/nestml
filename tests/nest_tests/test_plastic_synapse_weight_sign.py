@@ -63,8 +63,7 @@ class TestPlasticSynapseWeightSign:
         for synapse_model_name in synapse_model_names:
             files.append(os.path.join("models", "synapses", synapse_model_name + ".nestml"))
             codegen_opts["neuron_synapse_pairs"].append({"neuron": self.neuron_model_name,
-                                                         "synapse": synapse_model_name,
-                                                         "post_ports": ["post_spikes"]})
+                                                         "synapses": {synapse_model_name: {"post_ports": ["post_spikes"]}}})
             codegen_opts["delay_variable"][synapse_model_name] = "d"
             codegen_opts["weight_variable"][synapse_model_name] = "w"
 

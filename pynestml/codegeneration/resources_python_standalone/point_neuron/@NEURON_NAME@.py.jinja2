@@ -63,35 +63,35 @@ class Neuron_{{neuronName}}(Neuron):
 
   class Parameters_:
 {%- filter indent(4, False) %}
-{%- for variable_symbol in neuron.get_parameter_symbols() %}
-{%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-   include 'directives_py/MemberDeclaration.jinja2' %}
-{%- endfor %}
+{%-     for variable_symbol in neuron.get_parameter_symbols() %}
+{%-         set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-         include 'directives_py/MemberDeclaration.jinja2' %}
+{%-     endfor %}
 {%- endfilter %}
 
   class State_:
 {%- if numeric_state_variables|length > 0 %}
     ode_state = np.nan * np.ones({{ numeric_state_variables|length }})
     ode_state_variable_name_to_index = {
-{%- for var_name in numeric_state_variables %}
+{%-     for var_name in numeric_state_variables %}
         "{{ var_name }}" : {{ loop.index - 1 }},
-{%- endfor %}
+{%-     endfor %}
     }
 
-{% endif %}
+{%  endif %}
 {%- filter indent(4, False) %}
-{%- for variable_symbol in neuron.get_state_symbols() %}
-{%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-   include 'directives_py/MemberDeclaration.jinja2' %}
-{%- endfor %}
+{%-     for variable_symbol in neuron.get_state_symbols() %}
+{%-         set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-         include 'directives_py/MemberDeclaration.jinja2' %}
+{%-     endfor %}
 {%- endfilter %}
 
   class Variables_:
 {%- filter indent(4, False) %}
-{%- for variable_symbol in neuron.get_internal_symbols() %}
-{%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-   include "directives_py/MemberDeclaration.jinja2" %}
-{%- endfor %}
+{%-     for variable_symbol in neuron.get_internal_symbols() %}
+{%-         set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-         include "directives_py/MemberDeclaration.jinja2" %}
+{%-     endfor %}
 {%- endfilter %}
 
   class Buffers_:
@@ -160,21 +160,21 @@ class Neuron_{{neuronName}}(Neuron):
 
     if exclude_timestep:
   {%- filter indent(6,True) %}
-  {%- for variable_symbol in neuron.get_internal_symbols() %}
-  {%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-  {%-   if variable.name != "__h" %}
-  {%-     include "directives_py/MemberInitialization.jinja2" %}
-  {%-   endif %}
-  {%- endfor %}
+  {%-     for variable_symbol in neuron.get_internal_symbols() %}
+  {%-         set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+  {%-         if variable.name != "__h" %}
+  {%-             include "directives_py/MemberInitialization.jinja2" %}
+  {%-         endif %}
+  {%-     endfor %}
   {%- endfilter %}
       pass    # in case no variables
     else:
       # internals V_
   {%- filter indent(6) %}
-  {%- for variable_symbol in neuron.get_internal_symbols() %}
-  {%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-  {%-   include "directives_py/MemberInitialization.jinja2" %}
-  {%- endfor %}
+  {%-     for variable_symbol in neuron.get_internal_symbols() %}
+  {%-         set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+  {%-         include "directives_py/MemberInitialization.jinja2" %}
+  {%-     endfor %}
   {%- endfilter %}
       pass    # in case no variables
 
@@ -183,81 +183,84 @@ class Neuron_{{neuronName}}(Neuron):
   # ---------------------------------------------------------------------------
   #   Functions defined in the NESTML model
   # ---------------------------------------------------------------------------
-{% for function in neuron.get_functions() -%}
+{%      for function in neuron.get_functions() -%}
   {{ function_declaration.FunctionDeclaration(function, neuronName) }}:
-{%-   filter indent(4,True) %}
-{%-   with ast = function.get_stmts_body() %}
-{%-     include "directives_py/StmtsBody.jinja2" %}
-{%-   endwith %}
-{%-   endfilter %}
-{%- endfor %}
+{%-         filter indent(4,True) %}
+{%-             with ast = function.get_stmts_body() %}
+{%-                 include "directives_py/StmtsBody.jinja2" %}
+{%-             endwith %}
+{%-         endfilter %}
+{%-     endfor %}
 {%- endif %}
 
   # -------------------------------------------------------------------------
   #   Getters/setters for state block
   # -------------------------------------------------------------------------
-{% filter indent(2, True) -%}
-{%- for variable_symbol in neuron.get_state_symbols() %}
-{%-   if not is_delta_kernel(neuron.get_kernel_by_name(variable_symbol.get_symbol_name())) %}
-{%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     include "directives_py/MemberVariableGetterSetter.jinja2" %}
-{%-   endif %}
-{%- endfor %}
+{%  filter indent(2, True) -%}
+{%-     for variable_symbol in neuron.get_state_symbols() %}
+{%-         if not is_delta_kernel(neuron.get_kernel_by_name(variable_symbol.get_symbol_name())) %}
+{%-            set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-            include "directives_py/MemberVariableGetterSetter.jinja2" %}
+{%-         endif %}
+{%-     endfor %}
 {%- endfilter %}
 
   # -------------------------------------------------------------------------
   #   Getters/setters for parameters block
   # -------------------------------------------------------------------------
 {% filter indent(2, True) -%}
-{%- for variable_symbol in neuron.get_parameter_symbols() %}
-{%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-   include "directives_py/MemberVariableGetterSetter.jinja2" %}
-{%- endfor %}
+{%-     for variable_symbol in neuron.get_parameter_symbols() %}
+{%-         set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-         include "directives_py/MemberVariableGetterSetter.jinja2" %}
+{%-     endfor %}
 {%- endfilter %}
 
-{% if neuron.get_equations_blocks()|length > 0 %}
+{% if neuron.get_equations_blocks() | length > 0 %}
   # -------------------------------------------------------------------------
   #   Numeric + analytic solver stepping function
   # -------------------------------------------------------------------------
 
-{%- for ast in utils.get_all_integrate_odes_calls_unique(neuron) %}
+{%-     for ast in utils.get_all_integrate_odes_calls_unique(neuron) %}
 
-{%- if uses_numeric_solver %}
-{%  filter indent(2) %}
-{%-     include "directives_py/GSLDifferentiationFunction.jinja2" %}
-{%- endfilter %}
-{%- endif %}
+{%-         if uses_numeric_solver %}
+{%              filter indent(2) %}
+{%-                 include "directives_py/GSLDifferentiationFunction.jinja2" %}
+{%-             endfilter %}
+{%-         endif %}
 
   def _integrate_odes{% if ast.get_args() | length > 0 %}_{{ utils.integrate_odes_args_str_from_function_call(ast) }}{% endif %}(self, origin: float, timestep: float):
     r"""Integrate {% if ast.get_args() | length > 0 %}a subset of {% endif %}ODE(s) defined in the model equation block by one timestep.
-{%- if ast.get_args() | length > 0 %}
+{%-         if ast.get_args() | length > 0 %}
 
     The variables that will be integrated are: {{ ", ".join(utils.integrate_odes_args_strs_from_function_call(ast)) }}
-{%- endif %}
+{%-         endif %}
     """
-{%- filter indent(4) %}
+{%-         filter indent(4) %}
+{%-             if uses_analytic_solver %}
+{%-                 set analytic_state_variables_ = analytic_state_variables.copy() %}
+{%-                 if ast.get_args() | length > 0 %}
+{%-                     set analytic_state_variables_ = utils.filter_variables_list(analytic_state_variables_, ast.get_args()) %}
+{%-                 endif %}
 
-{%-     set analytic_state_variables_ = analytic_state_variables %}
-{%-     if ast.get_args() | length > 0 %}
-{%-         set analytic_state_variables_ = utils.filter_variables_list(analytic_state_variables_, ast.get_args()) %}
-{%-     endif %}
+{#-                  always integrate convolutions in time #}
+{%-                  for var in analytic_state_variables %}
+{%-                      if "__X__" in var %}
+{%-                          set tmp = analytic_state_variables_.append(var) %}
+{%-                      endif %}
+{%-                  endfor %}
 
-{#-      always integrate convolutions in time #}
-{%-      for var in analytic_state_variables %}
-{%-          if "__X__" in var %}
-{%-              set tmp = analytic_state_variables_.append(var) %}
-{%-          endif %}
-{%-      endfor %}
+{%-                 include "directives_py/AnalyticIntegrationStep_begin.jinja2" %}
+{%-             endif %}
 
-{%-     include "directives_py/AnalyticIntegrationStep_begin.jinja2" %}
+{%-             if uses_numeric_solver %}
+{%-                 include "directives_py/GSLIntegrationStep.jinja2" %}
+{%-             endif %}
 
-{%-     if uses_numeric_solver %}
-{%-        include "directives_py/GSLIntegrationStep.jinja2" %}
-{%-     endif %}
-
-{%-     include "directives_py/AnalyticIntegrationStep_end.jinja2" %}
-{%- endfilter %}
-{%- endfor %}
+{%-             if uses_analytic_solver %}
+{%-                 include "directives_py/AnalyticIntegrationStep_end.jinja2" %}
+{%-             endif %}
+{%-         endfilter %}
+{%-     endfor %}
 {%- endif %}
 
   def step(self, origin: float, timestep: float) -> None:

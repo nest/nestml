@@ -53,8 +53,7 @@ def nestml_generate_target():
                          codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                        "neuron_parent_class_include": "structural_plasticity_node.h",
                                        "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_fixed_timestep_neuron",
-                                                                 "synapse": "stdp_triplet_synapse",
-                                                                 "post_ports": ["post_spikes"]}],
+                                                                 "synapses": {"stdp_triplet_synapse": {"post_ports": ["post_spikes"]}}}],
                                        "delay_variable": {"stdp_triplet_synapse": "d"},
                                        "weight_variable": {"stdp_triplet_synapse": "w"}})
 

@@ -112,6 +112,8 @@ class CodeGenerator(WithOptions):
 
         # Environment for neuron templates
         env = Environment(loader=FileSystemLoader(_template_dirs))
+        env.globals["any"] = any    # make any() available in templates
+        env.globals["zip"] = zip    # make zip() available in templates
         env.globals["raise"] = self.raise_helper
         env.globals["is_delta_kernel"] = ASTUtils.is_delta_kernel
 
