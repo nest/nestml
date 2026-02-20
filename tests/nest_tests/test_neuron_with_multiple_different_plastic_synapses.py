@@ -30,7 +30,7 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
     import matplotlib
-    matplotlib.use('Agg')
+    matplotlib.use("Agg")
     import matplotlib.ticker
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
@@ -87,7 +87,7 @@ class TestNeuronWithMultipleDifferentSynapses:
             conns = nest.GetConnections(source=pre, target=post)
             if len(conns) == 0:
                 return None
-            return nest.GetStatus(conns, 'weight')[0]
+            return nest.GetStatus(conns, "weight")[0]
 
         # Run two independent experiments: only pre_neuron1 active, then only pre_neuron2 active.
         sim_time = 1000.0  # ms
@@ -113,12 +113,12 @@ class TestNeuronWithMultipleDifferentSynapses:
         nest.Connect(post, sr_post_A)
 
         # Poisson generator to drive pre_neuron1 only
-        pg_pre1 = nest.Create("poisson_generator", params={'rate': pre_rate, 'start': 0.0, 'stop': sim_time})
-        nest.Connect(pg_pre1, p1, syn_spec={'weight': 1.0, 'delay': 1.0})
+        pg_pre1 = nest.Create("poisson_generator", params={"rate": pre_rate, "start": 0.0, "stop": sim_time})
+        nest.Connect(pg_pre1, p1, syn_spec={"weight": 1.0, "delay": 1.0})
 
         # Background drive to make post neuron spike
-        pg_post = nest.Create("poisson_generator", params={'rate': post_rate, 'start': 0.0, 'stop': sim_time})
-        nest.Connect(pg_post, post, syn_spec={'weight': 10000.0, 'delay': 1.0})
+        pg_post = nest.Create("poisson_generator", params={"rate": post_rate, "start": 0.0, "stop": sim_time})
+        nest.Connect(pg_post, post, syn_spec={"weight": 10000.0, "delay": 1.0})
 
         # Read initial weights
         w1_before = read_weight(p1, post)
@@ -158,12 +158,12 @@ class TestNeuronWithMultipleDifferentSynapses:
         nest.Connect(post, sr_post_B)
 
         # Poisson generator to drive pre_neuron2 only
-        pg_pre2 = nest.Create("poisson_generator", params={'rate': pre_rate, 'start': 0.0, 'stop': sim_time})
-        nest.Connect(pg_pre2, p2, syn_spec={'weight': 1.0, 'delay': 1.0})
+        pg_pre2 = nest.Create("poisson_generator", params={"rate": pre_rate, "start": 0.0, "stop": sim_time})
+        nest.Connect(pg_pre2, p2, syn_spec={"weight": 1.0, "delay": 1.0})
 
         # Background drive to make post neuron spike
-        pg_post = nest.Create("poisson_generator", params={'rate': post_rate, 'start': 0.0, 'stop': sim_time})
-        nest.Connect(pg_post, post, syn_spec={'weight': 10000.0, 'delay': 1.0})
+        pg_post = nest.Create("poisson_generator", params={"rate": post_rate, "start": 0.0, "stop": sim_time})
+        nest.Connect(pg_post, post, syn_spec={"weight": 10000.0, "delay": 1.0})
 
         # Read initial weights
         w1_before = read_weight(p1, post)
@@ -189,23 +189,23 @@ class TestNeuronWithMultipleDifferentSynapses:
         fig, ax = plt.subplots(figsize=(10, 6))
 
         # Get spike data
-        data_p1 = nest.GetStatus(sr_p1, 'events')[0]
-        data_p2 = nest.GetStatus(sr_p2, 'events')[0]
-        data_post = nest.GetStatus(sr_post, 'events')[0]
+        data_p1 = nest.GetStatus(sr_p1, "events")[0]
+        data_p2 = nest.GetStatus(sr_p2, "events")[0]
+        data_post = nest.GetStatus(sr_post, "events")[0]
 
         # Plot spikes
-        ax.scatter(data_p1['times'], np.ones(len(data_p1['times'])), c='blue', label='p1', s=20)
-        ax.scatter(data_p2['times'], 2 * np.ones(len(data_p2['times'])), c='green', label='p2', s=20)
-        ax.scatter(data_post['times'], 3 * np.ones(len(data_post['times'])), c='red', label='post', s=20)
+        ax.scatter(data_p1["times"], np.ones(len(data_p1["times"])), c="blue", label="p1", s=20)
+        ax.scatter(data_p2["times"], 2 * np.ones(len(data_p2["times"])), c="green", label="p2", s=20)
+        ax.scatter(data_post["times"], 3 * np.ones(len(data_post["times"])), c="red", label="post", s=20)
 
         ax.set_yticks([1, 2, 3])
-        ax.set_yticklabels(['p1', 'p2', 'post'])
-        ax.set_xlabel('Time (ms)')
-        ax.set_ylabel('Neuron')
+        ax.set_yticklabels(["p1", "p2", "post"])
+        ax.set_xlabel("Time (ms)")
+        ax.set_ylabel("Neuron")
         ax.set_title(title)
         ax.legend()
         ax.grid(True, alpha=0.3)
 
         plt.tight_layout()
-        plt.savefig(f'/tmp/raster_{title.replace(" ", "_").replace(":", "")}.png')
+        plt.savefig("/tmp/raster_" + title.replace(" ", "_").replace(":", "") + ".png")
         plt.close()

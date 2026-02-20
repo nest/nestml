@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# test_neuron_with_multiple_different_plastic_synapses_vt.py
+# test_neuron_with_multiple_different_plastic_synapses_with_vt.py
 #
 # This file is part of NEST.
 #
@@ -32,7 +32,7 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
     import matplotlib
-    matplotlib.use('Agg')
+    matplotlib.use("Agg")
     import matplotlib.ticker
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
@@ -71,13 +71,13 @@ class TestNeuronWithMultipleDifferentSynapsesVt:
         syn2_path = os.path.join(base_path, model_files["synapse2"])
 
         # Create temporary files for the edited synapses
-        tmp_syn1 = tempfile.NamedTemporaryFile(suffix="_symm.nestml", mode='w', delete=False)
-        tmp_syn2 = tempfile.NamedTemporaryFile(suffix="_restr_symm.nestml", mode='w', delete=False)
+        tmp_syn1 = tempfile.NamedTemporaryFile(suffix="_symm.nestml", mode="w", delete=False)
+        tmp_syn2 = tempfile.NamedTemporaryFile(suffix="_restr_symm.nestml", mode="w", delete=False)
 
         tmp_paths = [tmp_syn1.name, tmp_syn2.name]
 
         def edit_nestml(src_path, dest_file):
-            with open(src_path, 'r') as f:
+            with open(src_path, "r") as f:
                 for line in f:
                     dest_file.write(line)
                     if "input:" in line:
@@ -92,24 +92,23 @@ class TestNeuronWithMultipleDifferentSynapsesVt:
             # Final input list for PyNESTML
             input_path = [neuron_path, tmp_syn1.name, tmp_syn2.name]
             generate_nest_target(input_path=input_path,
-                                logging_level="DEBUG",
-                                module_name="nestmlmodule",
-                                suffix="_nestml",
-                                codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                                        "synapses": {"stdp_nn_symm_synapse": {"post_ports": ["post_spikes"],
-                                                                                                            "vt_ports": ["mod_spikes"]},
-                                                                                     "stdp_nn_restr_symm_synapse": {"post_ports": ["post_spikes"],
-                                                                                                                    "vt_ports": ["mod_spikes"]}}}],
-                                            "delay_variable": {"stdp_nn_symm_synapse": "d",
-                                                                "stdp_nn_restr_symm_synapse": "d"},
-                                            "weight_variable": {"stdp_nn_symm_synapse": "w",
-                                                                "stdp_nn_restr_symm_synapse": "w"}})
+                                 logging_level="DEBUG",
+                                 module_name="nestmlmodule",
+                                 suffix="_nestml",
+                                 codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
+                                                                         "synapses": {"stdp_nn_symm_synapse": {"post_ports": ["post_spikes"],
+                                                                                                               "vt_ports": ["mod_spikes"]},
+                                                                                      "stdp_nn_restr_symm_synapse": {"post_ports": ["post_spikes"],
+                                                                                                                     "vt_ports": ["mod_spikes"]}}}],
+                                               "delay_variable": {"stdp_nn_symm_synapse": "d",
+                                                                  "stdp_nn_restr_symm_synapse": "d"},
+                                               "weight_variable": {"stdp_nn_symm_synapse": "w",
+                                                                   "stdp_nn_restr_symm_synapse": "w"}})
         finally:
-            # # Clean up temporary files
-            # for p in tmp_paths:
-            #     if os.path.exists(p):
-            #         os.remove(p)
-            pass
+            # Clean up temporary files
+            for p in tmp_paths:
+                if os.path.exists(p):
+                    os.remove(p)
 
     def test_neuron_with_multiple_different_synapses_vt(self):
         # Helper to read the single connection weight between a given pre and the post neuron
@@ -117,7 +116,7 @@ class TestNeuronWithMultipleDifferentSynapsesVt:
             conns = nest.GetConnections(source=pre, target=post)
             if len(conns) == 0:
                 return None
-            return nest.GetStatus(conns, 'weight')[0]
+            return nest.GetStatus(conns, "weight")[0]
 
         # Run two independent experiments: only pre_neuron1 active, then only pre_neuron2 active.
         sim_time = 1000.0  # ms
@@ -148,12 +147,12 @@ class TestNeuronWithMultipleDifferentSynapsesVt:
         nest.Connect(post, sr_post_A)
 
         # Poisson generator to drive pre_neuron1 only
-        pg_pre1 = nest.Create("poisson_generator", params={'rate': pre_rate, 'start': 0.0, 'stop': sim_time})
-        nest.Connect(pg_pre1, p1, syn_spec={'weight': 1.0, 'delay': 1.0})
+        pg_pre1 = nest.Create("poisson_generator", params={"rate": pre_rate, "start": 0.0, "stop": sim_time})
+        nest.Connect(pg_pre1, p1, syn_spec={"weight": 1.0, "delay": 1.0})
 
         # Background drive to make post neuron spike
-        pg_post = nest.Create("poisson_generator", params={'rate': post_rate, 'start': 0.0, 'stop': sim_time})
-        nest.Connect(pg_post, post, syn_spec={'weight': 10000.0, 'delay': 1.0})
+        pg_post = nest.Create("poisson_generator", params={"rate": post_rate, "start": 0.0, "stop": sim_time})
+        nest.Connect(pg_post, post, syn_spec={"weight": 10000.0, "delay": 1.0})
 
         # Read initial weights
         w1_before = read_weight(p1, post)
@@ -198,12 +197,12 @@ class TestNeuronWithMultipleDifferentSynapsesVt:
         nest.Connect(post, sr_post_B)
 
         # Poisson generator to drive pre_neuron2 only
-        pg_pre2 = nest.Create("poisson_generator", params={'rate': pre_rate, 'start': 0.0, 'stop': sim_time})
-        nest.Connect(pg_pre2, p2, syn_spec={'weight': 1.0, 'delay': 1.0})
+        pg_pre2 = nest.Create("poisson_generator", params={"rate": pre_rate, "start": 0.0, "stop": sim_time})
+        nest.Connect(pg_pre2, p2, syn_spec={"weight": 1.0, "delay": 1.0})
 
         # Background drive to make post neuron spike
-        pg_post = nest.Create("poisson_generator", params={'rate': post_rate, 'start': 0.0, 'stop': sim_time})
-        nest.Connect(pg_post, post, syn_spec={'weight': 10000.0, 'delay': 1.0})
+        pg_post = nest.Create("poisson_generator", params={"rate": post_rate, "start": 0.0, "stop": sim_time})
+        nest.Connect(pg_post, post, syn_spec={"weight": 10000.0, "delay": 1.0})
 
         # Read initial weights
         w1_before = read_weight(p1, post)
@@ -229,23 +228,23 @@ class TestNeuronWithMultipleDifferentSynapsesVt:
         fig, ax = plt.subplots(figsize=(10, 6))
 
         # Get spike data
-        data_p1 = nest.GetStatus(sr_p1, 'events')[0]
-        data_p2 = nest.GetStatus(sr_p2, 'events')[0]
-        data_post = nest.GetStatus(sr_post, 'events')[0]
+        data_p1 = nest.GetStatus(sr_p1, "events")[0]
+        data_p2 = nest.GetStatus(sr_p2, "events")[0]
+        data_post = nest.GetStatus(sr_post, "events")[0]
 
         # Plot spikes
-        ax.scatter(data_p1['times'], np.ones(len(data_p1['times'])), c='blue', label='p1', s=20)
-        ax.scatter(data_p2['times'], 2 * np.ones(len(data_p2['times'])), c='green', label='p2', s=20)
-        ax.scatter(data_post['times'], 3 * np.ones(len(data_post['times'])), c='red', label='post', s=20)
+        ax.scatter(data_p1["times"], np.ones(len(data_p1["times"])), c="blue", label="p1", s=20)
+        ax.scatter(data_p2["times"], 2 * np.ones(len(data_p2["times"])), c="green", label="p2", s=20)
+        ax.scatter(data_post["times"], 3 * np.ones(len(data_post["times"])), c="red", label="post", s=20)
 
         ax.set_yticks([1, 2, 3])
-        ax.set_yticklabels(['p1', 'p2', 'post'])
-        ax.set_xlabel('Time (ms)')
-        ax.set_ylabel('Neuron')
+        ax.set_yticklabels(["p1", "p2", "post"])
+        ax.set_xlabel("Time (ms)")
+        ax.set_ylabel("Neuron")
         ax.set_title(title)
         ax.legend()
         ax.grid(True, alpha=0.3)
 
         plt.tight_layout()
-        plt.savefig(f'/tmp/raster_{title.replace(" ", "_").replace(":", "")}.png')
+        plt.savefig("/tmp/raster_" + title.replace(" ", "_").replace(":", "") + "_vt.png")
         plt.close()
