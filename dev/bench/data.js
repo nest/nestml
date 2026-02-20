@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1771587094635,
+  "lastUpdate": 1771587391206,
   "repoUrl": "https://github.com/nest/nestml",
   "entries": {
     "Benchmark": [
@@ -297,6 +297,33 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.20234520082904736",
             "extra": "mean: 3.243869070599976 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "clinssen",
+            "username": "clinssen"
+          },
+          "committer": {
+            "name": "clinssen",
+            "username": "clinssen"
+          },
+          "id": "c907ac3079a9d72ab289624be49493ab1dac2d82",
+          "message": "Add support for neurons combined with multiple different plastic synapses",
+          "timestamp": "2026-02-04T18:30:36Z",
+          "url": "https://github.com/nest/nestml/pull/1310/commits/c907ac3079a9d72ab289624be49493ab1dac2d82"
+        },
+        "date": 1771587390917,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/nest_continuous_benchmarking/test_nest_continuous_benchmarking.py::TestNESTContinuousBenchmarking::test_stdp_nn_synapse",
+            "value": 0.3162126074803398,
+            "unit": "iter/sec",
+            "range": "stddev: 0.18339998073399202",
+            "extra": "mean: 3.1624292528000297 sec\nrounds: 5"
           }
         ]
       }
