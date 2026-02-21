@@ -23,6 +23,7 @@ from collections import defaultdict
 
 from odetoolbox import analysis
 from pynestml.cocos.co_cos_manager import CoCosManager
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 
 from pynestml.symbol_table.symbol_table import SymbolTable
@@ -116,8 +117,13 @@ class MechsInfoEnricher:
     def global_common_subexpression_elimination(cls, neuron: ASTModel, mechs_info: dict):
         nestml_printer = NESTMLPrinter()
         for mechanism_name, mechanism_info in mechs_info.items():
+            allowed = ["v_comp", "self_spikes"]
+
             simd_body_expressions = []
+            inlined_function_expressions = []
+
             expression_association = []
+            function_expression_association = []
 
             for ode_variable, ode_info in mechanism_info["ODEs"].items():
                 for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items():
@@ -134,28 +140,82 @@ class MechsInfoEnricher:
 
                 simd_body_expressions.append(parse_expr(cls._ode_toolbox_printer.print(mechanism_info["inline_derivative"])))
                 expression_association.append(["inline_derivative"])
-            else:
-                simd_body_expressions.append(parse_expr(cls._ode_toolbox_printer.print(mechanism_info["root_expression"].rhs)))
-                expression_association.append(["root_expression"])
+
+            for function in mechanism_info["Functions"]:
+                expression_collector = ASTFunctionExpressionExtractor()
+                function.accept(expression_collector)
+                function_expressions = expression_collector.expressions
+                function_expression_association += expression_collector.expressions
+                for function_expression in function_expressions:
+                    inlined_function_expressions.append(parse_expr(cls._ode_toolbox_printer.print(function_expression)))
+
 
             symb = sympy.numbered_symbols("simd_cse_tmp_"+mechanism_name)
 
-            replacements, reduced_exprs = sympy.cse(simd_body_expressions, symbols=symb)
+            replacements, reduced_exprs = sympy.cse(inlined_function_expressions+simd_body_expressions, symbols=symb)
 
-            simd_cse_replacements = dict()
+            invalid_vars = set(mechanism_info["States"].keys()) - set(allowed)
+            invalid_replacements = list()
+            for replacement in replacements:
+                new_invalids = set()
+                rep_expression_txt = cls.sympy_compatible_print(replacement[1])
+                devalidated = False
+                for state in invalid_vars:
+                    if rep_expression_txt.find(state) >= 0 and not devalidated:
+                        invalid_replacements.append(replacement)
+                        new_invalids.add(cls.sympy_compatible_print(replacement[0]))
+                        devalidated = True
+
+                invalid_vars = invalid_vars | new_invalids
+
+            valid_replacements = [replacement for replacement in replacements if replacement not in invalid_replacements]
+            invalid_replacements = list(reversed(invalid_replacements))
+            new_replacements = list()
+            for replacement in valid_replacements:
+                new_replacement_exp = replacement[1]
+                for invalid in invalid_replacements:
+                    new_replacement_exp = new_replacement_exp.subs(invalid[0], invalid[1])
+
+                new_replacements.append((replacement[0], new_replacement_exp))
+
+            replacements = new_replacements
+
+            new_expressions = list()
+            for expression in reduced_exprs:
+                new_expression = expression
+                for invalid in invalid_replacements:
+                    new_expression = new_expression.subs(invalid[0], invalid[1])
+
+                new_expressions.append(new_expression)
+
+            reduced_exprs = new_expressions
+
+            cse_replacements = dict()
+            parsed_parameters = list()
+            parsed_args = dict()
             for replacement in replacements:
                 parsed_replacement = ModelParser.parse_expression(cls.sympy_compatible_print(replacement[1]))
                 parsed_replacement.update_scope(neuron.get_equations_blocks()[0].get_scope())
                 parsed_replacement.accept(ASTSymbolTableVisitor())
 
-                simd_cse_replacements[cls.sympy_compatible_print(replacement[0])] = parsed_replacement
+                cse_replacements[cls.sympy_compatible_print(replacement[0])] = parsed_replacement
                 mechanism_info["non_vec_vars"].append(cls.sympy_compatible_print(replacement[0]))
 
                 ASTUtils.add_declaration_to_state_block(neuron, cls.sympy_compatible_print(replacement[0]), "0")
 
-            mechanism_info["cse_replacements"] = simd_cse_replacements
+                parsed_parameter = ModelParser.parse_parameter(cls.sympy_compatible_print(replacement[0])+" real")
+                parsed_parameter.update_scope(neuron.get_equations_blocks()[0].get_scope())
+                parsed_parameter.accept(ASTSymbolTableVisitor())
 
-            for reduced_expr, association in zip(reduced_exprs, expression_association):
+                parsed_parameters.append(parsed_parameter)
+
+                parsed_argument = ModelParser.parse_expression(cls.sympy_compatible_print(replacement[0]))
+                parsed_argument.update_scope(neuron.get_equations_blocks()[0].get_scope())
+                parsed_argument.accept(ASTSymbolTableVisitor())
+
+                parsed_args[cls.sympy_compatible_print(replacement[0])] = parsed_argument
+
+            for reduced_expr, association in zip(reduced_exprs[len(inlined_function_expressions):], expression_association):
 
                 expression = ModelParser.parse_expression(cls.sympy_compatible_print(reduced_expr))
                 expression.update_scope(neuron.get_equations_blocks()[0].get_scope())
@@ -167,6 +227,44 @@ class MechsInfoEnricher:
 
                 original[association[-1]] = expression
 
+            parsed_func_expressions = []
+            for reduced_expr in reduced_exprs[:len(inlined_function_expressions)]:
+                expression = ModelParser.parse_expression(cls.sympy_compatible_print(reduced_expr))
+                expression.update_scope(neuron.get_equations_blocks()[0].get_scope())
+                expression.accept(ASTSymbolTableVisitor())
+
+                parsed_func_expressions.append(expression)
+
+            all_function_arguments = set()
+            for function in mechanism_info["Functions"]:
+                replacer = ASTFunctionExpressionReplacer(function, function_expression_association, parsed_func_expressions, parsed_parameters)
+                function_arguments = list()
+                for arg_name in replacer.cse_function_vars:
+                    function_arguments.append(parsed_args[arg_name])
+                    all_function_arguments.add(arg_name)
+
+                cls.add_function_call_args(mechanism_info, function.name, function_arguments)
+                for replacement_name, replacement in cse_replacements.items():
+                    cls.add_function_call_args(replacement, function.name, function_arguments)
+
+            body_cse_replacements = dict()
+            function_cse_replacements = dict()
+
+            rev_cse_rep = dict(reversed(list(cse_replacements.items())))
+
+            f_found = False
+            for replacement_name, replacement in rev_cse_rep.items():
+                if f_found:
+                    function_cse_replacements[replacement_name] = replacement
+                elif replacement_name in all_function_arguments:
+                    function_cse_replacements[replacement_name] = replacement
+                    f_found = True
+                else:
+                    body_cse_replacements[replacement_name] = replacement
+
+            mechanism_info["cse_body_replacements"] = dict(reversed(list(body_cse_replacements.items())))
+            mechanism_info["cse_function_replacements"] = dict(reversed(list(function_cse_replacements.items())))
+
             SymbolTable.delete_model_scope(neuron.get_name())
             symbol_table_visitor = ASTSymbolTableVisitor()
             neuron.accept(symbol_table_visitor)
@@ -174,6 +272,19 @@ class MechsInfoEnricher:
             SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
 
         return mechs_info
+
+    @classmethod
+    def add_function_call_args(cls, obj, function_name, function_arguments):
+        if isinstance(obj, dict):
+            for v in obj.values():
+                cls.add_function_call_args(v, function_name, function_arguments)
+
+        elif isinstance(obj, (list, tuple, set)):
+            for item in obj:
+                cls.add_function_call_args(item, function_name, function_arguments)
+
+        elif isinstance(obj, ASTNode):
+            ASTFunctionCallParameterAdder(obj, function_name, function_arguments)
 
     @classmethod
     def create_non_vec_variables(cls, mechs_info: dict):
@@ -686,3 +797,99 @@ class ASTUsedVariableNamesExtractor(ASTVisitor):
 
     def visit_variable(self, node):
         self.variable_names.add(node.get_name())
+
+class ASTFunctionExpressionExtractor(ASTVisitor):
+    def __init__(self):
+        super(ASTFunctionExpressionExtractor, self).__init__()
+        self.expressions = []
+        self.inside_expression = False
+        self.recursion_depth = 0
+
+    def visit_expression(self, node):
+        self.recursion_depth += 1
+        if not self.inside_expression:
+            self.inside_expression = True
+            self.expressions.append(node)
+
+    def endvisit_expression(self, node):
+        self.recursion_depth -= 1
+        if self.recursion_depth == 0:
+            self.inside_expression = False
+
+
+class ASTFunctionExpressionReplacer(ASTVisitor):
+    def __init__(self, node, originals, replacements, parameters):
+        super(ASTFunctionExpressionReplacer, self).__init__()
+        self.originals = originals
+        self.replacements = replacements
+        self.parameters = dict()
+        self.cse_vars = set()
+        for parameter in parameters:
+            self.parameters[parameter.name] = parameter
+            self.cse_vars.add(parameter.name)
+
+        self.inside_expression = False
+        self.inside_function = False
+        self.inside_variable = False
+        self.recursion_depth = 0
+        self.cse_function_vars = set()
+        node.accept(self)
+
+    def visit_expression(self, node):
+        self.recursion_depth += 1
+        self.inside_expression = True
+
+    def endvisit_expression(self, node):
+        self.recursion_depth -= 1
+        if self.recursion_depth == 0:
+            for original, replacement in zip(self.originals, self.replacements):
+                if node.equals(original):
+                    node.is_encapsulated = replacement.is_encapsulated
+                    node.is_logical_not = replacement.is_logical_not
+                    node.unary_operator = replacement.unary_operator
+                    node.expression = replacement.expression
+                    node.lhs = replacement.lhs
+                    node.binary_operator = replacement.binary_operator
+                    node.rhs = replacement.rhs
+                    node.condition = replacement.condition
+                    node.if_true = replacement.if_true
+                    node.if_not = replacement.if_not
+                    node.has_delay = replacement.has_delay
+
+                    node.accept(ASTParentVisitor())
+
+            self.inside_expression = False
+
+    def visit_function(self, node):
+        self.inside_function = True
+        
+    def endvisit_function(self, node):
+        self.inside_function = False
+        var_extractor = ASTUsedVariableNamesExtractor(node)
+        self.cse_function_vars = self.cse_vars & var_extractor.variable_names
+        for new_param in self.cse_function_vars:
+            node.parameters.append(self.parameters[new_param])
+
+        node.accept(ASTParentVisitor())
+
+
+class ASTFunctionCallParameterAdder(ASTVisitor):
+    def __init__(self, node, function_name, parameters):
+        super(ASTFunctionCallParameterAdder, self).__init__()
+        self.parameters = parameters
+        self.function_name = function_name
+        self.inside_function_call = False
+        self.recursion = 0
+        node.accept(self)
+
+    def visit_function_call(self, node):
+        self.inside_function_call = True
+        self.recursion += 1
+        if node.callee_name == self.function_name:
+            node.args += self.parameters
+
+    def endvisit_function_call(self, node):
+        self.recursion -= 1
+        if self.recursion == 0:
+            self.inside_function_call = False
+

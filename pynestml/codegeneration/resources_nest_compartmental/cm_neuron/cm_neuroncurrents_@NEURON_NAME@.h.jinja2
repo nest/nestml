@@ -148,7 +148,7 @@ public:
     // root_inline getter
     void get_currents_per_compartment(std::vector< double >& compartment_to_current);
 
-    std::vector< double > distribute_shared_vector(std::vector< double > shared_vector);
+    void distribute_shared_vector(std::vector< double >& shared_vector, std::vector< double >& distributed_vector);
 
 };
 {% endfor -%}
@@ -253,7 +253,7 @@ public:
     // root_ode getter
     void get_concentrations_per_compartment(std::vector< double >& compartment_to_concentration);
 
-    std::vector< double > distribute_shared_vector(std::vector< double > shared_vector);
+    void distribute_shared_vector(std::vector< double >& shared_vector, std::vector< double >& distributed_vector);
 
 };
 {% endfor -%}
@@ -378,7 +378,7 @@ public:
     // root_inline getter
     void get_currents_per_compartment(std::vector< double >& compartment_to_current);
 
-    std::vector< double > distribute_shared_vector(std::vector< double > shared_vector);
+    void distribute_shared_vector(std::vector< double >& shared_vector, std::vector< double >& distributed_vector);
 
 };
 
@@ -581,7 +581,7 @@ public:
     // root_inline getter
     void get_currents_per_compartment(std::vector< double >& compartment_to_current);
 
-    std::vector< double > distribute_shared_vector(std::vector< double > shared_vector);
+    void distribute_shared_vector(std::vector< double >& shared_vector, std::vector< double >& distributed_vector);
 
     void get_history__( double t1,
     double t2,
@@ -707,7 +707,7 @@ public:
     // root_inline getter
     void get_currents_per_compartment(std::vector< double >& compartment_to_current);
 
-    std::vector< double > distribute_shared_vector(std::vector< double > shared_vector);
+    void distribute_shared_vector(std::vector< double >& shared_vector, std::vector< double >& distributed_vector);
 
 };
 
