@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1771685822374,
+  "lastUpdate": 1771703795825,
   "repoUrl": "https://github.com/nest/nestml",
   "entries": {
     "Benchmark": [
@@ -378,6 +378,33 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.17742588662404624",
             "extra": "mean: 3.1365316333999997 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "clinssen",
+            "username": "clinssen"
+          },
+          "committer": {
+            "name": "clinssen",
+            "username": "clinssen"
+          },
+          "id": "5d43d4de6ad26ed119b1ce0687bee75fe10e1e6a",
+          "message": "Add GL model tutorial notebook",
+          "timestamp": "2026-02-04T18:30:36Z",
+          "url": "https://github.com/nest/nestml/pull/1287/commits/5d43d4de6ad26ed119b1ce0687bee75fe10e1e6a"
+        },
+        "date": 1771703795113,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/nest_continuous_benchmarking/test_nest_continuous_benchmarking.py::TestNESTContinuousBenchmarking::test_stdp_nn_synapse",
+            "value": 0.31951028381720054,
+            "unit": "iter/sec",
+            "range": "stddev: 0.16688087536679247",
+            "extra": "mean: 3.1297897145999967 sec\nrounds: 5"
           }
         ]
       }
