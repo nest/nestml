@@ -290,13 +290,22 @@ class MechsInfoEnricher:
     def create_non_vec_variables(cls, mechs_info: dict):
         enriched_mechs_info = copy.copy(mechs_info)
         for mechanism_name, mechanism_info in mechs_info.items():
-            non_vec_vars = ["self_spikes"]
+            non_vec_vars = ["self_spikes", "v_comp"]
             if "time_resolution_var" in mechanism_info:
                 non_vec_vars.append(mechanism_info["time_resolution_var"].name)
 
             for ode_variable, ode_info in mechanism_info["ODEs"].items():
                 for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items():
                     non_vec_vars.append(propagator)
+
+            for inline in mechanism_info["Dependencies"]["concentrations"]:
+                non_vec_vars.append(inline.variable_name)
+            for inline in mechanism_info["Dependencies"]["receptors"]:
+                non_vec_vars.append(inline.variable_name)
+            for inline in mechanism_info["Dependencies"]["channels"]:
+                non_vec_vars.append(inline.variable_name)
+            for inline in mechanism_info["Dependencies"]["continuous"]:
+                non_vec_vars.append(inline.variable_name)
 
             enriched_mechs_info[mechanism_name]["non_vec_vars"] = non_vec_vars
 

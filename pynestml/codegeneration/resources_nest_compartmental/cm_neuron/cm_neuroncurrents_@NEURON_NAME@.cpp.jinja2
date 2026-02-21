@@ -392,10 +392,10 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::pre_run_hook() {
     }
 }
 
-void nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(const std::vector< double >& v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, const std::vector< double >& {{ode.lhs.name}}{% endfor %}{% if channel_info["Dependencies"]["receptors"]|length %}
-                        {% endif %}{% for inline in channel_info["Dependencies"]["receptors"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}{% if channel_info["Dependencies"]["channels"]|length %}
-                        {% endif %}{% for inline in channel_info["Dependencies"]["channels"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}{% if channel_info["Dependencies"]["continuous"]|length %}
-                        {% endif %}{% for inline in channel_info["Dependencies"]["continuous"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}
+void nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(const std::vector< double >& shared_v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, const std::vector< double >& shared_{{ode.lhs.name}}{% endfor %}{% if channel_info["Dependencies"]["receptors"]|length %}
+                        {% endif %}{% for inline in channel_info["Dependencies"]["receptors"] %}, const std::vector< double >& shared_{{inline.variable_name}}{% endfor %}{% if channel_info["Dependencies"]["channels"]|length %}
+                        {% endif %}{% for inline in channel_info["Dependencies"]["channels"] %}, const std::vector< double >& shared_{{inline.variable_name}}{% endfor %}{% if channel_info["Dependencies"]["continuous"]|length %}
+                        {% endif %}{% for inline in channel_info["Dependencies"]["continuous"] %}, const std::vector< double >& shared_{{inline.variable_name}}{% endfor %}
                         , std::vector< double >& i_val, std::vector< double >& g_val)
 {
         {% if "time_resolution_var" in channel_info %}
@@ -408,6 +408,20 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(const std::vector
 
         #pragma omp simd
         for(std::size_t i = 0; i < neuron_{{ ion_channel_name }}_channel_count; i++){
+            double v_comp = shared_v_comp[compartment_association[i]];
+            {% for inline in channel_info["Dependencies"]["concentrations"] %}
+            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% endfor %}
+            {% for inline in channel_info["Dependencies"]["receptors"] %}
+            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% endfor %}
+            {% for inline in channel_info["Dependencies"]["channels"] %}
+            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% endfor %}
+            {% for inline in channel_info["Dependencies"]["continuous"] %}
+            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% endfor %}
+
         {%- for replacement, expression in channel_info["cse_function_replacements"].items() %}
             double {{ replacement }} = {{ vector_printer.print(expression, "i", non_vec_vars) }};
         {%- endfor %}
@@ -440,7 +454,7 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(const std::vector
             // derivative
             double d_i_tot_dv = {{ vector_printer.print(inline_expression_d, "i", non_vec_vars) }};
             g_val[i] = - d_i_tot_dv;
-            i_val[i] = i_tot_{{ion_channel_name}}[i] - d_i_tot_dv * v_comp[i];
+            i_val[i] = i_tot_{{ion_channel_name}}[i] - d_i_tot_dv * v_comp;
         }
     f_update();
 
@@ -722,7 +736,7 @@ nest::{{ concentration_name }}{{cm_unique_suffix}}::append_recordables(std::map<
   {%- set variable_name = variable_info.variable_name %}
   found_rec = false;
   for(size_t conc_id = 0; conc_id < neuron_{{ concentration_name }}_concentration_count; conc_id++){
-      if(compartment_association[chan_id] == compartment_idx){
+      if(compartment_association[conc_id] == compartment_idx){
         ( *recordables )[ Name( std::string("{{variable_name}}") + std::to_string(compartment_idx))] = &{{variable_name}}[conc_id];
         found_rec = true;
       }
@@ -774,10 +788,10 @@ void nest::{{ concentration_name }}{{cm_unique_suffix}}::pre_run_hook() {
     }
 }
 
-void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(const std::vector< double >& v_comp{% for ode in concentration_info["Dependencies"]["concentrations"] %}, const std::vector< double >& {{ode.lhs.name}}{% endfor %}{% if concentration_info["Dependencies"]["receptors"]|length %}
-                        {% endif %}{% for inline in concentration_info["Dependencies"]["receptors"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["channels"]|length %}
-                        {% endif %}{% for inline in concentration_info["Dependencies"]["channels"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["continuous"]|length %}
-                        {% endif %}{% for inline in concentration_info["Dependencies"]["continuous"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %})
+void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(const std::vector< double >& shared_v_comp{% for ode in concentration_info["Dependencies"]["concentrations"] %}, const std::vector< double >& shared_{{ode.lhs.name}}{% endfor %}{% if concentration_info["Dependencies"]["receptors"]|length %}
+                        {% endif %}{% for inline in concentration_info["Dependencies"]["receptors"] %}, const std::vector< double >& shared_{{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["channels"]|length %}
+                        {% endif %}{% for inline in concentration_info["Dependencies"]["channels"] %}, const std::vector< double >& shared_{{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["continuous"]|length %}
+                        {% endif %}{% for inline in concentration_info["Dependencies"]["continuous"] %}, const std::vector< double >& shared_{{inline.variable_name}}{% endfor %})
 {
     {% if "time_resolution_var" in concentration_info %}
         double {{ printer_no_origin.print(concentration_info["time_resolution_var"]) }} = Time::get_resolution().get_ms();
@@ -789,6 +803,20 @@ void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(const std::ve
 
         #pragma omp simd
         for(std::size_t i = 0; i < neuron_{{ concentration_name }}_concentration_count; i++){
+            double v_comp = shared_v_comp[compartment_association[i]];
+            {% for inline in concentration_info["Dependencies"]["concentrations"] %}
+            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% endfor %}
+            {% for inline in concentration_info["Dependencies"]["receptors"] %}
+            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% endfor %}
+            {% for inline in concentration_info["Dependencies"]["channels"] %}
+            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% endfor %}
+            {% for inline in concentration_info["Dependencies"]["continuous"] %}
+            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% endfor %}
+
         {%- for replacement, expression in concentration_info["cse_function_replacements"].items() %}
             double {{ replacement }} = {{ vector_printer.print(expression, "i", non_vec_vars) }};
         {%- endfor %}
@@ -1025,7 +1053,7 @@ nest::{{receptor_name}}{{cm_unique_suffix}}::append_recordables(std::map< Name, 
   {%- set variable_name = variable_info.variable_name %}
   found_rec = false;
   for(size_t recs_id = 0; recs_id < neuron_{{ receptor_name }}_receptor_count; recs_id++){
-      if(compartment_association[chan_id] == compartment_idx){
+      if(compartment_association[recs_id] == compartment_idx){
         ( *recordables )[ Name( std::string("{{variable_name}}") + std::to_string(compartment_idx))] = &{{variable_name}}[recs_id];
         found_rec = true;
       }
@@ -1077,10 +1105,10 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::pre_run_hook()
   }
 }
 
-void nest::{{receptor_name}}{{cm_unique_suffix}}::f_numstep(const std::vector< double >& v_comp, const long& lag {% for ode in receptor_info["Dependencies"]["concentrations"] %}, const std::vector< double >& {{ode.lhs.name}}{% endfor %}{% if receptor_info["Dependencies"]["receptors"]|length %}
-                        {% endif %}{% for inline in receptor_info["Dependencies"]["receptors"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}{% if receptor_info["Dependencies"]["channels"]|length %}
-                        {% endif %}{% for inline in receptor_info["Dependencies"]["channels"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}{% if receptor_info["Dependencies"]["continuous"]|length %}
-                        {% endif %}{% for inline in receptor_info["Dependencies"]["continuous"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}
+void nest::{{receptor_name}}{{cm_unique_suffix}}::f_numstep(const std::vector< double >& shared_v_comp, const long& lag {% for ode in receptor_info["Dependencies"]["concentrations"] %}, const std::vector< double >& shared_{{ode.lhs.name}}{% endfor %}{% if receptor_info["Dependencies"]["receptors"]|length %}
+                        {% endif %}{% for inline in receptor_info["Dependencies"]["receptors"] %}, const std::vector< double >& shared_{{inline.variable_name}}{% endfor %}{% if receptor_info["Dependencies"]["channels"]|length %}
+                        {% endif %}{% for inline in receptor_info["Dependencies"]["channels"] %}, const std::vector< double >& shared_{{inline.variable_name}}{% endfor %}{% if receptor_info["Dependencies"]["continuous"]|length %}
+                        {% endif %}{% for inline in receptor_info["Dependencies"]["continuous"] %}, const std::vector< double >& shared_{{inline.variable_name}}{% endfor %}
                         , std::vector< double >& i_val, std::vector< double >& g_val)
 {
     {% if receptor_info["ODEs"].items()|length %} double {{ printer_no_origin.print(receptor_info["analytic_helpers"]["__h"]["ASTVariable"]) }} = Time::get_resolution().get_ms(); {% endif %}
@@ -1097,6 +1125,20 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::f_numstep(const std::vector< d
       //update ODE state variable
   #pragma omp simd
   for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
+            double v_comp = shared_v_comp[compartment_association[i]];
+            {% for inline in receptor_info["Dependencies"]["concentrations"] %}
+            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% endfor %}
+            {% for inline in receptor_info["Dependencies"]["receptors"] %}
+            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% endfor %}
+            {% for inline in receptor_info["Dependencies"]["channels"] %}
+            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% endfor %}
+            {% for inline in receptor_info["Dependencies"]["continuous"] %}
+            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% endfor %}
+
         {%- for replacement, expression in receptor_info["cse_function_replacements"].items() %}
             double {{ replacement }} = {{ vector_printer.print(expression, "i", non_vec_vars) }};
         {%- endfor %}
@@ -1137,7 +1179,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::f_numstep(const std::vector< d
 
       // for numerical integration
       g_val[i] = - d_i_tot_dv;
-      i_val[i] = i_tot_{{receptor_name}}[i] - d_i_tot_dv * v_comp[i];
+      i_val[i] = i_tot_{{receptor_name}}[i] - d_i_tot_dv * v_comp;
   }
 
   f_update();
@@ -1461,7 +1503,7 @@ nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::append_recorda
   {%- set variable_name = variable_info.variable_name %}
   found_rec = false;
   for(size_t recs_id = 0; recs_id < neuron_{{ receptor_name }}_receptor_count; recs_id++){
-      if(compartment_association[chan_id] == compartment_idx){
+      if(compartment_association[recs_id] == compartment_idx){
         ( *recordables )[ Name( std::string("{{variable_name}}") + std::to_string(compartment_idx))] = &{{variable_name}}[recs_id];
         found_rec = true;
       }
@@ -1547,18 +1589,16 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::postsynap
         {%-   endfilter %}
     }
 }
-    {%- with  %}
     {%- set conc_dep = set(receptor_info["Dependencies"]["concentrations"]).union(synapse_info["Dependencies"]["concentrations"])%}
     {%- set rec_dep = set(receptor_info["Dependencies"]["receptors"]).union(synapse_info["Dependencies"]["receptors"])%}
     {%- set chan_dep = set(receptor_info["Dependencies"]["channels"]).union(synapse_info["Dependencies"]["channels"])%}
     {%- set con_in_dep = set(receptor_info["Dependencies"]["continuous"]).union(synapse_info["Dependencies"]["continuous"])%}
-void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep(const std::vector< double >& v_comp, const long& lag {% for ode in conc_dep %}, const std::vector< double >& {{ode.lhs.name}}{% endfor %}{% if rec_dep|length %}
-                        {% endif %}{% for inline in rec_dep %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}{% if chan_dep|length %}
-                        {% endif %}{% for inline in chan_dep %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}{% if con_in_dep|length %}
-                        {% endif %}{% for inline in con_in_dep %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}
+void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep(const std::vector< double >& shared_v_comp, const long& lag {% for ode in conc_dep %}, const std::vector< double >& shared_{{ode.lhs.name}}{% endfor %}{% if rec_dep|length %}
+                        {% endif %}{% for inline in rec_dep %}, const std::vector< double >& shared_{{inline.variable_name}}{% endfor %}{% if chan_dep|length %}
+                        {% endif %}{% for inline in chan_dep %}, const std::vector< double >& shared_{{inline.variable_name}}{% endfor %}{% if con_in_dep|length %}
+                        {% endif %}{% for inline in con_in_dep %}, const std::vector< double >& shared_{{inline.variable_name}}{% endfor %}
                         , std::vector< double >& i_val, std::vector< double >& g_val)
 {
-    {%- endwith %}
 
     for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
       // get spikes
@@ -1635,6 +1675,20 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep
       //update ODE state variable
   #pragma omp simd
   for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
+            double v_comp = shared_v_comp[compartment_association[i]];
+            {% for inline in conc_dep %}
+            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% endfor %}
+            {% for inline in rec_dep %}
+            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% endfor %}
+            {% for inline in chan_dep %}
+            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% endfor %}
+            {% for inline in con_in_dep %}
+            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% endfor %}
+
         {%- for replacement, expression in receptor_info["cse_function_replacements"].items() %}
             double {{ replacement }} = {{ vector_printer.print(expression, "i", non_vec_vars) }};
         {%- endfor %}
@@ -1675,7 +1729,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep
 
       // for numerical integration
       g_val[i] = - d_i_tot_dv;
-      i_val[i] = i_tot_{{receptor_name}}[i] - d_i_tot_dv * v_comp[i];
+      i_val[i] = i_tot_{{receptor_name}}[i] - d_i_tot_dv * v_comp;
     }
 
   f_update();
@@ -1897,7 +1951,7 @@ nest::{{continuous_name}}{{cm_unique_suffix}}::append_recordables(std::map< Name
   {%- set variable_name = variable_info.variable_name %}
   found_rec = false;
   for(size_t con_in_id = 0; con_in_id < neuron_{{ continuous_name }}_continuous_input_count; con_in_id++){
-      if(compartment_association[chan_id] == compartment_idx){
+      if(compartment_association[con_in_id] == compartment_idx){
         ( *recordables )[ Name( std::string("{{variable_name}}") + std::to_string(compartment_idx))] = &{{variable_name}}[con_in_id];
         found_rec = true;
       }
@@ -1942,10 +1996,10 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::pre_run_hook()
   }
 }
 
-void nest::{{continuous_name}}{{cm_unique_suffix}}::f_numstep(const std::vector< double >& v_comp, const long& lag {% for ode in continuous_info["Dependencies"]["concentrations"] %}, const std::vector< double >& {{ode.lhs.name}}{% endfor %}{% if continuous_info["Dependencies"]["receptors"]|length %}
-                        {% endif %}{% for inline in continuous_info["Dependencies"]["receptors"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}{% if continuous_info["Dependencies"]["channels"]|length %}
-                        {% endif %}{% for inline in continuous_info["Dependencies"]["channels"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}{% if continuous_info["Dependencies"]["continuous"]|length %}
-                        {% endif %}{% for inline in continuous_info["Dependencies"]["continuous"] %}, const std::vector< double >& {{inline.variable_name}}{% endfor %}
+void nest::{{continuous_name}}{{cm_unique_suffix}}::f_numstep(const std::vector< double >& shared_v_comp, const long& lag {% for ode in continuous_info["Dependencies"]["concentrations"] %}, const std::vector< double >& shared_{{ode.lhs.name}}{% endfor %}{% if continuous_info["Dependencies"]["receptors"]|length %}
+                        {% endif %}{% for inline in continuous_info["Dependencies"]["receptors"] %}, const std::vector< double >& shared_{{inline.variable_name}}{% endfor %}{% if continuous_info["Dependencies"]["channels"]|length %}
+                        {% endif %}{% for inline in continuous_info["Dependencies"]["channels"] %}, const std::vector< double >& shared_{{inline.variable_name}}{% endfor %}{% if continuous_info["Dependencies"]["continuous"]|length %}
+                        {% endif %}{% for inline in continuous_info["Dependencies"]["continuous"] %}, const std::vector< double >& shared_{{inline.variable_name}}{% endfor %}
                         , std::vector< double >& i_val, std::vector< double >& g_val)
 {
 
@@ -1969,6 +2023,20 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::f_numstep(const std::vector<
 
   #pragma omp simd
   for(std::size_t i = 0; i < neuron_{{ continuous_name }}_continuous_input_count; i++){
+            double v_comp = shared_v_comp[compartment_association[i]];
+            {% for inline in receptor_info["Dependencies"]["concentrations"] %}
+            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% endfor %}
+            {% for inline in receptor_info["Dependencies"]["receptors"] %}
+            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% endfor %}
+            {% for inline in receptor_info["Dependencies"]["channels"] %}
+            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% endfor %}
+            {% for inline in receptor_info["Dependencies"]["continuous"] %}
+            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% endfor %}
+
         {%- for replacement, expression in continuous_info["cse_function_replacements"].items() %}
             double {{ replacement }} = {{ vector_printer.print(expression, "i", non_vec_vars) }};
         {%- endfor %}
@@ -2004,7 +2072,7 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::f_numstep(const std::vector<
 
       // for numerical integration
       g_val[i] = - d_i_tot_dv;
-      i_val[i] = i_tot_{{continuous_name}}[i] - d_i_tot_dv * v_comp[i];
+      i_val[i] = i_tot_{{continuous_name}}[i] - d_i_tot_dv * v_comp;
   }
 
   f_update();
