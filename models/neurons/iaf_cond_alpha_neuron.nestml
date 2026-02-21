@@ -1,45 +1,45 @@
 # iaf_cond_alpha - Simple conductance based leaky integrate-and-fire neuron model
 # ###############################################################################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # iaf_cond_alpha is an implementation of a spiking neuron using IAF dynamics with
 # conductance-based synapses. Incoming spike events induce a post-synaptic change
 # of conductance modelled by an alpha function. The alpha function
 # is normalised such that an event of weight 1.0 results in a peak current of 1 nS
 # at :math:`t = \tau_{syn}`.
-# 
-# 
+#
 # References
 # ++++++++++
-# 
+#
 # .. [1] Meffin H, Burkitt AN, Grayden DB (2004). An analytical
 #        model for the large, fluctuating synaptic conductance state typical of
 #        neocortical neurons in vivo. Journal of Computational Neuroscience,
 #        16:159-175.
 #        DOI: https://doi.org/10.1023/B:JCNS.0000014108.03012.81
+#
 # .. [2] Bernander O, Douglas RJ, Martin KAC, Koch C (1991). Synaptic background
 #        activity influences spatiotemporal integration in single pyramidal
-#        cells.  Proceedings of the National Academy of Science USA,
+#        cells. Proceedings of the National Academy of Science USA,
 #        88(24):11569-11573.
 #        DOI: https://doi.org/10.1073/pnas.88.24.11569
+#
 # .. [3] Kuhn A, Rotter S (2004) Neuronal integration of synaptic input in
 #        the fluctuation- driven regime. Journal of Neuroscience,
 #        24(10):2345-2356
 #        DOI: https://doi.org/10.1523/JNEUROSCI.3349-03.2004
-# 
+#
 # See also
 # ++++++++
-# 
-# iaf_cond_exp
 #
+# iaf_cond_exp
 #
 # Copyright statement
 # +++++++++++++++++++
 #
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
 #
 # NEST is free software: you can redistribute it and/or modify
@@ -55,27 +55,26 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
-#
 model iaf_cond_alpha_neuron:
     state:
         V_m mV = E_L    # Membrane potential
         refr_t ms = 0 ms    # Refractory period timer
 
     equations:
-        kernel g_inh = (e/tau_syn_inh) * t * exp(-t/tau_syn_inh)
-        kernel g_exc = (e/tau_syn_exc) * t * exp(-t/tau_syn_exc)
+        kernel g_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
+        kernel g_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
 
-        inline I_syn_exc pA = convolve(g_exc, exc_spikes) * nS * ( V_m - E_exc )
-        inline I_syn_inh pA = convolve(g_inh, inh_spikes) * nS * ( V_m - E_inh )
-        inline I_leak pA = g_L * ( V_m - E_L )
+        inline I_syn_exc pA = convolve(g_exc, exc_spikes) * nS * (V_m - E_exc)
+        inline I_syn_inh pA = convolve(g_inh, inh_spikes) * nS * (V_m - E_inh)
+        inline I_leak pA = g_L * (V_m - E_L)
 
-        V_m' = ( -I_leak - I_syn_exc - I_syn_inh + I_e + I_stim ) / C_m
+        V_m' = (-I_leak - I_syn_exc - I_syn_inh + I_e + I_stim) / C_m
         refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
 
     parameters:
         C_m pF = 250 pF          # Membrane capacitance
         g_L nS = 16.6667 nS      # Leak conductance
-        E_L mV = -70 mV          # Leak reversal potential (aka resting potential)
+        E_L mV = -70 mV          # Leak reversal potential (a.k.a. resting potential)
         refr_T ms = 2 ms         # Duration of refractory period
         V_th mV = -55 mV         # Spike threshold potential
         V_reset mV = -60 mV      # Reset potential

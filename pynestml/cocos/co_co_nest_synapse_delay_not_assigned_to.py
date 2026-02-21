@@ -51,5 +51,5 @@ class CoCoNESTSynapseDelayNotAssignedToVisitor(ASTVisitor):
         variable = node.get_variable()
         if variable.get_name() == self.delay_variable_:
             Logger.log_message(error_position=node.get_source_position(),
-                               code=None, message="Delay variable '" + str(variable.get_name()) + "' may not be assigned to in NEST synapse models",
+                               code=None, message="Delay variable \"" + str(variable.get_name()) + "\" may not be assigned to in NEST synapse models",
                                log_level=LoggingLevel.ERROR)

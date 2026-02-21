@@ -50,20 +50,20 @@ class VectorCodeGenerationTest(unittest.TestCase):
         Logger.init_logger(LoggingLevel.INFO)
 
         self.target_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, 'target'))))
+            os.pardir, "target"))))
 
     def test_vector_code_generation(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            'resources', 'VectorsDeclarationAndAssignment.nestml'))))
+            "resources", "VectorsDeclarationAndAssignment.nestml"))))
 
         params = list()
-        params.append('--input_path')
+        params.append("--input_path")
         params.append(input_path)
-        params.append('--logging_level')
-        params.append('INFO')
-        params.append('--target_path')
+        params.append("--logging_level")
+        params.append("INFO")
+        params.append("--target_path")
         params.append(self.target_path)
-        params.append('--dev')
+        params.append("--dev")
         FrontendConfiguration.parse_config(params)
 
         compilation_unit = ModelParser.parse_file(input_path)

@@ -26,7 +26,6 @@
 #        of STDP and dopamine signaling. Cerebral Cortex, 17(10):2443-2452.
 #        DOI: https://doi.org/10.1093/cercor/bhl152
 #
-#
 # Copyright statement
 # +++++++++++++++++++
 #
@@ -46,7 +45,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-#
 #
 model neuromodulated_stdp_synapse:
     state:
@@ -105,8 +103,8 @@ model neuromodulated_stdp_synapse:
     update:
         # timestep() returns the timestep to be made (in units of time)
         # the sequence here matters: the update step for w requires the "old" values of c and n
-        w -= c * ( n / tau_s * expm1( -tau_s * timestep() ) \
-                 - b * tau_c * expm1( -timestep() / tau_c ))
+        w -= c * (n / tau_s * expm1(-tau_s * timestep()) \
+                 - b * tau_c * expm1(-timestep() / tau_c))
         c = c * exp(-timestep() / tau_c)
         n = n * exp(-timestep() / tau_n)
 

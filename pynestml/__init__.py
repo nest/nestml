@@ -21,14 +21,14 @@
 
 __version__ = "8.2.0-post-dev"
 
-__all__ = ['cocos',
-           'codegeneration',
-           'exceptions',
-           'frontend',
-           'generated',
-           'meta_model',
-           'symbols',
-           'symbol_table',
-           'transformers',
-           'utils',
-           'visitors']
+__all__ = ["cocos",
+           "codegeneration",
+           "exceptions",
+           "frontend",
+           "generated",
+           "meta_model",
+           "symbols",
+           "symbol_table",
+           "transformers",
+           "utils",
+           "visitors"]
