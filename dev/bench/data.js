@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1771681269934,
+  "lastUpdate": 1771685822374,
   "repoUrl": "https://github.com/nest/nestml",
   "entries": {
     "Benchmark": [
@@ -351,6 +351,33 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.20611700981358075",
             "extra": "mean: 3.1580479095999863 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "LeanderEwert",
+            "username": "LeanderEwert"
+          },
+          "committer": {
+            "name": "LeanderEwert",
+            "username": "LeanderEwert"
+          },
+          "id": "9e48365377833bd29a9961aed9a550a1f423c5e0",
+          "message": "Performance optimisations for the compartmental feature. (WIP)",
+          "timestamp": "2021-01-22T07:37:41Z",
+          "url": "https://github.com/nest/nestml/pull/1319/commits/9e48365377833bd29a9961aed9a550a1f423c5e0"
+        },
+        "date": 1771685821959,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/nest_continuous_benchmarking/test_nest_continuous_benchmarking.py::TestNESTContinuousBenchmarking::test_stdp_nn_synapse",
+            "value": 0.3188235021612073,
+            "unit": "iter/sec",
+            "range": "stddev: 0.17742588662404624",
+            "extra": "mean: 3.1365316333999997 sec\nrounds: 5"
           }
         ]
       }
