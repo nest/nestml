@@ -503,6 +503,9 @@ nest::CompTree{{cm_unique_suffix}}::pre_run_hook()
     throw UnknownCompartment( 0, msg );
   }
 
+  sweeping_order = std::vector< std::vector< Compartment{{cm_unique_suffix}}* > >();
+  compute_sweeping_order(leafs_);
+
   // initialize the compartments
   for ( auto compartment_it = compartments_.begin(); compartment_it != compartments_.end(); ++compartment_it )
   {
@@ -569,57 +572,62 @@ nest::CompTree{{cm_unique_suffix}}::construct_matrix( const long lag )
 void
 nest::CompTree{{cm_unique_suffix}}::solve_matrix()
 {
-  std::vector< Compartment{{cm_unique_suffix}}* >::iterator leaf_it = leafs_.begin();
-
   // start the down sweep (puts to zero the sub diagonal matrix elements)
-  solve_matrix_downsweep( leafs_[ 0 ], leaf_it );
+  solve_matrix_downsweep();
 
   // do up sweep to set voltages
-  solve_matrix_upsweep( &root_, 0.0 );
+  solve_matrix_upsweep();
+}
+
+void nest::CompTree{{cm_unique_suffix}}::compute_sweeping_order( std::vector< Compartment{{cm_unique_suffix}}* > parallel_comps )
+{
+    if(parallel_comps.size() > 0){
+        sweeping_order.push_back(parallel_comps);
+
+        std::vector< Compartment{{cm_unique_suffix}}* > next_parallel_comps;
+        for(size_t i = 0; i < parallel_comps.size(); i++){
+            if(parallel_comps[i]->parent != nullptr){
+                Compartment{{cm_unique_suffix}}* parent = parallel_comps[i]->parent;
+                parent->n_passed++;
+                if ( parent->n_passed == int( parent->children.size() ) ){
+                    parent->n_passed = 0;
+                    next_parallel_comps.push_back(parent);
+                }
+            }
+        }
+        compute_sweeping_order(next_parallel_comps);
+    }
 }
 
 void
-nest::CompTree{{cm_unique_suffix}}::solve_matrix_downsweep( Compartment{{cm_unique_suffix}}* compartment, std::vector< Compartment{{cm_unique_suffix}}* >::iterator leaf_it )
+nest::CompTree{{cm_unique_suffix}}::solve_matrix_downsweep()
 {
-  // compute the input output transformation at compartment
-  std::pair< double, double > output = compartment->io();
-
-  // move on to the parent layer
-  if ( compartment->parent != nullptr )
-  {
-    Compartment{{cm_unique_suffix}}* parent = compartment->parent;
-    // gather input from child layers
-    parent->gather_input( output );
-    // move on to next compartments
-    ++parent->n_passed;
-    if ( parent->n_passed == int( parent->children.size() ) )
-    {
-      parent->n_passed = 0;
-      // move on to next compartment
-      solve_matrix_downsweep( parent, leaf_it );
+    for(size_t level = 1; level < sweeping_order.size(); level++){
+        std::vector< Compartment{{cm_unique_suffix}}* >& sweep_level = sweeping_order[level];
+        #pragma omp simd
+        for(size_t i = 0; i < sweep_level.size() ; i++){
+            Compartment{{cm_unique_suffix}}* compartment = sweep_level[i];
+            for(size_t child_idx = 0; child_idx < compartment->children.size(); child_idx++){
+                compartment->gather_input(compartment->children[child_idx].io());
+            }
+        }
     }
-    else
-    {
-      // start at next leaf
-      ++leaf_it;
-      if ( leaf_it != leafs_.end() )
-      {
-        solve_matrix_downsweep( *leaf_it, leaf_it );
-      }
-    }
-  }
 }
 
 void
-nest::CompTree{{cm_unique_suffix}}::solve_matrix_upsweep( Compartment{{cm_unique_suffix}}* compartment, double vv )
+nest::CompTree{{cm_unique_suffix}}::solve_matrix_upsweep()
 {
-  // compute compartment voltage
-  vv = compartment->calc_v( vv );
-  // move on to child compartments
-  for ( auto child_it = compartment->children.begin(); child_it != compartment->children.end(); ++child_it )
-  {
-    solve_matrix_upsweep( &( *child_it ), vv );
-  }
+    root_.calc_v(0.0);
+    for(size_t level = sweeping_order.size()-1; level > 0; level--){
+        size_t level_idx = level-1;
+        std::vector< Compartment{{cm_unique_suffix}}* >& sweep_level = sweeping_order[level_idx];
+        #pragma omp simd
+        for(size_t i = 0; i < sweep_level.size() ; i++){
+            Compartment{{cm_unique_suffix}}* compartment = sweep_level[i];
+            double vv = *(compartment->parent->v_comp);
+            compartment->calc_v(vv);
+        }
+    }
 }
 
 /**

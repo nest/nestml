@@ -187,14 +187,15 @@ private:
   long size_ = 0;
 
   // recursion functions for matrix inversion
-  void solve_matrix_downsweep( Compartment{{cm_unique_suffix}}* compartment_ptr, std::vector< Compartment{{cm_unique_suffix}}* >::iterator leaf_it );
-  void solve_matrix_upsweep( Compartment{{cm_unique_suffix}}* compartment, double vv );
+  void solve_matrix_downsweep();
+  void solve_matrix_upsweep();
 
   // functions for pointer initialization
   void set_parents();
   void set_compartments();
   void set_compartment_variables();
   void set_leafs();
+  void compute_sweeping_order( std::vector< Compartment{{cm_unique_suffix}}* > parallel_comps );
 
   std::vector< double > v_comp_vec;
   std::vector< double > ca__div__dt_vec;
@@ -203,6 +204,8 @@ private:
   std::vector< double > gg0_vec;
   std::vector< double > gg_vec;
   std::vector< double > ff_vec;
+
+  std::vector< std::vector< Compartment{{cm_unique_suffix}}* > > sweeping_order;
 
 public:
   // constructor, destructor

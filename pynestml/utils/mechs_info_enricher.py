@@ -298,8 +298,8 @@ class MechsInfoEnricher:
                 for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items():
                     non_vec_vars.append(propagator)
 
-            for inline in mechanism_info["Dependencies"]["concentrations"]:
-                non_vec_vars.append(inline.variable_name)
+            for ode in mechanism_info["Dependencies"]["concentrations"]:
+                non_vec_vars.append(ode.lhs.name)
             for inline in mechanism_info["Dependencies"]["receptors"]:
                 non_vec_vars.append(inline.variable_name)
             for inline in mechanism_info["Dependencies"]["channels"]:
@@ -807,23 +807,46 @@ class ASTUsedVariableNamesExtractor(ASTVisitor):
     def visit_variable(self, node):
         self.variable_names.add(node.get_name())
 
+class ASTContainsLogic(ASTVisitor):
+    def __init__(self, node):
+        super(ASTContainsLogic, self).__init__()
+        self.contains_logic = False
+        self.inside_logical_operator = False
+        node.accept(self)
+
+    def visit_logical_operator(self, node):
+        self.inside_logical_operator = True
+        self.contains_logic = True
+
+    def endvisit_logical_operator(self, node):
+        self.inside_logical_operator = False
+
+
 class ASTFunctionExpressionExtractor(ASTVisitor):
     def __init__(self):
         super(ASTFunctionExpressionExtractor, self).__init__()
         self.expressions = []
         self.inside_expression = False
+        self.inside_if_clause = False
         self.recursion_depth = 0
 
     def visit_expression(self, node):
         self.recursion_depth += 1
         if not self.inside_expression:
             self.inside_expression = True
-            self.expressions.append(node)
+            if not ASTContainsLogic(node).contains_logic:
+                self.expressions.append(node)
 
     def endvisit_expression(self, node):
         self.recursion_depth -= 1
         if self.recursion_depth == 0:
             self.inside_expression = False
+
+    def visit_if_clause(self, node):
+        self.inside_if_clause = True
+
+    def endvisit_if_clause(self, node):
+        self.inside_if_clause = False
 
 
 class ASTFunctionExpressionReplacer(ASTVisitor):

@@ -409,8 +409,8 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(const std::vector
         #pragma omp simd
         for(std::size_t i = 0; i < neuron_{{ ion_channel_name }}_channel_count; i++){
             double v_comp = shared_v_comp[compartment_association[i]];
-            {% for inline in channel_info["Dependencies"]["concentrations"] %}
-            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% for ode in channel_info["Dependencies"]["concentrations"] %}
+            double {{ode.lhs.name}} = shared_{{ode.lhs.name}}[compartment_association[i]];
             {% endfor %}
             {% for inline in channel_info["Dependencies"]["receptors"] %}
             double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
@@ -804,8 +804,8 @@ void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(const std::ve
         #pragma omp simd
         for(std::size_t i = 0; i < neuron_{{ concentration_name }}_concentration_count; i++){
             double v_comp = shared_v_comp[compartment_association[i]];
-            {% for inline in concentration_info["Dependencies"]["concentrations"] %}
-            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% for ode in concentration_info["Dependencies"]["concentrations"] %}
+            double {{ode.lhs.name}} = shared_{{ode.lhs.name}}[compartment_association[i]];
             {% endfor %}
             {% for inline in concentration_info["Dependencies"]["receptors"] %}
             double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
@@ -1126,8 +1126,8 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::f_numstep(const std::vector< d
   #pragma omp simd
   for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
             double v_comp = shared_v_comp[compartment_association[i]];
-            {% for inline in receptor_info["Dependencies"]["concentrations"] %}
-            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% for ode in receptor_info["Dependencies"]["concentrations"] %}
+            double {{ode.lhs.name}} = shared_{{ode.lhs.name}}[compartment_association[i]];
             {% endfor %}
             {% for inline in receptor_info["Dependencies"]["receptors"] %}
             double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
@@ -1676,8 +1676,8 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep
   #pragma omp simd
   for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
             double v_comp = shared_v_comp[compartment_association[i]];
-            {% for inline in conc_dep %}
-            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% for ode in conc_dep %}
+            double {{ode.lhs.name}} = shared_{{ode.lhs.name}}[compartment_association[i]];
             {% endfor %}
             {% for inline in rec_dep %}
             double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
@@ -2024,8 +2024,8 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::f_numstep(const std::vector<
   #pragma omp simd
   for(std::size_t i = 0; i < neuron_{{ continuous_name }}_continuous_input_count; i++){
             double v_comp = shared_v_comp[compartment_association[i]];
-            {% for inline in receptor_info["Dependencies"]["concentrations"] %}
-            double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
+            {% for ode in receptor_info["Dependencies"]["concentrations"] %}
+            double {{ode.lhs.name}} = shared_{{ode.lhs.name}}[compartment_association[i]];
             {% endfor %}
             {% for inline in receptor_info["Dependencies"]["receptors"] %}
             double {{inline.variable_name}} = shared_{{inline.variable_name}}[compartment_association[i]];
