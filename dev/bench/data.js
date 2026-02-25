@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1771845781086,
+  "lastUpdate": 1772043909913,
   "repoUrl": "https://github.com/nest/nestml",
   "entries": {
     "Benchmark": [
@@ -432,6 +432,33 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.15016811538129438",
             "extra": "mean: 3.1300565015999835 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "nest",
+            "username": "nest"
+          },
+          "committer": {
+            "name": "nest",
+            "username": "nest"
+          },
+          "id": "9052ba52e247fc388fa4d3d27b9acd86bd77732f",
+          "message": "Bump lycheeverse/lychee-action from 2.7.0 to 2.8.0",
+          "timestamp": "2026-02-19T10:12:11Z",
+          "url": "https://github.com/nest/nestml/pull/1324/commits/9052ba52e247fc388fa4d3d27b9acd86bd77732f"
+        },
+        "date": 1772043909608,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/nest_continuous_benchmarking/test_nest_continuous_benchmarking.py::TestNESTContinuousBenchmarking::test_stdp_nn_synapse",
+            "value": 0.3228003809827753,
+            "unit": "iter/sec",
+            "range": "stddev: 0.1662196471108728",
+            "extra": "mean: 3.097889776199986 sec\nrounds: 5"
           }
         ]
       }
