@@ -1,8 +1,8 @@
 traub_cond_multisyn_neuron
 ##########################
 
-
 traub_cond_multisyn - Traub model according to Borgers 2017
+
 
 Description
 +++++++++++
@@ -14,19 +14,36 @@ AMPA, NMDA, GABA_A, and GABA_B conductance-based synapses with
 beta-function (difference of two exponentials) time course corresponding
 to "hill_tononi" model.
 
-
 References
 ++++++++++
 
 .. [1] R. D. Traub and R. Miles, Neuronal Networks of the Hippocampus,Cam- bridge University Press, Cambridge, UK, 1991.
 .. [2] Borgers, C., 2017. An introduction to modeling neuronal dynamics (Vol. 66). Cham: Springer.
 
-
 See also
 ++++++++
 
 hh_cond_exp_traub
 
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
 Parameters
@@ -36,14 +53,14 @@ Parameters
     :widths: auto
 
     
-    "C_m", "pF", "100.0pF", "Membrane Capacitance"    
+    "C_m", "pF", "100.0pF", "Membrane capacitance"    
     "g_Na", "nS", "10000.0nS", "Sodium peak conductance"    
     "g_K", "nS", "8000.0nS", "Potassium peak conductance"    
     "g_L", "nS", "10nS", "Leak conductance"    
     "E_Na", "mV", "50.0mV", "Sodium reversal potential"    
     "E_K", "mV", "-100.0mV", "Potassium reversal potentia"    
-    "E_L", "mV", "-67.0mV", "Leak reversal Potential (aka resting potential)"    
-    "V_Tr", "mV", "-20.0mV", "Spike Threshold"    
+    "E_L", "mV", "-67.0mV", "Leak reversal potential (a.k.a. resting potential)"    
+    "V_Tr", "mV", "-20.0mV", "Spike threshold"    
     "refr_T", "ms", "2ms", "Duration of refractory period"    
     "AMPA_g_peak", "nS", "0.1nS", "Parameters for synapse of type AMPA, GABA_A, GABA_B and NMDApeak conductance"    
     "AMPA_E_rev", "mV", "0.0mV", "reversal potential"    
@@ -78,7 +95,6 @@ State variables
     "V_m", "mV", "-70.0mV", "Membrane potential"    
     "V_m_old", "mV", "E_L", "Membrane potential at previous timestep for threshold check"    
     "refr_t", "ms", "0ms", "Refractory period timer"    
-    "is_refractory", "boolean", "false", ""    
     "Act_m", "real", "alpha_m_init / (alpha_m_init + beta_m_init)", "Activation variable m for Na"    
     "Inact_h", "real", "alpha_h_init / (alpha_h_init + beta_h_init)", "Inactivation variable h for Na"    
     "Act_n", "real", "alpha_n_init / (alpha_n_init + beta_n_init)", "Activation variable n for K"    
@@ -103,6 +119,9 @@ Equations
    \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L}) + I_{e} + I_{stim} + I_{syn}) } \right) 
 
 .. math::
+   \frac{ drefr_{t} } { dt }= \frac{ -1000.0 \cdot \mathrm{ms} } { \mathrm{s} }
+
+.. math::
    \frac{ dAct_{n} } { dt }= \frac 1 { \mathrm{ms} } \left( { (\alpha_{n} \cdot (1 - Act_{n}) - \beta_{n} \cdot Act_{n}) } \right) 
 
 .. math::
@@ -123,4 +142,4 @@ The model source code can be found in the NESTML models repository here: `traub_
 
 .. footer::
 
-   Generated at 2024-05-22 14:51:14.472118
+   Generated at 2026-02-04 14:40:55.368302

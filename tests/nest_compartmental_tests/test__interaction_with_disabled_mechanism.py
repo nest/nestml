@@ -56,7 +56,7 @@ class TestCompartmentalMechDisabled():
             os.makedirs(target_path)
 
         print(
-            f"Compiled nestml model 'cm_main_cm_default_nestml' not found, installing in:"
+            f"Compiled nestml model \"cm_main_cm_default_nestml\" not found, installing in:"
             f"    {target_path}"
         )
 
@@ -77,9 +77,9 @@ class TestCompartmentalMechDisabled():
         """We test the interaction of active mechanisms (the concentration in this case) with disabled mechanisms
         (zero key parameters) by just comparing the concentration value at a certain critical point in
         time to a previously achieved value at this point"""
-        cm = nest.Create('multichannel_test_model_nestml')
+        cm = nest.Create("multichannel_test_model_nestml")
 
-        params = {'C_m': 10.0, 'g_C': 0.0, 'g_L': 1.5, 'e_L': -70.0, 'gbar_Ca_HVA': 0.0, 'gbar_SK_E2': 1.0}
+        params = {"C_m": 10.0, "g_C": 0.0, "g_L": 1.5, "e_L": -70.0, "gbar_Ca_HVA": 0.0, "gbar_SK_E2": 1.0}
 
         cm.compartments = [
             {"parent_idx": -1, "params": params}
@@ -89,34 +89,34 @@ class TestCompartmentalMechDisabled():
             {"comp_idx": 0, "receptor_type": "AMPA"}
         ]
 
-        sg1 = nest.Create('spike_generator', 1, {'spike_times': [100.]})
+        sg1 = nest.Create("spike_generator", 1, {"spike_times": [100.]})
 
-        nest.Connect(sg1, cm, syn_spec={'synapse_model': 'static_synapse', 'weight': 4.0, 'delay': 0.5, 'receptor_type': 0})
+        nest.Connect(sg1, cm, syn_spec={"synapse_model": "static_synapse", "weight": 4.0, "delay": 0.5, "receptor_type": 0})
 
-        mm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'c_Ca0', 'i_tot_Ca_LVAst0', 'i_tot_Ca_HVA0', 'i_tot_SK_E20'], 'interval': .1})
+        mm = nest.Create("multimeter", 1, {"record_from": ["v_comp0", "c_Ca0", "i_tot_Ca_LVAst0", "i_tot_Ca_HVA0", "i_tot_SK_E20"], "interval": .1})
 
         nest.Connect(mm, cm)
 
         nest.Simulate(1000.)
 
-        res = nest.GetStatus(mm, 'events')[0]
+        res = nest.GetStatus(mm, "events")[0]
 
-        step_time_delta = res['times'][1] - res['times'][0]
+        step_time_delta = res["times"][1] - res["times"][0]
         data_array_index = int(200 / step_time_delta)
 
         expected_conc = 2.8159902294145262e-05
 
         fig, axs = plt.subplots(4)
 
-        axs[0].plot(res['times'], res['v_comp0'], c='r', label='V_m_0')
-        axs[1].plot(res['times'], res['c_Ca0'], c='y', label='c_Ca_0')
-        axs[2].plot(res['times'], res['i_tot_Ca_HVA0'], c='b', label='i_tot_Ca_HVA0')
-        axs[3].plot(res['times'], res['i_tot_SK_E20'], c='b', label='i_tot_SK_E20')
+        axs[0].plot(res["times"], res["v_comp0"], c="r", label="V_m_0")
+        axs[1].plot(res["times"], res["c_Ca0"], c="y", label="c_Ca_0")
+        axs[2].plot(res["times"], res["i_tot_Ca_HVA0"], c="b", label="i_tot_Ca_HVA0")
+        axs[3].plot(res["times"], res["i_tot_SK_E20"], c="b", label="i_tot_SK_E20")
 
-        axs[0].set_title('V_m_0')
-        axs[1].set_title('c_Ca_0')
-        axs[2].set_title('i_Ca_HVA_0')
-        axs[3].set_title('i_tot_SK_E20')
+        axs[0].set_title("V_m_0")
+        axs[1].set_title("c_Ca_0")
+        axs[2].set_title("i_Ca_HVA_0")
+        axs[3].set_title("i_tot_SK_E20")
 
         axs[0].legend()
         axs[1].legend()
@@ -125,4 +125,4 @@ class TestCompartmentalMechDisabled():
 
         plt.savefig("interaction with disabled mechanism test.png")
 
-        assert res['c_Ca0'][data_array_index] == expected_conc, ("the concentration (left) is not as expected (right). (" + str(res['c_Ca0'][data_array_index]) + "!=" + str(expected_conc) + ")")
+        assert res["c_Ca0"][data_array_index] == expected_conc, ("the concentration (left) is not as expected (right). (" + str(res["c_Ca0"][data_array_index]) + "!=" + str(expected_conc) + ")")

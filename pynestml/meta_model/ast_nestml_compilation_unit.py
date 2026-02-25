@@ -41,7 +41,7 @@ class ASTNestMLCompilationUnit(ASTNode):
         """
         super(ASTNestMLCompilationUnit, self).__init__(*args, **kwargs)
         assert (artifact_name is not None and isinstance(artifact_name, str)), \
-            '(PyNestML.AST.NestMLCompilationUnit) No or wrong type of artifact name provided (%s)!' % type(artifact_name)
+            "(PyNestML.AST.NestMLCompilationUnit) No or wrong type of artifact name provided (%s)!" % type(artifact_name)
         self.model_list = []
         if model_list is not None:
             assert type(model_list) is list
@@ -74,7 +74,7 @@ class ASTNestMLCompilationUnit(ASTNode):
         :param neuron: an instance of a model
         """
         assert (model is not None and isinstance(model, ASTModel)), \
-            '(PyNestML.AST.CompilationUnit) No or wrong type of model provided (%s)!' % type(model)
+            "(PyNestML.AST.CompilationUnit) No or wrong type of model provided (%s)!" % type(model)
         self.model_list.append(model)
 
     def delete_model(self, model: ASTModel) -> bool:

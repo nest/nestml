@@ -57,25 +57,25 @@ class TestAEIFIntegrator_with_respect_to_solution:
         nest.Install("nestmlmodule")
 
         params = {
-            'E_L': -80,
-            'V_reset': -60.0,
-            'refr_T': 2.0,
-            'g_L': 4,
-            'C_m': 32,
-            'E_exc': 0.0,
-            'E_inh': -80.0,
-            'tau_syn_exc': 1.5,
-            'tau_syn_inh': 4.2,
-            'a': 0.8,
-            'b': 80,
-            'Delta_T': 0.8,
-            'tau_w': 144.0,
-            'V_th': -57.0
+            "E_L": -80,
+            "V_reset": -60.0,
+            "refr_T": 2.0,
+            "g_L": 4,
+            "C_m": 32,
+            "E_exc": 0.0,
+            "E_inh": -80.0,
+            "tau_syn_exc": 1.5,
+            "tau_syn_inh": 4.2,
+            "a": 0.8,
+            "b": 80,
+            "Delta_T": 0.8,
+            "tau_w": 144.0,
+            "V_th": -57.0
         }
 
         neuron = nest.Create("aeif_cond_exp_neuron_nestml")
         neuron.set(**params)
-        neuron.set({'V_m': -54.})
+        neuron.set({"V_m": -54.})
 
         # the test succeeds if the integrator terminates
 
