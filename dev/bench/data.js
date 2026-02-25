@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1772043909913,
+  "lastUpdate": 1772044224918,
   "repoUrl": "https://github.com/nest/nestml",
   "entries": {
     "Benchmark": [
@@ -459,6 +459,33 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.1662196471108728",
             "extra": "mean: 3.097889776199986 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "clinssen",
+            "username": "clinssen"
+          },
+          "committer": {
+            "name": "clinssen",
+            "username": "clinssen"
+          },
+          "id": "9b682eb92e2bf4a69df1046aca402663fa415d01",
+          "message": "Cleanup of the postsynaptic trace transformer used in NEST code generation",
+          "timestamp": "2026-02-04T18:30:36Z",
+          "url": "https://github.com/nest/nestml/pull/1318/commits/9b682eb92e2bf4a69df1046aca402663fa415d01"
+        },
+        "date": 1772044224541,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/nest_continuous_benchmarking/test_nest_continuous_benchmarking.py::TestNESTContinuousBenchmarking::test_stdp_nn_synapse",
+            "value": 0.30961720068698406,
+            "unit": "iter/sec",
+            "range": "stddev: 0.17520190512733108",
+            "extra": "mean: 3.2297947199999952 sec\nrounds: 5"
           }
         ]
       }
