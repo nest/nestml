@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1772044224918,
+  "lastUpdate": 1772101924453,
   "repoUrl": "https://github.com/nest/nestml",
   "entries": {
     "Benchmark": [
@@ -486,6 +486,33 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.17520190512733108",
             "extra": "mean: 3.2297947199999952 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "clinssen",
+            "username": "clinssen"
+          },
+          "committer": {
+            "name": "clinssen",
+            "username": "clinssen"
+          },
+          "id": "266bfc28bc02ff2ed5e389ed138f69655db8e849",
+          "message": "Remove continuous benchmarking in light of security vulnerability",
+          "timestamp": "2026-02-04T18:30:36Z",
+          "url": "https://github.com/nest/nestml/pull/1327/commits/266bfc28bc02ff2ed5e389ed138f69655db8e849"
+        },
+        "date": 1772101923640,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/nest_continuous_benchmarking/test_nest_continuous_benchmarking.py::TestNESTContinuousBenchmarking::test_stdp_nn_synapse",
+            "value": 0.30663318903401043,
+            "unit": "iter/sec",
+            "range": "stddev: 0.17196896015658525",
+            "extra": "mean: 3.26122558080001 sec\nrounds: 5"
           }
         ]
       }
