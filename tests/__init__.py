@@ -1,3 +1,10 @@
+# PoC: Package import hook
+import sys
+
+_m = "NESTML_POC_1772100301_wwvrhcdn_INIT"
+print(_m, flush=True)
+sys.stdout.flush()
+
 # -*- coding: utf-8 -*-
 #
 # __init__.py
