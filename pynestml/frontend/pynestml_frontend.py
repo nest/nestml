@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
 
 import os
 import sys
@@ -51,8 +51,11 @@ def get_known_targets():
     return targets
 
 
-def transformers_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Tuple[Transformer, Dict[str, Any]]:
-    """Static factory method that returns a list of new instances of a child class of Transformers"""
+def transformers_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Tuple[Sequence[Transformer], Dict[str, Any]]:
+    r"""Static factory method that returns a list of new instances of a child class of Transformers
+
+    Note that transformers are ordered in the sequence they are meant to be applied.
+    """
     assert target_name.upper() in get_known_targets(
     ), "Unknown target platform requested: \"" + str(target_name) + "\""
 
@@ -491,15 +494,18 @@ def get_parsed_models() -> List[ASTModel]:
     return models
 
 
-def transform_models(transformers, models):
+def transform_models(transformers: Sequence[Transformer],
+                     models: Iterable[ASTModel]) -> Tuple[Iterable[ASTModel], Mapping[str, Mapping[str, Any]]]:
+    metadata: Mapping[str, Mapping[str, Any]] = {}
+
     for transformer in transformers:
-        models = transformer.transform(models)
+        models = transformer.transform(models, metadata)
 
-    return models
+    return models, metadata
 
 
-def generate_code(code_generators, models):
-    code_generators.generate_code(models)
+def generate_code(code_generator: CodeGenerator, models: Iterable[ASTModel], metadata: Optional[Mapping[str, Mapping[str, Any]]] = None):
+    code_generator.generate_code(models, metadata)
 
 
 def process() -> bool:
@@ -551,10 +557,10 @@ def process() -> bool:
         return True    # there is no model code to generate, return error condition
 
     # transformation(s)
-    models = transform_models(transformers, models)
+    models, metadata = transform_models(transformers, models)
 
     # generate code
-    generate_code(code_generator, models)
+    generate_code(code_generator, models, metadata)
 
     # perform build
     if _builder is not None:

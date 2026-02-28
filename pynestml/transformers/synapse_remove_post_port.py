@@ -21,7 +21,16 @@
 
 from __future__ import annotations
 
-from typing import Optional, Mapping, Any, Union, Sequence
+from typing import Iterable, Optional, Mapping, Any, Union
+
+from pynestml.meta_model.ast_model import ASTModel
+
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
 
 from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
@@ -42,7 +51,7 @@ class SynapseRemovePostPortTransformer(Transformer):
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super(Transformer, self).__init__(options)
 
-    def transform_neuron_synapse_pair_(self, neuron, synapse):
+    def transform_neuron_synapse_pair_(self, neuron, synapse, metadata):
 
         new_neuron = neuron.clone()
         new_synapse = synapse.clone()
@@ -72,8 +81,8 @@ class SynapseRemovePostPortTransformer(Transformer):
 
         new_synapse_name = synapse.get_name() + name_separator_str + neuron.get_name()
         new_synapse.set_name(new_synapse_name)
-        new_synapse.paired_neuron = new_neuron
-        new_neuron.paired_synapse = new_synapse
+        metadata[new_synapse.name]["paired_neuron"] = new_neuron
+        metadata[new_neuron.name]["paired_synapse"] = new_synapse
 
         base_neuron_name = removesuffix(neuron.get_name(), FrontendConfiguration.suffix)
         base_synapse_name = removesuffix(synapse.get_name(), FrontendConfiguration.suffix)
@@ -101,7 +110,10 @@ class SynapseRemovePostPortTransformer(Transformer):
 
         return new_neuron, new_synapse
 
-    def transform(self, models: Union[ASTNode, Sequence[ASTNode]]) -> Union[ASTNode, Sequence[ASTNode]]:
+    @override
+    def transform(self,
+                  models: Iterable[ASTModel],
+                  metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Union[ASTModel, Iterable[ASTModel]]:
         for neuron_synapse_pair in self.get_option("neuron_synapse_pairs"):
             neuron_name = neuron_synapse_pair["neuron"]
             synapse_name = neuron_synapse_pair["synapse"]

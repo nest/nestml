@@ -23,6 +23,13 @@ from __future__ import annotations
 
 from typing import Any, Callable, List, Mapping, Optional, Tuple, Union, Sequence
 
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
+
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.transformers.transformer import Transformer
 from pynestml.utils.logger import Logger
@@ -97,7 +104,10 @@ class IllegalVariableNameTransformer(Transformer):
 
         return name
 
-    def transform(self, models: Union[ASTNode, Sequence[ASTNode]]) -> Union[ASTNode, Sequence[ASTNode]]:
+    @override
+    def transform(self,
+                  models: Union[ASTModel, Iterable[ASTModel]],
+                  metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Union[ASTModel, Iterable[ASTModel]]:
         single = False
         if isinstance(models, ASTNode):
             single = True
