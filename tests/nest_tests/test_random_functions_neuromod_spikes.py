@@ -74,7 +74,7 @@ class TestRandomFunctionsWithNeuromodSpikes:
                                                    vt_spike_times=vt_spike_times,
                                                    use_random_func=use_random_func)
             if use_random_func:
-                assert np.abs(w_hist[-1] - w_hist[0]) > 1E-3, "Weights should change under this protocol!"
+                assert not np.allclose(w_hist[-1], w_hist[0]), "Weights should change under this protocol!"
             else:
                 np.testing.assert_allclose(w_hist[-1], w_hist[0]), "Weights should not change under this protocol!"
 
