@@ -339,6 +339,7 @@ class NESTCodeGenerator(CodeGenerator):
         for neuron in neurons:
             code, message = Messages.get_start_code_generation(neuron.get_name())
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
+
             if not neuron.name in metadata.keys():
                 metadata[neuron.name] = {}
 
