@@ -104,19 +104,28 @@ namespace nest
 namespace {{names_namespace}}
 {
 {%- if neuron.get_state_symbols()|length > 0 %}
-{%- for sym in neuron.get_state_symbols() %}
+    // state variables
+{%-     for sym in neuron.get_state_symbols() %}
     const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
-{%- endfor %}
+{%-     endfor %}
 {%- endif %}
 {%- if recordable_inline_expressions|length > 0 %}
-{%- for sym in recordable_inline_expressions %}
+    // inline expressions
+{%-     for sym in recordable_inline_expressions %}
     const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
-{%- endfor %}
+{%-     endfor %}
 {%- endif %}
 {%- if neuron.get_parameter_symbols()|length > 0 %}
-{%- for sym in neuron.get_parameter_symbols() %}
+    // parameters
+{%-     for sym in neuron.get_parameter_symbols() %}
     const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
-{%- endfor %}
+{%-     endfor %}
+{%- endif %}
+{%- if neuron.get_internal_symbols()|length > 0 %}
+    // internals
+{%-     for sym in neuron.get_internal_symbols() %}
+    const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
+{%-     endfor %}
 {%- endif %}
 
     const Name gsl_abs_error_tol("gsl_abs_error_tol");
@@ -207,7 +216,7 @@ public:
   double {{ var }}_;
 
 {%-     set inline = utils.get_inline_expression_by_constructed_rhs_name(paired_synapse_original_model, var) %}
-{%-     if inline and utils.inline_aliases_convolution(inline) %}
+{%-     if inline %}
   double get_{{ inline.get_variable_name() + "__for_" + paired_synapse_original_model.get_name() }}() const     // getter for an inline expression
 {%-     else %}
   double get_{{ var }}() const
@@ -1070,6 +1079,14 @@ inline void {{neuronName}}::get_status(DictionaryDatum&__d) const
   // parameters
 {%- for variable_symbol in neuron.get_parameter_symbols() %}
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     filter indent(2) %}
+{{ write_in_dictionary.WriteInDictionary("__d", declarations.print_variable_type(variable_symbol), "nest::" + names_namespace + "::_" + variable_symbol.get_symbol_name(), "get_" + printer_no_origin.print(variable) + "()") }}
+{%-     endfilter %}
+{%- endfor %}
+
+  // internals
+{%- for variable_symbol in neuron.get_internal_symbols() %}
+{%-     set variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     filter indent(2) %}
 {{ write_in_dictionary.WriteInDictionary("__d", declarations.print_variable_type(variable_symbol), "nest::" + names_namespace + "::_" + variable_symbol.get_symbol_name(), "get_" + printer_no_origin.print(variable) + "()") }}
 {%-     endfilter %}

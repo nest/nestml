@@ -52,8 +52,8 @@ class CommentTest(unittest.TestCase):
 
     def test(self):
         input_file = FileStream(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
-                         'CommentTest.nestml'))
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")),
+                         "CommentTest.nestml"))
         lexer = PyNestMLLexer(input_file)
         lexer._errHandler = BailErrorStrategy()
         lexer._errHandler.reset(lexer)
@@ -76,29 +76,29 @@ class CommentTest(unittest.TestCase):
         model_body_elements = ast.get_model_list()[0].get_body().get_body_elements()
 
         # check if init values comment is correctly detected
-        assert (model_body_elements[0].get_comment()[0] == 'state pre comment ok')
-        assert (model_body_elements[0].get_comment()[1] == 'state in comment ok')
+        assert (model_body_elements[0].get_comment()[0] == "state pre comment ok")
+        assert (model_body_elements[0].get_comment()[1] == "state in comment ok")
 
         # check that all declaration comments are detected
         comments = model_body_elements[0].get_declarations()[0].get_comment()
-        assert (comments[0] == 'pre comment 1 ok')
-        assert (comments[1] == 'pre comment 2 ok')
-        assert (comments[2] == 'inline comment ok')
-        assert ('pre comment not ok' not in comments)
+        assert (comments[0] == "pre comment 1 ok")
+        assert (comments[1] == "pre comment 2 ok")
+        assert (comments[2] == "inline comment ok")
+        assert ("pre comment not ok" not in comments)
 
         # check that equation block comment is detected
-        self.assertEqual(model_body_elements[1].get_comment()[0], 'equations comment ok')
+        self.assertEqual(model_body_elements[1].get_comment()[0], "equations comment ok")
         # check that parameters block comment is detected
-        self.assertEqual(model_body_elements[2].get_comment()[0], 'parameters comment ok')
+        self.assertEqual(model_body_elements[2].get_comment()[0], "parameters comment ok")
         # check that internals block comment is detected
-        self.assertEqual(model_body_elements[3].get_comment()[0], 'internals comment ok')
+        self.assertEqual(model_body_elements[3].get_comment()[0], "internals comment ok")
         # check that input comment is detected
-        self.assertEqual(model_body_elements[4].get_comment()[0], 'input comment ok')
+        self.assertEqual(model_body_elements[4].get_comment()[0], "input comment ok")
         # check that output comment is detected
-        self.assertEqual(model_body_elements[5].get_comment()[0], 'output comment ok')
+        self.assertEqual(model_body_elements[5].get_comment()[0], "output comment ok")
         # check that update comment is detected
-        self.assertEqual(model_body_elements[6].get_comment()[0], 'update comment ok')
+        self.assertEqual(model_body_elements[6].get_comment()[0], "update comment ok")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

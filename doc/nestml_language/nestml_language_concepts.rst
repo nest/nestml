@@ -991,21 +991,6 @@ The ``recordable`` keyword can be used to make the variable in inline expression
        ...
        recordable inline V_m mV = V_rel + E_L
 
-During simulation, one or more state variables are used to maintain the dynamical state of each convolution across time. To be able to reference these variables from within the model, a special case occurs when an inline expression is defined as a convolution and marked ``recordable``:
-
-.. code-block:: nestml
-
-   recordable inline I_syn pA = convolve(alpha_kernel, spiking_input_port) * pA
-
-Then, the state variables corresponding to this convolution can be referenced in the rest of the model, for instance:
-
-.. code-block:: nestml
-
-   update:
-     # reset the state of synaptic integration
-     I_syn = 0 pA
-     I_syn' = 0 * s**-1
-
 
 Kernel functions
 ~~~~~~~~~~~~~~~~

@@ -138,49 +138,6 @@ The incoming spikes could have been equivalently handled with an ``onReceive`` e
 Note that in this example, the intended physical unit (pA) was assigned by multiplying the type of the input port ``spikes`` (which is 1/s) by pA·s, resulting in a unit of pA for ``I_syn``.
 
 
-(Re)setting synaptic integration state
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-When convolutions are used, additional state variables are required for each pair *(shape, spike input port)* that appears as the parameters in a convolution. These variables track the dynamical state of that kernel, for that input port. The number of variables created corresponds to the dimensionality of the kernel. For example, in the code block above, the one-dimensional kernel ``G`` is used in a convolution with spiking input port ``spikes``. During code generation, a new state variable called ``G__conv__spikes`` is created for this combination, by joining together the name of the kernel with the name of the spike buffer using (by default) the string “__conv__”. If the same kernel is used later in a convolution with another spiking input port, say ``spikes_GABA``, then the resulting generated variable would be called ``G__conv__spikes_GABA``, allowing independent synaptic integration between input ports but allowing the same kernel to be used more than once.
-
-The process of generating extra state variables for keeping track of convolution state is normally hidden from the user. For some models, however, it might be required to set or reset the state of synaptic integration, which is stored in these internally generated variables. For example, we might want to set the synaptic current (and its rate of change) to 0 when firing a dendritic action potential. Although we would like to set the generated variable ``G__conv__spikes`` to 0 in the running example, a variable by this name is only generated during code generation, and does not exist in the namespace of the NESTML model to begin with. To still allow referring to this state in the context of the model, it is recommended to use an inline expression, with only a convolution on the right-hand side.
-
-For example, suppose we define:
-
-.. code-block:: nestml
-
-   inline g_dend pA = convolve(G, spikes)
-
-Then the name ``g_dend`` can be used as a target for assignment:
-
-.. code-block:: nestml
-
-   update:
-       g_dend = 42 pA
-
-This also works for higher-order kernels, e.g. for the second-order alpha kernel :math:`H(t)`:
-
-.. code-block:: nestml
-
-   kernel H'' = (-2/tau_syn) * H' - 1/tau_syn**2) * H
-
-We can define an inline expression with the same port as before, ``spikes``:
-
-.. code-block:: nestml
-
-   inline h_dend pA = convolve(H, spikes)
-
-The name ``h_dend`` now acts as an alias for this particular convolution. We can now assign to the inline defined variable up to the order of the kernel:
-
-.. code-block:: nestml
-
-   update:
-       h_dend = 42 pA
-       h_dend' = 10 pA/ms
-
-For more information, see the :doc:`Active dendrite tutorial </tutorials/active_dendrite/nestml_active_dendrite_tutorial>`.
-
-
 Multiple input ports
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -275,6 +232,7 @@ In order to hold the membrane potential at the reset voltage during refractorine
 
 .. code-block:: nestml
 
+   equations:
        I_syn' = ...
        V_m' = ...
        refr_t' = -1 / s    # Count down towards zero
@@ -287,7 +245,7 @@ In order to hold the membrane potential at the reset voltage during refractorine
            # neuron not refractory
            integrate_odes(I_syn, V_m)
 
-Note that in some cases, the finite resolution by which real numbers are expressed (as floating point numbers) in computers, can cause unexpected behaviors. If the simulation resolution is not exactly representable as a float (say, Δt = 0.1 ms) then it could be the case that after 20 simulation steps, the timer has not reached zero, but a very small value very close to zero (say, 0.00000001 ms), causing the refractory period to end only in the next timestep. If this kind of behavior is undesired, the simulation resolution and refractory period can be chosen as powers of two (which can be represented exactly as floating points), or a small "epsilon" value can be included in the comparison in the model:
+Note that in some cases, the finite resolution by which real numbers are expressed (as floating point numbers) in computers, can cause unexpected behaviors. If the simulation resolution is not exactly representable as a float (say, :math:`\Delta t` = 0.1 ms) then it could be the case that after 20 simulation steps, the timer has not reached zero, but a very small value very close to zero (say, 0.00000001 ms), causing the refractory period to end only in the next timestep. If this kind of behavior is undesired, the simulation resolution and refractory period can be chosen as powers of two (which can be represented exactly as floating points), or a small "epsilon" value can be included in the comparison in the model:
 
 .. code-block:: nestml
 

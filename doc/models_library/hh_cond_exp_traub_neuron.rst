@@ -1,8 +1,8 @@
 hh_cond_exp_traub_neuron
 ########################
 
-
 hh_cond_exp_traub - Hodgkin-Huxley model for Brette et al (2007) review
+
 
 Description
 +++++++++++
@@ -49,6 +49,25 @@ See also
 
 hh_psc_alpha
 
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
 Parameters
@@ -58,25 +77,25 @@ Parameters
     :widths: auto
 
     
-    "g_Na", "nS", "20000nS", "Na Conductance"    
-    "g_K", "nS", "6000nS", "K Conductance"    
-    "g_L", "nS", "10nS", "Leak Conductance"    
-    "C_m", "pF", "200pF", "Membrane Capacitance"    
-    "E_Na", "mV", "50mV", "Reversal potentials"    
+    "g_Na", "nS", "20000nS", "Na conductance"    
+    "g_K", "nS", "6000nS", "K conductance"    
+    "g_L", "nS", "10nS", "Leak conductance"    
+    "C_m", "pF", "200pF", "Membrane capacitance"    
+    "E_Na", "mV", "50mV", "Sodium reversal potential"    
     "E_K", "mV", "-90mV", "Potassium reversal potential"    
-    "E_L", "mV", "-60mV", "Leak reversal potential (aka resting potential)"    
+    "E_L", "mV", "-60mV", "Leak reversal potential (a.k.a. resting potential)"    
     "V_T", "mV", "-63mV", "Voltage offset that controls dynamics. For default"    
     "tau_syn_exc", "ms", "5ms", "parameters, V_T = -63 mV results in a threshold around -50 mV.Synaptic time constant of excitatory synapse"    
     "tau_syn_inh", "ms", "10ms", "Synaptic time constant of inhibitory synapse"    
     "refr_T", "ms", "2ms", "Duration of refractory period"    
     "E_exc", "mV", "0mV", "Excitatory synaptic reversal potential"    
     "E_inh", "mV", "-80mV", "Inhibitory synaptic reversal potential"    
-    "alpha_n_init", "1 / ms", "0.032 / (ms * mV) * (15.0mV - E_L) / (exp((15.0mV - E_L) / 5.0mV) - 1.0)", ""    
-    "beta_n_init", "1 / ms", "0.5 / ms * exp((10.0mV - E_L) / 40.0mV)", ""    
-    "alpha_m_init", "1 / ms", "0.32 / (ms * mV) * (13.0mV - E_L) / (exp((13.0mV - E_L) / 4.0mV) - 1.0)", ""    
-    "beta_m_init", "1 / ms", "0.28 / (ms * mV) * (E_L - 40.0mV) / (exp((E_L - 40.0mV) / 5.0mV) - 1.0)", ""    
-    "alpha_h_init", "1 / ms", "0.128 / ms * exp((17.0mV - E_L) / 18.0mV)", ""    
-    "beta_h_init", "1 / ms", "(4.0 / (1.0 + exp((40.0mV - E_L) / 5.0mV))) / ms", ""    
+    "alpha_n_init", "1 / ms", "0.032 / (ms * mV) * (15mV - E_L) / (exp((15mV - E_L) / 5mV) - 1)", ""    
+    "beta_n_init", "1 / ms", "0.5 / ms * exp((10mV - E_L) / 40mV)", ""    
+    "alpha_m_init", "1 / ms", "0.32 / (ms * mV) * (13mV - E_L) / (exp((13mV - E_L) / 4mV) - 1)", ""    
+    "beta_m_init", "1 / ms", "0.28 / (ms * mV) * (E_L - 40mV) / (exp((E_L - 40mV) / 5mV) - 1)", ""    
+    "alpha_h_init", "1 / ms", "0.128 / ms * exp((17mV - E_L) / 18mV)", ""    
+    "beta_h_init", "1 / ms", "(4 / (1 + exp((40mV - E_L) / 5mV))) / ms", ""    
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -92,7 +111,6 @@ State variables
     "V_m", "mV", "E_L", "Membrane potential"    
     "V_m_old", "mV", "E_L", "Membrane potential at previous timestep"    
     "refr_t", "ms", "0ms", "Refractory period timer"    
-    "is_refractory", "boolean", "false", ""    
     "Act_m", "real", "alpha_m_init / (alpha_m_init + beta_m_init)", ""    
     "Act_h", "real", "alpha_h_init / (alpha_h_init + beta_h_init)", ""    
     "Inact_n", "real", "alpha_n_init / (alpha_n_init + beta_n_init)", ""
@@ -107,6 +125,9 @@ Equations
 
 .. math::
    \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-I_{Na} - I_{K} - I_{L} - I_{syn,exc} - I_{syn,inh} + I_{e} + I_{stim}) } \right) 
+
+.. math::
+   \frac{ drefr_{t} } { dt }= \frac{ -1000.0 \cdot \mathrm{ms} } { \mathrm{s} }
 
 .. math::
    \frac{ dAct_{m} } { dt }= (\alpha_{m} - (\alpha_{m} + \beta_{m}) \cdot Act_{m})
@@ -129,4 +150,4 @@ The model source code can be found in the NESTML models repository here: `hh_con
 
 .. footer::
 
-   Generated at 2024-05-22 14:51:14.653714
+   Generated at 2026-02-04 14:40:55.475802

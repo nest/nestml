@@ -42,8 +42,8 @@ class CoCoNoNestNameSpaceCollision(CoCo):
     Not allowed:
         function handle(...) <- collision
     """
-    nest_name_space = ['update', 'calibrate', 'handle', 'connect_sender', 'check_connection', 'get_status',
-                       'set_status', 'init_state_', 'init_buffers_']
+    nest_name_space = ["update", "calibrate", "handle", "connect_sender", "check_connection", "get_status",
+                       "set_status", "init_state_", "init_buffers_"]
 
     @classmethod
     def check_co_co(cls, node: ASTModel):

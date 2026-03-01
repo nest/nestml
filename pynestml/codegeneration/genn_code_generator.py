@@ -191,5 +191,5 @@ class GeNNCodeGenerator(NESTCodeGenerator):
 
     def analyse_neuron(self, neuron: ASTModel) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment], List[ASTOdeEquation], List[ASTOdeEquation]]:
         # timestep symbol in GeNN is "dt" rather than "__h"
-        neuron.add_to_internals_block(ModelParser.parse_declaration('dt ms = resolution()'), index=0)
+        neuron.add_to_internals_block(ModelParser.parse_declaration("dt ms = resolution()"), index=0)
         return super().analyse_neuron(neuron)
