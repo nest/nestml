@@ -86,7 +86,7 @@ class SynsInfoEnricher(MechsInfoEnricher):
                         neuron.get_equations_blocks()[0].get_scope())
                     update_expr_ast.accept(ASTSymbolTableVisitor())
 
-                    analytic_solution_transformed['kernel_states'][variable_name] = {
+                    analytic_solution_transformed["kernel_states"][variable_name] = {
                         "ASTVariable": variable,
                         "init_expression": expression,
                         "update_expression": update_expr_ast,
@@ -103,7 +103,7 @@ class SynsInfoEnricher(MechsInfoEnricher):
                     expression.update_scope(
                         neuron.get_equations_blocks()[0].get_scope())
                     expression.accept(ASTSymbolTableVisitor())
-                    analytic_solution_transformed['propagators'][variable_name] = {
+                    analytic_solution_transformed["propagators"][variable_name] = {
                         "ASTVariable": variable, "init_expression": expression, }
 
                 enriched_syns_info[synapse_name]["convolutions"][convolution_name]["analytic_solution"] = \

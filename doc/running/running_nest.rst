@@ -96,6 +96,13 @@ Currently, there is support for GSL, forward Euler, and exact integration. ODEs 
 In the case that the model is solved with the GSL integrator, desired absolute error of an integration step can be adjusted with the ``gsl_error_tol`` parameter in a ``SetStatus`` call. The default value of ``gsl_error_tol`` is ``1e-3``.
 
 
+Data types
+----------
+
+- The NESTML data type ``real`` will be rendered as ``double``.
+- The NESTML data type ``integer`` will be rendered as ``long``.
+
+
 Manually building the extension module
 --------------------------------------
 
@@ -358,6 +365,12 @@ Random numbers
 --------------
 
 In case random numbers are needed inside the synapse, the random number generator belonging to the postsynaptic target is used.
+
+
+Running with MPI
+----------------
+
+When running NEST simulation scripts via MPI, make sure to run the NESTML code generation step in a separate, single-process script first. This then produces a dynamic library (.so or .dll file) that can be used in the MPI context (using ``nest.Install()``). Running NESTML itself in the MPI context would result in compilation/build errors.
 
 
 References

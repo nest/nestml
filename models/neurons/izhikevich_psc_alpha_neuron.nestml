@@ -1,46 +1,45 @@
 # izhikevich_psc_alpha - Detailed Izhikevich neuron model with alpha-kernel post-synaptic current
 # ###############################################################################################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # Implementation of the simple spiking neuron model introduced by Izhikevich [1]_, with membrane potential in (milli)volt
 # and current-based synapses.
-# 
+#
 # The dynamics are given by:
-# 
+#
 # .. math::
-# 
+#
 #    C_m \frac{dV_m}{dt} = k (V - V_t)(V - V_t) - u + I + I_{syn,ex} + I_{syn,in}
 #    \frac{dU_m}{dt} = a(b(V_m - E_L) - U_m)
-# 
+#
 #    &\text{if}\;\;\; V_m \geq V_{th}:\\
 #    &\;\;\;\; V_m \text{ is set to } c
 #    &\;\;\;\; U_m \text{ is incremented by } d
-# 
+#
 # On each spike arrival, the membrane potential is subject to an alpha-kernel current of the form:
-# 
+#
 # .. math::
-# 
+#
 #    I_syn = I_0 \cdot t \cdot \exp\left(-t/\tau_{syn}\right) / \tau_{syn}
-# 
+#
 # See also
 # ++++++++
-# 
+#
 # izhikevich, iaf_psc_alpha
-# 
-# 
+#
+#
 # References
 # ++++++++++
-# 
-# .. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
 #
+# .. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
 #
 # Copyright statement
 # +++++++++++++++++++
 #
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
 #
 # NEST is free software: you can redistribute it and/or modify
@@ -79,7 +78,7 @@ model izhikevich_psc_alpha_neuron:
         k pF/mV/ms = 8 pF/mV/ms   # Spiking slope
         V_r mV = -65 mV           # Resting potential
         V_t mV = -45 mV           # Threshold potential
-        a 1/ms = 0.01 /ms         # Time scale of recovery variable
+        a 1/ms = 0.01/ms          # Time scale of recovery variable
         b nS = 9 nS               # Sensitivity of recovery variable
         c mV = -65 mV             # After-spike reset value of V_m
         d pA = 60 pA              # After-spike reset value of U_m

@@ -475,7 +475,7 @@ inline void set_{{ variable.get_name() }}(const {{ declarations.print_variable_t
    * Update internal state (``S_``) of the synapse according to the dynamical equations defined in the model and the statements in the ``update`` block.
   **/
   inline void
-  update_internal_state_(double t_start, double timestep, const {{synapseName}}CommonSynapseProperties& cp);
+  update_internal_state_(double t_start, double timestep, const {{ synapseName }}CommonSynapseProperties& cp);
 
   void recompute_internal_variables();
 
@@ -483,7 +483,7 @@ inline void set_{{ variable.get_name() }}(const {{ declarations.print_variable_t
 
 public:
   // this line determines which common properties to use
-  typedef {{synapseName}}CommonSynapseProperties CommonPropertiesType;
+  typedef {{ synapseName }}CommonSynapseProperties CommonPropertiesType;
 
   typedef Connection< targetidentifierT > ConnectionBase;
 
@@ -514,7 +514,6 @@ public:
 {%- if vt_ports is defined and vt_ports|length > 0  %}
 {%-     set vt_port = vt_ports[0] %}
   void process_{{ vt_port }}_spikes_( const std::vector< spikecounter >& vt_spikes,
-      const size_t tid,
       double t0,
       double t1,
       const {{synapseName}}CommonSynapseProperties& cp );
@@ -847,7 +846,7 @@ void get_entry_from_continuous_variable_history(double t,
 {#- post spike based: grab the entry from the post spiking history buffer #}
 {%-     if continuous_state_buffering_method == "post_spike_based" %}
 {%-         for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
-{%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
+{%-             set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
         const double __{{ var_name }} = start->{{ var_name }}_;
 {%-         endfor %}
 {%-     endif %}
@@ -872,7 +871,7 @@ void get_entry_from_continuous_variable_history(double t,
 
 {%  if vt_ports is defined and vt_ports|length > 0  %}
 {%-     set vt_port = vt_ports[0] %}
-        process_{{vt_port}}_spikes_( vt_spikes, tid, t0, start->t_ + __dendritic_delay, cp );
+        process_{{vt_port}}_spikes_( vt_spikes, t0, start->t_ + __dendritic_delay, cp );
         t0 = start->t_ + __dendritic_delay;
 {%- endif %}
 
@@ -931,8 +930,8 @@ void get_entry_from_continuous_variable_history(double t,
      * update synapse internal state from `t_lastspike_` to `__t_spike`
     **/
 {%- if vt_ports is defined and vt_ports|length > 0  %}
-{%- set vt_port = vt_ports[0] %}
-    process_{{vt_port}}_spikes_( vt_spikes, tid, t_lastspike_, __t_spike, cp );
+{%-     set vt_port = vt_ports[0] %}
+    process_{{vt_port}}_spikes_( vt_spikes, t_lastspike_, __t_spike, cp );
 {%- endif %}
 
     update_internal_state_(t_lastspike_, __t_spike - t_lastspike_, cp);
@@ -1059,10 +1058,13 @@ constexpr ConnectionModelProperties {{synapseName}}< targetidentifierT >::proper
 {%- endif %}
 {%- if vt_ports is defined and vt_ports|length > 0  %}
 {%- set vt_port = vt_ports[0] %}
+
+/**
+ * Handler for volume transmitter spikes
+**/
 template < typename targetidentifierT >
 void
-{{synapseName}}< targetidentifierT >::process_{{vt_port}}_spikes_( const std::vector< spikecounter >& vt_spikes,
-    const size_t tid,
+{{synapseName}}< targetidentifierT >::process_{{ vt_port }}_spikes_( const std::vector< spikecounter >& vt_spikes,
     double t0,
     double t1,
     const {{synapseName}}CommonSynapseProperties& cp )
@@ -1070,11 +1072,21 @@ void
 #ifdef DEBUG
   std::cout << "[synapse " << this << "] {{ synapseName }}::process_{{ vt_port }}_spikes_(): t0 = " << t0 << ", t1 = " << t1 << "\n";
 #endif
+
+  const size_t tid = kernel().vp_manager.get_thread_id();
+{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 %}
+  typedef {{ paired_neuron_name }} post_neuron_t;
+  {{ paired_neuron_name }}* __target = static_cast< {{ paired_neuron_name }}* >(get_target(tid));
+  assert(__target);
+{%      for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
+{%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
+  const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}();
+{%-     endfor %}
+{%- endif %}
   auto get_thread = [tid]()
   {
     return tid;
   };
-
   // process dopa spikes in (t0, t1]
   // propagate weight from t0 to t1
   if ( ( vt_spikes.size() > vt_spikes_idx_ + 1 )
@@ -1536,8 +1548,9 @@ inline void
 }
 
 {%- if vt_ports is defined and vt_ports|length > 0  %}
+
 /**
- * Update to end of timestep ``t_trig``, while processing vt spikes and post spikes
+ * Update synapse internal state to end of timestep ``t_trig``, while processing vt spikes and post spikes
 **/
 template < typename targetidentifierT >
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
@@ -1561,8 +1574,15 @@ inline void
 
   const size_t tid = kernel().vp_manager.get_thread_id();
 {%- if paired_neuron_name is not none and paired_neuron_name|length > 0 %}
+  typedef {{ paired_neuron_name }} post_neuron_t;
   {{ paired_neuron_name }}* __target = static_cast< {{ paired_neuron_name }}* >(get_target(tid));
   assert(__target);
+
+{%      for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
+{%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
+  const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}();
+{%-     endfor %}
+
 {%- else %}
   Node* __target = get_target( tid );
 {%- endif %}
@@ -1589,8 +1609,8 @@ inline void
   while ( start != finish )
   {
 {%- for vt_port in vt_ports %}
-{%- set vt_port = vt_ports[0] %}
-    process_{{vt_port}}_spikes_( vt_spikes, t, t0, start->t_ + dendritic_delay, cp );
+{%-     set vt_port = vt_ports[0] %}
+    process_{{vt_port}}_spikes_( vt_spikes, t0, start->t_ + dendritic_delay, cp );
 {%- endfor %}
 
 #ifdef DEBUG
@@ -1609,7 +1629,7 @@ inline void
 {#- post spike based: grab the entry from the post spiking history buffer #}
 {%-     if continuous_state_buffering_method == "post_spike_based" %}
 {%-         for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
-{%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
+{%-             set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
         const double __{{ var_name }} = start->{{ var_name }}_;
 {%-         endfor %}
 {%-     endif %}
@@ -1623,14 +1643,16 @@ inline void
 {%- filter indent(6, True) %}
 {%- if post_ports is defined %}
 {%-     for post_port in spiking_post_ports %}
+{%-         set dynamics = synapse.get_on_receive_block(post_port) %}
+{%-         if dynamics is not none %}
     /**
-     *  NESTML generated onReceive code block for postsynaptic port "{{post_port}}" begins here!
+     *  NESTML generated onReceive code block for postsynaptic port "{{ post_port }}" begins here!
     **/
 
-{%-         set dynamics = synapse.get_on_receive_block(post_port) %}
-{%-         with ast = dynamics.get_stmts_body() %}
-{%-             include "directives_cpp/StmtsBody.jinja2" %}
-{%-         endwith %}
+{%-             with ast = dynamics.get_stmts_body() %}
+{%-                 include "directives_cpp/StmtsBody.jinja2" %}
+{%-             endwith %}
+{%-         endif %}
 {%-     endfor %}
 {%- endif %}
 {%- endfilter %}
@@ -1650,8 +1672,8 @@ inline void
   **/
 
 {%- for vt_port in vt_ports %}
-{%- set vt_port = vt_ports[0] %}
-  process_{{vt_port}}_spikes_( vt_spikes, t, t_lastspike_, t_trig, cp );
+{%-     set vt_port = vt_ports[0] %}
+  process_{{vt_port}}_spikes_( vt_spikes, t_lastspike_, t_trig, cp );
 {%- endfor %}
 #ifdef DEBUG
   std::cout << "[synapse " << this << "] {{ synapseName }}::trigger_update_weight(): \tupdating from " << t_lastspike_ << " to " << t_trig + dendritic_delay << std::endl;
@@ -1665,7 +1687,6 @@ inline void
   vt_spikes_idx_ = 0;
   t_lastspike_ = t_trig;
 }
-
 
 {%- endif %}
 
