@@ -19,7 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Union
+import copy
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Set, Union
 
 import re
 import sympy
@@ -1750,7 +1751,7 @@ class ASTUtils:
         return decls
 
     @classmethod
-    def recursive_dependent_variables_search(cls, vars: List[str], model: ASTModel) -> List[str]:
+    def recursive_dependent_variables_search(cls, vars: Iterable[str], model: ASTModel) -> Set[str]:
         """
         Collect all the variable names used in the defining expressions of a list of variables.
         :param vars: list of variable names moved from synapse to neuron
@@ -1761,15 +1762,11 @@ class ASTUtils:
         for var in vars:
             assert type(var) is str
 
-        vars_used = vars.copy()
-        i = 0
-        while i < len(vars_used):
-            new_vars = ASTUtils.get_dependent_variables(vars_used[i], model)
-            new_vars = list(set(new_vars) - set(vars_used))
-            vars_used.extend(new_vars)
-            i += 1
+        dep_vars: Set[str] = set(vars)
+        for var in vars:
+            dep_vars |= ASTUtils.get_dependent_variables(var, model)
 
-        return list(set(vars_used))
+        return dep_vars
 
     @classmethod
     def recursive_necessary_variables_search(cls, vars: List[str], model: ASTModel) -> List[str]:
@@ -1916,23 +1913,8 @@ class ASTUtils:
         return visitor.vars
 
     @classmethod
-    def get_all_variables_assigned_to(cls, node: ASTNode):
-        class GetDependentVariablesVisitor(ASTVisitor):
-            def __init__(self):
-                super().__init__()
-                self.vars = set()
-
-            def visit_assignment(self, node: ASTAssignment) -> None:
-                self.vars.add(node.lhs.get_name())
-
-        visitor = GetDependentVariablesVisitor()
-        node.accept(visitor)
-
-        return visitor.vars
-
-    @classmethod
-    def get_dependent_variables(cls, var: str, model: ASTExpression) -> List[ASTVariable]:
-        r"""Return a list of all left-hand side variables in the model that depend on ``var`` in their right-hand side."""
+    def get_dependent_variables(cls, var: str, model: ASTNode) -> Set[str]:
+        r"""Return a set of all left-hand side variables in the model that depend on ``var`` in their right-hand side."""
         class GetDependentVariablesVisitor(ASTVisitor):
             def __init__(self):
                 super().__init__()
@@ -1953,7 +1935,7 @@ class ASTUtils:
             def visit_kernel(self, node: ASTKernel) -> None:
                 for expr in node.get_expressions():
                     # exclude the special case "t" because a function-of-time kernel might depend on t
-                    if not var == "t" and var in ASTUtils.get_all_variables_names_in_expression(expr):
+                    if not var == PredefinedVariables.TIME_CONSTANT and var in ASTUtils.get_all_variables_names_in_expression(expr):
                         self.vars |= set([var.get_name() for var in node.get_variables()])
 
             def visit_assignment(self, node: ASTAssignment) -> None:
@@ -2538,7 +2520,7 @@ class ASTUtils:
         return rport_to_port_map
 
     @classmethod
-    def assign_numeric_non_numeric_state_variables(cls, model, numeric_state_variable_names, numeric_update_expressions, update_expressions):
+    def assign_numeric_non_numeric_state_variables(cls, model, numeric_state_variable_names, numeric_update_expressions, update_expressions, metadata):
         r"""For each ASTVariable, set the ``node._is_numeric`` member to True or False based on whether this variable will be solved with the analytic or numeric solver.
 
         Ideally, this would not be a property of the ASTVariable as it is an implementation detail (that only emerges during code generation) and not an intrinsic part of the model itself. However, this approach is preferred over setting it as a property of the variable printers as it would have to make each printer aware of all models and variables therein."""
@@ -2559,8 +2541,8 @@ class ASTUtils:
         visitor._numeric_state_variables = numeric_state_variable_names
         model.accept(visitor)
 
-        if "extra_on_emit_spike_stmts_from_synapse" in dir(model):
-            for expr in model.extra_on_emit_spike_stmts_from_synapse:
+        if "extra_on_emit_spike_stmts_from_synapse" in metadata[model.name].keys():
+            for expr in metadata[model.name]["extra_on_emit_spike_stmts_from_synapse"]:
                 expr.accept(visitor)
 
         if update_expressions:
@@ -2571,16 +2553,16 @@ class ASTUtils:
             for expr in numeric_update_expressions.values():
                 expr.accept(visitor)
 
-        for update_expr_list in model.spike_updates.values():
+        for update_expr_list in metadata[model.name]["spike_updates"].values():
             for update_expr in update_expr_list:
                 update_expr.accept(visitor)
 
-        if "post_spike_updates" in dir(model):
-            for update_expr in model.post_spike_updates.values():
+        if "post_spike_updates" in metadata[model.name].keys():
+            for update_expr in metadata[model.name]["post_spike_updates"].values():
                 update_expr.accept(visitor)
 
-        if "equations_with_delay_vars" in dir(model):
-            for node in model.equations_with_delay_vars + model.equations_with_vector_vars:
+        if "equations_with_delay_vars" in metadata[model.name].keys():
+            for node in metadata[model.name]["equations_with_delay_vars"] + metadata[model.name]["equations_with_vector_vars"]:
                 node.accept(visitor)
 
     @classmethod
@@ -2633,3 +2615,171 @@ class ASTUtils:
             _node = _node.get_parent()
 
         return None
+
+    @classmethod
+    def collect_variables_affected_by_ports(cls, model, post_port_names, strictly_synaptic_vars: Optional[Set[str]] = None):
+
+        if not strictly_synaptic_vars:
+            strictly_synaptic_vars: Set[str] = set()
+
+        strictly_synaptic_vars = set(strictly_synaptic_vars)    # make a copy
+
+        strictly_synaptic_vars.add(PredefinedVariables.TIME_CONSTANT)
+
+        #
+        #   determine which variables and dynamics in synapse can be transferred to neuron
+        #
+
+        if model.get_state_blocks():
+            all_state_vars = ASTUtils.all_variables_defined_in_block(model.get_state_blocks()[0])
+        else:
+            all_state_vars = []
+
+        all_state_vars = [var.get_complete_name() for var in all_state_vars]
+
+        # add names of convolutions
+        all_state_vars += ASTUtils.get_all_variables_used_in_convolutions(model.get_equations_blocks(), model)
+
+        # add names of kernels
+        kernel_buffers = ASTUtils.generate_kernel_buffers(model, model.get_equations_blocks())
+        all_state_vars += [var.name for k in kernel_buffers for var in k[0].variables]
+
+        for input_block in model.get_input_blocks():
+            for port in input_block.get_input_ports():
+                if port.name not in post_port_names:
+                    strictly_synaptic_vars |= ASTUtils.get_all_variables_assigned_to(model.get_on_receive_block(port.name))
+
+        # exclude all variables that are assigned to in the ``update`` block
+        for update_block in model.get_update_blocks():
+            strictly_synaptic_vars |= ASTUtils.get_all_variables_assigned_to(update_block)
+
+        # exclude convolutions if they are not with a postsynaptic variable
+        convolve_with_not_post_vars = ASTUtils.get_convolve_vars_exclude_port(model.get_equations_blocks(), post_port_names, model)
+
+        # exclude all variables that depend on the ones that are not to be moved
+        strictly_synaptic_vars_dependent = ASTUtils.recursive_dependent_variables_search(strictly_synaptic_vars, model)
+
+        # do set subtraction
+        syn_to_neuron_state_vars = list(set(all_state_vars) - (strictly_synaptic_vars | set(convolve_with_not_post_vars) | set(strictly_synaptic_vars_dependent)))
+
+        #
+        #   collect all the variable/parameter/kernel/function/etc. names used in defining expressions of `syn_to_neuron_state_vars`
+        #
+
+        recursive_vars_used = ASTUtils.recursive_necessary_variables_search(syn_to_neuron_state_vars, model)
+
+        # all state variables that will be moved from synapse to neuron
+        syn_to_neuron_state_vars = []
+        for var_name in recursive_vars_used:
+            if ASTUtils.get_state_variable_by_name(model, var_name) or ASTUtils.get_inline_expression_by_name(model, var_name) or ASTUtils.get_kernel_by_name(model, var_name):
+                syn_to_neuron_state_vars.append(var_name)
+
+        return syn_to_neuron_state_vars
+
+    @classmethod
+    def get_all_variables_assigned_to(cls, node: ASTNode) -> Set[str]:
+        r"""Return a list of all variables that are assigned to in ``node``."""
+        class ASTAssignedToVariablesFinderVisitor(ASTVisitor):
+            def __init__(self):
+                super().__init__()
+                self._variable_names = set()
+
+            def visit_assignment(self, node):
+                symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_complete_name(), SymbolKind.VARIABLE)
+                assert symbol is not None    # should have been checked in a CoCo before
+                self._variable_names.add(node.get_variable().get_name())
+
+        if node is None:
+            return set()
+
+        visitor = ASTAssignedToVariablesFinderVisitor()
+        node.accept(visitor)
+
+        return visitor._variable_names
+
+    @classmethod
+    def get_convolve_vars_exclude_port(cls, nodes: Union[ASTEquationsBlock, Sequence[ASTEquationsBlock]], excluded_port_names: List[str], parent_node: ASTNode):
+        r"""Gather all variables that are used in a convolution with an input port that is not in ``excluded_port_names``."""
+
+        class ASTVariablesUsedInConvolutionVisitor(ASTVisitor):
+            _variables = []
+
+            def __init__(self, node: ASTNode, parent_node: ASTNode, excluded_port_names: List[str]):
+                super(ASTVariablesUsedInConvolutionVisitor, self).__init__()
+                self.node = node
+                self.parent_node = parent_node
+                self.excluded_port_names = excluded_port_names
+
+            def visit_function_call(self, node):
+                func_name = node.get_name()
+                if func_name == "convolve":
+                    symbol_buffer = node.get_scope().resolve_to_symbol(str(node.get_args()[1]),
+                                                                       SymbolKind.VARIABLE)
+                    input_port = ASTUtils.get_input_port_by_name(
+                        self.parent_node.get_input_blocks(), symbol_buffer.name)
+                    if input_port and input_port.name not in self.excluded_port_names:
+                        kernel_name = node.get_args()[0].get_variable().name
+                        self._variables.append(kernel_name)
+
+                        found_parent_assignment = False
+                        node_ = node
+                        while not found_parent_assignment:
+                            node_ = node_.get_parent()
+                            # XXX TODO also needs to accept normal ASTExpression, ASTAssignment?
+                            if isinstance(node_, ASTInlineExpression):
+                                found_parent_assignment = True
+                        var_name = node_.get_variable_name()
+                        self._variables.append(var_name)
+
+        if not nodes:
+            return []
+
+        if isinstance(nodes, ASTNode):
+            nodes = [nodes]
+
+        variables = []
+        for node in nodes:
+            visitor = ASTVariablesUsedInConvolutionVisitor(node, parent_node, excluded_port_names)
+            node.accept(visitor)
+            variables.extend(visitor._variables)
+
+        return variables
+
+    @classmethod
+    def collect_parameters_needed_for_state_vars(cls, model, syn_to_neuron_state_vars):
+
+        #
+        #   collect all the parameters
+        #
+
+        if model.get_parameters_blocks():
+            all_declared_params = [s.get_variables() for s in model.get_parameters_blocks()[0].get_declarations()]
+        else:
+            all_declared_params = []
+
+        all_declared_params = sum(all_declared_params, [])    # flatten
+        all_declared_params = [var.name for var in all_declared_params]
+
+        recursive_vars_used = ASTUtils.recursive_necessary_variables_search(syn_to_neuron_state_vars, model)
+
+        syn_to_neuron_params = [v for v in recursive_vars_used if v in all_declared_params]
+
+        vars_used = []
+        for var in syn_to_neuron_state_vars:
+            # parameters used in the declarations of the state variables
+            for state_block in model.get_state_blocks():
+                decls = ASTUtils.get_declarations_from_block(var, state_block)
+                for decl in decls:
+                    if decl.has_expression():
+                        vars_used.extend(ASTUtils.collect_variable_names_in_expression(decl.get_expression()))
+
+            # parameters used in equations
+            for equations_block in model.get_equations_blocks():
+                vars_used.extend(ASTUtils.collects_vars_used_in_equation(var, equations_block))
+
+        vars_used = list(set([str(var) for var in vars_used]))
+
+        syn_to_neuron_params.extend([var for var in vars_used if var in all_declared_params])
+        syn_to_neuron_params = list(set(syn_to_neuron_params))
+
+        return syn_to_neuron_params, all_declared_params

@@ -57,7 +57,9 @@ class NESTDesktopCodeGenerator(CodeGenerator):
         self.generate_neurons(neurons)
         self.generate_synapses(synapses)
 
-    def _get_neuron_model_namespace(self, neuron: ASTModel) -> Dict:
+    def _get_neuron_model_namespace(self,
+                                    neuron: ASTModel,
+                                    metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Dict:
         """
         Returns a standard namespace with often required functionality.
         :param neuron: a single neuron instance
