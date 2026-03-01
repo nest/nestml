@@ -364,7 +364,7 @@ class NESTCodeGenerator(CodeGenerator):
             Logger.log_message(None, None, "Analysing/transforming synapse {}.".format(synapse.get_name()), None, LoggingLevel.INFO)
             self.analyse_synapse(synapse, metadata)
 
-    def analyse_neuron(self, neuron: ASTModel, metadata) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment], List[ASTOdeEquation], List[ASTOdeEquation]]:
+    def analyse_neuron(self, neuron: ASTModel, metadata: Mapping[str, Mapping[str, Any]]) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment], List[ASTOdeEquation], List[ASTOdeEquation]]:
         """
         Analyse and transform a single neuron.
         :param neuron: a single neuron.
@@ -717,7 +717,7 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace["numeric_update_expressions"][sym] = expr_ast
 
             ASTUtils.assign_numeric_non_numeric_state_variables(synapse, namespace["numeric_state_variables"],
-                                                                namespace["numeric_update_expressions"] if "numeric_update_expressions" in namespace.keys() else None, namespace["update_expressions"] if "update_expressions" in namespace.keys() else None)
+                                                                namespace["numeric_update_expressions"] if "numeric_update_expressions" in namespace.keys() else None, namespace["update_expressions"] if "update_expressions" in namespace.keys() else None, metadata)
 
         if metadata is not None and synapse.name in metadata.keys():
             namespace["spike_updates"] = metadata[synapse.name]["spike_updates"]
