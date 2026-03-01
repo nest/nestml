@@ -18,13 +18,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-import os
 
-import nest
+import os
 import numpy as np
 import pytest
-from pynestml.frontend.pynestml_frontend import generate_nest_target
 
+import nest
+
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 from pynestml.codegeneration.nest_tools import NESTTools
 
 
@@ -56,27 +57,28 @@ class TestRandomFunctionsWithNeuromodSpikes:
                                                "random_functions_neuromod_synapse": "d"},
                                            "weight_variable": {
                                                "random_functions_neuromod_synapse": "w"},
-                                           "strictly_synaptic_vars": {"random_functions_neuromod_synapse": ["use_random_func"]}})
+                                           "strictly_synaptic_vars": {"random_functions_neuromod_synapse": ["x", "y"]}})
 
     def test_random_functions_neuromod_synapse(self):
         pre_spike_times = [1., 11., 21.]  # [ms]
         post_spike_times = [6., 16., 26.]  # [ms]
 
-        vt_spike_times = [4.]  # [ms]
+        vt_spike_times = np.arange(10, 1010).astype(float)   # [ms]
 
-        for use_random_func in [True, False]:
-            t_hist, w_hist = self.run_synapse_test(neuron_model_name=self.neuron_model_name,
-                                                   synapse_model_name=self.synapse_model_name,
-                                                   resolution=.1,  # [ms]
-                                                   delay=1.,  # [ms]
-                                                   pre_spike_times=pre_spike_times,
-                                                   post_spike_times=post_spike_times,
-                                                   vt_spike_times=vt_spike_times,
-                                                   use_random_func=use_random_func)
-            if use_random_func:
-                assert not np.allclose(w_hist[-1], w_hist[0]), "Weights should change under this protocol!"
-            else:
-                np.testing.assert_allclose(w_hist[-1], w_hist[0]), "Weights should not change under this protocol!"
+        x, y = self.run_synapse_test(neuron_model_name=self.neuron_model_name,
+                                               synapse_model_name=self.synapse_model_name,
+                                               resolution=.1,  # [ms]
+                                               delay=1.,  # [ms]
+                                               pre_spike_times=pre_spike_times,
+                                               post_spike_times=post_spike_times,
+                                               vt_spike_times=vt_spike_times)
+
+        # large tolerances because of few data points
+        np.testing.assert_allclose(np.mean(x), .5, atol=1E-2)
+        np.testing.assert_allclose(np.amin(x), 0., atol=1E-2)
+        np.testing.assert_allclose(np.amax(x), 1., atol=1E-2)
+        np.testing.assert_allclose(np.mean(y), 500., atol=5)
+        np.testing.assert_allclose(np.std(y), 25, atol=1)
 
     def run_synapse_test(self, neuron_model_name,
                          synapse_model_name,
@@ -85,8 +87,7 @@ class TestRandomFunctionsWithNeuromodSpikes:
                          sim_time=None,  # if None, computed from pre and post spike times
                          pre_spike_times=None,
                          post_spike_times=None,
-                         vt_spike_times=None,
-                         use_random_func=True):
+                         vt_spike_times=None):
 
         if pre_spike_times is None:
             pre_spike_times = []
@@ -132,7 +133,6 @@ class TestRandomFunctionsWithNeuromodSpikes:
         wr = nest.Create("weight_recorder")
         nest.CopyModel(synapse_model_name, "neuromod_stdp_nestml_rec",
                        {"weight_recorder": wr[0], "w": 1., "d": delay, "receptor_type": 0,
-                        "use_random_func": use_random_func,
                         "volume_transmitter": vt})
 
         # create parrot neurons and connect spike_generators
@@ -148,13 +148,6 @@ class TestRandomFunctionsWithNeuromodSpikes:
         # get STDP synapse and weight before protocol
         syn = nest.GetConnections(source=pre_neuron, synapse_model="neuromod_stdp_nestml_rec")
 
-        t = 0.
-        t_hist = []
-        w_hist = []
-        while t <= sim_time:
-            nest.Simulate(resolution)
-            t += resolution
-            t_hist.append(t)
-            w_hist.append(nest.GetStatus(syn)[0]["w"])
+        nest.Simulate(sim_time)
 
-        return t_hist, w_hist
+        return syn.x, syn.y
