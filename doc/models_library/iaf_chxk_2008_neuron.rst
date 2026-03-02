@@ -1,8 +1,8 @@
 iaf_chxk_2008_neuron
 ####################
 
-
 iaf_chxk_2008 - Conductance based leaky integrate-and-fire neuron model used in Casti et al. 2008
+
 
 Description
 +++++++++++
@@ -17,6 +17,7 @@ The AHP conductance and excitatory and inhibitory synaptic input conductances
 follow alpha-function time courses as in the iaf_cond_alpha model.
 
 .. note ::
+
    In the original Fortran implementation underlying [1]_, all previous AHP activation was discarded when a new spike
    occurred, leading to reduced AHP currents in particular during periods of high spiking activity. Set ``ahp_bug`` to
    ``true`` to obtain this behavior in the model.
@@ -35,6 +36,25 @@ See also
 
 iaf_cond_alpha
 
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
 Parameters
@@ -49,7 +69,7 @@ Parameters
     "E_inh", "mV", "-90mV", "Inhibitory reversal potential"    
     "g_L", "nS", "100nS", "Leak conductance"    
     "C_m", "pF", "1000.0pF", "Membrane capacitance"    
-    "E_L", "mV", "-60.0mV", "Leak reversal Potential (aka resting potential)"    
+    "E_L", "mV", "-60.0mV", "Leak reversal potential (a.k.a. resting potential)"    
     "tau_syn_exc", "ms", "1ms", "Synaptic time constant of excitatory synapse"    
     "tau_syn_inh", "ms", "1ms", "Synaptic time constant of inhibitory synapse"    
     "tau_ahp", "ms", "0.5ms", "Afterhyperpolarization (AHP) time constant"    
@@ -99,4 +119,4 @@ The model source code can be found in the NESTML models repository here: `iaf_ch
 
 .. footer::
 
-   Generated at 2024-05-22 14:51:14.647974
+   Generated at 2026-02-04 14:40:55.348903

@@ -1,8 +1,8 @@
 iaf_cond_alpha_neuron
 #####################
 
-
 iaf_cond_alpha - Simple conductance based leaky integrate-and-fire neuron model
+
 
 Description
 +++++++++++
@@ -13,7 +13,6 @@ of conductance modelled by an alpha function. The alpha function
 is normalised such that an event of weight 1.0 results in a peak current of 1 nS
 at :math:`t = \tau_{syn}`.
 
-
 References
 ++++++++++
 
@@ -22,11 +21,13 @@ References
        neocortical neurons in vivo. Journal of Computational Neuroscience,
        16:159-175.
        DOI: https://doi.org/10.1023/B:JCNS.0000014108.03012.81
+
 .. [2] Bernander O, Douglas RJ, Martin KAC, Koch C (1991). Synaptic background
        activity influences spatiotemporal integration in single pyramidal
-       cells.  Proceedings of the National Academy of Science USA,
+       cells. Proceedings of the National Academy of Science USA,
        88(24):11569-11573.
        DOI: https://doi.org/10.1073/pnas.88.24.11569
+
 .. [3] Kuhn A, Rotter S (2004) Neuronal integration of synaptic input in
        the fluctuation- driven regime. Journal of Neuroscience,
        24(10):2345-2356
@@ -37,6 +38,25 @@ See also
 
 iaf_cond_exp
 
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
 Parameters
@@ -48,7 +68,7 @@ Parameters
     
     "C_m", "pF", "250pF", "Membrane capacitance"    
     "g_L", "nS", "16.6667nS", "Leak conductance"    
-    "E_L", "mV", "-70mV", "Leak reversal potential (aka resting potential)"    
+    "E_L", "mV", "-70mV", "Leak reversal potential (a.k.a. resting potential)"    
     "refr_T", "ms", "2ms", "Duration of refractory period"    
     "V_th", "mV", "-55mV", "Spike threshold potential"    
     "V_reset", "mV", "-60mV", "Reset potential"    
@@ -69,8 +89,7 @@ State variables
 
     
     "V_m", "mV", "E_L", "Membrane potential"    
-    "refr_t", "ms", "0ms", "Refractory period timer"    
-    "is_refractory", "boolean", "false", ""
+    "refr_t", "ms", "0ms", "Refractory period timer"
 
 
 
@@ -82,6 +101,9 @@ Equations
 
 .. math::
    \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-I_{leak} - I_{syn,exc} - I_{syn,inh} + I_{e} + I_{stim}) } \right) 
+
+.. math::
+   \frac{ drefr_{t} } { dt }= \frac{ -1000.0 \cdot \mathrm{ms} } { \mathrm{s} }
 
 
 
@@ -95,4 +117,4 @@ The model source code can be found in the NESTML models repository here: `iaf_co
 
 .. footer::
 
-   Generated at 2024-05-22 14:51:14.597480
+   Generated at 2026-02-04 14:40:55.221843

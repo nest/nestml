@@ -277,6 +277,8 @@ def generate_nest_target(input_path: Union[str, Sequence[str]], target_path: Opt
                          dev: bool = False, codegen_opts: Optional[Mapping[str, Any]] = None):
     r"""Generate and build code for NEST Simulator.
 
+    Note that for an alternative code generation function that will create temporary paths for the generated code, which is especially useful in a Jupyter notebook where the same cell (that invokes the code generation) may be run over and over again, please see :python:`pynestml.codegeneration.nest_code_generator_utils.NESTCodeGeneratorUtils.generate_code_for()`.
+
     Parameters
     ----------
     input_path : str **or** Sequence[str]

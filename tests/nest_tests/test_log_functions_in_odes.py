@@ -46,7 +46,7 @@ class TestLogFunctionsInODEs:
             t_span=[0, sim_time],  # interval of integration
             y0=inital_state,  # initial state
             args=params,  # parameters
-            method='RK45',
+            method="RK45",
             t_eval=np.arange(1.0, sim_time, 1.0),
             rtol=1e-6,  # relative tolerance
             atol=1e-6  # absolute tolerance

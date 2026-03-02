@@ -1,14 +1,12 @@
 # DocstringCommentTest.nestml
 # ###########################
 #
-#
 # Description
 # +++++++++++
 #
 # This model is used to test whether docstring comments are detected.
 #
 # Positive case.
-#
 #
 # Copyright statement
 # +++++++++++++++++++

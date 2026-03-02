@@ -129,7 +129,7 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::set_status( const DictionaryDat
      */
     if ( c_tree_.get_size() > 0 )
     {
-      throw BadProperty( "\'compartments\' is already defined for this model" );
+      throw BadProperty( "\"compartments\" is already defined for this model" );
     }
 
     Datum* dat = ( *statusdict )[ names::compartments ].datum();
@@ -154,7 +154,7 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::set_status( const DictionaryDat
     else
     {
       throw BadProperty(
-        "\'compartments\' entry could not be identified, provide "
+        "\"compartments\" entry could not be identified, provide "
         "list of parameter dicts for multiple compartments" );
     }
   }
@@ -174,7 +174,7 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::set_status( const DictionaryDat
      */
     if ( long( syn_buffers_.size() ) > 0 )
     {
-      throw BadProperty( "\'receptors\' is already defined for this model" );
+      throw BadProperty( "\"receptors\" is already defined for this model" );
     }
 
     Datum* dat = ( *statusdict )[ names::receptors ].datum();
@@ -197,7 +197,7 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::set_status( const DictionaryDat
     else
     {
       throw BadProperty(
-        "\'receptors\' entry could not be identified, provide "
+        "\"receptors\" entry could not be identified, provide "
         "list of parameter dicts for multiple receptors" );
     }
   }

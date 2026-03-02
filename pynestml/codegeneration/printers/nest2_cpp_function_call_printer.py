@@ -45,12 +45,12 @@ class NEST2CppFunctionCallPrinter(NESTCppFunctionCallPrinter):
         function_name = function_call.get_name()
 
         if function_name == PredefinedFunctions.RANDOM_NORMAL:
-            return '(({!s}) + ({!s}) * ' + 'normal_dev_( nest::kernel().rng_manager.get_rng( ' + 'get_thread() ) ))'
+            return "(({!s}) + ({!s}) * " + "normal_dev_( nest::kernel().rng_manager.get_rng( " + "get_thread() ) ))"
 
         if function_name == PredefinedFunctions.RANDOM_POISSON:
-            return '(poisson_dev_.set_lambda({!s}), poisson_dev_.ldev( nest::get_vp_specific_rng( ' + 'get_thread() ) ))'
+            return "(poisson_dev_.set_lambda({!s}), poisson_dev_.ldev( nest::get_vp_specific_rng( " + "get_thread() ) ))"
 
         if function_name == PredefinedFunctions.RANDOM_UNIFORM:
-            return '(({!s}) + ({!s}) * nest::kernel().rng_manager.get_rng( ' + 'get_thread() )->drand())'
+            return "(({!s}) + ({!s}) * nest::kernel().rng_manager.get_rng( " + "get_thread() )->drand())"
 
         return super()._print_function_call_format_string(function_call)

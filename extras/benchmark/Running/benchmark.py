@@ -60,9 +60,9 @@ rng = np.random.default_rng(seed)
 max_int32 = np.iinfo(np.int32).max
 
 # parse command line arguments
-parser = argparse.ArgumentParser(description='Run a Benchmark with NEST')
-parser.add_argument('--noRunSim', action="store_false", help='Skip running simulations, only do plotting')
-parser.add_argument('--enable_profiling', action="store_true", help="Run the benchmark with profiling enabled with AMDuProf")
+parser = argparse.ArgumentParser(description="Run a Benchmark with NEST")
+parser.add_argument("--noRunSim", action="store_false", help="Skip running simulations, only do plotting")
+parser.add_argument("--enable_profiling", action="store_true", help="Run the benchmark with profiling enabled with AMDuProf")
 parser.add_argument("--short_sim", action="store_true", help="Run benchmark with profiling on 2 nodes with 2 iterations")
 parser.add_argument("--enable_mpi", action="store_true", default=False, help="Run benchmark with MPI (default: thread-based benchmarking)")
 
@@ -129,9 +129,9 @@ PATHTOSTARTFILE = os.path.join(current_dir, "start.sh")
 
 # output folder
 if args.enable_mpi:
-    output_folder = os.path.join(os.path.dirname(__file__), os.pardir, 'Output_MPI')
+    output_folder = os.path.join(os.path.dirname(__file__), os.pardir, "Output_MPI")
 else:
-    output_folder = os.path.join(os.path.dirname(__file__), os.pardir, 'Output_threads')
+    output_folder = os.path.join(os.path.dirname(__file__), os.pardir, "Output_threads")
 
 
 def log(message):
@@ -169,7 +169,7 @@ def start_strong_scaling_benchmark_threads(iteration):
     for combination in combinations:
         rng_seed = rng.integers(0, max_int32)
 
-        command = ['bash', '-c', f'source {PATHTOSTARTFILE} && python3 {PATHTOFILE} --simulated_neuron {combination["neuronmodel"]} --network_scale {MPI_STRONG_SCALE_NEURONS} --threads {combination["n_threads"]} --iteration {iteration} --rng_seed {rng_seed} --benchmarkPath {dirname}']
+        command = ["bash", "-c", f'source {PATHTOSTARTFILE} && python3 {PATHTOFILE} --simulated_neuron {combination["neuronmodel"]} --network_scale {MPI_STRONG_SCALE_NEURONS} --threads {combination["n_threads"]} --iteration {iteration} --rng_seed {rng_seed} --benchmarkPath {dirname}']
 
         log(combination["name"])
 
@@ -188,7 +188,7 @@ def start_strong_scaling_benchmark_threads(iteration):
                 f.write(result.stderr)
 
         if result.returncode != 0:
-            log(f"\033[91m{combination['name']} failed\033[0m")
+            log(f"\033[91m{combination["name"]} failed\033[0m")
             log(f"\033[91m{result.stderr} failed\033[0m")
 
 def start_strong_scaling_benchmark_mpi(iteration):
@@ -231,7 +231,7 @@ def start_weak_scaling_benchmark_threads(iteration):
     for combination in combinations:
         rng_seed = rng.integers(0, max_int32)
 
-        command = ['bash', '-c', f'source {PATHTOSTARTFILE} && python3 {PATHTOFILE} --simulated_neuron {combination["neuronmodel"]} --network_scale {NETWORK_BASE_SCALE * combination["n_threads"]} --threads {combination["n_threads"]} --rng_seed {rng_seed} --iteration {iteration} --benchmarkPath {dirname}']
+        command = ["bash", "-c", f'source {PATHTOSTARTFILE} && python3 {PATHTOFILE} --simulated_neuron {combination["neuronmodel"]} --network_scale {NETWORK_BASE_SCALE * combination["n_threads"]} --threads {combination["n_threads"]} --rng_seed {rng_seed} --iteration {iteration} --benchmarkPath {dirname}']
 
         combined = combination["neuronmodel"]+","+str(combination["networksize"])
         log(f"\033[93m{combined}\033[0m" if DEBUG else combined)
@@ -248,7 +248,7 @@ def start_weak_scaling_benchmark_threads(iteration):
                 f.write(result.stderr)
 
         if result.returncode != 0:
-            log(f"\033[91m{combination['neuronmodel']} failed\033[0m")
+            log(f"\033[91m{combination["neuronmodel"]} failed\033[0m")
             log(f"\033[91m{result.stderr} failed\033[0m")
 
 def start_weak_scaling_benchmark_mpi(iteration):
@@ -321,15 +321,15 @@ def _plot_scaling_data(ax, sim_data: dict, file_prefix: str, abs_or_rel: str):
         x = sorted(values.keys(), key=lambda k: int(k))
         # Real Time Factor
         reference_y = np.array([np.mean(
-            [iteration_data['max_time_simulate'] / (iteration_data["biological_time"] / 1000) for iteration_data in
+            [iteration_data["max_time_simulate"] / (iteration_data["biological_time"] / 1000) for iteration_data in
              referenceValues[nodes].values()]) for nodes in x])
         y = np.array([np.mean(
-            [iteration_data['max_time_simulate'] / (iteration_data["biological_time"] / 1000) for iteration_data in
+            [iteration_data["max_time_simulate"] / (iteration_data["biological_time"] / 1000) for iteration_data in
              values[nodes].values()]) for nodes in x])
         y_factor = y / reference_y  # Calculate the factor of y in comparison to the reference value
 
         y_std = np.array([np.std(
-            [iteration_data['max_time_simulate'] / (iteration_data["biological_time"] / 1000) for iteration_data in
+            [iteration_data["max_time_simulate"] / (iteration_data["biological_time"] / 1000) for iteration_data in
              values[nodes].values()]) for nodes in x])
         y_factor_std = y_std / reference_y  # Calculate the standard deviation of the factor
 
@@ -343,7 +343,7 @@ def _plot_scaling_data(ax, sim_data: dict, file_prefix: str, abs_or_rel: str):
             _y_std = y_std / 60
             _y = y / 60
 
-        ax.errorbar(x, _y, yerr=_y_std, label=legend[neuron], color=palette(colors[neuron]), linestyle='-',marker='o', markersize=4, ecolor='gray', capsize=2, linewidth=2)
+        ax.errorbar(x, _y, yerr=_y_std, label=legend[neuron], color=palette(colors[neuron]), linestyle="-",marker="o", markersize=4, ecolor="gray", capsize=2, linewidth=2)
 
         min_y = min(min_y, np.amin(_y))
         max_y = max(max_y, np.amax(_y))
@@ -372,10 +372,10 @@ def plot_scaling_data(sim_data_weak: dict, sim_data_strong: dict, file_prefix: s
                 max_y = max(_max_y, max_y)
 
         if abs_or_rel == "abs":
-            ax[i, 0].set_ylabel('Wall clock time [min]')
-            ax[i, 0].set_yscale('log')
+            ax[i, 0].set_ylabel("Wall clock time [min]")
+            ax[i, 0].set_yscale("log")
         else:
-            ax[i, 0].set_ylabel('Wall clock time (ratio)')
+            ax[i, 0].set_ylabel("Wall clock time (ratio)")
             ax[i, 1].set_yticklabels([])  # hide y tick labels from bottom right plot, ticks/labels are same as for bottom left
 
     # column labels
@@ -383,7 +383,7 @@ def plot_scaling_data(sim_data_weak: dict, sim_data_strong: dict, file_prefix: s
     ax[0, 1].text(0.5, 1.1, "Weak scaling", transform=ax[0, 1].transAxes, ha="center", fontsize=16)
 
     for _ax in ax.flatten():
-        _ax.set_xscale('log')
+        _ax.set_xscale("log")
         _ax.xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
 
     ax[0, 0].legend()
@@ -396,14 +396,14 @@ def plot_scaling_data(sim_data_weak: dict, sim_data_strong: dict, file_prefix: s
 
     if args.enable_mpi:
         for _ax in ax[1, :]:
-            _ax.set_xlabel('Number of nodes')
+            _ax.set_xlabel("Number of nodes")
 
         for _ax in ax.flatten():
             _ax.set_xlim(MPI_SCALES[0], MPI_SCALES[-1])
             _ax.set_xticks(MPI_SCALES, MPI_SCALES)
     else:
         for _ax in ax[1, :]:
-            _ax.set_xlabel('Number of threads')
+            _ax.set_xlabel("Number of threads")
 
         for _ax in ax.flatten():
             _ax.set_xlim(N_THREADS[0], N_THREADS[-1])
@@ -419,10 +419,10 @@ def plot_scaling_data(sim_data_weak: dict, sim_data_strong: dict, file_prefix: s
 
 
     for _ax in ax.flatten():
-        _ax.spines['top'].set_visible(False)
-        _ax.spines['right'].set_visible(False)
-        _ax.spines['left'].set_visible(False)
-        _ax.spines['bottom'].set_visible(False)
+        _ax.spines["top"].set_visible(False)
+        _ax.spines["right"].set_visible(False)
+        _ax.spines["left"].set_visible(False)
+        _ax.spines["bottom"].set_visible(False)
 
     for _ax in ax[0, :]:
         _ax.set_xticklabels([])    # hide x tick labels for number of threads/processes from top two panels
@@ -483,15 +483,15 @@ def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
                 _y = rss
                 _y_std = rss_std
 
-            _ax.errorbar(x, _y, yerr=_y_std, color=palette(colors[neuron]), linestyle=linestyles["rss"], label=legend[neuron], ecolor='gray', capsize=2, linewidth=2, marker='o', markersize=4)
+            _ax.errorbar(x, _y, yerr=_y_std, color=palette(colors[neuron]), linestyle=linestyles["rss"], label=legend[neuron], ecolor="gray", capsize=2, linewidth=2, marker="o", markersize=4)
             print("mem for neuron " + neuron + " = " + str(_y) + ", std dev = " + str(_y_std))
 
             if abs_or_rel == "abs":
-                _ax.set_yscale('log')
+                _ax.set_yscale("log")
 
-    ax[0].legend(loc='upper left')
-    ax[0].set_ylabel('Memory [GiB]')
-    ax[1].set_ylabel('Memory (ratio)')
+    ax[0].legend(loc="upper left")
+    ax[0].set_ylabel("Memory [GiB]")
+    ax[1].set_ylabel("Memory (ratio)")
     # Create a legend for the neurons
     # neuron_handles = [plt.Line2D([0], [0], color=palette(colors[key]), lw=2) for key in legend.keys()]
     for _ax in [ax[1]]:
@@ -501,27 +501,27 @@ def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
         _ax.yaxis.set_major_formatter(formatter)
 
     for _ax in ax:
-        _ax.set_xscale('log')
+        _ax.set_xscale("log")
         _ax.xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
 
-        _ax.spines['top'].set_visible(False)
-        _ax.spines['right'].set_visible(False)
-        _ax.spines['left'].set_visible(False)
-        _ax.spines['bottom'].set_visible(False)
+        _ax.spines["top"].set_visible(False)
+        _ax.spines["right"].set_visible(False)
+        _ax.spines["left"].set_visible(False)
+        _ax.spines["bottom"].set_visible(False)
 
         if args.enable_mpi:
-            _ax.set_xlabel('Number of nodes')
+            _ax.set_xlabel("Number of nodes")
             _ax.set_xticks(MPI_SCALES, MPI_SCALES)
             _ax.set_xlim(MPI_SCALES[0], MPI_SCALES[-1])
         else:
-            _ax.set_xlabel('Number of threads')
+            _ax.set_xlabel("Number of threads")
             _ax.set_xticks(N_THREADS, N_THREADS)
             _ax.set_xlim(N_THREADS[0], N_THREADS[-1])
 
     fig.subplots_adjust(left=0.2, right=.9, bottom=0.15, top=0.9)
 
-    fig.savefig(os.path.join(output_folder, file_prefix + '_memory.png'))
-    fig.savefig(os.path.join(output_folder, file_prefix + '_memory.pdf'))
+    fig.savefig(os.path.join(output_folder, file_prefix + "_memory.png"))
+    fig.savefig(os.path.join(output_folder, file_prefix + "_memory.pdf"))
 
 
 def process_data(dir_name: str, mode="MPI"):
@@ -636,7 +636,7 @@ def read_isis_from_files(neuron_models):
 
                 print("Reading ISIs from: " + os.path.join(output_folder, filename))
 
-                with open(os.path.join(output_folder, filename), 'r') as file:
+                with open(os.path.join(output_folder, filename), "r") as file:
                     isis = [float(line.strip()) for line in file]
                     if iteration >= len(data[neuron_model]["isis"]):
                         data[neuron_model]["isis"].append([])
@@ -732,21 +732,21 @@ def plot_isi_distributions(neuron_models, data):
         plt.bar(data["bin_centers"], 100 * 2 * data[neuron_model]["counts_std"], data["bin_centers"][1] - data["bin_centers"][0], bottom=100 * (data[neuron_model]["counts_mean"] - data[neuron_model]["counts_std"]), alpha=.5, color=palette(colors[neuron_model]))
         plt.step(data["bin_edges"][:-1], 100 * data[neuron_model]["counts_mean"], label=legend[neuron_model], linewidth=2, alpha=.5, where="post", color=palette(colors[neuron_model]))
 
-    plt.xlabel('ISI [ms]')
-    plt.ylabel('Frequency of occurrence [%]')
+    plt.xlabel("ISI [ms]")
+    plt.ylabel("Frequency of occurrence [%]")
     plt.grid(True)
     plt.subplots_adjust(left=0.2, right=.9, bottom=0.15, top=0.9)
     plt.legend()
 
     plt.xlim(0, 160)  # XXX hard-coded...
 
-    plt.gca().spines['top'].set_visible(False)
-    plt.gca().spines['right'].set_visible(False)
-    plt.gca().spines['left'].set_visible(False)
-    plt.gca().spines['bottom'].set_visible(False)
+    plt.gca().spines["top"].set_visible(False)
+    plt.gca().spines["right"].set_visible(False)
+    plt.gca().spines["left"].set_visible(False)
+    plt.gca().spines["bottom"].set_visible(False)
 
-    plt.savefig(os.path.join(output_folder, 'isi_distributions.png'))
-    plt.savefig(os.path.join(output_folder, 'isi_distributions.pdf'))
+    plt.savefig(os.path.join(output_folder, "isi_distributions.png"))
+    plt.savefig(os.path.join(output_folder, "isi_distributions.pdf"))
 
 
 if __name__ == "__main__":

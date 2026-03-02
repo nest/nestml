@@ -62,5 +62,5 @@ class NestResolutionBuiltinTest(unittest.TestCase):
         pre = nest.Create("iaf_psc_exp", 100)
         post = nest.Create("iaf_psc_exp_resolution_test_neuron_nestml__with_resolution_legally_used_synapse_nestml")
         nest.Connect(pre, post, "all_to_all",
-                     syn_spec={'synapse_model': "resolution_legally_used_synapse_nestml__with_iaf_psc_exp_resolution_test_neuron_nestml"})
+                     syn_spec={"synapse_model": "resolution_legally_used_synapse_nestml__with_iaf_psc_exp_resolution_test_neuron_nestml"})
         nest.Simulate(100.0)

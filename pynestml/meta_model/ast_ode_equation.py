@@ -36,7 +36,7 @@ class ASTOdeEquation(ASTNode):
     @attribute lhs      Left hand side, e.g. a Variable.
     @attribute rhs      Expression defining the right hand side.
     Grammar:
-        odeEquation : lhs=variable '=' rhs=rhs;
+        odeEquation : lhs=variable "=" rhs=rhs;
     Attributes:
         lhs = None
         rhs = None
