@@ -1066,7 +1066,7 @@ class NESTCodeGenerator(CodeGenerator):
 
                 if "neuron_synapse_pairs" in self._options.keys():
                     for neuron_synapse_pair in self._options["neuron_synapse_pairs"]:
-                        if neuron_synapse_pair["neuron"] == orig_neuron_name and neuron_synapse_pair["synapse"] == orig_synapse_name and orig_port_name in neuron_synapse_pair["post_ports"]:
+                        if neuron_synapse_pair["neuron"] == orig_neuron_name and neuron_synapse_pair["synapse"] == orig_synapse_name and "post_ports" in neuron_synapse_pair.keys() and orig_port_name in neuron_synapse_pair["post_ports"]:
                             is_post_port = True
                             break
 
