@@ -21,9 +21,9 @@
 
 from __future__ import annotations
 
-from typing import Any, Mapping, Optional, Union, Sequence
+from typing import Any, Iterable, Mapping, Optional, Union
 
-from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.with_options import WithOptions
 
 from abc import ABCMeta, abstractmethod
@@ -38,5 +38,7 @@ class Transformer(WithOptions, metaclass=ABCMeta):
         super(Transformer, self).__init__(options)
 
     @abstractmethod
-    def transform(self, model: Union[ASTNode, Sequence[ASTNode]]) -> Union[ASTNode, Sequence[ASTNode]]:
-        assert False
+    def transform(self,
+                  models: Iterable[ASTModel],
+                  metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Union[ASTModel, Iterable[ASTModel]]:
+        raise NotImplementedError()

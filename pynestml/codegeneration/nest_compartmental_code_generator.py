@@ -19,7 +19,14 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Dict, List, Mapping, Optional
+from typing import Any, Dict, Iterable, List, Mapping, Optional
+
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
 
 import datetime
 import os
@@ -197,11 +204,15 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         return ret
 
-    def generate_code(self, models: List[ASTModel]) -> None:
+    @override
+    def generate_code(self,
+                      models: Iterable[ASTModel],
+                      metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> None:
         self.analyse_transform_neurons(models)
         self.generate_neurons(models)
         self.generate_module_code(models)
 
+    @override
     def generate_module_code(self, neurons: List[ASTModel]) -> None:
         """t
         Generates code that is necessary to integrate neuron models into the NEST infrastructure.
@@ -450,7 +461,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         # substitute inline expressions with each other
         # such that no inline expression references another inline expression;
         # deference inline_expressions inside ode_equations
-        InlineExpressionExpansionTransformer().transform(neuron)
+        InlineExpressionExpansionTransformer().transform([neuron])
 
         # generate update expressions using ode toolbox
         # for each equation in the equation block attempt to solve analytically
@@ -565,7 +576,9 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             underscore_pos = ret.find("_")
         return ret
 
-    def _get_neuron_model_namespace(self, neuron: ASTModel) -> Dict:
+    def _get_neuron_model_namespace(self,
+                                    neuron: ASTModel,
+                                    metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Dict:
         """
         Returns a standard namespace for generating neuron code for NEST
         :param neuron: a single neuron instance

@@ -19,7 +19,14 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Sequence, Optional, Mapping, Any, Dict
+from typing import Any, Dict, Iterable, Mapping, Optional
+
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
 
 import pynestml
 from pynestml.codegeneration.code_generator import CodeGenerator
@@ -47,24 +54,27 @@ class NESTDesktopCodeGenerator(CodeGenerator):
         super().__init__(options)
         self.setup_template_env()
 
-    def generate_code(self, models: Sequence[ASTModel]) -> None:
+    @override
+    def generate_code(self,
+                      models: Iterable[ASTModel],
+                      metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> None:
         """
         Generate the .json files for the given neuron and synapse models
         :param models: list of neuron models
         """
         neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models,
                                                                           synapse_models=self.get_option("synapse_models"))
-        self.generate_neurons(neurons)
-        self.generate_synapses(synapses)
+        self.generate_neurons(neurons, metadata)
+        self.generate_synapses(synapses, metadata)
 
-    def _get_neuron_model_namespace(self, neuron: ASTModel) -> Dict:
+    def _get_neuron_model_namespace(self,
+                                    neuron: ASTModel,
+                                    metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Dict:
         """
         Returns a standard namespace with often required functionality.
         :param neuron: a single neuron instance
         :return: a map from name to functionality.
         """
-        from pynestml.codegeneration.nest_tools import NESTTools
-
         namespace = dict()
         namespace["nestml_version"] = pynestml.__version__
         namespace["neuronName"] = neuron.get_name()
