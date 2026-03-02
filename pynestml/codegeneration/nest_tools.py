@@ -69,7 +69,7 @@ try:
                 nest_version = "v" + nest.__version__
     except (AttributeError, ValueError):
         if "build_info" in dir(nest):
-            nest_version = "PYNEST-NG"
+            nest_version = nest.build_info["version"]
         elif "DataConnect" in dir(nest):
             nest_version = "v2.20.2"
         elif "kernel_status" not in dir(nest):  # added in v3.1
