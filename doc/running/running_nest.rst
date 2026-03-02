@@ -96,6 +96,13 @@ Currently, there is support for GSL, forward Euler, and exact integration. ODEs 
 In the case that the model is solved with the GSL integrator, desired absolute error of an integration step can be adjusted with the ``gsl_error_tol`` parameter in a ``SetStatus`` call. The default value of ``gsl_error_tol`` is ``1e-3``.
 
 
+Data types
+----------
+
+- The NESTML data type ``real`` will be rendered as ``double``.
+- The NESTML data type ``integer`` will be rendered as ``long``.
+
+
 Manually building the extension module
 --------------------------------------
 
@@ -282,7 +289,7 @@ Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to 
                                                            "post_ports": ["post_spikes",
                                                                           ["I_post_dend", "I_dend"]]}]})
 
-This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``.
+This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``. Note that inline expressions can also be used; in this example in case ``I_dend`` had been an inline expression in the postsynaptic neuron.
 
 To prevent the NESTML code generator from moving specific variables from synapse into postsynaptic neuron, the code generation option ``strictly_synaptic_vars`` may be used (see https://nestml.readthedocs.io/en/latest/pynestml.transformers.html#pynestml.transformers.synapse_post_neuron_transformer.SynapsePostNeuronTransformer).
 
@@ -358,6 +365,12 @@ Random numbers
 --------------
 
 In case random numbers are needed inside the synapse, the random number generator belonging to the postsynaptic target is used.
+
+
+Running with MPI
+----------------
+
+When running NEST simulation scripts via MPI, make sure to run the NESTML code generation step in a separate, single-process script first. This then produces a dynamic library (.so or .dll file) that can be used in the MPI context (using ``nest.Install()``). Running NESTML itself in the MPI context would result in compilation/build errors.
 
 
 References

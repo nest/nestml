@@ -1,8 +1,8 @@
 iaf_cond_exp_sfa_rr_neuron
 ##########################
 
-
 iaf_cond_exp_sfa_rr - Conductance based leaky integrate-and-fire model with spike-frequency adaptation and relative refractory mechanisms
+
 
 Description
 +++++++++++
@@ -16,7 +16,6 @@ function is normalised such that an event of weight 1.0 results in a peak curren
 Outgoing spike events induce a change of the adaptation and relative refractory conductances by q_sfa and q_rr,
 respectively. Otherwise these conductances decay exponentially with time constants tau_sfa and tau_rr, respectively.
 
-
 References
 ++++++++++
 
@@ -29,12 +28,30 @@ References
        mathematical modeling of neural systems. Cambridge, MA: MIT Press.
        https://pure.mpg.de/pubman/faces/ViewItemOverviewPage.jsp?itemId=item_3006127
 
-
 See also
 ++++++++
 
 aeif_cond_alpha, aeif_cond_exp, iaf_chxk_2008
 
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
 Parameters
@@ -51,7 +68,7 @@ Parameters
     "C_m", "pF", "289.5pF", "Membrane capacitance"    
     "E_exc", "mV", "0mV", "Excitatory reversal potential"    
     "E_inh", "mV", "-75.0mV", "Inhibitory reversal potential"    
-    "E_L", "mV", "-70.0mV", "Leak reversal potential (aka resting potential)"    
+    "E_L", "mV", "-70.0mV", "Leak reversal potential (a.k.a. resting potential)"    
     "tau_syn_exc", "ms", "1.5ms", "Synaptic time constant of excitatory synapse"    
     "tau_syn_inh", "ms", "10.0ms", "Synaptic time constant of inhibitory synapse"    
     "q_sfa", "nS", "14.48nS", "Outgoing spike activated quantal spike-frequency adaptation conductance increase"    
@@ -72,9 +89,8 @@ State variables
     :widths: auto
 
     
-    "V_m", "mV", "E_L", "membrane potential"    
+    "V_m", "mV", "E_L", "Membrane potential"    
     "refr_t", "ms", "0ms", "Refractory period timer"    
-    "is_refractory", "boolean", "false", ""    
     "g_sfa", "nS", "0nS", "inputs from the sfa conductance"    
     "g_rr", "nS", "0nS", "inputs from the rr conductance"
 
@@ -95,6 +111,9 @@ Equations
 .. math::
    \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-I_{L} + I_{e} + I_{stim} - I_{syn,exc} - I_{syn,inh} - I_{sfa} - I_{rr}) } \right) 
 
+.. math::
+   \frac{ drefr_{t} } { dt }= \frac{ -1000.0 \cdot \mathrm{ms} } { \mathrm{s} }
+
 
 
 Source code
@@ -107,4 +126,4 @@ The model source code can be found in the NESTML models repository here: `iaf_co
 
 .. footer::
 
-   Generated at 2024-05-22 14:51:14.587435
+   Generated at 2026-02-04 14:40:55.618780

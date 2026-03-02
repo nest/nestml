@@ -54,7 +54,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
         :type _node: ASTModel
         """
         assert (_node is not None and (isinstance(_node, ASTModel))), \
-            '(PyNestML.CoCo.FunctionCallsConsistent) No or wrong type of node provided (%s)!' % type(_node)
+            "(PyNestML.CoCo.FunctionCallsConsistent) No or wrong type of node provided (%s)!" % type(_node)
         cls.__nodeName = _node.get_name()
         for userDefinedFunction in _node.get_functions():
             cls.processed_function = userDefinedFunction
@@ -105,7 +105,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
             if isinstance(stmt, ASTSmallStmt) and stmt.is_return_stmt():
                 # first check if the return is the last one in this block of statements
                 if stmts.index(c_stmt) != (len(stmts) - 1):
-                    code, message = Messages.get_not_last_statement('Return')
+                    code, message = Messages.get_not_last_statement("Return")
                     Logger.log_message(error_position=stmt.get_source_position(),
                                        code=code, message=message,
                                        log_level=LoggingLevel.WARNING)

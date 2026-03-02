@@ -151,7 +151,7 @@ class ASTUtils:
         """
         ret = []
         for v in variables_list:
-            order = v.count('__d')
+            order = v.count("__d")
             if order > 0:
                 if v.split("__d")[0] == var and v not in variables_to_filter_by:
                     ret.append(v)
@@ -192,26 +192,26 @@ class ASTUtils:
         :return: the corresponding representation.
         """
         if data_type.is_boolean:
-            return 'boolean'
+            return "boolean"
 
         if data_type.is_integer:
-            return 'integer'
+            return "integer"
 
         if data_type.is_real:
-            return 'real'
+            return "real"
 
         if data_type.is_string:
-            return 'string'
+            return "string"
 
         if data_type.is_void:
-            return 'void'
+            return "void"
 
         if data_type.is_unit_type():
             return str(data_type)
 
-        Logger.log_message(message='Type could not be derived!', log_level=LoggingLevel.ERROR)
+        Logger.log_message(message="Type could not be derived!", log_level=LoggingLevel.ERROR)
 
-        return ''
+        return ""
 
     @classmethod
     def deconstruct_assignment(cls, lhs=None, is_plus=False, is_minus=False, is_times=False, is_divide=False,
@@ -237,7 +237,7 @@ class ASTUtils:
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
         assert ((is_plus + is_minus + is_times + is_divide) == 1), \
-            '(PyNestML.CodeGeneration.Utils) Type of assignment not correctly specified!'
+            "(PyNestML.CodeGeneration.Utils) Type of assignment not correctly specified!"
         if is_plus:
             op = ASTNodeFactory.create_ast_arithmetic_operator(is_plus_op=True,
                                                                source_position=_rhs.get_source_position())
@@ -283,7 +283,7 @@ class ASTUtils:
 
         ret = list()
         for var in res:
-            if '\'' not in var.get_complete_name():
+            if "'" not in var.get_complete_name():
                 symbol = ast.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
                 if symbol is not None and symbol.is_inline_expression:
                     ret.append(symbol)
@@ -572,20 +572,6 @@ class ASTUtils:
         return vars
 
     @classmethod
-    def inline_aliases_convolution(cls, inline_expr: ASTInlineExpression) -> bool:
-        """
-        Returns True if and only if the inline expression is of the form ``var type = convolve(...)``.
-        """
-        expr = inline_expr.get_expression()
-        if isinstance(expr, ASTExpression):
-            expr = expr.get_lhs()
-        if isinstance(expr, ASTSimpleExpression) \
-           and expr.is_function_call() \
-           and expr.get_function_call().get_name() == PredefinedFunctions.CONVOLVE:
-            return True
-        return False
-
-    @classmethod
     def add_suffix_to_variable_name(cls, var_name: str, astnode: ASTNode, suffix: str, scope=None):
         """add suffix to variable by given name recursively throughout astnode"""
 
@@ -718,9 +704,6 @@ class ASTUtils:
     def get_inline_expression_by_constructed_rhs_name(cls, node, name: str) -> Optional[ASTInlineExpression]:
         for equations_block in node.get_equations_blocks():
             for inline_expr in equations_block.get_inline_expressions():
-                if not ASTUtils.inline_aliases_convolution(inline_expr):
-                    continue
-
                 constructed_name = ASTUtils.construct_kernel_X_spike_buf_name(str(inline_expr.get_expression().get_function_call().get_args()[0]), inline_expr.get_expression().get_function_call().get_args()[1], order=0, suffix="__for_" + node.get_name())
 
                 if name == constructed_name:
@@ -885,7 +868,7 @@ class ASTUtils:
 
             def visit_function_call(self, node):
                 func_name = node.get_name()
-                if func_name == 'convolve':
+                if func_name == "convolve":
                     symbol_buffer = node.get_scope().resolve_to_symbol(str(node.get_args()[1]),
                                                                        SymbolKind.VARIABLE)
                     input_port = ASTUtils.get_input_port_by_name(
@@ -1154,9 +1137,9 @@ class ASTUtils:
         tmp = ModelParser.parse_expression(init_expression)
         vector_variable = ASTUtils.get_vectorized_variable(tmp, neuron.get_scope())
 
-        declaration_string = variable_name + ' real' + (
-            '[' + vector_variable.get_vector_parameter() + ']'
-            if vector_variable is not None and vector_variable.has_vector_parameter() else '') + ' = ' + init_expression
+        declaration_string = variable_name + " real" + (
+            "[" + vector_variable.get_vector_parameter() + "]"
+            if vector_variable is not None and vector_variable.has_vector_parameter() else "") + " = " + init_expression
         ast_declaration = ModelParser.parse_declaration(declaration_string)
         if vector_variable is not None:
             ast_declaration.set_size_parameter(vector_variable.get_vector_parameter())
@@ -1201,8 +1184,8 @@ class ASTUtils:
         tmp = ModelParser.parse_expression(initial_value)
         vector_variable = ASTUtils.get_vectorized_variable(tmp, neuron.get_scope())
         declaration_string = variable + " " + type_str + (
-            '[' + vector_variable.get_vector_parameter() + ']'
-            if vector_variable is not None and vector_variable.has_vector_parameter() else '') + ' = ' + initial_value
+            "[" + vector_variable.get_vector_parameter() + "]"
+            if vector_variable is not None and vector_variable.has_vector_parameter() else "") + " = " + initial_value
         ast_declaration = ModelParser.parse_declaration(declaration_string)
         if vector_variable is not None:
             ast_declaration.set_size_parameter(vector_variable.get_vector_parameter())
@@ -1290,10 +1273,10 @@ class ASTUtils:
         """
         from pynestml.utils.model_parser import ModelParser
         for variable, update_expression in update_expressions.items():
-            declaration_statement = variable + '__tmp real = ' + update_expression
+            declaration_statement = variable + "__tmp real = " + update_expression
             cls.add_declaration_to_update_block(ModelParser.parse_declaration(declaration_statement), neuron)
         for variable, update_expression in update_expressions.items():
-            cls.add_assignment_to_update_block(ModelParser.parse_assignment(variable + ' = ' + variable + '__tmp'),
+            cls.add_assignment_to_update_block(ModelParser.parse_assignment(variable + " = " + variable + "__tmp"),
                                                neuron)
         return neuron
 
@@ -1429,7 +1412,7 @@ class ASTUtils:
         .. code-block::
             pre_spikes nS <- spike
 
-        then the constructed variable will be 'I_kernel__X__pre_pikes'
+        then the constructed variable will be "I_kernel__X__pre_pikes"
         """
         assert type(kernel_var_name) is str
         assert type(order) is int
@@ -2305,7 +2288,7 @@ class ASTUtils:
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
                 var = _expr.get_variable()
                 if var.get_name() == replace_var_name:
-                    ast_variable = ASTVariable(replace_with_var_name + '__d' * var.get_differential_order(),
+                    ast_variable = ASTVariable(replace_with_var_name + "__d" * var.get_differential_order(),
                                                differential_order=0)
                     ast_variable.set_source_position(var.get_source_position())
                     _expr.set_variable(ast_variable)
@@ -2313,7 +2296,7 @@ class ASTUtils:
             elif isinstance(_expr, ASTVariable):
                 var = _expr
                 if var.get_name() == replace_var_name:
-                    var.set_name(replace_with_var_name + '__d' * var.get_differential_order())
+                    var.set_name(replace_with_var_name + "__d" * var.get_differential_order())
                     var.set_differential_order(0)
 
         for equation_block in neuron.get_equations_blocks():
@@ -2324,7 +2307,7 @@ class ASTUtils:
                         expr = expr.get_lhs()
 
                     if isinstance(expr, ASTSimpleExpression) \
-                            and '__X__' in str(expr) \
+                            and "__X__" in str(expr) \
                             and expr.get_variable():
                         replace_with_var_name = expr.get_variable().get_name()
                         neuron.accept(ASTHigherOrderVisitor(lambda x: replace_var(
@@ -2503,7 +2486,7 @@ class ASTUtils:
         if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
             return symbol.get_type_symbol().unit.unit.to_string()
 
-        return ''
+        return ""
 
     @classmethod
     def _find_port_in_dict(cls, rport_to_port_map: Dict[int, List[VariableSymbol]], port: VariableSymbol) -> int:

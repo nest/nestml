@@ -89,7 +89,7 @@ class ModelParser:
         :rtype: ASTNestMLCompilationUnit
         """
         try:
-            input_file = FileStream(file_path, encoding='utf-8')
+            input_file = FileStream(file_path, encoding="utf-8")
         except IOError:
             code, message = Messages.get_input_path_not_found(path=file_path)
             Logger.log_message(node=None, code=None, message=message,

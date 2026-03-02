@@ -55,7 +55,7 @@ class ASTIfStmt(ASTNode):
         if elif_clauses is None:
             elif_clauses = []
         assert isinstance(elif_clauses, list), \
-            '(PyNestML.ASTIfStmt) Wrong type of elif-clauses provided (%s)!' % type(elif_clauses)
+            "(PyNestML.ASTIfStmt) Wrong type of elif-clauses provided (%s)!" % type(elif_clauses)
         self.else_clause = else_clause
         self.if_clause = if_clause
         self.elif_clauses = elif_clauses

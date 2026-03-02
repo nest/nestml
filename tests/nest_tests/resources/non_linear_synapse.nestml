@@ -1,13 +1,11 @@
 # non_linear_synapse.nestml
 # #########################
 #
-#
 # Description
 # +++++++++++
 #
 # This model is used to test the synapse model with non-linear dynamics requiring a numeric solver.
 # The system of equations used in this model is the Lotka-Volterra system.
-#
 #
 # Copyright statement
 # +++++++++++++++++++
@@ -28,7 +26,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
+#
 model non_linear_synapse:
     state:
         x real = 40.

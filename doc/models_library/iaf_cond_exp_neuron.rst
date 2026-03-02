@@ -1,8 +1,8 @@
 iaf_cond_exp_neuron
 ###################
 
-
 iaf_cond_exp - Simple conductance based leaky integrate-and-fire neuron model
+
 
 Description
 +++++++++++
@@ -27,6 +27,25 @@ See also
 
 iaf_psc_delta, iaf_psc_exp, iaf_cond_exp
 
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
 Parameters
@@ -38,7 +57,7 @@ Parameters
     
     "C_m", "pF", "250pF", "Membrane capacitance"    
     "g_L", "nS", "16.6667nS", "Leak conductance"    
-    "E_L", "mV", "-70mV", "Leak reversal potential (aka resting potential)"    
+    "E_L", "mV", "-70mV", "Leak reversal potential (a.k.a. resting potential)"    
     "refr_T", "ms", "2ms", "Duration of refractory period"    
     "V_th", "mV", "-55mV", "Spike threshold potential"    
     "V_reset", "mV", "-60mV", "Reset potential"    
@@ -59,8 +78,7 @@ State variables
 
     
     "V_m", "mV", "E_L", "Membrane potential"    
-    "refr_t", "ms", "0ms", "Refractory period timer"    
-    "is_refractory", "boolean", "false", ""
+    "refr_t", "ms", "0ms", "Refractory period timer"
 
 
 
@@ -72,6 +90,9 @@ Equations
 
 .. math::
    \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-I_{leak} - I_{syn,exc} - I_{syn,inh} + I_{e} + I_{stim}) } \right) 
+
+.. math::
+   \frac{ drefr_{t} } { dt }= \frac{ -1000.0 \cdot \mathrm{ms} } { \mathrm{s} }
 
 
 
@@ -85,4 +106,4 @@ The model source code can be found in the NESTML models repository here: `iaf_co
 
 .. footer::
 
-   Generated at 2024-05-22 14:51:14.600957
+   Generated at 2026-02-04 14:40:55.087771

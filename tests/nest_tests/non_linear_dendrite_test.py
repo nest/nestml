@@ -24,19 +24,19 @@ import os
 import pytest
 import unittest
 
+# try to import matplotlib; set the result in the flag TEST_PLOTS
+try:
+    import matplotlib as mpl
+    mpl.use("agg")
+    import matplotlib.pyplot as plt
+    TEST_PLOTS = True
+except BaseException:
+    TEST_PLOTS = False
+
 import nest
 
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
-
-
-try:
-    import matplotlib
-    matplotlib.use("agg")
-    import matplotlib.pyplot as plt
-    TEST_PLOTS = True
-except Exception:
-    TEST_PLOTS = False
 
 
 class NestNonLinearDendriteTest(unittest.TestCase):
@@ -47,8 +47,7 @@ class NestNonLinearDendriteTest(unittest.TestCase):
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_non_linear_dendrite(self):
-        I_dend_alias_name = "I_dend"  # synaptic current
-        I_dend_internal_name = "I_kernel2__X__I_2"  # alias for the synaptic current
+        I_dend_name = "I_dend"  # synaptic current
 
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "iaf_psc_exp_nonlineardendrite.nestml")
         target_path = "target"
@@ -72,19 +71,17 @@ class NestNonLinearDendriteTest(unittest.TestCase):
         nest.Connect(sg, nrn, syn_spec={"receptor_type": 2, "weight": 30., "delay": 1.})
 
         mm = nest.Create("multimeter")
-        mm.set({"record_from": [I_dend_alias_name, I_dend_internal_name, "V_m", "dend_curr_enabled", "I_dend_ap"]})
+        mm.set({"record_from": [I_dend_name, "V_m", "dend_curr_enabled", "I_dend_ap"]})
         nest.Connect(mm, nrn)
 
         nest.Simulate(100.0)
 
         timevec = mm.get("events")["times"]
-        I_dend_alias_ts = mm.get("events")[I_dend_alias_name]
-        I_dend_internal_ts = mm.get("events")[I_dend_internal_name]
+        I_dend_ts = mm.get("events")[I_dend_name]
 
         if TEST_PLOTS:
             fig, ax = plt.subplots(3, 1)
-            ax[0].plot(timevec, I_dend_alias_ts, label="aliased I_dend_syn")
-            ax[0].plot(timevec, I_dend_internal_ts, label="internal I_dend_syn")
+            ax[0].plot(timevec, I_dend_ts, label="I_dend")
             ax[0].legend()
             ax_ = ax[0].twinx()
             ax_.plot(timevec, mm.get("events")["dend_curr_enabled"], color="green")
@@ -99,10 +96,8 @@ class NestNonLinearDendriteTest(unittest.TestCase):
             plt.suptitle("Reset of synaptic integration after dendritic spike")
             plt.savefig("/tmp/nestml_non_linear_dend_test.png")
 
-        assert np.all(I_dend_alias_ts == I_dend_internal_ts), "Variable " + str(I_dend_alias_name) + " and (internal) variable " + str(I_dend_internal_name) + " should measure the same thing, but discrepancy in values occurred."
-
         tidx = np.argmin((timevec - 40)**2)
         assert mm.get("events")["I_dend_ap"][tidx] > 0., "Expected a dendritic action potential around t = 40 ms, but dendritic action potential current is zero"
         assert mm.get("events")["dend_curr_enabled"][tidx] == 0., "Dendritic synaptic current should be disabled during dendritic action potential"
         tidx_ap_end = tidx + np.where(mm.get("events")["dend_curr_enabled"][tidx:] == 1.)[0][0]
-        assert np.all(I_dend_alias_ts[tidx_ap_end:] == 0.), "After dendritic spike, dendritic current should be reset to 0 and stay at 0."
+        assert np.all(I_dend_ts[tidx_ap_end:] == 0.), "After dendritic spike, dendritic current should be reset to 0 and stay at 0."

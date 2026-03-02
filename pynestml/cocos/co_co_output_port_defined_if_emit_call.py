@@ -67,13 +67,13 @@ class OutputPortDefinedIfEmitCalledVisitor(ASTVisitor):
 
             # exactly one output block should be defined
             if len(output_blocks) == 0:
-                code, message = Messages.get_block_not_defined_correctly('output', missing=True)
+                code, message = Messages.get_block_not_defined_correctly("output", missing=True)
                 Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
                                    code=code, message=message)
                 return
 
             if len(output_blocks) > 1:
-                code, message = Messages.get_block_not_defined_correctly('output', missing=False)
+                code, message = Messages.get_block_not_defined_correctly("output", missing=False)
                 Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
                                    code=code, message=message)
                 return

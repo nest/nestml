@@ -28,7 +28,7 @@ class ASTBitOperator(ASTNode):
     """
     This class is used to store a single bit operator.
     Grammar:
-        bitOperator : (bitAnd='&'| bitXor='^' | bitOr='|' | bitShiftLeft='<<' | bitShiftRight='>>');
+        bitOperator : (bitAnd="&"| bitXor="^" | bitOr="|" | bitShiftLeft="<<" | bitShiftRight=">>");
     Attributes:
         is_bit_and = False
         is_bit_xor = False

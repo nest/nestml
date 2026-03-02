@@ -41,27 +41,27 @@ class SpinnakerUnitConverter:
             "UnitConverter: given parameter is not a unit (%s)!" % type(unit)
 
         # check if it is dimensionless, thus only a prefix
-        if unit.physical_type == 'dimensionless':
+        if unit.physical_type == "dimensionless":
             return unit.si
 
         # otherwise check if it is one of the base units
         target_unit = None
-        if unit.physical_type == 'electrical conductance':
+        if unit.physical_type == "electrical conductance":
             target_unit = units.nS
 
-        if unit.physical_type == 'electrical resistance':
+        if unit.physical_type == "electrical resistance":
             target_unit = units.Gohm
 
-        if unit.physical_type == 'time':
+        if unit.physical_type == "time":
             target_unit = units.ms
 
-        if unit.physical_type == 'electrical capacitance':
+        if unit.physical_type == "electrical capacitance":
             target_unit = units.pF
 
-        if unit.physical_type == 'electrical potential':
+        if unit.physical_type == "electrical potential":
             target_unit = units.mV
 
-        if unit.physical_type == 'electrical current':
+        if unit.physical_type == "electrical current":
             target_unit = units.nA
 
         if target_unit is not None:

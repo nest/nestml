@@ -68,17 +68,6 @@ class CoCoAllVariablesDefined(CoCo):
                         inline_expr_names.extend([inline_expr.variable_name for inline_expr in equations_block.get_inline_expressions()])
                         inline_exprs.extend(equations_block.get_inline_expressions())
 
-                    if var.get_name() in inline_expr_names:
-                        inline_expr_idx = inline_expr_names.index(var.get_name())
-                        inline_expr = inline_exprs[inline_expr_idx]
-                        from pynestml.utils.ast_utils import ASTUtils
-                        if ASTUtils.inline_aliases_convolution(inline_expr):
-                            symbol2 = node.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
-                            if symbol2 is not None:
-                                # actually, no problem detected, skip error
-                                # XXX: TODO: check that differential order is less than or equal to that of the kernel
-                                continue
-
                     # check if this symbol is actually a type, e.g. "mV" in the expression "(1 + 2) * mV"
                     symbol2 = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.TYPE)
                     if symbol2 is not None:

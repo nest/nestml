@@ -19,11 +19,19 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pytest
 import scipy.signal
+
+# try to import matplotlib; set the result in the flag TEST_PLOTS
+try:
+    import matplotlib as mpl
+    mpl.use("agg")
+    import matplotlib.pyplot as plt
+    TEST_PLOTS = True
+except BaseException:
+    TEST_PLOTS = False
 
 import nest
 
@@ -137,34 +145,35 @@ class TestTimeVariable:
         #   plot
         #
 
-        fig, ax = plt.subplots(nrows=4, figsize=(8, 8))
+        if TEST_PLOTS:
+            fig, ax = plt.subplots(nrows=4, figsize=(8, 8))
 
-        ax[0].scatter(sr_pre.get("events")["times"], np.zeros_like(sr_pre.get("events")["times"]))
-        ax[0].set_ylabel("Pre spikes")
+            ax[0].scatter(sr_pre.get("events")["times"], np.zeros_like(sr_pre.get("events")["times"]))
+            ax[0].set_ylabel("Pre spikes")
 
-        ax[1].scatter(sr_post.get("events")["times"], np.zeros_like(sr_post.get("events")["times"]))
-        ax[1].set_ylabel("Post spikes")
+            ax[1].scatter(sr_post.get("events")["times"], np.zeros_like(sr_post.get("events")["times"]))
+            ax[1].set_ylabel("Post spikes")
 
-        ax[2].plot(timevec, x, label="x")
-        ax[2].plot(timevec, timevec, linestyle="--", c="gray")
-        ax2_ = ax[2].twinx()
-        ax2_.plot(timevec, x_error, c="red")
-        ax2_.scatter(timevec[x_peaks_idx], x_error[x_peaks_idx], edgecolor="red", facecolor="none")
+            ax[2].plot(timevec, x, label="x")
+            ax[2].plot(timevec, timevec, linestyle="--", c="gray")
+            ax2_ = ax[2].twinx()
+            ax2_.plot(timevec, x_error, c="red")
+            ax2_.scatter(timevec[x_peaks_idx], x_error[x_peaks_idx], edgecolor="red", facecolor="none")
 
-        ax[3].plot(timevec, y, label="y")
-        ax[3].plot(timevec, timevec, linestyle="--", c="gray")
-        ax3_ = ax[3].twinx()
-        ax3_.plot(timevec, y_error, c="red")
-        ax3_.scatter(timevec[y_peaks_idx], y_error[y_peaks_idx], edgecolor="red", facecolor="none")
+            ax[3].plot(timevec, y, label="y")
+            ax[3].plot(timevec, timevec, linestyle="--", c="gray")
+            ax3_ = ax[3].twinx()
+            ax3_.plot(timevec, y_error, c="red")
+            ax3_.scatter(timevec[y_peaks_idx], y_error[y_peaks_idx], edgecolor="red", facecolor="none")
 
-        ax[-1].set_ylabel("Time [ms]")
+            ax[-1].set_ylabel("Time [ms]")
 
-        for _ax in ax:
-            _ax.grid(True)
-            _ax.legend()
-            _ax.set_xlim(-1, T_sim + 1)
+            for _ax in ax:
+                _ax.grid(True)
+                _ax.legend()
+                _ax.set_xlim(-1, T_sim + 1)
 
-        fig.savefig("/tmp/test_time_variable_synapse.png")
+            fig.savefig("/tmp/test_time_variable_synapse.png")
 
         #
         #   testing

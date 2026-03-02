@@ -6,7 +6,6 @@
 #
 # This model is used to test vector operations with NEST.
 #
-#
 # Copyright statement
 # +++++++++++++++++++
 #
@@ -26,7 +25,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
+#
 model vectors_test_synapse:
     state:
         ca_buffer[buffer_size] real = 0
