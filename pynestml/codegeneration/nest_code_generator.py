@@ -1053,13 +1053,24 @@ class NESTCodeGenerator(CodeGenerator):
                 continue
 
             spike_input_port_name = spike_input_port.get_variable().get_name()
+            orig_port_name = spike_input_port_name.split("__for_")[0]
 
             if not spike_input_port_name in spike_updates.keys():
                 spike_updates[str(spike_input_port)] = []
 
-            if "_is_post_port" in dir(spike_input_port.get_variable()) \
-               and spike_input_port.get_variable()._is_post_port:
-                # it's a port in the neuron ??? that receives post spikes ???
+            is_post_port = False
+            if "__with_" in neuron.name:
+                orig_neuron_name, orig_synapse_name = neuron.name.split("__with_")
+                orig_neuron_name = orig_neuron_name.removesuffix(FrontendConfiguration.suffix)
+                orig_synapse_name = orig_synapse_name.removesuffix(FrontendConfiguration.suffix)
+
+                if "neuron_synapse_pairs" in self._options.keys():
+                    for neuron_synapse_pair in self._options["neuron_synapse_pairs"]:
+                        if neuron_synapse_pair["neuron"] == orig_neuron_name and neuron_synapse_pair["synapse"] == orig_synapse_name and orig_port_name in neuron_synapse_pair["post_ports"]:
+                            is_post_port = True
+                            break
+
+            if is_post_port:
                 orig_port_name = spike_input_port_name[:spike_input_port_name.index("__for_")]
                 buffer_type = metadata[neuron.name]["paired_synapse"].get_scope().resolve_to_symbol(orig_port_name, SymbolKind.VARIABLE).get_type_symbol()
             else:
