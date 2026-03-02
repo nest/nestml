@@ -2,5 +2,8 @@
 Write a value into a dictionary.
 #}
 {%- macro WriteInDictionary(dict_name, variable_type, variable_name, value) -%}
+{%- if not nest_version.startswith("master")  %}
 def< {{ variable_type }} >({{ dict_name }}, {{ variable_name }}, {{ value }});
+{%- else %}
+{{ dict_name }}[ "{{ variable_name }}" ] = {{ value }};
 {%- endmacro -%}

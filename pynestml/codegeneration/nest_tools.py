@@ -61,16 +61,19 @@ try:
 
     try:
         # For NEST version <= 3.4, the version string is not parsable by semver.
-        ver = semver.Version.parse(nest.__version__)
-        if (ver.major == 3 and ver.minor >= 5) or ver.major > 3:
-            if ver.prerelease and "post0.dev0" in ver.prerelease:
-                nest_version = "master"
-            else:
-                nest_version = "v" + nest.__version__
-    except (AttributeError, ValueError):
-        if "build_info" in dir(nest):
+        if "__version__" in dir(nest):
+            nest_version = nest.__version__
+        elif "build_info" in dir(nest):
             nest_version = nest.build_info["version"]
-        elif "DataConnect" in dir(nest):
+
+        ver = semver.Version.parse(nest_version)
+        if ver.prerelease and "post0.dev" in ver.prerelease:
+            nest_version = "master"
+        else:
+            nest_version = "v" + nest_version
+
+    except (AttributeError, ValueError):
+        if "DataConnect" in dir(nest):
             nest_version = "v2.20.2"
         elif "kernel_status" not in dir(nest):  # added in v3.1
             nest_version = "v3.0"

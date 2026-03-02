@@ -98,6 +98,11 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 // uncomment the next line to enable printing of detailed debug information
 // #define DEBUG
+{%- if not nest_version.startswith("master") %}
+  {%- set dictionary = "DictionaryDatum" %}
+{%- else %}
+  {%- set dictionary = "Dictionary" %}
+{%- endif %}
 
 namespace nest
 {
@@ -370,8 +375,8 @@ public:
   //   Functions for getting/setting parameters and state values.
   // -------------------------------------------------------------------------
 
-  void get_status(DictionaryDatum&) const override;
-  void set_status(const DictionaryDatum&) override;
+  void get_status({{ dictionary }}&) const override;
+  void set_status(const {{ dictionary }}&) override;
 
 {% if paired_synapse is defined %}
   // support for spike archiving
@@ -1074,7 +1079,7 @@ inline nest_port_t {{neuronName}}::handles_test_event(nest::DataLoggingRequest& 
   return B_.logger_.connect_logging_device(dlr, recordablesMap_);
 }
 
-inline void {{neuronName}}::get_status(DictionaryDatum&__d) const
+inline void {{neuronName}}::get_status({{ dictionary }}&__d) const
 {
   // parameters
 {%- for variable_symbol in neuron.get_parameter_symbols() %}
@@ -1105,32 +1110,42 @@ inline void {{neuronName}}::get_status(DictionaryDatum&__d) const
   {{neuron_parent_class}}::get_status( __d );
 
 {%- if (neuron.get_multiple_receptors())|length > 1 or neuron.is_multisynapse_spikes() %}
-  DictionaryDatum __receptor_type = new Dictionary();
+  {%- if not nest_version.startswith("master") %}
+  DictionaryDatum __receptor_types = new Dictionary();
+  {%- else %}
+  Dictionary __receptor_types;
+  {%- endif %}
+
 {%-   for key, ports in utils.get_spike_input_ports_in_pairs(neuron).items() %}
 {%-   set ns = namespace(rport=key) %}
 {%-     for port in ports  %}
 {%-       if not port.has_vector_parameter() %}
-    ( *__receptor_type )[ "{{port.get_symbol_name().upper()}}" ] = {{ns.rport + 1}};
+    {{ write_in_dictionary.WriteInDictionary("__receptor_types", "long", port.get_symbol_name().upper(), ns.rport + 1) }}
 {%-       else %}
 {%-       set size = utils.get_numeric_vector_size(port) %}
 {%-         for i in range(size)  %}
-    ( *__receptor_type )[ "{{port.get_symbol_name().upper()}}_{{i}}" ] = {{ns.rport + i + 1}},
+    {{ write_in_dictionary.WriteInDictionary("__receptor_types", "long", port.get_symbol_name().upper() + "_" + i, ns.rport + i + 1) }}
 {%-         endfor %}
 {%-       endif %}
 {%-     endfor %}
 {%-   endfor %}
-    ( *__d )[ "receptor_types" ] = __receptor_type;
+    {{ write_in_dictionary.WriteInDictionary("__d", "DictionaryDatum", "receptor_types", "__receptor_types") }}
 {%- endif %}
 
 {%- if (neuron.get_continuous_input_ports())|length > 1 %}
+{%- if not nest_version.startswith("master") %}
   DictionaryDatum __continuous_input_type = new Dictionary();
+{%- else %}
+  Dictionary __continuous_input_type;
+{%- endif %}
 {%-   for port in neuron.get_continuous_input_ports() %}
     ( *__continuous_input_type )[ "{{port.get_symbol_name().upper()}}" ] = {{port.get_symbol_name().upper()}};
+    {{ write_in_dictionary.WriteInDictionary("__continuous_input_type", "long", port.get_symbol_name().upper(), port.get_symbol_name().upper()) }}
 {%-    endfor %}
-    ( *__d )[ "continuous_inputs" ] = __continuous_input_type;
+    {{ write_in_dictionary.WriteInDictionary("__d", "DictionaryDatum", "continuous_inputs", "__continuous_input_type") }}
 {%- endif %}
 
-  (*__d)[nest::names::recordables] = recordablesMap_.get_list();
+  {{ write_in_dictionary.WriteInDictionary("__d", "ArrayDatum", "nest::names::recordables", "recordablesMap_.get_list()") }}
 {%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
   {{ write_in_dictionary.WriteInDictionary("__d", "double", "nest::" + names_namespace + "::gsl_abs_error_tol", "P_.__gsl_abs_error_tol") }}
@@ -1145,7 +1160,7 @@ inline void {{neuronName}}::get_status(DictionaryDatum&__d) const
 {%- endif %}
 }
 
-inline void {{neuronName}}::set_status(const DictionaryDatum&__d)
+inline void {{neuronName}}::set_status(const {{ dictionary }}&__d)
 {
   // parameters
 {%- for variable_symbol in neuron.get_parameter_symbols() %}
