@@ -1578,6 +1578,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::pre_run_h
 }
 
 void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::postsynaptic_synaptic_processing(){
+    #pragma omp simd
     for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++) {
         {%- set function = synapse_info["PostSpikeFunction"] %}
         {%-   filter indent(2,True) %}
@@ -1620,6 +1621,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep
   }
     //presynaptic spike processing end
         //continuous synaptic processing
+    #pragma omp simd
     for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
         //inlines and convolutions
     {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
@@ -1659,6 +1661,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep
       {%- endfor %}
     }
 
+    #pragma omp simd
     for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
         // receive (potentially) delayed spikes
         s_val[i] = delayed_spikes[i].tick();

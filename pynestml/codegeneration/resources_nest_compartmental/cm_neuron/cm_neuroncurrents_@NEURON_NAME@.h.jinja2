@@ -403,18 +403,19 @@ private:
             {}
 
         void push(double value) {
-            int local_countdown = countdown - total_countdown;
+            values.push_back(value);
+            times.push_back(countdown - total_countdown);
             total_countdown = countdown;
-            dq.push_back(std::make_pair(local_countdown, value));
         }
 
         double tick() {
-            if (!dq.empty()) {
-                dq.front().first--;
+            if (!times.empty()) {
+                times.front()--;
                 total_countdown--;
-                if (dq.front().first == 0) {
-                    double value = dq.front().second;
-                    dq.pop_front();
+                if (times.front() == 0) {
+                    double value = values.front();
+                    values.pop_front();
+                    times.pop_front();
                     return value;
                 }
             }
@@ -422,7 +423,8 @@ private:
         }
 
     private:
-        std::deque<std::pair<int, double>> dq;
+        std::deque< int > times;
+        std::deque< double > values;
 
         const int countdown;
         int total_countdown = 0;
