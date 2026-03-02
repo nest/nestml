@@ -159,10 +159,10 @@ class GeNNCodeGenerator(NESTCodeGenerator):
     def _get_neuron_model_namespace(self,
                                     neuron: ASTModel,
                                     metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Dict:
-        namespace = super()._get_model_namespace(astnode, metadata)
+        namespace = super()._get_neuron_model_namespace(neuron, metadata)
 
-        namespace["threshold_condition"] = self._get_model_threshold_condition_block(astnode).get_cond_expr()
-        namespace["threshold_reset_stmts"] = self._get_model_threshold_condition_block(astnode).get_stmts_body()
+        namespace["threshold_condition"] = self._get_model_threshold_condition_block(neuron).get_cond_expr()
+        namespace["threshold_reset_stmts"] = self._get_model_threshold_condition_block(neuron).get_stmts_body()
 
         namespace["CppVariablePrinter"] = CppVariablePrinter
         namespace["genn_derived_params_printer"] = self._genn_derived_params_printer
