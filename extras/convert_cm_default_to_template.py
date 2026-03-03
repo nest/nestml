@@ -20,7 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This script converts the generic parts (cm_default.* and cm_tree.*) of the default compartmental model in NEST to a .jinja template. 
+This script converts the generic parts (cm_default.* and cm_tree.*) of the default compartmental model in NEST to a .jinja template.
 
 It is a helper tool for developers working concurrently on the compartmental models in NEST and NESTML. It should however be used with extreme caution, as it doesn't automatically update the compartmentcurrents.
 """
@@ -35,9 +35,9 @@ def get_replacement_patterns():
         "CM_DEFAULT_H"          : "CM_{cm_unique_suffix | upper }}_H",
         "CM_TREE_H"             : "CM_TREE_{{cm_unique_suffix | upper }}_H",
         # file names
-        "cm_default"            : "{{neuronSpecificFileNamesCmSyns[\\"main\\"]}}",
-        "cm_tree"               : "{{neuronSpecificFileNamesCmSyns[\\"tree\\"]}}",
-        "cm_neuroncurrents": "{{neuronSpecificFileNamesCmSyns[\\"neuroncurrents\\"]}}",
+        "cm_default"            : "{{neuronSpecificFileNamesCmSyns[\"main\"]}}",
+        "cm_tree"               : "{{neuronSpecificFileNamesCmSyns[\"tree\"]}}",
+        "cm_neuroncurrents"     : "{{neuronSpecificFileNamesCmSyns[\"neuroncurrents\"]}}",
         # class names
         "CompTree"              : "CompTree{{cm_unique_suffix}}",
         "Compartment"           : "Compartment{{cm_unique_suffix}}",
