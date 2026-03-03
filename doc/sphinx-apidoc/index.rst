@@ -42,6 +42,8 @@ Internally, differential equations are analyzed by the associated `ODE-toolbox <
    getting_help
    citing
    license
+   Impressum <https://nest-initiative.org/impressum/>
+   Data protection <https://www.nest-initiative.org/data-protection/>
 
 .. .. figure:: nestml-logo/nestml-logo.png
       :scale: 30 %

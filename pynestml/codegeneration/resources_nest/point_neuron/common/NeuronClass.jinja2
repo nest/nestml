@@ -425,7 +425,7 @@ void {{ neuronName }}::init_state_internal_()
 {{                  raise('Error in resolving variable to symbol') }}
 {%-             endif %}
   {{var_name}}__iv = {{printer.print(var)}};
-{%-     endfor %}
+{%-         endfor %}
 {%-     endfor %}
 {%- endif %}
 }
@@ -1431,7 +1431,6 @@ void
 {%      for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
 {%-         for var in transferred_variables[paired_synapse_original_model.name] %}
 {%-             with variable_symbol = transferred_variables_syms[var] %}
-
 {%-                 if not variable_symbol %}
 {%-                     set variable_symbol = astnode.get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE) %}
 {%-                 endif %}

@@ -156,11 +156,13 @@ class GeNNCodeGenerator(NESTCodeGenerator):
 
         return odetoolbox_indict
 
-    def _get_model_namespace(self, astnode: ASTModel) -> Dict:
-        namespace = super()._get_model_namespace(astnode)
+    def _get_neuron_model_namespace(self,
+                                    neuron: ASTModel,
+                                    metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Dict:
+        namespace = super()._get_neuron_model_namespace(neuron, metadata)
 
-        namespace["threshold_condition"] = self._get_model_threshold_condition_block(astnode).get_cond_expr()
-        namespace["threshold_reset_stmts"] = self._get_model_threshold_condition_block(astnode).get_stmts_body()
+        namespace["threshold_condition"] = self._get_model_threshold_condition_block(neuron).get_cond_expr()
+        namespace["threshold_reset_stmts"] = self._get_model_threshold_condition_block(neuron).get_stmts_body()
 
         namespace["CppVariablePrinter"] = CppVariablePrinter
         namespace["genn_derived_params_printer"] = self._genn_derived_params_printer
@@ -189,7 +191,7 @@ class GeNNCodeGenerator(NESTCodeGenerator):
 
         raise Exception("Could not find an onCondition block in the NESTML model \"" + astnode.name + "\" that contains the membrane potential variable \"" + self.get_option("membrane_potential_variable") + "\". Please check the GeNN code generator option \"membrane_potential_variable\"")
 
-    def analyse_neuron(self, neuron: ASTModel) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment], List[ASTOdeEquation], List[ASTOdeEquation]]:
+    def analyse_neuron(self, neuron: ASTModel, metadata: Mapping[str, Mapping[str, Any]]) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment], List[ASTOdeEquation], List[ASTOdeEquation]]:
         # timestep symbol in GeNN is "dt" rather than "__h"
         neuron.add_to_internals_block(ModelParser.parse_declaration("dt ms = resolution()"), index=0)
-        return super().analyse_neuron(neuron)
+        return super().analyse_neuron(neuron, metadata)
