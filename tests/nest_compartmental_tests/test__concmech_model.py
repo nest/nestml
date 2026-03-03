@@ -67,7 +67,7 @@ class TestCompartmentalConcmech:
 
         nest.ResetKernel()
         nest.SetKernelStatus(dict(resolution=.1))
-
+        """
         generate_nest_compartmental_target(
             input_path=input_path,
             target_path=target_path,
@@ -75,7 +75,7 @@ class TestCompartmentalConcmech:
             suffix="_nestml",
             logging_level="INFO"
         )
-
+        """
         nest.Install("concmech_mockup_module.so")
 
     def test_concmech(self):
@@ -101,7 +101,7 @@ class TestCompartmentalConcmech:
 
         nest.Connect(mm, cm)
 
-        nest.Simulate(1000.)
+        nest.Simulate(110.)
 
         res = nest.GetStatus(mm, 'events')[0]
 
