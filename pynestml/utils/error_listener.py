@@ -36,3 +36,7 @@ class NestMLErrorListener(ErrorListener):
 
     def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
         self._error_occurred = True
+        self.offendingSymbol = offendingSymbol
+        self.line = line
+        self.column = column
+        self.msg = msg

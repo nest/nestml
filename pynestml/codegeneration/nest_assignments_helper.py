@@ -21,9 +21,11 @@
 
 from typing import Optional
 
+from pynestml.utils.ast_utils import ASTUtils
+
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.variable_symbol import VariableSymbol
+from pynestml.symbols.variable_symbol import VariableSymbol, VariableType, BlockType
 from pynestml.utils.logger import LoggingLevel, Logger
 
 
@@ -40,13 +42,14 @@ class NestAssignmentsHelper:
         :return: a single variable symbol
         """
         assert isinstance(assignment, ASTAssignment), \
-            '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(assignment)
+            "(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!" % type(assignment)
         symbol = assignment.get_scope().resolve_to_symbol(assignment.get_variable().get_complete_name(),
                                                           SymbolKind.VARIABLE)
         if symbol is not None:
             return symbol
 
-        Logger.log_message(message='No symbol could be resolved!', log_level=LoggingLevel.ERROR)
+        Logger.log_message(message="No symbol could be resolved for assignment \"" + str(assignment) + "\"!", log_level=LoggingLevel.ERROR)
+
         return None
 
     @classmethod
@@ -57,13 +60,14 @@ class NestAssignmentsHelper:
         :return: a single variable symbol
         """
         assert isinstance(assignment, ASTAssignment), \
-            '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(assignment)
+            "(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!" % type(assignment)
         symbol = assignment.get_scope().resolve_to_symbol(assignment.get_variable().get_vector_parameter(),
                                                           SymbolKind.VARIABLE)
         if symbol is not None:
             return symbol
 
-        Logger.log_message(message='No symbol could be resolved!', log_level=LoggingLevel.WARNING)
+        Logger.log_message(message="No symbol could be resolved for assignment \"" + str(assignment) + "\"!", log_level=LoggingLevel.WARNING)
+
         return None
 
     @classmethod
@@ -75,20 +79,20 @@ class NestAssignmentsHelper:
         :return: the corresponding string representation
         """
         assert isinstance(assignment, ASTAssignment), \
-            '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(assignment)
+            "(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!" % type(assignment)
         if assignment.is_compound_sum:
-            return '+='
+            return "+="
 
         if assignment.is_compound_minus:
-            return '-='
+            return "-="
 
         if assignment.is_compound_product:
-            return '*='
+            return "*="
 
         if assignment.is_compound_quotient:
-            return '/='
+            return "/="
 
-        return '='
+        return "="
 
     @classmethod
     def is_vectorized_assignment(cls, assignment) -> bool:
@@ -100,7 +104,7 @@ class NestAssignmentsHelper:
         """
         from pynestml.symbols.symbol import SymbolKind
         assert isinstance(assignment, ASTAssignment), \
-            '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(assignment)
+            "(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!" % type(assignment)
         symbol = assignment.get_scope().resolve_to_symbol(assignment.get_variable().get_complete_name(),
                                                           SymbolKind.VARIABLE)
         if symbol is not None:
@@ -115,7 +119,8 @@ class NestAssignmentsHelper:
 
             return False
 
-        Logger.log_message(message='No symbol could be resolved!', log_level=LoggingLevel.ERROR)
+        Logger.log_message(message="No symbol could be resolved for assignment \"" + str(assignment) + "\"!", log_level=LoggingLevel.ERROR)
+
         return False
 
     @classmethod
@@ -128,7 +133,7 @@ class NestAssignmentsHelper:
         """
         from pynestml.symbols.symbol import SymbolKind
         assert (assignment is not None and isinstance(assignment, ASTAssignment)), \
-            '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(assignment)
+            "(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!" % type(assignment)
         vector_variable = None
         for variable in assignment.get_expression().get_variables():
             symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)

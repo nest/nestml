@@ -18,6 +18,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+
+from pynestml.symbols.predefined_units import PredefinedUnits
 
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
@@ -43,7 +46,7 @@ class ASTFunctionCallVisitor(ASTVisitor):
         :param node: a simple expression
         """
         assert isinstance(node, ASTSimpleExpression), \
-            '(PyNestML.Visitor.FunctionCallVisitor) No or wrong type of simple expression provided (%s)!' % tuple(node)
+            "(PyNestML.Visitor.FunctionCallVisitor) No or wrong type of simple expression provided (%s)!" % tuple(node)
         assert (node.get_scope() is not None), \
             "(PyNestML.Visitor.FunctionCallVisitor) No scope found, run symboltable creator!"
         scope = node.get_scope()
@@ -89,17 +92,15 @@ class ASTFunctionCallVisitor(ASTVisitor):
 
         return_type.referenced_object = node
 
-        # convolve symbol does not have a return type set.
-        # returns whatever type the second parameter is.
+        # return type of the convolve function is the type of the second parameter multiplied by the unit of time (s)
         if function_name == PredefinedFunctions.CONVOLVE:
-            # Deviations from the assumptions made here are handled in the convolveCoco
             buffer_parameter = node.get_function_call().get_args()[1]
 
             if buffer_parameter.get_variable() is not None:
                 buffer_name = buffer_parameter.get_variable().get_name()
                 buffer_symbol_resolve = scope.resolve_to_symbol(buffer_name, SymbolKind.VARIABLE)
                 if buffer_symbol_resolve is not None:
-                    node.type = buffer_symbol_resolve.get_type_symbol()
+                    node.type = buffer_symbol_resolve.get_type_symbol() * UnitTypeSymbol(PredefinedUnits.get_unit("s"))
                     return
 
             # getting here means there is an error with the parameters to convolve
@@ -110,8 +111,9 @@ class ASTFunctionCallVisitor(ASTVisitor):
             return
 
         if isinstance(method_symbol.get_return_type(), VoidTypeSymbol):
-            # todo: the error message is not used here, fix this
-            # error_msg = ErrorStrings.message_void_function_on_rhs(self, function_name, node.get_source_position())
+            code, message = Messages.get_void_function_on_rhs(function_name)
+            Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                               log_level=LoggingLevel.ERROR)
             node.type = ErrorTypeSymbol()
             return
 

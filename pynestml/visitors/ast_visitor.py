@@ -22,7 +22,7 @@
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_bit_operator import ASTBitOperator
-from pynestml.meta_model.ast_block import ASTBlock
+from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
 from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
@@ -40,13 +40,15 @@ from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
+from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_model_body import ASTModelBody
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
-from pynestml.meta_model.ast_kernel import ASTKernel
+from pynestml.meta_model.ast_on_condition_block import ASTOnConditionBlock
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
@@ -54,7 +56,6 @@ from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
-from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_unit_type import ASTUnitType
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
@@ -78,33 +79,25 @@ class ASTVisitor:
 
     def visit_compilation_unit(self, node):
         """
-        Visits a single compilation unit, thus all neurons.
+        Visits a single compilation unit, thus all models.
         :param node: a single compilation unit.
         :type node: ASTNestMLCompilationUnit
         """
         return
 
-    def visit_neuron(self, node):
+    def visit_model(self, node):
         """
-        Used to visit a single neuron.
-        :return: a single neuron.
-        :rtype: ASTNeuron
-        """
-        return
-
-    def visit_synapse(self, node):
-        """
-        Used to visit a single synapse.
-        :return: a single synapse.
-        :rtype: ASTSynapse
+        Used to visit a single model.
+        :return: a single model.
+        :rtype: ASTModel
         """
         return
 
-    def visit_neuron_or_synapse_body(self, node):
+    def visit_model_body(self, node):
         """
-        Used to visit a single neuron body.
+        Used to visit a single model body.
         :param node: a single body element.
-        :type node: ASTNeuronOrSynapseBody
+        :type node: ASTModelBody
         """
         return
 
@@ -128,6 +121,13 @@ class ASTVisitor:
         """
         Used to visit a single onReceive block.
         :type node: ASTOnReceiveBlock
+        """
+        return
+
+    def visit_on_condition_block(self, node):
+        """
+        Used to visit a single onCondition block.
+        :type node: ASTOnConditionBlock
         """
         return
 
@@ -398,35 +398,24 @@ class ASTVisitor:
     def visit_stmt(self, node):
         return
 
-    def endvisit_compilation_unit(self, node):
+    def endvisit_compilation_unit(self, node: ASTNestMLCompilationUnit):
         """
-        Visits a single compilation unit, thus all neurons.
+        Visits a single compilation unit, thus all models.
         :param node: a single compilation unit.
-        :type node: ASTNestMLCompilationUnit
         """
         return
 
-    def endvisit_neuron(self, node):
+    def endvisit_model(self, node: ASTModel):
         """
-        Used to endvisit a single neuron.
-        :return: a single neuron.
-        :rtype: ASTNeuron
+        Used to endvisit a single model.
         """
         return
 
-    def endvisit_synapse(self, node):
+    def endvisit_model_body(self, node):
         """
-        Used to endvisit a single synapse.
-        :return: a single synapse.
-        :rtype: ASTSynapse
-        """
-        return
-
-    def endvisit_neuron_or_synapse_body(self, node):
-        """
-        Used to endvisit a single neuron body.
+        Used to endvisit a single model body.
         :param node: a single body element.
-        :type node: ASTNeuronOrSynapseBody
+        :type node: ASTModelBody
         """
         return
 
@@ -449,6 +438,12 @@ class ASTVisitor:
     def endvisit_on_receive_block(self, node):
         """
         Used to endvisit a onReceive block.
+        """
+        return
+
+    def endvisit_on_condition_block(self, node):
+        """
+        Used to endvisit a onCondition block.
         """
         return
 
@@ -736,11 +731,10 @@ class ASTVisitor:
         self.get_real_self().traverse(_node)
         self.get_real_self().endvisit(_node)
 
-    def visit(self, node):
+    def visit(self, node: ASTNode):
         """
         Dispatcher for visitor pattern.
-        :param node: The ASTElement to visit
-        :type node:  ASTElement or inherited
+        :param node: The ASTNode to visit
         """
         if isinstance(node, ASTArithmeticOperator):
             self.visit_arithmetic_operator(node)
@@ -751,14 +745,14 @@ class ASTVisitor:
         if isinstance(node, ASTBitOperator):
             self.visit_bit_operator(node)
             return
-        if isinstance(node, ASTBlock):
+        if isinstance(node, ASTStmtsBody):
             self.visit_block(node)
             return
         if isinstance(node, ASTBlockWithVariables):
             self.visit_block_with_variables(node)
             return
-        if isinstance(node, ASTNeuronOrSynapseBody):
-            self.visit_neuron_or_synapse_body(node)
+        if isinstance(node, ASTModelBody):
+            self.visit_model_body(node)
             return
         if isinstance(node, ASTComparisonOperator):
             self.visit_comparison_operator(node)
@@ -814,11 +808,8 @@ class ASTVisitor:
         if isinstance(node, ASTNestMLCompilationUnit):
             self.visit_compilation_unit(node)
             return
-        if isinstance(node, ASTNeuron):
-            self.visit_neuron(node)
-            return
-        if isinstance(node, ASTSynapse):
-            self.visit_synapse(node)
+        if isinstance(node, ASTModel):
+            self.visit_model(node)
             return
         if isinstance(node, ASTOdeEquation):
             self.visit_ode_equation(node)
@@ -856,6 +847,9 @@ class ASTVisitor:
         if isinstance(node, ASTOnReceiveBlock):
             self.visit_on_receive_block(node)
             return
+        if isinstance(node, ASTOnConditionBlock):
+            self.visit_on_condition_block(node)
+            return
         if isinstance(node, ASTVariable):
             self.visit_variable(node)
             return
@@ -882,14 +876,14 @@ class ASTVisitor:
         if isinstance(node, ASTBitOperator):
             self.traverse_bit_operator(node)
             return
-        if isinstance(node, ASTBlock):
+        if isinstance(node, ASTStmtsBody):
             self.traverse_block(node)
             return
         if isinstance(node, ASTBlockWithVariables):
             self.traverse_block_with_variables(node)
             return
-        if isinstance(node, ASTNeuronOrSynapseBody):
-            self.traverse_neuron_or_synapse_body(node)
+        if isinstance(node, ASTModelBody):
+            self.traverse_model_body(node)
             return
         if isinstance(node, ASTComparisonOperator):
             self.traverse_comparison_operator(node)
@@ -945,11 +939,8 @@ class ASTVisitor:
         if isinstance(node, ASTNestMLCompilationUnit):
             self.traverse_compilation_unit(node)
             return
-        if isinstance(node, ASTNeuron):
-            self.traverse_neuron(node)
-            return
-        if isinstance(node, ASTSynapse):
-            self.traverse_synapse(node)
+        if isinstance(node, ASTModel):
+            self.traverse_model(node)
             return
         if isinstance(node, ASTOdeEquation):
             self.traverse_ode_equation(node)
@@ -987,6 +978,9 @@ class ASTVisitor:
         if isinstance(node, ASTOnReceiveBlock):
             self.traverse_on_receive_block(node)
             return
+        if isinstance(node, ASTOnConditionBlock):
+            self.traverse_on_condition_block(node)
+            return
         if isinstance(node, ASTVariable):
             self.traverse_variable(node)
             return
@@ -1013,14 +1007,14 @@ class ASTVisitor:
         if isinstance(node, ASTBitOperator):
             self.endvisit_bit_operator(node)
             return
-        if isinstance(node, ASTBlock):
+        if isinstance(node, ASTStmtsBody):
             self.endvisit_block(node)
             return
         if isinstance(node, ASTBlockWithVariables):
             self.endvisit_block_with_variables(node)
             return
-        if isinstance(node, ASTNeuronOrSynapseBody):
-            self.endvisit_neuron_or_synapse_body(node)
+        if isinstance(node, ASTModelBody):
+            self.endvisit_model_body(node)
             return
         if isinstance(node, ASTComparisonOperator):
             self.endvisit_comparison_operator(node)
@@ -1076,11 +1070,8 @@ class ASTVisitor:
         if isinstance(node, ASTNestMLCompilationUnit):
             self.endvisit_compilation_unit(node)
             return
-        if isinstance(node, ASTNeuron):
-            self.endvisit_neuron(node)
-            return
-        if isinstance(node, ASTSynapse):
-            self.endvisit_synapse(node)
+        if isinstance(node, ASTModel):
+            self.endvisit_model(node)
             return
         if isinstance(node, ASTOdeEquation):
             self.endvisit_ode_equation(node)
@@ -1118,6 +1109,9 @@ class ASTVisitor:
         if isinstance(node, ASTOnReceiveBlock):
             self.endvisit_on_receive_block(node)
             return
+        if isinstance(node, ASTOnConditionBlock):
+            self.endvisit_on_condition_block(node)
+            return
         if isinstance(node, ASTVariable):
             self.endvisit_variable(node)
             return
@@ -1150,12 +1144,7 @@ class ASTVisitor:
             for sub_node in _node.get_declarations():
                 sub_node.accept(self.get_real_self())
 
-    def traverse_neuron_or_synapse_body(self, node):
-        if node.get_body_elements() is not None:
-            for sub_node in node.get_body_elements():
-                sub_node.accept(self.get_real_self())
-
-    def traverse_synapse_body(self, node):
+    def traverse_model_body(self, node):
         if node.get_body_elements() is not None:
             for sub_node in node.get_body_elements():
                 sub_node.accept(self.get_real_self())
@@ -1189,12 +1178,12 @@ class ASTVisitor:
     def traverse_elif_clause(self, node):
         if node.get_condition() is not None:
             node.get_condition().accept(self.get_real_self())
-        if node.get_block() is not None:
-            node.get_block().accept(self.get_real_self())
+        if node.get_stmts_body() is not None:
+            node.get_stmts_body().accept(self.get_real_self())
 
     def traverse_else_clause(self, node):
-        if node.get_block() is not None:
-            node.get_block().accept(self.get_real_self())
+        if node.get_stmts_body() is not None:
+            node.get_stmts_body().accept(self.get_real_self())
 
     def traverse_equations_block(self, node):
         if node.get_declarations() is not None:
@@ -1224,16 +1213,16 @@ class ASTVisitor:
             node.get_start_from().accept(self.get_real_self())
         if node.get_end_at() is not None:
             node.get_end_at().accept(self.get_real_self())
-        if node.get_block() is not None:
-            node.get_block().accept(self.get_real_self())
+        if node.get_stmts_body() is not None:
+            node.get_stmts_body().accept(self.get_real_self())
 
     def traverse_function(self, node):
         for sub_node in node.get_parameters():
             sub_node.accept(self.get_real_self())
         if node.get_return_type() is not None:
             node.get_return_type().accept(self.get_real_self())
-        if node.get_block() is not None:
-            node.get_block().accept(self.get_real_self())
+        if node.get_stmts_body() is not None:
+            node.get_stmts_body().accept(self.get_real_self())
 
     def traverse_function_call(self, node):
         if node.get_args() is not None:
@@ -1243,8 +1232,8 @@ class ASTVisitor:
     def traverse_if_clause(self, node):
         if node.get_condition() is not None:
             node.get_condition().accept(self.get_real_self())
-        if node.get_block() is not None:
-            node.get_block().accept(self.get_real_self())
+        if node.get_stmts_body() is not None:
+            node.get_stmts_body().accept(self.get_real_self())
 
     def traverse_if_stmt(self, node):
         if node.get_if_clause() is not None:
@@ -1271,18 +1260,11 @@ class ASTVisitor:
         return
 
     def traverse_compilation_unit(self, node):
-        if node.get_neuron_list() is not None:
-            for sub_node in node.get_neuron_list():
-                sub_node.accept(self.get_real_self())
-        if node.get_synapse_list() is not None:
-            for sub_node in node.get_synapse_list():
+        if node.get_model_list() is not None:
+            for sub_node in node.get_model_list():
                 sub_node.accept(self.get_real_self())
 
-    def traverse_neuron(self, node):
-        if node.get_body() is not None:
-            node.get_body().accept(self.get_real_self())
-
-    def traverse_synapse(self, node):
+    def traverse_model(self, node):
         if node.get_body() is not None:
             node.get_body().accept(self.get_real_self())
 
@@ -1345,23 +1327,28 @@ class ASTVisitor:
             node.compound_unit.accept(self.get_real_self())
 
     def traverse_update_block(self, node):
-        if node.get_block() is not None:
-            node.get_block().accept(self.get_real_self())
+        if node.get_stmts_body() is not None:
+            node.get_stmts_body().accept(self.get_real_self())
 
     def traverse_on_receive_block(self, node):
-        if node.get_block() is not None:
-            node.get_block().accept(self.get_real_self())
+        if node.get_stmts_body() is not None:
+            node.get_stmts_body().accept(self.get_real_self())
+
+    def traverse_on_condition_block(self, node):
+        if node.get_cond_expr() is not None:
+            node.get_cond_expr().accept(self.get_real_self())
+        if node.get_stmts_body() is not None:
+            node.get_stmts_body().accept(self.get_real_self())
 
     def traverse_variable(self, node):
-        return
-        # if node.get_vector_parameter() is not None:
-        #     node.get_vector_parameter().accept(self.get_real_self())
+        if node.get_vector_parameter() is not None:
+            node.get_vector_parameter().accept(self.get_real_self())
 
     def traverse_while_stmt(self, node):
         if node.get_condition() is not None:
             node.get_condition().accept(self.get_real_self())
-        if node.get_block() is not None:
-            node.get_block().accept(self.get_real_self())
+        if node.get_stmts_body() is not None:
+            node.get_stmts_body().accept(self.get_real_self())
 
     def traverse_stmt(self, node):
         if node.is_small_stmt():

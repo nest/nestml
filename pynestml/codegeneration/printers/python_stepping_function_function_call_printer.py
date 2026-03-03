@@ -47,7 +47,7 @@ class PythonSteppingFunctionFunctionCallPrinter(PythonFunctionCallPrinter):
         if function_call.get_name() == PredefinedFunctions.TIME_STEPS:
             return "steps({!s}, node._timestep)"
 
-        if function_call.get_name() == PredefinedFunctions.TIME_RESOLUTION:
+        if function_call.get_name() in [PredefinedFunctions.TIME_RESOLUTION, PredefinedFunctions.TIME_TIMESTEP]:
             return "node._timestep"
 
         if function_call.get_name() == PredefinedFunctions.EMIT_SPIKE:

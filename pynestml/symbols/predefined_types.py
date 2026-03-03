@@ -28,6 +28,7 @@ from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.template_type_symbol import TemplateTypeSymbol
 from pynestml.symbols.type_symbol import TypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+from pynestml.symbols.variadic_type_symbol import VariadicTypeSymbol
 from pynestml.utils.type_dictionary import TypeDictionary
 from pynestml.utils.unit_type import UnitType
 
@@ -38,18 +39,18 @@ class PredefinedTypes:
 
     Attributes:
         name2type     A dict from names of variables to the corresponding type symbols. Type: dict(str->TypeSymbol)
-        REAL_TYPE     The identifier of the type 'real'. Type: str
-        VOID_TYPE     The identifier of the type 'void'. Type: str
-        BOOLEAN_TYPE  The identifier of the type 'boolean'. Type: str
-        STRING_TYPE   The identifier of the type 'string'. Type: str
-        INTEGER_TYPE  The identifier of the type 'integer'. Type: str
+        REAL_TYPE     The identifier of the type "real". Type: str
+        VOID_TYPE     The identifier of the type "void". Type: str
+        BOOLEAN_TYPE  The identifier of the type "boolean". Type: str
+        STRING_TYPE   The identifier of the type "string". Type: str
+        INTEGER_TYPE  The identifier of the type "integer". Type: str
     """
     name2type = {}   # type: Mapping[str, TypeSymbol]
-    REAL_TYPE = 'real'
-    VOID_TYPE = 'void'
-    BOOLEAN_TYPE = 'boolean'
-    STRING_TYPE = 'string'
-    INTEGER_TYPE = 'integer'
+    REAL_TYPE = "real"
+    VOID_TYPE = "void"
+    BOOLEAN_TYPE = "boolean"
+    STRING_TYPE = "string"
+    INTEGER_TYPE = "integer"
 
     @classmethod
     def register_types(cls):
@@ -153,7 +154,7 @@ class PredefinedTypes:
         :rtype: type_symbol or None
         """
         # this case deals with something like 1.0 if we have (1/ms) * ms
-        if isinstance(name, Quantity) and name.unit == '':
+        if isinstance(name, Quantity) and name.unit == "":
             if name.value == 1.0 or name.value == 1:
                 # in this case its only the factor 1, thus not a
                 # real scalar or anything, thus return the simple real type
@@ -229,6 +230,15 @@ class PredefinedTypes:
         :rtype: type_symbol
         """
         return TemplateTypeSymbol(i)
+
+    @classmethod
+    def get_variadic_type(cls):
+        """
+        Returns a new type symbol for a variadic type (variable-length list of arguments).
+        :return: a new variadic type symbol
+        :rtype: type_symbol
+        """
+        return VariadicTypeSymbol()
 
     @classmethod
     def register_type(cls, symbol):

@@ -19,18 +19,20 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+import unittest
+import numpy as np
+
+# try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
+    import logging
     import matplotlib as mpl
     mpl.use("agg")
+    logging.getLogger("matplotlib").setLevel(logging.WARNING)    # prevent matplotlib from printing a lot of debug messages when NESTML is running in DEBUG logging_level
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
 except BaseException:
     TEST_PLOTS = False
-
-
-import os
-import unittest
-import numpy as np
 
 import nest
 
@@ -46,7 +48,7 @@ class NestWBCondExpTest(unittest.TestCase):
             os.makedirs("target")
 
         input_path = os.path.join(os.path.realpath(os.path.join(
-            os.path.dirname(__file__), os.pardir, os.pardir, "models", "neurons", "wb_cond_exp.nestml")))
+            os.path.dirname(__file__), os.pardir, os.pardir, "models", "neurons", "wb_cond_exp_neuron.nestml")))
         target_path = "target"
         module_name = "nestmlmodule"
         suffix = "_nestml"
@@ -59,7 +61,7 @@ class NestWBCondExpTest(unittest.TestCase):
                              module_name=module_name)
 
         nest.Install(module_name)
-        model = "wb_cond_exp_nestml"
+        model = "wb_cond_exp_neuron_nestml"
 
         dt = 0.01
         t_simulation = 1000.0

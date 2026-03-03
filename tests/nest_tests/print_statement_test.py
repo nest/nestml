@@ -30,19 +30,20 @@ class PrintStatementTest(unittest.TestCase):
 
     def test_print_statement(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            'resources', 'print_variable_script.py'))))
+            "resources", "print_variable_script.py"))))
         self.output_path = "output.txt"
 
-        with open(self.output_path, 'w') as outfile:
-            subprocess.run(['python', input_path], stdout=outfile)
+        with open(self.output_path, "w") as outfile:
+            subprocess.run(["python3", input_path], stdout=outfile)
 
-        with open(self.output_path, 'r') as reader:
+        with open(self.output_path, "r") as reader:
             lines = list(reader.readlines())
             reader.close()
 
         matches = [s for s in lines if "print:" in s]
         self.assertEqual(matches[0], "print: This is a simple print statement\n")
         self.assertEqual(matches[1], "print: Membrane voltage: -0.05 V, threshold: -7e-08 MA Ohm, and V_rel: -50 mV\n")
+        self.assertEqual(matches[2], "print: Numeric state variable: 0.048731\n")
 
     def tearDown(self) -> None:
         if os.path.exists(self.output_path):

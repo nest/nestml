@@ -18,6 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 import os
 import unittest
 
@@ -48,25 +49,25 @@ class ExpressionsCodeGeneratorTest(unittest.TestCase):
         Logger.init_logger(LoggingLevel.INFO)
 
         self.target_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                             os.path.join(os.pardir, 'target'))))
+                                                             os.path.join(os.pardir, "target"))))
 
     def test_expressions(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, 'resources', 'ExpressionTypeTest.nestml'))))
+            os.pardir, "resources", "ExpressionTypeTest.nestml"))))
 
         params = list()
-        params.append('--input_path')
+        params.append("--input_path")
         params.append(input_path)
-        params.append('--logging_level')
-        params.append('INFO')
-        params.append('--target_path')
+        params.append("--logging_level")
+        params.append("INFO")
+        params.append("--target_path")
         params.append(self.target_path)
-        params.append('--dev')
+        params.append("--dev")
         FrontendConfiguration.parse_config(params)
-        compilation_unit = ModelParser.parse_model(input_path)
+        compilation_unit = ModelParser.parse_file(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
+        nestCodeGenerator.generate_code(compilation_unit.get_model_list())
 
     def tearDown(self):
         import shutil

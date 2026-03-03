@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.symbols.variable_symbol import BlockType
 
@@ -26,28 +27,28 @@ from pynestml.symbols.variable_symbol import BlockType
 class PythonCodeGeneratorUtils:
 
     @classmethod
-    def print_symbol_origin(cls, variable_symbol: VariableSymbol) -> str:
+    def print_symbol_origin(cls, variable_symbol: VariableSymbol, variable: ASTVariable) -> str:
         """
         Returns a prefix corresponding to the origin of the variable symbol.
         :param variable_symbol: a single variable symbol.
         :return: the corresponding prefix
         """
         if variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
-            if numerical_state_symbols and variable_symbol.get_symbol_name() in numerical_state_symbols:
-                return 'self.S_.ode_state[self.S_.ode_state_variable_name_to_index["%s"]]'
+            if "_is_numeric" in dir(variable) and variable._is_numeric:
+                return "self.S_.ode_state[self.S_.ode_state_variable_name_to_index[\"%s\"]]"
 
-            return 'self.S_.%s'
+            return "self.S_.%s"
 
         if variable_symbol.block_type == BlockType.PARAMETERS:
-            return 'self.P_.%s'
+            return "self.P_.%s"
 
         if variable_symbol.block_type == BlockType.COMMON_PARAMETERS:
-            return 'self.cp.%s'
+            return "self.cp.%s"
 
         if variable_symbol.block_type == BlockType.INTERNALS:
-            return 'self.V_.%s'
+            return "self.V_.%s"
 
         if variable_symbol.block_type == BlockType.INPUT:
-            return 'self.B_.%s'
+            return "self.B_.%s"
 
-        return ''
+        return ""

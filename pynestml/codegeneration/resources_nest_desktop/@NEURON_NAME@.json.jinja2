@@ -1,0 +1,15 @@
+{
+  "id": "{{neuronName}}",
+  "elementType": "neuron",
+  "label": "{{neuronName}}",
+  "recordables": [
+    {%- set vars = state %}
+    {%- set symbols = neuron.get_state_symbols() %}
+    {%- include "VariableDeclaration.jinja2" %}
+  ],
+  "params": [
+    {%- set vars = parameters %}
+    {%- set symbols = neuron.get_parameter_symbols() %}
+    {%- include "VariableDeclaration.jinja2" %}
+  ]
+}

@@ -44,7 +44,7 @@ class ASTExternalVariable(ASTVariable):
         Return a clone ("deep copy") of this node.
         """
         return ASTExternalVariable(altname=self._altname,
-                                   altscape=self._altscope,
+                                   altscope=self._altscope,
                                    # ASTVariable attributes:
                                    name=self.name,
                                    differential_order=self.differential_order,
@@ -69,5 +69,6 @@ class ASTExternalVariable(ASTVariable):
 
     def get_scope(self):
         if self._altscope:
-            return self._altscope.get_scope()
+            return self._altscope
+
         return self.scope

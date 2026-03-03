@@ -23,17 +23,19 @@ import numpy as np
 import os
 import unittest
 
-import nest
-
-from pynestml.codegeneration.nest_tools import NESTTools
-from pynestml.frontend.pynestml_frontend import generate_nest_target
-
+# try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
-    import matplotlib
+    import matplotlib as mpl
+    mpl.use("agg")
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
 except BaseException:
     TEST_PLOTS = False
+
+import nest
+
+from pynestml.codegeneration.nest_tools import NESTTools
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
 class NestWBCondExpTest(unittest.TestCase):
@@ -44,7 +46,7 @@ class NestWBCondExpTest(unittest.TestCase):
             os.makedirs("target")
 
         input_path = os.path.join(os.path.realpath(os.path.join(
-            os.path.dirname(__file__), os.pardir, os.pardir, "models", "neurons", "traub_psc_alpha.nestml")))
+            os.path.dirname(__file__), os.pardir, os.pardir, "models", "neurons", "traub_psc_alpha_neuron.nestml")))
         target_path = "target"
         module_name = "nestmlmodule"
         suffix = "_nestml"
@@ -56,7 +58,7 @@ class NestWBCondExpTest(unittest.TestCase):
                              module_name=module_name)
 
         nest.Install("nestmlmodule")
-        model = "traub_psc_alpha_nestml"
+        model = "traub_psc_alpha_neuron_nestml"
 
         dt = 0.01
         t_simulation = 1000.0

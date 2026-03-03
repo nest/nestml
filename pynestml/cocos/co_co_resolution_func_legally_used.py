@@ -53,7 +53,7 @@ class CoCoResolutionFuncLegallyUsedVisitor(ASTVisitor):
         :param node: a simple expression
         """
         assert isinstance(node, ASTSimpleExpression), \
-            '(PyNestML.Visitor.FunctionCallVisitor) No or wrong type of simple expression provided (%s)!' % tuple(node)
+            "(PyNestML.Visitor.FunctionCallVisitor) No or wrong type of simple expression provided (%s)!" % tuple(node)
         assert (node.get_scope() is not None), \
             "(PyNestML.Visitor.FunctionCallVisitor) No scope found, run symboltable creator!"
         if node.get_function_call() is None:
@@ -62,7 +62,7 @@ class CoCoResolutionFuncLegallyUsedVisitor(ASTVisitor):
         if function_name == PredefinedFunctions.TIME_RESOLUTION:
             _node = node
             while _node:
-                _node = self.neuron.get_parent(_node)
+                _node = _node.get_parent()
 
                 if isinstance(_node, ASTEquationsBlock) \
                         or isinstance(_node, ASTFunction):

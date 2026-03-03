@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List
+
 from pynestml.meta_model.ast_node import ASTNode
 
 
@@ -26,7 +28,7 @@ class ASTComparisonOperator(ASTNode):
     """
     This class is used to store a single comparison operator.
     Grammar:
-        comparisonOperator : (lt='<' | le='<=' | eq='==' | ne='!=' | ne2='<>' | ge='>=' | gt='>');
+        comparisonOperator : (lt="<" | le="<=" | eq="==" | ne="!=" | ne2="<>" | ge=">=" | gt=">");
     Attributes:
         is_lt = False
         is_le = False
@@ -60,7 +62,7 @@ class ASTComparisonOperator(ASTNode):
         :type is_gt: bool
         """
         assert ((is_lt + is_le + is_eq + is_ne + is_ne2 + is_ge + is_gt) == 1), \
-            '(PyNestML.ASTComparisonOperator) Comparison operator not correctly specified!'
+            "(PyNestML.ASTComparisonOperator) Comparison operator not correctly specified!"
         super(ASTComparisonOperator, self).__init__(*args, **kwargs)
         self.is_gt = is_gt
         self.is_ge = is_ge
@@ -94,26 +96,20 @@ class ASTComparisonOperator(ASTNode):
 
         return dup
 
-    def get_parent(self, ast):
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
-        """
-        return None
+        return []
 
-    def equals(self, other):
-        """
-        The equals method.
-        :param other: a different object.
-        :type other: object
-        :return: True if equal, otherwise False.
-        :rtype: bool
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTComparisonOperator):
             return False
+
         return (self.is_lt == other.is_lt and self.is_le == other.is_le
                 and self.is_eq == other.is_eq and self.is_ne == other.is_ne
                 and self.is_ne2 == other.is_ne2 and self.is_ge == other.is_ge and self.is_gt == other.is_gt)

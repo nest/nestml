@@ -43,8 +43,11 @@ class TestSimulator:
         sg_inh = simulator.add_neuron(SpikeGenerator(interval=50.))
 {% for neuron in neurons %}
         neuron = simulator.add_neuron(Neuron_{{neuron.get_name()}}(timestep=simulator.timestep))
-        simulator.connect(sg_exc, neuron, "exc_spikes",w=1000.)
-        simulator.connect(sg_inh, neuron, "inh_spikes",w=4000.)
+        if "exc_spikes" in simulator.neurons[neuron].get_spiking_input_ports():
+            simulator.connect(sg_exc, neuron, "exc_spikes", w=1000.)
+            simulator.connect(sg_inh, neuron, "inh_spikes", w=4000.)
+        else:
+            simulator.connect(sg_exc, neuron, "spikes", w=1000.)
 {% endfor %}
 
         simulator.run(t_stop)
@@ -53,15 +56,20 @@ class TestSimulator:
         for neuron_id, neuron_log in simulator.log.items():
             if neuron_id == "t":
                 continue
+
             if len(neuron_log) == 0:
                 continue
+
             fig, ax = plt.subplots(nrows=len(neuron_log))
-            for i, (var_name, values) in enumerate(neuron_log.items()):
+            for i, (var_name, values) in sorted(enumerate(neuron_log.items())):
                 ax[i].plot(simulator.log["t"], values, label="Neuron " + str(neuron_id) + ": " + str(var_name))
                 ax[i].legend()
                 ax[i].set_xlim(0, t_stop)
                 ax[i].grid(True)
-            #plt.show()
+                if i < len(neuron_log.items()) - 1:
+                    ax[i].set_xticklabels([])
+
+            ax[-1].set_xlabel("Time [ms]")
             fig.savefig("/tmp/test_python_standalone_simulation_[neuron=" + simulator.neurons[neuron_id].get_model() + "].png")
 
         return neuron_log

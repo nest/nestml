@@ -139,7 +139,7 @@ class PythonFunctionCallPrinter(FunctionCallPrinter):
         if function_call.get_name() == PredefinedFunctions.TIME_STEPS:
             return "steps({!s}, self._timestep)"
 
-        if function_call.get_name() == PredefinedFunctions.TIME_RESOLUTION:
+        if function_call.get_name() in [PredefinedFunctions.TIME_RESOLUTION, PredefinedFunctions.TIME_TIMESTEP]:
             return "self._timestep"
 
         if function_call.get_name() == PredefinedFunctions.EMIT_SPIKE:

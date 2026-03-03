@@ -35,13 +35,15 @@ Internally, differential equations are analyzed by the associated `ODE-toolbox <
 
    nestml_language/index
    installation
-   running
+   running/index
    models_library/index
    tutorials/index
    extending
    getting_help
    citing
    license
+   Impressum <https://nest-initiative.org/impressum/>
+   Data protection <https://www.nest-initiative.org/data-protection/>
 
 .. .. figure:: nestml-logo/nestml-logo.png
       :scale: 30 %
@@ -63,5 +65,9 @@ Acknowledgements
 This software was initially supported by the JARA-HPC Seed Fund *NESTML - A modeling language for spiking neuron and synapse models for NEST* and the Initiative and Networking Fund of the Helmholtz Association and the Helmholtz Portfolio Theme *Simulation and Modeling for the Human Brain*.
 
 This software was developed in part or in whole in the Human Brain Project, funded from the European Union's Horizon 2020 Framework Programme for Research and Innovation under Specific Grant Agreements No. 720270, No. 785907 and No. 945539 (Human Brain Project SGA1, SGA2 and SGA3).
+
+This project has received funding from the European Union's Horizon Europe Programme under the Specific Grant Agreement No. 101147319 (EBRAINS 2.0 Project).
+
+This research has received funding by the `Helmholtz Association <https://www.helmholtz.de/>`_ through the Helmholtz Portfolio Theme *Supercomputing and Modeling for the Human Brain*.
 
 Neuron and synapse illustration: copyright Angela Fischer <a.fischer@fz-juelich.de>, INM-6, Forschungszentrum Jülich GmbH (CC-BY-SA)

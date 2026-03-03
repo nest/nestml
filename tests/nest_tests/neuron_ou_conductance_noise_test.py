@@ -24,17 +24,19 @@ import os
 import pytest
 import unittest
 
-import nest
-
-from pynestml.codegeneration.nest_tools import NESTTools
-from pynestml.frontend.pynestml_frontend import generate_nest_target
-
+# try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
-    import matplotlib
+    import matplotlib as mpl
+    mpl.use("agg")
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
 except BaseException:
     TEST_PLOTS = False
+
+import nest
+
+from pynestml.codegeneration.nest_tools import NESTTools
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
 class TestOUConductanceNoise(unittest.TestCase):
@@ -62,7 +64,7 @@ class TestOUConductanceNoise(unittest.TestCase):
         nest.SetKernelStatus({"resolution": resolution, "rng_seed": seed + 1})
 
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                                os.pardir, os.pardir, "models", "neurons", "hh_cond_exp_destexhe.nestml")))
+                                                                os.pardir, os.pardir, "models", "neurons", "hh_cond_exp_destexhe_neuron.nestml")))
         target_path = "target"
         logging_level = "DEBUG"
         module_name = "nestmlmodule"
@@ -75,7 +77,7 @@ class TestOUConductanceNoise(unittest.TestCase):
         nest.set_verbosity("M_ALL")
 
         nest.Install("nestmlmodule")
-        neuron = nest.Create("hh_cond_exp_destexhe_nestml")
+        neuron = nest.Create("hh_cond_exp_destexhe_neuron_nestml")
 
         multi = nest.Create("multimeter", params={"record_from": self.record_from, "interval": resolution})
 

@@ -18,13 +18,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from typing import TextIO
+
+import re
+import sys
+
 from antlr4 import *
 from antlr4.Token import CommonToken
-
-import sys
-from typing import TextIO
-import re
 
 from pynestml.generated.PyNestMLParser import PyNestMLParser
 

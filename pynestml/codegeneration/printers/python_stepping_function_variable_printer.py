@@ -42,10 +42,13 @@ class PythonSteppingFunctionVariablePrinter(VariablePrinter):
         if node.get_name() == PredefinedVariables.E_CONSTANT:
             return "np.e"
 
+        if node.get_name() == PredefinedVariables.PI_CONSTANT:
+            return "np.pi"
+
         symbol = node.get_scope().resolve_to_symbol(node.get_complete_name(), SymbolKind.VARIABLE)
 
         if symbol.is_state() and not symbol.is_inline_expression:
-            if node.get_complete_name() in self._state_symbols:
+            if "_is_numeric" in dir(node) and node._is_numeric:
                 # ode_state[] here is---and must be---the state vector supplied by the integrator, not the state vector in the node, node.S_.ode_state[].
                 return "ode_state[node.S_.ode_state_variable_name_to_index[\"" + CppVariablePrinter._print_cpp_name(node.get_complete_name()) + "\"]]"
 

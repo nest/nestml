@@ -1,0 +1,51 @@
+# inhomogeneous_poisson - Inhomogeneous Poisson process model
+# ###########################################################
+#
+# Description
+# +++++++++++
+#
+# Inhomogeneous Poisson process model.
+#
+# The rate of the model is piecewise constant and is defined by an array containing desired rates (in units of 1/s) and an array of equal length containing the corresponding times (in units of ms). Please see the documentation for the NEST built-in inhomogeneous_poisson_generator for more details [2].
+#
+#
+# See also
+# ++++++++
+#
+# See the inhomogeneous Poisson generator NESTML tutorial for a usage example.
+#
+#
+# References
+# ++++++++++
+#
+# [1] Wikipedia contributors. 'Poisson Point Process.' Wikipedia, The Free Encyclopedia. Accessed on February 23, 2024. https://en.wikipedia.org/wiki/Poisson_point_process.
+#
+# [2] https://nest-simulator.readthedocs.io/en/stable/models/inhomogeneous_poisson_generator.html
+#
+#
+model inhomogeneous_poisson_neuron:
+
+    state:
+        idx integer = 0
+
+    parameters:
+        N integer = 1
+        rate_times[N] ms = 0 ms
+        rate_values[N] ms**-1 = 0 s**-1
+
+    output:
+        spike
+
+    update:
+        # update the rate
+        if N > 0:
+            while idx < N - 1 and t >= rate_times[idx + 1]:
+                idx += 1
+
+        rate ms**-1 = rate_values[idx]
+
+        n_spikes_in_this_timestep integer = random_poisson(rate * resolution() * 1E-3)
+        if n_spikes_in_this_timestep > 0:
+            emit_spike()
+            # XXX: TODO: support multiplicity in spikes (see https://github.com/nest/nestml/issues/946)
+

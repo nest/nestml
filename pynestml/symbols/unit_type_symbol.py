@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional
 from pynestml.symbols.type_symbol import TypeSymbol
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
@@ -48,7 +49,7 @@ class UnitTypeSymbol(TypeSymbol):
     def equals(self, other=None):
         basic_equals = super(UnitTypeSymbol, self).equals(other)
         if basic_equals is True:
-            return self.unit == other.unit
+            return self.unit.equals(other.unit)
 
         return False
 
@@ -60,7 +61,7 @@ class UnitTypeSymbol(TypeSymbol):
             return self.multiply_by(other)
         if other.is_numeric_primitive():
             return self
-        return self.binary_operation_not_defined_error('*', other)
+        return self.binary_operation_not_defined_error("*", other)
 
     def multiply_by(self, other):
         from pynestml.symbols.predefined_types import PredefinedTypes
@@ -74,7 +75,7 @@ class UnitTypeSymbol(TypeSymbol):
             return self.divide_by(other)
         if other.is_numeric_primitive():
             return self
-        return self.binary_operation_not_defined_error('/', other)
+        return self.binary_operation_not_defined_error("/", other)
 
     def __div__(self, other):
         return self.__truediv__(other)
@@ -90,7 +91,7 @@ class UnitTypeSymbol(TypeSymbol):
         return self
 
     def __invert__(self):
-        return self.unary_operation_not_defined_error('~')
+        return self.unary_operation_not_defined_error("~")
 
     def __pow__(self, power, modulo=None):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
@@ -99,7 +100,7 @@ class UnitTypeSymbol(TypeSymbol):
         if isinstance(power, int) \
                 or isinstance(power, float):
             return self.to_the_power_of(power)
-        return self.binary_operation_not_defined_error('**', power)
+        return self.binary_operation_not_defined_error("**", power)
 
     def to_the_power_of(self, power):
         from pynestml.symbols.predefined_types import PredefinedTypes
@@ -116,7 +117,7 @@ class UnitTypeSymbol(TypeSymbol):
             return self.warn_implicit_cast_from_to(other, self)
         if other.is_instance_of(UnitTypeSymbol):
             return self.add_or_sub_another_unit(other)
-        return self.binary_operation_not_defined_error('+', other)
+        return self.binary_operation_not_defined_error("+", other)
 
     def __sub__(self, other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
@@ -126,17 +127,17 @@ class UnitTypeSymbol(TypeSymbol):
             return self.warn_implicit_cast_from_to(other, self)
         if other.is_instance_of(UnitTypeSymbol):
             return self.add_or_sub_another_unit(other)
-        return self.binary_operation_not_defined_error('-', other)
+        return self.binary_operation_not_defined_error("-", other)
 
     def add_or_sub_another_unit(self, other):
         if self.equals(other):
             return other
-        else:
-            return self.attempt_magnitude_cast(other)
+
+        return self.attempt_magnitude_cast(other)
 
     def attempt_magnitude_cast(self, other):
         if self.differs_only_in_magnitude(other):
-            factor = UnitTypeSymbol.get_conversion_factor(self.astropy_unit, other.astropy_unit)
+            factor = UnitTypeSymbol.get_conversion_factor(other.astropy_unit, self.astropy_unit)
             other.referenced_object.set_implicit_conversion_factor(factor)
             code, message = Messages.get_implicit_magnitude_conversion(self, other, factor)
             Logger.log_message(code=code, message=message,
@@ -144,18 +145,20 @@ class UnitTypeSymbol(TypeSymbol):
                                log_level=LoggingLevel.INFO)
 
             return self
-        else:
-            return self.binary_operation_not_defined_error('+/-', other)
 
-    # TODO: change order of parameters to conform with the from_to scheme.
-    # TODO: Also rename to reflect that, i.e. get_conversion_factor_from_to
+        return self.binary_operation_not_defined_error("+/-", other)
+
     @classmethod
-    def get_conversion_factor(cls, to, _from):
+    def get_conversion_factor(cls, _from, to) -> Optional[float]:
         """
-        Calculates the conversion factor from _convertee_unit to target_unit.
-        Behaviour is only well-defined if both units have the same physical base type
+        Calculates the conversion factor from _convertee_unit to target_unit. Behaviour is only well-defined if both units have the same physical base type.
         """
-        factor = (_from / to).si.scale
+        try:
+            factor = (_from / to).si.scale
+        except BaseException:
+            # this can fail in case of e.g. trying to convert from "1/s" to "2/s"
+            return None
+
         return factor
 
     def is_castable_to(self, _other_type):

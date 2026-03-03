@@ -100,7 +100,7 @@ class PythonExpressionPrinter(ExpressionPrinter):
         """
         rhs = self.print(node.get_expression())
 
-        return "(" + "!" + rhs + ")"
+        return "not " + rhs
 
     def print_logical_operator(self, node: ASTExpressionNode) -> str:
         """
@@ -113,10 +113,10 @@ class PythonExpressionPrinter(ExpressionPrinter):
         rhs = self.print(node.get_rhs())
 
         if op.is_logical_and:
-            return lhs + " && " + rhs
+            return lhs + " and " + rhs
 
         if op.is_logical_or:
-            return lhs + " || " + rhs
+            return lhs + " or " + rhs
 
         raise RuntimeError("Cannot determine logical operator!")
 
@@ -203,7 +203,7 @@ class PythonExpressionPrinter(ExpressionPrinter):
             return lhs + " % " + rhs
 
         if op.is_pow_op:
-            return "pow" + "(" + lhs + ", " + rhs + ")"
+            return lhs + "**" + rhs
 
         raise RuntimeError("Cannot determine arithmetic operator!")
 

@@ -18,6 +18,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+from typing import List
+
 from pynestml.meta_model.ast_node import ASTNode
 
 
@@ -25,7 +28,7 @@ class ASTLogicalOperator(ASTNode):
     """
     This class is used to store a single logical operator.
     Grammar:
-        logicalOperator : (logicalAnd='and' | logicalOr='or');
+        logicalOperator : (logicalAnd="and" | logicalOr="or");
     Attributes:
         is_logical_and = False
         is_logical_or = False
@@ -43,7 +46,7 @@ class ASTLogicalOperator(ASTNode):
         :type is_logical_or: bool
         """
         assert (is_logical_and ^ is_logical_or), \
-            '(PyNestML.AST.LogicalOperator) Logical operator not correctly specified!'
+            "(PyNestML.AST.LogicalOperator) Logical operator not correctly specified!"
         super(ASTLogicalOperator, self).__init__(*args, **kwargs)
         self.is_logical_and = is_logical_and
         self.is_logical_or = is_logical_or
@@ -67,24 +70,18 @@ class ASTLogicalOperator(ASTNode):
 
         return dup
 
-    def get_parent(self, ast):
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
-        """
-        return None
+        return []
 
-    def equals(self, other):
-        """
-        The equals method.
-        :param other: a different object.
-        :type other: object
-        :return: True if equal, otherwise False.
-        :rtype: bool
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTLogicalOperator):
             return False
+
         return self.is_logical_and == other.is_logical_and and self.is_logical_or == other.is_logical_or

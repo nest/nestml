@@ -1,0 +1,6 @@
+{#
+Write a value into a dictionary.
+#}
+{%- macro WriteInDictionary(dict_name, variable_type, variable_name, value) -%}
+def< {{ variable_type }} >({{ dict_name }}, {{ variable_name }}, {{ value }});
+{%- endmacro -%}

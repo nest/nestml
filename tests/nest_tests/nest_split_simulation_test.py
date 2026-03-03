@@ -19,22 +19,24 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-
 import numpy as np
+import os
 import pytest
 import unittest
 
-import nest
-
-from pynestml.codegeneration.nest_tools import NESTTools
-
-
+# try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
-    import matplotlib
+    import matplotlib as mpl
+    mpl.use("agg")
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
 except BaseException:
     TEST_PLOTS = False
+
+import nest
+
+from pynestml.frontend.pynestml_frontend import generate_nest_target
+from pynestml.codegeneration.nest_tools import NESTTools
 
 
 class NestSplitSimulationTest(unittest.TestCase):
@@ -44,25 +46,35 @@ class NestSplitSimulationTest(unittest.TestCase):
     N.B. simulation resolution is not allowed to be changed by NEST between the two calls in the split condition.
     """
 
+    def setUp(self):
+        """Generate the model code"""
+        input_files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml")]
+        generate_nest_target(input_path=input_files,
+                             target_path="target",
+                             logging_level="DEBUG",
+                             module_name="nestmlmodule",
+                             suffix="_nestml")
+
     def run_simulation(self, T_sim: float, split: bool):
-        neuron_model_name = "iaf_psc_exp"
+        neuron_model_name = "iaf_psc_exp_neuron_nestml"
 
         spike_times = np.arange(10, 100, 9).astype(float)
         np.random.seed(0)
         spike_weights = np.sign(np.random.rand(spike_times.size) - .5)
 
         nest.ResetKernel()
+        nest.Install("nestmlmodule")
         nest.SetKernelStatus({"resolution": .1})
         neuron = nest.Create(neuron_model_name)
 
-        spikegenerator = nest.Create('spike_generator',
-                                     params={'spike_times': spike_times, 'spike_weights': spike_weights})
+        spikegenerator = nest.Create("spike_generator",
+                                     params={"spike_times": spike_times, "spike_weights": spike_weights})
 
         nest.Connect(spikegenerator, neuron)
 
-        multimeter = nest.Create('multimeter')
+        multimeter = nest.Create("multimeter")
 
-        multimeter.set({"record_from": ['V_m']})
+        multimeter.set({"record_from": ["V_m"]})
 
         nest.Connect(multimeter, neuron)
 
@@ -73,13 +85,13 @@ class NestSplitSimulationTest(unittest.TestCase):
             nest.Simulate(T_sim)
 
         ts = multimeter.get("events")["times"]
-        Vms = multimeter.get("events")['V_m']
+        Vms = multimeter.get("events")["V_m"]
 
         if TEST_PLOTS:
             fig, ax = plt.subplots(2, 1)
-            ax[0].plot(ts, Vms, label='V_m')
+            ax[0].plot(ts, Vms, label="V_m")
             for _ax in ax:
-                _ax.legend(loc='upper right')
+                _ax.legend(loc="upper right")
                 _ax.grid()
             plt.savefig("/tmp/nestml_nest_split_simulation_test_[T_sim=" + str(T_sim) + "]_[split=" + str(split) + "].png")
 

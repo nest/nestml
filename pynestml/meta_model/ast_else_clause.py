@@ -18,29 +18,28 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+from typing import List
+
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
 
 
 class ASTElseClause(ASTNode):
-    """
+    r"""
     This class is used to store a single else-clause.
-    Grammar:
-        elseClause : 'else' BLOCK_OPEN block;
-    Attributes:
-        block = None
     """
 
-    def __init__(self, block, *args, **kwargs):
+    def __init__(self, stmts_body: ASTStmtsBody, *args, **kwargs):
         """
         Standard constructor.
 
         Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
 
-        :param block: a block of statements.
-        :type block: ast_block
+        :param stmts_body: a body of statements.
         """
         super(ASTElseClause, self).__init__(*args, **kwargs)
-        self.block = block
+        self.stmts_body = stmts_body
 
     def clone(self):
         """
@@ -49,10 +48,10 @@ class ASTElseClause(ASTNode):
         :return: new AST node instance
         :rtype: ASTElseClause
         """
-        block_dup = None
-        if self.block:
-            block_dup = self.block.clone()
-        dup = ASTElseClause(block=block_dup,
+        stmts_body_dup = None
+        if self.stmts_body:
+            stmts_body_dup = self.stmts_body.clone()
+        dup = ASTElseClause(stmts_body=stmts_body_dup,
                             # ASTNode common attributes:
                             source_position=self.source_position,
                             scope=self.scope,
@@ -63,36 +62,28 @@ class ASTElseClause(ASTNode):
 
         return dup
 
-    def get_block(self):
+    def get_stmts_body(self) -> ASTStmtsBody:
         """
-        Returns the block of statements.
-        :return: the block of statements.
-        :rtype: ast_block
+        Returns the body of statements.
+        :return: the body of statements.
         """
-        return self.block
+        return self.stmts_body
 
-    def get_parent(self, ast):
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
-        """
-        if self.get_block() is ast:
-            return self
-        if self.get_block().get_parent(ast) is not None:
-            return self.get_block().get_parent(ast)
-        return None
+        if self.get_stmts_body():
+            return [self.get_stmts_body()]
 
-    def equals(self, other):
-        """
-        The equals method.
-        :param other: a different object.
-        :type other: object
-        :return: True if equal, otherwise False.
-        :rtype: bool
+        return []
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTElseClause):
             return False
-        return self.get_block().equals(other.get_block())
+
+        return self.get_stmts_body().equals(other.get_stmts_body())

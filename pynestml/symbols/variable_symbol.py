@@ -77,9 +77,8 @@ class VariableSymbol(Symbol):
         is_recordable         Indicates whether this symbol belongs to a recordable element. Type: bool
         type_symbol           The concrete type of this variable.
         ode_declaration       Used to store the corresponding ode declaration.
-        is_conductance_based  Indicates whether this buffer is conductance based.
         initial_value         Indicates the initial value if such is declared.
-        variable_type         The type of the variable, either a kernel, or buffer or function. Type: VariableType
+        variable_type         The type of the variable, either a buffer or function. Type: VariableType
     """
 
     def __init__(self, element_reference=None, scope: Scope=None, name: str=None, block_type: BlockType=None,
@@ -145,7 +144,7 @@ class VariableSymbol(Symbol):
     def get_namespace_decorator(self, namespace):
         if namespace in self.namespace_decorators.keys():
             return self.namespace_decorators[namespace]
-        return ''
+        return ""
 
     def has_vector_parameter(self):
         """
@@ -160,7 +159,7 @@ class VariableSymbol(Symbol):
         Returns whether this variable has a delay value associated with it.
         :return: bool
         """
-        return self.delay_parameter is not None and type(self.delay_parameter) == str
+        return self.delay_parameter is not None and isinstance(self.delay_parameter, str)
 
     def get_block_type(self):
         """
@@ -306,15 +305,14 @@ class VariableSymbol(Symbol):
         if self.get_referenced_object() is not None:
             source_position = str(self.get_referenced_object().get_source_position())
         else:
-            source_position = 'predefined'
-        vector_value = self.get_vector_parameter() if self.has_vector_parameter() else 'none'
+            source_position = "predefined"
+        vector_value = self.get_vector_parameter() if self.has_vector_parameter() else "none"
         typ_e = self.get_type_symbol().print_symbol()
-        recordable = 'recordable, ' if self.is_recordable else ''
-        func = 'inline, ' if self.is_inline_expression else ''
-        conductance_based = 'conductance based, ' if self.is_conductance_based else ''
-        return 'VariableSymbol[' + self.get_symbol_name() + ', type=' \
-               + typ_e + ', ' + str(self.block_type) + ', ' + recordable + func + conductance_based \
-               + 'array parameter=' + vector_value + ', @' + source_position + ')'
+        recordable = "recordable, " if self.is_recordable else ""
+        func = "inline, " if self.is_inline_expression else ""
+        return "VariableSymbol[" + self.get_symbol_name() + ", type=" \
+               + typ_e + ", " + str(self.block_type) + ", " + recordable + func \
+               + "array parameter=" + vector_value + ", @" + source_position + ")"
 
     def get_type_symbol(self):
         """
@@ -345,9 +343,9 @@ class VariableSymbol(Symbol):
 
     def get_ode_or_kernel(self):
         """
-        Returns the ODE or kernel defining the value of this variable symbol.
+        Returns the ODE defining the value of this variable symbol.
         :return: the rhs defining the value.
-        :rtype: ASTExpression or ASTSimpleExpression or ASTKernel
+        :rtype: ASTExpression or ASTSimpleExpression
         """
         return self.ode_or_kernel
 
@@ -358,23 +356,6 @@ class VariableSymbol(Symbol):
         :type expression: ASTExpression
         """
         self.ode_or_kernel = expression
-
-    def is_conductance_based(self) -> bool:
-        """
-        Indicates whether this element is conductance based, based on the physical units of the spike input port. If the unit can be cast to Siemens, the function returns True, otherwise it returns False.
-
-        :return: True if conductance based, otherwise False.
-        """
-        is_cond_based = self.type_symbol.is_castable_to(UnitTypeSymbol(unit=PredefinedUnits.get_unit("S")))
-        is_curr_based = self.type_symbol.is_castable_to(UnitTypeSymbol(unit=PredefinedUnits.get_unit("A")))
-        if is_cond_based == is_curr_based:
-            code, message = Messages.get_could_not_determine_cond_based(
-                type_str=self.type_symbol.print_nestml_type(), name=self.name)
-            Logger.log_message(node=None, code=code, message=message, log_level=LoggingLevel.WARNING,
-                               error_position=ASTSourceLocation.get_added_source_position())
-            return False
-
-        return is_cond_based
 
     def get_variable_type(self):
         """
@@ -425,7 +406,7 @@ class VariableSymbol(Symbol):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        return (type(self) != type(other)
+        return (isinstance(other, type(self))
                 and self.get_referenced_object() == other.get_referenced_object()
                 and self.get_symbol_name() == other.get_symbol_name()
                 and self.get_corresponding_scope() == other.get_corresponding_scope()
@@ -434,7 +415,6 @@ class VariableSymbol(Symbol):
                 and self.declaring_expression == other.declaring_expression
                 and self.is_predefined == other.is_predefined
                 and self.is_inline_expression == other.is_inline_expression
-                and self.is_conductance_based == other.is_conductance_based
                 and self.is_recordable == other.is_recordable)
 
     def print_comment(self, prefix: str = "") -> str:
@@ -442,11 +422,11 @@ class VariableSymbol(Symbol):
         Prints the stored comment.
         :return: the corresponding comment.
         """
-        ret = ''
+        ret = ""
         if not self.has_comment():
-            return ''
+            return ""
         # in the last part, delete the new line if it is the last comment, otherwise there is an ugly gap
         # between the comment and the element
         for comment in self.get_comment():
-            ret += prefix + comment + ('\n' if self.get_comment().index(comment) < len(self.get_comment()) - 1 else '')
+            ret += prefix + comment + ("\n" if self.get_comment().index(comment) < len(self.get_comment()) - 1 else "")
         return ret

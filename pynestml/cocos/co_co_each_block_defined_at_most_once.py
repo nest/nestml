@@ -22,8 +22,7 @@
 from typing import Union
 
 from pynestml.cocos.co_co import CoCo
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_synapse import ASTSynapse
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
@@ -44,50 +43,50 @@ class CoCoEachBlockDefinedAtMostOnce(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node: Union[ASTNeuron, ASTSynapse]):
+    def check_co_co(cls, node: ASTModel):
         """
         Checks whether each block is define at most once.
         :param node: a single neuron or synapse.
         """
         if len(node.get_state_blocks()) > 1:
-            code, message = Messages.get_block_not_defined_correctly('State', False)
+            code, message = Messages.get_block_not_defined_correctly("State", False)
             Logger.log_message(code=code, message=message, node=node, error_position=node.get_source_position(),
                                log_level=LoggingLevel.ERROR)
         # check that update block is defined at most once
         if len(node.get_update_blocks()) > 1:
-            code, message = Messages.get_block_not_defined_correctly('Update', False)
+            code, message = Messages.get_block_not_defined_correctly("Update", False)
             Logger.log_message(code=code, message=message, node=node, error_position=node.get_source_position(),
                                log_level=LoggingLevel.ERROR)
         # check that parameters block is defined at most once
         if len(node.get_parameters_blocks()) > 1:
-            code, message = Messages.get_block_not_defined_correctly('Parameters', False)
+            code, message = Messages.get_block_not_defined_correctly("Parameters", False)
             Logger.log_message(code=code, message=message, node=node, error_position=node.get_source_position(),
                                log_level=LoggingLevel.ERROR)
         # check that internals block is defined at most once
         if len(node.get_internals_blocks()) > 1:
-            code, message = Messages.get_block_not_defined_correctly('Internals', False)
+            code, message = Messages.get_block_not_defined_correctly("Internals", False)
             Logger.log_message(code=code, message=message, node=node, error_position=node.get_source_position(),
                                log_level=LoggingLevel.ERROR)
         # check that equations block is defined at most once
         if len(node.get_equations_blocks()) > 1:
-            code, message = Messages.get_block_not_defined_correctly('Equations', False)
+            code, message = Messages.get_block_not_defined_correctly("Equations", False)
             Logger.log_message(code=code, message=message, node=node, error_position=node.get_source_position(),
                                log_level=LoggingLevel.ERROR)
         # check that input block is defined at most once
         if len(node.get_input_blocks()) > 1:
-            code, message = Messages.get_block_not_defined_correctly('Input', False)
+            code, message = Messages.get_block_not_defined_correctly("Input", False)
             Logger.log_message(code=code, message=message, node=node, error_position=node.get_source_position(),
                                log_level=LoggingLevel.ERROR)
         elif len(node.get_input_blocks()) == 0:
-            code, message = Messages.get_block_not_defined_correctly('Input', True)
+            code, message = Messages.get_block_not_defined_correctly("Input", True)
             Logger.log_message(code=code, message=message, node=node, error_position=node.get_source_position(),
                                log_level=LoggingLevel.WARNING)
         # check that output block is defined at most once
         if len(node.get_output_blocks()) > 1:
-            code, message = Messages.get_block_not_defined_correctly('Output', False)
+            code, message = Messages.get_block_not_defined_correctly("Output", False)
             Logger.log_message(code=code, message=message, node=node, error_position=node.get_source_position(),
                                log_level=LoggingLevel.ERROR)
         elif len(node.get_output_blocks()) == 0:
-            code, message = Messages.get_block_not_defined_correctly('Output', True)
+            code, message = Messages.get_block_not_defined_correctly("Output", True)
             Logger.log_message(code=code, message=message, node=node, error_position=node.get_source_position(),
                                log_level=LoggingLevel.WARNING)

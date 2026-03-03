@@ -39,7 +39,7 @@ class CoCoFunctionArgumentTemplateTypesConsistent(CoCo):
         """
         Ensures the coco for the handed over neuron.
         :param neuron: a single neuron instance.
-        :type neuron: ASTNeuron
+        :type neuron: ASTModel
         """
         neuron.accept(CorrectTemplatedArgumentTypesVisitor())
 
@@ -58,7 +58,7 @@ class CorrectTemplatedArgumentTypesVisitor(ASTVisitor):
         :rtype None:
         """
         assert isinstance(node, ASTSimpleExpression), \
-            '(PyNestML.Visitor.FunctionCallVisitor) No or wrong type of simple expression provided (%s)!' % tuple(node)
+            "(PyNestML.Visitor.FunctionCallVisitor) No or wrong type of simple expression provided (%s)!" % tuple(node)
         assert (node.get_scope() is not None), \
             "(PyNestML.Visitor.FunctionCallVisitor) No scope found, run symboltable creator!"
         scope = node.get_scope()

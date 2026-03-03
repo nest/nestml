@@ -1,0 +1,28 @@
+{
+    "@context": "https://w3id.org/codemeta/3.0",
+    "type": "SoftwareSourceCode",
+    "applicationCategory": "computational neuroscience",
+    "codeRepository": "https://github.com/nest/nestml/",
+    "description": "NESTML is a domain-specific language for neuron and synapse models. These dynamical models can be used in simulations of brain activity on several platforms, in particular NEST Simulator.\n\nNESTML combines an easy to understand, yet powerful syntax, with good simulation performance by means of code generation, through a flexible and user-friendly toolchain.",
+    "funder": {
+        "type": "Organization",
+        "name": "Jülich Research Centre GmbH, Jülich, Germany"
+    },
+    "keywords": [
+        "neuron",
+        "synapse",
+        "neuroscience",
+        "neural network",
+        "spiking"
+    ],
+    "license": "https://spdx.org/licenses/GPL-2.0-only",
+    "name": "NESTML",
+    "programmingLanguage": "Python",
+    "codemeta:contIntegration": {
+        "id": "https://github.com/nest/nestml/"
+    },
+    "continuousIntegration": "https://github.com/nest/nestml/",
+    "issueTracker": "https://github.com/nest/nestml/issues",
+    "version": "8.2.0-post-dev"
+}
+
