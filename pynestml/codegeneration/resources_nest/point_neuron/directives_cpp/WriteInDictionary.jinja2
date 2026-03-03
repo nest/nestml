@@ -6,4 +6,5 @@ Write a value into a dictionary.
 def< {{ variable_type }} >({{ dict_name }}, {{ variable_name }}, {{ value }});
 {%- else %}
 {{ dict_name }}[ "{{ variable_name }}" ] = {{ value }};
+{%- endif %}
 {%- endmacro -%}

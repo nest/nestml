@@ -1,3 +1,5 @@
+{%- import 'directives_cpp/RemoveFromDictionary.jinja2' as remove_from_dictionary with context %}
+
 /*
  *  cm_tree.cpp
  *
@@ -88,13 +90,15 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
   , n_passed( 0 )
 {
 
-  updateValue< double >( compartment_params, names::C_m, ca );
-  updateValue< double >( compartment_params, names::g_C, gc );
-  updateValue< double >( compartment_params, names::g_L, gl );
-  updateValue< double >( compartment_params, names::e_L, el );
+{{ read_from_dictionary.ReadFromDictionary("compartment_params", "double", "names::C_m", "ca", false, "") }}
+{{ read_from_dictionary.ReadFromDictionary("compartment_params", "double", "names::g_C", "gc", false, "") }}
+{{ read_from_dictionary.ReadFromDictionary("compartment_params", "double", "names::g_L", "gl", false, "") }}
+{{ read_from_dictionary.ReadFromDictionary("compartment_params", "double", "names::e_L", "el", false, "") }}
   double v_comp_update = el;
-  if( compartment_params->known( "v_comp" ) ) updateValue< double >( compartment_params, "v_comp", v_comp_update);
-
+  if( {{ exists_in_dictionary.ExistsInDictionary("compartment_params", "v_comp") }} )
+  {
+{{ read_from_dictionary.ReadFromDictionary("compartment_params", "double", "v_comp", "v_comp_update", false, "") }}
+  }
   *v_comp = v_comp_update;
 }
 
@@ -178,69 +182,84 @@ void
 nest::CompTree{{cm_unique_suffix}}::add_compartment( const long parent_index, const DictionaryDatum& compartment_params )
 {
   //Check whether all passed parameters exist within the used neuron model:
+{%- if not nest_version.startswith("master") %}
   Dictionary* comp_param_copy = new Dictionary(*compartment_params);
-
-  comp_param_copy->remove(names::C_m);
-  comp_param_copy->remove(names::g_C);
-  comp_param_copy->remove(names::g_L);
-  comp_param_copy->remove(names::e_L);
-  comp_param_copy->remove("v_comp");
+{%- else %}
+  Dictionary comp_param_copy = compartment_params;
+{%- endif %}
+  {{ remove_from_dictionary.RemoveFromDictionary("comp_param_copy", "names::C_m") }}
+  {{ remove_from_dictionary.RemoveFromDictionary("comp_param_copy", "names::g_C") }}
+  {{ remove_from_dictionary.RemoveFromDictionary("comp_param_copy", "names::g_L") }}
+  {{ remove_from_dictionary.RemoveFromDictionary("comp_param_copy", "names::e_L") }}
+  {{ remove_from_dictionary.RemoveFromDictionary("comp_param_copy", "v_comp") }}
 {%- for ion_channel_name, channel_info in chan_info.items() %}
   {%- for variable_type, variable_info in channel_info["Parameters"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
-  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  if( {{ exists_in_dictionary.ExistsInDictionary("comp_param_copy", variable.name) }} ) )
+      {{ remove_from_dictionary.RemoveFromDictionary("comp_param_copy", variable.name) }}
   {%- endfor %}
   {%- for variable_type, variable_info in channel_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
-  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  if( {{ exists_in_dictionary.ExistsInDictionary("comp_param_copy", variable.name) }} ) )
+      {{ remove_from_dictionary.RemoveFromDictionary("comp_param_copy", variable.name) }}
   {%- endfor %}
   {%- for variable_type, variable_info in channel_info["ODEs"].items() %}
-  if( comp_param_copy->known( "{{variable_type}}" ) ) comp_param_copy->remove("{{variable_type}}");
+  if( {{ exists_in_dictionary.ExistsInDictionary("comp_param_copy", variable_type) }} ) )
+      {{ remove_from_dictionary.RemoveFromDictionary("comp_param_copy", variable_type) }}
   {%- endfor %}
 {%- endfor %}
 {%- for concentration_name, concentration_info in conc_info.items() %}
   {%- for variable_type, variable_info in concentration_info["Parameters"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
-  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  if( {{ exists_in_dictionary.ExistsInDictionary("comp_param_copy", variable.name) }} ) )
+      {{ remove_from_dictionary.RemoveFromDictionary("comp_param_copy", variable.name) }}
   {%- endfor %}
 {%- endfor %}
 {%- for concentration_name, concentration_info in conc_info.items() %}
   {%- for variable_type, variable_info in concentration_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
-  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  if( {{ exists_in_dictionary.ExistsInDictionary("comp_param_copy", variable.name) }} ) )
+      {{ remove_from_dictionary.RemoveFromDictionary("comp_param_copy", variable.name) }}
   {%- endfor %}
   {%- for variable_type, variable_info in concentration_info["ODEs"].items() %}
-  if( comp_param_copy->known( "{{variable_type}}" ) ) comp_param_copy->remove("{{variable_type}}");
+  if( {{ exists_in_dictionary.ExistsInDictionary("comp_param_copy", variable_type) }} ) )
+      {{ remove_from_dictionary.RemoveFromDictionary("comp_param_copy", variable_type) }}
   {%- endfor %}
 {%- endfor %}
 {%- for synapse_name, synapse_info in syns_info.items() %}
   {%- for variable_type, variable_info in synapse_info["Parameters"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
-  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  if( {{ exists_in_dictionary.ExistsInDictionary("comp_param_copy", variable.name) }} ) )
+      {{ remove_from_dictionary.RemoveFromDictionary("comp_param_copy", variable.name) }}
   {%- endfor %}
 {%- endfor %}
 {%- for synapse_name, synapse_info in syns_info.items() %}
   {%- for variable_type, variable_info in synapse_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
-  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  if( {{ exists_in_dictionary.ExistsInDictionary("comp_param_copy", variable.name) }} ) )
+      {{ remove_from_dictionary.RemoveFromDictionary("comp_param_copy", variable.name) }}
   {%- endfor %}
   {%- for variable_type, variable_info in synapse_info["ODEs"].items() %}
-  if( comp_param_copy->known( "{{variable_type}}" ) ) comp_param_copy->remove("{{variable_type}}");
+  if( {{ exists_in_dictionary.ExistsInDictionary("comp_param_copy", variable_type) }} ) )
+      {{ remove_from_dictionary.RemoveFromDictionary("comp_param_copy", variable_type) }}
   {%- endfor %}
 {%- endfor %}
 {%- for continuous_name, continuous_info in con_in_info.items() %}
   {%- for variable_type, variable_info in continuous_info["Parameters"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
-  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  if( {{ exists_in_dictionary.ExistsInDictionary("comp_param_copy", variable.name) }} ) )
+      {{ remove_from_dictionary.RemoveFromDictionary("comp_param_copy", variable.name) }}
   {%- endfor %}
   {%- for variable_type, variable_info in continuous_info["ODEs"].items() %}
-  if( comp_param_copy->known( "{{variable_type}}" ) ) comp_param_copy->remove("{{variable_type}}");
+  if( {{ exists_in_dictionary.ExistsInDictionary("comp_param_copy", variable_type) }} ) )
+      {{ remove_from_dictionary.RemoveFromDictionary("comp_param_copy", variable_type) }}
   {%- endfor %}
 {%- endfor %}
 {%- for continuous_name, continuous_info in con_in_info.items() %}
   {%- for variable_type, variable_info in continuous_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
-  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  if( {{ exists_in_dictionary.ExistsInDictionary("comp_param_copy", variable.name) }} ) )
+      {{ remove_from_dictionary.RemoveFromDictionary("comp_param_copy", variable.name) }}
   {%- endfor %}
 {%- endfor %}
 

@@ -93,8 +93,10 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "ring_buffer.h"
 #include "universal_data_logger.h"
 
+{%- if not nest_version.startswith("master")  %}
 // Includes from sli:
 #include "dictdatum.h"
+{%- endif %}
 
 // uncomment the next line to enable printing of detailed debug information
 // #define DEBUG
@@ -108,6 +110,10 @@ namespace nest
 {
 namespace {{names_namespace}}
 {
+{%- if nest_version.startswith("master")  %}
+    typedef std::string Name;
+{%- endif  %}
+
 {%- if neuron.get_state_symbols()|length > 0 %}
     // state variables
 {%-     for sym in neuron.get_state_symbols() %}
@@ -1124,7 +1130,7 @@ inline void {{neuronName}}::get_status({{ dictionary }}&__d) const
 {%-       else %}
 {%-       set size = utils.get_numeric_vector_size(port) %}
 {%-         for i in range(size)  %}
-    {{ write_in_dictionary.WriteInDictionary("__receptor_types", "long", port.get_symbol_name().upper() + "_" + i, ns.rport + i + 1) }}
+    {{ write_in_dictionary.WriteInDictionary("__receptor_types", "long", port.get_symbol_name().upper() + "_" + i|string, ns.rport + i + 1) }}
 {%-         endfor %}
 {%-       endif %}
 {%-     endfor %}
@@ -1212,12 +1218,12 @@ inline void {{neuronName}}::set_status(const {{ dictionary }}&__d)
 
 {% if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
-  updateValue< double >(__d, nest::{{ neuronName }}_names::gsl_abs_error_tol, P_.__gsl_abs_error_tol);
+  {{ read_from_dictionary.ReadFromDictionary("__d", "double", "nest::" + neuronName + "_names::_gsl_abs_error_tol", "P_.__gsl_abs_error_tol", false, "") }}
   if ( P_.__gsl_abs_error_tol <= 0. )
   {
     throw nest::BadProperty( "The gsl_abs_error_tol must be strictly positive." );
   }
-  updateValue< double >(__d, nest::{{ neuronName }}_names::gsl_rel_error_tol, P_.__gsl_rel_error_tol);
+  {{ read_from_dictionary.ReadFromDictionary("__d", "double", "nest::" + neuronName + "_names::gsl_rel_error_tol", "P_.__gsl_rel_error_tol", false, "") }}
   if ( P_.__gsl_rel_error_tol < 0. )
   {
     throw nest::BadProperty( "The gsl_rel_error_tol must be zero or positive." );

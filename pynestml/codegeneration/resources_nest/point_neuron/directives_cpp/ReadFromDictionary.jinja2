@@ -1,0 +1,18 @@
+{#
+Read a value from a dictionary.
+#}
+{%- macro ReadFromDictionary(dict_name, variable_type, key, value, udpate_param, node) -%}
+{%- if not nest_version.startswith("master")  %}
+{%-   if updateParam %}
+nest::updateValueParam<{{variable_type}}>({{ dict_name }}, {{ key }}, {{ value }}, node);
+{%-   else  %}
+updateValue<{{variable_type}}>({{ dict_name }}, {{ key }}, {{ value }});
+{%-   endif %}
+{%- else %}
+{%-   if updateParam %}
+update_value_param({{ dict_name }}, {{ key }}, {{ value }}, node);
+{%-   else %}
+{{ dict_name }}.update_value({{ key }}, {{ value }});
+{%-   endif  %}
+{%- endif  %}
+{%- endmacro -%}

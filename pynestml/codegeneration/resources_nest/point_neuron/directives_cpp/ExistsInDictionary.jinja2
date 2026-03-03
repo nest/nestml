@@ -1,0 +1,10 @@
+{#
+Checks if a key is present in a dictionary.
+#}
+{%- macro ExistsInDictionary(dict_name, key) -%}
+{%-   if not nest_version.startswith("master")  %}
+{{ dict_name }}->known("{{ key }}")
+{%-   else %}
+{{ dict_name }}.known("{{ key }}")
+{%-   endif %}
+{%- endmacro -%}

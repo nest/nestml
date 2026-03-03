@@ -1,0 +1,10 @@
+{#
+Removes an entry from the dictionary.
+#}
+{%- macro RemoveFromDictionary(dict_name, key) -%}
+{%-   if not nest_version.startswith("master")  %}
+{{ dict_name }}->remove("{{ key }}");
+{%-   else %}
+{{ dict_name }}.erase("{{ key }}");
+{%-   endif %}
+{%- endmacro -%}
