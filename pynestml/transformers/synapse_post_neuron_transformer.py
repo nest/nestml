@@ -302,7 +302,6 @@ class SynapsePostNeuronTransformer(Transformer):
                     var_base_name = var.name[:-len(var_name_suffix)]   # prune the suffix
                     if CodeGeneratorUtils.is_post_port(var_base_name, neuron.name, synapse.name, neuron_synapse_pairs=self._options["neuron_synapse_pairs"]):
                         post_ports.append(var)
-                        var._is_post_port = True
 
             mark_node.accept(ASTHigherOrderVisitor(lambda x: mark_post_port(x)))
             return post_ports

@@ -1065,10 +1065,7 @@ class NESTCodeGenerator(CodeGenerator):
                 orig_synapse_name = orig_synapse_name.removesuffix(FrontendConfiguration.suffix)
 
                 if "neuron_synapse_pairs" in self._options.keys():
-                    for neuron_synapse_pair in self._options["neuron_synapse_pairs"]:
-                        if neuron_synapse_pair["neuron"] == orig_neuron_name and neuron_synapse_pair["synapse"] == orig_synapse_name and "post_ports" in neuron_synapse_pair.keys() and orig_port_name in neuron_synapse_pair["post_ports"]:
-                            is_post_port = True
-                            break
+                    is_post_port = CodeGeneratorUtils.is_post_port(orig_port_name, orig_neuron_name, orig_synapse_name, neuron_synapse_pairs=self._options["neuron_synapse_pairs"])
 
             if is_post_port:
                 orig_port_name = spike_input_port_name[:spike_input_port_name.index("__for_")]
@@ -1088,8 +1085,7 @@ class NESTCodeGenerator(CodeGenerator):
                         continue    # skip adding the statement if we are only adding zero
 
                     assignment_str = kernel_spike_buf_name + " += "
-                    if "_is_post_port" in dir(spike_input_port.get_variable()) \
-                       and spike_input_port.get_variable()._is_post_port:
+                    if is_post_port:
                         assignment_str += "1."
                     else:
                         assignment_str += "(" + str(spike_input_port) + ")"
@@ -1106,7 +1102,7 @@ class NESTCodeGenerator(CodeGenerator):
                     if neuron.get_scope().resolve_to_symbol(spike_input_port_name, SymbolKind.VARIABLE) is None:
                         # this case covers variables that were moved from synapse to the neuron
                         post_spike_updates[kernel_var.get_name()] = ast_assignment
-                    elif "_is_post_port" in dir(spike_input_port.get_variable()) and spike_input_port.get_variable()._is_post_port:
+                    elif is_post_port:
                         Logger.log_message(None, None, "Adding post assignment string: " + str(ast_assignment), None, LoggingLevel.INFO)
                         spike_updates[str(spike_input_port)].append(ast_assignment)
                     else:
@@ -1122,8 +1118,17 @@ class NESTCodeGenerator(CodeGenerator):
                 factor_expr.accept(ASTSymbolTableVisitor())
                 assignment_str += "(" + self._printer_no_origin.print(factor_expr) + ") * "
 
-            if "_is_post_port" in dir(inport) and inport._is_post_port:
-                orig_port_name = inport[:inport.index("__for_")]
+            is_post_port = False
+            if "__with_" in neuron.name:
+                orig_port_name = inport.name.split("__for_")[0]
+                orig_neuron_name, orig_synapse_name = neuron.name.split("__with_")
+                orig_neuron_name = orig_neuron_name.removesuffix(FrontendConfiguration.suffix)
+                orig_synapse_name = orig_synapse_name.removesuffix(FrontendConfiguration.suffix)
+
+                if "neuron_synapse_pairs" in self._options.keys():
+                    is_post_port = CodeGeneratorUtils.is_post_port(orig_port_name, orig_neuron_name, orig_synapse_name, neuron_synapse_pairs=self._options["neuron_synapse_pairs"])
+
+            if is_post_port:
                 buffer_type = metadata[neuron.name]["paired_synapse"].get_scope().resolve_to_symbol(orig_port_name, SymbolKind.VARIABLE).get_type_symbol()
             else:
                 buffer_type = neuron.get_scope().resolve_to_symbol(inport.get_name(), SymbolKind.VARIABLE).get_type_symbol()
