@@ -54,7 +54,10 @@ class TestTimeVariable:
         logging_level = "DEBUG"
         suffix = "_nestml"
 
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("master"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
         generate_nest_target(input_path,
                              target_path=target_path,
                              logging_level=logging_level,
@@ -113,7 +116,10 @@ class TestTimeVariable:
         nest.Connect(nrn[0], sr_pre)
         nest.Connect(nrn[1], sr_post)
 
-        nest.set_verbosity("M_FATAL")
+        if not NESTTools.detect_nest_version().startswith("master"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
 
         T_sim = 50.    # [ms]
         sim_interval = nest.resolution    # [ms]

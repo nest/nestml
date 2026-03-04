@@ -38,7 +38,10 @@ class TestNESTCanReadInternals:
         module_name = "nestmlmodule"
         suffix = "_nestml"
 
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("master"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
         generate_nest_target(input_path,
                              target_path=target_path,
                              logging_level=logging_level,

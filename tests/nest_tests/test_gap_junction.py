@@ -73,7 +73,10 @@ class TestGapJunction:
         sim_time = 100.   # [ms]
         pre_spike_times = [1., 16., 31.]    # [ms]
 
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("master"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
         nest.ResetKernel()
         nest.Install("nestml_gap_" + neuron_model + "_module")
 

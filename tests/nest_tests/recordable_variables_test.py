@@ -23,6 +23,8 @@ import numpy as np
 import unittest
 import os
 
+from pynestml.codegeneration.nest_tools import NESTTools
+
 # try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
     import matplotlib as mpl
@@ -54,7 +56,10 @@ class RecordableVariablesTest(unittest.TestCase):
                              logging_level=logging_level,
                              module_name=module_name,
                              suffix=suffix)
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("master"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
 
         nest.ResetKernel()
         nest.Install(module_name)

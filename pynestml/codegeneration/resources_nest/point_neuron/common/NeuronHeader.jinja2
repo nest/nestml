@@ -24,6 +24,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {%- import 'directives_cpp/FunctionDeclaration.jinja2' as function_declaration with context %}
 {%- import 'directives_cpp/OutputEvent.jinja2' as output_event with context %}
 {%- import 'directives_cpp/WriteInDictionary.jinja2' as write_in_dictionary with context %}
+{%- import 'directives_cpp/ReadFromDictionary.jinja2' as read_from_dictionary with context %}
 /**
  *  {{neuronName}}.h
  *
@@ -1126,16 +1127,16 @@ inline void {{neuronName}}::get_status({{ dictionary }}&__d) const
 {%-   set ns = namespace(rport=key) %}
 {%-     for port in ports  %}
 {%-       if not port.has_vector_parameter() %}
-    {{ write_in_dictionary.WriteInDictionary("__receptor_types", "long", port.get_symbol_name().upper(), ns.rport + 1) }}
+    {{ write_in_dictionary.WriteInDictionary("__receptor_types", "long", port.get_symbol_name().upper(), ns.rport + 1, true) }}
 {%-       else %}
 {%-       set size = utils.get_numeric_vector_size(port) %}
 {%-         for i in range(size)  %}
-    {{ write_in_dictionary.WriteInDictionary("__receptor_types", "long", port.get_symbol_name().upper() + "_" + i|string, ns.rport + i + 1) }}
+    {{ write_in_dictionary.WriteInDictionary("__receptor_types", "long", port.get_symbol_name().upper() + "_" + i|string, ns.rport + i + 1, true) }}
 {%-         endfor %}
 {%-       endif %}
 {%-     endfor %}
 {%-   endfor %}
-    {{ write_in_dictionary.WriteInDictionary("__d", "DictionaryDatum", "receptor_types", "__receptor_types") }}
+    {{ write_in_dictionary.WriteInDictionary("__d", "DictionaryDatum", "receptor_types", "__receptor_types", true) }}
 {%- endif %}
 
 {%- if (neuron.get_continuous_input_ports())|length > 1 %}
@@ -1218,7 +1219,7 @@ inline void {{neuronName}}::set_status(const {{ dictionary }}&__d)
 
 {% if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
-  {{ read_from_dictionary.ReadFromDictionary("__d", "double", "nest::" + neuronName + "_names::_gsl_abs_error_tol", "P_.__gsl_abs_error_tol", false, "") }}
+  {{ read_from_dictionary.ReadFromDictionary("__d", "double", "nest::" + neuronName + "_names::gsl_abs_error_tol", "P_.__gsl_abs_error_tol", false, "") }}
   if ( P_.__gsl_abs_error_tol <= 0. )
   {
     throw nest::BadProperty( "The gsl_abs_error_tol must be strictly positive." );

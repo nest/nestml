@@ -69,7 +69,10 @@ class TestIntegrateODEs:
         resolution: float = .1  # [ms]
         spike_interval = 5.  # [ms]
 
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("master"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
         nest.ResetKernel()
         nest.SetKernelStatus({"resolution": resolution})
         try:
@@ -125,7 +128,10 @@ class TestIntegrateODEs:
         sim_time: float = 100.  # [ms]
         resolution: float = .1  # [ms]
 
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("master"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
         nest.ResetKernel()
         nest.SetKernelStatus({"resolution": resolution})
         try:
@@ -174,7 +180,10 @@ class TestIntegrateODEs:
         sim_time: float = 100.  # [ms]
         resolution: float = .1  # [ms]
 
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("master"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
         nest.ResetKernel()
         nest.SetKernelStatus({"resolution": resolution})
         try:
@@ -240,7 +249,10 @@ class TestIntegrateODEs:
         """
         resolution = 0.1
         simtime = 15.
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("master"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
         nest.ResetKernel()
         nest.SetKernelStatus({"resolution": resolution})
         try:
@@ -295,7 +307,10 @@ class TestIntegrateODEs:
                        "tau_syn_ex": 40.0, "tau_syn_in": 20.0}
 
         for model in ["aeif_cond_alpha_alt_neuron_nestml", "aeif_cond_alpha"]:
-            nest.set_verbosity("M_ALL")
+            if not NESTTools.detect_nest_version().startswith("master"):
+                nest.set_verbosity("M_ALL")
+            else:
+                nest.verbosity = nest.VerbosityLevel.ALL
             nest.ResetKernel()
             nest.SetKernelStatus({"resolution": resolution})
             try:

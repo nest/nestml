@@ -25,6 +25,7 @@ import pytest
 
 import nest
 
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 # try to import matplotlib; set the result in the flag TEST_PLOTS
@@ -140,7 +141,10 @@ class TestNESTContinuousBenchmarking:
             sim_time = max(np.amax(pre_spike_times), np.amax(post_spike_times)) + 5 * delay
 
         nest.ResetKernel()
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("master"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
         nest.SetKernelStatus({"resolution": resolution})
 
         if sim_mdl:

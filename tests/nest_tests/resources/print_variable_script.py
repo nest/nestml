@@ -22,6 +22,7 @@
 import os
 import nest
 
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
@@ -36,7 +37,10 @@ generate_nest_target(input_path,
                      logging_level=logging_level,
                      module_name=module_name,
                      suffix=suffix)
-nest.set_verbosity("M_ALL")
+if not NESTTools.detect_nest_version().startswith("master"):
+    nest.set_verbosity("M_ALL")
+else:
+    nest.verbosity = nest.VerbosityLevel.ALL
 
 nest.ResetKernel()
 nest.Install(module_name)

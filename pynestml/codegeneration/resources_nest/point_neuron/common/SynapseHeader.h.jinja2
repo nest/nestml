@@ -1302,12 +1302,12 @@ set_delay(tmp_{{ nest_codegen_opt_delay_variable }});
 
 {% if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
-  {{ read_from_dictionary.ReadFromDictionary("__d", "double", synapseName + "_names::_gsl_abs_error_tol", "P_.__gsl_abs_error_tol", false, "") }}
+  {{ read_from_dictionary.ReadFromDictionary("__d", "double", synapseName + "_names::gsl_abs_error_tol", "P_.__gsl_abs_error_tol", false, "") }}
   if ( P_.__gsl_abs_error_tol <= 0. )
   {
     throw nest::BadProperty( "The gsl_abs_error_tol must be strictly positive." );
   }
-  {{ read_from_dictionary.ReadFromDictionary("__d", "double", synapseName + "_names::_gsl_rel_error_tol", "tmp_" + "P_.__gsl_rel_error_tol", false, "") }}
+  {{ read_from_dictionary.ReadFromDictionary("__d", "double", synapseName + "_names::gsl_rel_error_tol", "P_.__gsl_rel_error_tol", false, "") }}
   if ( P_.__gsl_rel_error_tol < 0. )
   {
     throw nest::BadProperty( "The gsl_rel_error_tol must be zero or positive." );

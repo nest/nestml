@@ -25,6 +25,7 @@ import os
 import tempfile
 import unittest
 
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
@@ -75,7 +76,10 @@ class NestInstallExistingModule(unittest.TestCase):
         self.assertEqual(actual_found_module[0], expected_found_module)
 
         # install module
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("master"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
         nest.ResetKernel()
         nest.Install(module_name)
 

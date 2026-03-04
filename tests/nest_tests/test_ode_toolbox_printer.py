@@ -46,7 +46,10 @@ class TestODEToolboxprinter:
                         reason="This test does not support NEST 2")
     def test_ode_toolbox_printer(self):
         nest.ResetKernel()
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("master"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
         nest.Install("nestmlmodule")
 
         # create spike_generators with these times

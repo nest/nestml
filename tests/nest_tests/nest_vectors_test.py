@@ -47,7 +47,10 @@ class TestNestVectorsIntegration:
                              target_path=target_path,
                              logging_level=logging_level,
                              suffix=suffix)
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("master"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
 
         nest.ResetKernel()
         try:
@@ -92,7 +95,10 @@ class TestNestVectorsIntegration:
                              target_path=target_path,
                              logging_level=logging_level,
                              suffix=suffix)
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("master"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
 
         nest.ResetKernel()
         try:
@@ -103,5 +109,3 @@ class TestNestVectorsIntegration:
 
         neuron = nest.Create("vector_resize_nestml", params={"N": 200})
         neuron.set(x=[1.0, 1.0, 4.0])
-
-        nest.Simulate(10)

@@ -49,11 +49,11 @@ class TestTraubCondMultiSyn:
         module_name = "nestmlmodule"
         suffix = "_nestml"
 
-        generate_nest_target(input_path,
-                             target_path=target_path,
-                             logging_level="INFO",
-                             suffix=suffix,
-                             module_name=module_name)
+        # generate_nest_target(input_path,
+        #                      target_path=target_path,
+        #                      logging_level="INFO",
+        #                      suffix=suffix,
+        #                      module_name=module_name)
 
         nest.ResetKernel()
         nest.Install("nestmlmodule")
@@ -104,7 +104,7 @@ class TestTraubCondMultiSyn:
         nest.Connect(neuron1, spike_recorder)
         nest.Simulate(t_simulation)
 
-        dmm = nest.GetStatus(multimeter)[1]
+        dmm = nest.GetStatus(multimeter[1])[0]
         Voltages = dmm["events"]["V_m"]
         tv = dmm["events"]["times"]
 

@@ -92,7 +92,10 @@ class TestPlasticSynapseWeightSign:
             post_spike_times = pre_spike_times - 10.
 
         nest.ResetKernel()
-        nest.set_verbosity("M_ERROR")
+        if not NESTTools.detect_nest_version().startswith("master"):
+            nest.set_verbosity("M_ERROR")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ERROR
 
         nest.Install("nestmlmodule")
 

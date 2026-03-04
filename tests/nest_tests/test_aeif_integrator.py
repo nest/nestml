@@ -43,7 +43,10 @@ class TestAEIFIntegrator_with_respect_to_solution:
         logging_level = "DEBUG"
         suffix = "_nestml"
 
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("master"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
 
         generate_nest_target(input_path,
                              logging_level=logging_level,

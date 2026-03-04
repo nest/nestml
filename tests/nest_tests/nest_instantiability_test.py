@@ -24,6 +24,8 @@ import nest
 import numpy as np
 import unittest
 
+from pynestml.codegeneration.nest_tools import NESTTools
+
 
 def strip_suffix(names_list, suffix):
     new_names_list = []
@@ -41,7 +43,10 @@ class NestInstantiabilityTest(unittest.TestCase):
         # N.B. all models are assumed to have been already built (see .travis.yml)
 
         nest.ResetKernel()
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("master"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
         nest.Install("nestml_allmodels_module")
 
         models = nest.Models(mtype="nodes")
