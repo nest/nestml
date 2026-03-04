@@ -276,8 +276,8 @@ class ASTNodeFactory:
         return instance
 
     @classmethod
-    def create_ast_model(cls, name: str, body: ASTModelBody, source_position: ASTSourceLocation, artifact_name: str) -> ASTModel:
-        return ASTModel(name, body, artifact_name, source_position=source_position)
+    def create_ast_model(cls, name: str, body: ASTModelBody, source_position: ASTSourceLocation, artifact_name: str, file_path: str) -> ASTModel:
+        return ASTModel(name, body, artifact_name, file_path, source_position=source_position)
 
     @classmethod
     def create_ast_ode_equation(cls, lhs, rhs, source_position, decorators=None):

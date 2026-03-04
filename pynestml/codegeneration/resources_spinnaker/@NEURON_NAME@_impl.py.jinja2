@@ -1,5 +1,5 @@
 #
-#  {{neuronName}}_impl.py
+#  {{ neuronName }}_impl.py
 #
 #  This file is part of NEST.
 #
@@ -27,8 +27,22 @@ from spynnaker.pyNN.models.neuron.implementations import AbstractNeuronImpl
 
 from spinn_utilities.overrides import overrides
 
-class {{neuronName}}Impl(AbstractNeuronImpl):
+#!!
+import os
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
+
+
+class {{ neuronName }}Impl(AbstractNeuronImpl):
+    r"""
+    Generated sPyNNaker class for the model: {{ neuronName }}
+
+    Model docstring:
+
+{% filter indent(4) %}
+    {{ neuron.print_comment() }}
+{%- endfilter %}
+    """
     def __init__(self,
                  # state:
 {%- for sym in neuron.get_state_symbols() %}
@@ -36,6 +50,10 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 {%- endfor %}
                  # parameters:
 {%- for sym in neuron.get_parameter_symbols() %}
+                 {{sym.get_symbol_name()}},
+{%- endfor %}
+                 # internals:
+{%- for sym in neuron.get_internal_symbols() %}
                  {{sym.get_symbol_name()}},
 {%- endfor %}
                  # spike input ports:
@@ -46,10 +64,6 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 {%- for sym in neuron.get_continuous_input_ports() %}
                  {{sym.get_symbol_name()}},
 {%- endfor %}
-                 # internals:
-{%- for sym in neuron.get_internal_symbols() %}
-                 {{ sym.get_symbol_name() }},
-{%- endfor %}
                 ):
 
         # state:
@@ -58,6 +72,10 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 {%- endfor %}
         # parameters:
 {%- for sym in neuron.get_parameter_symbols() %}
+        self._{{sym.get_symbol_name()}} = {{sym.get_symbol_name()}}
+{%- endfor %}
+        # internals:
+{%- for sym in neuron.get_internal_symbols() %}
         self._{{sym.get_symbol_name()}} = {{sym.get_symbol_name()}}
 {%- endfor %}
         # spike input ports:
@@ -105,12 +123,14 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
     @property
     @overrides(AbstractNeuronImpl.model_name)
     def model_name(self):
-        return "{{neuronName}}Impl"
+        return "{{ neuronName }}Impl"
 
     @property
     @overrides(AbstractNeuronImpl.binary_name)
     def binary_name(self):
-        return "{{neuronName}}_impl.aplx"
+        s: str = "{{ neuronName }}_impl.aplx"
+        print("The aplx file for this neuron is: " + s)
+        return s
 
     @overrides(AbstractNeuronImpl.get_global_weight_scale)
     def get_global_weight_scale(self):
@@ -193,6 +213,9 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 {%- for sym in neuron.get_parameter_symbols() %}
         parameters["{{sym.get_symbol_name()}}"] = self._{{sym.get_symbol_name()}}
 {%- endfor %}
+{%- for sym in neuron.get_internal_symbols() %}
+        parameters["{{sym.get_symbol_name()}}"] = self._{{sym.get_symbol_name()}}
+{%- endfor %}
 
     @overrides(AbstractNeuronImpl.add_state_variables)
     def add_state_variables(self, state_variables):
@@ -227,14 +250,25 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 {%- endfor %}
         # parameters:
 {%- for sym in neuron.get_parameter_symbols() %}
-{%- with type_symbol = sym.get_type_symbol() %}
+{%-     with type_symbol = sym.get_type_symbol() %}
         if variable == "{{sym.get_symbol_name()}}":
-{%- if type_symbol.is_instance_of(UnitTypeSymbol)%}
+{%-         if type_symbol.is_instance_of(UnitTypeSymbol)%}
             return "{{sym.get_type_symbol().astropy_unit}}"
-{%- else %}
+{%-         else %}
             return ""
-{%- endif%}
-{%- endwith%}
+{%-         endif %}
+{%-     endwith %}
+{%- endfor %}
+        # internals:
+{%- for sym in neuron.get_internal_symbols() %}
+{%-     with type_symbol = sym.get_type_symbol() %}
+        if variable == "{{sym.get_symbol_name()}}":
+{%-         if type_symbol.is_instance_of(UnitTypeSymbol)%}
+            return "{{sym.get_type_symbol().astropy_unit}}"
+{%-         else %}
+            return ""
+{%-         endif %}
+{%-     endwith %}
 {%- endfor %}
         # spike input ports:
 {%- for sym in neuron.get_spike_input_ports() %}
@@ -249,17 +283,6 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 {%- endfor %}
         # continuous input ports:
 {%- for sym in neuron.get_continuous_input_ports() %}
-{%- with type_symbol = sym.get_type_symbol() %}
-        if variable == "{{sym.get_symbol_name()}}":
-{%- if type_symbol.is_instance_of(UnitTypeSymbol)%}
-            return "{{sym.get_type_symbol().astropy_unit}}"
-{%- else %}
-            return ""
-{%- endif%}
-{%- endwith%}
-{%- endfor %}
-        # internal parameters:
-{%- for sym in neuron.get_internal_symbols() %}
 {%- with type_symbol = sym.get_type_symbol() %}
         if variable == "{{sym.get_symbol_name()}}":
 {%- if type_symbol.is_instance_of(UnitTypeSymbol)%}

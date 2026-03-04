@@ -46,7 +46,7 @@ class ASTModel(ASTNode):
     This class is used to stuff common to neurons and synapses
     """
 
-    def __init__(self, name: str, body: ASTModelBody, artifact_name=None, *args, **kwargs):
+    def __init__(self, name: str, body: ASTModelBody, artifact_name=None, file_path=None, *args, **kwargs):
         """
         Standard constructor.
 
@@ -68,6 +68,7 @@ class ASTModel(ASTNode):
         self.name = name
         self.body = body
         self.artifact_name = artifact_name
+        self.file_path = file_path
 
     def clone(self):
         """
@@ -79,6 +80,7 @@ class ASTModel(ASTNode):
         dup = ASTModel(name=self.name,
                        body=self.body.clone(),
                        artifact_name=self.artifact_name,
+                       file_path=self.file_path,
                        # ASTNode common attributes:
                        source_position=self.source_position,
                        scope=self.scope,

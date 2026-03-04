@@ -168,6 +168,7 @@ class CodeGenerator(WithOptions):
         """
         from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
+
         for synapse in synapses:
             self.generate_synapse_code(synapse)
             code, message = Messages.get_code_generated(synapse.get_name(), FrontendConfiguration.get_target_path())
