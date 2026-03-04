@@ -1,4 +1,4 @@
 {
-   "nest_path": "${{ env.NEST_INSTALL }}",
-   "nest_version": "${{ matrix.nest_branch }}"
+   "nest_path": "%NEST_PATH%",
+   "nest_version": "%NEST_VERSION%"
 }
