@@ -209,7 +209,7 @@ public:
       NodeCollectionPTR vt_ptr;
 {%-   else %}
       NodeCollectionDatum vt_ptr;
-{%- endif %}
+{%-   endif %}
       if( {{ read_from_dictionary.ReadFromDictionary("d", "NodeCollectionDatum", "names::volume_transmitter", "vt_ptr", false, "") }}
       {
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
@@ -1229,7 +1229,6 @@ void
 {%- endif %}
 
 {%- if nest_codegen_opt_delay_variable != "delay" %}
-{%-   if not nest_version.startswith("master")  %}
   if ({{ exists_in_dictionary.ExistsInDictionary("__d", synapseName + "_names::_" + nest_codegen_opt_delay_variable) }} and {{ exists_in_dictionary.ExistsInDictionary("__d", "names::delay") }})
   {
     throw BadProperty( "To prevent inconsistencies, please set either 'delay' or '{{ nest_codegen_opt_delay_variable }}' variable; not both at the same time." );

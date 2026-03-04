@@ -3,16 +3,16 @@ Read a value from a dictionary.
 #}
 {%- macro ReadFromDictionary(dict_name, variable_type, key, value, udpate_param, node) -%}
 {%- if not nest_version.startswith("master")  %}
-{%-   if updateParam %}
+{%-   if updateParam -%}
 nest::updateValueParam<{{variable_type}}>({{ dict_name }}, {{ key }}, {{ value }}, node);
-{%-   else  %}
+{%-   else  -%}
 updateValue<{{variable_type}}>({{ dict_name }}, {{ key }}, {{ value }});
-{%-   endif %}
+{%-   endif -%}
 {%- else %}
-{%-   if updateParam %}
+{%-   if updateParam -%}
 update_value_param({{ dict_name }}, {{ key }}, {{ value }}, node);
-{%-   else %}
+{%-   else -%}
 {{ dict_name }}.update_value({{ key }}, {{ value }});
-{%-   endif  %}
-{%- endif  %}
+{%-   endif  -%}
+{%- endif  -%}
 {%- endmacro -%}

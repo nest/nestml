@@ -5,6 +5,6 @@ Write a value into a dictionary.
 {%- if not nest_version.startswith("master")  %}
 def< {{ variable_type }} >({{ dict_name }}, {{ variable_name }}, {{ value }});
 {%- else %}
-{{ dict_name }}[ "{{ variable_name }}" ] = {{ value }};
+{{ dict_name }}[ {{ variable_name }} ] = {{ value }};
 {%- endif %}
 {%- endmacro -%}
