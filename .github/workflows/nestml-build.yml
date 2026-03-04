@@ -213,7 +213,7 @@ jobs:
       - name: Install apt dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install libltdl-dev libgsl0-dev libncurses5-dev libreadline6-dev pkg-config
+          sudo apt-get install libltdl-dev libgsl0-dev libncurses5-dev libreadline6-dev pkg-config libboost-dev libboost-filesystem-dev libboost-system-dev libboost-program-options-dev libboost-python-dev
           sudo apt-get install python3-all-dev python3-matplotlib python3-numpy python3-scipy ipython3
 
       - name: Install Python dependencies
@@ -314,7 +314,7 @@ jobs:
       - name: Install apt dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install libltdl-dev libgsl0-dev libncurses5-dev libreadline6-dev pkg-config
+          sudo apt-get install libltdl-dev libgsl0-dev libncurses5-dev libreadline6-dev pkg-config libboost-dev libboost-filesystem-dev libboost-system-dev libboost-program-options-dev libboost-python-dev
           sudo apt-get install python3-all-dev python3-matplotlib python3-numpy python3-scipy ipython3
 
       - name: Install Python dependencies
