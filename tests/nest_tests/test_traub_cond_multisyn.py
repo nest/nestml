@@ -49,11 +49,11 @@ class TestTraubCondMultiSyn:
         module_name = "nestmlmodule"
         suffix = "_nestml"
 
-        # generate_nest_target(input_path,
-        #                      target_path=target_path,
-        #                      logging_level="INFO",
-        #                      suffix=suffix,
-        #                      module_name=module_name)
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level="INFO",
+                             suffix=suffix,
+                             module_name=module_name)
 
         nest.ResetKernel()
         nest.Install("nestmlmodule")

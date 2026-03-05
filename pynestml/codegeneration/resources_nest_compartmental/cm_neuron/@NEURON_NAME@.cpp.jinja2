@@ -124,7 +124,7 @@ void
 void
 nest::{{neuronSpecificFileNamesCmSyns["main"]}}::set_status( const {{ dictionary }}& statusdict )
 {
-  {{ read_from_dictionary.ReadFromDictionary("statusdict", "double", "names::V_th", "V_th_", "", false) }}
+  {{ read_from_dictionary.ReadFromDictionary("statusdict", "double", "names::V_th", "V_th_", "", false) }};
   ArchivingNode::set_status( statusdict );
 
 {%  filter indent(4) %}

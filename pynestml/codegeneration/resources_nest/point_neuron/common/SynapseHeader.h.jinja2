@@ -210,7 +210,7 @@ public:
 {%-   else %}
       NodeCollectionDatum vt_ptr;
 {%-   endif %}
-      if( {{ read_from_dictionary.ReadFromDictionary("d", "NodeCollectionDatum", "names::volume_transmitter", "vt_ptr", "", false) }}
+      if( {{ read_from_dictionary.ReadFromDictionary("d", "NodeCollectionDatum", "names::volume_transmitter", "vt_ptr", "", false) }})
       {
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
         const size_t tid = kernel().vp_manager.get_thread_id();
@@ -218,9 +218,9 @@ public:
         const thread tid = kernel().vp_manager.get_thread_id();
 {%- endif %}
 {%- if nest_version.startswith("v2") %}
-        Node* vt = kernel().node_manager.get_node( ( *vt_datum )[ 0 ], tid );
+        Node* vt = kernel().node_manager.get_node( ( *vt_ptr )[ 0 ], tid );
 {%- else %}
-        Node* vt = kernel().node_manager.get_node_or_proxy( ( *vt_datum )[ 0 ], tid );
+        Node* vt = kernel().node_manager.get_node_or_proxy( ( *vt_ptr )[ 0 ], tid );
 {%- endif %}
         vt_ = dynamic_cast< volume_transmitter* >( vt );
         if ( vt_ == nullptr )
@@ -1247,17 +1247,17 @@ void
 {%-         if variable.get_name() == nest_codegen_opt_delay_variable %}
 // special treatment of NEST delay
 double tmp_{{ nest_codegen_opt_delay_variable }} = get_delay();
-{{ read_from_dictionary.ReadFromDictionary("__d", "double", synapseName + "_names::_" + nest_codegen_opt_delay_variable, "tmp_" + nest_codegen_opt_delay_variable, "", false) }}
+{{ read_from_dictionary.ReadFromDictionary("__d", "double", synapseName + "_names::_" + nest_codegen_opt_delay_variable, "tmp_" + nest_codegen_opt_delay_variable, "", false) }};
 {%-         elif variable.get_name() == synapse_weight_variable %}
 // special treatment of NEST weight
 double tmp_{{ synapse_weight_variable }} = get_weight();
 if ({{ exists_in_dictionary.ExistsInDictionary("__d", synapseName + "_names::_" + synapse_weight_variable) }})
 {
-  {{ read_from_dictionary.ReadFromDictionary("__d", "double", synapseName + "_names::_" + synapse_weight_variable, "tmp_" + synapse_weight_variable, "", false) }}
+  {{ read_from_dictionary.ReadFromDictionary("__d", "double", synapseName + "_names::_" + synapse_weight_variable, "tmp_" + synapse_weight_variable, "", false) }};
 }
 if ({{ exists_in_dictionary.ExistsInDictionary("__d", "names::weight") }})
 {
-  {{ read_from_dictionary.ReadFromDictionary("__d", "double", "names::weight", "tmp_" + synapse_weight_variable, "", false) }}
+  {{ read_from_dictionary.ReadFromDictionary("__d", "double", "names::weight", "tmp_" + synapse_weight_variable, "", false) }};
 }
 {%-         else %}
 {%-             include "directives_cpp/ReadFromDictionaryToTmp.jinja2" %}
@@ -1302,12 +1302,12 @@ set_delay(tmp_{{ nest_codegen_opt_delay_variable }});
 
 {% if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
-  {{ read_from_dictionary.ReadFromDictionary("__d", "double", synapseName + "_names::gsl_abs_error_tol", "P_.__gsl_abs_error_tol", "", false) }}
+  {{ read_from_dictionary.ReadFromDictionary("__d", "double", synapseName + "_names::gsl_abs_error_tol", "P_.__gsl_abs_error_tol", "", false) }};
   if ( P_.__gsl_abs_error_tol <= 0. )
   {
     throw nest::BadProperty( "The gsl_abs_error_tol must be strictly positive." );
   }
-  {{ read_from_dictionary.ReadFromDictionary("__d", "double", synapseName + "_names::gsl_rel_error_tol", "P_.__gsl_rel_error_tol", "", false) }}
+  {{ read_from_dictionary.ReadFromDictionary("__d", "double", synapseName + "_names::gsl_rel_error_tol", "P_.__gsl_rel_error_tol", "", false) }};
   if ( P_.__gsl_rel_error_tol < 0. )
   {
     throw nest::BadProperty( "The gsl_rel_error_tol must be zero or positive." );

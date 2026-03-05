@@ -6,7 +6,7 @@ Checks if a key is present in a dictionary.
 {%-     if key_as_str  -%}
 {{ dict_name }}->known("{{ key }}")
 {%-     else -%}
-{{ dict_name }}->known("{{ key }}")
+{{ dict_name }}->known({{ key }})
 {%-     endif %}
 
 {%-   else -%}

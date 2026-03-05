@@ -4,15 +4,15 @@ Read a value from a dictionary.
 {%- macro ReadFromDictionary(dict_name, variable_type, key, value, node, update_param=true) -%}
 {%- if not nest_version.startswith("master")  %}
 {%-   if update_param -%}
-nest::updateValueParam<{{variable_type}}>({{ dict_name }}, {{ key }}, {{ value }}, {{ node }});
+nest::updateValueParam<{{variable_type}}>({{ dict_name }}, {{ key }}, {{ value }}, {{ node }})
 {%-   else  -%}
-updateValue<{{variable_type}}>({{ dict_name }}, {{ key }}, {{ value }});
+updateValue<{{variable_type}}>({{ dict_name }}, {{ key }}, {{ value }})
 {%-   endif -%}
 {%- else %}
 {%-   if update_param -%}
-update_value_param({{ dict_name }}, {{ key }}, {{ value }}, {{ node }});
+update_value_param({{ dict_name }}, {{ key }}, {{ value }}, {{ node }})
 {%-   else -%}
-{{ dict_name }}.update_value({{ key }}, {{ value }});
+{{ dict_name }}.update_value({{ key }}, {{ value }})
 {%-   endif  -%}
 {%- endif  -%}
 {%- endmacro -%}

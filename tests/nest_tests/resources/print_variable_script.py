@@ -38,9 +38,9 @@ generate_nest_target(input_path,
                      module_name=module_name,
                      suffix=suffix)
 if not NESTTools.detect_nest_version().startswith("master"):
-    nest.set_verbosity("M_ALL")
+    nest.set_verbosity("M_ERROR")
 else:
-    nest.verbosity = nest.VerbosityLevel.ALL
+    nest.verbosity = nest.VerbosityLevel.ERROR
 
 nest.ResetKernel()
 nest.Install(module_name)
