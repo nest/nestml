@@ -1083,7 +1083,10 @@ void
   const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}();
 {%-     endfor %}
 {%- endif %}
-
+  auto get_thread = [tid]()
+  {
+    return tid;
+  };
   // process dopa spikes in (t0, t1]
   // propagate weight from t0 to t1
   if ( ( vt_spikes.size() > vt_spikes_idx_ + 1 )
