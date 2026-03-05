@@ -17,4 +17,28 @@ enum StateVecVars {
 {%-         endif %}
 {%-     endif %}
 {%- endfor %}
+
+
+
+
+
+{%- if has_state_vectors and recordable_inline_expressions | length > 0 %}
+    // add recordable inline expressions
+{%-     for variable_symbol in recordable_inline_expressions %}
+{%-         set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+      {{ variable_symbol.get_symbol_name().upper() }} = {{ ns.count }},
+{%-         if variable.has_vector_parameter() %}
+{%-             set size = utils.get_numeric_vector_size(variable) %}
+{%-             set ns.count = ns.count + size %}
+{%-         else %}
+{%-             set ns.count = ns.count + 1 %}
+{%-         endif %}
+{%-     endfor %}
+{%- endif %}
+
+
+
+
+
+
 };
