@@ -66,22 +66,22 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "kernel_manager.h"
 #include "universal_data_logger_impl.h"
 
+{%- if not nest_version.startswith("master") %}
 // Includes from sli:
 #include "dict.h"
 #include "dictutils.h"
+{%- endif %}
 
 #include <functional>
 
-{%- if not nest_version.startswith("master") %}
-  {%- set dictionary = "DictionaryDatum" %}
-{%- else %}
-  {%- set dictionary = "Dictionary" %}
+{%- if nest_version.startswith("master") %}
+typedef Dictionary DictionaryDatum;
+typedef std::string Name;
 {%- endif %}
 
 namespace nest
 {
 {%- if nest_version.startswith("master") %}
-typedef std::string Name;
 {%- endif %}
 
 class Compartment{{cm_unique_suffix}}
@@ -124,7 +124,7 @@ public:
   Compartment{{cm_unique_suffix}}( const long compartment_index, const long parent_index);
   Compartment{{cm_unique_suffix}}( const long compartment_index, const long parent_index,
     double* v_comp_ref, double* ca__div__dt_ref, double* gl__times__el_ref, double* gg0_ref, double* gg_ref, double* ff_ref);
-  Compartment{{cm_unique_suffix}}( const long compartment_index, const long parent_index, const {{ dictionary }}& compartment_params,
+  Compartment{{cm_unique_suffix}}( const long compartment_index, const long parent_index, const DictionaryDatum& compartment_params,
     double* v_comp_ref, double* ca__div__dt_ref, double* gl__times__el_ref, double* gg0_ref, double* gg_ref, double* ff_ref);
   ~Compartment{{cm_unique_suffix}}(){};
 
@@ -221,7 +221,7 @@ public:
 
   // initialization functions for tree structure
   void add_compartment( const long parent_index );
-  void add_compartment( const long parent_index, const {{ dictionary }}& compartment_params );
+  void add_compartment( const long parent_index, const DictionaryDatum& compartment_params );
   void add_compartment( Compartment{{cm_unique_suffix}}* compartment, const long parent_index );
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
   void calibrate();

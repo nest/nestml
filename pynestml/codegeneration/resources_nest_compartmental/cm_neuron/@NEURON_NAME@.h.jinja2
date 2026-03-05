@@ -32,6 +32,12 @@
 #include "{{neuronSpecificFileNamesCmSyns["neuroncurrents"]}}.h"
 #include "{{neuronSpecificFileNamesCmSyns["tree"]}}.h"
 
+{%- if nest_version.startswith("master") %}
+typedef Dictionary DictionaryDatum;
+typedef std::vector< Dictionary > ArrayDatum;
+typedef std::string Name;
+{%- endif %}
+
 namespace nest
 {
 
@@ -231,18 +237,8 @@ EndUserDocs
 void register_{{ neuronSpecificFileNamesCmSyns["main"] }}( const std::string& name );
 {%- endif %}
 
-{%- if not nest_version.startswith("master") %}
-  {%- set dictionary = "DictionaryDatum" %}
-{%- else %}
-  {%- set dictionary = "Dictionary" %}
-{%- endif %}
-
 class {{neuronSpecificFileNamesCmSyns["main"]}} : public ArchivingNode
 {
-{%- if nest_version.startswith("master") %}
-typedef std::string Name;
-{%- endif %}
-
 public:
   {{neuronSpecificFileNamesCmSyns["main"]}}();
   {{neuronSpecificFileNamesCmSyns["main"]}}( const {{neuronSpecificFileNamesCmSyns["main"]}}& );
@@ -260,12 +256,12 @@ public:
   size_t handles_test_event( CurrentEvent&, size_t );
   size_t handles_test_event( DataLoggingRequest&, size_t );
 
-  void get_status( {{ dictionary }}& );
-  void set_status( const {{ dictionary }}& );
+  void get_status( DictionaryDatum& );
+  void set_status( const DictionaryDatum& );
 
 private:
-  void add_compartment_( {{ dictionary }}& dd );
-  void add_receptor_( {{ dictionary }}& dd );
+  void add_compartment_( const DictionaryDatum& dd );
+  void add_receptor_( const DictionaryDatum& dd );
 
   void init_recordables_pointers_();
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}

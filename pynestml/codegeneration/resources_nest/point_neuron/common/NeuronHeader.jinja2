@@ -101,10 +101,8 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 // uncomment the next line to enable printing of detailed debug information
 // #define DEBUG
-{%- if not nest_version.startswith("master") %}
-  {%- set dictionary = "DictionaryDatum" %}
-{%- else %}
-  {%- set dictionary = "Dictionary" %}
+{%- if nest_version.startswith("master") %}
+typedef Dictionary DictionaryDatum;
 {%- endif %}
 
 namespace nest
@@ -382,8 +380,8 @@ public:
   //   Functions for getting/setting parameters and state values.
   // -------------------------------------------------------------------------
 
-  void get_status({{ dictionary }}&) const override;
-  void set_status(const {{ dictionary }}&) override;
+  void get_status(DictionaryDatum&) const override;
+  void set_status(const DictionaryDatum&) override;
 
 {% if paired_synapse is defined %}
   // support for spike archiving
@@ -1086,7 +1084,7 @@ inline nest_port_t {{neuronName}}::handles_test_event(nest::DataLoggingRequest& 
   return B_.logger_.connect_logging_device(dlr, recordablesMap_);
 }
 
-inline void {{neuronName}}::get_status({{ dictionary }}&__d) const
+inline void {{neuronName}}::get_status(DictionaryDatum&__d) const
 {
   // parameters
 {%- for variable_symbol in neuron.get_parameter_symbols() %}
@@ -1153,7 +1151,7 @@ inline void {{neuronName}}::get_status({{ dictionary }}&__d) const
     {{ write_in_dictionary.WriteInDictionary("__d", "DictionaryDatum", "continuous_inputs", "__continuous_input_type", true) }}
 {%- endif %}
 
-  {{ write_in_dictionary.WriteInDictionary("__d", "ArrayDatum", "nest::names::recordables", "recordablesMap_.get_list()", true) }}
+  {{ write_in_dictionary.WriteInDictionary("__d", "ArrayDatum", "nest::names::recordables", "recordablesMap_.get_list()") }}
 {%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
   {{ write_in_dictionary.WriteInDictionary("__d", "double", "nest::" + names_namespace + "::gsl_abs_error_tol", "P_.__gsl_abs_error_tol") }}
@@ -1168,7 +1166,7 @@ inline void {{neuronName}}::get_status({{ dictionary }}&__d) const
 {%- endif %}
 }
 
-inline void {{neuronName}}::set_status(const {{ dictionary }}&__d)
+inline void {{neuronName}}::set_status(const DictionaryDatum&__d)
 {
   // parameters
 {%- for variable_symbol in neuron.get_parameter_symbols() %}

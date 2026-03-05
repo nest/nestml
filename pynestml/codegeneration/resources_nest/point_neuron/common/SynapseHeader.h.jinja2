@@ -96,9 +96,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {%- endif %}
 
 {%- if not nest_version.startswith("master") %}
-  {%- set dictionary = "DictionaryDatum" %}
-{%- else %}
-  {%- set dictionary = "Dictionary" %}
+typedef Dictionary DictionaryDatum;
 {%- endif %}
 
 /** @BeginDocumentation
@@ -169,7 +167,7 @@ public:
     /**
      * Get all properties and put them into a dictionary.
      */
-    void get_status( {{ dictionary }}& d ) const
+    void get_status( DictionaryDatum& d ) const
     {
         CommonSynapseProperties::get_status( d );
 
@@ -189,7 +187,7 @@ public:
     /**
      * Set properties from the values given in dictionary.
      */
-    void set_status( const {{ dictionary }}& d, ConnectorModel& cm )
+    void set_status( const DictionaryDatum& d, ConnectorModel& cm )
     {
       CommonSynapseProperties::set_status( d, cm );
 
@@ -1048,9 +1046,9 @@ void get_entry_from_continuous_variable_history(double t,
 {%- endif %}
   }
 
-  void get_status( {{ dictionary }}& d ) const;
+  void get_status( DictionaryDatum& d ) const;
 
-  void set_status( const {{ dictionary }}& d, ConnectorModel& cm );
+  void set_status( const DictionaryDatum& d, ConnectorModel& cm );
 
 {%- if norm_rng %}
 {%- if nest_version.startswith("v2") %}
@@ -1177,7 +1175,7 @@ void
 
 template < typename targetidentifierT >
 void
-{{synapseName}}< targetidentifierT >::get_status( {{ dictionary }}& __d ) const
+{{synapseName}}< targetidentifierT >::get_status( DictionaryDatum& __d ) const
 {
   ConnectionBase::get_status( __d );
   {{ write_in_dictionary.WriteInDictionary("__d", "long", "names::size_of", "sizeof( *this )") }}
@@ -1218,7 +1216,7 @@ void
 
 template < typename targetidentifierT >
 void
-{{synapseName}}< targetidentifierT >::set_status( const {{ dictionary }}& __d,
+{{synapseName}}< targetidentifierT >::set_status( const DictionaryDatum& __d,
   ConnectorModel& cm )
 {
 {%- if synapse_weight_variable|length > 0 and synapse_weight_variable != "weight" %}

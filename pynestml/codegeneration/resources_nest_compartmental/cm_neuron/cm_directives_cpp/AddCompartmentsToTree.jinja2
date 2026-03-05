@@ -49,9 +49,9 @@ if ( {{ exists_in_dictionary.ExistsInDictionary("statusdict", "names::compartmen
 {%- else %}
     if ( is_type< std::vector< Dictionary > >( statusdict.at( names::compartments ) ) )
     {
-      const auto compartments = statusdict.get< std::vector< Dictionary > >( names::compartments );
+      auto compartments = statusdict.get< std::vector< Dictionary > >( names::compartments );
       // A list of compartments is provided, we add them all to the tree
-      for ( const auto& compartment_dict : compartments )
+      for ( auto& compartment_dict : compartments )
       {
         add_compartment_( compartment_dict );
       }

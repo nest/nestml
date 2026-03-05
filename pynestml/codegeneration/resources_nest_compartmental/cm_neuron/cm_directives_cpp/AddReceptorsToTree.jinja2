@@ -46,8 +46,8 @@ if ( {{ exists_in_dictionary.ExistsInDictionary("statusdict", "names::receptors"
 {%- else %}
     if ( is_type< std::vector< Dictionary > >( statusdict.at( names::receptors ) ) )
     {
-      const auto receptors = statusdict.get< std::vector< Dictionary > >( names::receptors );
-      for ( const auto& receptor_dict : receptors )
+      auto receptors = statusdict.get< std::vector< Dictionary > >( names::receptors );
+      for ( auto& receptor_dict : receptors )
       {
         add_receptor_( receptor_dict );
       }

@@ -99,7 +99,6 @@ print(nest_version, file=sys.stderr)
             process = subprocess.Popen(cmd, stderr=subprocess.PIPE)
             stdout, stderr = process.communicate()
             nest_version = stderr.decode("UTF-8").strip()
-            nest_version = "master"
 
         if nest_version == "":
             Logger.log_message(None, -1,
