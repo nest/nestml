@@ -21,17 +21,19 @@
 
 from __future__ import annotations
 
-from typing import Any, Sequence, Mapping, Optional, Union
+from typing import Any, Sequence, Mapping, Optional, Set, Union
 
-from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
-from pynestml.meta_model.ast_assignment import ASTAssignment
+from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
+from pynestml.meta_model.ast_for_stmt import ASTForStmt
+from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.transformers.transformer import Transformer
@@ -316,6 +318,32 @@ class SynapsePostNeuronTransformer(Transformer):
 
         # exclude all variables that depend on the ones that are not to be moved
         strictly_synaptic_vars_dependent = ASTUtils.recursive_dependent_variables_search(strictly_synaptic_vars, synapse)
+
+        # exclude variables that are written to inside compound blocks
+        for input_block in new_synapse.get_input_blocks():
+            for port in input_block.get_input_ports():
+                if self.is_post_port(port.name, new_neuron.name, new_synapse.name):
+                    post_receive_blocks = ASTUtils.get_on_receive_blocks_by_input_port_name(new_synapse, port.name)
+                    for post_receive_block in post_receive_blocks:
+
+                        class VariablesAssignedToInCompoundBlocksVisitor(ASTVisitor):
+                            r"""Find variables assigned to in compound blocks"""
+                            def __init__(self):
+                                super().__init__()
+                                self.variables_assigned_to_in_compound_block: Set[str] = set()
+
+                            def visit_small_stmt(self, node):
+                                if node.is_assignment() \
+                                   and (ASTUtils.find_parent_node_by_type(node, ASTIfStmt)
+                                        or ASTUtils.find_parent_node_by_type(node, ASTWhileStmt)
+                                        or ASTUtils.find_parent_node_by_type(node, ASTForStmt)
+                                        or ASTUtils.find_parent_node_by_type(node, ASTCompoundStmt)):
+                                    self.variables_assigned_to_in_compound_block.add(node.get_assignment().get_variable().get_complete_name())
+
+                        visitor = VariablesAssignedToInCompoundBlocksVisitor()
+                        post_receive_block.accept(visitor)
+
+                        strictly_synaptic_vars.extend(list(visitor.variables_assigned_to_in_compound_block))
 
         # do set subtraction
         syn_to_neuron_state_vars = list(set(all_state_vars) - (set(strictly_synaptic_vars) | set(convolve_with_not_post_vars) | set(strictly_synaptic_vars_dependent)))
