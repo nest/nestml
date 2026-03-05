@@ -66,9 +66,7 @@ class TestSynapseContinuousThirdFactorIsPostsynapticInlineExpression:
                 "neuron_parent_class_include": "structural_plasticity_node.h",
                 "neuron_synapse_pairs": [{
                     "neuron": self.neuron_model_name,
-                    "synapse": self.synapse_model_name,
-                    "post_ports": ["post_spikes", ("I_AMPA", "I_AMPA")],
-                }],
+                    "synapses": {self.synapse_model_name: {"post_ports": ["post_spikes", ("I_AMPA", "I_AMPA")]}}}],
                 "delay_variable": {self.synapse_model_name: "d"},
                 "weight_variable": {self.synapse_model_name: "w"},
                 "continuous_state_buffering_method": "post_spike_based"

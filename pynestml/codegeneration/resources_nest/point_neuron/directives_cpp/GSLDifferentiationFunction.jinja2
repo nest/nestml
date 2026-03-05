@@ -79,26 +79,36 @@ extern "C" inline int {{modelName}}_dynamics{% if ast.get_args() | length > 0 %}
 {%- endif %}
 
 {%- if neuronName is defined %}
-{%      set numeric_state_variables_to_be_integrated = numeric_state_variables + purely_numeric_state_variables_moved %}
+{%      set numeric_state_variables_to_be_integrated = numeric_state_variables.copy() %}
+{%      set all_variables = numeric_state_variables.copy() %}
+
+{%-     if paired_synapses is defined %}
+{%-         for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
+{%-             set tmp = numeric_state_variables_to_be_integrated.extend(purely_numeric_state_variables_moved[paired_synapse_original_model.name]) %}
+{%-             set tmp = all_variables.extend(numeric_state_variables_moved[paired_synapse_original_model.name]) %}
+{%-         endfor %}
+{%-     endif %}
+
 {%-     if ast.get_args() | length > 0 %}
 {%-         set numeric_state_variables_to_be_integrated = utils.filter_variables_list(numeric_state_variables_to_be_integrated, ast.get_args()) %}
 {%-     endif %}
-{%- for variable_name in numeric_state_variables + numeric_state_variables_moved %}
-{%-   set update_expr = numeric_update_expressions[variable_name] %}
-{%-   set variable_symbol = variable_symbols[variable_name] %}
-{%- if use_gap_junctions %}
+
+{%-     for variable_name in all_variables %}
+{%-         set update_expr = numeric_update_expressions[variable_name] %}
+{%-         set variable_symbol = variable_symbols[variable_name] %}
+{%-         if use_gap_junctions %}
   f[State_::{{ variable_symbol.get_symbol_name() }}] = {% if ast.get_args() | length > 0 %}{% if variable_name in numeric_state_variables_to_be_integrated + utils.all_convolution_variable_names(astnode) %}{{ gsl_printer.print(update_expr)|replace("node.B_.continuous_inputs_grid_sum_[" + gap_junction_port.upper() + "]", "(node.B_.continuous_inputs_grid_sum_[" + gap_junction_port.upper() + "] + __I_gap)") }}{% else %}0{% endif %}{% else %}{{ gsl_printer.print(update_expr)|replace("node.B_.continuous_inputs_grid_sum_[" + gap_junction_port.upper() + "]", "(node.B_.continuous_inputs_grid_sum_[" + gap_junction_port.upper() + "] + __I_gap)") }}{% endif %};
-{%- else %}
+{%-         else %}
   f[State_::{{ variable_symbol.get_symbol_name() }}] = {% if ast.get_args() | length > 0 %}{% if variable_name in numeric_state_variables_to_be_integrated + utils.all_convolution_variable_names(astnode) %}{{ gsl_printer.print(update_expr) }}{% else %}0{% endif %}{% else %}{{ gsl_printer.print(update_expr) }}{% endif %};
-{%- endif %}
-{%- endfor %}
+{%-         endif %}
+{%-     endfor %}
 
 {%- else %}
-{%- for variable_name in numeric_state_variables %}
-{%-   set update_expr = numeric_update_expressions[variable_name] %}
-{%-   set variable_symbol = variable_symbols[variable_name] %}
+{%-     for variable_name in numeric_state_variables %}
+{%-         set update_expr = numeric_update_expressions[variable_name] %}
+{%-         set variable_symbol = variable_symbols[variable_name] %}
   f[State_::{{ variable_symbol.get_symbol_name() }}] = {% if ast.get_args() | length > 0 %}{% if variable_name in utils.integrate_odes_args_strs_from_function_call(ast) + utils.all_convolution_variable_names(astnode) %}{{ gsl_printer_no_origin.print(update_expr) }}{% else %}0{% endif %}{% else %}{{ gsl_printer_no_origin.print(update_expr) }}{% endif %};
-{%- endfor %}
+{%-     endfor %}
 {%- endif %}
 
 {%- if numeric_solver == "rk45" %}

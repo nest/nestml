@@ -42,7 +42,7 @@ class TestVectorsSynapse:
                        for s in files]
         codegen_opts = {
             "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                      "synapse": "vectors_test_synapse"}],
+                                      "synapses": {"vectors_test_synapse": {}}}],
             "delay_variable": {"vectors_test_synapse": "d"},
             "weight_variable": {"vectors_test_synapse": "w"}
         }

@@ -61,9 +61,8 @@ class TestSimultaneousContinuousAndSpikeBasedNeuromodulation:
                              codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                            "neuron_parent_class_include": "structural_plasticity_node.h",
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_nonlineardendrite_neuron",
-                                                                     "synapse": "continuous_and_spike_based_neuromodulated_stdp_synapse",
-                                                                     "post_ports": ["post_spikes", ("dAP_trace", "dAP_trace")],
-                                                                     "vt_ports": ["mod_spikes"]}],
+                                                                     "synapses": {"continuous_and_spike_based_neuromodulated_stdp_synapse": {"post_ports": ["post_spikes", ("dAP_trace", "dAP_trace")],
+                                                                                                                                             "vt_ports": ["mod_spikes"]}}}],
                                            "continuous_state_buffering_method": "post_spike_based",
                                            "delay_variable": {"continuous_and_spike_based_neuromodulated_stdp_synapse": "d"},
                                            "weight_variable": {"continuous_and_spike_based_neuromodulated_stdp_synapse": "w"}})

@@ -58,10 +58,10 @@ class TestNestSTDPSynapse:
         """Generate the model code"""
 
         jit_codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                      "synapse": "stdp_synapse",
-                                                      "post_ports": ["post_spikes"]}],
+                                                      "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}}],
                             "delay_variable": {"stdp_synapse": "d"},
                             "weight_variable": {"stdp_synapse": "w"}}
+
         if not NESTTools.detect_nest_version().startswith("v2"):
             jit_codegen_opts["neuron_parent_class"] = "StructuralPlasticityNode"
             jit_codegen_opts["neuron_parent_class_include"] = "structural_plasticity_node.h"
@@ -72,8 +72,8 @@ class TestNestSTDPSynapse:
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,
-                             target_path="/tmp/nestml-jit",
-                             logging_level="INFO",
+                             target_path="test_stdp_synapse_target_structuralplasticitynode",
+                             logging_level="DEBUG",
                              module_name="nestml_jit_module",
                              suffix="_nestml",
                              codegen_opts=jit_codegen_opts)
@@ -88,8 +88,8 @@ class TestNestSTDPSynapse:
         # generate the "non-jit" model, that relies on ArchivingNode
         generate_nest_target(input_path=os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                       os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))),
-                             target_path="/tmp/nestml-non-jit",
-                             logging_level="INFO",
+                             target_path="test_stdp_synapse_target_archivingnode",
+                             logging_level="DEBUG",
                              module_name="nestml_non_jit_module",
                              suffix="_nestml_non_jit",
                              codegen_opts=non_jit_codegen_opts)
