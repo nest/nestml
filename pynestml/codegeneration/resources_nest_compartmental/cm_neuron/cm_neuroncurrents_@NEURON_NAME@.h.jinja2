@@ -38,9 +38,17 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {%- endwith -%}
 {%- endmacro %}
 
+{%- if not nest_version.startswith("master") %}
+  {%- set dictionary = "DictionaryDatum" %}
+{%- else %}
+  {%- set dictionary = "Dictionary" %}
+{%- endif %}
+
 namespace nest
 {
-
+{%- if nest_version.startswith("master") %}
+typedef std::string Name;
+{%- endif %}
 ///////////////////////////////////// channels
 
 {%- with %}
@@ -81,7 +89,7 @@ public:
     ~{{ion_channel_name}}{{cm_unique_suffix}}(){};
 
     void new_channel(std::size_t comp_ass);
-    void new_channel(std::size_t comp_ass, const DictionaryDatum& channel_params);
+    void new_channel(std::size_t comp_ass, const {{ dictionary }}& channel_params);
 
     //number of channels
     std::size_t neuron_{{ ion_channel_name }}_channel_count = 0;
@@ -161,7 +169,7 @@ public:
     ~{{ concentration_name }}{{cm_unique_suffix}}(){};
 
     void new_concentration(std::size_t comp_ass);
-    void new_concentration(std::size_t comp_ass, const DictionaryDatum& concentration_params);
+    void new_concentration(std::size_t comp_ass, const {{ dictionary }}& concentration_params);
 
     //number of channels
     std::size_t neuron_{{ concentration_name }}_concentration_count = 0;
@@ -273,7 +281,7 @@ public:
   ~{{synapse_name}}{{cm_unique_suffix}}(){};
 
   void new_synapse(std::size_t comp_ass, const long syn_index);
-  void new_synapse(std::size_t comp_ass, const long syn_index, const DictionaryDatum& synapse_params);
+  void new_synapse(std::size_t comp_ass, const long syn_index, const {{ dictionary }}& synapse_params);
 
   //number of synapses
   std::size_t neuron_{{ synapse_name }}_synapse_count = 0;
@@ -361,7 +369,7 @@ public:
   ~{{continuous_name}}{{cm_unique_suffix}}(){};
 
   void new_continuous_input(std::size_t comp_ass, const long con_in_index);
-  void new_continuous_input(std::size_t comp_ass, const long con_in_index, const DictionaryDatum& con_in_params);
+  void new_continuous_input(std::size_t comp_ass, const long con_in_index, const {{ dictionary }}& con_in_params);
 
   //number of continuous inputs
   std::size_t neuron_{{ continuous_name }}_continuous_input_count = 0;
@@ -612,7 +620,7 @@ public:
     }
   };
 
-  void add_mechanism( const std::string& type, const std::size_t compartment_id, const DictionaryDatum& mechanism_params, const long multi_mech_index = 0)
+  void add_mechanism( const std::string& type, const std::size_t compartment_id, const {{ dictionary }}& mechanism_params, const long multi_mech_index = 0)
   {
    {%- with %}
     bool mech_found = false;
@@ -683,7 +691,7 @@ public:
 
   };
 
-  void add_compartment(const DictionaryDatum& compartment_params){
+  void add_compartment(const {{ dictionary }}& compartment_params){
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     this->add_mechanism("{{ ion_channel_name }}", compartment_number, compartment_params);
     {% endfor -%}
@@ -716,7 +724,11 @@ public:
 {%- for synapse_name, synapse_info in syns_info.items() %}
     for( std::size_t syn_it = 0; syn_it != {{synapse_name}}{{synapse_suffix}}.neuron_{{synapse_name}}_synapse_count; syn_it++)
     {
+{%- if not nest_version.startswith("master") %}
       DictionaryDatum dd = DictionaryDatum( new Dictionary );
+{%- else %}
+      Dictionary dd;
+{%- endif %}
 {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::receptor_idx", "syn_it") }}
 {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::comp_idx", "compartment_index") }}
 {{ write_in_dictionary.WriteInDictionary("dd", "std::string", "names::receptor_type", "\"" + synapse_name + "\"") }}
@@ -727,7 +739,11 @@ public:
 {%- for continuous_name, continuous_info in con_in_info.items() %}
     for( std::size_t con_it = 0; con_it != {{continuous_name}}{{continuous_suffix}}.neuron_{{continuous_name}}_continuous_input_count; con_it++)
     {
+{%- if not nest_version.startswith("master") %}
       DictionaryDatum dd = DictionaryDatum( new Dictionary );
+{%- else %}
+      Dictionary dd;
+{%- endif %}
 {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::receptor_idx", "con_it") }}
 {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::comp_idx", "compartment_index") }}
 {{ write_in_dictionary.WriteInDictionary("dd", "std::string", "names::receptor_type", "\"" + continuous_name + "\"") }}

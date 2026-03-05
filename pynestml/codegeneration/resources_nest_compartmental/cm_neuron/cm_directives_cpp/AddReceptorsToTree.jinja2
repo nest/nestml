@@ -1,0 +1,67 @@
+{#
+Adds receptor(s) to a compartment.
+#}
+/**
+* Add a receptor (or receptors) to the tree, so that the new receptor
+* targets the compartment specified by "comp_idx". The compartment
+* has to be in the tree, otherwise an error will be raised.  We add either a
+* single receptor or multiple receptors, depending on wether the
+* entry was a list of dicts or a single dict
+*/
+if ( {{ exists_in_dictionary.ExistsInDictionary("statusdict", "names::receptors") }} )
+{
+    /**
+     * Until an operator to explicititly append receptors is added to the
+     * API, we disable this functionality
+     */
+    if ( long( syn_buffers_.size() ) > 0 )
+    {
+      throw BadProperty( "\"receptors\" is already defined for this model" );
+    }
+{%- if not nest_version.startswith("master") %}
+
+    Datum* dat = ( *statusdict )[ names::receptors ].datum();
+    ArrayDatum* ad = dynamic_cast< ArrayDatum* >( dat );
+    DictionaryDatum* dd = dynamic_cast< DictionaryDatum* >( dat );
+
+    if ( ad != nullptr )
+    {
+      for ( Token* tt = ( *ad ).begin(); tt != ( *ad ).end(); ++tt )
+      {
+        // cast the Datum pointer stored within token dynamically to a
+        // DictionaryDatum pointer
+        add_receptor_( *dynamic_cast< DictionaryDatum* >( tt->datum() ) );
+      }
+    }
+    else if ( dd != nullptr )
+    {
+      add_receptor_( *dd );
+    }
+    else
+    {
+      throw BadProperty(
+        "\"receptors\" entry could not be identified, provide "
+        "list of parameter dicts for multiple receptors" );
+    }
+{%- else %}
+    if ( is_type< std::vector< Dictionary > >( statusdict.at( names::receptors ) ) )
+    {
+      const auto receptors = statusdict.get< std::vector< Dictionary > >( names::receptors );
+      for ( const auto& receptor_dict : receptors )
+      {
+        add_receptor_( receptor_dict );
+      }
+    }
+    else if ( is_type< Dictionary >( statusdict.at( names::receptors ) ) )
+    {
+      add_receptor_( statusdict.get< Dictionary >( names::receptors ) );
+    }
+    else
+    {
+      throw BadProperty(
+        "\'receptors\' entry could not be identified, provide "
+        "list of parameter dicts for multiple receptors" );
+    }
+
+{%- endif %}
+}

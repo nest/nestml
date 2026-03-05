@@ -1,4 +1,6 @@
 {%- import 'directives_cpp/RemoveFromDictionary.jinja2' as remove_from_dictionary with context %}
+{%- import 'directives_cpp/ReadFromDictionary.jinja2' as read_from_dictionary with context %}
+{%- import 'directives_cpp/ExistsInDictionary.jinja2' as exists_in_dictionary with context %}
 
 /*
  *  cm_tree.cpp
@@ -22,6 +24,12 @@
  *
  */
 #include "{{neuronSpecificFileNamesCmSyns["tree"]}}.h"
+
+{%- if not nest_version.startswith("master") %}
+  {%- set dictionary = "DictionaryDatum" %}
+{%- else %}
+  {%- set dictionary = "Dictionary" %}
+{%- endif %}
 
 nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const long compartment_index, const long parent_index)
   : xx_( 0.0 )
@@ -69,7 +77,7 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
 }
 nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const long compartment_index,
   const long parent_index,
-  const DictionaryDatum& compartment_params,
+  const {{ dictionary }}& compartment_params,
   double* v_comp_ref, double* ca__div__dt_ref, double* gl__times__el_ref, double* gg0_ref, double* gg_ref, double* ff_ref)
   : xx_( 0.0 )
   , yy_( 0.0 )
@@ -90,14 +98,14 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
   , n_passed( 0 )
 {
 
-{{ read_from_dictionary.ReadFromDictionary("compartment_params", "double", "names::C_m", "ca", false, "") }}
-{{ read_from_dictionary.ReadFromDictionary("compartment_params", "double", "names::g_C", "gc", false, "") }}
-{{ read_from_dictionary.ReadFromDictionary("compartment_params", "double", "names::g_L", "gl", false, "") }}
-{{ read_from_dictionary.ReadFromDictionary("compartment_params", "double", "names::e_L", "el", false, "") }}
+{{ read_from_dictionary.ReadFromDictionary("compartment_params", "double", "names::C_m", "ca", "", false) }}
+{{ read_from_dictionary.ReadFromDictionary("compartment_params", "double", "names::g_C", "gc", "", false) }}
+{{ read_from_dictionary.ReadFromDictionary("compartment_params", "double", "names::g_L", "gl", "", false) }}
+{{ read_from_dictionary.ReadFromDictionary("compartment_params", "double", "names::e_L", "el", "", false) }}
   double v_comp_update = el;
   if( {{ exists_in_dictionary.ExistsInDictionary("compartment_params", "v_comp") }} )
   {
-{{ read_from_dictionary.ReadFromDictionary("compartment_params", "double", "v_comp", "v_comp_update", false, "") }}
+{{ read_from_dictionary.ReadFromDictionary("compartment_params", "double", "v_comp", "v_comp_update", "", false) }}
   }
   *v_comp = v_comp_update;
 }
@@ -179,7 +187,7 @@ nest::CompTree{{cm_unique_suffix}}::add_compartment( const long parent_index )
 }
 
 void
-nest::CompTree{{cm_unique_suffix}}::add_compartment( const long parent_index, const DictionaryDatum& compartment_params )
+nest::CompTree{{cm_unique_suffix}}::add_compartment( const long parent_index, const {{ dictionary }}& compartment_params )
 {
   //Check whether all passed parameters exist within the used neuron model:
 {%- if not nest_version.startswith("master") %}

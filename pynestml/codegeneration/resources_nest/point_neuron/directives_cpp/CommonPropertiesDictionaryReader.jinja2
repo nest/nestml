@@ -6,4 +6,4 @@
 {%- if variable_symbol.has_vector_parameter() %}
 {{ raise('Vector parameters not supported in common properties dictionary.') }}
 {%- endif %}
-{{ read_from_dictionary.ReadFromDictionary("__d", declarations.print_variable_type(variable_symbol), "nest::" + synapseName + "_names::_" + printer_no_origin.print(variable), "this->" + printer_no_origin.print(variable), false, "") }}
+{{ read_from_dictionary.ReadFromDictionary("__d", declarations.print_variable_type(variable_symbol), "nest::" + synapseName + "_names::_" + printer_no_origin.print(variable), "this->" + printer_no_origin.print(variable), "", false) }}
