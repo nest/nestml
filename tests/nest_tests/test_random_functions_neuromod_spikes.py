@@ -66,12 +66,12 @@ class TestRandomFunctionsWithNeuromodSpikes:
         vt_spike_times = np.arange(10, 1010).astype(float)   # [ms]
 
         x, y = self.run_synapse_test(neuron_model_name=self.neuron_model_name,
-                                               synapse_model_name=self.synapse_model_name,
-                                               resolution=.1,  # [ms]
-                                               delay=1.,  # [ms]
-                                               pre_spike_times=pre_spike_times,
-                                               post_spike_times=post_spike_times,
-                                               vt_spike_times=vt_spike_times)
+                                     synapse_model_name=self.synapse_model_name,
+                                     resolution=.1,  # [ms]
+                                     delay=1.,  # [ms]
+                                     pre_spike_times=pre_spike_times,
+                                     post_spike_times=post_spike_times,
+                                     vt_spike_times=vt_spike_times)
 
         # large tolerances because of few data points
         np.testing.assert_allclose(np.mean(x), .5, atol=1E-2)
