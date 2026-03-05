@@ -24,7 +24,6 @@ import os
 import pytest
 
 import nest
-from nest.lib.hl_api_exceptions import NESTErrors
 
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 from pynestml.codegeneration.nest_tools import NESTTools

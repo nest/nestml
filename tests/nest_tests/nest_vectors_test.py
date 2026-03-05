@@ -24,7 +24,6 @@ import numpy as np
 import pytest
 
 import nest
-from nest.lib.hl_api_exceptions import NESTErrors
 
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
@@ -83,7 +82,7 @@ class TestNestVectorsIntegration:
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
-    @pytest.mark.xfail(strict=True, raises=NESTErrors.BadProperty)
+    @pytest.mark.xfail(strict=True, raises=nest.NESTErrors.BadProperty)
     def test_vectors_resize(self):
         input_path = os.path.join(
             os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "VectorsResize.nestml")))

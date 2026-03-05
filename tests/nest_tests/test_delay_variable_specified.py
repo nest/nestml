@@ -24,7 +24,6 @@ import os
 import pytest
 
 import nest
-from nest.lib.hl_api_exceptions import NESTErrors
 
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 from pynestml.codegeneration.nest_tools import NESTTools
@@ -91,7 +90,7 @@ class TestSynapseDelayGetSet:
                                                                "delay_test_assigned_synapse": "w",
                                                                "stdp_synapse": "w"}})
 
-    @pytest.mark.xfail(strict=True, raises=NESTErrors.BadProperty)
+    @pytest.mark.xfail(strict=True, raises=nest.NESTErrors.BadProperty)
     def test_synapse_delay_set_status1(self):
         nest.ResetKernel()
         nest.Install("nestmlmodule")
