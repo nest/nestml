@@ -34,14 +34,14 @@ Then update the index and install the necessary packages:
 
    sudo apt update
    sudo apt install nest python3-nestml
-   wget https://raw.githubusercontent.com/nest/nestml/refs/heads/master/requirements.txt
+   wget https://raw.githubusercontent.com/nest/nestml/refs/heads/main/requirements.txt
    python3 -m pip install -r requirements.txt
 
 
 Installing the latest development version from GitHub
 -----------------------------------------------------
 
-To obtain the latest development version, clone directly from the master branch of the GitHub repository:
+To obtain the latest development version, clone directly from the main branch of the GitHub repository:
 
 .. code-block:: bash
 

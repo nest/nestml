@@ -10,7 +10,7 @@ Neuron models
 
 Conductance based exponential integrate-and-fire neuron model
 
-Source file: `aeif_cond_alpha_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/aeif_cond_alpha_neuron.nestml>`_
+Source file: `aeif_cond_alpha_neuron.nestml <https://www.github.com/nest/nestml/blob/main/models/neurons/aeif_cond_alpha_neuron.nestml>`_
 
 
 :doc:`aeif_cond_exp_neuron <aeif_cond_exp_neuron>`
@@ -18,21 +18,21 @@ Source file: `aeif_cond_alpha_neuron.nestml <https://www.github.com/nest/nestml/
 
 Conductance based exponential integrate-and-fire neuron model
 
-Source file: `aeif_cond_exp_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/aeif_cond_exp_neuron.nestml>`_
+Source file: `aeif_cond_exp_neuron.nestml <https://www.github.com/nest/nestml/blob/main/models/neurons/aeif_cond_exp_neuron.nestml>`_
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[aeif_cond_exp_neuron_nestml]_small.png
+   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_psp_[aeif_cond_exp_neuron_nestml]_small.png
           :alt: aeif_cond_exp_neuron
 
           Post-synaptic potential
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[aeif_cond_exp_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_current_pulse_response_[aeif_cond_exp_neuron_nestml]_small.png
           :alt: aeif_cond_exp_neuron
 
           Step current response
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[aeif_cond_exp_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_fI_curve_[aeif_cond_exp_neuron_nestml]_small.png
           :alt: aeif_cond_exp_neuron
 
           Firing rate vs. current
@@ -43,7 +43,7 @@ Source file: `aeif_cond_exp_neuron.nestml <https://www.github.com/nest/nestml/bl
 
 Conductance based exponential integrate-and-fire neuron model
 
-Source file: `aeif_psc_alpha_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/aeif_psc_alpha_neuron.nestml>`_
+Source file: `aeif_psc_alpha_neuron.nestml <https://www.github.com/nest/nestml/blob/main/models/neurons/aeif_psc_alpha_neuron.nestml>`_
 
 
 :doc:`hh_cond_exp_destexhe_neuron <hh_cond_exp_destexhe_neuron>`
@@ -51,7 +51,7 @@ Source file: `aeif_psc_alpha_neuron.nestml <https://www.github.com/nest/nestml/b
 
 Hodgin Huxley based model, Traub, Destexhe and Mainen modified
 
-Source file: `hh_cond_exp_destexhe_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/hh_cond_exp_destexhe_neuron.nestml>`_
+Source file: `hh_cond_exp_destexhe_neuron.nestml <https://www.github.com/nest/nestml/blob/main/models/neurons/hh_cond_exp_destexhe_neuron.nestml>`_
 
 
 :doc:`hh_cond_exp_traub_neuron <hh_cond_exp_traub_neuron>`
@@ -59,21 +59,21 @@ Source file: `hh_cond_exp_destexhe_neuron.nestml <https://www.github.com/nest/ne
 
 Hodgkin-Huxley model for Brette et al (2007) review
 
-Source file: `hh_cond_exp_traub_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/hh_cond_exp_traub_neuron.nestml>`_
+Source file: `hh_cond_exp_traub_neuron.nestml <https://www.github.com/nest/nestml/blob/main/models/neurons/hh_cond_exp_traub_neuron.nestml>`_
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[hh_cond_exp_traub_neuron_nestml]_small.png
+   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_psp_[hh_cond_exp_traub_neuron_nestml]_small.png
           :alt: hh_cond_exp_traub_neuron
 
           Post-synaptic potential
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[hh_cond_exp_traub_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_current_pulse_response_[hh_cond_exp_traub_neuron_nestml]_small.png
           :alt: hh_cond_exp_traub_neuron
 
           Step current response
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[hh_cond_exp_traub_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_fI_curve_[hh_cond_exp_traub_neuron_nestml]_small.png
           :alt: hh_cond_exp_traub_neuron
 
           Firing rate vs. current
@@ -84,7 +84,7 @@ Source file: `hh_cond_exp_traub_neuron.nestml <https://www.github.com/nest/nestm
 
 a motor neuron model in HH formalism with 5HT modulation
 
-Source file: `hh_moto_5ht_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/hh_moto_5ht_neuron.nestml>`_
+Source file: `hh_moto_5ht_neuron.nestml <https://www.github.com/nest/nestml/blob/main/models/neurons/hh_moto_5ht_neuron.nestml>`_
 
 
 :doc:`hh_psc_alpha_neuron <hh_psc_alpha_neuron>`
@@ -92,21 +92,21 @@ Source file: `hh_moto_5ht_neuron.nestml <https://www.github.com/nest/nestml/blob
 
 Hodgkin-Huxley neuron model
 
-Source file: `hh_psc_alpha_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/hh_psc_alpha_neuron.nestml>`_
+Source file: `hh_psc_alpha_neuron.nestml <https://www.github.com/nest/nestml/blob/main/models/neurons/hh_psc_alpha_neuron.nestml>`_
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[hh_psc_alpha_neuron_nestml]_small.png
+   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_psp_[hh_psc_alpha_neuron_nestml]_small.png
           :alt: hh_psc_alpha_neuron
 
           Post-synaptic potential
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[hh_psc_alpha_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_current_pulse_response_[hh_psc_alpha_neuron_nestml]_small.png
           :alt: hh_psc_alpha_neuron
 
           Step current response
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[hh_psc_alpha_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_fI_curve_[hh_psc_alpha_neuron_nestml]_small.png
           :alt: hh_psc_alpha_neuron
 
           Firing rate vs. current
@@ -117,7 +117,7 @@ Source file: `hh_psc_alpha_neuron.nestml <https://www.github.com/nest/nestml/blo
 
 Neuron model after Hill & Tononi (2005)
 
-Source file: `hill_tononi_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/hill_tononi_neuron.nestml>`_
+Source file: `hill_tononi_neuron.nestml <https://www.github.com/nest/nestml/blob/main/models/neurons/hill_tononi_neuron.nestml>`_
 
 
 :doc:`iaf_chxk_2008_neuron <iaf_chxk_2008_neuron>`
@@ -125,21 +125,21 @@ Source file: `hill_tononi_neuron.nestml <https://www.github.com/nest/nestml/blob
 
 Conductance based leaky integrate-and-fire neuron model used in Casti et al. 2008
 
-Source file: `iaf_chxk_2008_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_chxk_2008_neuron.nestml>`_
+Source file: `iaf_chxk_2008_neuron.nestml <https://www.github.com/nest/nestml/blob/main/models/neurons/iaf_chxk_2008_neuron.nestml>`_
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[iaf_chxk_2008_neuron_nestml]_small.png
+   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_psp_[iaf_chxk_2008_neuron_nestml]_small.png
           :alt: iaf_chxk_2008_neuron
 
           Post-synaptic potential
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[iaf_chxk_2008_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_current_pulse_response_[iaf_chxk_2008_neuron_nestml]_small.png
           :alt: iaf_chxk_2008_neuron
 
           Step current response
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[iaf_chxk_2008_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_fI_curve_[iaf_chxk_2008_neuron_nestml]_small.png
           :alt: iaf_chxk_2008_neuron
 
           Firing rate vs. current
@@ -150,21 +150,21 @@ Source file: `iaf_chxk_2008_neuron.nestml <https://www.github.com/nest/nestml/bl
 
 Simple conductance based leaky integrate-and-fire neuron model
 
-Source file: `iaf_cond_alpha_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_cond_alpha_neuron.nestml>`_
+Source file: `iaf_cond_alpha_neuron.nestml <https://www.github.com/nest/nestml/blob/main/models/neurons/iaf_cond_alpha_neuron.nestml>`_
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[iaf_cond_alpha_neuron_nestml]_small.png
+   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_psp_[iaf_cond_alpha_neuron_nestml]_small.png
           :alt: iaf_cond_alpha_neuron
 
           Post-synaptic potential
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[iaf_cond_alpha_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_current_pulse_response_[iaf_cond_alpha_neuron_nestml]_small.png
           :alt: iaf_cond_alpha_neuron
 
           Step current response
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[iaf_cond_alpha_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_fI_curve_[iaf_cond_alpha_neuron_nestml]_small.png
           :alt: iaf_cond_alpha_neuron
 
           Firing rate vs. current
@@ -175,21 +175,21 @@ Source file: `iaf_cond_alpha_neuron.nestml <https://www.github.com/nest/nestml/b
 
 Simple conductance based leaky integrate-and-fire neuron model
 
-Source file: `iaf_cond_beta_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_cond_beta_neuron.nestml>`_
+Source file: `iaf_cond_beta_neuron.nestml <https://www.github.com/nest/nestml/blob/main/models/neurons/iaf_cond_beta_neuron.nestml>`_
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[iaf_cond_beta_neuron_nestml]_small.png
+   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_psp_[iaf_cond_beta_neuron_nestml]_small.png
           :alt: iaf_cond_beta_neuron
 
           Post-synaptic potential
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[iaf_cond_beta_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_current_pulse_response_[iaf_cond_beta_neuron_nestml]_small.png
           :alt: iaf_cond_beta_neuron
 
           Step current response
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[iaf_cond_beta_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_fI_curve_[iaf_cond_beta_neuron_nestml]_small.png
           :alt: iaf_cond_beta_neuron
 
           Firing rate vs. current
@@ -200,21 +200,21 @@ Source file: `iaf_cond_beta_neuron.nestml <https://www.github.com/nest/nestml/bl
 
 Simple conductance based leaky integrate-and-fire neuron model
 
-Source file: `iaf_cond_exp_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_cond_exp_neuron.nestml>`_
+Source file: `iaf_cond_exp_neuron.nestml <https://www.github.com/nest/nestml/blob/main/models/neurons/iaf_cond_exp_neuron.nestml>`_
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[iaf_cond_exp_neuron_nestml]_small.png
+   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_psp_[iaf_cond_exp_neuron_nestml]_small.png
           :alt: iaf_cond_exp_neuron
 
           Post-synaptic potential
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[iaf_cond_exp_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_current_pulse_response_[iaf_cond_exp_neuron_nestml]_small.png
           :alt: iaf_cond_exp_neuron
 
           Step current response
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[iaf_cond_exp_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_fI_curve_[iaf_cond_exp_neuron_nestml]_small.png
           :alt: iaf_cond_exp_neuron
 
           Firing rate vs. current
@@ -225,21 +225,21 @@ Source file: `iaf_cond_exp_neuron.nestml <https://www.github.com/nest/nestml/blo
 
 Conductance based leaky integrate-and-fire model with spike-frequency adaptation and relative refractory mechanisms
 
-Source file: `iaf_cond_exp_sfa_rr_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_cond_exp_sfa_rr_neuron.nestml>`_
+Source file: `iaf_cond_exp_sfa_rr_neuron.nestml <https://www.github.com/nest/nestml/blob/main/models/neurons/iaf_cond_exp_sfa_rr_neuron.nestml>`_
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[iaf_cond_exp_sfa_rr_neuron_nestml]_small.png
+   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_psp_[iaf_cond_exp_sfa_rr_neuron_nestml]_small.png
           :alt: iaf_cond_exp_sfa_rr_neuron
 
           Post-synaptic potential
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[iaf_cond_exp_sfa_rr_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_current_pulse_response_[iaf_cond_exp_sfa_rr_neuron_nestml]_small.png
           :alt: iaf_cond_exp_sfa_rr_neuron
 
           Step current response
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[iaf_cond_exp_sfa_rr_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_fI_curve_[iaf_cond_exp_sfa_rr_neuron_nestml]_small.png
           :alt: iaf_cond_exp_sfa_rr_neuron
 
           Firing rate vs. current
@@ -250,21 +250,21 @@ Source file: `iaf_cond_exp_sfa_rr_neuron.nestml <https://www.github.com/nest/nes
 
 Leaky integrate-and-fire neuron model
 
-Source file: `iaf_psc_alpha_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_psc_alpha_neuron.nestml>`_
+Source file: `iaf_psc_alpha_neuron.nestml <https://www.github.com/nest/nestml/blob/main/models/neurons/iaf_psc_alpha_neuron.nestml>`_
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[iaf_psc_alpha_neuron_nestml]_small.png
+   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_psp_[iaf_psc_alpha_neuron_nestml]_small.png
           :alt: iaf_psc_alpha_neuron
 
           Post-synaptic potential
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[iaf_psc_alpha_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_current_pulse_response_[iaf_psc_alpha_neuron_nestml]_small.png
           :alt: iaf_psc_alpha_neuron
 
           Step current response
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[iaf_psc_alpha_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/models_library/nestml_fI_curve_[iaf_psc_alpha_neuron_nestml]_small.png
           :alt: iaf_psc_alpha_neuron
 
           Firing rate vs. current
