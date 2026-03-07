@@ -59,13 +59,13 @@ Parameters
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-    
-    "tau_m", "ms", "10ms", "Membrane time constant"    
-    "C_m", "pF", "250pF", "Capacity of the membrane"    
-    "refr_T", "ms", "2ms", "Duration of refractory period"    
-    "E_L", "mV", "-70mV", "Resting membrane potential"    
-    "V_reset", "mV", "-70mV", "Reset potential of the membrane"    
-    "V_th", "mV", "-55mV", "Spike threshold"    
+
+    "tau_m", "ms", "10ms", "Membrane time constant"
+    "C_m", "pF", "250pF", "Capacity of the membrane"
+    "refr_T", "ms", "2ms", "Duration of refractory period"
+    "E_L", "mV", "-70mV", "Resting membrane potential"
+    "V_reset", "mV", "-70mV", "Reset potential of the membrane"
+    "V_th", "mV", "-55mV", "Spike threshold"
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -77,8 +77,8 @@ State variables
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-    
-    "V_m", "mV", "E_L", "Membrane potential"    
+
+    "V_m", "mV", "E_L", "Membrane potential"
     "refr_counter", "integer", "0", "Refractory period timer"
 
 
@@ -90,14 +90,14 @@ Equations
 
 
 .. math::
-   \frac{ dV_{m} } { dt }= \frac{ -(V_{m} - E_{L}) } { \tau_{m} } + \frac 1 { C_{m} } \left( { (I_{e} + I_{stim}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac{ -(V_{m} - E_{L}) } { \tau_{m} } + \frac 1 { C_{m} } \left( { (I_{e} + I_{stim}) } \right)
 
 
 
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `iaf_psc_delta_fixed_timestep_neuron <https://github.com/nest/nestml/tree/master/models/neurons/iaf_psc_delta_fixed_timestep_neuron.nestml>`_.
+The model source code can be found in the NESTML models repository here: `iaf_psc_delta_fixed_timestep_neuron <https://github.com/nest/nestml/tree/main/models/neurons/iaf_psc_delta_fixed_timestep_neuron.nestml>`_.
 
 .. include:: iaf_psc_delta_fixed_timestep_neuron_characterisation.rst
 
