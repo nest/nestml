@@ -65,7 +65,6 @@ class TestSimultaneousContinuousAndSpikeBasedNeuromodulation:
                                                                      "post_ports": ["post_spikes", ("dAP_trace", "dAP_trace")],
                                                                      "vt_ports": ["mod_spikes"]}],
                                            "continuous_state_buffering_method": "post_spike_based",
-                                           "delay_variable": {"continuous_and_spike_based_neuromodulated_stdp_synapse": "d"},
                                            "weight_variable": {"continuous_and_spike_based_neuromodulated_stdp_synapse": "w"}})
 
     def test_nest_stdp_synapse(self):
@@ -145,7 +144,7 @@ class TestSimultaneousContinuousAndSpikeBasedNeuromodulation:
         # set up custom synapse models
         wr = nest.Create("weight_recorder")
         nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
-                       {"weight_recorder": wr[0], "w": 1., "d": delay, "receptor_type": 0,
+                       {"weight_recorder": wr[0], "w": 1., "delay": delay, "receptor_type": 0,
                         "volume_transmitter": vt})
 
         # create parrot neurons and connect spike_generators

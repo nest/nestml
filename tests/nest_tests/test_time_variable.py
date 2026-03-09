@@ -62,8 +62,6 @@ class TestTimeVariable:
                              codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_neuron",
                                                                      "synapse": "time_variable_pre_post_synapse",
                                                                      "post_ports": ["post_spikes"]}],
-                                           "delay_variable": {"time_variable_synapse": "d",
-                                                              "time_variable_pre_post_synapse": "d"},
                                            "weight_variable": {"time_variable_synapse": "w",
                                                                "time_variable_pre_post_synapse": "w"}})
 

@@ -72,7 +72,6 @@ model stdp_nn_restr_symm_synapse:
         pre_handled boolean = True
 
     parameters:
-        d ms = 1 ms    # Synaptic transmission delay
         lambda real = .01
         tau_tr_pre ms = 20 ms
         tau_tr_post ms = 20 ms
@@ -94,7 +93,7 @@ model stdp_nn_restr_symm_synapse:
         post_spikes <- spike
 
     output:
-        spike(weight real, delay ms)
+        spike
 
     onReceive(post_spikes):
         post_trace = 1
@@ -116,7 +115,7 @@ model stdp_nn_restr_symm_synapse:
         pre_handled = False
 
         # deliver spike to postsynaptic partner
-        emit_spike(w, d)
+        emit_spike(w)
 
     update:
         integrate_odes()

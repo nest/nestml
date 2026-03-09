@@ -897,7 +897,7 @@ Calling the ``emit_spike()`` function in the ``update`` block results in firing 
 Event attributes
 ~~~~~~~~~~~~~~~~
 
-Each spiking output event can be parameterised by one or more attributes. For example, a synapse could assign a weight (as a real number) and delay (in milliseconds) to its spike events by including these values in the call to ``emit_spike()``:
+Each spiking output event corresponds to a Dirac delta pulse and can be parameterised by one attributes (the area of the pulse). For example, a synapse could assign a weight (as a real number) to its spike events by including this value in the call to ``emit_spike()``:
 
 .. code-block:: nestml
 
@@ -905,18 +905,9 @@ Each spiking output event can be parameterised by one or more attributes. For ex
        weight real = 10.
 
    update:
-       emit_spike(weight, 1 ms)
+       emit_spike(weight)
 
-If spike event attributes are used, their names and types must be given as part of the output port specification, for example:
-
-.. code-block:: nestml
-
-   output:
-       spike(weight real, delay ms)
-
-The names are only used externally, so that other models can refer to the correct attribute (such as a downstream neuron that is receiving the spike through its input port). It is thus allowed to have a state variable called ``weight`` and an output port attribute by the same name; the output port attribute name does not refer to names declared inside the model.
-
-Specific code generators may support a specific set of attributes; please check the documentation of each individual code generator for more details.
+If the parameter is not specified, the delta function will have an area of 1.
 
 
 Equations

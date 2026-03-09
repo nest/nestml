@@ -69,7 +69,6 @@ class NestSTDPNNSynapseTest(unittest.TestCase):
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                                      "synapse": "stdp_nn_symm_synapse",
                                                                      "post_ports": ["post_spikes"]}],
-                                           "delay_variable": {"stdp_nn_symm_synapse": "d"},
                                            "weight_variable": {"stdp_nn_symm_synapse": "w"}})
 
         # generate the "non-jit" model, that relies on ArchivingNode
@@ -164,7 +163,7 @@ class NestSTDPNNSynapseTest(unittest.TestCase):
         wr_ref = nest.Create("weight_recorder")
         if sim_mdl:
             nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
-                           {"weight_recorder": wr[0], "w": 1., "d": 1., "receptor_type": 0})
+                           {"weight_recorder": wr[0], "w": 1., "delay": 1., "receptor_type": 0})
         if sim_ref:
             nest.CopyModel(ref_synapse_model_name, "stdp_ref_rec",
                            {"weight_recorder": wr_ref[0], "weight": 1., "delay": 1., "receptor_type": 0})
