@@ -22,14 +22,14 @@
 import numpy as np
 import os
 
+# try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
     import matplotlib as mpl
-    mpl.use("Agg")
+    mpl.use("agg")
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
 except BaseException:
     TEST_PLOTS = False
-
 
 import nest
 

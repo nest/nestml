@@ -33,22 +33,22 @@ class ASTDeclaration(ASTNode):
     """
     This class is used to store declarations.
     ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:
-    'a,b,c real = 0'.
+    "a,b,c real = 0".
     @attribute hide is true iff. declaration is not traceable.
     @attribute function is true iff. declaration is an function.
     @attribute vars          List with variables
-    @attribute Datatype      Obligatory data type, e.g. 'real' or 'mV/s'
-    @attribute sizeParameter An optional array parameter. E.g. 'tau_syn ms[n_receptors]'
-    @attribute expr An optional initial rhs, e.g. 'a real = 10+10'
+    @attribute Datatype      Obligatory data type, e.g. "real" or "mV/s"
+    @attribute sizeParameter An optional array parameter. E.g. "tau_syn ms[n_receptors]"
+    @attribute expr An optional initial rhs, e.g. "a real = 10+10"
     @attribute invariants List with optional invariants.
     Grammar:
         declaration :
-            ('recordable')? ('function')?
-            variable (',' variable)*
+            ("recordable")? ("function")?
+            variable ("," variable)*
             datatype
-            ('[' sizeParameter=NAME ']')?
-            ( '=' rhs)?
-            ('[[' invariant=rhs ']]')?;
+            ("[" sizeParameter=NAME "]")?
+            ( "=" rhs)?
+            ("[[" invariant=rhs "]]")?;
     Attributes:
         is_recordable = False
         is_inline_expression = False

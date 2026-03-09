@@ -45,7 +45,7 @@ class InlineExpressionExpansionTransformer(Transformer):
     Additionally, replace variable symbols referencing inline expressions in defining expressions of ODEs with the corresponding defining expressions from the inline expressions.
     """
 
-    _variable_matching_template = r'(\b)({})(\b)'
+    _variable_matching_template = r"(\b)({})(\b)"
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super(Transformer, self).__init__(options)

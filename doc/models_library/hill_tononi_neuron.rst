@@ -1,8 +1,8 @@
 hill_tononi_neuron
 ##################
 
-
 hill_tononi - Neuron model after Hill & Tononi (2005)
+
 
 Description
 +++++++++++
@@ -32,10 +32,29 @@ References
        thalamocortical system. Journal of Neurophysiology. 93:1671-1698.
        DOI: https://doi.org/10.1152/jn.00915.2004
 .. [2] Vargas-Caballero M, Robinson HPC (2003). A slow fraction of Mg2+
-       unblock of NMDA receptors limits their  contribution to spike generation
+       unblock of NMDA receptors limits their contribution to spike generation
        in cortical pyramidal neurons. Journal of Neurophysiology 89:2778-2783.
        DOI: https://doi.org/10.1152/jn.01038.2002
 
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
 Parameters
@@ -54,7 +73,7 @@ Parameters
     "Tau_theta", "ms", "2.0ms", "time constant"    
     "Tau_spike", "ms", "1.75ms", "membrane time constant applying to repolarizing K-current"    
     "t_spike", "ms", "2.0ms", "duration of re-polarizing potassium current"    
-    "AMPA_g_peak", "nS", "0.1nS", "Parameters for synapse of type AMPA, GABA_A, GABA_B and NMDApeak conductance"    
+    "AMPA_g_peak", "nS", "0.1nS", "peak conductance"    
     "AMPA_E_rev", "mV", "0.0mV", "reversal potential"    
     "AMPA_Tau_1", "ms", "0.5ms", "rise time"    
     "AMPA_Tau_2", "ms", "2.4ms", "decay time, Tau_1 < Tau_2"    
@@ -72,7 +91,7 @@ Parameters
     "GABA_B_Tau_1", "ms", "60.0ms", "rise time"    
     "GABA_B_Tau_2", "ms", "200.0ms", "decay time, Tau_1 < Tau_2"    
     "GABA_B_E_rev", "mV", "-90.0mV", "reversal potential for intrinsic current"    
-    "NaP_g_peak", "nS", "1.0nS", "parameters for intrinsic currentspeak conductance for intrinsic current"    
+    "NaP_g_peak", "nS", "1.0nS", "peak conductance for intrinsic current"    
     "NaP_E_rev", "mV", "30.0mV", "reversal potential for intrinsic current"    
     "KNa_g_peak", "nS", "1.0nS", "peak conductance for intrinsic current"    
     "KNa_E_rev", "mV", "-90.0mV", "reversal potential for intrinsic current"    
@@ -94,7 +113,6 @@ State variables
 
     
     "potassium_refr_t", "ms", "0ms", ""    
-    "is_refractory", "boolean", "false", ""    
     "g_spike", "boolean", "false", ""    
     "V_m", "mV", "(g_NaL * E_Na + g_KL * E_K) / (g_NaL + g_KL)", "membrane potential"    
     "Theta", "mV", "Theta_eq", "Threshold"    
@@ -123,6 +141,9 @@ Equations
    \frac{ dV_{m} } { dt }= \frac 1 { \mathrm{nF} } \left( { (\frac 1 { \Tau_{m} } \left( { (I_{Na} + I_{K} + I_{syn} + I_{NaP} + I_{KNa} + I_{T} + I_{h} + I_{e} + I_{stim}) } \right)  + \frac{ I_{spike} \cdot \mathrm{pA} } { (\mathrm{ms} \cdot \mathrm{mV}) }) \cdot \mathrm{s} } \right) 
 
 .. math::
+   \frac{ dpotassium_{refr,t} } { dt }= \frac{ -1000.0 \cdot \mathrm{ms} } { \mathrm{s} }
+
+.. math::
    \frac{ d\Theta } { dt }= \frac{ -(\Theta - \Theta_{eq}) } { \Tau_{\theta} }
 
 .. math::
@@ -149,4 +170,4 @@ The model source code can be found in the NESTML models repository here: `hill_t
 
 .. footer::
 
-   Generated at 2024-05-22 14:51:14.539823
+   Generated at 2026-02-04 14:40:55.234157

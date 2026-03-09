@@ -63,7 +63,13 @@ Event-based updating of synapses
 
 The synapse is allowed to contain an ``update`` block. Statements in the ``update`` block are executed whenever the internal state of the synapse is updated from one timepoint to the next; these updates are typically triggered by incoming spikes. The NESTML ``timestep()`` function will return the time that has elapsed since the last event was handled.
 
-Synapses in NEST are not allowed to have any nonlinear time-based internal dynamics (ODEs). This is due to the fact that synapses are, unlike nodes, not updated on a regular time grid. Linear ODEs are allowed, because they admit an analytical solution, which can be updated in a single step from the previous event time to the current event time. However, nonlinear dynamics are not allowed because they would require a numeric solver evaluating the dynamics on a regular time grid.
+Synapses can have ODEs with linear and non-linear dynamics. In the case of linear dynamics, the ODEs are solved with the propagators provided by the ODE-toolbox; for non-linear dynamics, the ODEs are solved using a fourth order Runge-Kutta solver with adaptive timestep provided by `GSL <https://www.gnu.org/software/gsl/doc/html/ode-initval.html>`_. Tolerance values can be specified at runtime as parameters of the model instance.
+
+.. code-block:: python
+
+   neurons = nest.Create(neuron_model, 2)
+   syn_spec = {"synapse_model": synapse_model, "gsl_abs_error_tol": 1E-12, "gsl_rel_error_tol": 1E-12}
+   nest.Connect(neurons[0], neurons[1], syn_spec=syn_spec)
 
 If ODE-toolbox is not successful in finding the propagator solver to a system of ODEs that is, however, solvable, the propagators may be entered "by hand" in the ``update`` block of the model. This block may contain any series of statements to update the state of the system from the current timestep to the next, for example, multiplications of state variables by the propagators.
 
@@ -88,6 +94,13 @@ Solver selection
 Currently, there is support for GSL, forward Euler, and exact integration. ODEs that can be solved analytically are integrated to machine precision from one timestep to the next. To allow more precise values for analytically solvable ODEs *within* a timestep, the same ODEs are evaluated numerically by the GSL solver. In this way, the long-term dynamics obeys the "exact" equations, while the short-term (within one timestep) dynamics is evaluated to the precision of the numerical integrator.
 
 In the case that the model is solved with the GSL integrator, desired absolute error of an integration step can be adjusted with the ``gsl_error_tol`` parameter in a ``SetStatus`` call. The default value of ``gsl_error_tol`` is ``1e-3``.
+
+
+Data types
+----------
+
+- The NESTML data type ``real`` will be rendered as ``double``.
+- The NESTML data type ``integer`` will be rendered as ``long``.
 
 
 Manually building the extension module
@@ -276,7 +289,7 @@ Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to 
                                                            "post_ports": ["post_spikes",
                                                                           ["I_post_dend", "I_dend"]]}]})
 
-This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``.
+This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``. Note that inline expressions can also be used; in this example in case ``I_dend`` had been an inline expression in the postsynaptic neuron.
 
 To prevent the NESTML code generator from moving specific variables from synapse into postsynaptic neuron, the code generation option ``strictly_synaptic_vars`` may be used (see https://nestml.readthedocs.io/en/latest/pynestml.transformers.html#pynestml.transformers.synapse_post_neuron_transformer.SynapsePostNeuronTransformer).
 
@@ -352,6 +365,12 @@ Random numbers
 --------------
 
 In case random numbers are needed inside the synapse, the random number generator belonging to the postsynaptic target is used.
+
+
+Running with MPI
+----------------
+
+When running NEST simulation scripts via MPI, make sure to run the NESTML code generation step in a separate, single-process script first. This then produces a dynamic library (.so or .dll file) that can be used in the MPI context (using ``nest.Install()``). Running NESTML itself in the MPI context would result in compilation/build errors.
 
 
 References

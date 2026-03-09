@@ -209,9 +209,9 @@ class ASTSourceLocation:
         :rtype: str
         """
         if self.is_added_source_position():
-            return '<ADDED_BY_SOLVER>'
+            return "<ADDED_BY_SOLVER>"
         elif self.is_predefined_source_position():
-            return '<PREDEFINED>'
+            return "<PREDEFINED>"
         else:
-            return '[' + str(self.get_start_line()) + ':' + str(self.get_start_column()) + ';' + \
-                   str(self.get_end_line()) + ':' + str(self.get_end_column()) + ']'
+            return "[" + str(self.get_start_line()) + ":" + str(self.get_start_column()) + ";" + \
+                   str(self.get_end_line()) + ":" + str(self.get_end_column()) + "]"

@@ -1,8 +1,8 @@
 izhikevich_neuron
 #################
 
-
 izhikevich - Izhikevich neuron model
+
 
 Description
 +++++++++++
@@ -11,33 +11,50 @@ Implementation of the simple spiking neuron model introduced by Izhikevich [1]_.
 
 .. math::
 
-   dv/dt &= 0.04 v^2 + 5 v + 140 - u + I\\
-   du/dt &= a (b v - u)
-
+   dV_{m}/dt &= 0.04 V_{m}^2 + 5 V_{m} + 140 - U_{m} + I\\
+   dU_{m}/dt &= a (b V_{m} - U_{m})
 
 .. math::
 
-   &\text{if}\;\; v \geq V_{th}:\\
-   &\;\;\;\; v \text{ is set to } c\\
-   &\;\;\;\; u \text{ is incremented by } d\\
+   &\text{if}\;\; V_{m} \geq V_{th}:\\
+   &\;\;\;\; V_{m} \text{ is set to } c\\
+   &\;\;\;\; U_{m} \text{ is incremented by } d\\
    & \, \\
-   &v \text{ jumps on each spike arrival by the weight of the spike}
+   &V_{m} \text{ jumps on each spike arrival by the weight of the spike}
 
 Incoming spikes cause an instantaneous jump in the membrane potential proportional to the strength of the synapse.
 
 As published in [1]_, the numerics differs from the standard forward Euler technique in two ways:
 
-1) the new value of :math:`u` is calculated based on the new value of :math:`v`, rather than the previous value
-2) the variable :math:`v` is updated using a time step half the size of that used to update variable :math:`u`.
+1) the new value of :math:`U_{m}` is calculated based on the new value of :math:`V_{m}`, rather than the previous value
+2) the variable :math:`V_{m}` is updated using a time step half the size of that used to update variable :math:`U_{m}`.
 
 This model will instead be simulated using the numerical solver that is recommended by ODE-toolbox during code generation.
-
 
 References
 ++++++++++
 
 .. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
 
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
 Parameters
@@ -95,4 +112,4 @@ The model source code can be found in the NESTML models repository here: `izhike
 
 .. footer::
 
-   Generated at 2024-05-22 14:51:14.664250
+   Generated at 2026-02-04 14:40:55.675859
