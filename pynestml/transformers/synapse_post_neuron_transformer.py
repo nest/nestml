@@ -406,7 +406,7 @@ class SynapsePostNeuronTransformer(Transformer):
         for update_block in synapse.get_update_blocks():
             update_block_var_names.extend([var.get_complete_name() for var in ASTUtils.collect_variable_names_in_expression(update_block)])
 
-        # assert all([var not in update_block_var_names for var in state_vars_that_need_continuous_buffering])
+        assert all([var not in update_block_var_names for var in state_vars_that_need_continuous_buffering])
 
         Logger.log_message(None, -1, "Synaptic state variables moved to neuron that will need buffering: " + str(state_vars_that_need_continuous_buffering), None, LoggingLevel.INFO)
 
