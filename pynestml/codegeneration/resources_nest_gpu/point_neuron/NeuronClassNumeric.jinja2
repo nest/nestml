@@ -267,13 +267,7 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
   var_arr_ = rk5_.GetYArr();
   param_arr_ = rk5_.GetParamArr();
 
-  {# TODO: automatically determine "PSConInit_E" #}
-  {# port_weight_arr_ = GetParamArr() + GetScalParamIdx("PSConInit_E");
-  port_weight_arr_ = GetParamArr()
-  port_weight_arr_step_ = n_param_;
-  port_weight_port_step_ = 1;
-  #}
-
+  {# TODO: modify according to the new changes in models #}
   // multiplication factor of input signal is always 1 for all nodes
   float input_weight = 1.0;
   gpuErrchk(cudaMalloc(&port_weight_arr_, sizeof(float)));
@@ -282,10 +276,11 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
   port_weight_arr_step_ = 0;
   port_weight_port_step_ = 0;
 
+  {# TODO: change the way the port is obtained #}
   // process the input spikes
   port_input_arr_ = GetVarArr() + n_scal_var_ + GetPortVarIdx("{{ utils.get_first_excitatory_port(neuron) }}");
   port_input_arr_step_ = n_var_;
-  port_input_port_step_ = {{(neuron.get_spike_input_ports() | length) - 1}};
+  port_input_port_step_ = 1;
 
 {# TODO #}
 {#  den_delay_arr_ =  GetParamArr() + GetScalParamIdx("den_delay"); #}

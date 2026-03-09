@@ -114,7 +114,7 @@ model aeif_cond_alpha_alt_neuron:
     onReceive(inh_spikes):
         g_inh' += inh_spikes * (e / tau_syn_inh) * nS * s
 
-    onCondition(refr_t <= 0 ms and V_m >= V_th):
+    onCondition(refr_t <= 0 ms and V_m >= V_peak):
         # threshold crossing
         refr_t = refr_T    # start of the refractory period
         V_m = V_reset
