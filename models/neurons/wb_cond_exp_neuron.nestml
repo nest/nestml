@@ -60,8 +60,8 @@ model wb_cond_exp_neuron:
         kernel g_inh = exp(-t / tau_syn_inh)
         kernel g_exc = exp(-t / tau_syn_exc)
 
-        recordable inline I_syn_exc pA = convolve(g_exc, exc_spikes) * nS * (V_m - E_exc)
-        recordable inline I_syn_inh pA = convolve(g_inh, inh_spikes) * nS * (V_m - E_inh)
+        recordable inline I_syn_exc pA = unit_psg * convolve(g_exc, exc_spikes) * (V_m - E_exc)
+        recordable inline I_syn_inh pA = unit_psg * convolve(g_inh, inh_spikes) * (V_m - E_inh)
 
         inline I_Na  pA = g_Na * _subexpr(V_m) * Inact_h * (V_m - E_Na)
         inline I_K   pA = g_K * Act_n**4 * (V_m - E_K)
@@ -97,9 +97,11 @@ model wb_cond_exp_neuron:
         alpha_h_init 1/ms = 0.35/ms * exp(-(E_L + 58.0 mV) / 20.0 mV)
         beta_h_init  1/ms = 5.0 / (exp(-0.1 / mV * (E_L + 28.0 mV)) + 1.0) /ms
 
+        unit_psg nS = 1 nS        # Unitary postsynaptic conductance amplitude
+
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:

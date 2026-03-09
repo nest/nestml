@@ -55,7 +55,6 @@ def nestml_generate_target():
                                        "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_fixed_timestep_neuron",
                                                                  "synapse": "stdp_triplet_synapse",
                                                                  "post_ports": ["post_spikes"]}],
-                                       "delay_variable": {"stdp_triplet_synapse": "d"},
                                        "weight_variable": {"stdp_triplet_synapse": "w"}})
 
 
@@ -216,7 +215,6 @@ def run_nest_simulation(neuron_model_name,
     _syn_opts["Wmax"] = _syn_opts.pop("w_max")
     _syn_opts["Wmin"] = _syn_opts.pop("w_min")
     _syn_opts["w"] = _syn_opts.pop("w_init")
-    _syn_opts.pop("delay")
     nest.CopyModel(synapse_model_name,
                    synapse_model_name + "_rec",
                    {"weight_recorder": weight_recorder_E[0]})
@@ -365,7 +363,7 @@ def _test_stdp_triplet_synapse(delay, spike_times_len):
                        "tau_y__for_stdp_triplet_synapse_nestml": syn_opts["tau_y"]}
 
         synapse_model_name = "stdp_triplet_synapse_nestml__with_iaf_psc_delta_fixed_timestep_neuron_nestml"
-        nest_syn_opts = {"d": delay}
+        nest_syn_opts = {}
         nest_syn_opts.update(syn_opts)
         nest_syn_opts.pop("tau_minus")  # these have been moved to the neuron
         nest_syn_opts.pop("tau_y")

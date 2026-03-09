@@ -75,7 +75,7 @@ model mat2_psc_exp_neuron:
         kernel I_kernel_inh = exp(-t/tau_syn_inh)
         kernel I_kernel_exc = exp(-t/tau_syn_exc)
 
-        inline I_syn pA = convolve(I_kernel_exc, exc_spikes) * pA - convolve(I_kernel_inh, inh_spikes) * pA
+        inline I_syn pA = unit_psc * (convolve(I_kernel_exc, exc_spikes) - convolve(I_kernel_inh, inh_spikes))
         V_m' = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
         refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
 
@@ -96,13 +96,16 @@ model mat2_psc_exp_neuron:
         I_e pA = 0 pA
 
     internals:
+        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+
+    internals:
         h ms = resolution()
         P11th real = exp(-h / tau_1)
         P22th real = exp(-h / tau_2)
 
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:

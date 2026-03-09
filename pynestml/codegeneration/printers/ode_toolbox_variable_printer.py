@@ -20,7 +20,9 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.codegeneration.printers.variable_printer import VariablePrinter
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.utils.ast_utils import ASTUtils
 
 
 class ODEToolboxVariablePrinter(VariablePrinter):
@@ -34,4 +36,11 @@ class ODEToolboxVariablePrinter(VariablePrinter):
         :param node: the node to print
         :return: string representation
         """
-        return node.get_name().replace("$", "__DOLLAR") + "__d" * node.get_differential_order()
+        s = node.get_name().replace("$", "__DOLLAR")
+
+        if node.get_vector_parameter():
+            s += "_VEC_IDX_" + self._expression_printer.print(node.get_vector_parameter())
+
+        s += "__d" * node.get_differential_order()
+
+        return s

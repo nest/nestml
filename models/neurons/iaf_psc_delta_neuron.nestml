@@ -63,8 +63,7 @@ model iaf_psc_delta_neuron:
         refr_t ms = 0 ms    # Refractory period timer
 
     equations:
-        kernel K_delta = delta(t)
-        V_m' = -(V_m - E_L) / tau_m + convolve(K_delta, spikes) * (mV / ms) + (I_e + I_stim) / C_m
+        V_m' = -(V_m - E_L) / tau_m + (I_e + I_stim) / C_m + unit_psp * spike_in_port * 1e3    # XXX: TODO: This should simply read ``... + unit_psp * spike_in_port`` (see https://github.com/nest/nestml/issues/984)
         refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
 
     parameters:
@@ -78,8 +77,11 @@ model iaf_psc_delta_neuron:
         # constant external input current
         I_e pA = 0 pA
 
+    internals:
+        unit_psp mV = 1 mV        # Unitary postsynaptic potential amplitude
+
     input:
-        spikes <- spike
+        spike_in_port <- spike
         I_stim pA <- continuous
 
     output:

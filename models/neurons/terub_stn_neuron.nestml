@@ -96,8 +96,8 @@ model terub_stn_neuron:
         inline k_Ca real = 22.5
         inline k1 real = 15.0
 
-        inline I_exc_mod pA = -convolve(g_exc, exc_spikes) * nS * V_m
-        inline I_inh_mod pA = convolve(g_inh, inh_spikes) * nS * (V_m - E_gs)
+        inline I_exc_mod pA = -unit_psg * convolve(g_exc, exc_spikes) * V_m
+        inline I_inh_mod pA = unit_psg * convolve(g_inh, inh_spikes) * (V_m - E_gs)
 
         inline tau_n ms = tau_n_0 + tau_n_1 / (1. + exp(-(V_m-theta_n_tau)/sigma_n_tau))
         inline tau_h ms = tau_h_0 + tau_h_1 / (1. + exp(-(V_m-theta_h_tau)/sigma_h_tau))
@@ -156,9 +156,12 @@ model terub_stn_neuron:
         # constant external input current
         I_e pA = 0 pA
 
+    internals:
+        unit_psg nS = 1 nS        # Unitary postsynaptic conductance amplitude
+
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:

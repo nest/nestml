@@ -170,8 +170,9 @@ class CodeGenerator(WithOptions):
 
         for synapse in synapses:
             self.generate_synapse_code(synapse)
-            code, message = Messages.get_code_generated(synapse.get_name(), FrontendConfiguration.get_target_path())
-            Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
+            if not Logger.has_errors(synapse):
+                code, message = Messages.get_code_generated(synapse.get_name(), FrontendConfiguration.get_target_path())
+                Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
 
     def generate_model_code(self,
                             model_name: str,

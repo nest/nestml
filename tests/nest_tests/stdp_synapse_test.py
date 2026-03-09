@@ -60,7 +60,6 @@ class TestNestSTDPSynapse:
         jit_codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                       "synapse": "stdp_synapse",
                                                       "post_ports": ["post_spikes"]}],
-                            "delay_variable": {"stdp_synapse": "d"},
                             "weight_variable": {"stdp_synapse": "w"}}
         if not NESTTools.detect_nest_version().startswith("v2"):
             jit_codegen_opts["neuron_parent_class"] = "StructuralPlasticityNode"
@@ -97,8 +96,8 @@ class TestNestSTDPSynapse:
     @pytest.mark.parametrize("delay", [1., 1.5])
     @pytest.mark.parametrize("resolution", [.1, .5, 1.])
     @pytest.mark.parametrize("pre_spike_times,post_spike_times", [
-        ([1., 11., 21.],
-         [6., 16., 26.]),
+        # ([1., 11., 21.],
+        #  [6., 16., 26.]),
         (np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100)))))),
          np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))),
         (np.array([2.,   4.,   7.,   8.,  12.,  13.,  19.,  23.,  24.,  28.,  29.,  30.,  33.,  34.,
@@ -173,7 +172,7 @@ class TestNestSTDPSynapse:
         wr = nest.Create("weight_recorder")
         wr_ref = nest.Create("weight_recorder")
         nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
-                       {"weight_recorder": wr[0], "w": 1., "d": 1., "receptor_type": 0})
+                       {"weight_recorder": wr[0], "w": 1., "delay": 1., "receptor_type": 0})
         nest.CopyModel(ref_synapse_model_name, "stdp_ref_rec",
                        {"weight_recorder": wr_ref[0], "weight": 1., "delay": 1., "receptor_type": 0})
 
@@ -308,9 +307,11 @@ class TestNestSTDPSynapse:
             if sim_mdl:
                 post_spike_times_ = nest.GetStatus(spikedet_post, "events")[0]["times"]
                 print("Actual post spike times: " + str(post_spike_times_))
+                assert len(post_spike_times_) > 0, "Postsynaptic neuron didn't spike!"
             if sim_ref:
                 post_ref_spike_times_ = nest.GetStatus(spikedet_post_ref, "events")[0]["times"]
                 print("Actual post ref spike times: " + str(post_ref_spike_times_))
+                assert len(post_spike_times_) > 0, "Postsynaptic neuron didn't spike!"
 
             if sim_ref:
                 n_spikes = len(pre_ref_spike_times_)

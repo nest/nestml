@@ -71,7 +71,7 @@ model iaf_psc_alpha_adapt_thresh_OU_neuron:
     equations:
         kernel I_kernel_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
         kernel I_kernel_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
-        inline I pA = (convolve(I_kernel_exc, exc_spikes) - convolve(I_kernel_inh, inh_spikes)) * pA + I_e + I_stim + I_noise
+        inline I pA = unit_psc * (convolve(I_kernel_exc, exc_spikes) - convolve(I_kernel_inh, inh_spikes)) + I_e + I_stim + I_noise
         V_m' = -(V_m - E_L) / tau_m + I / C_m
         Theta' = -(Theta - Theta_init) / tau_Theta
 
@@ -98,9 +98,11 @@ model iaf_psc_alpha_adapt_thresh_OU_neuron:
         D_noise pA**2/ms = 2 * sigma_noise**2 / tau_syn_exc
         A_noise pA = ((D_noise * tau_syn_exc / 2) * (1 - exp(-2 * resolution() / tau_syn_exc)))**.5
 
+        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:

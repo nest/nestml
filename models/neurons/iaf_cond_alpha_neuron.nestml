@@ -64,8 +64,8 @@ model iaf_cond_alpha_neuron:
         kernel g_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
         kernel g_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
 
-        inline I_syn_exc pA = convolve(g_exc, exc_spikes) * nS * (V_m - E_exc)
-        inline I_syn_inh pA = convolve(g_inh, inh_spikes) * nS * (V_m - E_inh)
+        inline I_syn_exc pA = unit_psg * convolve(g_exc, exc_spikes) * (V_m - E_exc)
+        inline I_syn_inh pA = unit_psg * convolve(g_inh, inh_spikes) * (V_m - E_inh)
         inline I_leak pA = g_L * (V_m - E_L)
 
         V_m' = (-I_leak - I_syn_exc - I_syn_inh + I_e + I_stim) / C_m
@@ -87,9 +87,12 @@ model iaf_cond_alpha_neuron:
         # constant external input current
         I_e pA = 0 pA
 
+    internals:
+        unit_psg nS = 1 nS        # Unitary postsynaptic conductance amplitude
+
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:

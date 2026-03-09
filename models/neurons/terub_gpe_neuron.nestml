@@ -90,8 +90,8 @@ model terub_gpe_neuron:
         inline g_k_Ca real = 15.0    # Report: 15, Terman Rubin 2002: 20.0
         inline g_k1 real = 30.0
 
-        inline I_exc_mod real = -convolve(g_exc, exc_spikes) * nS * V_m
-        inline I_inh_mod real = convolve(g_inh, inh_spikes) * nS * (V_m - E_gg)
+        inline I_exc_mod real = -unit_psg * convolve(g_exc, exc_spikes) * V_m
+        inline I_inh_mod real = unit_psg * convolve(g_inh, inh_spikes) * (V_m - E_gg)
 
         inline tau_n real = g_tau_n_0 + g_tau_n_1 / (1. + exp(-(V_m - g_theta_n_tau) / g_sigma_n_tau))
         inline tau_h real = g_tau_h_0 + g_tau_h_1 / (1. + exp(-(V_m - g_theta_h_tau) / g_sigma_h_tau))
@@ -149,9 +149,12 @@ model terub_gpe_neuron:
         # constant external input current
         I_e pA = 0 pA
 
+    internals:
+        unit_psg pA = 1 pA        # Unitary postsynaptic conductance amplitude
+
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:

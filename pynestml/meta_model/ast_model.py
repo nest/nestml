@@ -308,16 +308,15 @@ class ASTModel(ASTNode):
         """
         ret = list()
         for port in self.get_spike_input_ports():
-            if port.is_excitatory() and port.is_inhibitory():
-                if port is not None:
-                    ret.append(port)
-                else:
-                    code, message = Messages.get_could_not_resolve(port.get_symbol_name())
-                    Logger.log_message(
-                        message=message,
-                        code=code,
-                        error_position=port.get_source_position(),
-                        log_level=LoggingLevel.ERROR)
+            if port is not None:
+                ret.append(port)
+            else:
+                code, message = Messages.get_could_not_resolve(port.get_symbol_name())
+                Logger.log_message(
+                    message=message,
+                    code=code,
+                    error_position=port.get_source_position(),
+                    log_level=LoggingLevel.ERROR)
         return ret
 
     def get_kernel_by_name(self, kernel_name: str) -> Optional[ASTKernel]:
@@ -554,7 +553,7 @@ class ASTModel(ASTNode):
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.INPUT:
+            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.INPUT and not "." in symbol.name:
                 ret.append(symbol)
         return ret
 

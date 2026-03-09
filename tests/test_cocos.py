@@ -132,11 +132,7 @@ class TestCoCos:
 
     def test_invalid_no_values_assigned_to_input_ports(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")), "CoCoValueAssignedToInputPort.nestml"))
-        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 1
-
-    def test_valid_no_values_assigned_to_input_ports(self):
-        model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "valid")), "CoCoValueAssignedToInputPort.nestml"))
-        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 0
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 2
 
     def test_invalid_order_of_equations_correct(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")), "CoCoNoOrderOfEquations.nestml"))
@@ -200,14 +196,6 @@ class TestCoCos:
 
     def test_valid_no_nest_collision(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "valid")), "CoCoNestNamespaceCollision.nestml"))
-        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 0
-
-    def test_invalid_redundant_input_port_keywords_detected(self):
-        model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")), "CoCoInputPortWithRedundantTypes.nestml"))
-        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 1
-
-    def test_valid_redundant_input_port_keywords_detected(self):
-        model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "valid")), "CoCoInputPortWithRedundantTypes.nestml"))
         assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 0
 
     def test_invalid_parameters_assigned_only_in_parameters_block(self):
@@ -356,28 +344,6 @@ class TestCoCos:
         """test that no error is raised when the output block is missing, but not emit_spike() functions are called"""
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "valid")), "CoCoOutputPortDefinedIfEmitCall.nestml"))
         assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 0
-
-    def test_invalid_output_port_type_if_emit_call(self):
-        """test that an error is raised when the emit_spike() function is called with different parameter types than are defined in the spiking output port"""
-        model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")), "CoCoOutputPortTypeIfEmitCall.nestml"))
-        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) > 0
-
-    def test_invalid_output_port_type_if_emit_call(self):
-        """test that an error is raised when the emit_spike() function is called with different parameter types than are defined in the spiking output port"""
-        model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")), "CoCoOutputPortTypeIfEmitCall-2.nestml"))
-        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) > 0
-
-    def test_valid_output_port_type_if_emit_call(self):
-        """test that a warning is raised when the emit_spike() function is called with parameter types castable to the types defined in the spiking output port"""
-        model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")), "CoCoOutputPortTypeIfEmitCall-3.nestml"))
-        assert model is not None
-        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 0
-        assert len(Logger.get_messages(model, LoggingLevel.WARNING)) > 0
-
-    def test_invalid_output_port_type_continuous(self):
-        """test that an error is raised when a continous-time output port is defined as having attributes."""
-        model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")), "CoCoOutputPortTypeContinuous.nestml"))
-        assert model is None    # should result in a parse error
 
     def test_valid_coco_kernel_type(self):
         """

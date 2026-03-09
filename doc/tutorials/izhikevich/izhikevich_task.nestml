@@ -37,6 +37,9 @@ model izhikevich_tutorial_neuron:
         a real = .02    # describes time scale of recovery variable
         # TODO: add remaining variables
 
+    internals:
+        unit_psp mV = 1 mV        # Unitary postsynaptic potential amplitude
+
     input:
         spikes <- spike
         I_e pA <- continuous
@@ -49,7 +52,7 @@ model izhikevich_tutorial_neuron:
 
     onReceive(spikes):
         # add synaptic current
-        v += spikes * mV * s
+        v += sift(spikes, unit_psp)
 
     onCondition(v >= 30mV):
         # TODO: implement threshold crossing check

@@ -55,6 +55,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 // C++ includes:
 #include <cmath>
+#include <numeric>
 
 #include "config.h"
 {%- if norm_rng %}
@@ -91,6 +92,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "event.h"
 #include "nest_types.h"
 #include "ring_buffer.h"
+#include "vector_ring_buffer.h"
 #include "universal_data_logger.h"
 
 // Includes from sli:
@@ -486,7 +488,7 @@ public:
 
 {%  filter indent(2, True) -%}
 {%-     for blk in neuron.get_on_receive_blocks() %}
-    void on_receive_block_{{ blk.get_port_name() }}(nest::Time const &origin, const long lag);
+    void on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}(nest::Time const &origin, const long lag, const size_t n_spikes_received);
 {%-     endfor %}
 {%- endfilter %}
 
@@ -546,60 +548,33 @@ private:
 {%- endif %}
 
 private:
-{% if has_multiple_synapses -%}
   /**
    * Synapse types to connect to
    * @note Excluded lower and upper bounds are defined as MIN_, MAX_.
    *       Excluding port 0 avoids accidental connections.
   **/
-  static const nest_port_t MIN_SPIKE_RECEPTOR = 1;
-{%-   set ns = namespace(count=1) %}
-{%- else %}
-  static const nest_port_t MIN_SPIKE_RECEPTOR = 0;
-{%-   set ns = namespace(count=0) %}
-{%- endif %}
-  static const nest_port_t PORT_NOT_AVAILABLE = -1;
+  static const nest_port_t MAX_SPIKE_RECEPTOR = {{ utils.nestml_spiking_input_port_to_nest_rport_dict(astnode) | length }};
 
-  enum SynapseTypes
-  {
-{%- for port in neuron.get_spike_input_ports() %}
-{%-   if port.has_vector_parameter() -%}
-{%      set size = utils.get_numeric_vector_size(port) | int %}
-{%-     for i in range(size) %}
-    {{port.get_symbol_name().upper()}}_{{i}} = {{ns.count}},
-{%-       set ns.count = ns.count + 1 -%}
-{%-     endfor %}
-{%-   else %}
-    {{port.get_symbol_name().upper()}} = {{ns.count}},
-{%-     set ns.count = ns.count + 1 -%}
-{%-   endif -%}
-{%- endfor %}
-    MAX_SPIKE_RECEPTOR = {{ns.count}}
-  };
+  //static const nest_port_t NUM_CONTINUOUS_INPUT_PORTS = {{ utils.nestml_continuous_input_port_to_nest_rport_dict(astnode) | length }};
 
   enum ContinuousInput
   {
-{%-       set ns.count = 0 -%}
+{%- set ns = namespace(count=0) %}
+{%- set ns.count = 0 -%}
 {%- for port in neuron.get_continuous_input_ports() %}
 {%-   if port.has_vector_parameter() -%}
 {%      set size = utils.get_numeric_vector_size(port) | int %}
 {%-     for i in range(size) %}
-    {{port.get_symbol_name().upper()}}_{{i}} = {{ns.count}},
+    {{port.get_symbol_name().upper()}}_{{ i }} = {{ ns.count }},
 {%-       set ns.count = ns.count + 1 -%}
 {%-     endfor %}
 {%-   else %}
-    {{port.get_symbol_name().upper()}} = {{ns.count}},
+    {{ port.get_symbol_name().upper() }} = {{ns.count}},
 {%-     set ns.count = ns.count + 1 -%}
 {%-   endif -%}
 {%- endfor %}
     NUM_CONTINUOUS_INPUT_PORTS = {{ ns.count }}
   };
-
-  static const size_t NUM_SPIKE_RECEPTORS = MAX_SPIKE_RECEPTOR - MIN_SPIKE_RECEPTOR;
-
-{% if neuron.get_spike_input_ports()|length > 1 or neuron.is_multisynapse_spikes() -%}
-  static std::vector< std::tuple< int, int > > rport_to_nestml_buffer_idx;
-{%- endif %}
 
   /**
    * Reset state of neuron.
@@ -840,15 +815,51 @@ private:
     //   Spike buffers and sums of incoming spikes/currents per timestep
     // -----------------------------------------------------------------------
 
-{%- filter indent(4, True) -%}
-{{ buffer_getter.SpikeBufferGetter(true) }}
-{%- endfilter %}
+{%- for inputPortSymbol in neuron.get_spike_input_ports() %}
+{%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name.split(".")[0]) %}
+
+    // input port: {{ inputPort.name }}
+{%- if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
+{#-     linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
+
+{%-     if inputPortSymbol.has_vector_parameter() %}
+{%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
+{%-         for i in range(size)  %}
+    nest::RingBuffer spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_;
+    double spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_grid_sum_;
+    nest::RingBuffer spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_n_spikes_received_;
+    double spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_n_spikes_received_grid_sum_;
+{%-         endfor %}
+{%-     else %}
+    nest::RingBuffer spike_input_{{ inputPort.name }}_;    // buffer for unweighted spikes
+    double spike_input_{{ inputPort.name }}_grid_sum_;    // buffer for unweighted spikes
+    nest::RingBuffer spike_input_{{ inputPort.name }}_n_spikes_received_;    // buffer for the "spike received" boolean flag
+    double spike_input_{{ inputPort.name }}_n_spikes_received_grid_sum_;    // buffer for the "spike received" boolean flag
+{%-     endif %}
+{%- else %}
+{#-     generic input port: use lists of spike events for each buffer slot #}
+
+{%-     if inputPortSymbol.has_vector_parameter() %}
+{%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
+{%-         for i in range(size)  %}
+    nest::VectorRingBuffer spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_;
+    double spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_grid_sum_;
+    nest::RingBuffer spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_n_spikes_received_;
+    double spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_n_spikes_received_grid_sum_;
+{%-         endfor %}
+{%-     else %}
+    nest::VectorRingBuffer spike_input_{{ inputPort.name }}_;    // buffer for unweighted spikes
+    nest::RingBuffer spike_input_{{ inputPort.name }}_n_spikes_received_;    // buffer for the "spike received" boolean flag
+    double spike_input_{{ inputPort.name }}_n_spikes_received_grid_sum_;    // buffer for the "spike received" boolean flag
+{%-     endif %}
+{%- endif %}
+{%- endfor %}
 
     // -----------------------------------------------------------------------
     //   Continuous-input buffers
     // -----------------------------------------------------------------------
 
-{% filter indent(4, True) %}
+{%  filter indent(4, True) %}
 {{ continuous_buffer_getter.ContinuousInputBufferGetter(true) }}
 {%- endfilter %}
 
@@ -920,14 +931,12 @@ private:
 {%- endfilter %}
 
   // -------------------------------------------------------------------------
-  //   Getters/setters for input buffers
+  //   Getters/setters for continuous-time input buffers
   // -------------------------------------------------------------------------
 
-{%- filter indent(2, True) %}
-{{ buffer_getter.SpikeBufferGetter(false) }}
+{%  filter indent(2, True) %}
 {{ continuous_buffer_getter.ContinuousInputBufferGetter(false) }}
 {%- endfilter %}
-
 {%- if neuron.get_functions()|length > 0 %}
   // -------------------------------------------------------------------------
   //   Function declarations
@@ -1014,7 +1023,7 @@ inline nest_port_t {{neuronName}}::send_test_event(nest::Node& target, nest_rpor
 {
   // You should usually not change the code in this function.
   // It confirms that the target of connection @c c accepts @c {{ output_event.OutputEvent() }} on
-  // the given @c receptor_type.
+  // the given receptor_type.
   {{ output_event.OutputEvent() }} e;
   e.set_sender(*this);
   return target.handles_test_event(e, receptor_type);
@@ -1023,17 +1032,16 @@ inline nest_port_t {{neuronName}}::send_test_event(nest::Node& target, nest_rpor
 
 inline nest_port_t {{neuronName}}::handles_test_event(nest::SpikeEvent&, nest_port_t receptor_type)
 {
-{%- if (neuron.get_multiple_receptors())|length > 1 or neuron.is_multisynapse_spikes() %}
-    assert( B_.spike_inputs_.size() == NUM_SPIKE_RECEPTORS );
-    if ( receptor_type < MIN_SPIKE_RECEPTOR or receptor_type >= MAX_SPIKE_RECEPTOR )
+{%- if (neuron.get_multiple_receptors()) | length > 1 or neuron.is_multisynapse_spikes() %}
+    if ( receptor_type < 1 or receptor_type > MAX_SPIKE_RECEPTOR )
     {
       throw nest::UnknownReceptorType( receptor_type, get_name() );
     }
-    return receptor_type - MIN_SPIKE_RECEPTOR;
+    return receptor_type;
 {%- else %}
     // You should usually not change the code in this function.
     // It confirms to the connection management system that we are able
-    // to handle @c SpikeEvent on port 0. You need to extend the function
+    // to handle a SpikeEvent on port 0. You need to extend the function
     // if you want to differentiate between input ports.
     if (receptor_type != 0)
     {
@@ -1049,7 +1057,7 @@ inline nest_port_t {{neuronName}}::handles_test_event(nest::CurrentEvent&, nest_
 {
   // You should usually not change the code in this function.
   // It confirms to the connection management system that we are able
-  // to handle @c CurrentEvent on port 0. You need to extend the function
+  // to handle a CurrentEvent on port 0. You need to extend the function
   // if you want to differentiate between input ports.
   if (receptor_type >= NUM_CONTINUOUS_INPUT_PORTS)
   {
@@ -1063,7 +1071,7 @@ inline nest_port_t {{neuronName}}::handles_test_event(nest::DataLoggingRequest& 
 {
   // You should usually not change the code in this function.
   // It confirms to the connection management system that we are able
-  // to handle @c DataLoggingRequest on port 0.
+  // to handle a DataLoggingRequest on port 0.
   // The function also tells the built-in UniversalDataLogger that this node
   // is recorded from and that it thus needs to collect data during simulation.
   if (receptor_type != 0)
@@ -1104,30 +1112,20 @@ inline void {{neuronName}}::get_status(DictionaryDatum&__d) const
 
   {{neuron_parent_class}}::get_status( __d );
 
-{%- if (neuron.get_multiple_receptors())|length > 1 or neuron.is_multisynapse_spikes() %}
+  // input ports to NEST rport number mapping
   DictionaryDatum __receptor_type = new Dictionary();
-{%-   for key, ports in utils.get_spike_input_ports_in_pairs(neuron).items() %}
-{%-   set ns = namespace(rport=key) %}
-{%-     for port in ports  %}
-{%-       if not port.has_vector_parameter() %}
-    ( *__receptor_type )[ "{{port.get_symbol_name().upper()}}" ] = {{ns.rport + 1}};
-{%-       else %}
-{%-       set size = utils.get_numeric_vector_size(port) %}
-{%-         for i in range(size)  %}
-    ( *__receptor_type )[ "{{port.get_symbol_name().upper()}}_{{i}}" ] = {{ns.rport + i + 1}},
-{%-         endfor %}
-{%-       endif %}
-{%-     endfor %}
-{%-   endfor %}
-    ( *__d )[ "receptor_types" ] = __receptor_type;
-{%- endif %}
+{%- for spike_in_port_name, rport in utils.nestml_spiking_input_port_to_nest_rport_dict(astnode).items() %}
+{%-     set spike_in_port = utils.get_input_port_by_name(astnode.get_input_blocks(), spike_in_port_name.split("_VEC_IDX_")[0]) %}
+  ( *__receptor_type )[ "{{spike_in_port_name.upper()}}" ] = {{ rport }};
+{%- endfor %}
+  (*__d)["receptor_types"] = __receptor_type;
 
 {%- if (neuron.get_continuous_input_ports())|length > 1 %}
   DictionaryDatum __continuous_input_type = new Dictionary();
-{%-   for port in neuron.get_continuous_input_ports() %}
-    ( *__continuous_input_type )[ "{{port.get_symbol_name().upper()}}" ] = {{port.get_symbol_name().upper()}};
-{%-    endfor %}
-    ( *__d )[ "continuous_inputs" ] = __continuous_input_type;
+{%-     for port in neuron.get_continuous_input_ports() %}
+  ( *__continuous_input_type )[ "{{port.get_symbol_name().upper()}}" ] = {{port.get_symbol_name().upper()}};
+{%-     endfor %}
+  ( *__d )[ "continuous_inputs" ] = __continuous_input_type;
 {%- endif %}
 
   (*__d)[nest::names::recordables] = recordablesMap_.get_list();
