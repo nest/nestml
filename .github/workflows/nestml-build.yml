@@ -14,7 +14,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Link Checker
-        uses: lycheeverse/lychee-action@v2.7.0
+        uses: lycheeverse/lychee-action@v2.8.0
         with:
           args: --verbose --no-progress **/*.md **/*.html **/*.rst
           fail: true
@@ -199,7 +199,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        nest_branch: ["v2.20.2", "v3.0", "v3.9", "master"]
+        nest_branch: ["v3.0", "v3.9", "main"]
       fail-fast: false
     steps:
       - name: Checkout repository contents
@@ -259,7 +259,7 @@ jobs:
           nestml --input_path $ALL_MODEL_FILENAMES --target_path target --suffix _nestml --logging_level INFO --module_name nestml_allmodels_module --codegen_opts tests/nest_tests/resources/nest_codegen_opts.json
 
       - name: Run integration tests
-        if: ${{ matrix.nest_branch == 'master' || matrix.nest_branch == 'v2.20.2' }}
+        if: ${{ matrix.nest_branch == 'main' || matrix.nest_branch == 'v2.20.2' }}
         env:
           LD_LIBRARY_PATH: ${{ env.NEST_INSTALL }}/lib/nest
         run: |
@@ -269,16 +269,16 @@ jobs:
           done;
           exit $rc
 
-      # Run only the nest integration tests for NEST versions other than master and 2.20.2
+      # Run only the nest integration tests for NEST versions other than main and 2.20.2
       - name: Run integration tests
-        if: ${{ !(matrix.nest_branch == 'master' || matrix.nest_branch == 'v2.20.2') }}
+        if: ${{ !(matrix.nest_branch == 'main' || matrix.nest_branch == 'v2.20.2') }}
         env:
           LD_LIBRARY_PATH: ${{ env.NEST_INSTALL }}/lib/nest
         run: |
           pytest -s -o log_cli=true -o log_cli_level="DEBUG" tests/nest_tests/nest_integration_test.py
 
       - name: Run Jupyter notebooks
-        if: ${{ matrix.nest_branch == 'master' }}
+        if: ${{ matrix.nest_branch == 'main' }}
         run: |
           ipynb_fns=$(find $GITHUB_WORKSPACE/doc/tutorials -name '*.ipynb')
           rc=0
@@ -300,7 +300,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        nest_branch: ["master"]
+        nest_branch: ["main"]
       fail-fast: false
     steps:
       - name: Checkout the repository contents

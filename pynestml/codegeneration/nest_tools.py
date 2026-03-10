@@ -68,7 +68,7 @@ try:
 
         ver = semver.Version.parse(nest_version)
         if ver.prerelease and "post0.dev" in ver.prerelease:
-            nest_version = "master"
+            nest_version = "main"
         else:
             nest_version = "v" + nest_version
 
