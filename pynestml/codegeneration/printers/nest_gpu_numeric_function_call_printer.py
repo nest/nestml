@@ -34,17 +34,10 @@ class NESTGPUNumericFunctionPrinter(CUDAFunctionCallPrinter):
 
         if function_name == PredefinedFunctions.TIME_RESOLUTION:
             # context dependent; we assume the template contains the necessary definitions
-            return 'NESTGPUTimeResolution'
+            return "NESTGPUTimeResolution"
 
         if function_name == PredefinedFunctions.TIME_STEPS:
-            return '(int)round({!s}/NESTGPUTimeResolution)'
-
-        # TODO:
-        # if function_name == PredefinedFunctions.RANDOM_NORMAL:
-        #     return '(({!s}) + ({!s}) * ' + 'normal_dev_( nest::get_vp_specific_rng( ' + 'get_thread() ) ))'
-        #
-        # if function_name == PredefinedFunctions.RANDOM_UNIFORM:
-        #     return '(({!s}) + ({!s}) * nest::get_vp_specific_rng( ' + 'get_thread() )->drand())'
+            return "(int)round({!s}/NESTGPUTimeResolution)"
 
         if function_name == PredefinedFunctions.EMIT_SPIKE:
             return "int i_neuron = threadIdx.x + blockIdx.x * blockDim.x;\n \
