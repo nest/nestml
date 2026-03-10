@@ -184,7 +184,7 @@ void
 nest::CompTree{{cm_unique_suffix}}::add_compartment( const long parent_index, const DictionaryDatum& compartment_params )
 {
   //Check whether all passed parameters exist within the used neuron model:
-{%- if not nest_version.startswith("master") %}
+{%- if not nest_version.startswith("main") %}
   Dictionary* comp_param_copy = new Dictionary(*compartment_params);
 {%- else %}
   Dictionary comp_param_copy = compartment_params;
@@ -265,7 +265,7 @@ nest::CompTree{{cm_unique_suffix}}::add_compartment( const long parent_index, co
   {%- endfor %}
 {%- endfor %}
 
-{%- if not nest_version.startswith("master") -%}
+{%- if not nest_version.startswith("main") -%}
   if(!comp_param_copy->empty()){
     std::string msg = "Following parameters are invalid: ";
     for(auto& param : *comp_param_copy){

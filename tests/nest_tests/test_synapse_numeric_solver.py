@@ -70,7 +70,7 @@ class TestSynapseNumericSolver:
 
     def test_non_linear_synapse(self):
         nest.ResetKernel()
-        if not NESTTools.detect_nest_version().startswith("master"):
+        if not NESTTools.detect_nest_version().startswith("main"):
             nest.set_verbosity("M_WARNING")
         else:
             nest.verbosity = nest.VerbosityLevel.WARNING

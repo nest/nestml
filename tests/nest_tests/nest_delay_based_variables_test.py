@@ -53,7 +53,7 @@ def plot_fig(times, recordable_events_delay: dict, recordable_events: dict, file
 
 
 def run_simulation(neuron_model_name: str, module_name: str, recordables: List[str], delay: float):
-    if not NESTTools.detect_nest_version().startswith("master"):
+    if not NESTTools.detect_nest_version().startswith("main"):
         nest.set_verbosity("M_ALL")
     else:
         nest.verbosity = nest.VerbosityLevel.ALL

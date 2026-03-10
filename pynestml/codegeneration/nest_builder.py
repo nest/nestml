@@ -95,7 +95,7 @@ class NESTBuilder(Builder):
                 sys.exit(1)
 
             nest_version = NESTTools.detect_nest_version()
-            if nest_version.startswith("master"):
+            if nest_version.startswith("main"):
                 nest_path = nest.build_info["prefix"]
             else:
                 nest_path = nest.ll_api.sli_func("statusdict/prefix ::")

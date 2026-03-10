@@ -46,7 +46,7 @@ class TestODEToolboxprinter:
                         reason="This test does not support NEST 2")
     def test_ode_toolbox_printer(self):
         nest.ResetKernel()
-        if not NESTTools.detect_nest_version().startswith("master"):
+        if not NESTTools.detect_nest_version().startswith("main"):
             nest.set_verbosity("M_ALL")
         else:
             nest.verbosity = nest.VerbosityLevel.ALL

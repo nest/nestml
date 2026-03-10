@@ -19,7 +19,7 @@ if ( {{ exists_in_dictionary.ExistsInDictionary("statusdict", "names::compartmen
       throw BadProperty( "\"compartments\" is already defined for this model" );
     }
 
-{%- if not nest_version.startswith("master") %}
+{%- if not nest_version.startswith("main") %}
 
     Datum* dat = ( *statusdict )[ names::compartments ].datum();
     ArrayDatum* ad = dynamic_cast< ArrayDatum* >( dat );

@@ -38,14 +38,14 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {%- endwith -%}
 {%- endmacro %}
 
-{%- if nest_version.startswith("master") %}
+{%- if nest_version.startswith("main") %}
 typedef Dictionary DictionaryDatum;
 typedef std::vector< Dictionary > ArrayDatum;
 {%- endif %}
 
 namespace nest
 {
-{%- if nest_version.startswith("master") %}
+{%- if nest_version.startswith("main") %}
 typedef std::string Name;
 {%- endif %}
 ///////////////////////////////////// channels
@@ -723,7 +723,7 @@ public:
 {%- for synapse_name, synapse_info in syns_info.items() %}
     for( std::size_t syn_it = 0; syn_it != {{synapse_name}}{{synapse_suffix}}.neuron_{{synapse_name}}_synapse_count; syn_it++)
     {
-{%- if not nest_version.startswith("master") %}
+{%- if not nest_version.startswith("main") %}
       DictionaryDatum dd = DictionaryDatum( new Dictionary );
 {%- else %}
       Dictionary dd;
@@ -738,7 +738,7 @@ public:
 {%- for continuous_name, continuous_info in con_in_info.items() %}
     for( std::size_t con_it = 0; con_it != {{continuous_name}}{{continuous_suffix}}.neuron_{{continuous_name}}_continuous_input_count; con_it++)
     {
-{%- if not nest_version.startswith("master") %}
+{%- if not nest_version.startswith("main") %}
       DictionaryDatum dd = DictionaryDatum( new Dictionary );
 {%- else %}
       Dictionary dd;

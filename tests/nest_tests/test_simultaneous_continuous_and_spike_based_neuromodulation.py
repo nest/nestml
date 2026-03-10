@@ -116,7 +116,7 @@ class TestSimultaneousContinuousAndSpikeBasedNeuromodulation:
                 post_spike_times, initial=0.), np.amax(vt_spike_times, initial=0.)) + 5 * delay
 
         nest.ResetKernel()
-        if not NESTTools.detect_nest_version().startswith("master"):
+        if not NESTTools.detect_nest_version().startswith("main"):
             nest.set_verbosity("M_ERROR")
         else:
             nest.verbosity = nest.VerbosityLevel.ERROR

@@ -141,7 +141,7 @@ class TestNESTContinuousBenchmarking:
             sim_time = max(np.amax(pre_spike_times), np.amax(post_spike_times)) + 5 * delay
 
         nest.ResetKernel()
-        if not NESTTools.detect_nest_version().startswith("master"):
+        if not NESTTools.detect_nest_version().startswith("main"):
             nest.set_verbosity("M_ALL")
         else:
             nest.verbosity = nest.VerbosityLevel.ALL

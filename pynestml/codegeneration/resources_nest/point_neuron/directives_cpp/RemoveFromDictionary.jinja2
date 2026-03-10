@@ -2,7 +2,7 @@
 Removes an entry from the dictionary.
 #}
 {%- macro RemoveFromDictionary(dict_name, key, key_as_str=false) -%}
-{%-   if not nest_version.startswith("master")  %}
+{%-   if not nest_version.startswith("main")  %}
 {%-     if key_as_str -%}
 {{ dict_name }}->remove("{{ key }}");
 {%-     else  -%}

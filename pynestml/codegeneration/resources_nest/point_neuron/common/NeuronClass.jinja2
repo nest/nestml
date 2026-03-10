@@ -60,7 +60,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "nest_impl.h"
 #include "universal_data_logger_impl.h"
 
-{%- if not nest_version.startswith("master") %}
+{%- if not nest_version.startswith("main") %}
 // Includes from sli:
 #include "dict.h"
 #include "dictutils.h"
@@ -363,7 +363,7 @@ void {{ neuronName }}::init_state_(const Node& proto)
 {%- if not nest_version.startswith("v2") %}
 void {{ neuronName }}::calibrate_time( const nest::TimeConverter& tc )
 {
-{%- if nest_version.startswith("master") %}
+{%- if nest_version.startswith("main") %}
   LOG( nest::VerbosityLevel::WARNING,
 {%- else %}
   LOG( nest::M_WARNING,
