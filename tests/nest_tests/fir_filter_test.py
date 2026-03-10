@@ -68,7 +68,7 @@ class NestFirFilterTest(unittest.TestCase):
         t_sim = 101.
         resolution = 0.1
 
-        if not NESTTools.detect_nest_version().startswith("master"):
+        if not NESTTools.detect_nest_version().startswith("main"):
             nest.set_verbosity("M_ALL")
         else:
             nest.verbosity = nest.VerbosityLevel.ALL

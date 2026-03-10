@@ -37,7 +37,7 @@ generate_nest_target(input_path,
                      logging_level=logging_level,
                      module_name=module_name,
                      suffix=suffix)
-if not NESTTools.detect_nest_version().startswith("master"):
+if not NESTTools.detect_nest_version().startswith("main"):
     nest.set_verbosity("M_ERROR")
 else:
     nest.verbosity = nest.VerbosityLevel.ERROR

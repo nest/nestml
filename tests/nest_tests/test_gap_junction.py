@@ -73,7 +73,7 @@ class TestGapJunction:
         sim_time = 100.   # [ms]
         pre_spike_times = [1., 16., 31.]    # [ms]
 
-        if not NESTTools.detect_nest_version().startswith("master"):
+        if not NESTTools.detect_nest_version().startswith("main"):
             nest.set_verbosity("M_ALL")
         else:
             nest.verbosity = nest.VerbosityLevel.ALL

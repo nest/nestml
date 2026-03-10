@@ -85,7 +85,7 @@ class NoisySynapseTest(unittest.TestCase):
         if sim_time is None:
             sim_time = np.amax(pre_spike_times) + 5 * delay
 
-        if not NESTTools.detect_nest_version().startswith("master"):
+        if not NESTTools.detect_nest_version().startswith("main"):
             nest.set_verbosity("M_ALL")
         else:
             nest.verbosity = nest.VerbosityLevel.ALL
@@ -94,7 +94,7 @@ class NoisySynapseTest(unittest.TestCase):
 
         print("Pre spike times: " + str(pre_spike_times))
 
-        if not NESTTools.detect_nest_version().startswith("master"):
+        if not NESTTools.detect_nest_version().startswith("main"):
             nest.set_verbosity("M_WARNING")
         else:
             nest.verbosity = nest.VerbosityLevel.WARNING

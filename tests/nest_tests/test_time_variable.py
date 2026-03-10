@@ -54,7 +54,7 @@ class TestTimeVariable:
         logging_level = "DEBUG"
         suffix = "_nestml"
 
-        if not NESTTools.detect_nest_version().startswith("master"):
+        if not NESTTools.detect_nest_version().startswith("main"):
             nest.set_verbosity("M_ALL")
         else:
             nest.verbosity = nest.VerbosityLevel.ALL
@@ -116,7 +116,7 @@ class TestTimeVariable:
         nest.Connect(nrn[0], sr_pre)
         nest.Connect(nrn[1], sr_post)
 
-        if not NESTTools.detect_nest_version().startswith("master"):
+        if not NESTTools.detect_nest_version().startswith("main"):
             nest.set_verbosity("M_ALL")
         else:
             nest.verbosity = nest.VerbosityLevel.ALL

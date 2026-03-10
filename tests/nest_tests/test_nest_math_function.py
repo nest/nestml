@@ -40,7 +40,7 @@ class TestNestMathFunction:
 
         nest_version = NESTTools.detect_nest_version()
 
-        if not NESTTools.detect_nest_version().startswith("master"):
+        if not NESTTools.detect_nest_version().startswith("main"):
             nest.set_verbosity("M_ALL")
         else:
             nest.verbosity = nest.VerbosityLevel.ALL

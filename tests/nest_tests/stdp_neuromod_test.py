@@ -132,7 +132,7 @@ class NestSTDPNeuromodTest(unittest.TestCase):
 
         nest.ResetKernel()
         # nest.set_verbosity("M_ALL")
-        if not NESTTools.detect_nest_version().startswith("master"):
+        if not NESTTools.detect_nest_version().startswith("main"):
             nest.set_verbosity("M_ERROR")
         else:
             nest.verbosity = nest.VerbosityLevel.ERROR

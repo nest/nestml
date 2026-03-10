@@ -68,7 +68,7 @@ class TestIgnoreAndFire:
     def test_ignore_and_fire_with_stdp(self, resolution: float):
         sim_time = 1001.   # [ms]
 
-        if not NESTTools.detect_nest_version().startswith("master"):
+        if not NESTTools.detect_nest_version().startswith("main"):
             nest.set_verbosity("M_ALL")
         else:
             nest.verbosity = nest.VerbosityLevel.ALL

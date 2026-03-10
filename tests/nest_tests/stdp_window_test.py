@@ -72,7 +72,7 @@ def run_stdp_network(pre_spike_time, post_spike_time,
     print("Pre spike time: " + str(pre_spike_time))
     print("Post spike time: " + str(post_spike_time))
 
-    if not NESTTools.detect_nest_version().startswith("master"):
+    if not NESTTools.detect_nest_version().startswith("main"):
         nest.set_verbosity("M_ALL")
     else:
         nest.verbosity = nest.VerbosityLevel.ALL

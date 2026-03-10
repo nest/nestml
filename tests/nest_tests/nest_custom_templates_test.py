@@ -65,7 +65,7 @@ class NestCustomTemplatesTest(unittest.TestCase):
                         module_name=module_name,
                         suffix=suffix,
                         codegen_opts=codegen_opts)
-        if not NESTTools.detect_nest_version().startswith("master"):
+        if not NESTTools.detect_nest_version().startswith("main"):
             nest.set_verbosity("M_ALL")
         else:
             nest.verbosity = nest.VerbosityLevel.ALL
@@ -135,7 +135,7 @@ class NestCustomTemplatesTest(unittest.TestCase):
                         module_name=module_name,
                         suffix=suffix,
                         codegen_opts=codegen_opts)
-        if not NESTTools.detect_nest_version().startswith("master"):
+        if not NESTTools.detect_nest_version().startswith("main"):
             nest.set_verbosity("M_ALL")
         else:
             nest.verbosity = nest.VerbosityLevel.ALL

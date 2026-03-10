@@ -169,7 +169,7 @@ class TestNestIntegration:
         I_stim_vec = np.linspace(10E-12, 1E-9, 3)  # [A]
         for i, I_stim in enumerate(I_stim_vec):
             nest.ResetKernel()
-            if not NESTTools.detect_nest_version().startswith("master"):
+            if not NESTTools.detect_nest_version().startswith("main"):
                 nest.set_verbosity("M_ERROR")
             else:
                 nest.verbosity = nest.VerbosityLevel.ERROR
@@ -256,7 +256,7 @@ class TestNestIntegration:
         rate_reference = float("nan") * np.ones_like(I_stim_vec)
         for i, I_stim in enumerate(I_stim_vec):
             nest.ResetKernel()
-            if not NESTTools.detect_nest_version().startswith("master"):
+            if not NESTTools.detect_nest_version().startswith("main"):
                 nest.set_verbosity("M_ERROR")
             else:
                 nest.verbosity = nest.VerbosityLevel.ERROR
@@ -364,7 +364,7 @@ class TestNestIntegration:
         spike_weights = np.linspace(1, max_weight, 11)
 
         nest.ResetKernel()
-        if not NESTTools.detect_nest_version().startswith("master"):
+        if not NESTTools.detect_nest_version().startswith("main"):
             nest.set_verbosity("M_ERROR")
         else:
             nest.verbosity = nest.VerbosityLevel.ERROR
