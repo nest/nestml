@@ -64,7 +64,7 @@ try:
         ver = semver.Version.parse(nest.__version__)
         if (ver.major == 3 and ver.minor >= 5) or ver.major > 3:
             if ver.prerelease and "post0.dev0" in ver.prerelease:
-                nest_version = "master"
+                nest_version = "main"
             else:
                 nest_version = "v" + nest.__version__
     except (AttributeError, ValueError):
