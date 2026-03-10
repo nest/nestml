@@ -74,42 +74,42 @@ class NESTGPUBuilder(Builder):
         nest_gpu_install_path = self.get_option("nest_gpu_install_path")
 
         if not os.path.isdir(target_path):
-            raise InvalidPathException('Target path (' + target_path + ') is not a directory!')
+            raise InvalidPathException("Target path (" + target_path + ") is not a directory!")
 
         if nest_gpu_path is None or (not os.path.isdir(nest_gpu_path)):
-            raise InvalidPathException('NEST-GPU path (' + str(nest_gpu_path) + ') is not a directory!')
+            raise InvalidPathException("NEST-GPU path (" + str(nest_gpu_path) + ") is not a directory!")
 
         # Construct the build commands
         mpi_option = "-Dwith-mpi=ON"
         install_prefix = f"-DCMAKE_INSTALL_PREFIX={nest_gpu_install_path}"
         cmake_cmd = ["cmake", mpi_option, install_prefix, nest_gpu_path]
-        make_cmd = ['make']
-        make_install_cmd = ['make', 'install']
+        make_cmd = ["make"]
+        make_install_cmd = ["make", "install"]
 
         # Make build directory
         try:
             os.makedirs(nest_gpu_build_path, exist_ok=True)
         except (FileExistsError, FileNotFoundError):
             raise GeneratedCodeBuildException(
-                'Error occurred during \'make\'! More detailed error messages can be found in stdout.')
+                "Error occurred during \"make\"! More detailed error messages can be found in stdout.")
 
         # cmake
         try:
             subprocess.check_call(cmake_cmd, stderr=subprocess.STDOUT, cwd=nest_gpu_build_path)
         except subprocess.CalledProcessError as e:
             raise GeneratedCodeBuildException(
-                'Error occurred during \'make\'! More detailed error messages can be found in stdout.')
+                "Error occurred during \"make\"! More detailed error messages can be found in stdout.")
 
         # now execute make
         try:
             subprocess.check_call(make_cmd, stderr=subprocess.STDOUT, cwd=nest_gpu_build_path)
         except subprocess.CalledProcessError as e:
             raise GeneratedCodeBuildException(
-                'Error occurred during \'make\'! More detailed error messages can be found in stdout.')
+                "Error occurred during \"make\"! More detailed error messages can be found in stdout.")
 
         # finally execute make install
         try:
             subprocess.check_call(make_install_cmd, stderr=subprocess.STDOUT, cwd=nest_gpu_build_path)
         except subprocess.CalledProcessError as e:
             raise GeneratedCodeBuildException(
-                'Error occurred during \'make install\'! More detailed error messages can be found in stdout.')
+                "Error occurred during \"make install\"! More detailed error messages can be found in stdout.")
