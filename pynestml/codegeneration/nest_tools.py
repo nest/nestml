@@ -78,15 +78,15 @@ try:
         if "DataConnect" in dir(nest):
             nest_version = "v2.20.2"
         elif "kernel_status" not in dir(nest):  # added in v3.1
-            nest_version = "v3.0"
+            nest_version = "v3.0.0"
         elif "prepared" in nest.GetKernelStatus().keys():  # "prepared" key was added after v3.3 release
-            nest_version = "v3.4"
+            nest_version = "v3.4.0"
         elif "tau_u_bar_minus" in neuron.get().keys():   # added in v3.3
-            nest_version = "v3.3"
+            nest_version = "v3.3.0"
         elif "tau_Ca" in vt.get().keys():   # removed in v3.2
-            nest_version = "v3.1"
+            nest_version = "v3.1.0"
         else:
-            nest_version = "v3.2"
+            nest_version = "v3.2.0"
 except ModuleNotFoundError:
     nest_version = ""
 
@@ -117,10 +117,11 @@ print(nest_version, file=sys.stderr)
     def get_version_dict_from_version_string(cls, version_string):
         version_dict = {}
         try:
-            if "main" not in version_string:
+            if version_string and "main" not in version_string:
                 version = semver.Version.parse(version_string.split("v")[1])
                 version_dict["major"], version_dict["minor"], version_dict["patch"] = version.major, version.minor, version.patch
         except ValueError:
-            version_dict["major"], version_dict["minor"], version_dict["patch"] = None, None, None
+            Logger.log_message(None, -1, "The NEST Simulator version cannot be parsed by semver: " + version_string,
+                               None, LoggingLevel.WARNING)
 
         return version_dict

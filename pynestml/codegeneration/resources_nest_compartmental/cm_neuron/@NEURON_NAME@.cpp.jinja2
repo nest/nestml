@@ -95,7 +95,7 @@ void
   ArrayDatum receptor_ad;
   for ( long comp_idx_ = 0; comp_idx_ != c_tree_.get_size(); comp_idx_++ )
   {
-{%- if not (nest_version.startswith("main") or (nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3) %}
+{%- if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
     DictionaryDatum dd = DictionaryDatum( new Dictionary );
 {%- else %}
     Dictionary dd;

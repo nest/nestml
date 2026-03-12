@@ -2,7 +2,7 @@
 Checks if a key is present in a dictionary.
 #}
 {%- macro ExistsInDictionary(dict_name, key, key_as_str=false) -%}
-{%-   if not (nest_version.startswith("main") or (nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3)  -%}
+{%-   if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) -%}
 {%-     if key_as_str  -%}
 {{ dict_name }}->known("{{ key }}")
 {%-     else -%}
