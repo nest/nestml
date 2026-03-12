@@ -34,6 +34,7 @@ from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.nest_code_generator_utils import NESTCodeGeneratorUtils
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.nest_cpp_type_symbol_printer import NESTCppTypeSymbolPrinter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
@@ -310,6 +311,7 @@ class NESTCodeGenerator(CodeGenerator):
         # NEST version
         if self.option_exists("nest_version"):
             namespace["nest_version"] = self.get_option("nest_version")
+            namespace["nest_version_dict"] = NESTTools.get_version_dict_from_version_string(self.get_option("nest_version"))
 
         return namespace
 
@@ -509,6 +511,7 @@ class NESTCodeGenerator(CodeGenerator):
         # NEST version
         if self.option_exists("nest_version"):
             namespace["nest_version"] = self.get_option("nest_version")
+            namespace["nest_version_dict"] = NESTTools.get_version_dict_from_version_string(self.get_option("nest_version"))
 
         # helper functions
         namespace["ast_node_factory"] = ASTNodeFactory
@@ -573,7 +576,9 @@ class NESTCodeGenerator(CodeGenerator):
         """
         namespace = self._get_model_namespace(synapse)
 
-        namespace["nest_version"] = self.get_option("nest_version")
+        if self.option_exists("nest_version"):
+            namespace["nest_version"] = self.get_option("nest_version")
+            namespace["nest_version_dict"] = NESTTools.get_version_dict_from_version_string(self.get_option("nest_version"))
 
         all_input_port_names = []
         for input_block in synapse.get_input_blocks():

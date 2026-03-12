@@ -22,6 +22,8 @@ import subprocess
 import sys
 import tempfile
 
+import semver
+
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
 
@@ -110,3 +112,15 @@ print(nest_version, file=sys.stderr)
                            LoggingLevel.INFO)
 
         return nest_version
+
+    @classmethod
+    def get_version_dict_from_version_string(cls, version_string):
+        version_dict = {}
+        try:
+            if "main" not in version_string:
+                version = semver.Version.parse(version_string.split("v")[1])
+                version_dict["major"], version_dict["minor"], version_dict["patch"] = version.major, version.minor, version.patch
+        except ValueError:
+            version_dict["major"], version_dict["minor"], version_dict["patch"] = None, None, None
+
+        return version_dict

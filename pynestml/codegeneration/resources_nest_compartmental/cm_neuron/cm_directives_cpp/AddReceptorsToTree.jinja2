@@ -18,7 +18,7 @@ if ( {{ exists_in_dictionary.ExistsInDictionary("statusdict", "names::receptors"
     {
       throw BadProperty( "\"receptors\" is already defined for this model" );
     }
-{%- if not nest_version.startswith("main") %}
+{%- if not (nest_version.startswith("main") or (nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3) %}
 
     Datum* dat = ( *statusdict )[ names::receptors ].datum();
     ArrayDatum* ad = dynamic_cast< ArrayDatum* >( dat );

@@ -2,7 +2,7 @@
 Read a value from a dictionary.
 #}
 {%- macro ReadFromDictionary(dict_name, variable_type, key, value, node, update_param=true, key_as_str=false) -%}
-{%- if not nest_version.startswith("main")  %}
+{%- if not (nest_version.startswith("main") or (nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3)  %}
 {%-   if update_param -%}
 {%-     if key_as_str -%}
 nest::updateValueParam<{{variable_type}}>({{ dict_name }}, "{{ key }}", {{ value }}, {{ node }})
