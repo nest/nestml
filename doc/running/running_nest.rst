@@ -289,7 +289,7 @@ Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to 
 
 This specifies that the neuron ``iaf_psc_exp`` has to be generated paired with the synapse ``stdp_synapse``, and that the input ports ``post_spikes`` in the synapse are to be connected to the postsynaptic partner.
 
-Owing to the "co-generation" feature of neuron and synapse models, NESTML generates the model names with the associated neuron and synapse names. For the example above, the neuron name is changed to ``"iaf_psc_exp__with_stdp_synapse"``, and similarly, the synapse name will be ``"stdp_synapse__with_iaf_psc_exp"``. Note that the modified neuron and synapse model names must be used in the simulation script after the code generation.
+Owing to the "co-generation" of neuron and synapse models, NESTML generates the model names with the associated neuron and synapse names. For the example above, the neuron name is changed to ``"iaf_psc_exp__with_stdp_synapse"``, and similarly, the synapse name to ``"stdp_synapse__with_iaf_psc_exp"`` during the code generation. Note that the modified neuron and synapse model names must be used in the simulation script for creating neurons and connections.
 
 Alternatively, the modified model names can also be obtained using ``NESTCodeGeneratorUtils.generate_code_for()``, which internally calls the ``generate_nest_target()`` function, and returns the modified model names. For example:
 
@@ -310,7 +310,7 @@ To prevent the NESTML code generator from moving specific variables from synapse
 Third-factor plasticity
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-A synapse model can also have a "third factor" (in addition to pre and post-synaptic spikes) influencing the plasticity the synapse. For example, a third factor to a synapse could be the dendritic action potential of its post-synaptic partner.
+A synapse model can also have a "third factor" (in addition to pre and post-synaptic spikes) influencing the plasticity of the synapse. For example, a third factor to a synapse could be the dendritic action potential of its post-synaptic partner.
 
 During code generation, the third-factor variable of the synapse and its corresponding post-synaptic variable must be provided in the ``codegen_opts``. For example:
 
