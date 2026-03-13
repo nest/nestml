@@ -7,7 +7,7 @@ software can be used to violate security mechanisms, developers will try to
 provide patches that mitigate the risk of this misuse.
 
 The current policy is explained in SECURITY.md in the NESTML
-master branch. The policy can also be found at
+main branch. The policy can also be found at
 <https://github.com/nest/nestml/security/policy>.
 
 ## Supported Versions
@@ -16,9 +16,9 @@ Generally only the latest release will receive security related
 updates. Currently the following versions are being supported with security
 updates:
 
-| Version  | Supported          |
-| -------- | ------------------ |
-| master   | yes :heavy_check_mark: |
+| Version  | Supported              |
+| -------- | ---------------------- |
+| main     | yes :heavy_check_mark: |
 
 ## Reporting a Vulnerability
 
