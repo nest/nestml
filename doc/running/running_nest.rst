@@ -295,17 +295,18 @@ Alternatively, the modified model names can also be obtained using ``NESTCodeGen
 
 .. code-block:: python
 
-   module_name, neuron_model_name, synapse_model_name = NESTCodeGeneratorUtils.generate_code_for("iaf_psc_exp_neuron.nestml",
-                                                                                                 "stdp_synapse.nestml",
-                                                                                                 post_ports=["post_spikes"],
-                                                                                                 logging_level="WARNING",
-                                                                                                 codegen_opts={...}})
+   module_name, neuron_model_name, synapse_model_name = \
+                    NESTCodeGeneratorUtils.generate_code_for("iaf_psc_exp_neuron.nestml",
+                                                             "stdp_synapse.nestml",
+                                                             post_ports=["post_spikes"],
+                                                             logging_level="WARNING",
+                                                             codegen_opts={...}})
 
 .. note::
 
-   This function will create temporary paths for the generated code. This is especially useful in a Jupyter notebook, where the same cell (that invokes the code generation) may be run over and over again. For more control over where the code is generated, please use the function :python:`pynestml.frontend.pynestml_frontend.generate_nest_target()`.
+   This function will create temporary paths for the generated code. This is especially useful in a Jupyter notebook, where the same cell (that invokes the code generation) may be run over and over again. For more control over where the code is generated, please use the function :func:`pynestml.frontend.pynestml_frontend.generate_nest_target()`.
 
-To prevent the NESTML code generator from moving specific variables from synapse into postsynaptic neuron, the code generation option ``strictly_synaptic_vars`` may be used (see https://nestml.readthedocs.io/en/latest/pynestml.transformers.html#pynestml.transformers.synapse_post_neuron_transformer.SynapsePostNeuronTransformer).
+To prevent the NESTML code generator from moving specific variables from synapse into postsynaptic neuron, the code generation option ``strictly_synaptic_vars`` may be used (see :class:`pynestml.transformers.synapse_post_neuron_transformer.SynapsePostNeuronTransformer`).
 
 Third-factor plasticity
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -325,7 +326,7 @@ During code generation, the third-factor variable of the synapse and its corresp
 
 This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``. Note that inline expressions can also be used; in this example in case ``I_dend`` had been an inline expression in the postsynaptic neuron.
 
-When a continuous-time input port is defined in the synapse model which is connected to a postsynaptic neuron, a corresponding buffer is allocated in each neuron which retains the recent history of the needed state variables. Two options are available for how the buffer is implemented: a "continuous-time" based buffer, or a spike-based buffer (see the NEST code generator option ``continuous_state_buffering_method`` on https://nestml.readthedocs.io/en/latest/pynestml.codegeneration.html#pynestml.codegeneration.nest_code_generator.NESTCodeGenerator).
+When a continuous-time input port is defined in the synapse model which is connected to a postsynaptic neuron, a corresponding buffer is allocated in each neuron which retains the recent history of the needed state variables. Two options are available for how the buffer is implemented: a "continuous-time" based buffer, or a spike-based buffer (see the NEST code generator option ``continuous_state_buffering_method`` on :class:`pynestml.codegeneration.html#pynestml.codegeneration.nest_code_generator.NESTCodeGenerator`).
 
 By default, the "continuous-time" based buffer is selected. This covers the most general case of different synaptic delay values and a discontinuous third-factor signal. The implementation corresponds to the event-based update scheme in Fig. 4b of [Stapmanns2021]_. There, the authors observe that the storage and management of such a buffer can be expensive in terms of memory and runtime. In each time step, the value of the current dendritic current (or membrane potential, or other third factor) is appended to the buffer. The maximum length of the buffer depends on the maximum inter-spike interval of any of the presynaptic neurons.
 
@@ -340,9 +341,6 @@ Simulation of volume-transmitted neuromodulation in NEST can be done using "volu
                                  "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
                                                            "synapse": "third_factor_stdp",
                                                             "vt_ports": ["dopa_spikes"]}]})
-
-
-
 
 
 Dendritic delay and synaptic weight
