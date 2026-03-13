@@ -8,7 +8,7 @@ Generates "pretty" rendered code for PR purposes. Output format is in HTML + CSS
 Example renders
 ---------------
 
-Two example files are available: a `neuron model <https://github.com/nest/nestml/blob/master/pynestml/codegeneration/resources_pretty_render/nestml_code_render_neuron.nestml>`_ and a `synapse model <https://github.com/nest/nestml/blob/master/pynestml/codegeneration/resources_pretty_render/nestml_code_render_synapse.nestml>`_. The rendered output for these models is shown below (merged side-by-side).
+Two example files are available: a `neuron model <https://github.com/nest/nestml/blob/main/pynestml/codegeneration/resources_pretty_render/nestml_code_render_neuron.nestml>`_ and a `synapse model <https://github.com/nest/nestml/blob/main/pynestml/codegeneration/resources_pretty_render/nestml_code_render_synapse.nestml>`_. The rendered output for these models is shown below (merged side-by-side).
 
 .. figure:: ../fig/nestml_code_render_merged.png
    :alt: Rendered image for "pretty" code render

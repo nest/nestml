@@ -46,7 +46,10 @@ class TestParrotNeuron:
                         reason="This test does not support NEST 2")
     def test_neuron_event_priority(self):
         nest.ResetKernel()
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
         nest.Install("nestmlmodule")
 
         # create spike_generators with these times
