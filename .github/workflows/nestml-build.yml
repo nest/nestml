@@ -252,11 +252,7 @@ jobs:
           # exclude third factor plasticity models; these will only compile successfully if code generation is as a neuron+synapse pair
           export ALL_MODEL_FILENAMES=`find models/neurons -name "*.nestml" | paste -sd " "`
           echo $ALL_MODEL_FILENAMES
-          echo "NEST_INSTALL = ${{ env.NEST_INSTALL }}"
-          echo "NEST_VERSION = ${{ matrix.nest_branch }}"
-          sed -i 's|%NEST_PATH%|${{ env.NEST_INSTALL }}|' tests/nest_tests/resources/nest_codegen_opts.json
-          sed -i 's|%NEST_VERSION%|${{ matrix.nest_branch }}|' tests/nest_tests/resources/nest_codegen_opts.json
-          nestml --input_path $ALL_MODEL_FILENAMES --target_path target --suffix _nestml --logging_level INFO --module_name nestml_allmodels_module --codegen_opts tests/nest_tests/resources/nest_codegen_opts.json
+          nestml --input_path $ALL_MODEL_FILENAMES --target_path target --suffix _nestml --logging_level INFO --module_name nestml_allmodels_module
 
       - name: Run integration tests
         if: ${{ matrix.nest_branch == 'main' || matrix.nest_branch == 'v2.20.2' }}

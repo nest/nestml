@@ -38,9 +38,16 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {%- endwith -%}
 {%- endmacro %}
 
+{%- if (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
+typedef Dictionary DictionaryDatum;
+typedef std::vector< Dictionary > ArrayDatum;
+{%- endif %}
+
 namespace nest
 {
-
+{%- if (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
+typedef std::string Name;
+{%- endif %}
 ///////////////////////////////////// channels
 
 {%- with %}
@@ -716,7 +723,11 @@ public:
 {%- for synapse_name, synapse_info in syns_info.items() %}
     for( std::size_t syn_it = 0; syn_it != {{synapse_name}}{{synapse_suffix}}.neuron_{{synapse_name}}_synapse_count; syn_it++)
     {
+{%- if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
       DictionaryDatum dd = DictionaryDatum( new Dictionary );
+{%- else %}
+      Dictionary dd;
+{%- endif %}
 {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::receptor_idx", "syn_it") }}
 {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::comp_idx", "compartment_index") }}
 {{ write_in_dictionary.WriteInDictionary("dd", "std::string", "names::receptor_type", "\"" + synapse_name + "\"") }}
@@ -727,7 +738,11 @@ public:
 {%- for continuous_name, continuous_info in con_in_info.items() %}
     for( std::size_t con_it = 0; con_it != {{continuous_name}}{{continuous_suffix}}.neuron_{{continuous_name}}_continuous_input_count; con_it++)
     {
+{%- if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
       DictionaryDatum dd = DictionaryDatum( new Dictionary );
+{%- else %}
+      Dictionary dd;
+{%- endif %}
 {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::receptor_idx", "con_it") }}
 {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::comp_idx", "compartment_index") }}
 {{ write_in_dictionary.WriteInDictionary("dd", "std::string", "names::receptor_type", "\"" + continuous_name + "\"") }}
