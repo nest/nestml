@@ -134,7 +134,7 @@ Equations
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `wb_cond_multisyn_neuron <https://github.com/nest/nestml/tree/master/models/neurons/wb_cond_multisyn_neuron.nestml>`_.
+The model source code can be found in the NESTML models repository here: `wb_cond_multisyn_neuron <https://github.com/nest/nestml/tree/main/models/neurons/wb_cond_multisyn_neuron.nestml>`_.
 
 .. include:: wb_cond_multisyn_neuron_characterisation.rst
 
