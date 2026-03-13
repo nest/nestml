@@ -291,7 +291,11 @@ Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to 
 
 This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``. Note that inline expressions can also be used; in this example in case ``I_dend`` had been an inline expression in the postsynaptic neuron.
 
-To prevent the NESTML code generator from moving specific variables from synapse into postsynaptic neuron, the code generation option ``strictly_synaptic_vars`` may be used (see https://nestml.readthedocs.io/en/latest/pynestml.transformers.html#pynestml.transformers.synapse_post_neuron_transformer.SynapsePostNeuronTransformer).
+To prevent the NESTML code generator from moving specific variables from synapse into postsynaptic neuron, the code generation option ``strictly_synaptic_vars`` may be used (see https://nestml.readthedocs.io/en/latest/pynestml.transformers.html#pynestml.transformers.synapse_post_neuron_transformer.SynapsePostNeuronTransformer). Note that the paired-generation can cause subtle changes in the order in which variables are updated. In particular, the numerical value obtained for any moved variables at a time of a spike is always the value "just before" the update due to the spike. Please see the unit test `test_synapse_post_neuron_transformer_update_order.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/test_synapse_post_neuron_transformer_update_order.py>`_.
+
+.. warning::
+
+   To ensure correct and reproducible results, it is recommended to generate code initially with ``strictly_synaptic_vars`` marking all synaptic variables. Verify numerical results by hand or using a small, hand-written reference implementation of the model. Only afterwards, remove ``strictly_synaptic_vars``, which results in much more efficient code and better runtime performance, and again validate the results.
 
 Simulation of volume-transmitted neuromodulation in NEST can be done using "volume transmitter" devices [5]_. These are event-based and should correspond to a "spike" type input port in NESTML. The code generator options keyword ``"vt_ports"`` can be used here.
 

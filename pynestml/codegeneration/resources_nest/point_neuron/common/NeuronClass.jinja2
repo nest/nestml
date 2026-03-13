@@ -1266,7 +1266,9 @@ void
     // - its access counter indicates it has been read out by all connected STDP synapses, and
     // - there is another, later spike, that is strictly more than ``min_global_delay + max_delay_ + eps`` away from the new spike (at ``t_sp_ms``)
     // for access counter logic, see https://www.frontiersin.org/files/Articles/1382/fncom-04-00141-r1/image_m/fncom-04-00141-g003.jpg (Potjans et al. 2010)
-    while ( history_.size() > 1 )
+
+    // N.B. if a postsynaptic trace value gets requested by a synapse inside the postsynaptic event handling code, it could be possible that the trace is requested at a time precisely at that of the first spike in the history. If, additionally, the value "just before" the increment due to the spike was requested (i.e. ``before_increment`` is true), then the "just before increment" value needs to be computed based on a history entry correponding to the previous spike. For that reason, always keep one extra entry in the spike history (compare the NEST ArchivingNode condition ``while ( history_.size() > 1 )``)
+    while ( history_.size() > 2 )
     {
       const double next_t_sp = history_[ 1 ].t_;
       // Note that ``access_counter`` is compared to the number of incoming synapses (``n_incoming_``), so that spikes are removed from the history only after they have been read out by each synapse
