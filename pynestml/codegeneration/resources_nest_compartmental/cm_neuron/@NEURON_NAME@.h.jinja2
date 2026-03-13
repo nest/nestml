@@ -32,6 +32,12 @@
 #include "{{neuronSpecificFileNamesCmSyns["neuroncurrents"]}}.h"
 #include "{{neuronSpecificFileNamesCmSyns["tree"]}}.h"
 
+{%- if (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
+typedef Dictionary DictionaryDatum;
+typedef std::vector< Dictionary > ArrayDatum;
+typedef std::string Name;
+{%- endif %}
+
 namespace nest
 {
 
@@ -233,7 +239,6 @@ void register_{{ neuronSpecificFileNamesCmSyns["main"] }}( const std::string& na
 
 class {{neuronSpecificFileNamesCmSyns["main"]}} : public ArchivingNode
 {
-
 public:
   {{neuronSpecificFileNamesCmSyns["main"]}}();
   {{neuronSpecificFileNamesCmSyns["main"]}}( const {{neuronSpecificFileNamesCmSyns["main"]}}& );
@@ -255,8 +260,8 @@ public:
   void set_status( const DictionaryDatum& );
 
 private:
-  void add_compartment_( DictionaryDatum& dd );
-  void add_receptor_( DictionaryDatum& dd );
+  void add_compartment_( const DictionaryDatum& dd );
+  void add_receptor_( const DictionaryDatum& dd );
 
   void init_recordables_pointers_();
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}

@@ -115,7 +115,7 @@ Equations
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `terub_stn_neuron <https://github.com/nest/nestml/tree/master/models/neurons/terub_stn_neuron.nestml>`_.
+The model source code can be found in the NESTML models repository here: `terub_stn_neuron <https://github.com/nest/nestml/tree/main/models/neurons/terub_stn_neuron.nestml>`_.
 
 .. include:: terub_stn_neuron_characterisation.rst
 
