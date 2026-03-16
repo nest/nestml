@@ -1,0 +1,18 @@
+{#
+Removes an entry from the dictionary.
+#}
+{%- macro RemoveFromDictionary(dict_name, key, key_as_str=false) -%}
+{%-   if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3)))  %}
+{%-     if key_as_str -%}
+{{ dict_name }}->remove("{{ key }}");
+{%-     else  -%}
+{{ dict_name }}->remove({{ key }});
+{%-     endif -%}
+{%-   else %}
+{%-     if key_as_str -%}
+{{ dict_name }}.erase("{{ key }}");
+{%-     else  -%}
+{{ dict_name }}.erase({{ key }});
+{%-     endif -%}
+{%-   endif %}
+{%- endmacro -%}

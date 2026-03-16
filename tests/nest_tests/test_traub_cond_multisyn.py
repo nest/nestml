@@ -104,7 +104,7 @@ class TestTraubCondMultiSyn:
         nest.Connect(neuron1, spike_recorder)
         nest.Simulate(t_simulation)
 
-        dmm = nest.GetStatus(multimeter)[1]
+        dmm = nest.GetStatus(multimeter[1])[0]
         Voltages = dmm["events"]["V_m"]
         tv = dmm["events"]["times"]
 
