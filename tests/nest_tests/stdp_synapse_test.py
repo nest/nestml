@@ -136,8 +136,8 @@ class TestNestSTDPSynapse:
     @pytest.mark.parametrize("pre_spike_times,post_spike_times", [
         # ([1., 11., 21.],
         #  [6., 16., 26.]),
-        # (np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100)))))),
-        #  np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))),
+        (np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100)))))),
+         np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))),
         # (np.array([2.,   4.,   7.,   8.,  12.,  13.,  19.,  23.,  24.,  28.,  29.,  30.,  33.,  34.,
         #            35.,  36.,  38.,  40.,  42.,  46.,  51.,  53.,  54.,  55.,  56.,  59.,  63.,  64.,
         #            65.,  66.,  68.,  72.,  73.,  76.,  79.,  80.,  83.,  84.,  86.,  87.,  90.,  95.,
@@ -151,8 +151,8 @@ class TestNestSTDPSynapse:
         #            188., 194., 202., 245., 249., 289., 454.])),
         # (np.array([1, 5, 6, 7, 9, 11, 12, 13, 14.5, 16.1]),
         #  np.array([2, 3, 4, 8, 9, 10, 12, 13.2, 15.1, 16.4]))
-        (np.array([10, 20.]),
-         np.array([12., 13., 14., 15., 19, 20., 21.]))
+        # (np.array([10, 20.]),
+        #  np.array([12., 13., 14., 15., 19, 20., 21.]))
     ])
     def test_nest_stdp_synapse(self, pre_spike_times: Sequence[float], post_spike_times: Sequence[float], resolution: float, delay: float, fname_snip: str = ""):
         self.run_synapse_test(neuron_model_name=self.neuron_model_name,
