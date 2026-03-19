@@ -131,7 +131,7 @@ Equations
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `hh_psc_alpha_neuron <https://github.com/nest/nestml/tree/master/models/neurons/hh_psc_alpha_neuron.nestml>`_.
+The model source code can be found in the NESTML models repository here: `hh_psc_alpha_neuron <https://github.com/nest/nestml/tree/main/models/neurons/hh_psc_alpha_neuron.nestml>`_.
 
 .. include:: hh_psc_alpha_neuron_characterisation.rst
 

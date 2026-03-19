@@ -66,15 +66,23 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "kernel_manager.h"
 #include "universal_data_logger_impl.h"
 
+{%- if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
 // Includes from sli:
 #include "dict.h"
 #include "dictutils.h"
+{%- endif %}
 
 #include <functional>
 
+{%- if (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
+typedef Dictionary DictionaryDatum;
+typedef std::string Name;
+{%- endif %}
 
 namespace nest
 {
+{%- if (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
+{%- endif %}
 
 class Compartment{{cm_unique_suffix}}
 {

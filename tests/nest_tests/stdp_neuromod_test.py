@@ -131,7 +131,10 @@ class NestSTDPNeuromodTest(unittest.TestCase):
 
         nest.ResetKernel()
         # nest.set_verbosity("M_ALL")
-        nest.set_verbosity("M_ERROR")
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ERROR")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ERROR
         nest.SetKernelStatus({"resolution": resolution})
         nest.Install("nestml_jit_module")
         nest.Install("nestml_non_jit_module")

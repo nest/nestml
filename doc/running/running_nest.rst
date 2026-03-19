@@ -117,12 +117,6 @@ Sometimes it can be convenient to directly edit the generated code. To manually 
 where ``<nest_install_dir>`` is the installation directory of NEST (e.g. ``/home/nest/work/nest-install``).
 
 
-Generating code for synapses
-----------------------------
-
-In NEST, synapses derive from the C++ class ``Connection``, whereas neurons derive from ``Node``. To make it clear to the code generator whether a given NESTML model is a neuron or synapse model, the code generator option ``synapse_models`` can be used. If the model name ends with the string ``"synapse"`` (for instance, ``"stdp_synapse"``), the model is also interpreted as a synapse.
-
-
 Gap junctions (electrical synapses)
 -----------------------------------
 
@@ -136,7 +130,7 @@ Each neuron model can be endowed with gap junctions. The model does not need to 
        "gap_current_port": "I_gap"
    }
 
-For a full example, please see `test_gap_junction.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/test_gap_junction.py>`_.
+For a full example, please see `test_gap_junction.py <https://github.com/nest/nestml/blob/main/tests/nest_tests/test_gap_junction.py>`_.
 
 
 Multiple spiking input ports in NEST
@@ -175,10 +169,10 @@ We furthermore wish to record the synaptic currents ``I_kernel1``, ``I_kernel2``
 
 The output shows the currents for each synapse (three bottom rows) and the net effect on the membrane potential (top row):
 
-.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nestml-multisynapse-example.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/fig/nestml-multisynapse-example.png
    :alt: NESTML multisynapse example waveform traces
 
-For a full example, please see `iaf_psc_exp_multisynapse.nestml <https://github.com/nest/nestml/blob/master/tests/nest_tests/resources/iaf_psc_exp_multisynapse.nestml>`_ for the full model and ``test_multisynapse`` in `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test harness that produced the figure above.
+For a full example, please see `iaf_psc_exp_multisynapse.nestml <https://github.com/nest/nestml/blob/main/tests/nest_tests/resources/iaf_psc_exp_multisynapse.nestml>`_ for the full model and ``test_multisynapse`` in `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/main/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test harness that produced the figure above.
 
 
 Multiple spiking input ports with vectors in NEST
@@ -229,7 +223,7 @@ The above code querying for ``receptor_types`` gives a list of port names and NE
    * - INH_SPIKES_2
      - 7
 
-For a full example, please see `iaf_psc_exp_multisynapse_vectors.nestml <https://github.com/nest/nestml/blob/master/tests/nest_tests/resources/iaf_psc_exp_multisynapse_vectors.nestml>`_ for the neuron model and ``test_multisynapse_with_vector_input_ports`` in `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test.
+For a full example, please see `iaf_psc_exp_multisynapse_vectors.nestml <https://github.com/nest/nestml/blob/main/tests/nest_tests/resources/iaf_psc_exp_multisynapse_vectors.nestml>`_ for the neuron model and ``test_multisynapse_with_vector_input_ports`` in `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/main/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test.
 
 Multiple continuous input ports in NEST
 ---------------------------------------
@@ -275,10 +269,51 @@ When NESTML is invoked to generate code for plastic synapses, the (neuron, synap
 
    generate_target(...,
                    codegen_opts={...,
-                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                           "synapse": "third_factor_stdp"}]})
+                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
+                                                           "synapse": "stdp_synapse"}]})
+
+
+.. note::
+
+   In NEST, synapses derive from the C++ class ``Connection``, whereas neurons derive from ``Node``. To make it clear to the code generator whether a given NESTML model is a neuron or synapse model, the code generator option ``synapse_models`` can be used. If the model name ends with the string ``"synapse"`` (for instance, ``"stdp_synapse"``), the model is also interpreted as a synapse.
 
 Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to connect the input port on the synapse with the right variable of the postsynaptic neuron:
+
+.. code-block:: python
+
+   generate_target(...,
+                   codegen_opts={...,
+                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
+                                                           "synapse": "stdp_synapse",
+                                                           "post_ports": ["post_spikes"]}]})
+
+This specifies that the neuron ``iaf_psc_exp`` has to be generated paired with the synapse ``stdp_synapse``, and that the input ports ``post_spikes`` in the synapse are to be connected to the postsynaptic partner.
+
+Owing to the "co-generation" of neuron and synapse models, NESTML generates the model names with the associated neuron and synapse names. For the example above, the neuron name is changed to ``"iaf_psc_exp__with_stdp_synapse"``, and similarly, the synapse name to ``"stdp_synapse__with_iaf_psc_exp"`` during the code generation. Note that the modified neuron and synapse model names must be used in the simulation script for creating neurons and connections.
+
+Alternatively, the modified model names can also be obtained using ``NESTCodeGeneratorUtils.generate_code_for()``, which internally calls the ``generate_nest_target()`` function, and returns the modified model names. For example:
+
+.. code-block:: python
+
+   module_name, neuron_model_name, synapse_model_name = \
+                    NESTCodeGeneratorUtils.generate_code_for("iaf_psc_exp_neuron.nestml",
+                                                             "stdp_synapse.nestml",
+                                                             post_ports=["post_spikes"],
+                                                             logging_level="WARNING",
+                                                             codegen_opts={...}})
+
+.. note::
+
+   This function will create temporary paths for the generated code. This is especially useful in a Jupyter notebook, where the same cell (that invokes the code generation) may be run over and over again. For more control over where the code is generated, please use the function :func:`pynestml.frontend.pynestml_frontend.generate_nest_target()`.
+
+To prevent the NESTML code generator from moving specific variables from synapse into postsynaptic neuron, the code generation option ``strictly_synaptic_vars`` may be used (see :class:`pynestml.transformers.synapse_post_neuron_transformer.SynapsePostNeuronTransformer`).
+
+Third-factor plasticity
+~~~~~~~~~~~~~~~~~~~~~~~
+
+A synapse model can also have a "third factor" (in addition to pre and post-synaptic spikes) influencing the plasticity of the synapse. For example, a third factor to a synapse could be the dendritic action potential of its post-synaptic partner.
+
+During code generation, the third-factor variable of the synapse and its corresponding post-synaptic variable must be provided in the ``codegen_opts``. For example:
 
 .. code-block:: python
 
@@ -291,7 +326,11 @@ Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to 
 
 This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``. Note that inline expressions can also be used; in this example in case ``I_dend`` had been an inline expression in the postsynaptic neuron.
 
-To prevent the NESTML code generator from moving specific variables from synapse into postsynaptic neuron, the code generation option ``strictly_synaptic_vars`` may be used (see https://nestml.readthedocs.io/en/latest/pynestml.transformers.html#pynestml.transformers.synapse_post_neuron_transformer.SynapsePostNeuronTransformer).
+When a continuous-time input port is defined in the synapse model which is connected to a postsynaptic neuron, a corresponding buffer is allocated in each neuron which retains the recent history of the needed state variables. Two options are available for how the buffer is implemented: a "continuous-time" based buffer, or a spike-based buffer (see the NEST code generator option ``continuous_state_buffering_method`` on :class:`pynestml.codegeneration.html#pynestml.codegeneration.nest_code_generator.NESTCodeGenerator`).
+
+By default, the "continuous-time" based buffer is selected. This covers the most general case of different synaptic delay values and a discontinuous third-factor signal. The implementation corresponds to the event-based update scheme in Fig. 4b of [Stapmanns2021]_. There, the authors observe that the storage and management of such a buffer can be expensive in terms of memory and runtime. In each time step, the value of the current dendritic current (or membrane potential, or other third factor) is appended to the buffer. The maximum length of the buffer depends on the maximum inter-spike interval of any of the presynaptic neurons.
+
+As a computationally more efficient alternative, a spike-based buffer can be selected. In this case, the third factor is not stored every timestep, but only upon the occurrence of postsynaptic (somatic) spikes. Because of the existence of a nonzero dendritic delay, the time at which the somatic spike is observed at the synapse is delayed, and the time at which the third factor is sampled should match the time of the spike at the synapse, rather than the soma. When the spike-based buffering method is used, the dendritic delay is therefore ignored, because the third factor is sampled instead at the time of the somatic spike.
 
 Simulation of volume-transmitted neuromodulation in NEST can be done using "volume transmitter" devices [5]_. These are event-based and should correspond to a "spike" type input port in NESTML. The code generator options keyword ``"vt_ports"`` can be used here.
 
@@ -302,20 +341,6 @@ Simulation of volume-transmitted neuromodulation in NEST can be done using "volu
                                  "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
                                                            "synapse": "third_factor_stdp",
                                                             "vt_ports": ["dopa_spikes"]}]})
-
-
-Third-factor plasticity
-~~~~~~~~~~~~~~~~~~~~~~~
-
-When a continuous-time input port is defined in the synapse model which is connected to a postsynaptic neuron, a corresponding buffer is allocated in each neuron which retains the recent history of the needed state variables. Two options are available for how the buffer is implemented: a "continuous-time" based buffer, or a spike-based buffer (see the NEST code generator option ``continuous_state_buffering_method`` on https://nestml.readthedocs.io/en/latest/pynestml.codegeneration.html#pynestml.codegeneration.nest_code_generator.NESTCodeGenerator).
-
-By default, the "continuous-time" based buffer is selected. This covers the most general case of different synaptic delay values and a discontinuous third-factor signal. The implementation corresponds to the event-based update scheme in Fig. 4b of [Stapmanns2021]_. There, the authors observe that the storage and management of such a buffer can be expensive in terms of memory and runtime. In each time step, the value of the current dendritic current (or membrane potential, or other third factor) is appended to the buffer. The maximum length of the buffer depends on the maximum inter-spike interval of any of the presynaptic neurons.
-
-As a computationally more efficient alternative, a spike-based buffer can be selected. In this case, the third factor is not stored every timestep, but only upon the occurrence of postsynaptic (somatic) spikes. Because of the existence of a nonzero dendritic delay, the time at which the somatic spike is observed at the synapse is delayed, and the time at which the third factor is sampled should match the time of the spike at the synapse, rather than the soma. When the spike-based buffering method is used, the dendritic delay is therefore ignored, because the third factor is sampled instead at the time of the somatic spike.
-
-
-Dendritic delays
-~~~~~~~~~~~~~~~~
 
 In NEST, all synapses are expected to specify a nonzero dendritic delay, that is, the delay between arrival of a spike at the dendritic spine and the time at which its effects are felt at the soma (or conversely, the delay between a somatic action potential and the arrival at the dendritic spine due to dendritic backpropagation). Dendritic delays are managed entirely by NEST and can in principle not be read from or written to from inside the NESTML model. However, in some cases it can be useful to read the delay from inside the synapse. This can be achieved by using the code generator option ``delay_variable``.
 
@@ -386,7 +411,7 @@ Compatibility with different versions of NEST
 To generate code that is compatible with particular versions of NEST Simulator, the code generator option  ``nest_version`` can be used. The option value is given as a string that corresponds to a git tag or git branch name. The following values are supported:
 
 - The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
-- ``"master"``: Latest NEST GitHub master branch version (https://github.com/nest/nest-simulator/).
+- ``"main"``: Latest NEST GitHub main branch version (https://github.com/nest/nest-simulator/).
 - ``"v2.20.2"``: Latest NEST 2 release.
 - ``"v3.0"``, ``"v3.1"``, ``"v3.2"``, etc.: NEST 3 release versions.
 

@@ -331,7 +331,7 @@ Whitelines are therefore used to separate comment targets:
    # I am a comment of the resting potential.
    V_rest mV = -60 mV
 
-The text of each comment is interpreted as `Sphinx reStructuredText format <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_.
+The text of each comment is interpreted as `Sphinx reStructuredText format <https://www.sphinx-doc.org/en/main/usage/restructuredtext/index.html>`_.
 
 Documentation for a model may appear directly in front of the model definition, akin to Python "docstrings" (see `PEP 257 "Docstring Conventions" <https://www.python.org/dev/peps/pep-0257/>`_). For example:
 
@@ -956,7 +956,7 @@ Note that the ``delay`` can be a numeric constant or a constant defined in the `
        tau ms = 3.5 ms
        delay ms = 5.0 ms
 
-For a full example, please refer to the tests at `tests/nest_tests/nest_delay_based_variables_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest_delay_based_variables_test.py>`_.
+For a full example, please refer to the tests at `tests/nest_tests/nest_delay_based_variables_test.py <https://github.com/nest/nestml/blob/main/tests/nest_tests/nest_delay_based_variables_test.py>`_.
 
 .. note::
 
@@ -1137,12 +1137,12 @@ During simulation, the simulation kernel (for example, NEST Simulator) is respon
 The recommended update sequence for a spiking neuron model is shown below (panel A), which is optimal ("gives the fewest surprises") in the case the simulator uses a minimum synaptic transmission delay (this includes NEST). In this sequence, first the subthreshold dynamics are evaluated (that is, ``integrate_odes()`` is called; in the simplest case, all equations are solved simultaneously) and only afterwards, incoming spikes are processed.
 
 .. _label:fig_integration_order
-.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/integration_order.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/fig/integration_order.png
    :alt: Different conventions for the integration sequence. Modified after [1]_, their Fig. 10.2. The precise sequence of operations depends on whether the simulation is considered to have synaptic propagation delays (A) or not (B).
 
 The numeric results of a typical simulation run are shown below. Consider a leaky integrate-and-fire neuron with exponentially decaying postsynaptic currents :math:`I_\text{syn}`. The neuron is integrated using a fixed timestep of :math:`1~\text{ms}` (left) and using an event-based method (right):
 
-.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/integration_order_example.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/fig/integration_order_example.png
    :alt: Numerical example for two different integration sequences.
 
 On the left, both pre-synaptic spikes are only processed at the end of the interval in which they occur. The statements in the ``update`` block are run every timestep for a fixed timestep of :math:`1~\text{ms}`, alternating with the statements in the ``onReceive`` handler for the spiking input port. Note that this means that the effect of the spikes becomes visible at the end of the timestep in :math:`I_\text{syn}`, but it takes another timestep before ``integrate_odes()`` is called again and consequently for the effect of the spikes to become visible in the membrane potential. This results in a threshold crossing and the neuron firing a spike. On the right half of the figure, the same presynaptic spike timing is used, but events are processed at their exact time of occurrence. In this case, the ``update`` statements are called once to update the neuron from time 0 to :math:`1~\text{ms}`, then again to update from :math:`1~\text{ms}` to the time of the first spike, then the spike is processed by running the statements in its ``onReceive`` block, then ``update`` is called to update from the time of the first spike to the second spike, and so on. The time courses of :math:`I_\text{syn}` and :math:`V_\text{m}` are such that the threshold is not reached and the neuron does not fire, illustrating the numerical differences that can occur when the same model is simulated using different strategies.
