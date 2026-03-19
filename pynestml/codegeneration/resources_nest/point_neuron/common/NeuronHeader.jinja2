@@ -97,7 +97,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "dictdatum.h"
 
 // uncomment the next line to enable printing of detailed debug information
-// #define DEBUG
+#define DEBUG
 
 namespace nest
 {
@@ -465,7 +465,7 @@ public:
   // -------------------------------------------------------------------------
 
 {%-     for var in transferred_variables %}
-  double get_{{ var }}( double t, const bool before_increment = true );
+  double get_{{ var }}( double t );
 {%-     endfor %}
 
 {%-     if state_vars_that_need_continuous_buffering | length > 0 %}

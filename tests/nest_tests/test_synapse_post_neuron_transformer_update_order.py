@@ -37,49 +37,39 @@ import nest
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
-
-def generate_regular_spike_train(rate, T, dt, start_t=0.):
-    """
-    Generates regular spike train as a Boolean array.
-
-    Parameters:
-    - rate: Firing rate in Hz.
-    - T: Total simulation time in ms.
-    - dt: Time step in ms.
-
-    Returns:
-    - spike_train: Boolean array of length len(time), where True indicates a spike.
-    - spike_times: same data as spike time data
-    """
-    # Step 1: Generate spike times
-    spikes = []
-    t = start_t
-    while t < T:
-        isi = 1 / rate * 1000
-        t += isi
-        if t < T:
-            spikes.append(t)
-
-    spike_times = np.array(spikes)
-
-    # Step 2: Create time array
-    time = np.arange(0, T, dt)
-
-    # Step 3: Initialize spike train array
-    spike_train = np.zeros(len(time), dtype=bool)
-
-    # Step 4: Map spike times to nearest indices in the time array
-    # Ensure that spike times correspond to time steps in "time"
-    indices = np.searchsorted(time, spike_times)
-
-    # Handle edge cases where indices might be equal to len(time)
-    indices = indices[indices < len(time)]
-
-    # Step 5: Set corresponding indices in spike_train to True
-    spike_train[indices] = True
-
-    return spike_train, spike_times
-
+def get_trace_at(t, t_spikes, tau, initial=0., increment=1., before_increment=False, extra_debug=False):
+    if extra_debug:
+        print("\t-- obtaining trace at t = " + str(t))
+    if len(t_spikes) == 0:
+        return initial
+    tr = initial
+    t_sp_prev = 0.
+    for t_sp in t_spikes:
+        if t_sp > t:
+            break
+        if extra_debug:
+            _tr_prev = tr
+        tr *= np.exp(-(t_sp - t_sp_prev) / tau)
+        if t_sp == t:  # exact floating point match!
+            if before_increment:
+                if extra_debug:
+                    print("\t   [%] exact (before_increment = T), prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev)
+                          + ", decayed by dt = " + str(t - t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr))
+                return tr
+            else:
+                if extra_debug:
+                    print("\t   [%] exact (before_increment = F), prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev) + ", decayed by dt = " + str(
+                        t - t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr + increment))
+                return tr + increment
+        tr += increment
+        t_sp_prev = t_sp
+    if extra_debug:
+        _tr_prev = tr
+    tr *= np.exp(-(t - t_sp_prev) / tau)
+    if extra_debug:
+        print("\t   [&] prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev) + ", decayed by dt = "
+              + str(t - t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr))
+    return tr
 
 @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                     reason="This test does not support NEST 2")
@@ -107,63 +97,31 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
                         "delay_variable": {"postsyn_trace_synapse": "d"},
                         "weight_variable": {"postsyn_trace_synapse": "w"}}
 
-        generate_nest_target(input_path=input_path,
-                             logging_level="DEBUG",
-                             suffix="_nestml",
-                             codegen_opts=codegen_opts)
+        # generate_nest_target(input_path=input_path,
+        #                      logging_level="DEBUG",
+        #                      suffix="_nestml",
+        #                      codegen_opts=codegen_opts)
 
-    def test_postsyn_trace_synapse(self):
-        self.run_test_postsyn_trace_synapse(update_order_w_before_traces=True)
+    # @pytest.mark.xfail(strict=True)
+    # def test_postsyn_trace_synapse(self):
+    #     self.run_test_postsyn_trace_synapse(update_order_w_before_traces=True)
 
-    @pytest.mark.xfail(strict=True)
-    def test_postsyn_trace_synapse_alternate_order(self):
-        self.run_test_postsyn_trace_synapse(update_order_w_before_traces=False)
 
-    def run_test_postsyn_trace_synapse(self, update_order_w_before_traces: bool):
-        self.generate_model_code(update_order_w_before_traces)
-
-        neuron_model_name = "iaf_psc_delta_neuron_nestml__with_postsyn_trace_synapse_nestml"
-        synapse_model_name = "postsyn_trace_synapse_nestml__with_iaf_psc_delta_neuron_nestml"
-
-        nest.ResetKernel()
-        nest.Install("nestmlmodule")
-        nest.print_time = False
-        nest.set_verbosity("M_ERROR")
-
-        # define spike train
-        rate = 20
-        T = 500
-        dt = 0.1
-        syn_delay = dt
-        nest.resolution = dt
-
-        spike_train_pre_bool, spikes_pre = generate_regular_spike_train(rate, T, dt, start_t=15.)
-        spike_train_post_bool, spikes_post = generate_regular_spike_train(rate * 2, T, dt, start_t=2.5)
-
-        spikes_pre = np.round(spikes_pre, 1)
-        spikes_post = np.round(spikes_post, 1)
-
-        spikes_post -= syn_delay
-        spikes_pre -= syn_delay
-
-        p = {"Z": 0.4102089913,
-             "Z2": 0.11584585200000001,
-             "tau_post": 100,
-             "tau_post2": 63.297325105}
+    def _run_nest_simulation(self, initial_w, neuron_model_name, synapse_model_name, T, dt, spike_train_pre, spike_train_post, syn_delay, p):
 
         # weight recorder
         wr = nest.Create("weight_recorder")
         syn_model = "stdp_stp_synapse_rec"
-        initial_w = 1.0
         nest.CopyModel(synapse_model_name, syn_model, {"weight_recorder": wr,
                                                        "w": initial_w,
                                                        "d": syn_delay,
                                                        "receptor_type": 0,
                                                        "Zp": p["Z2"],
-                                                       "tau_zp": p["tau_post2"]})
+                                                       "tau_zp": p["tau_post2"],
+                                                       "learning_rate": p["learning_rate"]})
 
-        spikes_pre_gr = nest.Create("spike_generator", params={"spike_times": spikes_pre})
-        spikes_post_gr = nest.Create("spike_generator", params={"spike_times": spikes_post})
+        spikes_pre_gr = nest.Create("spike_generator", params={"spike_times": spike_train_pre - syn_delay})
+        spikes_post_gr = nest.Create("spike_generator", params={"spike_times": spike_train_post - syn_delay})
 
         pre_neuron = nest.Create("parrot_neuron")
         post_neuron = nest.Create(neuron_model_name)
@@ -196,137 +154,192 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
         nest.Connect(post_neuron, spikedet_post)
 
         n_steps = int(np.ceil(T / syn_delay))
-        trace_nest_t = []
-        trace_nest_z2 = []
+        timevec_nest = []
+        trace_nest = []
 
         t = nest.biological_time
-        trace_nest_t.append(t)
+        timevec_nest.append(t)
 
         try:
-            trace_nest_z2.append(post_neuron.zp_trace__for_postsyn_trace_synapse_nestml)
+            trace_nest.append(post_neuron.zp_trace__for_postsyn_trace_synapse_nestml)
         except BaseException:
             try:
-                trace_nest_z2.append(post_neuron.zp_trace__for_minimal_SLSTDP_old_synapse_nestml)
+                trace_nest.append(post_neuron.zp_trace__for_minimal_SLSTDP_old_synapse_nestml)
             except BaseException:
-                trace_nest_z2.append(conn.get("zp_trace"))
+                trace_nest.append(conn.get("zp_trace"))
 
-        w_trace = []
+        w_nest = []
 
-        w_trace.append(conn.get("weight"))
+        w_nest.append(conn.get("weight"))
         for step in range(n_steps):
             nest.Simulate(syn_delay)
             t = nest.biological_time
 
-            trace_nest_t.append(t)
+            timevec_nest.append(t)
 
             conn = nest.GetConnections(target=post_neuron, synapse_model=syn_model)
             # post
             try:
-                trace_nest_z2.append(post_neuron.zp_trace__for_postsyn_trace_synapse_nestml)
+                trace_nest.append(post_neuron.zp_trace__for_postsyn_trace_synapse_nestml)
             except BaseException:
                 try:
-                    trace_nest_z2.append(post_neuron.zp_trace__for_minimal_SLSTDP_old_synapse_nestml)
+                    trace_nest.append(post_neuron.zp_trace__for_minimal_SLSTDP_old_synapse_nestml)
                 except BaseException:
-                    trace_nest_z2.append(conn.get("zp_trace"))
+                    trace_nest.append(conn.get("zp_trace"))
 
-            w_trace.append(conn.get("weight"))
+            w_nest.append(conn.get("weight"))
 
-        conn = nest.GetConnections(target=post_neuron, synapse_model=syn_model)
+        spike_train_pre_nest = spikedet_pre.events["times"]
+        spike_train_post_nest = spikedet_post.events["times"]
 
-        if TEST_PLOTS:
-            fig, axs = plt.subplots(3, 1)
-            events = wr.get("events")
+        return timevec_nest, trace_nest, w_nest, spike_train_pre_nest, spike_train_post_nest
 
-            axs[0].set_ylabel("w")
-            axs[0].grid(True)
-            axs[0].step(trace_nest_t, w_trace, color="black", where="post", label="NEST")
-
-            axs[1].plot(trace_nest_t, trace_nest_z2, label="z2 nestml", color="black")
-            axs[1].legend()
-            axs[1].grid(True)
-
-            axs[-1].scatter(spikedet_post.events["times"], np.zeros_like(spikedet_post.events["times"]), label="post sp")
-            axs[-1].scatter(spikedet_pre.events["times"], np.ones_like(spikedet_pre.events["times"]), label="pre sp")
-            axs[-1].set_xlim(axs[0].get_xlim())
-            axs[1].grid(True)
-
-        def spike_times_to_bool_array(spike_times, T, dt):
-            time = np.arange(0, T, dt)
-
-            # Step 3: Initialize spike train array
-            spike_train = np.zeros(len(time), dtype=bool)
-
-            # Step 4: Map spike times to nearest indices in the time array
-            # Ensure that spike times correspond to time steps in "time"
-            indices = np.searchsorted(time, spike_times)
-
-            # Handle edge cases where indices might be equal to len(time)
-            indices = indices[indices < len(time)]
-
-            # Step 5: Set corresponding indices in spike_train to True
-            spike_train[indices] = True
-
-            return spike_train
-
-        spike_train_pre = spikedet_pre.events["times"]
-        spike_train_post = spikedet_post.events["times"]
-
-        spike_train_pre_bool = spike_times_to_bool_array(spike_train_pre, T, dt)
-        spike_train_post_bool = spike_times_to_bool_array(spike_train_post, T, dt)
+    def _run_ref_simulation(self, initial_w, T, dt, spike_train_pre, spike_train_post, p, before_increment):
+        # state and initial values
+        w = initial_w  # Initial synaptic weight
+        tr = 0.
 
         # Lists to record variables for plotting
         w_history = []
-        z_history = []
         z2_history = []
 
-        w = initial_w  # Initial synaptic weight
-        z = 0.0  # Post-synaptic trace
-        z2 = 0.0
+        timevec = np.arange(0, T + dt, dt)
+        assert all(np.any(np.isclose(t_sp, timevec)) for t_sp in spike_train_pre)
+        assert all(np.any(np.isclose(t_sp, timevec)) for t_sp in spike_train_post)
+        for t in timevec:
+            # if t in spike_train_pre:
+            #     print("\tgetting pre trace r1")
+            #     r1 = get_trace_at(spk_time, times_spikes_pre,
+            #                     syn_opts["tau_plus"], before_increment=False, extra_debug=True)
+            #     print("\tgetting post trace o2")
+            #     o2 = get_trace_at(spk_time, times_spikes_post_syn_persp,
+            #                     syn_opts["tau_y"], before_increment=True, extra_debug=True)
+            #     old_weight = weight
+            #     weight = np.clip(weight + r1 * (syn_opts["A2_plus"] + syn_opts["A3_plus"]
+            #                     * o2), a_min=syn_opts["w_min"], a_max=syn_opts["w_max"])
+            #     print("[REF] t = " + str(spk_time) + ": facilitating from " + str(old_weight) + " to " + str(weight) + " with pre tr = " + str(r1) + ", post tr = " + str(o2))
 
-        time = np.arange(0, T, dt)
-        for t in range(len(time)):
-            z *= np.exp(-dt / p["tau_post"])
-            z2 *= np.exp(-dt / p["tau_post2"])
+            #if t in spike_train_post:
+            tr = get_trace_at(t, spike_train_post + .1, p["tau_post2"], before_increment=before_increment, extra_debug=True)
 
-            if spike_train_pre_bool[t] and spike_train_post_bool[t]:
-                raise Exception()
-
-            if spike_train_post_bool[t]:
-                if update_order_w_before_traces:
-                    w += z2   # Update synaptic weight
-                    z += p["Z"] * (1 - z)  # Increment post-synaptic trace
-                    z2 += p["Z2"] * (1 - z2)
-                else:
-                    z += p["Z"] * (1 - z)  # Increment post-synaptic trace
-                    z2 += p["Z2"] * (1 - z2)
-                    w += z2  # Update synaptic weight
+            if np.any([np.isclose(t, t_sp) for t_sp in spike_train_post]):
+                old_weight = w
+                w += p["learning_rate"] * tr
+                print("[REF] t = " + str(t) + ": depressing from " + str(old_weight) + " to " + str(w) + " with tr = " + str(tr))
 
             w_history.append(w)
-            z_history.append(z)
-            z2_history.append(z2)
+            z2_history.append(tr)
+
+            # last_t_sp = spk_time
+
+
+        # #for tidx, t in enumerate(range(len(timevec))[1:]):
+        #     z2 *= np.exp(-dt / p["tau_post2"])
+
+        #     if spike_train_pre[t] and spike_train_post_bool[t]:
+        #         raise Exception()
+
+        #     if spike_train_post_bool[t]:
+        #         print("Processing post spike at time t = " + str(time[t]))
+        #         if update_order_w_before_traces:
+        #             print("Updating w = " + str(w) + " (z2 = " + str(z2) + ") new weight = " + str(w + p["learning_rate"] * z2))
+        #             w += p["learning_rate"] * z2   # Update synaptic weight
+        #             # z += p["Z"] * (1 - z)  # Increment post-synaptic trace
+        #             # print("Updating z2: old z2 = " + str(z2) + ", new z2 = " + str(z2 + p["Z2"] * (1 - z2)))
+        #             print("Updating z2: old z2 = " + str(z2) + ", new z2 = " + str(z2 + 1))
+        #             z2 += 1#p["Z2"] * (1 - z2)
+        #         else:
+        #             # z += p["Z"] * (1 - z)  # Increment post-synaptic trace
+        #             print("Updating z2: old z2 = " + str(z2) + ", new z2 = " + str(z2 + 1))
+        #             # print("Updating z2: old z2 = " + str(z2) + ", new z2 = " + str(z2 + p["Z2"] * (1 - z2)))
+        #             z2 += 1#p["Z2"] * (1 - z2)
+        #             print("Updating w = " + str(w) + " (z2 = " + str(z2) + ") new weight = " + str(w + p["learning_rate"] * z2))
+        #             w += p["learning_rate"] * z2  # Update synaptic weight
+
+        #     w_history.append(w)
+        #     # z_history.append(z)
+        #     z2_history.append(z2)
+
+        assert len(timevec) == len(z2_history)
+        assert len(timevec) == len(w_history)
+
+        return timevec, z2_history, w_history
+
+
+    def test_postsyn_trace_synapse_alternate_order(self):
+        self.run_test_postsyn_trace_synapse(update_order_w_before_traces=False)
+
+    def run_test_postsyn_trace_synapse(self, update_order_w_before_traces: bool):
+        self.generate_model_code(update_order_w_before_traces)
+
+        neuron_model_name = "iaf_psc_delta_neuron_nestml__with_postsyn_trace_synapse_nestml"
+        synapse_model_name = "postsyn_trace_synapse_nestml__with_iaf_psc_delta_neuron_nestml"
+
+        nest.ResetKernel()
+        nest.Install("nestmlmodule")
+        nest.print_time = False
+        nest.set_verbosity("M_ERROR")
+
+        initial_w = 1.0
+        T = 150.
+        dt = 0.1
+        syn_delay = dt
+        nest.resolution = dt
+
+        spike_train_pre = np.array([ 65., 115.])
+        spike_train_post = np.array([  7.2,  12.2,  17.2,  22.2,  27.2,  32.2,  37.2,  42.2,  47.2, 52.2,  57.2,  62.2,  67.2,  72.2,  77.2,  82.2,  87.2,  92.2, 97.2, 102.2, 107.2, 112.2, 117.2, 122.2, 127.2, 132.2, 137.2, 142.2, 147.2])
+
+        p = {"Z2": 0.2,
+             "tau_post2": 50.,
+             "learning_rate": 1E-3}
+
+        timevec_nest, trace_nest, w_nest, spike_train_pre_nest, spike_train_post_nest = self._run_nest_simulation(initial_w, neuron_model_name, synapse_model_name, T, dt, spike_train_pre, spike_train_post, syn_delay, p)
+        np.testing.assert_allclose(spike_train_pre, spike_train_pre_nest)
+
+        timevec_ref, trace_ref, w_ref = self._run_ref_simulation(initial_w, T, dt, spike_train_post_nest, spike_train_post, p, before_increment=update_order_w_before_traces)
+
 
         if TEST_PLOTS:
-            axs[0].plot(time, w_history, "--", color="black", label="w python")
-            axs[0].legend()
+            fig, axs = plt.subplots(3, 1)
+            # events = wr.get("events")
 
-            axs[1].plot(time, z_history, "--", label=r"$z_1$ python", color="red")
-            axs[1].plot(time, z2_history, "--", label=r"$z_2$ python", color="black")
-            axs[1].legend()
+            axs[0].set_ylabel("w")
+            axs[0].step(timevec_nest, w_nest, color="black", where="post", label="NEST")
 
-            plt.savefig("/tmp/test_synapse_post_neuron_transformer.png")
+            axs[1].plot(timevec_nest, trace_nest, label="z2 nestml", color="black")
+
+            axs[-1].scatter(spike_train_post_nest, np.zeros_like(spike_train_post_nest), label="post sp")
+            axs[-1].scatter(spike_train_pre_nest, np.ones_like(spike_train_pre_nest), label="pre sp")
+            axs[-1].set_xlim(axs[0].get_xlim())
+
+            axs[0].plot(timevec_ref, w_ref, "--", color="black", label="w python")
+
+            # axs[1].plot(time, z_history, "--", label=r"$z_1$ python", color="red")
+            axs[1].plot(timevec_ref, trace_ref, "--", label=r"$z_2$ python", color="black")
+
+            for ax in axs:
+                ax.set_xlim(0., T)
+                ax.legend()
+                ax.grid(True)
+
+            plt.savefig("/tmp/test_synapse_post_neuron_transformer_[update_order_w_before_traces=" + str(update_order_w_before_traces) + "].png", dpi=600)
 
         #
         #   testing
         #
 
         assert len(spike_train_pre) > 0
-        for pre_spike_time in spike_train_pre:
-            tidx_nest = np.argmin((pre_spike_time - trace_nest_t)**2)
-            w_according_to_nest = w_trace[tidx_nest + 1]
+        np.testing.assert_allclose(timevec_nest, timevec_ref)
 
-            tidx_ref = np.argmin((pre_spike_time - time)**2)
-            w_according_to_ref = w_history[tidx_ref]
+        np.testing.assert_allclose(w_nest, w_ref)
 
-            np.testing.assert_allclose(trace_nest_t[tidx_nest], time[tidx_ref])
+        # for pre_spike_time in spike_train_pre:
+        #     tidx_nest = np.argmin((pre_spike_time - timevec_nest)**2)
+        #     w_according_to_nest = w_nest[tidx_nest + 1]
 
-            np.testing.assert_allclose(w_according_to_nest, w_according_to_ref)
+        #     tidx_ref = np.argmin((pre_spike_time - time)**2)
+        #     w_according_to_ref = w_history[tidx_ref]
+
+        #     np.testing.assert_allclose(timevec_nest[tidx_nest], time[tidx_ref])
+
+        #     np.testing.assert_allclose(w_according_to_nest, w_according_to_ref)

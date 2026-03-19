@@ -562,7 +562,7 @@ void {{ neuronName }}::pre_run_hook()
 {%- endif %}
 {
 #ifdef DEBUG
-  std::cout << "[neuron " << this << "] {{ neuronName }}::pre_run_hook()" << std::endl;
+  //std::cout << "[neuron " << this << "] {{ neuronName }}::pre_run_hook()" << std::endl;
 #endif
 
   B_.logger_.init();
@@ -678,7 +678,7 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     auto get_t = [origin, lag](){ return nest::Time( nest::Time::step( origin.get_steps() + lag + 1) ).get_ms(); };
 
 #ifdef DEBUG
-    std::cout << "[neuron " << this << "] {{ neuronName }}::update{% if use_gap_junctions %}_{% endif %}: handling post spike at t = " << get_t() << std::endl;
+    //std::cout << "[neuron " << this << "] {{ neuronName }}::update{% if use_gap_junctions %}_{% endif %}: handling post spike at t = " << get_t() << std::endl;
 #endif
 
 {%- if use_gap_junctions %}
@@ -1262,7 +1262,7 @@ void
     // for access counter logic, see https://www.frontiersin.org/files/Articles/1382/fncom-04-00141-r1/image_m/fncom-04-00141-g003.jpg (Potjans et al. 2010)
 
     // N.B. if a postsynaptic trace value gets requested by a synapse inside the postsynaptic event handling code, it could be possible that the trace is requested at a time precisely at that of the first spike in the history. If, additionally, the value "just before" the increment due to the spike was requested (i.e. ``before_increment`` is true), then the "just before increment" value needs to be computed based on a history entry correponding to the previous spike. For that reason, always keep one extra entry in the spike history (compare the NEST ArchivingNode condition ``while ( history_.size() > 1 )``)
-    while ( history_.size() > 2 )
+    while ( history_.size() > 1)
     {
       const double next_t_sp = history_[ 1 ].t_;
       // Note that ``access_counter`` is compared to the number of incoming synapses (``n_incoming_``), so that spikes are removed from the history only after they have been read out by each synapse
@@ -1289,6 +1289,29 @@ void
 {%-     for var in analytic_state_variables_moved|sort %}
       {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{ var }}_;
 {%-     endfor %}
+
+
+    /**
+     * print extra on-emit statements transferred from synapse
+    **/
+
+{%-     filter indent(4, True) %}
+{%-     for stmt in extra_on_emit_spike_stmts_from_synapse %}
+{%-         include "directives_cpp/Statement.jinja2" %}
+{%-     endfor %}
+{%-     endfilter %}
+
+    /**
+     * updates due to convolutions
+    **/
+
+{%-     for _, spike_update in post_spike_updates.items() %}
+    {{ printer.print(utils.get_variable_by_name(astnode, spike_update.get_variable().get_complete_name())) }} += 1.;
+{%-     endfor %}
+
+
+
+
     }
     else
     {
@@ -1300,6 +1323,11 @@ void
 {%-     endfor %}
     }
 {%      if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
+
+
+
+
+
     /**
      * update state variables transferred from synapse from `last_spike_` to `t_sp_ms`
      *
@@ -1322,23 +1350,6 @@ void
       recompute_internal_variables(true);
     }
 {%- endif %}
-    /**
-     * print extra on-emit statements transferred from synapse
-    **/
-
-{%-     filter indent(4, True) %}
-{%-     for stmt in extra_on_emit_spike_stmts_from_synapse %}
-{%-         include "directives_cpp/Statement.jinja2" %}
-{%-     endfor %}
-{%-     endfilter %}
-
-    /**
-     * updates due to convolutions
-    **/
-
-{%-     for _, spike_update in post_spike_updates.items() %}
-    {{ printer.print(utils.get_variable_by_name(astnode, spike_update.get_variable().get_complete_name())) }} += 1.;
-{%-     endfor %}
 
     /**
      * push back history
@@ -1381,18 +1392,21 @@ void
 #}
 
 {%- for var in transferred_variables %}
-{%- with variable_symbol = transferred_variables_syms[var] %}
+{%-     with variable_symbol = transferred_variables_syms[var] %}
 
-{%- if not variable_symbol %}
-{%-     set variable_symbol = astnode.get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE) %}
-{%- endif %}
+{%-         if not variable_symbol %}
+{%-             set variable_symbol = astnode.get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE) %}
+{%-         endif %}
 
-{%- if not var == variable_symbol.get_symbol_name() %}
-{{ raise('Error in resolving variable to symbol') }}
-{%- endif %}
+{%-         if not var == variable_symbol.get_symbol_name() %}
+{{              raise('Error in resolving variable to symbol') }}
+{%-         endif %}
 
+/**
+ * Note that this getter method will always return the value of the variables _just after_ the update due to the spike (as the value just after the update is the one written into the buffer by ``set_spiketime()``).
+**/
 double
-{{ neuronName }}::get_{{ var }}( double t, const bool before_increment )
+{{ neuronName }}::get_{{ var }}( double t )
 {
 #ifdef DEBUG
   std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{var}}: getting value at t = " << t << std::endl;
@@ -1411,26 +1425,45 @@ double
 
   // search for the latest post spike in the history buffer that came strictly before `t`
   int i = history_.size() - 1;
-  double eps = 0.;
-  if ( before_increment )
-  {
-   eps = nest::kernel().connection_manager.get_stdp_eps();
-  }
   while ( i >= 0 )
   {
-    if ( t - history_[ i ].t_ >= eps )
+    if ( t - history_[ i ].t_ >= nest::kernel().connection_manager.get_stdp_eps() )
     {
+
+{%-         for var_ in purely_numeric_state_variables_moved %}
+      {{ printer.print(utils.get_variable_by_name(astnode, var_)) }} = history_[ i ].{{var_}}_;
+{%-         endfor %}
+{%-         for var_ in analytic_state_variables_moved %}
+      {{ printer.print(utils.get_variable_by_name(astnode, var_)) }} = history_[ i ].{{var_}}_;
+{%-         endfor %}
 #ifdef DEBUG
-      std::cout<<"{{ neuronName }}::get_{{ var }}: \tspike occurred at history[i].t_ = " << history_[i].t_ << std::endl;
+      std::cout<<"{{ neuronName }}::get_{{ var }}: \tspike occurred at history[i].t_ = " << history_[i].t_;
 #endif
 
-{%- for var_ in purely_numeric_state_variables_moved %}
-      {{ printer.print(utils.get_variable_by_name(astnode, var_)) }} = history_[ i ].{{var_}}_;
-{%- endfor %}
-{%- for var_ in analytic_state_variables_moved %}
-      {{ printer.print(utils.get_variable_by_name(astnode, var_)) }} = history_[ i ].{{var_}}_;
-{%- endfor %}
-{%  if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
+    /**
+     * print extra on-emit statements transferred from synapse
+    **/
+
+{%-     filter indent(4, True) %}
+{%-     for stmt in extra_on_emit_spike_stmts_from_synapse %}
+{%-         include "directives_cpp/Statement.jinja2" %}
+{%-     endfor %}
+{%-     endfilter %}
+
+    /**
+     * updates due to convolutions
+    **/
+
+{%-     for _, spike_update in post_spike_updates.items() %}
+    {{ printer.print(utils.get_variable_by_name(astnode, spike_update.get_variable().get_complete_name())) }} += 1.;
+{%-     endfor %}
+
+#ifdef DEBUG
+//      std::cout<<", z2 value at this time (after update) = " << S_.zp_trace__for_postsyn_trace_synapse_nestml<<"\n";
+#endif
+
+
+{%          if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
       /**
        * update state variables transferred from synapse from `history[i].t_` to `t`
        *
@@ -1444,91 +1477,124 @@ double
         assert(V_.__h > 0);
         recompute_internal_variables(true);
 
-{#      emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
-{%- filter indent(8, True) %}
-{%-     set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
-{%-     set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
-{%-     include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
-{%- endfilter %}
+{#              emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
+{%-             filter indent(8, True) %}
+{%-                 set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%-                 set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-                 include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%-             endfilter %}
 
         V_.__h = old___h;
         recompute_internal_variables(true);
       }
-{%- endif %}
-#ifdef DEBUG
-      std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{var}}: \treturning " << {{ printer.print(utils.get_variable_by_name(astnode, var)) }} << std::endl;
-#endif
+{%-         endif %}
 
+#ifdef DEBUG
+      std::cout<<"   -> tr value returned = " << {{ printer.print(utils.get_variable_by_name(astnode, var)) }} <<"\n";
+#endif
       return {{ printer.print(utils.get_variable_by_name(astnode, var)) }};       // type: {{declarations.print_variable_type(variable_symbol)}}
     }
     --i;
   }
 
-  // this case occurs when the trace was requested at a time precisely at that of the first spike in the history
-  if ( (!before_increment) and t == history_[ 0 ].t_)
-  {
-{%- for var_ in purely_numeric_state_variables_moved %}
-    {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = history_[ 0 ].{{var_}}_;
-{%- endfor %}
-{%- for var_ in analytic_state_variables_moved %}
-    {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = history_[ 0 ].{{var_}}_;
-{%- endfor %}
-
-#ifdef DEBUG
-    std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{var}}: \ttrace requested at exact time of history entry 0, returning " << {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }} << std::endl;
-#endif
-
-    return {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }};
-  }
-
   // this case occurs when the trace was requested at a time before the first spike in the history
   // return initial value propagated in time
 
+  if (t < history_[0].t_)
+  {
+
+    // set to initial value
+{%-         for var_ in purely_numeric_state_variables_moved %}
+    {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
+{%-         endfor %}
+{%-         for var_ in analytic_state_variables_moved %}
+    {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
+{%-         endfor %}
+{%-         if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
+    /**
+    * update state variables transferred from synapse from initial condition to `t`
+    *
+    * variables that will be integrated: {{ purely_numeric_state_variables_moved + analytic_state_variables_moved }}
+    **/
+
+    if (t > 1E-12)
+    {
+      const double old___h = V_.__h;
+      V_.__h = t;   // from time 0 to the requested time
+      recompute_internal_variables(true);
+{#              emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
+{%-             filter indent(6, True) %}
+{%-                 set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%-                 set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-                 include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%-             endfilter %}
+
+      V_.__h = old___h;
+      recompute_internal_variables(true);
+    }
+{%-         endif %}
+
 #ifdef DEBUG
-  std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{var}}: \tfall-through, returning initial value = " << {{var}}__iv << std::endl;
+  std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{var}}: \ttrace was requested at a time before the first spike in the history; return initial value propagated in time = " << {{ printer.print(utils.get_variable_by_name(astnode, var)) }} << std::endl;
 #endif
 
-  if (t == 0.)
-  {
-    return 0.;  // initial value for convolution is always 0
+    /**
+     * print extra on-emit statements transferred from synapse
+    **/
+
+{%-     filter indent(4, True) %}
+{%-     for stmt in extra_on_emit_spike_stmts_from_synapse %}
+{%-         include "directives_cpp/Statement.jinja2" %}
+{%-     endfor %}
+{%-     endfilter %}
+
+    /**
+     * updates due to convolutions
+    **/
+
+{%-     for _, spike_update in post_spike_updates.items() %}
+    {{ printer.print(utils.get_variable_by_name(astnode, spike_update.get_variable().get_complete_name())) }} += 1.;
+{%-     endfor %}
+
+
+    return {{ printer.print(utils.get_variable_by_name(astnode, var)) }};
   }
 
-  // set to initial value
-{%- for var_ in purely_numeric_state_variables_moved %}
-  {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
-{%- endfor %}
-{%- for var_ in analytic_state_variables_moved %}
-  {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
-{%- endfor %}
-{%-     if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
-  /**
-   * update state variables transferred from synapse from initial condition to `t`
-   *
-   * variables that will be integrated: {{ purely_numeric_state_variables_moved + analytic_state_variables_moved }}
-  **/
+  // this case occurs when the trace was requested at a time precisely at that of the first spike in the history
+{%-         for var_ in purely_numeric_state_variables_moved %}
+  {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = history_[ 0 ].{{var_}}_;
+{%-         endfor %}
+{%-         for var_ in analytic_state_variables_moved %}
+  {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = history_[ 0 ].{{var_}}_;
+{%-         endfor %}
 
-  if (t > 1E-12)
-  {
-    const double old___h = V_.__h;
-    V_.__h = t;   // from time 0 to the requested time
-    recompute_internal_variables(true);
+    /**
+     * print extra on-emit statements transferred from synapse
+    **/
 
-{# emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
-{%- filter indent(8, True) %}
-{%-     set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
-{%-     set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
-{%-     include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
-{%- endfilter %}
+{%-     filter indent(4, True) %}
+{%-     for stmt in extra_on_emit_spike_stmts_from_synapse %}
+{%-         include "directives_cpp/Statement.jinja2" %}
+{%-     endfor %}
+{%-     endfilter %}
 
-    V_.__h = old___h;
-    recompute_internal_variables(true);
-  }
-{%- endif %}
-  return {{ printer.print(utils.get_variable_by_name(astnode, var)) }};
+    /**
+     * updates due to convolutions
+    **/
+
+{%-     for _, spike_update in post_spike_updates.items() %}
+    {{ printer.print(utils.get_variable_by_name(astnode, spike_update.get_variable().get_complete_name())) }} += 1.;
+{%-     endfor %}
+
+
+#ifdef DEBUG
+  std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{var}}: \ttrace requested at exact time of history entry 0 = " << {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }} << std::endl;
+#endif
+
+  return {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }};
 }
-{%- endwith -%}
+{%-    endwith -%}
 {%- endfor %}
-
 {%- endif %}
 
 

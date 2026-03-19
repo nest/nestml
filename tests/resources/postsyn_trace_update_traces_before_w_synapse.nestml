@@ -33,6 +33,7 @@ model postsyn_trace_synapse:
 
         tau_zp ms = 50 ms
         Zp real = 0.2
+        learning_rate real = 1E-3
 
     equations:
         zp_trace' = -zp_trace / tau_zp
@@ -45,9 +46,9 @@ model postsyn_trace_synapse:
         spike(weight real, delay ms)
 
     onReceive(post_spikes, priority=1):
-        zp_trace += Zp * (1 - zp_trace)
+        zp_trace += 1    # Zp * (1 - zp_trace)
 
-        w += zp_trace
+        w += learning_rate * zp_trace
 
     onReceive(pre_spikes, priority=2):
         emit_spike(w, d)

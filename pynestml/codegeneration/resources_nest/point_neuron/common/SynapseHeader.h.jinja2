@@ -95,7 +95,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
 // uncomment the next line to enable printing of detailed debug information
-// #define DEBUG
+#define DEBUG
 
 namespace nest
 {
@@ -884,10 +884,6 @@ void get_entry_from_continuous_variable_history(double t,
           pre_before_post_flag = true;
           break;  // this would in any case have been the last post spike to be processed
         }
-
-#ifdef DEBUG
-        std::cout << "\tprocessing post spike at t = " << start->t_ << std::endl;
-#endif
 
         /**
          * update synapse internal state from `t_lastspike_` to `start->t_`

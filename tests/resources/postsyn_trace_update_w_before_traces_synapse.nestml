@@ -47,7 +47,7 @@ model postsyn_trace_synapse:
     onReceive(post_spikes, priority=1):
         w += zp_trace
 
-        zp_trace += Zp * (1 - zp_trace)
+        zp_trace += 1 # Zp * (1 - zp_trace)
 
     onReceive(pre_spikes, priority=2):
         emit_spike(w, d)
