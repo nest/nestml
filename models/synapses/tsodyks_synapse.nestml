@@ -22,13 +22,13 @@
 # conditions:
 #
 # 1. The postsynaptic neuron must be of type ``iaf_psc_exp`` or similar,
-# because these neuron models have a postsynaptic current which decays
-# exponentially.
+#    because these neuron models have a postsynaptic current which decays
+#    exponentially.
 #
 # 2. The time constant of each ``tsodyks_synapse`` targeting a particular neuron
-# must be chosen equal to that neuron's synaptic time constant. In particular
-# that means that all synapses targeting a particular neuron have the same
-# parameter ``tau_psc``.
+#    must be chosen equal to that neuron's synaptic time constant. In particular
+#    that means that all synapses targeting a particular neuron have the same
+#    parameter ``tau_psc``.
 #
 # However, there are no technical restrictions using this model of synaptic
 # plasticity also in conjunction with neuron models that have a different

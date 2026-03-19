@@ -449,16 +449,17 @@ Wang-Buzsaki model with multiple synapses
 
 Source file: `wb_cond_multisyn_neuron.nestml <https://www.github.com/nest/nestml/blob/main/models/neurons/wb_cond_multisyn_neuron.nestml>`_
 
+
 Synapse models
 ~~~~~~~~~~~~~~
 
 
-:doc:`neuromodulated_stdp_synapse <neuromodulated_stdp_synapse>`
-----------------------------------------------------------------
+:doc:`static_synapse <static_synapse>`
+--------------------------------------
 
-Synapse model for spike-timing dependent plasticity modulated by a neurotransmitter such as dopamine
+Static synapse
 
-Source file: `neuromodulated_stdp_synapse.nestml <https://www.github.com/nest/nestml/blob/main/models/synapses/neuromodulated_stdp_synapse.nestml>`_
+Source file: `static_synapse.nestml <https://www.github.com/nest/nestml/blob/main/models/synapses/static_synapse.nestml>`_
 
 
 :doc:`noisy_synapse <noisy_synapse>`
@@ -469,12 +470,36 @@ Static synapse with Gaussian noise
 Source file: `noisy_synapse.nestml <https://www.github.com/nest/nestml/blob/main/models/synapses/noisy_synapse.nestml>`_
 
 
-:doc:`static_synapse <static_synapse>`
---------------------------------------
+:doc:`tsodyks_synapse <tsodyks_synapse>`
+----------------------------------------
 
-Static synapse
+Synapse type with short term plasticity
 
-Source file: `static_synapse.nestml <https://www.github.com/nest/nestml/blob/main/models/synapses/static_synapse.nestml>`_
+Source file: `tsodyks_synapse.nestml <https://www.github.com/nest/nestml/blob/main/models/synapses/tsodyks_synapse.nestml>`_
+
+
+:doc:`stdp_synapse <stdp_synapse>`
+----------------------------------
+
+Synapse model for spike-timing dependent plasticity
+
+Source file: `stdp_synapse.nestml <https://www.github.com/nest/nestml/blob/main/models/synapses/stdp_synapse.nestml>`_
+
+
+:doc:`stdp_triplet_synapse <stdp_triplet_synapse>`
+--------------------------------------------------
+
+Synapse type with triplet spike-timing dependent plasticity
+
+Source file: `stdp_triplet_synapse.nestml <https://www.github.com/nest/nestml/blob/main/models/synapses/stdp_triplet_synapse.nestml>`_
+
+
+:doc:`stdsp_synapse <stdsp_synapse>`
+------------------------------------
+
+Synapse model for spike-timing dependent plasticity with postsynaptic third-factor modulation
+
+Source file: `stdsp_synapse.nestml <https://www.github.com/nest/nestml/blob/main/models/synapses/stdsp_synapse.nestml>`_
 
 
 :doc:`stdp_nn_pre_centered_synapse <stdp_nn_pre_centered_synapse>`
@@ -500,27 +525,10 @@ Synapse type for spike-timing dependent plasticity with symmetric nearest-neighb
 
 Source file: `stdp_nn_symm_synapse.nestml <https://www.github.com/nest/nestml/blob/main/models/synapses/stdp_nn_symm_synapse.nestml>`_
 
+:doc:`neuromodulated_stdp_synapse <neuromodulated_stdp_synapse>`
+----------------------------------------------------------------
 
-:doc:`stdp_synapse <stdp_synapse>`
-----------------------------------
+Synapse model for spike-timing dependent plasticity modulated by a neurotransmitter such as dopamine
 
-Synapse model for spike-timing dependent plasticity
-
-Source file: `stdp_synapse.nestml <https://www.github.com/nest/nestml/blob/main/models/synapses/stdp_synapse.nestml>`_
-
-
-:doc:`stdp_triplet_synapse <stdp_triplet_synapse>`
---------------------------------------------------
-
-Synapse type with triplet spike-timing dependent plasticity
-
-Source file: `stdp_triplet_synapse.nestml <https://www.github.com/nest/nestml/blob/main/models/synapses/stdp_triplet_synapse.nestml>`_
-
-
-:doc:`stdsp_synapse <stdsp_synapse>`
-------------------------------------
-
-Synapse model for spike-timing dependent plasticity with postsynaptic third-factor modulation
-
-Source file: `stdsp_synapse.nestml <https://www.github.com/nest/nestml/blob/main/models/synapses/stdsp_synapse.nestml>`_
+Source file: `neuromodulated_stdp_synapse.nestml <https://www.github.com/nest/nestml/blob/main/models/synapses/neuromodulated_stdp_synapse.nestml>`_
 
