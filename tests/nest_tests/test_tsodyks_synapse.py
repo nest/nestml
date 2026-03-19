@@ -126,7 +126,6 @@ class TestNESTTsodyksSynapse:
             sim_time = max(np.amax(pre_spike_times), np.amax(post_spike_times)) + 5 * delay
 
         nest.ResetKernel()
-        nest.set_verbosity("M_ALL")
         nest.Install("nestml_jit_module")
         nest.Install("nestml_non_jit_module")
         nest.SetKernelStatus({"resolution": resolution})
