@@ -1,4 +1,8 @@
 {%- import 'directives_cpp/WriteInDictionary.jinja2' as write_in_dictionary with context %}
+{%- import 'directives_cpp/ReadFromDictionary.jinja2' as read_from_dictionary with context %}
+{%- import 'directives_cpp/ExistsInDictionary.jinja2' as exists_in_dictionary with context %}
+{%- import 'directives_cpp/GetValueFromDictionary.jinja2' as get_value_from_dict with context %}
+
 /*
  *  cm_default.cpp
  *
@@ -25,7 +29,6 @@
 
 namespace nest
 {
-
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
         or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
 void
@@ -84,7 +87,7 @@ void
   ArchivingNode::get_status( statusdict );
 
   // add all recordables to the status dictionary
-  ( *statusdict )[ names::recordables ] = recordablesMap_.get_list();
+  {{ write_in_dictionary.WriteInDictionary("statusdict", "ArrayDatum", "names::recordables", "recordablesMap_.get_list()") }}
 
   // We add a list of dicts with compartment information and
   // a list of dicts with receptor information to the status dictionary
@@ -92,7 +95,11 @@ void
   ArrayDatum receptor_ad;
   for ( long comp_idx_ = 0; comp_idx_ != c_tree_.get_size(); comp_idx_++ )
   {
+{%- if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
     DictionaryDatum dd = DictionaryDatum( new Dictionary );
+{%- else %}
+    Dictionary dd;
+{%- endif %}
     Compartment{{cm_unique_suffix}}* compartment = c_tree_.get_compartment( comp_idx_ );
 
     // add compartment info
@@ -111,96 +118,16 @@ void
 void
 nest::{{neuronSpecificFileNamesCmSyns["main"]}}::set_status( const DictionaryDatum& statusdict )
 {
-  updateValue< double >( statusdict, names::V_th, V_th_ );
+  {{ read_from_dictionary.ReadFromDictionary("statusdict", "double", "names::V_th", "V_th_", "", false) }};
   ArchivingNode::set_status( statusdict );
 
-  /**
-   * Add a compartment (or compartments) to the tree, so that the new compartment
-   * has the compartment specified by "parent_idx" as parent. The parent
-   * has to be in the tree, otherwise an error will be raised.  We add either a
-   * single compartment or multiple compartments, depending on wether the
-   * entry was a list of dicts or a single dict
-   */
-  if ( statusdict->known( names::compartments ) )
-  {
-    /**
-     * Until an operator to explicititly append compartments is added to the
-     * API, we disable this functionality
-     */
-    if ( c_tree_.get_size() > 0 )
-    {
-      throw BadProperty( "\"compartments\" is already defined for this model" );
-    }
+{%  filter indent(4) %}
+{%-     include "cm_directives_cpp/AddCompartmentsToTree.jinja2" %}
+{%- endfilter %}
 
-    Datum* dat = ( *statusdict )[ names::compartments ].datum();
-    ArrayDatum* ad = dynamic_cast< ArrayDatum* >( dat );
-    DictionaryDatum* dd = dynamic_cast< DictionaryDatum* >( dat );
-
-    if ( ad != nullptr )
-    {
-      // A list of compartments is provided, we add them all to the tree
-      for ( Token* tt = ( *ad ).begin(); tt != ( *ad ).end(); ++tt )
-      {
-        // cast the Datum pointer stored within token dynamically to a
-        // DictionaryDatum pointer
-        add_compartment_( *dynamic_cast< DictionaryDatum* >( tt->datum() ) );
-      }
-    }
-    else if ( dd != nullptr )
-    {
-      // A single compartment is provided, we add add it to the tree
-      add_compartment_( *dd );
-    }
-    else
-    {
-      throw BadProperty(
-        "\"compartments\" entry could not be identified, provide "
-        "list of parameter dicts for multiple compartments" );
-    }
-  }
-
-  /**
-   * Add a receptor (or receptors) to the tree, so that the new receptor
-   * targets the compartment specified by "comp_idx". The compartment
-   * has to be in the tree, otherwise an error will be raised.  We add either a
-   * single receptor or multiple receptors, depending on wether the
-   * entry was a list of dicts or a single dict
-   */
-  if ( statusdict->known( names::receptors ) )
-  {
-    /**
-     * Until an operator to explicititly append receptors is added to the
-     * API, we disable this functionality
-     */
-    if ( long( syn_buffers_.size() ) > 0 )
-    {
-      throw BadProperty( "\"receptors\" is already defined for this model" );
-    }
-
-    Datum* dat = ( *statusdict )[ names::receptors ].datum();
-    ArrayDatum* ad = dynamic_cast< ArrayDatum* >( dat );
-    DictionaryDatum* dd = dynamic_cast< DictionaryDatum* >( dat );
-
-    if ( ad != nullptr )
-    {
-      for ( Token* tt = ( *ad ).begin(); tt != ( *ad ).end(); ++tt )
-      {
-        // cast the Datum pointer stored within token dynamically to a
-        // DictionaryDatum pointer
-        add_receptor_( *dynamic_cast< DictionaryDatum* >( tt->datum() ) );
-      }
-    }
-    else if ( dd != nullptr )
-    {
-      add_receptor_( *dd );
-    }
-    else
-    {
-      throw BadProperty(
-        "\"receptors\" entry could not be identified, provide "
-        "list of parameter dicts for multiple receptors" );
-    }
-  }
+{%  filter indent(4) %}
+{%-     include "cm_directives_cpp/AddReceptorsToTree.jinja2" %}
+{%- endfilter %}
   /**
    * we need to initialize the recordables pointers to guarantee that the
    * recordables of the new compartments and/or receptors will be in the
@@ -209,23 +136,23 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::set_status( const DictionaryDat
   init_recordables_pointers_();
 }
 void
-nest::{{neuronSpecificFileNamesCmSyns["main"]}}::add_compartment_( DictionaryDatum& dd )
+nest::{{neuronSpecificFileNamesCmSyns["main"]}}::add_compartment_( const DictionaryDatum& dd )
 {
-  if ( dd->known( names::params ) )
+  if ( {{ exists_in_dictionary.ExistsInDictionary("dd", "names::params") }} )
   {
-    c_tree_.add_compartment(
-      getValue< long >( dd, names::parent_idx ), getValue< DictionaryDatum >( dd, names::params ) );
+    c_tree_.add_compartment({{ get_value_from_dict.GetValueFromDictionary("dd", "long", "names::parent_idx") }},
+        {{ get_value_from_dict.GetValueFromDictionary("dd", "DictionaryDatum", "names::params") }});
   }
   else
   {
-    c_tree_.add_compartment( getValue< long >( dd, names::parent_idx ) );
+    c_tree_.add_compartment({{ get_value_from_dict.GetValueFromDictionary("dd", "long", "names::parent_idx") }});
   }
 }
 void
-nest::{{neuronSpecificFileNamesCmSyns["main"]}}::add_receptor_( DictionaryDatum& dd )
+nest::{{neuronSpecificFileNamesCmSyns["main"]}}::add_receptor_( const DictionaryDatum& dd )
 {
-  const long compartment_idx = getValue< long >( dd, names::comp_idx );
-  const std::string receptor_type = getValue< std::string >( dd, names::receptor_type );
+  const long compartment_idx = {{ get_value_from_dict.GetValueFromDictionary("dd", "long", "names::comp_idx") }};
+  const std::string receptor_type = {{ get_value_from_dict.GetValueFromDictionary("dd", "std::string", "names::receptor_type") }};
 
   // create a ringbuffer to collect spikes for the receptor
   RingBuffer buffer;
@@ -235,10 +162,11 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::add_receptor_( DictionaryDatum&
   syn_buffers_.push_back( buffer );
 
   // add the receptor to the compartment
-  if ( dd->known( names::params ) )
+  if ( {{ exists_in_dictionary.ExistsInDictionary("dd", "names::params") }} )
   {
     c_tree_.neuron_currents.add_mechanism(
-      receptor_type, compartment_idx, getValue< DictionaryDatum >( dd, names::params ), syn_idx );
+      receptor_type, compartment_idx,
+      {{ get_value_from_dict.GetValueFromDictionary("dd", "DictionaryDatum", "names::params") }}, syn_idx );
   }
   else
   {

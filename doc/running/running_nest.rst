@@ -136,7 +136,7 @@ Each neuron model can be endowed with gap junctions. The model does not need to 
        "gap_current_port": "I_gap"
    }
 
-For a full example, please see `test_gap_junction.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/test_gap_junction.py>`_.
+For a full example, please see `test_gap_junction.py <https://github.com/nest/nestml/blob/main/tests/nest_tests/test_gap_junction.py>`_.
 
 
 Multiple spiking input ports in NEST
@@ -175,10 +175,10 @@ We furthermore wish to record the synaptic currents ``I_kernel1``, ``I_kernel2``
 
 The output shows the currents for each synapse (three bottom rows) and the net effect on the membrane potential (top row):
 
-.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nestml-multisynapse-example.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/fig/nestml-multisynapse-example.png
    :alt: NESTML multisynapse example waveform traces
 
-For a full example, please see `iaf_psc_exp_multisynapse.nestml <https://github.com/nest/nestml/blob/master/tests/nest_tests/resources/iaf_psc_exp_multisynapse.nestml>`_ for the full model and ``test_multisynapse`` in `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test harness that produced the figure above.
+For a full example, please see `iaf_psc_exp_multisynapse.nestml <https://github.com/nest/nestml/blob/main/tests/nest_tests/resources/iaf_psc_exp_multisynapse.nestml>`_ for the full model and ``test_multisynapse`` in `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/main/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test harness that produced the figure above.
 
 
 Multiple spiking input ports with vectors in NEST
@@ -229,7 +229,7 @@ The above code querying for ``receptor_types`` gives a list of port names and NE
    * - INH_SPIKES_2
      - 7
 
-For a full example, please see `iaf_psc_exp_multisynapse_vectors.nestml <https://github.com/nest/nestml/blob/master/tests/nest_tests/resources/iaf_psc_exp_multisynapse_vectors.nestml>`_ for the neuron model and ``test_multisynapse_with_vector_input_ports`` in `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test.
+For a full example, please see `iaf_psc_exp_multisynapse_vectors.nestml <https://github.com/nest/nestml/blob/main/tests/nest_tests/resources/iaf_psc_exp_multisynapse_vectors.nestml>`_ for the neuron model and ``test_multisynapse_with_vector_input_ports`` in `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/main/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test.
 
 Multiple continuous input ports in NEST
 ---------------------------------------
@@ -354,7 +354,7 @@ Compatibility with different versions of NEST
 To generate code that is compatible with particular versions of NEST Simulator, the code generator option  ``nest_version`` can be used. The option value is given as a string that corresponds to a git tag or git branch name. The following values are supported:
 
 - The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
-- ``"master"``: Latest NEST GitHub master branch version (https://github.com/nest/nest-simulator/).
+- ``"main"``: Latest NEST GitHub main branch version (https://github.com/nest/nest-simulator/).
 - ``"v2.20.2"``: Latest NEST 2 release.
 - ``"v3.0"``, ``"v3.1"``, ``"v3.2"``, etc.: NEST 3 release versions.
 

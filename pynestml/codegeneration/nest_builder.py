@@ -29,6 +29,7 @@ import subprocess
 import sys
 
 from pynestml.codegeneration.builder import Builder
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.exceptions.generated_code_build_exception import GeneratedCodeBuildException
 from pynestml.exceptions.invalid_path_exception import InvalidPathException
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
@@ -93,7 +94,13 @@ class NESTBuilder(Builder):
                 Logger.log_message(None, -1, "An error occurred while importing the `nest` module in Python. Please check your NEST installation-related environment variables and paths, or specify ``nest_path`` manually in the code generator options.", None, LoggingLevel.ERROR)
                 sys.exit(1)
 
-            nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
+            nest_version = NESTTools.detect_nest_version()
+            nest_version_dict = NESTTools.get_version_dict_from_version_string(nest_version)
+            if nest_version.startswith("main") \
+                    or (nest_version_dict and (nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3):
+                nest_path = nest.build_info["prefix"]
+            else:
+                nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
             self.set_options({"nest_path": nest_path})
             Logger.log_message(None, -1, "The NEST Simulator installation path was automatically detected as: " + nest_path, None, LoggingLevel.INFO)
 
