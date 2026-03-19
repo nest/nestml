@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import List, Optional
+from typing import Iterable, Optional
 
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_model import ASTModel
@@ -29,7 +29,7 @@ from pynestml.utils.string_utils import removesuffix
 class CodeGeneratorUtils:
 
     @classmethod
-    def get_model_types_from_names(cls, models: List[ASTModel], synapse_models: Optional[List[str]] = None):
+    def get_model_types_from_names(cls, models: Iterable[ASTModel], synapse_models: Optional[Iterable[str]] = None):
         r"""
         Determine which models are neuron models, and which are synapse models. All model names given in ``synapse_models``, as well as models of which the name ends in ``synapse``, are taken to be synapse models. All others are taken to be neuron models.
 

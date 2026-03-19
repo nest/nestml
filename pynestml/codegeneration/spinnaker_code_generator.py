@@ -19,7 +19,14 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Dict, Sequence, Optional, Mapping, Any
+from typing import Dict, Iterable, Sequence, Optional, Mapping, Any
+
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
 
 import copy
 import os
@@ -316,3 +323,16 @@ class SpiNNakerCodeGenerator(CodeGenerator):
             if "paired_neuron" in dir(model):
                 cloned_model.paired_neuron = model.paired_neuron
             self.codegen_py.generate_code([cloned_model])
+
+    @override
+    def generate_code(self,
+                      models: Iterable[ASTModel],
+                      metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> None:
+        for model in models:
+            cloned_model = model.clone()
+            cloned_model.accept(ASTSymbolTableVisitor())
+            self.codegen_cpp.generate_code([cloned_model], metadata=metadata)
+
+            cloned_model = model.clone()
+            cloned_model.accept(ASTSymbolTableVisitor())
+            self.codegen_py.generate_code([cloned_model], metadata=metadata)

@@ -21,6 +21,8 @@
 
 from __future__ import annotations
 
+from typing import Iterable, List, Optional, Mapping, Any, Union, Sequence
+
 try:
     # Available in the standard library starting with Python 3.12
     from typing import override
@@ -28,22 +30,15 @@ except ImportError:
     # Fallback for Python 3.8 - 3.11
     from typing_extensions import override
 
-from typing import Iterable, Optional, Mapping, Any, Union, Sequence
-
 import re
 
-from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.transformers.transformer import Transformer
-from pynestml.utils.ast_utils import ASTUtils
-from pynestml.utils.logger import Logger, LoggingLevel
-from pynestml.utils.string_utils import removesuffix
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
-from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 
 class InlineExpressionExpansionTransformer(Transformer):
@@ -59,12 +54,9 @@ class InlineExpressionExpansionTransformer(Transformer):
         super(Transformer, self).__init__(options)
 
     @override
-    def transform(self, models: Union[ASTModel, Iterable[ASTModel]]) -> Union[ASTModel, Iterable[ASTModel]]:
-        single = False
-        if isinstance(models, ASTNode):
-            single = True
-            models = [models]
-
+    def transform(self,
+                  models: Iterable[ASTModel],
+                  metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Union[ASTModel, Iterable[ASTModel]]:
         for model in models:
             if not model.get_equations_blocks():
                 continue
@@ -74,9 +66,6 @@ class InlineExpressionExpansionTransformer(Transformer):
 
             for equations_block in model.get_equations_blocks():
                 self.replace_inline_expressions_through_defining_expressions(equations_block.get_ode_equations(), equations_block.get_inline_expressions())
-
-        if single:
-            return models[0]
 
         return models
 

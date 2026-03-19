@@ -30,13 +30,17 @@ from abc import ABCMeta, abstractmethod
 
 
 class Transformer(WithOptions, metaclass=ABCMeta):
-    r"""Perform a transformation step on models, for instance, rewriting disallowed variable names like "lambda" because it conflicts with a keyword.
+    r"""Perform a transformation step on models, for instance, rewriting disallowed variable names like "lambda" because they conflict with keywords in the target language.
 
-    Some transformers operate on individual models, and some operate on tuples of models (for instance, a pair (neuron, synapse))."""
+    Transformers operate on sets of models and produce sets of models (possibly of unequal size). For instance, some transformers accept a pair consisting of neuron and synapse, processing these together to create a new, interlinked model.
 
-    def __init__(self, options: Optional[Mapping[str, Any]]=None):
+    Additionally, as a side effect, transformers may produce metadata about models, that contains information that can be helpful for subsequent transformers as well as code generation (for instance, the results of ODE-toolbox, detailing the numerical solver that is to be used for a model). The ``metadata`` dictionary is a mapping from the name of the model (as a string) to a dictionary of key/value pairs that contain the metadata (of arbitrary type, indexed by strings as keys) for that model."""
+
+    def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super(Transformer, self).__init__(options)
 
     @abstractmethod
-    def transform(self, models: Union[ASTModel, Iterable[ASTModel]]) -> Union[ASTModel, Iterable[ASTModel]]:
+    def transform(self,
+                  models: Iterable[ASTModel],
+                  metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Union[ASTModel, Iterable[ASTModel]]:
         raise NotImplementedError()

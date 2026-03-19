@@ -188,8 +188,8 @@ def start_strong_scaling_benchmark_threads(iteration):
                 f.write(result.stderr)
 
         if result.returncode != 0:
-            log(f"\033[91m{combination["name"]} failed\033[0m")
-            log(f"\033[91m{result.stderr} failed\033[0m")
+            log("\033[91m" + combination["name"] + " failed\033[0m")
+            log("\033[91m" + result.stderr + " failed\033[0m")
 
 def start_strong_scaling_benchmark_mpi(iteration):
     dirname = os.path.join(output_folder, STRONGSCALINGFOLDERNAME)
@@ -248,8 +248,8 @@ def start_weak_scaling_benchmark_threads(iteration):
                 f.write(result.stderr)
 
         if result.returncode != 0:
-            log(f"\033[91m{combination["neuronmodel"]} failed\033[0m")
-            log(f"\033[91m{result.stderr} failed\033[0m")
+            log("\033[91m" + combination["neuronmodel"] + " failed\033[0m")
+            log("\033[91m" + result.stderr + " failed\033[0m")
 
 def start_weak_scaling_benchmark_mpi(iteration):
     dirname = os.path.join(output_folder, WEAKSCALINGFOLDERNAME)

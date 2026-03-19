@@ -11,10 +11,10 @@ jobs:
   link_checker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Link Checker
-        uses: lycheeverse/lychee-action@v2.7.0
+        uses: lycheeverse/lychee-action@v2.8.0
         with:
           args: --verbose --no-progress **/*.md **/*.html **/*.rst
           fail: true
@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository contents
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository contents
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Install Java
         uses: actions/setup-java@v5
@@ -89,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository contents
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -123,7 +123,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository contents
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -161,7 +161,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository contents
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -199,11 +199,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        nest_branch: ["v2.20.2", "v3.0", "v3.9", "master"]
+        nest_branch: ["v3.0", "v3.9", "main"]
       fail-fast: false
     steps:
       - name: Checkout repository contents
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -213,7 +213,7 @@ jobs:
       - name: Install apt dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install libltdl-dev libgsl0-dev libncurses5-dev libreadline6-dev pkg-config
+          sudo apt-get install libltdl-dev libgsl0-dev libncurses5-dev libreadline6-dev pkg-config libboost-dev libboost-filesystem-dev libboost-system-dev libboost-program-options-dev libboost-python-dev
           sudo apt-get install python3-all-dev python3-matplotlib python3-numpy python3-scipy ipython3
 
       - name: Install Python dependencies
@@ -252,14 +252,10 @@ jobs:
           # exclude third factor plasticity models; these will only compile successfully if code generation is as a neuron+synapse pair
           export ALL_MODEL_FILENAMES=`find models/neurons -name "*.nestml" | paste -sd " "`
           echo $ALL_MODEL_FILENAMES
-          echo "NEST_INSTALL = ${{ env.NEST_INSTALL }}"
-          echo "NEST_VERSION = ${{ matrix.nest_branch }}"
-          sed -i 's|%NEST_PATH%|${{ env.NEST_INSTALL }}|' tests/nest_tests/resources/nest_codegen_opts.json
-          sed -i 's|%NEST_VERSION%|${{ matrix.nest_branch }}|' tests/nest_tests/resources/nest_codegen_opts.json
-          nestml --input_path $ALL_MODEL_FILENAMES --target_path target --suffix _nestml --logging_level INFO --module_name nestml_allmodels_module --codegen_opts tests/nest_tests/resources/nest_codegen_opts.json
+          nestml --input_path $ALL_MODEL_FILENAMES --target_path target --suffix _nestml --logging_level INFO --module_name nestml_allmodels_module
 
       - name: Run integration tests
-        if: ${{ matrix.nest_branch == 'master' || matrix.nest_branch == 'v2.20.2' }}
+        if: ${{ matrix.nest_branch == 'main' || matrix.nest_branch == 'v2.20.2' }}
         env:
           LD_LIBRARY_PATH: ${{ env.NEST_INSTALL }}/lib/nest
         run: |
@@ -269,16 +265,16 @@ jobs:
           done;
           exit $rc
 
-      # Run only the nest integration tests for NEST versions other than master and 2.20.2
+      # Run only the nest integration tests for NEST versions other than main and 2.20.2
       - name: Run integration tests
-        if: ${{ !(matrix.nest_branch == 'master' || matrix.nest_branch == 'v2.20.2') }}
+        if: ${{ !(matrix.nest_branch == 'main' || matrix.nest_branch == 'v2.20.2') }}
         env:
           LD_LIBRARY_PATH: ${{ env.NEST_INSTALL }}/lib/nest
         run: |
           pytest -s -o log_cli=true -o log_cli_level="DEBUG" tests/nest_tests/nest_integration_test.py
 
       - name: Run Jupyter notebooks
-        if: ${{ matrix.nest_branch == 'master' }}
+        if: ${{ matrix.nest_branch == 'main' }}
         run: |
           ipynb_fns=$(find $GITHUB_WORKSPACE/doc/tutorials -name '*.ipynb')
           rc=0
@@ -300,11 +296,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        nest_branch: ["master"]
+        nest_branch: ["main"]
       fail-fast: false
     steps:
       - name: Checkout the repository contents
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -314,7 +310,7 @@ jobs:
       - name: Install apt dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install libltdl-dev libgsl0-dev libncurses5-dev libreadline6-dev pkg-config
+          sudo apt-get install libltdl-dev libgsl0-dev libncurses5-dev libreadline6-dev pkg-config libboost-dev libboost-filesystem-dev libboost-system-dev libboost-program-options-dev libboost-python-dev
           sudo apt-get install python3-all-dev python3-matplotlib python3-numpy python3-scipy ipython3
 
       - name: Install Python dependencies
@@ -362,7 +358,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository contents
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup Python
         uses: actions/setup-python@v6

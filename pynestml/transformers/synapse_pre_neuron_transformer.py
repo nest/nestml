@@ -382,8 +382,10 @@ class SynapsePreNeuronTransformer(Transformer):
         return new_neuron, new_synapse
 
     @override
-    def transform(self, models: Union[ASTModel, Iterable[ASTModel]]) -> Union[ASTModel, Iterable[ASTModel]]:
-        assert isinstance(models, Iterable), "This transformer needs more than one model as input."
+    def transform(self,
+                  models: Iterable[ASTModel],
+                  metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Union[ASTModel, Iterable[ASTModel]]:
+        assert len(models) > 1, "This transformer needs more than one model as input."
 
         models = set(models)
 

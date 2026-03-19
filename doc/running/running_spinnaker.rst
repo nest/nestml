@@ -18,7 +18,7 @@ As this solution uses a single bus, the scalability of the system is dependent o
 Generating code
 ~~~~~~~~~~~~~~~
 
-1. Build the Apptainer image from https://github.com/nest/nestml/blob/master/extras/spinnaker-apptainer.def
+1. Build the Apptainer image from https://github.com/nest/nestml/blob/main/extras/spinnaker-apptainer.def
 
    .. code-block:: bash
 

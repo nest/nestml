@@ -21,6 +21,8 @@
 
 from __future__ import annotations
 
+from typing import Iterable, Optional, Mapping, Any, Union
+
 try:
     # Available in the standard library starting with Python 3.12
     from typing import override
@@ -28,9 +30,7 @@ except ImportError:
     # Fallback for Python 3.8 - 3.11
     from typing_extensions import override
 
-from typing import Iterable, Optional, Mapping, Any, Union
 from pynestml.meta_model.ast_model import ASTModel
-
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.transformers.transformer import Transformer
 
@@ -44,17 +44,12 @@ class AddTimestepToInternalsTransformer(Transformer):
         super(Transformer, self).__init__(options)
 
     @override
-    def transform(self, models: Union[ASTModel, Iterable[ASTModel]]) -> Union[ASTModel, Iterable[ASTModel]]:
-        single = False
-        if isinstance(models, ASTNode):
-            single = True
-            models = [models]
+    def transform(self,
+                  models: Iterable[ASTModel],
+                  metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Union[ASTModel, Iterable[ASTModel]]:
 
         for model in models:
             self.add_timestep_symbol(model)
-
-        if single:
-            return models[0]
 
         return models
 

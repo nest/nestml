@@ -108,7 +108,9 @@ class SynapseRemovePostPortTransformer(Transformer):
         return new_neuron, new_synapse
 
     @override
-    def transform(self, models: Union[ASTModel, Iterable[ASTModel]]) -> Union[ASTModel, Iterable[ASTModel]]:
+    def transform(self,
+                  models: Iterable[ASTModel],
+                  metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Union[ASTModel, Iterable[ASTModel]]:
         assert isinstance(models, Iterable), "This transformer needs more than one model as input."
         for neuron_synapse_pair in self.get_option("neuron_synapse_pairs"):
             neuron_name = neuron_synapse_pair["neuron"]
