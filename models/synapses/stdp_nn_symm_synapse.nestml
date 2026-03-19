@@ -28,7 +28,7 @@
 # side) decays with the time constant tau_minus and increases to 1 on a
 # post-spike occurrence.
 #
-# .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/stdp-nearest-neighbour.png
+# .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/fig/stdp-nearest-neighbour.png
 #
 #    Figure 7 from Morrison, Diesmann and Gerstner
 #
@@ -48,7 +48,6 @@
 # .. [2] Morrison A., Diesmann M., and Gerstner W. (2008) Phenomenological
 #        models of synaptic plasticity based on spike timing,
 #        Biol. Cybern. 98, 459--478
-#
 #
 # Copyright statement
 # +++++++++++++++++++
@@ -105,14 +104,14 @@ model stdp_nn_symm_synapse:
         post_trace = 1
 
         # potentiate synapse
-        w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
+        w_ real = Wmax * (w / Wmax + (lambda * (1. - (w / Wmax))**mu_plus * pre_trace))
         w = min(Wmax, w_)
 
     onReceive(pre_spikes):
         pre_trace = 1
 
         # depress synapse
-        w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
+        w_ real = Wmax * (w / Wmax - (alpha * lambda * (w / Wmax)**mu_minus * post_trace))
         w = max(Wmin, w_)
 
         # deliver spike to postsynaptic partner

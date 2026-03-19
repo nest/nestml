@@ -35,6 +35,7 @@ from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.nest_code_generator_utils import NESTCodeGeneratorUtils
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.nest_cpp_type_symbol_printer import NESTCppTypeSymbolPrinter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
@@ -111,7 +112,7 @@ class NESTCodeGenerator(CodeGenerator):
             - **neuron**: A list of neuron model jinja templates.
             - **synapse**: A list of synapse model jinja templates.
         - **module_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to generating the NEST module.
-    - **nest_version**: A string identifying the version of NEST Simulator to generate code for. The string corresponds to the NEST Simulator git repository tag or git branch name, for instance, ``"v2.20.2"`` or ``"master"``. The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
+    - **nest_version**: A string identifying the version of NEST Simulator to generate code for. The string corresponds to the NEST Simulator git repository tag or git branch name, for instance, ``"v2.20.2"`` or ``"main"``. The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
     - **solver**: A string identifying the preferred ODE solver. ``"analytic"`` for propagator solver preferred; fallback to numeric solver in case ODEs are not analytically solvable. Use ``"numeric"`` to disable analytic solver.
     - **gsl_adaptive_step_size_controller**: For the numeric (GSL) solver: how to interpret the absolute and relative tolerance values. Can be changed to trade off integration accuracy with numerical stability. The default value is ``"with_respect_to_solution"``. Can also be set to ``"with_respect_to_derivative"``. (Tolerance values can be specified at runtime as parameters of the model instance.) For further details, see https://www.gnu.org/software/gsl/doc/html/ode-initval.html#adaptive-step-size-control.
     - **numeric_solver**: A string identifying the preferred numeric ODE solver. Supported are ``"rk45"`` and ``"forward-Euler"``.
@@ -315,6 +316,7 @@ class NESTCodeGenerator(CodeGenerator):
         # NEST version
         if self.option_exists("nest_version"):
             namespace["nest_version"] = self.get_option("nest_version")
+            namespace["nest_version_dict"] = NESTTools.get_version_dict_from_version_string(self.get_option("nest_version"))
 
         return namespace
 
@@ -522,6 +524,7 @@ class NESTCodeGenerator(CodeGenerator):
         # NEST version
         if self.option_exists("nest_version"):
             namespace["nest_version"] = self.get_option("nest_version")
+            namespace["nest_version_dict"] = NESTTools.get_version_dict_from_version_string(self.get_option("nest_version"))
 
         # helper functions
         namespace["ast_node_factory"] = ASTNodeFactory
@@ -586,7 +589,9 @@ class NESTCodeGenerator(CodeGenerator):
         """
         namespace = self._get_model_namespace(synapse)
 
-        namespace["nest_version"] = self.get_option("nest_version")
+        if self.option_exists("nest_version"):
+            namespace["nest_version"] = self.get_option("nest_version")
+            namespace["nest_version_dict"] = NESTTools.get_version_dict_from_version_string(self.get_option("nest_version"))
 
         all_input_port_names = []
         for input_block in synapse.get_input_blocks():
