@@ -269,7 +269,7 @@ class NESTCodeGenerator(CodeGenerator):
         return ret
 
     def generate_synapse_code(self, synapse: ASTModel,
-                              metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> None:
+                              metadata: Dict[str, Dict[str, Any]]) -> None:
         # special case for delay variable
         synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
 
@@ -284,11 +284,8 @@ class NESTCodeGenerator(CodeGenerator):
     @override
     def generate_code(self,
                       models: Iterable[ASTModel],
-                      metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> None:
+                      metadata: Dict[str, Dict[str, Any]]) -> None:
         neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
-
-        if metadata is None:
-            metadata: Mapping[str, Mapping[str, Any]] = {}
 
         self.run_nest_target_specific_cocos(neurons, synapses)
         self.analyse_transform_neurons(neurons, metadata)
@@ -312,7 +309,7 @@ class NESTCodeGenerator(CodeGenerator):
     def _get_module_namespace(self,
                               neurons: List[ASTModel],
                               synapses: List[ASTModel],
-                              metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Dict:
+                              metadata: Dict[str, Dict[str, Any]]) -> Dict:
         """
         Creates a namespace for generating NEST extension module code
         :param neurons: List of neurons
@@ -333,7 +330,7 @@ class NESTCodeGenerator(CodeGenerator):
 
     def analyse_transform_neurons(self,
                                   neurons: List[ASTModel],
-                                  metadata: Mapping[str, Mapping[str, Any]]) -> None:
+                                  metadata: Dict[str, Dict[str, Any]]) -> None:
         """
         Analyse and transform a list of neurons.
         :param neurons: a list of neurons.
@@ -354,7 +351,7 @@ class NESTCodeGenerator(CodeGenerator):
 
     def analyse_transform_synapses(self,
                                    synapses: List[ASTModel],
-                                   metadata: Mapping[str, Mapping[str, Any]]) -> None:
+                                   metadata: Dict[str, Dict[str, Any]]) -> None:
         """
         Analyse and transform a list of synapses.
         :param synapses: a list of synapses.
@@ -366,7 +363,7 @@ class NESTCodeGenerator(CodeGenerator):
             Logger.log_message(None, None, "Analysing/transforming synapse {}.".format(synapse.get_name()), None, LoggingLevel.INFO)
             self.analyse_synapse(synapse, metadata)
 
-    def analyse_neuron(self, neuron: ASTModel, metadata: Mapping[str, Mapping[str, Any]]) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment], List[ASTOdeEquation], List[ASTOdeEquation]]:
+    def analyse_neuron(self, neuron: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment], List[ASTOdeEquation], List[ASTOdeEquation]]:
         """
         Analyse and transform a single neuron.
         :param neuron: a single neuron.
@@ -454,7 +451,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         return spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars
 
-    def analyse_synapse(self, synapse: ASTModel, metadata) -> None:
+    def analyse_synapse(self, synapse: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> None:
         """
         Analyse and transform a single synapse.
         :param synapse: a single synapse.
@@ -529,7 +526,7 @@ class NESTCodeGenerator(CodeGenerator):
 
             return
 
-    def _get_model_namespace(self, astnode: ASTModel, metadata: Optional[Mapping[str, Mapping[str, Any]]]) -> Dict:
+    def _get_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
         namespace = {}
 
         namespace["nestml_version"] = pynestml.__version__
@@ -598,7 +595,7 @@ class NESTCodeGenerator(CodeGenerator):
 
     def _get_synapse_model_namespace(self,
                                      synapse: ASTModel,
-                                     metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Dict:
+                                     metadata: Dict[str, Dict[str, Any]]) -> Dict:
         """
         Returns a standard namespace with often required functionality.
         :param synapse: a single synapse instance
@@ -743,7 +740,7 @@ class NESTCodeGenerator(CodeGenerator):
 
     def _get_neuron_model_namespace(self,
                                     neuron: ASTModel,
-                                    metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Dict:
+                                    metadata: Dict[str, Dict[str, Any]]) -> Dict:
         r"""
         Returns a standard namespace with often required functionality.
         :param neuron: a single neuron instance

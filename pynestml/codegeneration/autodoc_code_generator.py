@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Iterable, Mapping, Optional, Sequence
+from typing import Any, Iterable, Dict, Sequence
 
 try:
     # Available in the standard library starting with Python 3.12
@@ -72,7 +72,7 @@ class AutoDocCodeGenerator(CodeGenerator):
     @override
     def generate_code(self,
                       models: Iterable[ASTModel],
-                      metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> None:
+                      metadata: Dict[str, Dict[str, Any]]) -> None:
         """
         Generate model documentation and index page for each neuron and synapse that is provided.
         """

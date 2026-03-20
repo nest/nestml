@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, List, Mapping, Optional, Tuple, Union, Sequence
+from typing import Any, Dict, Callable, Iterable, List, Mapping, Optional, Tuple
 
 try:
     # Available in the standard library starting with Python 3.12
@@ -106,18 +106,10 @@ class IllegalVariableNameTransformer(Transformer):
 
     @override
     def transform(self,
-                  models: Union[ASTModel, Iterable[ASTModel]],
-                  metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Union[ASTModel, Iterable[ASTModel]]:
-        single = False
-        if isinstance(models, ASTNode):
-            single = True
-            models = [models]
-
+                  models: Iterable[ASTModel],
+                  metadata: Dict[str, Dict[str, Any]]) -> Iterable[ASTModel]:
         for model in models:
             model.accept(self.VariableNameRewriterVisitor(self.get_option("forbidden_names"), self.fix_name_func_))
             model.accept(ASTSymbolTableVisitor())
-
-        if single:
-            return models[0]
 
         return models

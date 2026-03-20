@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Iterable, Sequence, Optional, Mapping, Any
+from typing import Any, Dict, Iterable, Mapping, Optional
 
 try:
     # Available in the standard library starting with Python 3.12
@@ -217,7 +217,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
     @override
     def generate_code(self,
                       models: Iterable[ASTModel],
-                      metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> None:
+                      metadata: Dict[str, Dict[str, Any]]) -> None:
         for model in models:
             cloned_model = model.clone()
             cloned_model.accept(ASTSymbolTableVisitor())

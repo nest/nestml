@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable, List, Optional, Mapping, Any, Union, Sequence
+from typing import Any, Dict, Iterable, List, Optional, Mapping, Sequence
 
 from pynestml.meta_model.ast_model import ASTModel
 
@@ -57,7 +57,7 @@ class InlineExpressionExpansionTransformer(Transformer):
     @override
     def transform(self,
                   models: Iterable[ASTModel],
-                  metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Union[ASTModel, Iterable[ASTModel]]:
+                  metadata: Dict[str, Dict[str, Any]]) -> Iterable[ASTModel]:
         for model in models:
             if not model.get_equations_blocks():
                 continue
