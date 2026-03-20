@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable, List, Optional, Mapping, Any, Union, Sequence
+from typing import Any, Dict, Iterable, List, Optional, Mapping, Sequence
 
 try:
     # Available in the standard library starting with Python 3.12
@@ -56,7 +56,7 @@ class InlineExpressionExpansionTransformer(Transformer):
     @override
     def transform(self,
                   models: Iterable[ASTModel],
-                  metadata: Mapping[str, Mapping[str, Any]]) -> Iterable[ASTModel]:
+                  metadata: Dict[str, Dict[str, Any]]) -> Iterable[ASTModel]:
         for model in models:
             if not model.get_equations_blocks():
                 continue

@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterable, Mapping, Optional, Union
+from typing import Any, Dict, Iterable, Mapping, Optional
 
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.with_options import WithOptions
@@ -42,5 +42,5 @@ class Transformer(WithOptions, metaclass=ABCMeta):
     @abstractmethod
     def transform(self,
                   models: Iterable[ASTModel],
-                  metadata: Mapping[str, Mapping[str, Any]]) -> Iterable[ASTModel]:
+                  metadata: Dict[str, Dict[str, Any]]) -> Iterable[ASTModel]:
         raise NotImplementedError()

@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Dict, Iterable, Sequence, Optional, Mapping, Any
+from typing import Any, Dict, Iterable, Mapping, Optional
 
 try:
     # Available in the standard library starting with Python 3.12
@@ -303,7 +303,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
     @override
     def generate_code(self,
                       models: Iterable[ASTModel],
-                      metadata: Mapping[str, Mapping[str, Any]]) -> None:
+                      metadata: Dict[str, Dict[str, Any]]) -> None:
         neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
 
         for model in models:

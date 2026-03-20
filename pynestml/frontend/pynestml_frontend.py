@@ -491,7 +491,7 @@ def get_parsed_models() -> List[ASTModel]:
 
 def transform_models(transformers: Sequence[Transformer],
                      models: Iterable[ASTModel]) -> Tuple[Iterable[ASTModel], Mapping[str, Mapping[str, Any]]]:
-    metadata: Mapping[str, Mapping[str, Any]] = {}
+    metadata: Dict[str, Dict[str, Any]] = {}
 
     for transformer in transformers:
         models = transformer.transform(models, metadata)
@@ -499,7 +499,7 @@ def transform_models(transformers: Sequence[Transformer],
     return models, metadata
 
 
-def generate_code(code_generator: CodeGenerator, models: Iterable[ASTModel], metadata: Mapping[str, Mapping[str, Any]]):
+def generate_code(code_generator: CodeGenerator, models: Iterable[ASTModel], metadata: Dict[str, Dict[str, Any]]):
     code_generator.generate_code(models, metadata)
 
 

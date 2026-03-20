@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Optional, Mapping, Any, Union
+from typing import Any, Dict, Iterable, Mapping, Optional
 
 try:
     # Available in the standard library starting with Python 3.12
@@ -46,7 +46,7 @@ class AddTimestepToInternalsTransformer(Transformer):
     @override
     def transform(self,
                   models: Iterable[ASTModel],
-                  metadata: Mapping[str, Mapping[str, Any]]) -> Iterable[ASTModel]:
+                  metadata: Dict[str, Dict[str, Any]]) -> Iterable[ASTModel]:
 
         for model in models:
             self.add_timestep_symbol(model)

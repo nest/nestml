@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Iterable, List, Sequence, Mapping, Optional, Set, Tuple, Union
+from typing import Any, Dict, Iterable, Mapping, Optional, Set, Tuple
 
 try:
     # Available in the standard library starting with Python 3.12
@@ -115,7 +115,7 @@ class SynapsePostNeuronTransformer(Transformer):
 
         return None
 
-    def transform_neuron_synapse_pair_(self, neuron: ASTModel, synapse: ASTModel, metadata: Mapping[str, Mapping[str, Any]]) -> Tuple[ASTModel, ASTModel, Dict[str, Dict[str, Any]]]:
+    def transform_neuron_synapse_pair_(self, neuron: ASTModel, synapse: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Tuple[ASTModel, ASTModel]:
         r"""
         "Co-generation" or in-tandem generation of neuron and synapse code.
 
@@ -431,7 +431,7 @@ class SynapsePostNeuronTransformer(Transformer):
     @override
     def transform(self,
                   models: Iterable[ASTModel],
-                  metadata: Mapping[str, Mapping[str, Any]]) -> Iterable[ASTModel]:
+                  metadata: Dict[str, Dict[str, Any]]) -> Iterable[ASTModel]:
         models = list(models)
         for neuron_synapse_pair in self.get_option("neuron_synapse_pairs"):
             neuron_name = neuron_synapse_pair["neuron"]

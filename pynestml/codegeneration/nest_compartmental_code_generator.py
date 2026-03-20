@@ -207,7 +207,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
     @override
     def generate_code(self,
                       models: Iterable[ASTModel],
-                      metadata: Mapping[str, Mapping[str, Any]]) -> None:
+                      metadata: Dict[str, Dict[str, Any]]) -> None:
         self.analyse_transform_neurons(models)
         self.generate_neurons(models)
         self.generate_module_code(models)
@@ -578,7 +578,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
     def _get_neuron_model_namespace(self,
                                     neuron: ASTModel,
-                                    metadata: Mapping[str, Mapping[str, Any]]) -> Dict:
+                                    metadata: Dict[str, Dict[str, Any]]) -> Dict:
         """
         Returns a standard namespace for generating neuron code for NEST
         :param neuron: a single neuron instance
