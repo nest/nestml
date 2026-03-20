@@ -108,7 +108,7 @@ class IllegalVariableNameTransformer(Transformer):
     @override
     def transform(self,
                   models: Iterable[ASTModel],
-                  metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Union[ASTModel, Iterable[ASTModel]]:
+                  metadata: Mapping[str, Mapping[str, Any]]) -> Iterable[ASTModel]:
         for model in models:
             model.accept(self.VariableNameRewriterVisitor(self.get_option("forbidden_names"), self.fix_name_func_))
             model.accept(ASTSymbolTableVisitor())

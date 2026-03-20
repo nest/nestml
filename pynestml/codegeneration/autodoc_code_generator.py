@@ -72,7 +72,7 @@ class AutoDocCodeGenerator(CodeGenerator):
     @override
     def generate_code(self,
                       models: Iterable[ASTModel],
-                      metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> None:
+                      metadata: Mapping[str, Mapping[str, Any]]) -> None:
         """
         Generate model documentation and index page for each neuron and synapse that is provided.
         """
@@ -96,7 +96,9 @@ class AutoDocCodeGenerator(CodeGenerator):
         with open(str(os.path.join(FrontendConfiguration.get_target_path(), "index.rst")), "w+") as f:
             f.write(str(nestml_models_index))
 
-    def generate_neuron_code(self, neuron: ASTModel):
+    @override
+    def generate_neuron_code(self, neuron: ASTModel,
+                             metadata: Mapping[str, Mapping[str, Any]]) -> None:
         """
         Generate model documentation for neuron model.
         :param neuron: a single neuron object.
@@ -107,7 +109,9 @@ class AutoDocCodeGenerator(CodeGenerator):
                   "w+") as f:
             f.write(str(nestml_model_doc))
 
-    def generate_synapse_code(self, synapse: ASTModel):
+    @override
+    def generate_synapse_code(self, synapse: ASTModel,
+                              metadata: Mapping[str, Mapping[str, Any]]) -> None:
         """
         Generate model documentation for synapse model.
         :param synapse: a single synapse object.

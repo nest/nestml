@@ -499,7 +499,7 @@ def transform_models(transformers: Sequence[Transformer],
     return models, metadata
 
 
-def generate_code(code_generator: CodeGenerator, models: Iterable[ASTModel], metadata: Optional[Mapping[str, Mapping[str, Any]]] = None):
+def generate_code(code_generator: CodeGenerator, models: Iterable[ASTModel], metadata: Mapping[str, Mapping[str, Any]]):
     code_generator.generate_code(models, metadata)
 
 

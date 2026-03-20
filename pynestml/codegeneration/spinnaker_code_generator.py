@@ -147,15 +147,17 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         self._ode_toolbox_variable_printer._expression_printer = self._ode_toolbox_printer
         self._ode_toolbox_function_call_printer._expression_printer = self._ode_toolbox_printer
 
-    def generate_synapse_code(self, synapse: ASTModel) -> None:
+    def generate_synapse_code(self, synapse: ASTModel,
+                              metadata: Mapping[str, Mapping[str, Any]]) -> None:
         self.generate_model_code(synapse.get_name(),
                                  model_templates=self._model_templates["synapse"],
-                                 template_namespace=self._get_synapse_model_namespace(synapse),
+                                 template_namespace=self._get_synapse_model_namespace(synapse, metadata),
+                                 metadata=metadata,
                                  model_name_escape_string="@SYNAPSE_NAME@")
 
 class CustomPythonStandaloneCodeGenerator(PythonStandaloneCodeGenerator):
-    def _get_model_namespace(self, astnode: ASTModel) -> Dict:
-        namespace = super()._get_model_namespace(astnode)
+    def _get_model_namespace(self, astnode: ASTModel, metadata: Mapping[str, Mapping[str, Any]]) -> Dict:
+        namespace = super()._get_model_namespace(astnode, metadata)
         if "neuron" in astnode.name.split("__with_")[0]:
             # TODO: PythonStandaloneTargetTools does not contain getter for synapse values yet
             namespace["numeric_parameter_values"], namespace["numeric_internal_values"], namespace["numeric_initial_state_values"] = PythonStandaloneTargetTools.get_neuron_numerical_initial_values(astnode.file_path)
@@ -298,41 +300,29 @@ class SpiNNakerCodeGenerator(CodeGenerator):
 
         return ret
 
-
-    def generate_code(self, models: Sequence[ASTModel]) -> None:
-        for model in models:
-            cloned_model = model.clone()
-            cloned_model.accept(ASTSymbolTableVisitor())
-            if "paired_neuron" in dir(model):
-                # model is a synapse
-                cloned_model.paired_neuron = model.paired_neuron
-
-            neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
-            if model in neurons:
-                self.codegen_cpp.setup_printers(for_neuron=True)
-                self.codegen_py.setup_printers(for_neuron=True)
-            else:
-                assert model in synapses
-                self.codegen_cpp.setup_printers(for_neuron=False)
-                self.codegen_py.setup_printers(for_neuron=False)
-
-            self.codegen_cpp.generate_code([cloned_model])
-
-            cloned_model = model.clone()
-            cloned_model.accept(ASTSymbolTableVisitor())
-            if "paired_neuron" in dir(model):
-                cloned_model.paired_neuron = model.paired_neuron
-            self.codegen_py.generate_code([cloned_model])
-
     @override
     def generate_code(self,
                       models: Iterable[ASTModel],
-                      metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> None:
+                      metadata: Mapping[str, Mapping[str, Any]]) -> None:
+        neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
+
         for model in models:
+            print("SpiNNakerCodeGenerator::generate_code(): model = " + str(model.name))
             cloned_model = model.clone()
             cloned_model.accept(ASTSymbolTableVisitor())
+            if model in neurons:
+                self.codegen_cpp.setup_printers(for_neuron=True)
+            else:
+                assert model in synapses
+                self.codegen_cpp.setup_printers(for_neuron=False)
+
             self.codegen_cpp.generate_code([cloned_model], metadata=metadata)
 
             cloned_model = model.clone()
             cloned_model.accept(ASTSymbolTableVisitor())
+            if model in neurons:
+                self.codegen_py.setup_printers(for_neuron=True)
+            else:
+                assert model in synapses
+                self.codegen_py.setup_printers(for_neuron=False)
             self.codegen_py.generate_code([cloned_model], metadata=metadata)

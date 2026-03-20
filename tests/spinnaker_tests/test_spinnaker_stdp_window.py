@@ -77,7 +77,7 @@ class TestSpiNNakerSTDPWindow:
 
         files = [
             os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
-            os.path.join("models", "synapses", "stdp_synapse.nestml")
+            os.path.join("models", "synapses", "stdp_additive_synapse.nestml")
         ]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]

@@ -46,7 +46,7 @@ class AddTimestepToInternalsTransformer(Transformer):
     @override
     def transform(self,
                   models: Iterable[ASTModel],
-                  metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Union[ASTModel, Iterable[ASTModel]]:
+                  metadata: Mapping[str, Mapping[str, Any]]) -> Iterable[ASTModel]:
 
         for model in models:
             self.add_timestep_symbol(model)

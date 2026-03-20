@@ -207,7 +207,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
     @override
     def generate_code(self,
                       models: Iterable[ASTModel],
-                      metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> None:
+                      metadata: Mapping[str, Mapping[str, Any]]) -> None:
         self.analyse_transform_neurons(models)
         self.generate_neurons(models)
         self.generate_module_code(models)
@@ -461,7 +461,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         # substitute inline expressions with each other
         # such that no inline expression references another inline expression;
         # deference inline_expressions inside ode_equations
-        InlineExpressionExpansionTransformer().transform([neuron])
+        InlineExpressionExpansionTransformer().transform([neuron, metadata={})
 
         # generate update expressions using ode toolbox
         # for each equation in the equation block attempt to solve analytically
@@ -578,7 +578,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
     def _get_neuron_model_namespace(self,
                                     neuron: ASTModel,
-                                    metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Dict:
+                                    metadata: Mapping[str, Mapping[str, Any]]) -> Dict:
         """
         Returns a standard namespace for generating neuron code for NEST
         :param neuron: a single neuron instance

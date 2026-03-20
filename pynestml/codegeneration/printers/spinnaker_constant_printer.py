@@ -21,8 +21,10 @@
 
 from typing import Union
 
+from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 
-class SpiNNakerConstantPrinter:
+
+class SpiNNakerConstantPrinter(ConstantPrinter):
     r"""
     """
 
@@ -33,7 +35,6 @@ class SpiNNakerConstantPrinter:
         :type constant_name: str
         :return: the corresponding nest representation
         """
-        print("XXXXXXXX printing constant " + str(const))
         if isinstance(const, float) or isinstance(const, int):
             return "(" + str(const) + " << 16)"
 

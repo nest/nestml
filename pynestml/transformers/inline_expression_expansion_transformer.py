@@ -56,7 +56,7 @@ class InlineExpressionExpansionTransformer(Transformer):
     @override
     def transform(self,
                   models: Iterable[ASTModel],
-                  metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Union[ASTModel, Iterable[ASTModel]]:
+                  metadata: Mapping[str, Mapping[str, Any]]) -> Iterable[ASTModel]:
         for model in models:
             if not model.get_equations_blocks():
                 continue

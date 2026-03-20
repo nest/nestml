@@ -115,7 +115,7 @@ class SynapsePostNeuronTransformer(Transformer):
 
         return None
 
-    def transform_neuron_synapse_pair_(self, neuron: ASTModel, synapse: ASTModel, metadata) -> Tuple[ASTModel, ASTModel, Dict[str, Dict[str, Any]]]:
+    def transform_neuron_synapse_pair_(self, neuron: ASTModel, synapse: ASTModel, metadata: Mapping[str, Mapping[str, Any]]) -> Tuple[ASTModel, ASTModel, Dict[str, Dict[str, Any]]]:
         r"""
         "Co-generation" or in-tandem generation of neuron and synapse code.
 
@@ -151,11 +151,13 @@ class SynapsePostNeuronTransformer(Transformer):
         new_neuron_name = neuron.get_name() + name_separator_str + synapse.get_name()
         unpaired_name = neuron.get_name()
         new_neuron.set_name(new_neuron_name)
-        metadata[new_neuron.name] = {}
+        if new_neuron.name not in metadata.keys():
+            metadata[new_neuron.name] = {}
         metadata[new_neuron.name]["unpaired_name"] = unpaired_name
         new_synapse_name = synapse.get_name() + name_separator_str + neuron.get_name()
         new_synapse.set_name(new_synapse_name)
-        metadata[new_synapse.name] = {}
+        if new_synapse.name not in metadata.keys():
+            metadata[new_synapse.name] = {}
         metadata[new_synapse.name]["paired_neuron"] = new_neuron
         metadata[new_neuron.name]["paired_synapse"] = new_synapse
         metadata[new_neuron.name]["paired_synapse_original_model"] = synapse
@@ -429,7 +431,7 @@ class SynapsePostNeuronTransformer(Transformer):
     @override
     def transform(self,
                   models: Iterable[ASTModel],
-                  metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Union[ASTModel, Iterable[ASTModel]]:
+                  metadata: Mapping[str, Mapping[str, Any]]) -> Iterable[ASTModel]:
         models = list(models)
         for neuron_synapse_pair in self.get_option("neuron_synapse_pairs"):
             neuron_name = neuron_synapse_pair["neuron"]

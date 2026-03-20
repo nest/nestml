@@ -158,7 +158,7 @@ class GeNNCodeGenerator(NESTCodeGenerator):
 
     def _get_neuron_model_namespace(self,
                                     neuron: ASTModel,
-                                    metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Dict:
+                                    metadata: Mapping[str, Mapping[str, Any]]) -> Dict:
         namespace = super()._get_neuron_model_namespace(neuron, metadata)
 
         namespace["threshold_condition"] = self._get_model_threshold_condition_block(neuron).get_cond_expr()

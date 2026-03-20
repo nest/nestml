@@ -42,5 +42,5 @@ class Transformer(WithOptions, metaclass=ABCMeta):
     @abstractmethod
     def transform(self,
                   models: Iterable[ASTModel],
-                  metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Union[ASTModel, Iterable[ASTModel]]:
+                  metadata: Mapping[str, Mapping[str, Any]]) -> Iterable[ASTModel]:
         raise NotImplementedError()

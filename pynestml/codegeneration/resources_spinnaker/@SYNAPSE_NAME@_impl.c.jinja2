@@ -478,8 +478,8 @@ bool synapse_dynamics_process_plastic_synapses(
     // update the state of all variables common to all synapses
     // first, update their state from the time of the last pre spike to the current time
 {%-         filter indent(6, True) -%}
-{#              emulate a call to ``integrate_odes(astnode.paired_neuron._syn_to_neuron_state_vars)`` #}
-{%-             set args = utils.resolve_variables_to_expressions(astnode, astnode.paired_neuron._syn_to_neuron_state_vars) %}
+{#              emulate a call to ``integrate_odes(paired_neuron._syn_to_neuron_state_vars)`` #}
+{%-             set args = utils.resolve_variables_to_expressions(astnode, syn_to_neuron_state_vars) %}
 {%-             set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
 {%-             include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
 {%-         endfilter %}

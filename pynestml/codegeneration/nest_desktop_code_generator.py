@@ -57,7 +57,7 @@ class NESTDesktopCodeGenerator(CodeGenerator):
     @override
     def generate_code(self,
                       models: Iterable[ASTModel],
-                      metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> None:
+                      metadata: Mapping[str, Mapping[str, Any]]) -> None:
         """
         Generate the .json files for the given neuron and synapse models
         :param models: list of neuron models
@@ -69,7 +69,7 @@ class NESTDesktopCodeGenerator(CodeGenerator):
 
     def _get_neuron_model_namespace(self,
                                     neuron: ASTModel,
-                                    metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Dict:
+                                    metadata: Mapping[str, Mapping[str, Any]]) -> Dict:
         """
         Returns a standard namespace with often required functionality.
         :param neuron: a single neuron instance

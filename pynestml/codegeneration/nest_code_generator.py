@@ -270,12 +270,13 @@ class NESTCodeGenerator(CodeGenerator):
         return ret
 
     def generate_synapse_code(self, synapse: ASTModel,
-                              metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> None:
+                              metadata: Mapping[str, Mapping[str, Any]]) -> None:
         # special case for delay variable
         synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
 
         self._check_delay_variable_codegen_opt(synapse)
-        variables_special_cases = {"delay_variable": self.get_option("delay_variable")}
+        # variables_special_cases = {"delay_variable": self.get_option("delay_variable")}
+        variables_special_cases = {self.get_option("delay_variable")[synapse_name_stripped]: "get_delay()"}
 
         self._nest_variable_printer.variables_special_cases = variables_special_cases
         self._nest_variable_printer_no_origin.variables_special_cases = variables_special_cases
@@ -285,11 +286,8 @@ class NESTCodeGenerator(CodeGenerator):
     @override
     def generate_code(self,
                       models: Iterable[ASTModel],
-                      metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> None:
+                      metadata: Mapping[str, Mapping[str, Any]]) -> None:
         neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
-
-        if metadata is None:
-            metadata: Mapping[str, Mapping[str, Any]] = {}
 
         self.run_nest_target_specific_cocos(neurons, synapses)
         self.analyse_transform_neurons(neurons, metadata)
@@ -304,7 +302,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         self.generate_neurons(neurons, metadata)
         self.generate_synapses(synapses, metadata)
-        self.generate_module_code(neurons, synapses)
+        self.generate_module_code(neurons, synapses, metadata)
 
         for astnode in neurons + synapses:
             if Logger.has_errors(astnode):
@@ -313,7 +311,7 @@ class NESTCodeGenerator(CodeGenerator):
     def _get_module_namespace(self,
                               neurons: List[ASTModel],
                               synapses: List[ASTModel],
-                              metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Dict:
+                              metadata: Mapping[str, Mapping[str, Any]]) -> Dict:
         """
         Creates a namespace for generating NEST extension module code
         :param neurons: List of neurons
@@ -393,7 +391,7 @@ class NESTCodeGenerator(CodeGenerator):
         equations_block = neuron.get_equations_blocks()[0]
 
         kernel_buffers = ASTUtils.generate_kernel_buffers(neuron, equations_block)
-        InlineExpressionExpansionTransformer().transform([neuron])
+        InlineExpressionExpansionTransformer().transform([neuron], metadata=metadata)
         delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
         ASTUtils.replace_convolve_calls_with_buffers_(neuron, equations_block)
 
@@ -471,7 +469,7 @@ class NESTCodeGenerator(CodeGenerator):
             equations_block = synapse.get_equations_blocks()[0]
 
             kernel_buffers = ASTUtils.generate_kernel_buffers(synapse, equations_block)
-            InlineExpressionExpansionTransformer().transform([synapse])
+            InlineExpressionExpansionTransformer().transform([synapse], metadata=metadata)
             delta_factors = ASTUtils.get_delta_factors_(synapse, equations_block)
             ASTUtils.replace_convolve_calls_with_buffers_(synapse, equations_block)
 
@@ -533,8 +531,6 @@ class NESTCodeGenerator(CodeGenerator):
 #            Logger.log_message(synapse, code, message, None, LoggingLevel.ERROR)
 
 #            return
-
-
 
 
     def _get_model_namespace(self, astnode: ASTModel, metadata: Optional[Mapping[str, Mapping[str, Any]]]) -> Dict:
@@ -601,14 +597,14 @@ class NESTCodeGenerator(CodeGenerator):
         # continuous post ports
         namespace["continuous_state_buffering_method"] = self.get_option("continuous_state_buffering_method")
         namespace["continuous_post_ports"] = []
-        if "continuous_post_ports" in metadata[astnode.name].keys():
+        if metadata and astnode.name in metadata.keys() and "continuous_post_ports" in metadata[astnode.name].keys():
             namespace["continuous_post_ports"] = metadata[astnode.name]["continuous_post_ports"]
 
         return namespace
 
     def _get_synapse_model_namespace(self,
                                      synapse: ASTModel,
-                                     metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Dict:
+                                     metadata: Mapping[str, Mapping[str, Any]]) -> Dict:
         """
         Returns a standard namespace with often required functionality.
         :param synapse: a single synapse instance
@@ -647,9 +643,6 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["post_ports"] = metadata[synapse.name]["post_port_names"]
             namespace["spiking_post_ports"] = metadata[synapse.name]["spiking_post_port_names"]
 
-            if "syn_to_neuron_state_vars" in dir(synapse.paired_neuron):
-                namespace["syn_to_neuron_state_vars"] = synapse.syn_to_neuron_state_vars
-
             if "state_vars_that_need_continuous_buffering" in metadata[paired_neuron.name].keys():
                 namespace["state_vars_that_need_continuous_buffering"] = metadata[paired_neuron.name]["state_vars_that_need_continuous_buffering"]
                 codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
@@ -673,8 +666,9 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace["continuous_post_ports"] = [v for v in post_ports if isinstance(v, tuple) or isinstance(v, list)]
 
             namespace["vt_ports"] = metadata[synapse.name]["vt_port_names"]
-            namespace["pre_ports"] = list(set(all_input_port_names)
-                                          - set(namespace["post_ports"]) - set(namespace["vt_ports"]))
+            namespace["pre_ports"] = metadata[synapse.name]["pre_port_names"]
+            # namespace["pre_ports"] = list(set(all_input_port_names)
+                                        #   - set(namespace["post_ports"]) - set(namespace["vt_ports"]))
         else:
             # separate (not neuron+synapse co-generated)
             namespace["pre_ports"] = all_input_port_names
@@ -773,7 +767,7 @@ class NESTCodeGenerator(CodeGenerator):
 
     def _get_neuron_model_namespace(self,
                                     neuron: ASTModel,
-                                    metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Dict:
+                                    metadata: Mapping[str, Mapping[str, Any]]) -> Dict:
         r"""
         Returns a standard namespace with often required functionality.
         :param neuron: a single neuron instance
@@ -783,18 +777,18 @@ class NESTCodeGenerator(CodeGenerator):
 
         codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
 
-        if "neuron_synapse_pairs" in codegen_and_builder_opts.keys():
-            for neuron_synapse_pair in codegen_and_builder_opts["neuron_synapse_pairs"]:
-                if neuron_synapse_pair["neuron"] + FrontendConfiguration.suffix == neuron.name:
-                    # override "paired_synapse" in case NESTCodeGenerator is run without the SynapsePostNeuronTransformer having been run (for instance, when NESTCodeGenerator is wrapped inside SynapsePostNeuronTransformer)
-                    namespace["paired_synapse"] = neuron_synapse_pair["synapse"]
-                    class NameReturner:
-                        def __init__(self, name: str):
-                            self.name_ = name
-                        def get_name(self):
-                            return self.name_
-                    namespace["paired_synapse_original_model"] = NameReturner(neuron_synapse_pair["synapse"])
-                    break
+        # if "neuron_synapse_pairs" in codegen_and_builder_opts.keys():
+        #     for neuron_synapse_pair in codegen_and_builder_opts["neuron_synapse_pairs"]:
+        #         if neuron_synapse_pair["neuron"] + FrontendConfiguration.suffix == neuron.name:
+        #             # override "paired_synapse" in case NESTCodeGenerator is run without the SynapsePostNeuronTransformer having been run (for instance, when NESTCodeGenerator is wrapped inside SynapsePostNeuronTransformer)
+        #             namespace["paired_synapse"] = neuron_synapse_pair["synapse"]
+        #             class NameReturner:
+        #                 def __init__(self, name: str):
+        #                     self.name_ = name
+        #                 def get_name(self):
+        #                     return self.name_
+        #             namespace["paired_synapse_original_model"] = NameReturner(neuron_synapse_pair["synapse"])
+        #             break
 
         if metadata is not None and neuron.name in metadata.keys() and "paired_synapse" in metadata[neuron.name].keys() and metadata[neuron.name]["paired_synapse"]:
             if "state_vars_that_need_continuous_buffering" in metadata[neuron.name].keys():
@@ -805,7 +799,7 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace["state_vars_that_need_continuous_buffering_transformed"] = [xfrm.get_neuron_var_name_from_syn_port_name(port_name, removesuffix(metadata[neuron.name]["unpaired_name"], FrontendConfiguration.suffix), removesuffix(metadata[neuron.name]["paired_synapse"].get_name().split("__with_")[0], FrontendConfiguration.suffix)) for port_name in metadata[neuron.name]["state_vars_that_need_continuous_buffering"]]
                 for i, item in enumerate(namespace["state_vars_that_need_continuous_buffering_transformed"]):
                     if item is None:
-                        raise Exception("State variable \"" + str(neuron.state_vars_that_need_continuous_buffering[i]) + "\" was not found in the neuron model \"" + neuron.name + "\"")
+                        raise Exception("State variable \"" + str(metadata[neuron.name]["state_vars_that_need_continuous_buffering"][i]) + "\" was not found in the neuron model \"" + neuron.name + "\"")
 
                 namespace["state_vars_that_need_continuous_buffering_transformed_iv"] = {}
                 for var_name, var_name_transformed in zip(namespace["state_vars_that_need_continuous_buffering"], namespace["state_vars_that_need_continuous_buffering_transformed"]):
@@ -831,7 +825,6 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["syn_to_neuron_state_vars_syms"] = {var_name: neuron.scope.resolve_to_symbol(
                 var_name, SymbolKind.VARIABLE) for var_name in namespace["syn_to_neuron_state_vars"]}
             assert not any([v is None for v in namespace["syn_to_neuron_state_vars_syms"].values()])
-
         namespace["neuronName"] = neuron.get_name()
         namespace["neuron"] = neuron
         namespace["moduleName"] = FrontendConfiguration.get_module_name()
