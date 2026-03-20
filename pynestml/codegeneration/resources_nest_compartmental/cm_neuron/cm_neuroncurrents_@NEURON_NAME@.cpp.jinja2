@@ -951,7 +951,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::new_receptor(std::size_t comp_
   {%- endfor %}
 
     // user declared internals in order they were declared
-  {%- for internal_name, internal_declaration in receptor_info["internals_used_declared"] %}
+  {%- for internal_name, internal_declaration in receptor_info["Internals"].items() %}
     {{internal_name}}.push_back(0);
   {%- endfor %}
 
@@ -1020,7 +1020,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::new_receptor(std::size_t comp_
   {%- endfor %}
 
     // user declared internals in order they were declared
-  {%- for internal_name, internal_declaration in receptor_info["internals_used_declared"] %}
+  {%- for internal_name, internal_declaration in receptor_info["Internals"].items() %}
     {{internal_name}}.push_back(0);
   {%- endfor %}
 
@@ -1089,8 +1089,8 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::pre_run_hook()
   {%- endfor %}
 
     // user declared internals in order they were declared
-  {%- for internal_name, internal_declaration in receptor_info["internals_used_declared"] %}
-    {{internal_name}}[i] = {{ vector_printer.print(internal_declaration.get_expression(), "i", non_vec_vars) }};
+  {%- for internal_name, internal_declaration in receptor_info["Internals"].items() %}
+    {{internal_name}}[i] = {{ vector_printer.print(internal_declaration["rhs_expression"], "i", non_vec_vars) }};
   {%- endfor %}
 
   s_val = std::vector<double>(neuron_{{ receptor_name }}_receptor_count, 0);
@@ -1296,7 +1296,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
   {%- endfor %}
 
     // user declared internals in order they were declared
-  {%- for internal_name, internal_declaration in receptor_info["internals_used_declared"] %}
+  {%- for internal_name, internal_declaration in receptor_info["Internals"].items() %}
     {{internal_name}}.push_back(0);
   {%- endfor %}
 
@@ -1413,7 +1413,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
   {%- endfor %}
 
     // user declared internals in order they were declared
-  {%- for internal_name, internal_declaration in receptor_info["internals_used_declared"] %}
+  {%- for internal_name, internal_declaration in receptor_info["Internals"].items() %}
     {{internal_name}}.push_back(0);
   {%- endfor %}
 
@@ -1558,8 +1558,8 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::pre_run_h
   {%- endfor %}
 
     // user declared internals in order they were declared
-  {%- for internal_name, internal_declaration in receptor_info["internals_used_declared"] %}
-    {{internal_name}}[i] = {{ vector_printer.print(internal_declaration.get_expression(), "i", non_vec_vars) }};
+  {%- for internal_name, internal_declaration in receptor_info["Internals"].items() %}
+    {{internal_name}}[i] = {{ vector_printer.print(internal_declaration["rhs_expression"], "i", non_vec_vars) }};
   {%- endfor %}
 
   s_val = std::vector<double>(neuron_{{ receptor_name }}_receptor_count, 0);
@@ -1833,7 +1833,7 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::si
     {%- endfor %}
 
     // user declared internals in order they were declared
-  {%- for internal_name, internal_declaration in continuous_info["internals_used_declared"] %}
+  {%- for internal_name, internal_declaration in continuous_info["Internals"].items() %}
     {{internal_name}}.push_back(0);
   {%- endfor %}
 
@@ -1901,7 +1901,7 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::si
     {%- endfor %}
 
     // user declared internals in order they were declared
-  {%- for internal_name, internal_declaration in continuous_info["internals_used_declared"] %}
+  {%- for internal_name, internal_declaration in continuous_info["Internals"].items() %}
     {{internal_name}}.push_back(0);
   {%- endfor %}
 

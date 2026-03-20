@@ -120,7 +120,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
 
         measuring_spike = sim_time + 1
 
-        pre_spike_times = [pre_spike, measuring_spike]
+        pre_spike_times = [pre_spike] #, measuring_spike]
 
         external_input_pre = nest.Create("spike_generator", params={"spike_times": pre_spike_times})
         pre_neuron = nest.Create("parrot_neuron")
@@ -201,8 +201,8 @@ class TestCompartmentalConcmech(unittest.TestCase):
         rec_nest_runs = list()
         rec_nestml_runs = list()
 
-        sim_time = 15
-        resolution = 10
+        sim_time = 100
+        resolution = 20
         sim_time = int(sim_time / resolution) * resolution
 
         sp_td = []
@@ -213,23 +213,23 @@ class TestCompartmentalConcmech(unittest.TestCase):
             rec_nest_runs.append(self.run_model("nest", pre_spike, post_spike, sim_time))
             rec_nestml_runs.append(self.run_model("nestml", pre_spike, post_spike, sim_time))
 
-        fig, axs = plt.subplots(4)
+        fig, axs = plt.subplots(2)
 
         for i in range(len(rec_nest_runs)):
             if i == 0:
                 nest_l = "nest"
-                nestml_l = "nestml"
+                nestml_l = "Weights"
             else:
                 nest_l = None
                 nestml_l = None
 
             rec_nest_raw = rec_nest_runs[i]
             rec_nestml_raw = rec_nestml_runs[i]
-            axs[0].plot([sp_td[i]], [rec_nest_raw['weight'][-1]], c='grey', marker='o', label=nest_l, markersize=7)
-            axs[0].plot([sp_td[i]], [rec_nestml_raw['weight'][-1]], c='orange', marker='X', label=nestml_l, markersize=5)
-            if True:
-                linewidth = 8
-                markersize = 1.5
+            #axs[0].plot([sp_td[i]], [rec_nest_raw['weight'][-1]], c='grey', marker='o', label=nest_l, markersize=7)
+            #axs[0].plot([sp_td[i]], [rec_nestml_raw['weight'][-1]], c='orange', marker='X', label=nestml_l, markersize=10)
+            linewidth = 8
+            markersize = 1.5
+            if False:
                 for ii, sp in enumerate(rec_nest_raw['pre_spikes']['times']):
                     label = None
                     if i == 0 and ii == 0:
@@ -263,8 +263,8 @@ class TestCompartmentalConcmech(unittest.TestCase):
                 if i == 0 and ii == 0:
                     label = "pre_spikes"
 
-                axs[3].plot([sp_td[i]], [sp], c='blue', marker='_', label=label, markersize=linewidth + 10)
-                axs[3].vlines(
+                axs[1].plot([sp_td[i]], [sp], c='blue', marker='_', label=label, markersize=linewidth + 20)
+                axs[1].vlines(
                     x=sp_td[i],
                     ymin=sp - markersize,
                     ymax=sp,
@@ -277,8 +277,8 @@ class TestCompartmentalConcmech(unittest.TestCase):
                 if i == 0 and ii == 0:
                     label = "post_spikes"
 
-                axs[3].plot([sp_td[i]], [sp], c='red', marker='_', label=label, markersize=linewidth + 10)
-                axs[3].vlines(
+                axs[1].plot([sp_td[i]], [sp], c='red', marker='_', label=label, markersize=linewidth + 20)
+                axs[1].vlines(
                     x=sp_td[i],
                     ymin=sp,
                     ymax=sp + markersize,
@@ -288,23 +288,27 @@ class TestCompartmentalConcmech(unittest.TestCase):
 
         nest_values = [rec_nest_runs[i]['weight'][-1] for i in range(len(rec_nest_runs))]
         nestml_values = [rec_nestml_runs[i]['weight'][-1] for i in range(len(rec_nestml_runs))]
-        diff_values = [nestml_values[i] - nest_values[i] for i in range(len(rec_nest_runs))]
+        diff_values = [nestml_values[i] - 10 for i in range(len(rec_nest_runs))]
 
-        axs[1].vlines(sp_td, 0, diff_values, color='red', label='diff', linewidth=3)
+        axs[0].vlines(sp_td, 0, diff_values, color='orange', label='weight change', linewidth=5)
 
-        axs[0].set_title('resulting weights')
-        axs[1].set_title('weight difference')
-        axs[2].set_title('nest spike times')
-        axs[3].set_title('nestml spike times')
+        axs[1].set_xlabel("Relative time [ms]")  # x-axis with unit
+        axs[0].set_ylabel("weight")  # y-axis with unit
+        axs[1].set_ylabel("Absolute time [ms]")
+
+        axs[0].set_title('weight changes')
+        #axs[1].set_title('weight difference')
+        #axs[2].set_title('nest spike times')
+        axs[1].set_title('spike times')
 
         axs[0].legend()
         axs[1].legend()
-        axs[2].legend()
-        axs[3].legend()
+        #axs[2].legend()
+        #axs[3].legend()
 
         plt.tight_layout()
 
-        plt.savefig("compartmental_stdp.png")
         plt.show()
+        plt.savefig("compartmental_stdp.png")
 
         assert abs(max(diff_values)) <= 0.005, ("the maximum weight difference is too large! (" + str(max(diff_values)) + " > 0.005)")

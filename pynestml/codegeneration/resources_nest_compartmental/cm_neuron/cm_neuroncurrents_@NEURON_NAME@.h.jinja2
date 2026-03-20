@@ -304,8 +304,7 @@ private:
     {%- for pure_variable_name, variable_info in receptor_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-  std::vector<{{ render_variable_type(variable) }}> {{ variable.name }} = {}
-        };
+  std::vector<{{ render_variable_type(variable) }}> {{ variable.name }} = {};
     {%- endfor %}
 
     // recordable inlines
@@ -322,7 +321,7 @@ private:
   std::vector< double > i_tot_{{receptor_name}} = {};
 
   // user declared internals in order they were declared, initialized via pre_run_hook() or calibrate()
-  {%- for internal_name, internal_declaration in receptor_info["internals_used_declared"] %}
+  {%- for internal_name, internal_declaration in receptor_info["Internals"].items() %}
   std::vector< double > {{internal_name}};
   {%- endfor %}
 
@@ -459,8 +458,7 @@ private:
     {%- for pure_variable_name, variable_info in receptor_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-  std::vector<{{ render_variable_type(variable) }}> {{ variable.name }} = {}
-        };
+  std::vector<{{ render_variable_type(variable) }}> {{ variable.name }} = {};
     {%- endfor %}
 
     // recordable inlines
@@ -477,7 +475,7 @@ private:
   std::vector< double > i_tot_{{receptor_name}} = {};
 
   // user declared internals in order they were declared, initialized via pre_run_hook() or calibrate()
-  {%- for internal_name, internal_declaration in receptor_info["internals_used_declared"] %}
+  {%- for internal_name, internal_declaration in receptor_info["Internals"].items() %}
   std::vector< double > {{internal_name}};
   {%- endfor %}
 
@@ -647,7 +645,7 @@ private:
   std::vector< double > i_tot_{{continuous_name}} = {};
 
   // user declared internals in order they were declared, initialized via pre_run_hook() or calibrate()
-  {%- for internal_name, internal_declaration in continuous_info["Internals"] %}
+  {%- for internal_name, internal_declaration in continuous_info["Internals"].items() %}
   std::vector< double > {{internal_name}};
   {%- endfor %}
 

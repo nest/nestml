@@ -23,6 +23,7 @@ from collections import defaultdict
 
 from odetoolbox import analysis
 from pynestml.cocos.co_cos_manager import CoCosManager
+from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 
@@ -68,6 +69,9 @@ class LowerMinMaxPrinter(StrPrinter):
 
     def _print_Max(self, expr):
         return "max(%s)" % ", ".join(self._print(a) for a in expr.args)
+
+    def _print_Abs(self, expr):
+        return "abs(%s)" % ", ".join(self._print(a) for a in expr.args)
 
 
 class MechsInfoEnricher:
@@ -116,6 +120,7 @@ class MechsInfoEnricher:
     @classmethod
     def global_common_subexpression_elimination(cls, neuron: ASTModel, mechs_info: dict):
         nestml_printer = NESTMLPrinter()
+        break_mech = "i_K_Pst"
         for mechanism_name, mechanism_info in mechs_info.items():
             allowed = ["v_comp", "self_spikes"]
 
@@ -125,6 +130,7 @@ class MechsInfoEnricher:
             expression_association = []
             function_expression_association = []
 
+            # Collect and parse simd body expressions and associate with the originals
             for ode_variable, ode_info in mechanism_info["ODEs"].items():
                 for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items():
                     simd_body_expressions.append(parse_expr(cls._ode_toolbox_printer.print(propagator_info["init_expression"])))
@@ -141,19 +147,27 @@ class MechsInfoEnricher:
                 simd_body_expressions.append(parse_expr(cls._ode_toolbox_printer.print(mechanism_info["inline_derivative"])))
                 expression_association.append(["inline_derivative"])
 
+            # Collect and parse function expressions and associate with originals
             for function in mechanism_info["Functions"]:
                 expression_collector = ASTFunctionExpressionExtractor()
                 function.accept(expression_collector)
                 function_expressions = expression_collector.expressions
                 function_expression_association += expression_collector.expressions
                 for function_expression in function_expressions:
+                    if function.name == "tau_h_K_Pst":
+                        breakpoint()
                     inlined_function_expressions.append(parse_expr(cls._ode_toolbox_printer.print(function_expression)))
 
-
+            # Run actual CSE:
             symb = sympy.numbered_symbols("simd_cse_tmp_"+mechanism_name)
 
             replacements, reduced_exprs = sympy.cse(inlined_function_expressions+simd_body_expressions, symbols=symb)
 
+            if mechanism_name == break_mech:
+                breakpoint()
+
+            # Re-substitute CSE replacements if they depend on states
+            # Find invalid replacements
             invalid_vars = set(mechanism_info["States"].keys()) - set(allowed)
             invalid_replacements = list()
             for replacement in replacements:
@@ -168,6 +182,10 @@ class MechsInfoEnricher:
 
                 invalid_vars = invalid_vars | new_invalids
 
+            if mechanism_name == break_mech:
+                breakpoint()
+
+            # Substitute invalid occurrences with originals in valid replacements
             valid_replacements = [replacement for replacement in replacements if replacement not in invalid_replacements]
             invalid_replacements = list(reversed(invalid_replacements))
             new_replacements = list()
@@ -180,6 +198,10 @@ class MechsInfoEnricher:
 
             replacements = new_replacements
 
+            if mechanism_name == break_mech:
+                breakpoint()
+
+            # Substitute invalid occurrences with originals in original expressions
             new_expressions = list()
             for expression in reduced_exprs:
                 new_expression = expression
@@ -190,6 +212,10 @@ class MechsInfoEnricher:
 
             reduced_exprs = new_expressions
 
+            if mechanism_name == break_mech:
+                breakpoint()
+
+            # Parse replacements
             cse_replacements = dict()
             parsed_parameters = list()
             parsed_args = dict()
@@ -215,6 +241,10 @@ class MechsInfoEnricher:
 
                 parsed_args[cls.sympy_compatible_print(replacement[0])] = parsed_argument
 
+            if mechanism_name == break_mech:
+                breakpoint()
+
+            # Parse and replace reduced SIMD expressions
             for reduced_expr, association in zip(reduced_exprs[len(inlined_function_expressions):], expression_association):
 
                 expression = ModelParser.parse_expression(cls.sympy_compatible_print(reduced_expr))
@@ -227,6 +257,10 @@ class MechsInfoEnricher:
 
                 original[association[-1]] = expression
 
+            if mechanism_name == break_mech:
+                breakpoint()
+
+            # Parse reduced function expressions
             parsed_func_expressions = []
             for reduced_expr in reduced_exprs[:len(inlined_function_expressions)]:
                 expression = ModelParser.parse_expression(cls.sympy_compatible_print(reduced_expr))
@@ -235,6 +269,10 @@ class MechsInfoEnricher:
 
                 parsed_func_expressions.append(expression)
 
+            if mechanism_name == break_mech:
+                breakpoint()
+
+            # Replace function expressions
             all_function_arguments = set()
             for function in mechanism_info["Functions"]:
                 replacer = ASTFunctionExpressionReplacer(function, function_expression_association, parsed_func_expressions, parsed_parameters)
@@ -247,6 +285,10 @@ class MechsInfoEnricher:
                 for replacement_name, replacement in cse_replacements.items():
                     cls.add_function_call_args(replacement, function.name, function_arguments)
 
+            if mechanism_name == break_mech:
+                breakpoint()
+
+            # Save final replacements to mech dict
             body_cse_replacements = dict()
             function_cse_replacements = dict()
 
@@ -865,6 +907,7 @@ class ASTFunctionExpressionReplacer(ASTVisitor):
         self.inside_variable = False
         self.recursion_depth = 0
         self.cse_function_vars = set()
+        node.accept(ASTParentVisitor())
         node.accept(self)
 
     def visit_expression(self, node):
@@ -876,18 +919,12 @@ class ASTFunctionExpressionReplacer(ASTVisitor):
         if self.recursion_depth == 0:
             for original, replacement in zip(self.originals, self.replacements):
                 if node.equals(original):
-                    node.is_encapsulated = replacement.is_encapsulated
-                    node.is_logical_not = replacement.is_logical_not
-                    node.unary_operator = replacement.unary_operator
-                    node.expression = replacement.expression
-                    node.lhs = replacement.lhs
-                    node.binary_operator = replacement.binary_operator
-                    node.rhs = replacement.rhs
-                    node.condition = replacement.condition
-                    node.if_true = replacement.if_true
-                    node.if_not = replacement.if_not
-                    node.has_delay = replacement.has_delay
-
+                    parent = node.get_parent()
+                    for name, value in vars(parent).items():
+                        if isinstance(value, ASTExpression) or isinstance(value, ASTSimpleExpression):
+                            if value.equals(original):
+                                setattr(parent, name, replacement)
+                                parent.accept(ASTParentVisitor())
                     node.accept(ASTParentVisitor())
 
             self.inside_expression = False

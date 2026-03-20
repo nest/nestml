@@ -122,7 +122,7 @@ class ODEToolboxFunctionCallPrinter(FunctionCallPrinter):
             return 'expm1({!s})'
 
         if function_name == PredefinedFunctions.POW:
-            return '{!s}**{!s}'
+            return '({!s})**({!s})'
 
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
