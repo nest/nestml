@@ -300,7 +300,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         self.generate_neurons(neurons, metadata)
         self.generate_synapses(synapses, metadata)
-        self.generate_module_code(neurons, synapses)
+        self.generate_module_code(neurons, synapses, metadata)
 
         for astnode in neurons + synapses:
             if Logger.has_errors(astnode):
@@ -389,7 +389,7 @@ class NESTCodeGenerator(CodeGenerator):
         equations_block = neuron.get_equations_blocks()[0]
 
         kernel_buffers = ASTUtils.generate_kernel_buffers(neuron, equations_block)
-        InlineExpressionExpansionTransformer().transform([neuron])
+        InlineExpressionExpansionTransformer().transform([neuron], metadata=metadata)
         delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
         ASTUtils.replace_convolve_calls_with_buffers_(neuron, equations_block)
 
@@ -467,7 +467,7 @@ class NESTCodeGenerator(CodeGenerator):
             equations_block = synapse.get_equations_blocks()[0]
 
             kernel_buffers = ASTUtils.generate_kernel_buffers(synapse, equations_block)
-            InlineExpressionExpansionTransformer().transform([synapse])
+            InlineExpressionExpansionTransformer().transform([synapse], metadata=metadata)
             delta_factors = ASTUtils.get_delta_factors_(synapse, equations_block)
             ASTUtils.replace_convolve_calls_with_buffers_(synapse, equations_block)
 
