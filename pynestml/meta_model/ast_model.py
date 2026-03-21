@@ -62,8 +62,6 @@ class ASTModel(ASTNode):
             "No or wrong type of model name provided (%s)!" % type(name)
         assert isinstance(body, ASTModelBody) or isinstance(body, ASTModelBody), \
             "No or wrong type of model body provided (%s)!" % type(body)
-        assert (artifact_name is not None and isinstance(artifact_name, str)), \
-            "No or wrong type of artifact name provided (%s)!" % type(artifact_name)
 
         self.name = name
         self.body = body

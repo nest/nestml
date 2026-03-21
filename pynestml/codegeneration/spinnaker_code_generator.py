@@ -156,7 +156,7 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
                                  model_name_escape_string="@SYNAPSE_NAME@")
 
 class CustomPythonStandaloneCodeGenerator(PythonStandaloneCodeGenerator):
-    def _get_model_namespace(self, astnode: ASTModel, metadata: Mapping[str, Mapping[str, Any]]) -> Dict:
+    def _get_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
         namespace = super()._get_model_namespace(astnode, metadata)
         if "neuron" in astnode.name.split("__with_")[0]:
             # TODO: PythonStandaloneTargetTools does not contain getter for synapse values yet

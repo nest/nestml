@@ -180,6 +180,9 @@ class NESTCodeGenerator(CodeGenerator):
 
     def run_nest_target_specific_cocos(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
         for model in neurons + synapses:
+            if "__header_for__" in model.name:
+                continue
+
             # Check if the random number functions are used in the right blocks
             CoCosManager.check_co_co_nest_random_functions_legally_used(model)
 
@@ -188,6 +191,8 @@ class NESTCodeGenerator(CodeGenerator):
 
         if self.get_option("neuron_synapse_pairs"):
             for model in synapses:
+                if "__header_for__" in model.name:
+                    continue
                 synapse_name_stripped = removesuffix(removesuffix(model.name.split("_with_")[0], "_"),
                                                      FrontendConfiguration.suffix)
 
@@ -289,6 +294,15 @@ class NESTCodeGenerator(CodeGenerator):
                       metadata: Dict[str, Dict[str, Any]]) -> None:
         neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
 
+        for synapse in synapses:
+            if "__header_for__" in synapse.name:
+                # XXX this is synapse header; treat as a neuron
+                neurons.append(synapse)
+                synapses.pop(synapses.index(synapse))
+                break
+
+
+
         self.run_nest_target_specific_cocos(neurons, synapses)
         self.analyse_transform_neurons(neurons, metadata)
         self.analyse_transform_synapses(synapses, metadata)
@@ -299,6 +313,12 @@ class NESTCodeGenerator(CodeGenerator):
                 metadata[synapse.name]["continuous_post_ports"] = [v for v in post_ports if isinstance(v, tuple) or isinstance(v, list)]
                 paired_neuron = metadata[synapse.name]["paired_neuron"]
                 metadata[paired_neuron.name]["continuous_post_ports"] = metadata[synapse.name]["continuous_post_ports"]
+
+        for neuron in neurons:
+            if "__header_for__" in neuron.name:
+                # XXX this is synapse header; do not gen code
+                neurons.pop(neurons.index(neuron))
+                break
 
         self.generate_neurons(neurons, metadata)
         self.generate_synapses(synapses, metadata)
@@ -535,6 +555,8 @@ class NESTCodeGenerator(CodeGenerator):
 
     def _get_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
         namespace = {}
+
+        namespace["metadata"] = metadata
 
         namespace["FrontendConfiguration"] = FrontendConfiguration
 
