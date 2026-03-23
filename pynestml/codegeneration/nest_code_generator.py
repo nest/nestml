@@ -797,10 +797,10 @@ class NESTCodeGenerator(CodeGenerator):
             paired_synapse = metadata[neuron.name]["paired_synapse"]
             namespace["paired_synapse_name"] = paired_synapse.get_name()
             namespace["post_spike_updates"] = metadata[neuron.name]["post_spike_updates"]
-            #namespace["syn_to_neuron_state_vars"] = [var_name + "__for_" + metadata[neuron.name]["paired_synapse_original_model"].get_name() for var_name in metadata[neuron.name]["syn_to_neuron_state_vars"]]
-            #namespace["syn_to_neuron_state_vars_syms"] = {var_name: neuron.scope.resolve_to_symbol(
+            # namespace["syn_to_neuron_state_vars"] = [var_name + "__for_" + metadata[neuron.name]["paired_synapse_original_model"].get_name() for var_name in metadata[neuron.name]["syn_to_neuron_state_vars"]]
+            # namespace["syn_to_neuron_state_vars_syms"] = {var_name: neuron.scope.resolve_to_symbol(
             #    var_name, SymbolKind.VARIABLE) for var_name in namespace["syn_to_neuron_state_vars"]}
-            #assert not any([v is None for v in namespace["syn_to_neuron_state_vars_syms"].values()])
+            # assert not any([v is None for v in namespace["syn_to_neuron_state_vars_syms"].values()])
 
         namespace["neuronName"] = neuron.get_name()
         namespace["neuron"] = neuron
