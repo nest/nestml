@@ -784,7 +784,6 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["syn_to_neuron_state_vars_syms"] = {var_name: neuron.scope.resolve_to_symbol(
                 var_name, SymbolKind.VARIABLE) for var_name in namespace["syn_to_neuron_state_vars"]}
             assert not any([v is None for v in namespace["syn_to_neuron_state_vars_syms"].values()])
-            # {var_name: ASTUtils.get_declaration_by_name(neuron.get_initial_values_blocks(), var_name) for var_name in namespace["syn_to_neuron_state_vars"]}
 
         namespace["neuronName"] = neuron.get_name()
         namespace["neuron"] = neuron
