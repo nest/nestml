@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Sequence
+
 import numpy as np
 import os
 import pytest
@@ -43,7 +45,7 @@ except Exception:
 class TestNESTTsodyksSynapse:
 
     neuron_model_name = "iaf_psc_exp_neuron_nestml__with_tsodyks_synapse_nestml"
-    ref_neuron_model_name = "iaf_psc_exp_neuron_nestml_non_jit"
+    ref_neuron_model_name = "iaf_psc_exp_neuron_nest_nestml_mixed"
 
     synapse_model_name = "tsodyks_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
     ref_synapse_model_name = "tsodyks_synapse"
@@ -52,82 +54,77 @@ class TestNESTTsodyksSynapse:
     def setUp(self):
         """Generate the model code"""
 
-        jit_codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                      "synapse": "tsodyks_synapse"}],
-                            "delay_variable": {"tsodyks_synapse": "d"},
-                            "weight_variable": {"tsodyks_synapse": "w"}}
+        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
+                                                  "synapse": "tsodyks_synapse"}],
+                        "delay_variable": {"tsodyks_synapse": "d"},
+                        "weight_variable": {"tsodyks_synapse": "w"},
+                        "neuron_parent_class": "StructuralPlasticityNode",
+                        "neuron_parent_class_include": "structural_plasticity_node.h"}
 
-        jit_codegen_opts["neuron_parent_class"] = "StructuralPlasticityNode"
-        jit_codegen_opts["neuron_parent_class_include"] = "structural_plasticity_node.h"
-
-        # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
+        # generate the code for the co-generated neuron and synapse
         files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
                  os.path.join("models", "synapses", "tsodyks_synapse.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,
-                             target_path="/tmp/nestml-jit",
+                             target_path="tsodyks-test-nestml-target",
                              logging_level="DEBUG",
-                             module_name="nestml_jit_module",
+                             module_name="nestml_module",
                              suffix="_nestml",
-                             codegen_opts=jit_codegen_opts)
+                             codegen_opts=codegen_opts)
 
-        non_jit_codegen_opts = {"neuron_parent_class": "ArchivingNode",
-                                "neuron_parent_class_include": "archiving_node.h",
-                                "delay_variable": {"tsodyks_synapse": "d"},
-                                "weight_variable": {"tsodyks_synapse": "w"}}
+        nest_nestml_mixed_codegen_opts = {"neuron_parent_class": "ArchivingNode",
+                                          "neuron_parent_class_include": "archiving_node.h",
+                                          "delay_variable": {"tsodyks_synapse": "d"},
+                                          "weight_variable": {"tsodyks_synapse": "w"}}
 
-        # generate the "non-jit" model, that relies on ArchivingNode
+        # generate the combined NEST/NESTML that relies on ArchivingNode and the NEST built-in Tsodyks2 synapse
         generate_nest_target(input_path=os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                       os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))),
-                             target_path="/tmp/nestml-non-jit",
+                             target_path="tsodyks-test-nest-nestml-mixed-target",
                              logging_level="DEBUG",
-                             module_name="nestml_non_jit_module",
-                             suffix="_nestml_non_jit",
-                             codegen_opts=non_jit_codegen_opts)
+                             module_name="nest_nestml_mixed_module",
+                             suffix="_nest_nestml_mixed",
+                             codegen_opts=nest_nestml_mixed_codegen_opts)
 
-    def test_nest_tsodyks_synapse(self):
+    @pytest.mark.parametrize("pre_spike_times,post_spike_times", [
+        ([1., 11., 21.],
+         [6., 16., 26.]),
+        (np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10)))))),
+         np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10)))))))
+    ])
+    def test_nest_tsodyks_synapse(self, pre_spike_times: Sequence[float], post_spike_times: Sequence[float]):
         fname_snip = ""
-
-        pre_spike_times = [1., 11., 21.]    # [ms]
-        post_spike_times = [6., 16., 26.]  # [ms]
-
-        post_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
-        pre_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
 
         self.run_synapse_test(neuron_model_name=self.neuron_model_name,
                               ref_neuron_model_name=self.ref_neuron_model_name,
                               synapse_model_name=self.synapse_model_name,
                               ref_synapse_model_name=self.ref_synapse_model_name,
-                              resolution=.5,  # [ms]
-                              delay=1.,  # [ms]
                               pre_spike_times=pre_spike_times,
                               post_spike_times=post_spike_times,
+                              resolution=.5,  # [ms]
+                              delay=1.,  # [ms]
                               fname_snip=fname_snip)
 
     def run_synapse_test(self, neuron_model_name,
                          ref_neuron_model_name,
                          synapse_model_name,
                          ref_synapse_model_name,
+                         pre_spike_times,
+                         post_spike_times,
                          resolution=1.,  # [ms]
                          delay=1.,  # [ms]
                          sim_time=None,  # if None, computed from pre and post spike times
-                         pre_spike_times=None,
-                         post_spike_times=None,
                          fname_snip=""):
 
-        if pre_spike_times is None:
-            pre_spike_times = []
-
-        if post_spike_times is None:
-            post_spike_times = []
+        assert len(pre_spike_times) > 0 or len(post_spike_times) > 0
 
         if sim_time is None:
             sim_time = max(np.amax(pre_spike_times), np.amax(post_spike_times)) + 5 * delay
 
         nest.ResetKernel()
-        nest.Install("nestml_jit_module")
-        nest.Install("nestml_non_jit_module")
+        nest.Install("nestml_module")
+        nest.Install("nest_nestml_mixed_module")
         nest.SetKernelStatus({"resolution": resolution})
 
         print("Pre spike times: " + str(pre_spike_times))
@@ -229,6 +226,7 @@ class TestNESTTsodyksSynapse:
             print("Actual pre spike times: " + str(pre_spike_times_))
             pre_ref_spike_times_ = nest.GetStatus(spikedet_pre_ref, "events")[0]["times"]
             print("Actual pre ref spike times: " + str(pre_ref_spike_times_))
+            assert len(pre_spike_times_) > 0 or len(post_spike_times_) > 0, "No spikes occurred at all!"
 
             n_spikes = len(pre_spike_times_)
             for i in range(n_spikes):
@@ -249,8 +247,7 @@ class TestNESTTsodyksSynapse:
                     _lbl = "nest ref"
                 else:
                     _lbl = None
-                ax1.plot(2 * [pre_ref_spike_times_[i] + delay], [0, 1],
-                            linewidth=2, color="cyan", label=_lbl, alpha=.4)
+                ax1.plot(2 * [pre_ref_spike_times_[i] + delay], [0, 1], linewidth=2, color="cyan", label=_lbl, alpha=.4)
             ax1.set_ylabel("Pre spikes")
 
             n_spikes = len(post_spike_times_)
