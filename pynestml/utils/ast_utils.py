@@ -2630,7 +2630,7 @@ class ASTUtils:
     @classmethod
     def collect_variables_affected_by_ports(cls, model, post_port_names, strictly_synaptic_vars: Optional[Set[str]] = None):
 
-        if not strictly_synaptic_vars:
+        if strictly_synaptic_vars is None:
             strictly_synaptic_vars: Set[str] = set()
 
         strictly_synaptic_vars = set(strictly_synaptic_vars)    # make a copy
@@ -2641,10 +2641,9 @@ class ASTUtils:
         #   determine which variables and dynamics in synapse can be transferred to neuron
         #
 
+        all_state_vars = []
         if model.get_state_blocks():
-            all_state_vars = ASTUtils.all_variables_defined_in_block(model.get_state_blocks()[0])
-        else:
-            all_state_vars = []
+            all_state_vars.extend(ASTUtils.all_variables_defined_in_block(model.get_state_blocks()[0]))
 
         all_state_vars = [var.get_complete_name() for var in all_state_vars]
 
@@ -2685,7 +2684,7 @@ class ASTUtils:
             if ASTUtils.get_state_variable_by_name(model, var_name) or ASTUtils.get_inline_expression_by_name(model, var_name) or ASTUtils.get_kernel_by_name(model, var_name):
                 syn_to_neuron_state_vars.append(var_name)
 
-        return syn_to_neuron_state_vars
+        return recursive_vars_used, syn_to_neuron_state_vars
 
     @classmethod
     def get_all_variables_assigned_to(cls, node: ASTNode) -> Set[str]:

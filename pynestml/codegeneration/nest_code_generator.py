@@ -530,6 +530,8 @@ class NESTCodeGenerator(CodeGenerator):
     def _get_model_namespace(self, astnode: ASTModel, metadata: Optional[Mapping[str, Mapping[str, Any]]]) -> Dict:
         namespace = {}
 
+        namespace["metadata"] = metadata
+
         namespace["nestml_version"] = pynestml.__version__
         namespace["now"] = datetime.datetime.utcnow()
         namespace["tracing"] = FrontendConfiguration.is_dev
@@ -617,6 +619,7 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["paired_neuron_name"] = paired_neuron.get_name()
             namespace["post_ports"] = metadata[synapse.name]["post_port_names"]
             namespace["spiking_post_ports"] = metadata[synapse.name]["spiking_post_port_names"]
+            namespace["state_vars_that_need_continuous_buffering"] = []
 
             if "state_vars_that_need_continuous_buffering" in metadata[paired_neuron.name].keys():
                 namespace["state_vars_that_need_continuous_buffering"] = metadata[paired_neuron.name]["state_vars_that_need_continuous_buffering"]
@@ -747,7 +750,7 @@ class NESTCodeGenerator(CodeGenerator):
         """
         namespace = self._get_model_namespace(neuron, metadata)
 
-        if metadata is not None and neuron.name in metadata.keys() and "paired_synapse" in metadata[neuron.name].keys() and metadata[neuron.name]["paired_synapse"]:
+        if metadata is not None and neuron.name in metadata.keys() and "paired_synapses" in metadata[neuron.name].keys() and metadata[neuron.name]["paired_synapses"]:
             if "state_vars_that_need_continuous_buffering" in metadata[neuron.name].keys():
                 assert self.get_option("continuous_state_buffering_method") in ["continuous_time_buffer", "post_spike_based"]
                 namespace["state_vars_that_need_continuous_buffering"] = metadata[neuron.name]["state_vars_that_need_continuous_buffering"]
@@ -755,7 +758,7 @@ class NESTCodeGenerator(CodeGenerator):
                 codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
                 xfrm = SynapsePostNeuronTransformer(codegen_and_builder_opts)
 
-                namespace["state_vars_that_need_continuous_buffering_transformed"] = [xfrm.get_neuron_var_name_from_syn_port_name(port_name, removesuffix(metadata[neuron.name]["unpaired_name"], FrontendConfiguration.suffix), removesuffix(metadata[neuron.name]["paired_synapse"].get_name().split("__with_")[0], FrontendConfiguration.suffix)) for port_name in metadata[neuron.name]["state_vars_that_need_continuous_buffering"]]
+                namespace["state_vars_that_need_continuous_buffering_transformed"] = [xfrm.get_neuron_var_name_from_syn_port_name(port_name, removesuffix(metadata[neuron.name]["unpaired_name"], FrontendConfiguration.suffix), removesuffix(metadata[neuron.name]["paired_synapses"].get_name().split("__with_")[0], FrontendConfiguration.suffix)) for port_name in metadata[neuron.name]["state_vars_that_need_continuous_buffering"]]
                 for i, item in enumerate(namespace["state_vars_that_need_continuous_buffering_transformed"]):
                     if item is None:
                         raise Exception("State variable \"" + str(neuron.state_vars_that_need_continuous_buffering[i]) + "\" was not found in the neuron model \"" + neuron.name + "\"")
@@ -784,16 +787,13 @@ class NESTCodeGenerator(CodeGenerator):
 
             if "extra_on_emit_spike_stmts_from_synapse" in metadata[neuron.name].keys():
                 namespace["extra_on_emit_spike_stmts_from_synapse"] = metadata[neuron.name]["extra_on_emit_spike_stmts_from_synapse"]
-            namespace["paired_synapse"] = metadata[neuron.name]["paired_synapse"]
+            namespace["paired_synapses"] = metadata[neuron.name]["paired_synapses"]
             if "paired_synapse_original_model" in metadata[neuron.name].keys():
-                namespace["paired_synapse_original_model"] = metadata[neuron.name]["paired_synapse_original_model"]
-            paired_synapse = metadata[neuron.name]["paired_synapse"]
-            namespace["paired_synapse_name"] = paired_synapse.get_name()
+                namespace["paired_synapse_original_models"] = metadata[neuron.name]["paired_synapse_original_models"]
             namespace["post_spike_updates"] = metadata[neuron.name]["post_spike_updates"]
-            namespace["syn_to_neuron_state_vars"] = [var_name + "__for_" + metadata[neuron.name]["paired_synapse_original_model"].get_name() for var_name in metadata[neuron.name]["syn_to_neuron_state_vars"]]
-            namespace["syn_to_neuron_state_vars_syms"] = {var_name: neuron.scope.resolve_to_symbol(
-                var_name, SymbolKind.VARIABLE) for var_name in namespace["syn_to_neuron_state_vars"]}
-            assert not any([v is None for v in namespace["syn_to_neuron_state_vars_syms"].values()])
+            # namespace["syn_to_neuron_state_vars"] = [var_name + "__for_" + metadata[neuron.name]["paired_synapse_original_model"].get_name() for var_name in metadata[neuron.name]["syn_to_neuron_state_vars"]]
+            # namespace["syn_to_neuron_state_vars_syms"] = {var_name: neuron.scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE) for var_name in namespace["syn_to_neuron_state_vars"]}
+            # assert not any([v is None for v in namespace["syn_to_neuron_state_vars_syms"].values()])
             # {var_name: ASTUtils.get_declaration_by_name(neuron.get_initial_values_blocks(), var_name) for var_name in namespace["syn_to_neuron_state_vars"]}
 
         namespace["neuronName"] = neuron.get_name()
