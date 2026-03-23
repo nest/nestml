@@ -83,12 +83,6 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
 model tsodyks_synapse:
-    state:
-        x real = 1
-        y real = 0
-        u real = 0
-        t_last_update ms = 0 ms
-
     parameters:
         w real = 1          # Synaptic weight
         d ms = 1 ms         # Synaptic transmission delay
@@ -96,6 +90,12 @@ model tsodyks_synapse:
         tau_fac ms = 0 ms   # Setting tau_fac = 0 disables facilitation
         tau_rec ms = 800 ms
         U real = .5
+
+    state:
+        x real = 1
+        y real = 0
+        u real = U
+        t_last_update ms = 0 ms
 
     input:
         pre_spikes <- spike

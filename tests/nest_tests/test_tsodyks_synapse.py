@@ -243,33 +243,31 @@ class TestNESTTsodyksSynapse:
             post_ref_spike_times_ = nest.GetStatus(spikedet_post_ref, "events")[0]["times"]
             print("Actual post ref spike times: " + str(post_ref_spike_times_))
 
-            if True:
-                n_spikes = len(pre_ref_spike_times_)
-                for i in range(n_spikes):
-                    if i == 0:
-                        _lbl = "nest ref"
-                    else:
-                        _lbl = None
-                    ax1.plot(2 * [pre_ref_spike_times_[i] + delay], [0, 1],
-                             linewidth=2, color="cyan", label=_lbl, alpha=.4)
+            n_spikes = len(pre_ref_spike_times_)
+            for i in range(n_spikes):
+                if i == 0:
+                    _lbl = "nest ref"
+                else:
+                    _lbl = None
+                ax1.plot(2 * [pre_ref_spike_times_[i] + delay], [0, 1],
+                            linewidth=2, color="cyan", label=_lbl, alpha=.4)
             ax1.set_ylabel("Pre spikes")
 
-            if True:
-                n_spikes = len(post_spike_times_)
-                for i in range(n_spikes):
-                    if i == 0:
-                        _lbl = "nestml"
-                    else:
-                        _lbl = None
-                    ax2.plot(2 * [post_spike_times_[i]], [0, 1], linewidth=2, color="black", alpha=.4, label=_lbl)
+            n_spikes = len(post_spike_times_)
+            for i in range(n_spikes):
+                if i == 0:
+                    _lbl = "nestml"
+                else:
+                    _lbl = None
+                ax2.plot(2 * [post_spike_times_[i]], [0, 1], linewidth=2, color="black", alpha=.4, label=_lbl)
 
-                n_spikes = len(post_ref_spike_times_)
-                for i in range(n_spikes):
-                    if i == 0:
-                        _lbl = "nest ref"
-                    else:
-                        _lbl = None
-                    ax2.plot(2 * [post_ref_spike_times_[i]], [0, 1], linewidth=2, color="red", alpha=.4, label=_lbl)
+            n_spikes = len(post_ref_spike_times_)
+            for i in range(n_spikes):
+                if i == 0:
+                    _lbl = "nest ref"
+                else:
+                    _lbl = None
+                ax2.plot(2 * [post_ref_spike_times_[i]], [0, 1], linewidth=2, color="red", alpha=.4, label=_lbl)
             ax2.set_ylabel("Post spikes")
 
             for i, key in enumerate(["x", "y", "u"]):
