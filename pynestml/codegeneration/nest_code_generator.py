@@ -287,9 +287,6 @@ class NESTCodeGenerator(CodeGenerator):
                       metadata: Dict[str, Dict[str, Any]]) -> None:
         neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
 
-        if metadata is None:
-            metadata: Mapping[str, Mapping[str, Any]] = {}
-
         self.run_nest_target_specific_cocos(neurons, synapses)
         self.analyse_transform_neurons(neurons, metadata)
         self.analyse_transform_synapses(synapses, metadata)
@@ -630,7 +627,6 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace["state_vars_that_need_continuous_buffering"] = metadata[paired_neuron.name]["state_vars_that_need_continuous_buffering"]
                 codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
                 xfrm = SynapsePostNeuronTransformer(codegen_and_builder_opts)
-
                 namespace["state_vars_that_need_continuous_buffering_transformed"] = [xfrm.get_neuron_var_name_from_syn_port_name(port_name, removesuffix(metadata[paired_neuron.name]["unpaired_name"], FrontendConfiguration.suffix), removesuffix(metadata[paired_neuron.name]["paired_synapse"].get_name().split("__with_")[0], FrontendConfiguration.suffix)) for port_name in metadata[paired_neuron.name]["state_vars_that_need_continuous_buffering"]]
                 namespace["state_vars_that_need_continuous_buffering_transformed_iv"] = {}
                 for var_name, var_name_transformed in zip(namespace["state_vars_that_need_continuous_buffering"], namespace["state_vars_that_need_continuous_buffering_transformed"]):
@@ -762,7 +758,6 @@ class NESTCodeGenerator(CodeGenerator):
 
                 codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
                 xfrm = SynapsePostNeuronTransformer(codegen_and_builder_opts)
-
                 namespace["state_vars_that_need_continuous_buffering_transformed"] = [xfrm.get_neuron_var_name_from_syn_port_name(port_name, removesuffix(metadata[neuron.name]["unpaired_name"], FrontendConfiguration.suffix), removesuffix(metadata[neuron.name]["paired_synapses"].get_name().split("__with_")[0], FrontendConfiguration.suffix)) for port_name in metadata[neuron.name]["state_vars_that_need_continuous_buffering"]]
                 for i, item in enumerate(namespace["state_vars_that_need_continuous_buffering_transformed"]):
                     if item is None:
