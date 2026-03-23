@@ -67,7 +67,7 @@ class ExpressionsCodeGeneratorTest(unittest.TestCase):
         compilation_unit = ModelParser.parse_file(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(compilation_unit.get_model_list())
+        nestCodeGenerator.generate_code(compilation_unit.get_model_list(), metadata={})
 
     def tearDown(self):
         import shutil

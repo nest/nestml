@@ -65,7 +65,7 @@ class PrintCodeGeneratorTest(unittest.TestCase):
         compilation_unit = ModelParser.parse_file(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(compilation_unit.get_model_list())
+        nestCodeGenerator.generate_code(compilation_unit.get_model_list(), metadata={})
 
         with open(str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
                 os.pardir, "target", "simple_print_test.cpp")))), "r") as reader:
@@ -87,7 +87,7 @@ class PrintCodeGeneratorTest(unittest.TestCase):
         compilation_unit = ModelParser.parse_file(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(compilation_unit.get_model_list())
+        nestCodeGenerator.generate_code(compilation_unit.get_model_list(), metadata={})
 
         with open(str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
                 os.pardir, "target", "print_test_variables.cpp")))), "r") as reader:
@@ -109,7 +109,7 @@ class PrintCodeGeneratorTest(unittest.TestCase):
         compilation_unit = ModelParser.parse_file(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(compilation_unit.get_model_list())
+        nestCodeGenerator.generate_code(compilation_unit.get_model_list(), metadata={})
 
         with open(str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
                 os.pardir, "target", "print_variable.cpp")))), "r") as reader:
@@ -131,7 +131,7 @@ class PrintCodeGeneratorTest(unittest.TestCase):
         compilation_unit = ModelParser.parse_file(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(compilation_unit.get_model_list())
+        nestCodeGenerator.generate_code(compilation_unit.get_model_list(), metadata={})
 
         with open(str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
                 os.pardir, "target", "print_test_function.cpp")))), "r") as reader:
