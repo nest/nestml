@@ -62,14 +62,7 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
         assert isinstance(variable, ASTVariable)
 
         if isinstance(variable, ASTExternalVariable):
-#!!
-#            import pdb
-#            pdb.set_trace()
-
-
             return "state->post_trace"
-#            return variable.name + "________EXT" # XXX REMOVE THIS LINE
-            raise Exception("SpiNNaker does not suport external variables")
 
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
             return "REAL_CONST(2.718282)"

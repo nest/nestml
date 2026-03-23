@@ -19,18 +19,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
-from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
-from pynestml.meta_model.ast_bit_operator import ASTBitOperator
-from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
-from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
-from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
-from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-from pynestml.utils.ast_source_location import ASTSourceLocation
+
 
 class SpiNNakerCppExpressionPrinter(CppExpressionPrinter):
     r"""

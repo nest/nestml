@@ -174,8 +174,6 @@ class SynapsePostNeuronTransformer(Transformer):
         #
 
         post_port_names = CodeGeneratorUtils.get_post_port_names(synapse, base_neuron_name, base_synapse_name, neuron_synapse_pairs=self._options["neuron_synapse_pairs"])
-                if CodeGeneratorUtils.is_post_port(port.name, neuron.name, synapse.name, neuron_synapse_pairs=self._options["neuron_synapse_pairs"]):
-                    post_port_names.append(port.name)
 
         # exclude certain variables from being moved:
         strictly_synaptic_vars: Set[str] = set(PredefinedVariables.TIME_CONSTANT)      # "seed" this with the predefined variable t

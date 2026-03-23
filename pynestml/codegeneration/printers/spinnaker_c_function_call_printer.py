@@ -146,12 +146,6 @@ class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
             The function call string in C syntax.
         """
 
-#!!
-
- #       import pdb
-  #      pdb.set_trace()
-
-
         function_name = function_call.get_name()
 
         if function_name == PredefinedFunctions.CLIP:
