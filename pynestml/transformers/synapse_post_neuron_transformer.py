@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Iterable, List, Sequence, Mapping, Optional, Set, Tuple, Union
+from typing import Any, Dict, Iterable, Mapping, Optional, Set, Tuple
 
 try:
     # Available in the standard library starting with Python 3.12
@@ -88,78 +88,6 @@ class SynapsePostNeuronTransformer(Transformer):
 
         return unused_options
 
-    def is_special_port(self, special_type: str, port_name: str, neuron_name: str, synapse_name: str) -> bool:
-        """
-        Check if a port by the given name is specified as connecting to the postsynaptic neuron. Only makes sense
-        for synapses.
-        """
-        assert special_type in ["post", "vt"]
-        if not "neuron_synapse_pairs" in self._options.keys():
-            return False
-
-        for neuron_synapse_pair in self._options["neuron_synapse_pairs"]:
-            if not neuron_name in [neuron_synapse_pair["neuron"], neuron_synapse_pair["neuron"] + FrontendConfiguration.suffix]:
-                continue
-
-            for syn, syn_opts in neuron_synapse_pair["synapses"].items():
-                if syn == synapse_name or syn + FrontendConfiguration.suffix == synapse_name:
-                    # this is the synapse we are searching for...
-
-                    if not special_type + "_ports" in syn_opts.keys():
-                        return False
-
-                    post_ports = syn_opts[special_type + "_ports"]
-                    if not isinstance(post_ports, list):
-                        # only one port name given, not a list
-                        return port_name == post_ports
-
-                    for post_port in post_ports:
-                        if type(post_port) is not str and len(post_port) == 2:  # (syn_port_name, neuron_port_name) tuple
-                            post_port = post_port[0]
-                        if type(post_port) is not str and len(post_port) == 1:  # (syn_port_name)
-                            return post_port[0] == port_name
-                        if port_name == post_port:
-                            return True
-
-        return False
-
-    def is_continuous_port(self, port_name: str, parent_node: ASTModel):
-        for input_block in parent_node.get_input_blocks():
-            for port in input_block.get_input_ports():
-                if port.is_continuous() and port_name == port.get_name():
-                    return True
-        return False
-
-    def is_post_port(self, port_name: str, neuron_name: str, synapse_name: str) -> bool:
-        return self.is_special_port("post", port_name, neuron_name, synapse_name)
-
-    def is_vt_port(self, port_name: str, neuron_name: str, synapse_name: str) -> bool:
-        return self.is_special_port("vt", port_name, neuron_name, synapse_name)
-
-    def get_spiking_post_port_names(self, synapse, neuron_name: str, synapse_name: str):
-        post_port_names = []
-        for input_block in synapse.get_input_blocks():
-            for port in input_block.get_input_ports():
-                if self.is_post_port(port.name, neuron_name, synapse_name) and port.is_spike():
-                    post_port_names.append(port.get_name())
-        return post_port_names
-
-    def get_post_port_names(self, synapse, neuron_name: str, synapse_name: str):
-        post_port_names = []
-        for input_block in synapse.get_input_blocks():
-            for port in input_block.get_input_ports():
-                if self.is_post_port(port.name, neuron_name, synapse_name):
-                    post_port_names.append(port.get_name())
-        return post_port_names
-
-    def get_vt_port_names(self, synapse, neuron_name: str, synapse_name: str):
-        post_port_names = []
-        for input_block in synapse.get_input_blocks():
-            for port in input_block.get_input_ports():
-                if self.is_vt_port(port.name, neuron_name, synapse_name):
-                    post_port_names.append(port.get_name())
-        return post_port_names
-
     def get_neuron_var_name_from_syn_port_name(self, port_name: str, neuron_name: str, synapse_name: str) -> Optional[str]:
         """
         Check if a port by the given name is specified as connecting to the postsynaptic neuron. Only makes sense for synapses.
@@ -187,77 +115,7 @@ class SynapsePostNeuronTransformer(Transformer):
 
         return None
 
-    def get_convolve_with_not_post_vars(self, nodes: Union[ASTEquationsBlock, Sequence[ASTEquationsBlock]], neuron_name: str, synapse_name: str, parent_node: ASTNode):
-        class ASTVariablesUsedInConvolutionVisitor(ASTVisitor):
-            _variables = []
-
-            def __init__(self, node: ASTNode, parent_node: ASTNode, codegen_class):
-                super(ASTVariablesUsedInConvolutionVisitor, self).__init__()
-                self.node = node
-                self.parent_node = parent_node
-                self.codegen_class = codegen_class
-
-            def visit_function_call(self, node):
-                func_name = node.get_name()
-                if func_name == "convolve":
-                    symbol_buffer = node.get_scope().resolve_to_symbol(str(node.get_args()[1]),
-                                                                       SymbolKind.VARIABLE)
-                    input_port = ASTUtils.get_input_port_by_name(
-                        self.parent_node.get_input_blocks(), symbol_buffer.name)
-                    if input_port and not self.codegen_class.is_post_port(input_port.name, neuron_name, synapse_name):
-                        kernel_name = node.get_args()[0].get_variable().name
-                        self._variables.append(kernel_name)
-
-                        found_parent_assignment = False
-                        node_ = node
-                        while not found_parent_assignment:
-                            node_ = node_.get_parent()
-                            # XXX TODO also needs to accept normal ASTExpression, ASTAssignment?
-                            if isinstance(node_, ASTInlineExpression):
-                                found_parent_assignment = True
-                        var_name = node_.get_variable_name()
-                        self._variables.append(var_name)
-
-        if not nodes:
-            return []
-
-        if isinstance(nodes, ASTNode):
-            nodes = [nodes]
-
-        variables = []
-        for node in nodes:
-            visitor = ASTVariablesUsedInConvolutionVisitor(node, parent_node, self)
-            node.accept(visitor)
-            variables.extend(visitor._variables)
-
-        return variables
-
-    def get_all_variables_assigned_to(self, node):
-        r"""Return a list of all variables that are assigned to in ``node``."""
-        class ASTAssignedToVariablesFinderVisitor(ASTVisitor):
-            _variable_names = []
-
-            def __init__(self, synapse):
-                super(ASTAssignedToVariablesFinderVisitor, self).__init__()
-                self.synapse = synapse
-
-            def visit_assignment(self, node):
-                symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_complete_name(), SymbolKind.VARIABLE)
-                assert symbol is not None  # should have been checked in a CoCo before
-                self._variable_names.append(node.get_variable().get_name())
-
-        if node is None:
-            return []
-
-        visitor = ASTAssignedToVariablesFinderVisitor(node)
-        node.accept(visitor)
-
-        return visitor._variable_names
-
-    def transform_synapses_and_post_neuron_(self,
-                                            neuron: ASTModel,
-                                            synapses: Iterable[ASTModel],
-                                            metadata: Mapping[str, Mapping[str, Any]]):
+    def transform_neuron_synapse_pair_(self, neuron: ASTModel, synapse: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Tuple[ASTModel, ASTModel]:
         r"""
         "Co-generation" or in-tandem generation of neuron and synapse code.
 
@@ -328,14 +186,30 @@ class SynapsePostNeuronTransformer(Transformer):
             #
 
             var_name_suffix = "__for_" + synapse.get_name()
+        name_separator_str = "__with_"
 
-            #
-            #   determine which variables and dynamics in synapse can be transferred to neuron
-            #
+        new_neuron_name = neuron.get_name() + name_separator_str + synapse.get_name()
+        unpaired_name = neuron.get_name()
+        new_neuron.set_name(new_neuron_name)
+        metadata[new_neuron.name] = {}
+        metadata[new_neuron.name]["unpaired_name"] = unpaired_name
+        new_synapse_name = synapse.get_name() + name_separator_str + neuron.get_name()
+        new_synapse.set_name(new_synapse_name)
+        metadata[new_synapse.name] = {}
+        metadata[new_synapse.name]["paired_neuron"] = new_neuron
+        metadata[new_neuron.name]["paired_synapse"] = new_synapse
+        metadata[new_neuron.name]["paired_synapse_original_model"] = synapse
 
+        metadata[new_synapse.name]["spiking_post_port_names"] = CodeGeneratorUtils.get_spiking_post_port_names(synapse, base_neuron_name, base_synapse_name, neuron_synapse_pairs=self._options["neuron_synapse_pairs"])
+        metadata[new_synapse.name]["vt_port_names"] = CodeGeneratorUtils.get_vt_port_names(synapse, base_neuron_name, base_synapse_name, neuron_synapse_pairs=self._options["neuron_synapse_pairs"])
+        #
+        post_port_names = []
+        for input_block in new_synapse.get_input_blocks():
+            for port in input_block.get_input_ports():
+                if CodeGeneratorUtils.is_post_port(port.name, neuron.name, synapse.name, neuron_synapse_pairs=self._options["neuron_synapse_pairs"]):
+                    post_port_names.append(port.name)
             # exclude certain variables from being moved:
             # exclude any variable assigned to in any block that is not connected to a postsynaptic port
-            strictly_synaptic_vars = [PredefinedVariables.TIME_CONSTANT]      # "seed" this with the predefined variable t
 
             if self.option_exists("strictly_synaptic_vars") and removesuffix(synapse.get_name(), FrontendConfiguration.suffix) in self.get_option("strictly_synaptic_vars").keys() and self.get_option("strictly_synaptic_vars")[removesuffix(synapse.get_name(), FrontendConfiguration.suffix)]:
                 strictly_synaptic_vars.extend(self.get_option("strictly_synaptic_vars")[removesuffix(synapse.get_name(), FrontendConfiguration.suffix)])
@@ -345,7 +219,6 @@ class SynapsePostNeuronTransformer(Transformer):
 
             if self.option_exists("weight_variable") and removesuffix(synapse.get_name(), FrontendConfiguration.suffix) in self.get_option("weight_variable").keys() and self.get_option("weight_variable")[removesuffix(synapse.get_name(), FrontendConfiguration.suffix)]:
                 strictly_synaptic_vars.append(self.get_option("weight_variable")[removesuffix(synapse.get_name(), FrontendConfiguration.suffix)])
-
             recursive_vars_used, syn_to_neuron_state_vars = ASTUtils.collect_variables_affected_by_ports(synapse, post_port_names, set(strictly_synaptic_vars))
 
             metadata[new_neuron.name]["recursive_vars_used"][synapse.name] = recursive_vars_used
@@ -361,12 +234,9 @@ class SynapsePostNeuronTransformer(Transformer):
                 all_declared_params = [s.get_variables() for s in new_synapse.get_parameters_blocks()[0].get_declarations()]
             else:
                 all_declared_params = []
-
             all_declared_params = sum(all_declared_params, [])
             all_declared_params = [var.name for var in all_declared_params]
-
             syn_to_neuron_params = [v for v in recursive_vars_used if v in all_declared_params]
-
             vars_used = []
             for var in syn_to_neuron_state_vars:
                 # parameters used in the declarations of the state variables
@@ -375,13 +245,10 @@ class SynapsePostNeuronTransformer(Transformer):
                     for decl in decls:
                         if decl.has_expression():
                             vars_used.extend(ASTUtils.collect_variable_names_in_expression(decl.get_expression()))
-
                 # parameters used in equations
                 for equations_block in synapse.get_equations_blocks():
                     vars_used.extend(ASTUtils.collects_vars_used_in_equation(var, equations_block))
-
             vars_used = list(set([str(var) for var in vars_used]))
-
             syn_to_neuron_params.extend([var for var in vars_used if var in all_declared_params])
             syn_to_neuron_params = list(set(syn_to_neuron_params))
 
@@ -401,7 +268,7 @@ class SynapsePostNeuronTransformer(Transformer):
             post_variable_names = []
             for input_block in synapse.get_input_blocks():
                 for port in input_block.get_input_ports():
-                    if self.is_post_port(port.get_name(), neuron.name, synapse.name) and self.is_continuous_port(port.get_name(), synapse):
+                if CodeGeneratorUtils.is_post_port(port.get_name(), neuron.name, synapse.name, neuron_synapse_pairs=self._options["neuron_synapse_pairs"]) and CodeGeneratorUtils.is_continuous_port(port.get_name(), synapse):
                         post_connected_continuous_input_ports.append(port.get_name())
                         post_variable_names.append(self.get_neuron_var_name_from_syn_port_name(port.get_name(), neuron.name, synapse.name))
 
@@ -422,6 +289,8 @@ class SynapsePostNeuronTransformer(Transformer):
             assert all([var not in update_block_var_names for var in metadata[synapse.name]["state_vars_that_need_continuous_buffering"]])
 
             Logger.log_message(None, -1, "Synaptic state variables moved to neuron that will need buffering: " + str(metadata[synapse.name]["state_vars_that_need_continuous_buffering"]), None, LoggingLevel.INFO)
+
+        metadata[new_neuron.name]["state_vars_that_need_continuous_buffering"] = state_vars_that_need_continuous_buffering
 
             #
             #   move defining equations for variables from synapse to neuron
@@ -490,6 +359,10 @@ class SynapsePostNeuronTransformer(Transformer):
             # find all statements in post receive block
             collected_on_post_stmts = []
 
+        recursive_vars_used = ASTUtils.recursive_necessary_variables_search(affected_vars, synapse)
+
+        metadata[new_neuron.name]["recursive_vars_used"] = recursive_vars_used
+
             for input_block in new_synapse.get_input_blocks():
                 for port in input_block.get_input_ports():
                     if self.is_post_port(port.name, neuron.name, synapse.name):
@@ -514,9 +387,7 @@ class SynapsePostNeuronTransformer(Transformer):
                                 stmts.pop(stmts.index(stmt))
 
             metadata[new_neuron.name]["extra_on_emit_spike_stmts_from_synapse"] = collected_on_post_stmts
-
             # XXX: TODO: add parameters used in stmts to parameters to be copied
-
             vars_used = list(set([str(v) for v in vars_used]))
             syn_to_neuron_params.extend([v for v in vars_used if v in [p + var_name_suffix for p in all_declared_params]])
             syn_to_neuron_params = list(set(syn_to_neuron_params))
@@ -574,7 +445,7 @@ class SynapsePostNeuronTransformer(Transformer):
 
             Logger.log_message(
                 None, -1, "In synapse: replacing variables with suffixed external variable references", None, LoggingLevel.INFO)
-            for state_var in syn_to_neuron_state_vars:
+            for state_var in affected_vars:
                 Logger.log_message(None, -1, "\t• Replacing variable " + str(state_var), None, LoggingLevel.INFO)
                 ASTUtils.replace_with_external_variable(state_var, new_synapse, var_name_suffix, new_neuron.get_scope())
 
@@ -583,11 +454,9 @@ class SynapsePostNeuronTransformer(Transformer):
             #
 
             ASTUtils.remove_empty_equations_blocks(new_synapse)
-
             #
             #    rename synapse
             #
-
             if n_cogenerated_synapses == 1:
                 new_synapse_name = synapse.get_name() + name_separator_str + neuron.get_name()
             else:
@@ -599,14 +468,11 @@ class SynapsePostNeuronTransformer(Transformer):
             metadata[new_synapse.name]["paired_neuron"] = new_neuron
             metadata[new_neuron.name]["paired_synapses"].append(new_synapse)
             metadata[new_neuron.name]["paired_synapse_original_models"].append(synapse)
-
             base_neuron_name = removesuffix(neuron.get_name(), FrontendConfiguration.suffix)
             base_synapse_name = removesuffix(synapse.get_name(), FrontendConfiguration.suffix)
-
             metadata[new_synapse.name]["post_port_names"] = self.get_post_port_names(synapse, base_neuron_name, base_synapse_name)
             metadata[new_synapse.name]["spiking_post_port_names"] = self.get_spiking_post_port_names(synapse, base_neuron_name, base_synapse_name)
             metadata[new_synapse.name]["vt_port_names"] = self.get_vt_port_names(synapse, base_neuron_name, base_synapse_name)
-
             #
             #    add modified versions of neuron and synapse to list
             #
@@ -638,6 +504,12 @@ class SynapsePostNeuronTransformer(Transformer):
 
         models = list(models)
 
+    @override
+    def transform(self,
+                  models: Iterable[ASTModel],
+                  metadata: Dict[str, Dict[str, Any]]) -> Iterable[ASTModel]:
+        models = list(models)
+
         for neuron_synapse_pair in self.get_option("neuron_synapse_pairs"):
             neuron_name = neuron_synapse_pair["neuron"]
             neuron = ASTUtils.find_model_by_name(neuron_name + FrontendConfiguration.suffix, models)
@@ -651,7 +523,7 @@ class SynapsePostNeuronTransformer(Transformer):
                     raise Exception("Synapse used in pair (\"" + synapse_name + "\") not found")  # XXX: log error
                 synapses.append(synapse)
 
-            new_neuron, new_synapses = self.transform_synapses_and_post_neuron_(neuron, synapses, metadata)
+            new_neuron, new_synapse = self.transform_neuron_synapse_pair_(neuron, synapse, metadata)
             models.append(new_neuron)
             models.extend(new_synapses)
 

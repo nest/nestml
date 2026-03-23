@@ -163,7 +163,7 @@ Equations
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `hill_tononi_neuron <https://github.com/nest/nestml/tree/master/models/neurons/hill_tononi_neuron.nestml>`_.
+The model source code can be found in the NESTML models repository here: `hill_tononi_neuron <https://github.com/nest/nestml/tree/main/models/neurons/hill_tononi_neuron.nestml>`_.
 
 .. include:: hill_tononi_neuron_characterisation.rst
 

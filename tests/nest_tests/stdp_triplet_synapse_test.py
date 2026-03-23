@@ -169,7 +169,10 @@ def run_nest_simulation(neuron_model_name,
     if sim_time is None:
         sim_time = max(np.amax(pre_spike_times_req), np.amax(post_spike_times_req)) + 10. + 3 * syn_opts["delay"]
 
-    nest.set_verbosity("M_ALL")
+    if not NESTTools.detect_nest_version().startswith("main"):
+        nest.set_verbosity("M_ALL")
+    else:
+        nest.verbosity = nest.VerbosityLevel.ALL
 
     # Set parameters of the NEST simulation kernel
     nest.ResetKernel()

@@ -24,7 +24,6 @@ import os
 import pytest
 
 import nest
-from nest.lib.hl_api_exceptions import NESTErrors
 
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 from pynestml.codegeneration.nest_tools import NESTTools
@@ -62,7 +61,10 @@ class TestSynapseWeightGetSet:
         logging_level = "DEBUG"
         suffix = "_nestml"
 
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
 
         generate_nest_target(input_path,
                              logging_level=logging_level,
@@ -78,7 +80,7 @@ class TestSynapseWeightGetSet:
                                                                "weight_test_assigned_synapse": "w",
                                                                "stdp_synapse": "w"}})
 
-    @pytest.mark.xfail(strict=True, raises=NESTErrors.BadProperty)
+    @pytest.mark.xfail(strict=True, raises=nest.NESTErrors.BadProperty)
     def test_synapse_weight_set_status1(self):
         nest.ResetKernel()
         nest.Install("nestmlmodule")

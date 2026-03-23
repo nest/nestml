@@ -26,8 +26,6 @@ from typing import Any, Dict, Iterable, Mapping, List, Optional, Sequence
 import glob
 import os
 
-from abc import abstractmethod
-
 from jinja2 import Environment, FileSystemLoader, Template, TemplateRuntimeError
 
 from pynestml.exceptions.invalid_path_exception import InvalidPathException
@@ -144,15 +142,16 @@ class CodeGenerator(WithOptions):
 
         return _abs_template_paths
 
-    @abstractmethod
     def generate_code(self,
                       models: Iterable[ASTModel],
-                      metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> None:
-        """the base class CodeGenerator does not generate any code"""
+                      metadata: Dict[str, Dict[str, Any]]) -> None:
+        r"""The base class CodeGenerator does not generate any code, but the method is not abstract — it can be used as a "dummy" code generator that generates no code.
+
+        Optionally, code generators may use metadata about models, that contains information that can be helpful for code generation (for instance, the results of ODE-toolbox, detailing the numerical solver that is to be used for a model). The ``metadata`` dictionary is a mapping from the name of the model (as a string) to a dictionary of key/value pairs that contain the metadata (of arbitrary type, indexed by strings as keys) for that model."""
         pass
 
     def generate_neurons(self, neurons: Sequence[ASTModel],
-                         metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> None:
+                         metadata: Dict[str, Dict[str, Any]]) -> None:
         """
         Generate code for the given neurons.
 
@@ -167,7 +166,7 @@ class CodeGenerator(WithOptions):
                 Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
 
     def generate_synapses(self, synapses: Sequence[ASTModel],
-                          metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> None:
+                          metadata: Dict[str, Dict[str, Any]]) -> None:
         """
         Generates code for a list of synapses.
         :param synapses: a list of synapses.
@@ -183,7 +182,7 @@ class CodeGenerator(WithOptions):
                             model_name: str,
                             model_templates: List[Template],
                             template_namespace: Dict[str, Any],
-                            model_name_escape_string: str = "@MODEL_NAME@",
+                            metadata: Dict[str, Dict[str, Any]],
                             metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> None:
         """
         For a handed over model, this method generates the corresponding header and implementation file.
@@ -219,27 +218,27 @@ class CodeGenerator(WithOptions):
                 f.write(str(_file))
 
     def generate_neuron_code(self, neuron: ASTModel,
-                             metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> None:
+                             metadata: Dict[str, Dict[str, Any]]) -> None:
         self.generate_model_code(neuron.get_name(),
                                  model_templates=self._model_templates["neuron"],
                                  template_namespace=self._get_neuron_model_namespace(neuron, metadata),
-                                 model_name_escape_string="@NEURON_NAME@",
+                                 metadata=metadata,
                                  metadata=metadata)
 
     def generate_synapse_code(self, synapse: ASTModel,
-                              metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> None:
+                              metadata: Dict[str, Dict[str, Any]]) -> None:
         self.generate_model_code(synapse.get_name(),
                                  model_templates=self._model_templates["synapse"],
                                  template_namespace=self._get_synapse_model_namespace(synapse, metadata),
-                                 model_name_escape_string="@SYNAPSE_NAME@",
+                                 metadata=metadata,
                                  metadata=metadata)
 
     def generate_module_code(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel],
-                             metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> None:
+                             metadata: Dict[str, Dict[str, Any]]) -> None:
         self.generate_model_code(FrontendConfiguration.get_module_name(),
                                  model_templates=self._module_templates,
                                  template_namespace=self._get_module_namespace(neurons, synapses, metadata),
-                                 model_name_escape_string="@MODULE_NAME@",
+                                 metadata=metadata,
                                  metadata=metadata)
         code, message = Messages.get_module_generated(FrontendConfiguration.get_target_path())
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)

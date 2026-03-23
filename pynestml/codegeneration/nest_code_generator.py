@@ -41,6 +41,7 @@ from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.nest_code_generator_utils import NESTCodeGeneratorUtils
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.nest_cpp_type_symbol_printer import NESTCppTypeSymbolPrinter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
@@ -114,7 +115,7 @@ class NESTCodeGenerator(CodeGenerator):
             - **neuron**: A list of neuron model jinja templates.
             - **synapse**: A list of synapse model jinja templates.
         - **module_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to generating the NEST module.
-    - **nest_version**: A string identifying the version of NEST Simulator to generate code for. The string corresponds to the NEST Simulator git repository tag or git branch name, for instance, ``"v2.20.2"`` or ``"master"``. The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
+    - **nest_version**: A string identifying the version of NEST Simulator to generate code for. The string corresponds to the NEST Simulator git repository tag or git branch name, for instance, ``"v2.20.2"`` or ``"main"``. The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
     - **solver**: A string identifying the preferred ODE solver. ``"analytic"`` for propagator solver preferred; fallback to numeric solver in case ODEs are not analytically solvable. Use ``"numeric"`` to disable analytic solver.
     - **gsl_adaptive_step_size_controller**: For the numeric (GSL) solver: how to interpret the absolute and relative tolerance values. Can be changed to trade off integration accuracy with numerical stability. The default value is ``"with_respect_to_solution"``. Can also be set to ``"with_respect_to_derivative"``. (Tolerance values can be specified at runtime as parameters of the model instance.) For further details, see https://www.gnu.org/software/gsl/doc/html/ode-initval.html#adaptive-step-size-control.
     - **numeric_solver**: A string identifying the preferred numeric ODE solver. Supported are ``"rk45"`` and ``"forward-Euler"``.
@@ -268,7 +269,7 @@ class NESTCodeGenerator(CodeGenerator):
         return ret
 
     def generate_synapse_code(self, synapse: ASTModel,
-                              metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> None:
+                              metadata: Dict[str, Dict[str, Any]]) -> None:
         # special case for delay variable
         synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
 
@@ -283,7 +284,7 @@ class NESTCodeGenerator(CodeGenerator):
     @override
     def generate_code(self,
                       models: Iterable[ASTModel],
-                      metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> None:
+                      metadata: Dict[str, Dict[str, Any]]) -> None:
         neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
 
         if metadata is None:
@@ -302,7 +303,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         self.generate_neurons(neurons, metadata)
         self.generate_synapses(synapses, metadata)
-        self.generate_module_code(neurons, synapses)
+        self.generate_module_code(neurons, synapses, metadata)
 
         for astnode in neurons + synapses:
             if Logger.has_errors(astnode):
@@ -311,7 +312,7 @@ class NESTCodeGenerator(CodeGenerator):
     def _get_module_namespace(self,
                               neurons: List[ASTModel],
                               synapses: List[ASTModel],
-                              metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Dict:
+                              metadata: Dict[str, Dict[str, Any]]) -> Dict:
         """
         Creates a namespace for generating NEST extension module code
         :param neurons: List of neurons
@@ -326,12 +327,13 @@ class NESTCodeGenerator(CodeGenerator):
         # NEST version
         if self.option_exists("nest_version"):
             namespace["nest_version"] = self.get_option("nest_version")
+            namespace["nest_version_dict"] = NESTTools.get_version_dict_from_version_string(self.get_option("nest_version"))
 
         return namespace
 
     def analyse_transform_neurons(self,
                                   neurons: List[ASTModel],
-                                  metadata: Mapping[str, Mapping[str, Any]]) -> None:
+                                  metadata: Dict[str, Dict[str, Any]]) -> None:
         """
         Analyse and transform a list of neurons.
         :param neurons: a list of neurons.
@@ -352,7 +354,7 @@ class NESTCodeGenerator(CodeGenerator):
 
     def analyse_transform_synapses(self,
                                    synapses: List[ASTModel],
-                                   metadata: Mapping[str, Mapping[str, Any]]) -> None:
+                                   metadata: Dict[str, Dict[str, Any]]) -> None:
         """
         Analyse and transform a list of synapses.
         :param synapses: a list of synapses.
@@ -364,7 +366,7 @@ class NESTCodeGenerator(CodeGenerator):
             Logger.log_message(None, None, "Analysing/transforming synapse {}.".format(synapse.get_name()), None, LoggingLevel.INFO)
             self.analyse_synapse(synapse, metadata)
 
-    def analyse_neuron(self, neuron: ASTModel, metadata: Mapping[str, Mapping[str, Any]]) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment], List[ASTOdeEquation], List[ASTOdeEquation]]:
+    def analyse_neuron(self, neuron: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment], List[ASTOdeEquation], List[ASTOdeEquation]]:
         """
         Analyse and transform a single neuron.
         :param neuron: a single neuron.
@@ -390,7 +392,7 @@ class NESTCodeGenerator(CodeGenerator):
         equations_block = neuron.get_equations_blocks()[0]
 
         kernel_buffers = ASTUtils.generate_kernel_buffers(neuron, equations_block)
-        InlineExpressionExpansionTransformer().transform([neuron])
+        InlineExpressionExpansionTransformer().transform([neuron], metadata=metadata)
         delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
         ASTUtils.replace_convolve_calls_with_buffers_(neuron, equations_block)
 
@@ -452,7 +454,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         return spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars
 
-    def analyse_synapse(self, synapse: ASTModel, metadata) -> None:
+    def analyse_synapse(self, synapse: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> None:
         """
         Analyse and transform a single synapse.
         :param synapse: a single synapse.
@@ -468,7 +470,7 @@ class NESTCodeGenerator(CodeGenerator):
             equations_block = synapse.get_equations_blocks()[0]
 
             kernel_buffers = ASTUtils.generate_kernel_buffers(synapse, equations_block)
-            InlineExpressionExpansionTransformer().transform([synapse])
+            InlineExpressionExpansionTransformer().transform([synapse], metadata=metadata)
             delta_factors = ASTUtils.get_delta_factors_(synapse, equations_block)
             ASTUtils.replace_convolve_calls_with_buffers_(synapse, equations_block)
 
@@ -527,7 +529,7 @@ class NESTCodeGenerator(CodeGenerator):
 
             return
 
-    def _get_model_namespace(self, astnode: ASTModel, metadata: Optional[Mapping[str, Mapping[str, Any]]]) -> Dict:
+    def _get_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
         namespace = {}
 
         namespace["metadata"] = metadata
@@ -539,6 +541,7 @@ class NESTCodeGenerator(CodeGenerator):
         # NEST version
         if self.option_exists("nest_version"):
             namespace["nest_version"] = self.get_option("nest_version")
+            namespace["nest_version_dict"] = NESTTools.get_version_dict_from_version_string(self.get_option("nest_version"))
 
         # helper functions
         namespace["ast_node_factory"] = ASTNodeFactory
@@ -597,7 +600,7 @@ class NESTCodeGenerator(CodeGenerator):
 
     def _get_synapse_model_namespace(self,
                                      synapse: ASTModel,
-                                     metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Dict:
+                                     metadata: Dict[str, Dict[str, Any]]) -> Dict:
         """
         Returns a standard namespace with often required functionality.
         :param synapse: a single synapse instance
@@ -605,7 +608,9 @@ class NESTCodeGenerator(CodeGenerator):
         """
         namespace = self._get_model_namespace(synapse, metadata)
 
-        namespace["nest_version"] = self.get_option("nest_version")
+        if self.option_exists("nest_version"):
+            namespace["nest_version"] = self.get_option("nest_version")
+            namespace["nest_version_dict"] = NESTTools.get_version_dict_from_version_string(self.get_option("nest_version"))
 
         all_input_port_names = []
         for input_block in synapse.get_input_blocks():
@@ -619,9 +624,9 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["paired_neuron_name"] = paired_neuron.get_name()
             namespace["post_ports"] = metadata[synapse.name]["post_port_names"]
             namespace["spiking_post_ports"] = metadata[synapse.name]["spiking_post_port_names"]
-            namespace["state_vars_that_need_continuous_buffering"] = []
 
             if "state_vars_that_need_continuous_buffering" in metadata[paired_neuron.name].keys():
+                namespace["state_vars_that_need_continuous_buffering"] = metadata[paired_neuron.name]["state_vars_that_need_continuous_buffering"]
                 namespace["state_vars_that_need_continuous_buffering"] = metadata[paired_neuron.name]["state_vars_that_need_continuous_buffering"]
                 codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
                 xfrm = SynapsePostNeuronTransformer(codegen_and_builder_opts)
@@ -742,7 +747,7 @@ class NESTCodeGenerator(CodeGenerator):
 
     def _get_neuron_model_namespace(self,
                                     neuron: ASTModel,
-                                    metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Dict:
+                                    metadata: Dict[str, Dict[str, Any]]) -> Dict:
         r"""
         Returns a standard namespace with often required functionality.
         :param neuron: a single neuron instance
@@ -750,7 +755,7 @@ class NESTCodeGenerator(CodeGenerator):
         """
         namespace = self._get_model_namespace(neuron, metadata)
 
-        if metadata is not None and neuron.name in metadata.keys() and "paired_synapses" in metadata[neuron.name].keys() and metadata[neuron.name]["paired_synapses"]:
+        if metadata is not None and neuron.name in metadata.keys() and "paired_synapse" in metadata[neuron.name].keys() and metadata[neuron.name]["paired_synapse"]:
             if "state_vars_that_need_continuous_buffering" in metadata[neuron.name].keys():
                 assert self.get_option("continuous_state_buffering_method") in ["continuous_time_buffer", "post_spike_based"]
                 namespace["state_vars_that_need_continuous_buffering"] = metadata[neuron.name]["state_vars_that_need_continuous_buffering"]
@@ -784,17 +789,18 @@ class NESTCodeGenerator(CodeGenerator):
                             namespace["state_vars_that_need_continuous_buffering_transformed_iv"][var_name] = self._nest_printer.print(neuron.get_initial_value(var_name_transformed))
             else:
                 namespace["state_vars_that_need_continuous_buffering"] = []
-
             if "extra_on_emit_spike_stmts_from_synapse" in metadata[neuron.name].keys():
                 namespace["extra_on_emit_spike_stmts_from_synapse"] = metadata[neuron.name]["extra_on_emit_spike_stmts_from_synapse"]
             namespace["paired_synapses"] = metadata[neuron.name]["paired_synapses"]
-            if "paired_synapse_original_model" in metadata[neuron.name].keys():
+            if "paired_synapse_original_models" in metadata[neuron.name].keys():
                 namespace["paired_synapse_original_models"] = metadata[neuron.name]["paired_synapse_original_models"]
+            paired_synapse = metadata[neuron.name]["paired_synapse"]
+            namespace["paired_synapse_name"] = paired_synapse.get_name()
             namespace["post_spike_updates"] = metadata[neuron.name]["post_spike_updates"]
-            # namespace["syn_to_neuron_state_vars"] = [var_name + "__for_" + metadata[neuron.name]["paired_synapse_original_model"].get_name() for var_name in metadata[neuron.name]["syn_to_neuron_state_vars"]]
-            # namespace["syn_to_neuron_state_vars_syms"] = {var_name: neuron.scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE) for var_name in namespace["syn_to_neuron_state_vars"]}
-            # assert not any([v is None for v in namespace["syn_to_neuron_state_vars_syms"].values()])
-            # {var_name: ASTUtils.get_declaration_by_name(neuron.get_initial_values_blocks(), var_name) for var_name in namespace["syn_to_neuron_state_vars"]}
+            #namespace["syn_to_neuron_state_vars"] = [var_name + "__for_" + metadata[neuron.name]["paired_synapse_original_model"].get_name() for var_name in metadata[neuron.name]["syn_to_neuron_state_vars"]]
+            #namespace["syn_to_neuron_state_vars_syms"] = {var_name: neuron.scope.resolve_to_symbol(
+            #    var_name, SymbolKind.VARIABLE) for var_name in namespace["syn_to_neuron_state_vars"]}
+            #assert not any([v is None for v in namespace["syn_to_neuron_state_vars_syms"].values()])
 
         namespace["neuronName"] = neuron.get_name()
         namespace["neuron"] = neuron

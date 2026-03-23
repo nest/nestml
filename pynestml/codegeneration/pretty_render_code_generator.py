@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Dict, Iterable, Mapping, Optional, Sequence
+from typing import Any, Dict, Iterable
 
 try:
     # Available in the standard library starting with Python 3.12
@@ -61,7 +61,7 @@ class PrettyRenderCodeGenerator(CodeGenerator):
     @override
     def generate_code(self,
                       models: Iterable[ASTModel],
-                      metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> None:
+                      metadata: Dict[str, Dict[str, Any]]) -> None:
         neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
 
         # Load the custom lexer
@@ -73,12 +73,14 @@ class PrettyRenderCodeGenerator(CodeGenerator):
         for neuron in neurons:
             self.generate_model_code(neuron.get_name(),
                                      model_templates=self._model_templates["neuron"],
-                                     template_namespace=self._get_neuron_model_namespace(neuron, metadata))
+                                     template_namespace=self._get_neuron_model_namespace(neuron, metadata),
+                                     metadata=metadata)
 
         for synapse in synapses:
             self.generate_model_code(synapse.get_name(),
                                      model_templates=self._model_templates["synapse"],
-                                     template_namespace=self._get_synapse_model_namespace(synapse, metadata))
+                                     template_namespace=self._get_synapse_model_namespace(synapse, metadata),
+                                     metadata=metadata)
 
     def _get_model_namespace(self, model: ASTModel):
         # Read the source code file
@@ -98,7 +100,7 @@ class PrettyRenderCodeGenerator(CodeGenerator):
 
     def _get_neuron_model_namespace(self,
                                     neuron: ASTModel,
-                                    metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Dict:
+                                    metadata: Dict[str, Dict[str, Any]]) -> Dict:
         namespace = self._get_model_namespace(neuron)
         namespace["model_type"] = "neuron"
         namespace["model_title"] = "Integrate-and-fire NESTML neuron model"
@@ -107,7 +109,7 @@ class PrettyRenderCodeGenerator(CodeGenerator):
 
     def _get_synapse_model_namespace(self,
                                      synapse: ASTModel,
-                                     metadata: Optional[Mapping[str, Mapping[str, Any]]] = None) -> Dict:
+                                     metadata: Dict[str, Dict[str, Any]]) -> Dict:
         namespace = self._get_model_namespace(synapse)
         namespace["model_type"] = "synapse"
         namespace["model_title"] = "STDP synapse NESTML model"
