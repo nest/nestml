@@ -33,4 +33,4 @@ class TestFunctionParameterTemplating:
     def test(self):
         fname = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "FunctionParameterTemplatingTest.nestml")))
         generate_target(input_path=fname, target_platform="NONE", logging_level="DEBUG")
-        assert len(Logger.get_all_messages_of_level_and_or_node("templated_function_parameters_type_test", LoggingLevel.ERROR)) == 5
+        assert len(Logger.get_messages("templated_function_parameters_type_test", LoggingLevel.ERROR)) == 5

@@ -3,7 +3,7 @@ Modeling synapses in NESTML
 
 .. toctree::
 
-.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/synapse_illustration.svg
+.. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/fig/synapse_illustration.svg
    :width: 326px
    :height: 203px
    :align: right
@@ -79,7 +79,7 @@ State variables (in particular, synaptic "trace" variables as often used in plas
        tr_pre real = 0
 
    onReceive(post_spikes):
-       print("Info: processing a presynaptic spike at time t = {t}")
+       print("Info: processing a postsynaptic spike at time t = {t}")
        tr_pre += 1
 
    equations:
@@ -153,7 +153,7 @@ NESTML needs to be invoked so that it generates code for neuron and synapse toge
 
 In this example, the ``I_dend`` state variable of the neuron will be simply an exponentially decaying function of time, which can be clamped at predefined times in the simulation script. By inspecting the magnitude of the weight updates, we see that the synaptic plasticity is indeed being gated by the neuronal state variable ("third factor") ``I_dend``.
 
-.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/stdp_triplet_synapse_test.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/fig/stdp_triplet_synapse_test.png
 
 For a full example, please see :doc:`Third-factor modulated STDP </tutorials/stdp_third_factor_active_dendrite/stdp_third_factor_active_dendrite>`.
 
@@ -472,7 +472,7 @@ This file can then be passed to NESTML when generating code on the command line.
 Further integration with NEST Simulator is planned, to achieve a just-in-time compilation/build workflow. This would automatically generate a list of these pairs and automatically generate the requisite JSON file.
 
 
-.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/code_gen_opts.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/fig/code_gen_opts.png
    :scale: 50 %
    :align: center
 

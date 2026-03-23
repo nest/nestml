@@ -20,7 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-rhs: logicalNot='not' term=rhs
+rhs: logicalNot="not" term=rhs
 """
 from pynestml.visitors.ast_visitor import ASTVisitor
 

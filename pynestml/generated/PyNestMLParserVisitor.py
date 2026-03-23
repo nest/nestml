@@ -14,13 +14,13 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#unitType.
-    def visitUnitType(self, ctx:PyNestMLParser.UnitTypeContext):
+    # Visit a parse tree produced by PyNestMLParser#unitTypeExponent.
+    def visitUnitTypeExponent(self, ctx:PyNestMLParser.UnitTypeExponentContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#unitTypeExponent.
-    def visitUnitTypeExponent(self, ctx:PyNestMLParser.UnitTypeExponentContext):
+    # Visit a parse tree produced by PyNestMLParser#unitType.
+    def visitUnitType(self, ctx:PyNestMLParser.UnitTypeContext):
         return self.visitChildren(ctx)
 
 
