@@ -92,7 +92,7 @@ State variables
     
     "x", "real", "1", ""    
     "y", "real", "0", ""    
-    "u", "real", "0", ""
+    "u", "real", "U", ""
     "t_last_update", "ms", "0ms", ""
     
     
