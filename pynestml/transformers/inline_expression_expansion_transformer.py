@@ -23,6 +23,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, Iterable, List, Optional, Mapping, Sequence
 
+from pynestml.meta_model.ast_model import ASTModel
+
 try:
     # Available in the standard library starting with Python 3.12
     from typing import override
@@ -66,7 +68,6 @@ class InlineExpressionExpansionTransformer(Transformer):
 
             for equations_block in model.get_equations_blocks():
                 self.replace_inline_expressions_through_defining_expressions(equations_block.get_ode_equations(), equations_block.get_inline_expressions())
-
         return models
 
     def make_inline_expressions_self_contained(self, inline_expressions: Iterable[ASTInlineExpression]) -> Iterable[ASTInlineExpression]:

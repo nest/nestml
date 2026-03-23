@@ -81,12 +81,9 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
 
     if target_name.upper() in ["NEST"]:
         from pynestml.transformers.synapse_post_neuron_transformer import SynapsePostNeuronTransformer
-
-        # co-generate neuron and synapse
         transformer = SynapsePostNeuronTransformer()
         options = transformer.set_options(options)
         transformers.append(transformer)
-
     if target_name.upper() in ["SPINNAKER"]:
         from pynestml.transformers.synapse_pre_neuron_transformer import SynapsePreNeuronTransformer
 
@@ -102,7 +99,6 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         # from: ``import keyword; print(keyword.kwlist)``
         transformer = IllegalVariableNameTransformer({"forbidden_names": ["False", "None", "True", "and", "as", "assert", "async", "await", "break", "class", "continue", "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with", "yield"]})
         transformers.append(transformer)
-
     return transformers, options
 
 

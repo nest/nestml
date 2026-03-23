@@ -208,12 +208,12 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
     def generate_code(self,
                       models: Iterable[ASTModel],
                       metadata: Dict[str, Dict[str, Any]]) -> None:
-        self.analyse_transform_neurons(models)
-        self.generate_neurons(models)
-        self.generate_module_code(models)
+        self.analyse_transform_neurons(models, metadata)
+        self.generate_neurons(models, metadata)
+        self.generate_module_code(models, metadata)
 
     @override
-    def generate_module_code(self, neurons: List[ASTModel]) -> None:
+    def generate_module_code(self, neurons: List[ASTModel], metadata: Dict[str, Dict[str, Any]]) -> None:
         """t
         Generates code that is necessary to integrate neuron models into the NEST infrastructure.
         :param neurons: a list of neurons
@@ -289,7 +289,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
     def get_cm_syns_tree_file_prefix(self, neuron):
         return "cm_tree_" + neuron.get_name()
 
-    def analyse_transform_neurons(self, neurons: List[ASTModel]) -> None:
+    def analyse_transform_neurons(self, neurons: List[ASTModel], metadata: Dict[str, Dict[str, Any]]) -> None:
         """
         Analyse and transform a list of neurons.
         :param neurons: a list of neurons.
@@ -298,7 +298,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             code, message = Messages.get_start_code_generation(
                 neuron.get_name())
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
-            spike_updates = self.analyse_neuron(neuron)
+            spike_updates = self.analyse_neuron(neuron, metadata)
             neuron.spike_updates = spike_updates
 
     def create_ode_indict(self,
@@ -416,7 +416,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                     non_equations_state_variables.append(var)
         return non_equations_state_variables
 
-    def analyse_neuron(self, neuron: ASTModel) -> List[ASTAssignment]:
+    def analyse_neuron(self, neuron: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> List[ASTAssignment]:
         """
         Analyse and transform a single neuron.
         :param neuron: a single neuron.
@@ -461,7 +461,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         # substitute inline expressions with each other
         # such that no inline expression references another inline expression;
         # deference inline_expressions inside ode_equations
-        InlineExpressionExpansionTransformer().transform([neuron, metadata={})
+        InlineExpressionExpansionTransformer().transform([neuron], metadata=metadata)
 
         # generate update expressions using ode toolbox
         # for each equation in the equation block attempt to solve analytically

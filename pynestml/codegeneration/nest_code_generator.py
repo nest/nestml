@@ -319,7 +319,6 @@ class NESTCodeGenerator(CodeGenerator):
                 # XXX this is synapse header; do not gen code
                 neurons.pop(neurons.index(neuron))
                 break
-
         self.generate_neurons(neurons, metadata)
         self.generate_synapses(synapses, metadata)
         self.generate_module_code(neurons, synapses, metadata)
