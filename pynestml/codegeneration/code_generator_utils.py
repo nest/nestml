@@ -63,9 +63,12 @@ class CodeGeneratorUtils:
         assert special_type in ["post", "vt"]
 
         for neuron_synapse_pair in neuron_synapse_pairs:
-            if not (neuron_name in [neuron_synapse_pair["neuron"], neuron_synapse_pair["neuron"] + FrontendConfiguration.suffix]
-                    and synapse_name in [neuron_synapse_pair["synapse"], neuron_synapse_pair["synapse"] + FrontendConfiguration.suffix]):
+            if not neuron_name in [neuron_synapse_pair["neuron"], neuron_synapse_pair["neuron"] + FrontendConfiguration.suffix]:
                 continue
+
+            for synapse_name in neuron_synapse_pair["synapses"].keys():
+                if not (synapse_name in neuron_synapse_pair["synapses"].keys() or synapse_name in [s + FrontendConfiguration.suffix for s in neuron_synapse_pair["synapses"].keys()]):
+                    continue
 
             if not special_type + "_ports" in neuron_synapse_pair.keys():
                 return False

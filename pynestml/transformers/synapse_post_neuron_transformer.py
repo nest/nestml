@@ -97,9 +97,12 @@ class SynapsePostNeuronTransformer(Transformer):
             return None
 
         for neuron_synapse_pair in self._options["neuron_synapse_pairs"]:
-            if not (neuron_name in [neuron_synapse_pair["neuron"], neuron_synapse_pair["neuron"] + FrontendConfiguration.suffix]
-                    and synapse_name in [neuron_synapse_pair["synapse"], neuron_synapse_pair["synapse"] + FrontendConfiguration.suffix]):
+            if not neuron_name in [neuron_synapse_pair["neuron"], neuron_synapse_pair["neuron"] + FrontendConfiguration.suffix]:
                 continue
+
+            for synapse_name in neuron_synapse_pair["synapses"].keys():
+                if not (synapse_name in neuron_synapse_pair["synapses"].keys() or synapse_name in [s + FrontendConfiguration.suffix for s in neuron_synapse_pair["synapses"].keys()]):
+                    continue
 
             if not "post_ports" in neuron_synapse_pair.keys():
                 return None
@@ -169,6 +172,9 @@ class SynapsePostNeuronTransformer(Transformer):
 
             base_neuron_name = removesuffix(neuron.get_name(), FrontendConfiguration.suffix)
             base_synapse_name = removesuffix(synapse.get_name(), FrontendConfiguration.suffix)
+
+            if not new_synapse.name in metadata.keys():
+                metadata[new_synapse.name] = {}
 
             metadata[new_synapse.name]["post_port_names"] = CodeGeneratorUtils.get_post_port_names(synapse, base_neuron_name, base_synapse_name, neuron_synapse_pairs=self._options["neuron_synapse_pairs"])
             metadata[new_synapse.name]["spiking_post_port_names"] = CodeGeneratorUtils.get_spiking_post_port_names(synapse, base_neuron_name, base_synapse_name, neuron_synapse_pairs=self._options["neuron_synapse_pairs"])
@@ -442,25 +448,27 @@ class SynapsePostNeuronTransformer(Transformer):
 
         for neuron_synapse_pair in self.get_option("neuron_synapse_pairs"):
             neuron_name = neuron_synapse_pair["neuron"]
-            synapse_name = neuron_synapse_pair["synapse"]
             neuron = ASTUtils.find_model_by_name(neuron_name + FrontendConfiguration.suffix, models)
             if neuron is None:
                 raise Exception("Neuron used in pair (\"" + neuron_name + "\") not found")  # XXX: log error
 
-            synapse = ASTUtils.find_model_by_name(synapse_name + FrontendConfiguration.suffix, models)
-            if synapse is None:
-                raise Exception("Synapse used in pair (\"" + synapse_name + "\") not found")  # XXX: log error
+            synapses = []
+            for synapse_name in neuron_synapse_pair["synapses"].keys():
+                synapse = ASTUtils.find_model_by_name(synapse_name + FrontendConfiguration.suffix, models)
+                if synapse is None:
+                    raise Exception("Synapse used in pair (\"" + synapse_name + "\") not found")  # XXX: log error
+                synapses.append(synapse)
 
-            new_neuron, new_synapse = self.transform_neuron_synapse_pair_(neuron, synapse, metadata)
+            new_neuron, new_synapses = self.transform_neuron_synapse_pair_(neuron, synapses, metadata)
             models.append(new_neuron)
-            models.append(new_synapse)
+            models.extend(new_synapses)
 
         # remove the synapses used in neuron-synapse pairs, as they can potentially not be generated independently of a neuron and would otherwise result in an error
         for neuron_synapse_pair in self.get_option("neuron_synapse_pairs"):
-            synapse_name = neuron_synapse_pair["synapse"]
-            synapse = ASTUtils.find_model_by_name(synapse_name + FrontendConfiguration.suffix, models)
-            if synapse:
-                model_idx = models.index(synapse)
-                models.pop(model_idx)
+            for synapse_name in neuron_synapse_pair["synapses"].keys():
+                synapse = ASTUtils.find_model_by_name(synapse_name + FrontendConfiguration.suffix, models)
+                if synapse:
+                    model_idx = models.index(synapse)
+                    models.pop(model_idx)
 
         return models
