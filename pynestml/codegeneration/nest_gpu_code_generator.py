@@ -138,7 +138,7 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
             function_call_printer=self._gsl_function_call_printer))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
 
-    def generate_module_code(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
+    def generate_module_code(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel], metadata: Dict[str, Dict[str, Any]]):
         """
         Modify some header and CUDA files for the new models to be recognized
         """
@@ -215,8 +215,8 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
                                   begin_tag="# <<BEGIN_NESTML_GENERATED>>",
                                   end_tag="# <<END_NESTML_GENERATED>>")
 
-    def _get_neuron_model_namespace(self, neuron: ASTModel) -> Dict:
-        namespace = super()._get_neuron_model_namespace(neuron)
+    def _get_neuron_model_namespace(self, neuron: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
+        namespace = super()._get_neuron_model_namespace(neuron, metadata)
         if namespace["uses_numeric_solver"]:
             namespace["printer"] = self._gsl_printer
             namespace["uses_analytic_solver"] = False
