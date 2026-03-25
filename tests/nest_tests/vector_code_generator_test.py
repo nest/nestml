@@ -69,7 +69,7 @@ class VectorCodeGenerationTest(unittest.TestCase):
         compilation_unit = ModelParser.parse_file(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(compilation_unit.get_model_list())
+        nestCodeGenerator.generate_code(compilation_unit.get_model_list(), metadata={})
 
     def test_vector_code_generation_and_build(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources",
