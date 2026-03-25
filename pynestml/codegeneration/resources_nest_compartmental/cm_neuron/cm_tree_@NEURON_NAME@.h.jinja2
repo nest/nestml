@@ -209,7 +209,7 @@ private:
 
 public:
   // constructor, destructor
-  CompTree{{cm_unique_suffix}}(bool* self_spikes);
+  CompTree{{cm_unique_suffix}}(bool* self_spikes, std::vector< double >* g_vals_in, std::vector< double >* i_vals_in);
   ~CompTree{{cm_unique_suffix}}(){};
 
   std::vector< double >* g_vals;
@@ -227,7 +227,7 @@ public:
   void pre_run_hook();
 {%- endif %}
 
-  void init_pointers();
+  void init_pointers(bool* self_spikes, std::vector< double >* g_vals_in, std::vector< double >* i_vals_in);
   void set_syn_buffers( std::vector< RingBuffer >& syn_buffers );
   std::map< Name, double* > get_recordables();
 

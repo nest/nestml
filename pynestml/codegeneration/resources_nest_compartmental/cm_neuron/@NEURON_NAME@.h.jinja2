@@ -255,7 +255,9 @@ public:
   void set_status( const DictionaryDatum& );
 
 private:
-  bool* self_spikes;
+  std::unique_ptr< bool > self_spikes;
+  std::unique_ptr< std::vector< double > > g_vals;
+  std::unique_ptr< std::vector< double > > i_vals;
   bool thr_mem = true;
 
   void add_compartment_( DictionaryDatum& dd );

@@ -53,12 +53,15 @@ DynamicRecordablesMap< {{neuronSpecificFileNamesCmSyns["main"]}} >::create( {{ne
 
 nest::{{neuronSpecificFileNamesCmSyns["main"]}}::{{neuronSpecificFileNamesCmSyns["main"]}}()
   : ArchivingNode()
-  , self_spikes( new bool(false) )
-  , c_tree_(self_spikes)
+  , self_spikes( std::make_unique< bool >() )
+  , g_vals( std::make_unique< std::vector< double > >() )
+  , i_vals( std::make_unique< std::vector< double > >() )
+  , c_tree_(self_spikes.get(), g_vals.get(), i_vals.get())
   , syn_buffers_( 0 )
   , logger_( *this )
   , V_th_( -55.0 )
 {
+  *self_spikes = false;
   recordablesMap_.create( *this );
   recordables_values.resize( 0 );
 }
@@ -69,8 +72,11 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::{{neuronSpecificFileNamesCmSyns
   , syn_buffers_( n.syn_buffers_ )
   , logger_( *this )
   , V_th_( n.V_th_ )
-  , self_spikes( n.self_spikes )
+  , self_spikes( std::make_unique< bool >(*n.self_spikes.get()) )
+  , g_vals( std::make_unique< std::vector< double > >(*n.g_vals.get()) )
+  , i_vals( std::make_unique< std::vector< double > >(*n.i_vals.get()) )
 {
+  c_tree_.init_pointers(self_spikes.get(), g_vals.get(), i_vals.get());
   recordables_values.resize( 0 );
 }
 
@@ -304,7 +310,7 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::pre_run_hook()
   logger_.init();
 
   // initialize the pointers within the compartment tree
-  c_tree_.init_pointers();
+  c_tree_.init_pointers(self_spikes.get(), g_vals.get(), i_vals.get());
   // initialize the pointers to the synapse buffers for the receptor currents
   c_tree_.set_syn_buffers( syn_buffers_ );
   // initialize the recordables pointers
