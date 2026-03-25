@@ -20,7 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-rhs : left=rhs (timesOp='*' | divOp='/' | moduloOp='%') right=rhs
+rhs : left=rhs (timesOp="*" | divOp="/" | moduloOp="%") right=rhs
 """
 from pynestml.visitors.ast_visitor import ASTVisitor
 

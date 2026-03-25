@@ -1,13 +1,10 @@
 # dopa_second_order_synapse
 # #########################
 #
-#
 # Description
 # +++++++++++
 #
 # This model is used to test second-order integration of dopamine spikes.
-#
-#
 #
 # Copyright statement
 # +++++++++++++++++++

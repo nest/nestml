@@ -1,7 +1,6 @@
 # stdp_synapse - Synapse model for spike-timing dependent plasticity
 # ##################################################################
 #
-#
 # Description
 # +++++++++++
 #
@@ -34,7 +33,6 @@
 # .. [4] van Rossum, M. C. W., Bi, G-Q and Turrigiano, G. G. (2000).
 #        Stable Hebbian learning from spike timing-dependent
 #        plasticity, Journal of Neuroscience, 20:23,8812--8821
-#
 #
 # Copyright statement
 # +++++++++++++++++++

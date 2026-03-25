@@ -87,73 +87,73 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
 
         if function_name == PredefinedFunctions.CLIP:
             # the arguments of this function must be swapped and are therefore [v_max, v_min, v]
-            return 'std::min({2!s}, std::max({1!s}, {0!s}))'
+            return "std::min({2!s}, std::max({1!s}, {0!s}))"
 
         if function_name == PredefinedFunctions.MAX:
-            return 'std::max({!s}, {!s})'
+            return "std::max({!s}, {!s})"
 
         if function_name == PredefinedFunctions.MIN:
-            return 'std::min({!s}, {!s})'
+            return "std::min({!s}, {!s})"
 
         if function_name == PredefinedFunctions.ABS:
-            return 'std::abs({!s})'
+            return "std::abs({!s})"
 
         if function_name == PredefinedFunctions.EXP:
-            return 'std::exp({!s})'
+            return "std::exp({!s})"
 
         if function_name == PredefinedFunctions.LN:
-            return 'std::log({!s})'
+            return "std::log({!s})"
 
         if function_name == PredefinedFunctions.LOG10:
-            return 'std::log10({!s})'
+            return "std::log10({!s})"
 
         if function_name == PredefinedFunctions.COS:
-            return 'std::cos({!s})'
+            return "std::cos({!s})"
 
         if function_name == PredefinedFunctions.SIN:
-            return 'std::sin({!s})'
+            return "std::sin({!s})"
 
         if function_name == PredefinedFunctions.TAN:
-            return 'std::tan({!s})'
+            return "std::tan({!s})"
 
         if function_name == PredefinedFunctions.COSH:
-            return 'std::cosh({!s})'
+            return "std::cosh({!s})"
 
         if function_name == PredefinedFunctions.SINH:
-            return 'std::sinh({!s})'
+            return "std::sinh({!s})"
 
         if function_name == PredefinedFunctions.TANH:
-            return 'std::tanh({!s})'
+            return "std::tanh({!s})"
 
         if function_name == PredefinedFunctions.ERF:
-            return 'std::erf({!s})'
+            return "std::erf({!s})"
 
         if function_name == PredefinedFunctions.ERFC:
-            return 'std::erfc({!s})'
+            return "std::erfc({!s})"
 
         if function_name == PredefinedFunctions.CEIL:
-            return 'std::ceil({!s})'
+            return "std::ceil({!s})"
 
         if function_name == PredefinedFunctions.FLOOR:
-            return 'std::floor({!s})'
+            return "std::floor({!s})"
 
         if function_name == PredefinedFunctions.ROUND:
-            return 'std::round({!s})'
+            return "std::round({!s})"
 
         if function_name == PredefinedFunctions.EXPM1:
-            return 'numerics::expm1({!s})'
+            return "numerics::expm1({!s})"
 
         if function_name == PredefinedFunctions.PRINT:
-            return 'std::cout << {!s}'
+            return "std::cout << {!s}"
 
         if function_name == PredefinedFunctions.PRINTLN:
-            return 'std::cout << {!s} << std::endl'
+            return "std::cout << {!s} << std::endl"
 
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
-            return function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
+            return function_name + "(" + ", ".join(["{!s}" for _ in range(n_args)]) + ")"
 
-        return function_name + '()'
+        return function_name + "()"
 
     def _print_function_call_argument_list(self, function_call: ASTFunctionCall) -> Tuple[str, ...]:
         ret = []
@@ -170,7 +170,7 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         :return: the converted print string with corresponding variables, if any
         """
         stmt = function_call.get_args()[0].get_string()
-        stmt = stmt[stmt.index('"') + 1: stmt.rindex('"')]  # Remove the double quotes from the string
+        stmt = stmt[stmt.index("\"") + 1: stmt.rindex("\"")]  # Remove the double quotes from the string
         scope = function_call.get_scope()
         return self.__convert_print_statement_str(stmt, scope)
 
@@ -199,13 +199,13 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         :param scope: scope of the variables in the argument, if any
         :return: the converted string to NEST
         """
-        pattern = re.compile(r'\{[a-zA-Z_][a-zA-Z0-9_]*\}')  # Match the variables enclosed within '{ }'
+        pattern = re.compile(r"\{[a-zA-Z_][a-zA-Z0-9_]*\}")  # Match the variables enclosed within "{ }"
         match = pattern.search(stmt)
         if match:
-            var_name = match.group(0)[match.group(0).find('{') + 1:match.group(0).find('}')]
+            var_name = match.group(0)[match.group(0).find("{") + 1:match.group(0).find("}")]
             left, right = stmt.split(match.group(0), 1)  # Split on the first occurrence of a variable
-            fun_left = (lambda lhs: self.__convert_print_statement_str(lhs, scope) + ' << ' if lhs else '')
-            fun_right = (lambda rhs: ' << ' + self.__convert_print_statement_str(rhs, scope) if rhs else '')
+            fun_left = (lambda lhs: self.__convert_print_statement_str(lhs, scope) + " << " if lhs else "")
+            fun_right = (lambda rhs: " << " + self.__convert_print_statement_str(rhs, scope) if rhs else "")
             ast_var = ASTVariable(var_name, scope=scope)
 
             # set the `_is_numeric` value for the variable so that the variable is printed with the correct origin
@@ -216,7 +216,7 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
 
             # concatenate unit separated by a space with the right part of the string
             if ASTUtils.get_unit_name(ast_var):
-                right = ' ' + ASTUtils.get_unit_name(ast_var) + right
+                right = " " + ASTUtils.get_unit_name(ast_var) + right
             return fun_left(left) + self._expression_printer.print(ast_var) + fun_right(right)
 
-        return '"' + stmt + '"'  # format bare string in C++ (add double quotes)
+        return "\"" + stmt + "\""  # format bare string in C++ (add double quotes)

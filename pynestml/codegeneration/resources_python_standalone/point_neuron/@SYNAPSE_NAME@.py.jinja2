@@ -164,8 +164,8 @@ class Synapse_{{ astnode.name }}(Synapse):
     self.last_spike_ = -1.
 
     # cache initial values
-{%- for var in transferred_variables %}
-{%-   set variable_symbol = transferred_variables_syms[var] %}
+{%- for var in syn_to_neuron_state_vars %}
+{%-   set variable_symbol = syn_to_neuron_state_vars_syms[var] %}
 {%-   set variable = utils.get_variable_by_name(astnode, var) %}
 {%-   if not var == variable_symbol.get_symbol_name() %}
     {{ raise('Error in resolving variable to symbol') }}

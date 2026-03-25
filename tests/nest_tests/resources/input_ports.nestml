@@ -1,12 +1,10 @@
 # input_ports.nestml
 # ##################
 #
-#
 # Description
 # +++++++++++
 #
 # This test is used to test the declaration of both vectorized and non-vectorized input ports.
-#
 #
 # Copyright statement
 # +++++++++++++++++++

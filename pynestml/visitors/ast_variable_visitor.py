@@ -43,9 +43,9 @@ class ASTVariableVisitor(ASTVisitor):
         :param node: a single simple expression
         """
         assert isinstance(node, ASTSimpleExpression), \
-            '(PyNestML.Visitor.VariableVisitor) No or wrong type of simple expression provided (%s)!' % type(node)
+            "(PyNestML.Visitor.VariableVisitor) No or wrong type of simple expression provided (%s)!" % type(node)
         assert (node.get_scope() is not None), \
-            '(PyNestML.Visitor.VariableVisitor) No scope found, run symboltable creator!'
+            "(PyNestML.Visitor.VariableVisitor) No scope found, run symboltable creator!"
 
         scope = node.get_scope()
         var_name = node.get_variable().get_complete_name()
@@ -76,7 +76,7 @@ class ASTVariableVisitor(ASTVisitor):
             node.type.referenced_object = node
             return
 
-        message = 'Variable ' + str(node) + ' could not be resolved!'
+        message = "Variable " + str(node) + " could not be resolved!"
         Logger.log_message(code=MessageCode.SYMBOL_NOT_RESOLVED,
                            error_position=node.get_source_position(),
                            message=message, log_level=LoggingLevel.ERROR)

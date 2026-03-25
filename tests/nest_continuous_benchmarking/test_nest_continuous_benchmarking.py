@@ -25,15 +25,16 @@ import pytest
 
 import nest
 
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
+# try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.ticker
+    import matplotlib as mpl
+    mpl.use("agg")
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
-except Exception:
+except BaseException:
     TEST_PLOTS = False
 
 sim_mdl = True
@@ -139,8 +140,11 @@ class TestNESTContinuousBenchmarking:
             sim_time = max(np.amax(pre_spike_times), np.amax(post_spike_times)) + 5 * delay
 
         nest.ResetKernel()
-        nest.set_verbosity("M_ALL")
-        nest.SetKernelStatus({'resolution': resolution})
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
+        nest.SetKernelStatus({"resolution": resolution})
 
         if sim_mdl:
             try:
@@ -159,8 +163,8 @@ class TestNESTContinuousBenchmarking:
         print("Pre spike times: " + str(pre_spike_times))
         print("Post spike times: " + str(post_spike_times))
 
-        wr = nest.Create('weight_recorder')
-        wr_ref = nest.Create('weight_recorder')
+        wr = nest.Create("weight_recorder")
+        wr_ref = nest.Create("weight_recorder")
         if sim_mdl:
             nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
                            {"weight_recorder": wr[0], "w": 1., "delay": 1., "receptor_type": 0})
@@ -173,7 +177,7 @@ class TestNESTContinuousBenchmarking:
                              params={"spike_times": pre_spike_times})
         post_sg = nest.Create("spike_generator",
                               params={"spike_times": post_spike_times,
-                                      'allow_offgrid_times': True})
+                                      "allow_offgrid_times": True})
 
         # create parrot neurons and connect spike_generators
         if sim_mdl:
@@ -196,7 +200,7 @@ class TestNESTContinuousBenchmarking:
         if sim_mdl:
             nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
             nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
-            nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={'synapse_model': 'stdp_nestml_rec'})
+            nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "stdp_nestml_rec"})
             nest.Connect(mm, post_neuron)
             nest.Connect(pre_neuron, spikedet_pre)
             nest.Connect(post_neuron, spikedet_post)
@@ -204,7 +208,7 @@ class TestNESTContinuousBenchmarking:
             nest.Connect(pre_sg, pre_neuron_ref, "one_to_one", syn_spec={"delay": 1.})
             nest.Connect(post_sg, post_neuron_ref, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
             nest.Connect(pre_neuron_ref, post_neuron_ref, "all_to_all",
-                         syn_spec={'synapse_model': ref_synapse_model_name})
+                         syn_spec={"synapse_model": ref_synapse_model_name})
             nest.Connect(mm_ref, post_neuron_ref)
             nest.Connect(pre_neuron_ref, spikedet_pre_ref)
             nest.Connect(post_neuron_ref, spikedet_post_ref)
@@ -227,9 +231,9 @@ class TestNESTContinuousBenchmarking:
             t += resolution
             t_hist.append(t)
             if sim_ref:
-                w_hist_ref.append(nest.GetStatus(syn_ref)[0]['weight'])
+                w_hist_ref.append(nest.GetStatus(syn_ref)[0]["weight"])
             if sim_mdl:
-                w_hist.append(nest.GetStatus(syn)[0]['w'])
+                w_hist.append(nest.GetStatus(syn)[0]["w"])
 
         # plot
         if TEST_PLOTS:
@@ -300,7 +304,7 @@ class TestNESTContinuousBenchmarking:
             ax3.set_ylabel("w")
             for _ax in ax:
                 _ax.grid(which="major", axis="both")
-                _ax.xaxis.set_major_locator(matplotlib.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
+                _ax.xaxis.set_major_locator(mpl.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
                 _ax.set_xlim(0., sim_time)
                 _ax.legend()
             fig.savefig("/tmp/stdp_synapse_test" + fname_snip + ".png", dpi=300)

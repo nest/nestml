@@ -124,7 +124,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
     def endvisit_function(self, node):
         symbol = self.symbol_stack.pop()
         scope = self.scope_stack.pop()
-        assert isinstance(symbol, FunctionSymbol), 'Not a function symbol'
+        assert isinstance(symbol, FunctionSymbol), "Not a function symbol"
         for arg in node.get_parameters():
             # given the fact that the name is not directly equivalent to the one as stated in the model,
             # we have to get it by the sub-visitor
