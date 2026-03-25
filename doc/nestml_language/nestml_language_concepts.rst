@@ -897,7 +897,7 @@ Calling the ``emit_spike()`` function in the ``update`` block results in firing 
 Event attributes
 ~~~~~~~~~~~~~~~~
 
-Each spiking output event corresponds to a Dirac delta pulse and can be parameterised by one attributes (the area of the pulse). For example, a synapse could assign a weight (as a real number) to its spike events by including this value in the call to ``emit_spike()``:
+Each spiking output event corresponds to a Dirac delta pulse and can be parameterised by one attribute (the area of the pulse). For example, a synapse could assign a weight (as a real number) to its spike events by including this value in the call to ``emit_spike()``:
 
 .. code-block:: nestml
 
