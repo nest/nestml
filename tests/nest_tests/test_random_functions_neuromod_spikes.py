@@ -103,7 +103,6 @@ class TestRandomFunctionsWithNeuromodSpikes:
                 post_spike_times, initial=0.), np.amax(vt_spike_times, initial=0.)) + 5 * delay
 
         nest.ResetKernel()
-        nest.set_verbosity("M_ERROR")
         nest.SetKernelStatus({"resolution": resolution})
         nest.Install("nestmlmodule")
 
