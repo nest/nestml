@@ -63,7 +63,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         node.update_scope(scope)
         node.get_body().update_scope(scope)
         # now first, we add all predefined elements to the scope
-        variables = PredefinedVariables.get_variables()
+        variables = PredefinedVariables.get_variables_to_symbols_dict()
         functions = PredefinedFunctions.get_function_symbols()
         types = PredefinedTypes.get_types()
         for symbol in variables.keys():

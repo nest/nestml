@@ -148,7 +148,7 @@ class ASTSynapseInformationCollector(ASTVisitor):
 
     @classmethod
     def get_variable_names_to_ignore(cls):
-        return set(PredefinedVariables.get_variables().keys()).union({"v_comp"})
+        return set(PredefinedVariables.get_variables()).union({"v_comp"})
 
     def get_synapse_specific_internal_declarations(self, synapse_inline: ASTInlineExpression) -> defaultdict:
         synapse_variable_names = self.get_variable_names_of_synapse(

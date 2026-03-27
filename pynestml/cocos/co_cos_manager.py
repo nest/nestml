@@ -56,6 +56,7 @@ from pynestml.cocos.co_co_odes_have_consistent_units import CoCoOdesHaveConsiste
 from pynestml.cocos.co_co_ode_functions_have_consistent_units import CoCoOdeFunctionsHaveConsistentUnits
 from pynestml.cocos.co_co_output_port_defined_if_emit_call import CoCoOutputPortDefinedIfEmitCall
 from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import CoCoParametersAssignedOnlyInParameterBlock
+from pynestml.cocos.co_co_parameters_internals_state_declaration_order import CoCoParametersInternalsStateDeclarationOrder
 from pynestml.cocos.co_co_priorities_correctly_specified import CoCoPrioritiesCorrectlySpecified
 from pynestml.cocos.co_co_resolution_func_legally_used import CoCoResolutionFuncLegallyUsed
 from pynestml.cocos.co_co_resolution_func_used import CoCoResolutionOrStepsFuncUsed
@@ -108,6 +109,14 @@ class CoCosManager:
         :param model: a single model instance
         """
         CoCoFunctionCallsConsistent.check_co_co(model)
+
+    @classmethod
+    def check_parameters_internals_state_declaration_order(cls, model: ASTModel):
+        """
+        Checks that all variables have been declared at most once per scope.
+        :param model: a single model instance
+        """
+        CoCoParametersInternalsStateDeclarationOrder.check_co_co(model)
 
     @classmethod
     def check_variables_unique_in_scope(cls, model: ASTModel):
@@ -436,6 +445,7 @@ class CoCosManager:
         Logger.set_current_node(model)
 
         cls.check_each_block_defined_at_most_once(model)
+        cls.check_parameters_internals_state_declaration_order(model)
         cls.check_function_defined(model)
         cls.check_variables_unique_in_scope(model)
         cls.check_inline_expression_not_assigned_to(model)
