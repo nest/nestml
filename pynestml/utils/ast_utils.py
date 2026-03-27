@@ -637,7 +637,7 @@ class ASTUtils:
             else:
                 return
 
-            if not var.get_name() in PredefinedVariables.get_variables().keys() \
+            if not var.get_name() in PredefinedVariables.get_variables() \
                and not var.get_name().endswith(suffix):
                 symbol = scope.resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
                 if symbol:    # make sure it is not a unit (like "ms")
@@ -662,7 +662,7 @@ class ASTUtils:
             else:
                 return
 
-            if not var.get_name() in PredefinedVariables.get_variables().keys():
+            if not var.get_name() in PredefinedVariables.get_variables():
                 symbol = new_scope.resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
                 if symbol:    # make sure it is not a unit (like "ms")
                     var.update_scope(new_scope)

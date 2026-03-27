@@ -148,6 +148,9 @@ class MessageCode(Enum):
     WEIGHT_VARIABLE_NOT_SPECIFIED = 119
     DELAY_VARIABLE_NOT_FOUND = 120
     WEIGHT_VARIABLE_NOT_FOUND = 121
+    VARIABLE_DEFINITION_IN_PARAMETERS_BLOCK_NOT_ALLOWED_TO_REFER_TO_STATE_BLOCK = 122
+    VARIABLE_DEFINITION_IN_PARAMETERS_BLOCK_NOT_ALLOWED_TO_REFER_TO_INTERNALS_BLOCK = 123
+    VARIABLE_DEFINITION_IN_INTERNALS_BLOCK_NOT_ALLOWED_TO_REFER_TO_STATE_BLOCK = 124
 
 
 class Messages:
@@ -1181,3 +1184,21 @@ class Messages:
         message = "Weight variable \"" + variable_name + "\" not found in synapse. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
 
         return MessageCode.WEIGHT_VARIABLE_NOT_FOUND, message
+
+    @classmethod
+    def get_variable_definition_in_parameters_block_not_allowed_to_refer_to_state_block(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "Definition of variable \"" + variable_name + "\" in ``parameters`` block is not allowed to refer to variables defined in the ``state`` block."
+
+        return MessageCode.VARIABLE_DEFINITION_IN_PARAMETERS_BLOCK_NOT_ALLOWED_TO_REFER_TO_STATE_BLOCK, message
+
+    @classmethod
+    def get_variable_definition_in_parameters_block_not_allowed_to_refer_to_internals_block(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "Definition of variable \"" + variable_name + "\" in ``parameters`` block is not allowed to refer to variables defined in the ``internals`` block."
+
+        return MessageCode.VARIABLE_DEFINITION_IN_PARAMETERS_BLOCK_NOT_ALLOWED_TO_REFER_TO_INTERNALS_BLOCK, message
+
+    @classmethod
+    def get_variable_definition_in_internals_block_not_allowed_to_refer_to_state_block(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "Definition of variable \"" + variable_name + "\" in ``internals`` block is not allowed to refer to variables defined in the ``state`` block."
+
+        return MessageCode.VARIABLE_DEFINITION_IN_INTERNALS_BLOCK_NOT_ALLOWED_TO_REFER_TO_STATE_BLOCK, message

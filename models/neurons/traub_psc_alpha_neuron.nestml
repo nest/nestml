@@ -94,12 +94,12 @@ model traub_psc_alpha_neuron:
         I_e pA = 0 pA
 
     internals:
-        alpha_n_init real = 0.032 * (V_m / mV + 52.) / (1. - exp(-(V_m / mV + 52.) / 5.))
-        beta_n_init real = 0.5 * exp(-(V_m / mV + 57.) / 40.)
-        alpha_m_init real = 0.32 * (V_m / mV + 54.) / (1.0 - exp(-(V_m / mV + 54.) / 4.))
-        beta_m_init real = 0.28 * (V_m / mV + 27.) / (exp((V_m / mV + 27.) / 5.) - 1.)
-        alpha_h_init real = 0.128 * exp(-(V_m / mV + 50.0) / 18.0)
-        beta_h_init real = 4.0 / (1.0 + exp(-(V_m / mV + 27.) / 5.))
+        alpha_n_init real = 0.032 * (V_m_init / mV + 52.) / (1. - exp(-(V_m_init / mV + 52.) / 5.))
+        beta_n_init real = 0.5 * exp(-(V_m_init / mV + 57.) / 40.)
+        alpha_m_init real = 0.32 * (V_m_init / mV + 54.) / (1.0 - exp(-(V_m_init / mV + 54.) / 4.))
+        beta_m_init real = 0.28 * (V_m_init / mV + 27.) / (exp((V_m_init / mV + 27.) / 5.) - 1.)
+        alpha_h_init real = 0.128 * exp(-(V_m_init / mV + 50.0) / 18.0)
+        beta_h_init real = 4.0 / (1.0 + exp(-(V_m_init / mV + 27.) / 5.))
 
     input:
         exc_spikes <- excitatory spike
