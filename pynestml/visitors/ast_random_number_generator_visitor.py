@@ -42,7 +42,7 @@ class ASTRandomNumberGeneratorVisitor(ASTVisitor):
         Visits a single function call as stored in a simple expression and checks to see whether any calls are made to generate a random number. If so, set a flag so that the necessary initialisers can be called at the right time in the generated code.
         """
         assert isinstance(node, ASTSimpleExpression), \
-            '(PyNestML.Visitor.FunctionCallVisitor) No or wrong type of simple expression provided (%s)!' % tuple(node)
+            "(PyNestML.Visitor.FunctionCallVisitor) No or wrong type of simple expression provided (%s)!" % tuple(node)
         assert (node.get_scope() is not None), \
             "(PyNestML.Visitor.FunctionCallVisitor) No scope found, run symboltable creator!"
         scope = node.get_scope()

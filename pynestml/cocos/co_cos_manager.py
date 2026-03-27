@@ -441,7 +441,7 @@ class CoCosManager:
         cls.check_inline_expression_not_assigned_to(model)
         cls.check_state_variables_initialized(model)
         cls.check_variables_defined_before_usage(model)
-        if FrontendConfiguration.get_target_platform().upper() == 'NEST_COMPARTMENTAL':
+        if FrontendConfiguration.get_target_platform().upper() == "NEST_COMPARTMENTAL":
             # XXX: TODO: refactor this out; define a ``cocos_from_target_name()`` in the frontend instead.
             cls.check_v_comp_requirement(model)
             cls.check_compartmental_model(model)
@@ -468,7 +468,7 @@ class CoCosManager:
             cls.check_ode_functions_have_consistent_units(model)
             cls.check_correct_usage_of_kernels(model)
             cls.check_resolution_func_used(model)    # ``__h = resolution()`` is added after transformations; put this check inside the ``if`` to make sure it's not always triggered
-            if FrontendConfiguration.get_target_platform().upper() != 'NEST_COMPARTMENTAL':
+            if FrontendConfiguration.get_target_platform().upper() != "NEST_COMPARTMENTAL":
                 cls.check_integrate_odes_called_if_equations_defined(model)
         cls.check_invariant_type_correct(model)
         cls.check_vector_in_non_vector_declaration_detected(model)

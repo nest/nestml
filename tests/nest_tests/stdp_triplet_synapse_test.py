@@ -19,24 +19,23 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
 import numpy as np
 import os
 import pytest
+
+# try to import matplotlib; set the result in the flag TEST_PLOTS
+try:
+    import matplotlib as mpl
+    mpl.use("agg")
+    import matplotlib.pyplot as plt
+    TEST_PLOTS = True
+except BaseException:
+    TEST_PLOTS = False
 
 import nest
 
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
-
-try:
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.ticker
-    import matplotlib.pyplot as plt
-    TEST_PLOTS = True
-except Exception:
-    TEST_PLOTS = False
 
 
 @pytest.fixture(autouse=True,
@@ -171,7 +170,10 @@ def run_nest_simulation(neuron_model_name,
     if sim_time is None:
         sim_time = max(np.amax(pre_spike_times_req), np.amax(post_spike_times_req)) + 10. + 3 * syn_opts["delay"]
 
-    nest.set_verbosity("M_ALL")
+    if not NESTTools.detect_nest_version().startswith("main"):
+        nest.set_verbosity("M_ALL")
+    else:
+        nest.verbosity = nest.VerbosityLevel.ALL
 
     # Set parameters of the NEST simulation kernel
     nest.ResetKernel()
@@ -332,7 +334,7 @@ def plot_comparison(syn_opts, times_spikes_pre, times_spikes_post, times_spikes_
     for _ax in ax:
         _ax.grid(True)
         _ax.set_xlim(0., sim_time)
-        _ax.xaxis.set_major_locator(matplotlib.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
+        _ax.xaxis.set_major_locator(mpl.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
         if not _ax == ax[-1]:
             _ax.set_xticklabels([])
 

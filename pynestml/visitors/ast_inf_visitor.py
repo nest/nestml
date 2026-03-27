@@ -20,7 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-simpleExpression : isInf='inf'
+simpleExpression : isInf="inf"
 """
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.visitors.ast_visitor import ASTVisitor
