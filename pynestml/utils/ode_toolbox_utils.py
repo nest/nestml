@@ -38,9 +38,6 @@ class ODEToolboxUtils:
                                        "Float": sympy.Float,
                                        "Function": sympy.Function}
 
-        pattern = r'\.(?!\d)'    # pattern matches dots in variable names but not in numbers
-
-        import re
         sympy_expr = sympy.parsing.sympy_parser.parse_expr(s, global_dict=_sympy_globals_no_functions)
 
         class MySympyPrinter(StrPrinter):
