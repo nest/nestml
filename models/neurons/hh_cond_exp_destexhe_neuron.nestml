@@ -54,9 +54,9 @@ model hh_cond_exp_destexhe_neuron:
         g_noise_exc uS = g_noise_exc0
         g_noise_inh uS = g_noise_inh0
 
-        V_m mV = E_L        # Membrane potential
-        V_m_old mV = E_L    # Membrane potential at the previous timestep
-        refr_t ms = 0 ms    # Refractory period timer
+        V_m mV = V_m_init        # Membrane potential
+        V_m_old mV = V_m_init    # Membrane potential at the previous timestep
+        refr_t ms = 0 ms         # Refractory period timer
 
         Act_m real = alpha_m_init / (alpha_m_init + beta_m_init)
         Act_h real = alpha_h_init / (alpha_h_init + beta_h_init)
@@ -109,6 +109,7 @@ model hh_cond_exp_destexhe_neuron:
         E_Na mV = 60 mV            # Reversal potentials
         E_K mV = -90 mV            # Potassium reversal potential
         E_L mV = -80 mV            # Leak reversal potential (a.k.a. resting potential)
+        V_m_init mV = E_L          # Initial membrane potential
         V_T mV = -58 mV            # Voltage offset that controls dynamics. For default
                                    # parameters, V_T = -63mV results in a threshold around -50mV.
         tau_syn_exc ms = 2.7 ms    # Synaptic time constant for excitatory synapse
