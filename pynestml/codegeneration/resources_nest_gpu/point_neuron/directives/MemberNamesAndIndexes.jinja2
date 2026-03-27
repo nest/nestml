@@ -6,6 +6,12 @@ enum ScalVarIndexes {
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
   i_{{ printer_no_origin.print(variable) }},
 {%- endfor %}
+{%- if recordable_inline_expressions|length > 0 %}
+{%-   for variable_symbol in recordable_inline_expressions %}
+{%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+  i_{{ printer_no_origin.print(variable) }},
+{%-   endfor %}
+{%- endif %}
   N_SCAL_VAR
 };
 
@@ -40,6 +46,12 @@ const std::string {{ neuronName }}_scal_var_name[N_SCAL_VAR] = {
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
   "{{ printer_no_origin.print(variable) }}",
 {%- endfor %}
+{%- if recordable_inline_expressions|length > 0 %}
+{%-   for variable_symbol in recordable_inline_expressions %}
+{%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+  "{{ printer_no_origin.print(variable) }}",
+{%-   endfor %}
+{%- endif %}
 };
 
 const std::string {{ neuronName }}_scal_param_name[N_SCAL_PARAM] = {

@@ -89,6 +89,15 @@ void NodeInit(int n_var, int n_param, double x, float *y, float *param,
 {%-     include "directives/MemberInitialization.jinja2" %}
 {%- endfor %}
 
+{%- if recordable_inline_expressions|length > 0 %}
+    // Recordable inline expressions
+{%-   for variable_symbol in recordable_inline_expressions %}
+{%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     include "directives/MemberInitialization.jinja2" %}
+{%-   endfor %}
+{%- endif %}
+
+
   {# TODO #}
   // Input port variables
 {%- for variable_symbol in neuron.get_spike_input_ports() %}
@@ -136,6 +145,16 @@ __device__
 {%-             include "directives/StmtsBody.jinja2" %}
 {%-         endfor %}
 {%-     endfilter %}
+{%- endif %}
+
+{%- if recordable_inline_expressions|length > 0 %}
+    /**
+     * Update all the recordable inline expressions
+    **/
+{%-   for variable_symbol in recordable_inline_expressions %}
+{%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{{ printer.print(variable) }} = {{ printer.print(variable_symbol.get_declaring_expression()) }};
+{%-   endfor %}
 {%- endif %}
 
     /**

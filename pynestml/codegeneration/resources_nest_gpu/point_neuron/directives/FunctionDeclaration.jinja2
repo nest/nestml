@@ -5,7 +5,7 @@
 {%-     endif %}
 {{ ast_function.print_comment('//') }}
 {%- if uses_numeric_solver  %}
-__device__
+__device__ __forceinline__
 {{ type_symbol_printer.print(function_symbol.get_return_type())}} {{ ast_function.get_name() }} (
 {%-     for param in ast_function.get_parameters() %}
 {%-         with typeSym = param.get_data_type().get_type_symbol() -%}

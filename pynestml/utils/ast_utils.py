@@ -2843,4 +2843,3 @@ class ASTUtils:
     @classmethod
     def is_else_clause(cls, node):
         return isinstance(node, ASTElseClause)
-
