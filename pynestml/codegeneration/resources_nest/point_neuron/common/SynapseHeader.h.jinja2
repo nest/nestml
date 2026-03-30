@@ -1193,7 +1193,7 @@ void
 {{synapseName}}< targetidentifierT >::get_status( DictionaryDatum& __d ) const
 {
   ConnectionBase::get_status( __d );
-  {{ write_in_dictionary.WriteInDictionary("__d", "long", "names::size_of", "sizeof( *this )") }}
+  {{ write_in_dictionary.WriteInDictionary("__d", "long", "names::size_of", "static_cast< long >(sizeof( *this ))") }}
 
   // parameters and state variables
 {%- filter indent(2,True) %}
