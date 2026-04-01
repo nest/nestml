@@ -70,21 +70,21 @@ class CodeGeneratorUtils:
                 if not (synapse_name in neuron_synapse_pair["synapses"].keys() or synapse_name in [s + FrontendConfiguration.suffix for s in neuron_synapse_pair["synapses"].keys()]):
                     continue
 
-            if not special_type + "_ports" in neuron_synapse_pair.keys():
-                return False
+                if not special_type + "_ports" in neuron_synapse_pair["synapses"][synapse_name].keys():
+                    return False
 
-            post_ports = neuron_synapse_pair[special_type + "_ports"]
-            if not isinstance(post_ports, list):
-                # only one port name given, not a list
-                return port_name == post_ports
+                post_ports = neuron_synapse_pair["synapses"][synapse_name][special_type + "_ports"]
+                if not isinstance(post_ports, list):
+                    # only one port name given, not a list
+                    return port_name == post_ports
 
-            for post_port in post_ports:
-                if type(post_port) is not str and len(post_port) == 2:  # (syn_port_name, neuron_port_name) tuple
-                    post_port = post_port[0]
-                if type(post_port) is not str and len(post_port) == 1:  # (syn_port_name)
-                    return post_port[0] == port_name
-                if port_name == post_port:
-                    return True
+                for post_port in post_ports:
+                    if type(post_port) is not str and len(post_port) == 2:  # (syn_port_name, neuron_port_name) tuple
+                        post_port = post_port[0]
+                    if type(post_port) is not str and len(post_port) == 1:  # (syn_port_name)
+                        return post_port[0] == port_name
+                    if port_name == post_port:
+                        return True
 
         return False
 

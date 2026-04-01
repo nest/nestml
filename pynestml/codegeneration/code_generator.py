@@ -182,7 +182,8 @@ class CodeGenerator(WithOptions):
                             model_name: str,
                             model_templates: List[Template],
                             template_namespace: Dict[str, Any],
-                            metadata: Dict[str, Dict[str, Any]]) -> None:
+                            metadata: Dict[str, Dict[str, Any]],
+                            model_name_escape_string: str = "@MODEL_NAME@") -> None:
         """
         For a handed over model, this method generates the corresponding header and implementation file.
         :param model_name: name of the neuron or synapse model
@@ -221,20 +222,23 @@ class CodeGenerator(WithOptions):
         self.generate_model_code(neuron.get_name(),
                                  model_templates=self._model_templates["neuron"],
                                  template_namespace=self._get_neuron_model_namespace(neuron, metadata),
-                                 metadata=metadata)
+                                 metadata=metadata,
+                                 model_name_escape_string="@NEURON_NAME@")
 
     def generate_synapse_code(self, synapse: ASTModel,
                               metadata: Dict[str, Dict[str, Any]]) -> None:
         self.generate_model_code(synapse.get_name(),
                                  model_templates=self._model_templates["synapse"],
                                  template_namespace=self._get_synapse_model_namespace(synapse, metadata),
-                                 metadata=metadata)
+                                 metadata=metadata,
+                                 model_name_escape_string="@SYNAPSE_NAME@")
 
     def generate_module_code(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel],
                              metadata: Dict[str, Dict[str, Any]]) -> None:
         self.generate_model_code(FrontendConfiguration.get_module_name(),
                                  model_templates=self._module_templates,
                                  template_namespace=self._get_module_namespace(neurons, synapses, metadata),
-                                 metadata=metadata)
+                                 metadata=metadata,
+                                 model_name_escape_string="@MODULE_NAME@")
         code, message = Messages.get_module_generated(FrontendConfiguration.get_target_path())
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)

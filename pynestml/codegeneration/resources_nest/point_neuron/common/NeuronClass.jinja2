@@ -985,9 +985,9 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     B_.logger_.record_data(origin.get_steps() + lag);
 {%- endif %}
 
-{%  if paired_synapses is defined %}
+{%  if paired_synapses is defined and continuous_state_buffering_method == "continuous_time_buffer" %}
 {%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
-{%-         if state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
+{%-         if state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | length > 0 %}
 #ifdef DEBUG
     std::cout << "[neuron " << this << "] Writing history at time " << nest::Time(nest::Time::step( origin.get_steps() + lag + 1 )).get_ms() << "\n";
 #endif
