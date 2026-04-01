@@ -53,7 +53,6 @@ def nestml_generate_target():
                          codegen_opts={"neuron_synapse_pairs": [{"neuron": "test_plasticity_dynamics_neuron",
                                                                  "synapse": "test_plasticity_dynamics_synapse",
                                                                  "post_ports": ["post_spikes"]}],
-                                       "delay_variable": {"test_plasticity_dynamics_synapse": "d"},
                                        "weight_variable": {"test_plasticity_dynamics_synapse": "w"}})
 
 

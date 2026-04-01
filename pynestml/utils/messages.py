@@ -829,14 +829,6 @@ class Messages:
         return MessageCode.EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT, message
 
     @classmethod
-    def get_output_port_type_differs(cls) -> Tuple[MessageCode, str]:
-        """
-        Indicates that an emit_spike() function was called, but with different parameter types than the output port was defined with.
-        """
-        message = "emit_spike() function was called, but with different parameter types than the output port was defined with!"
-        return MessageCode.EMIT_SPIKE_OUTPUT_PORT_TYPE_DIFFERS, message
-
-    @classmethod
     def get_kernel_wrong_type(cls,
                               kernel_name: str,
                               differential_order: int,
@@ -1159,14 +1151,8 @@ class Messages:
         return MessageCode.CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES, message
 
     @classmethod
-    def get_delay_variable_not_specified(cls) -> Tuple[MessageCode, str]:
-        message = "Delay variable is not specified for synapse model. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
-
-        return MessageCode.DELAY_VARIABLE_NOT_SPECIFIED, message
-
-    @classmethod
     def get_weight_variable_not_specified(cls) -> Tuple[MessageCode, str]:
-        message = "Weight variable is not specified for synapse model. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
+        message = "Weight variable is not specified for synapse model. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delays"
 
         return MessageCode.WEIGHT_VARIABLE_NOT_SPECIFIED, message
 

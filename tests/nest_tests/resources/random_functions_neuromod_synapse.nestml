@@ -38,7 +38,6 @@ model random_functions_neuromod_synapse:
         tau_pre ms = 20 ms       # decay of pre-trace
         tau_post ms = 20 ms      # decay of post-trace
         tau_mod ms = 100 ms      # decay of modulatory trace
-        d ms = 1 ms              # synaptic delay
 
     equations:
         pre_tr' = -pre_tr / tau_pre
@@ -51,7 +50,7 @@ model random_functions_neuromod_synapse:
         mod_spikes <- spike
 
     output:
-        spike(weight real, delay ms)
+        spike
 
     onReceive(mod_spikes):
         x[i] = random_uniform(0, 1)
@@ -61,7 +60,7 @@ model random_functions_neuromod_synapse:
 
     onReceive(pre_spikes):
         pre_tr += 1
-        emit_spike(w, d)
+        emit_spike(w)
 
     onReceive(post_spikes):
         post_tr += 1
