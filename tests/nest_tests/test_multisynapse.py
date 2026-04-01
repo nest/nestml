@@ -55,7 +55,10 @@ class TestNestMultiSynapse:
                              suffix=suffix)
 
         nest.ResetKernel()
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
         nest.resolution = 0.1
         try:
             nest.Install("nestmlmodule")
@@ -135,7 +138,10 @@ class TestNestMultiSynapse:
                              suffix=suffix)
 
         nest.ResetKernel()
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
         nest.resolution = 0.1
         try:
             nest.Install("nestmlmodule")

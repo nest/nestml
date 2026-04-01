@@ -21,7 +21,14 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, List, Mapping, Optional, Tuple, Union, Sequence
+from typing import Any, Dict, Callable, Iterable, List, Mapping, Optional, Tuple
+
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
 
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.transformers.transformer import Transformer
@@ -97,17 +104,12 @@ class IllegalVariableNameTransformer(Transformer):
 
         return name
 
-    def transform(self, models: Union[ASTNode, Sequence[ASTNode]]) -> Union[ASTNode, Sequence[ASTNode]]:
-        single = False
-        if isinstance(models, ASTNode):
-            single = True
-            models = [models]
-
+    @override
+    def transform(self,
+                  models: Iterable[ASTModel],
+                  metadata: Dict[str, Dict[str, Any]]) -> Iterable[ASTModel]:
         for model in models:
             model.accept(self.VariableNameRewriterVisitor(self.get_option("forbidden_names"), self.fix_name_func_))
             model.accept(ASTSymbolTableVisitor())
-
-        if single:
-            return models[0]
 
         return models

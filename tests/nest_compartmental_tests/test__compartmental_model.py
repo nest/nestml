@@ -75,7 +75,7 @@ dend_params_active = {
 }
 
 
-class TestCM():
+class TestCM:
 
     def reset_nest(self):
         nest.ResetKernel()

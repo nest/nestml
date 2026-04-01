@@ -147,7 +147,7 @@ Equations
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `hh_moto_5ht_neuron <https://github.com/nest/nestml/tree/master/models/neurons/hh_moto_5ht_neuron.nestml>`_.
+The model source code can be found in the NESTML models repository here: `hh_moto_5ht_neuron <https://github.com/nest/nestml/tree/main/models/neurons/hh_moto_5ht_neuron.nestml>`_.
 
 .. include:: hh_moto_5ht_neuron_characterisation.rst
 

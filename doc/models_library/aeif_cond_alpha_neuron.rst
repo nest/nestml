@@ -127,7 +127,7 @@ Equations
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `aeif_cond_alpha_neuron <https://github.com/nest/nestml/tree/master/models/neurons/aeif_cond_alpha_neuron.nestml>`_.
+The model source code can be found in the NESTML models repository here: `aeif_cond_alpha_neuron <https://github.com/nest/nestml/tree/main/models/neurons/aeif_cond_alpha_neuron.nestml>`_.
 
 .. include:: aeif_cond_alpha_neuron_characterisation.rst
 

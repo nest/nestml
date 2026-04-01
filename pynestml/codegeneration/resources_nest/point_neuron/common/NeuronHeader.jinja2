@@ -24,6 +24,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {%- import 'directives_cpp/FunctionDeclaration.jinja2' as function_declaration with context %}
 {%- import 'directives_cpp/OutputEvent.jinja2' as output_event with context %}
 {%- import 'directives_cpp/WriteInDictionary.jinja2' as write_in_dictionary with context %}
+{%- import 'directives_cpp/ReadFromDictionary.jinja2' as read_from_dictionary with context %}
 /**
  *  {{neuronName}}.h
  *
@@ -95,16 +96,25 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "vector_ring_buffer.h"
 #include "universal_data_logger.h"
 
+{%- if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3)))  %}
 // Includes from sli:
 #include "dictdatum.h"
+{%- endif %}
 
 // uncomment the next line to enable printing of detailed debug information
 // #define DEBUG
+{%- if (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
+typedef Dictionary DictionaryDatum;
+{%- endif %}
 
 namespace nest
 {
 namespace {{names_namespace}}
 {
+{%- if (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3)))  %}
+    typedef std::string Name;
+{%- endif  %}
+
 {%- if neuron.get_state_symbols()|length > 0 %}
     // state variables
 {%-     for sym in neuron.get_state_symbols() %}
@@ -466,7 +476,7 @@ public:
   //   Getters/setters for variables transferred from synapse
   // -------------------------------------------------------------------------
 
-{%-     for var in transferred_variables %}
+{%-     for var in syn_to_neuron_state_vars %}
   double get_{{ var }}( double t, const bool before_increment = true );
 {%-     endfor %}
 
@@ -540,7 +550,7 @@ private:
   std::deque< histentry__{{neuronName}} > history_;
 
   // cache for initial values
-{%- for var in transferred_variables + state_vars_that_need_continuous_buffering %}
+{%- for var in syn_to_neuron_state_vars + state_vars_that_need_continuous_buffering %}
   double {{var}}__iv;
 {%- endfor %}
 
@@ -1112,23 +1122,45 @@ inline void {{neuronName}}::get_status(DictionaryDatum&__d) const
 
   {{neuron_parent_class}}::get_status( __d );
 
-  // input ports to NEST rport number mapping
-  DictionaryDatum __receptor_type = new Dictionary();
-{%- for spike_in_port_name, rport in utils.nestml_spiking_input_port_to_nest_rport_dict(astnode).items() %}
-{%-     set spike_in_port = utils.get_input_port_by_name(astnode.get_input_blocks(), spike_in_port_name.split("_VEC_IDX_")[0]) %}
-  ( *__receptor_type )[ "{{spike_in_port_name.upper()}}" ] = {{ rport }};
-{%- endfor %}
-  (*__d)["receptor_types"] = __receptor_type;
+{%- if (neuron.get_multiple_receptors())|length > 1 or neuron.is_multisynapse_spikes() %}   // input ports to NEST rport number mapping
+{%-     if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
+  DictionaryDatum __receptor_types = new Dictionary();
+{%-     else %}
+  Dictionary __receptor_types;
+{%-     endif %}
 
-{%- if (neuron.get_continuous_input_ports())|length > 1 %}
-  DictionaryDatum __continuous_input_type = new Dictionary();
-{%-     for port in neuron.get_continuous_input_ports() %}
-  ( *__continuous_input_type )[ "{{port.get_symbol_name().upper()}}" ] = {{port.get_symbol_name().upper()}};
+{%-     for key, ports in utils.get_spike_input_ports_in_pairs(neuron).items() %}
+{%-          set ns = namespace(rport=key) %}
+{%-          for port in ports  %}
+{%-               if not port.has_vector_parameter() %}
+    {{ write_in_dictionary.WriteInDictionary("__receptor_types", "long", port.get_symbol_name().upper(), ns.rport + 1, true) }}
+{%-               else %}
+{%-                   set size = utils.get_numeric_vector_size(port) %}
+{%-                   for i in range(size)  %}
+    {{ write_in_dictionary.WriteInDictionary("__receptor_types", "long", port.get_symbol_name().upper() + "_" + i|string, ns.rport + i + 1, true) }}
+{%-                   endfor %}
+{%-               endif %}
+{%-          endfor %}
 {%-     endfor %}
-  ( *__d )[ "continuous_inputs" ] = __continuous_input_type;
+    {{ write_in_dictionary.WriteInDictionary("__d", "DictionaryDatum", "receptor_types", "__receptor_types", true) }}
 {%- endif %}
 
-  (*__d)[nest::names::recordables] = recordablesMap_.get_list();
+{%- if (neuron.get_continuous_input_ports())|length > 1 %}
+{%-     if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
+  DictionaryDatum __continuous_input_type = new Dictionary();
+{%-     else %}
+  Dictionary __continuous_input_type;
+{%-     endif %}
+
+{%-     set ns = namespace(count=0) %}
+{%-     for port in neuron.get_continuous_input_ports() %}
+    {{ write_in_dictionary.WriteInDictionary("__continuous_input_type", "long", port.get_symbol_name().upper(), ns.count, true) }}
+{%-         set ns.count = ns.count + 1 %}
+{%-     endfor %}
+    {{ write_in_dictionary.WriteInDictionary("__d", "DictionaryDatum", "continuous_inputs", "__continuous_input_type", true) }}
+{%- endif %}
+
+  {{ write_in_dictionary.WriteInDictionary("__d", "ArrayDatum", "nest::names::recordables", "recordablesMap_.get_list()") }}
 {%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
   {{ write_in_dictionary.WriteInDictionary("__d", "double", "nest::" + names_namespace + "::gsl_abs_error_tol", "P_.__gsl_abs_error_tol") }}
@@ -1195,12 +1227,12 @@ inline void {{neuronName}}::set_status(const DictionaryDatum&__d)
 
 {% if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
-  updateValue< double >(__d, nest::{{ neuronName }}_names::gsl_abs_error_tol, P_.__gsl_abs_error_tol);
+  {{ read_from_dictionary.ReadFromDictionary("__d", "double", "nest::" + neuronName + "_names::gsl_abs_error_tol", "P_.__gsl_abs_error_tol", "", false) }};
   if ( P_.__gsl_abs_error_tol <= 0. )
   {
     throw nest::BadProperty( "The gsl_abs_error_tol must be strictly positive." );
   }
-  updateValue< double >(__d, nest::{{ neuronName }}_names::gsl_rel_error_tol, P_.__gsl_rel_error_tol);
+  {{ read_from_dictionary.ReadFromDictionary("__d", "double", "nest::" + neuronName + "_names::gsl_rel_error_tol", "P_.__gsl_rel_error_tol", "", false) }};
   if ( P_.__gsl_rel_error_tol < 0. )
   {
     throw nest::BadProperty( "The gsl_rel_error_tol must be zero or positive." );

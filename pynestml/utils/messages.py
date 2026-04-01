@@ -1160,12 +1160,6 @@ class Messages:
         return MessageCode.SPIKE_INPUT_PORT_IN_EQUATION_RHS_OUTSIDE_CONVOLVE, message
 
     @classmethod
-    def get_delay_variable_not_specified(cls) -> Tuple[MessageCode, str]:
-        message = "Delay variable is not specified for synapse model. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
-
-        return MessageCode.DELAY_VARIABLE_NOT_SPECIFIED, message
-
-    @classmethod
     def get_weight_variable_not_specified(cls) -> Tuple[MessageCode, str]:
         message = "Weight variable is not specified for synapse model. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delays"
 

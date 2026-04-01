@@ -23,6 +23,7 @@ import os
 
 import nest
 
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
@@ -36,7 +37,10 @@ class TestAddSpikesToODE:
         module_name = "nestmlmodule"
         suffix = "_nestml"
 
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
         generate_nest_target(input_path,
                              target_path=target_path,
                              logging_level=logging_level,

@@ -68,7 +68,10 @@ class NestFirFilterTest(unittest.TestCase):
         t_sim = 101.
         resolution = 0.1
 
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
 
         nest.ResetKernel()
         nest.Install(module_name)
