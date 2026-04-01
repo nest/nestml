@@ -23,6 +23,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, Iterable, Mapping, Optional, Set, Tuple
 
+from pynestml.utils.model_parser import ModelParser
+
 try:
     # Available in the standard library starting with Python 3.12
     from typing import override
@@ -150,6 +152,9 @@ class SynapsePostNeuronTransformer(Transformer):
         metadata[new_neuron.name]["extra_on_emit_spike_stmts_from_synapse"] = {}
         metadata[new_neuron.name]["unpaired_name"] = unpaired_name
         metadata[new_neuron.name]["state_vars_that_need_continuous_buffering"] = []
+        metadata[new_neuron.name]["state_vars_that_need_continuous_buffering_transformed"] = {}
+        metadata[new_neuron.name]["state_vars_that_need_continuous_buffering_transformed_iv"] = {}
+
 
         #
         #   rename new neuron and synapse
@@ -286,7 +291,24 @@ class SynapsePostNeuronTransformer(Transformer):
 
                         neuron_var_name = self.get_neuron_var_name_from_syn_port_name(port.name, removesuffix(neuron.name, FrontendConfiguration.suffix), removesuffix(synapse.name.split("__with_")[0], FrontendConfiguration.suffix))
                         assert neuron_var_name is not None and len(neuron_var_name) > 0, "Could not find variable corresponding to synaptic input port \"" + port.name + "\" in the postsynaptic neuron"
-                        metadata[new_neuron.name]["state_vars_that_need_continuous_buffering"].append(neuron_var_name)
+
+                        metadata[new_neuron.name]["state_vars_that_need_continuous_buffering_transformed"].append(neuron_var_name)
+
+                        #
+                        #   add the initial value of the variable as defined in the neuron
+                        #
+
+                        if neuron.get_initial_value(neuron_var_name) is None:
+                            if neuron_var_name in [sym.name for sym in neuron.get_inline_expression_symbols()]:
+                                # the postsynaptic variable is actually an inline expression: initial value is 0
+                                metadata[new_neuron.name]["state_vars_that_need_continuous_buffering_transformed_iv"][port.name] = ModelParser.parse_expression("0")
+                            else:
+                                raise Exception("State variable \"" + str(neuron_var_name) + "\" was not found in the neuron model \"" + neuron.name + "\"")
+                        else:
+                            metadata[new_neuron.name]["state_vars_that_need_continuous_buffering_transformed_iv"][port.name] = neuron.get_initial_value(neuron_var_name)
+
+
+
 
             # check that they are not used in the update block
             update_block_var_names = []
@@ -294,6 +316,8 @@ class SynapsePostNeuronTransformer(Transformer):
                 update_block_var_names.extend([var.get_complete_name() for var in ASTUtils.collect_variable_names_in_expression(update_block)])
 
             assert all([var not in update_block_var_names for var in metadata[new_synapse.name]["state_vars_that_need_continuous_buffering"]]), "State variables used as continuous-time buffers in the synapse are not allowed to be referenced in the ``update`` block"
+
+
 
             Logger.log_message(None, -1, "Synaptic state variables connected that will need continuous-time buffering: " + str(metadata[new_synapse.name]["state_vars_that_need_continuous_buffering"]), None, LoggingLevel.INFO)
 

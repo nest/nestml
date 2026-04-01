@@ -1,4 +1,3 @@
-
 {#
 NeuronClass.jinja2
 
@@ -72,22 +71,20 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "{{ neuronName }}.h"
 
 
-{%- if paired_synapses is defined
-     and any(state_vars_that_need_continuous_buffering.values())
-     and continuous_state_buffering_method == "continuous_time_buffer" %}
+{%- if state_vars_that_need_continuous_buffering | length > 0 %}
+{%-     if continuous_state_buffering_method == "continuous_time_buffer" %}
 continuous_variable_histentry_{{ neuronName }}::continuous_variable_histentry_{{ neuronName }}( double t,
-{%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
-{%-             for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | sort %}
+{%-         for state_var in state_vars_that_need_continuous_buffering %}
       double {{ state_var }}{% if not loop.last %}, {% endif %}
-{%-             endfor %} )
+{%-         endfor %} )
 : t_( t )
 , access_counter_ ( 0 )
-{%-             for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | sort %}
+{%-         for state_var in state_vars_that_need_continuous_buffering %}
 , {{ state_var }}( {{ state_var }} )
-{%-             endfor %}
+{%-         endfor %}
 {
 }
-{%-     endfor %}
+{%-     endif %}
 {%- endif %}
 
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
@@ -314,7 +311,7 @@ std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_i
 {%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
 {%-         for var_name in transferred_variables[paired_synapse_original_model.name] %}
 {%-             set var = utils.get_variable_by_name(astnode, var_name) %}
-{%-             set variable_symbol = transferred_variables_syms[paired_synapse_original_model.name][var_name] %}
+{%-             set variable_symbol = transferred_variables_syms[var_name] %}
 {%-             if not var_name == variable_symbol.get_symbol_name() %}
 {{                  raise('Error in resolving variable to symbol') }}
 {%-             endif %}
@@ -426,7 +423,7 @@ void {{ neuronName }}::init_state_internal_()
 {%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
 {%-         for var_name in transferred_variables[paired_synapse_original_model.name] %}
 {%-             set var = utils.get_variable_by_name(astnode, var_name) %}
-{%-             set variable_symbol = transferred_variables_syms[paired_synapse_original_model.name][var_name] %}
+{%-             set variable_symbol = transferred_variables_syms[var_name] %}
 {%-             if not var_name == variable_symbol.get_symbol_name() %}
 {{                  raise('Error in resolving variable to symbol') }}
 {%-             endif %}
@@ -985,22 +982,20 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     B_.logger_.record_data(origin.get_steps() + lag);
 {%- endif %}
 
-{%  if paired_synapses is defined and continuous_state_buffering_method == "continuous_time_buffer" %}
-{%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
-{%-         if state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | length > 0 %}
+{%- if state_vars_that_need_continuous_buffering | length > 0 %}
+{%-     if continuous_state_buffering_method == "continuous_time_buffer" %}
 #ifdef DEBUG
-    std::cout << "[neuron " << this << "] Writing history at time " << nest::Time(nest::Time::step( origin.get_steps() + lag + 1 )).get_ms() << "\n";
+std::cout << "[neuron " << this << "] Writing history at time " << nest::Time(nest::Time::step( origin.get_steps() + lag + 1 )).get_ms() << "\n";
 #endif
-    write_continuous_variable_history_{{ paired_synapse_original_model.name }}( nest::Time(nest::Time::step( origin.get_steps() + lag + 1 )),
-{%-             for state_var_name in state_vars_that_need_continuous_buffering_transformed[paired_synapse_original_model.name] | sort %}
-{%-                 set state_var = utils.get_variable_by_name(astnode, state_var_name) %}
+    write_continuous_variable_history( nest::Time(nest::Time::step( origin.get_steps() + lag + 1 )),
+{%-         for state_var_name in state_vars_that_need_continuous_buffering_transformed %}
+{%-             set state_var = utils.get_variable_by_name(astnode, state_var_name) %}
       {{ printer.print(state_var) }}{% if not loop.last %}, {% endif %}
-{%-             endfor %}
+{%-         endfor %}
     );
-{%-         endif %}
-{%-     endfor %}
+{%-     endif %}
 {%- endif %}
-  }
+}
 
 {%- if use_gap_junctions %}
   // if not called_from_wfr_update perform constant extrapolation and reset last_y_values
@@ -1028,7 +1023,7 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 }
 
 {%- if paired_synapses is defined
-     and any(state_vars_that_need_continuous_buffering.values())
+     and state_vars_that_need_continuous_buffering | length > 0
      and continuous_state_buffering_method == "continuous_time_buffer" %}
 void {{ neuronName }}::get_continuous_variable_history( double t1,
   double t2,
@@ -1065,15 +1060,13 @@ void {{ neuronName }}::get_continuous_variable_history( double t1,
   }
 }
 
-void {{ neuronName }}::write_continuous_variable_history(nest::Time const &t,
-{%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
-{%-         for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | sort %}
+void {{neuronName}}::write_continuous_variable_history(nest::Time const &t,
+{%-         for state_var in state_vars_that_need_continuous_buffering %}
       const double {{ state_var }}{% if not loop.last %}, {% endif %}
-{%-         endfor %}
-{%-     endfor %})
+{%-         endfor %})
 {
 #ifdef DEBUG
-  std::cout << "{{ neuronName }}::write_continuous_variable_history_{{ paired_synapse_original_model.name }}()" << std::endl;
+  std::cout << "{{neuronName}}::write_continuous_variable_history()" << std::endl;
 #endif
   const double t_ms = t.get_ms();
 
@@ -1098,13 +1091,11 @@ void {{ neuronName }}::write_continuous_variable_history(nest::Time const &t,
 #endif
 
   continuous_variable_history_.push_back( continuous_variable_histentry_{{ neuronName }}( t_ms,
-{%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
-{%-         for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | sort %}
+{%-         for state_var in state_vars_that_need_continuous_buffering %}
       {{ state_var }}{% if not loop.last %}, {% endif %}
-{%-         endfor %}
-{%-     endfor %}) );
+{%-         endfor %}) );
 #ifdef DEBUG
-  std::cout << "[neuron " << this << "] \tcontinuous variable history size = " << continuous_variable_history_.size() << std::endl;
+  std::cout << "[neuron " << this << "] \thistory size = " << continuous_variable_history_.size() << std::endl;
 #endif
 }
 {%- endif %}
@@ -1406,12 +1397,13 @@ void
         , get_{{ var }}()
 {%-         endfor %}
 
-{%-         if state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
-{%-             for var_name_post in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | sort %}
-{%-                 set var_name = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name_post) %}
+{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
+{%-     for var_name_post in state_vars_that_need_continuous_buffering | sort %}
+{%-         set var_name = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name_post) %}
         , get_{{ var_name }}()
-{%-             endfor %}
-{%-         endif %}
+{%-     endfor %}
+{%- endif %}
+
 {%-     endfor %}
     ) );
   }

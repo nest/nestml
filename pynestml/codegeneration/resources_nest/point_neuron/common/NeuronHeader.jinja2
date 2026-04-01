@@ -209,13 +209,12 @@ public:
 {%-         for var in analytic_state_variables_moved[paired_synapse_original_model.name]|sort %}
       , double {{ var }} // analyticfor {{ paired_synapse_original_model.name}}
 {%-         endfor %}
-
-{%-         if state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
-{%-             for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | sort %}
-      , double {{ state_var }}
-{%-             endfor %}
-{%-         endif %}
 {%-     endfor %}
+{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
+{%-     for state_var in state_vars_that_need_continuous_buffering | sort %}
+      , double {{ state_var }}
+{%-     endfor %}
+{%- endif %}
   )
   : t_( t )
   , access_counter_( access_counter )
@@ -223,13 +222,12 @@ public:
 {%-         for var in (purely_numeric_state_variables_moved[paired_synapse_original_model.name] + analytic_state_variables_moved[paired_synapse_original_model.name]) | sort %}
   , {{ var }}_( {{ var }} )
 {%-         endfor %}
-
-{%-         if state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
-{%-             for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | sort %}
-  , {{ state_var }}_( {{ state_var }} )
-{%-             endfor %}
-{%-         endif %}
 {%-     endfor %}
+{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
+{%-     for state_var in state_vars_that_need_continuous_buffering | sort %}
+  , {{ state_var }}_( {{ state_var }} )
+{%-     endfor %}
+{%- endif %}
   {
   }
 
@@ -255,17 +253,16 @@ public:
     return {{ var }}_;
   }
 {%-         endfor %}
-
-{%-         if state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
-{%-             for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] %}
-  double {{ state_var }}_;
-{%-             endfor %}
-{%-         endif %}
 {%-     endfor %}
+{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+  double {{ state_var }}_;
+{%-     endfor %}
+{%- endif %}
 };
 
 
-{%-     if any(state_vars_that_need_continuous_buffering.values()) and continuous_state_buffering_method == "continuous_time_buffer" %}
+{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
 
 /**
  * Entry in the spiking history for continuous variable buffering, storing the time at which values were recorded, and the state of the variables needed by the synapse model(s) at that time.
@@ -276,22 +273,18 @@ class continuous_variable_histentry_{{ neuronName }}
 {
 public:
   continuous_variable_histentry_{{ neuronName }}( double t,
-{%-         for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
-{%-             for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] %}
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
       double {{ state_var }}{% if not loop.last %}, {% endif %}
-{%-             endfor %}
-{%-         endfor %} );
+{%-     endfor %} );
 
   double t_;              //!< point in time for history entry
   size_t access_counter_;
 
-{%-         for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
-{%-             for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] %}
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
   double {{ state_var }};
-{%-             endfor %}
-{%-         endfor %}
+{%-     endfor %}
 };
-{%-     endif %}
+{%- endif %}
 {%- endif %}
 
 /* BeginDocumentation
@@ -435,17 +428,15 @@ public:
    */
   void register_stdp_connection( double t_first_read, double delay );
 
-{%-     if any(state_vars_that_need_continuous_buffering.values()) and continuous_state_buffering_method == "continuous_time_buffer" %}
+{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
 
   /**
    * Write continuous variable history
   **/
   void write_continuous_variable_history(nest::Time const &t,
-{%-         for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
-{%-             for state_var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | sort %}
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
       const double {{ state_var }}{% if not loop.last %}, {% endif %}
-{%-             endfor %});
-{%-         endfor %});
+{%-     endfor %});
 
   /**
    * Get continuous variable history in a given interval
@@ -515,13 +506,13 @@ public:
   double get_{{ var }}( double t, const bool before_increment = true );
 {%-         endfor %}
 
-{%-         if state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | length > 0 %}
+{%-         if state_vars_that_need_continuous_buffering | length > 0 %}
 
   // -------------------------------------------------------------------------
   //   Getters/setters for variables that need continuous time buffering
   // -------------------------------------------------------------------------
 
-{%-             for var in state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] | sort %}
+{%-             for var in state_vars_that_need_continuous_buffering | sort %}
   double get_{{ var }}( double t, const bool before_increment = true );
 {%-             endfor %}
 {%-         endif %}
@@ -587,7 +578,7 @@ private:
 
   // cache for initial values
 {%- for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
-{%-     for var in transferred_variables[paired_synapse_original_model.name] + state_vars_that_need_continuous_buffering[paired_synapse_original_model.name] %}
+{%-     for var in transferred_variables[paired_synapse_original_model.name] + state_vars_that_need_continuous_buffering %}
   double {{var}}__iv;
 {%-     endfor %}
 {%- endfor %}
