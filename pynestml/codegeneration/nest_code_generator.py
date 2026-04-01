@@ -754,6 +754,7 @@ class NESTCodeGenerator(CodeGenerator):
 
             if "extra_on_emit_spike_stmts_from_synapse" in metadata[neuron.name].keys():
                 namespace["extra_on_emit_spike_stmts_from_synapse"] = metadata[neuron.name]["extra_on_emit_spike_stmts_from_synapse"]
+                import pdb;pdb.set_trace()
             namespace["paired_synapses"] = metadata[neuron.name]["paired_synapses"]
             if "paired_synapse_original_models" in metadata[neuron.name].keys():
                 namespace["paired_synapse_original_models"] = metadata[neuron.name]["paired_synapse_original_models"]
@@ -786,18 +787,13 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["initial_values"] = {}
         namespace["variable_symbols"] = {}
         namespace["uses_analytic_solver"] = neuron.get_name() in self.analytic_solver.keys() and self.analytic_solver[neuron.get_name()] is not None
-        namespace["analytic_state_variables_moved"] = {}
-        namespace["numeric_state_variables_moved"] = {}
-        namespace["purely_numeric_state_variables_moved"] = {}
-        if "paired_synapses" in metadata[neuron.name].keys():
+        namespace["analytic_state_variables_moved"] = []
+        namespace["numeric_state_variables_moved"] = []
+        namespace["purely_numeric_state_variables_moved"] = []
+        # if "paired_synapses" in metadata[neuron.name].keys():
             # for paired_synapse_original_model in metadata[neuron.name]["paired_synapse_original_models"]:
             #     namespace["numeric_state_variables_moved"][paired_synapse_original_model.name] = []
             #     namespace["purely_numeric_state_variables_moved"][paired_synapse_original_model.name] = []
-
-            for synapse in metadata[neuron.name]["paired_synapses"]:
-                namespace["analytic_state_variables_moved"][removesuffix(synapse.name.split("_with_")[0], "_")] = []
-                namespace["numeric_state_variables_moved"][removesuffix(synapse.name.split("_with_")[0], "_")] = []
-                namespace["purely_numeric_state_variables_moved"][removesuffix(synapse.name.split("_with_")[0], "_")] = []
 
         if namespace["uses_analytic_solver"]:
             if "paired_synapses" in metadata[neuron.name].keys():
@@ -805,13 +801,14 @@ class NESTCodeGenerator(CodeGenerator):
                 for sv in self.analytic_solver[neuron.get_name()]["state_variables"]:
                     moved = False
                     if "recursive_vars_used" in metadata[neuron.name].keys():
-                        for mv in metadata[neuron.name]["recursive_vars_used"]:
-                            name_snip = mv + "__"
-                            if name_snip == sv[:len(name_snip)]:
-                                # this variable was moved from synapse to neuron
-                                if not sv in namespace["analytic_state_variables_moved"]:
-                                    namespace["analytic_state_variables_moved"].append(sv)
-                                    moved = True
+                        for synapse_name in metadata[neuron.name]["recursive_vars_used"].keys():
+                            for mv in metadata[neuron.name]["recursive_vars_used"][synapse_name]:
+                                name_snip = mv + "__"
+                                if name_snip == sv[:len(name_snip)]:
+                                    # this variable was moved from synapse to neuron
+                                    if not sv in namespace["analytic_state_variables_moved"]:
+                                        namespace["analytic_state_variables_moved"].append(sv)
+                                        moved = True
                     if not moved:
                         namespace["analytic_state_variables"].append(sv)
                 namespace["variable_symbols"].update({sym: neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(
@@ -825,7 +822,7 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace["initial_values"][sym] = expr
 
             namespace["update_expressions"] = {}
-            for sym in namespace["analytic_state_variables"] + [var for sublist in namespace["analytic_state_variables_moved"].values() for var in sublist]:
+            for sym in namespace["analytic_state_variables"] + namespace["analytic_state_variables_moved"]:
                 expr_str = self.analytic_solver[neuron.get_name()]["update_expressions"][sym]
                 expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr_str)
                 expr_ast = ModelParser.parse_expression(expr_str)
@@ -894,18 +891,18 @@ class NESTCodeGenerator(CodeGenerator):
             if "paired_synapses" in dir(neuron):
                 if "analytic_state_variables_moved" in namespace.keys():
                     for paired_synapse, paired_synapse_original_model in zip(metadata[neuron.name]["paired_synapses"], metadata[neuron.name]["paired_synapse_original_models"]):
-                        namespace["purely_numeric_state_variables_moved"][paired_synapse_original_model.name] = list(
-                            set(namespace["numeric_state_variables_moved"][paired_synapse_original_model.name]) - set(namespace["analytic_state_variables_moved"][paired_synapse_original_model.name]))
+                        namespace["purely_numeric_state_variables_moved"] = list(
+                            set(namespace["numeric_state_variables_moved"]) - set(namespace["analytic_state_variables_moved"]))
 
                 else:
-                    namespace["purely_numeric_state_variables_moved"][paired_synapse_original_model.name] = namespace["numeric_state_variables_moved"][paired_synapse_original_model.name]
+                    namespace["purely_numeric_state_variables_moved"] = namespace["numeric_state_variables_moved"]
 
             namespace["numeric_update_expressions"] = {}
             sym_list = []
             sym_list.extend(namespace["numeric_state_variables"])
             if "paired_synapses" in dir(neuron):
                 for paired_synapse, paired_synapse_original_model in zip(metadata[neuron.name]["paired_synapses"], metadata[neuron.name]["paired_synapse_original_models"]):
-                    sym_list.extend(namespace["numeric_state_variables_moved"][paired_synapse_original_model.name])
+                    sym_list.extend(namespace["numeric_state_variables_moved"])
 
             for sym in sym_list:
                 expr_str = self.numeric_solver[neuron.get_name()]["update_expressions"][sym]
@@ -925,7 +922,7 @@ class NESTCodeGenerator(CodeGenerator):
             # for each ASTVariable: set its origin (if numeric in ode_state[], otherwise in S_)
             numeric_state_variable_names = namespace["numeric_state_variables"]
             if "paired_synapses" in dir(neuron):
-                numeric_state_variable_names.extend([var for sublist in namespace["purely_numeric_state_variables_moved"].values() for var in sublist])
+                numeric_state_variable_names.extend([var for sublist in namespace["purely_numeric_state_variables_moved"] for var in sublist])
                 if "analytic_state_variables_moved" in namespace.keys():
                     for paired_synapse, paired_synapse_original_model in zip(metadata[neuron.name]["paired_synapses"], metadata[neuron.name]["paired_synapse_original_models"]):
                         numeric_state_variable_names.extend(namespace["analytic_state_variables_moved"][paired_synapse_original_model.name])

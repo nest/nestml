@@ -390,7 +390,7 @@ class SynapsePostNeuronTransformer(Transformer):
                             for stmt in collected_on_post_stmts:
                                 stmts.pop(stmts.index(stmt))
 
-            metadata[new_neuron.name]["extra_on_emit_spike_stmts_from_synapse"] = collected_on_post_stmts
+            metadata[new_neuron.name]["extra_on_emit_spike_stmts_from_synapse"][synapse.name] = collected_on_post_stmts
 
             # XXX: TODO: add parameters used in stmts to parameters to be copied
 
@@ -442,9 +442,10 @@ class SynapsePostNeuronTransformer(Transformer):
             Logger.log_message(
                 None, -1, "Adding suffix to variables in spike updates", None, LoggingLevel.INFO)
 
-            for stmt in metadata[new_neuron.name]["extra_on_emit_spike_stmts_from_synapse"]:
-                ASTUtils.add_suffix_to_variable_names(stmt, var_name_suffix, altscope=synapse.get_scope())
-                ASTUtils.set_new_scope(stmt, new_neuron.get_scope())
+            for synapse_name in metadata[new_neuron.name]["extra_on_emit_spike_stmts_from_synapse"].keys():
+                for stmt in metadata[new_neuron.name]["extra_on_emit_spike_stmts_from_synapse"][synapse_name]:
+                    ASTUtils.add_suffix_to_variable_names(stmt, var_name_suffix, altscope=synapse.get_scope())
+                    ASTUtils.set_new_scope(stmt, new_neuron.get_scope())
 
             #
             #    replace occurrences of the variables in expressions in the original synapse with calls to the corresponding neuron getters

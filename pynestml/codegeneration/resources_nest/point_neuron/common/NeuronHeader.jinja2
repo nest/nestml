@@ -164,9 +164,9 @@ extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% e
 
 {%-     if paired_synapses is defined %}
 {%-         for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
-{%-             if (purely_numeric_state_variables_moved[paired_synapse_original_model.name] + analytic_state_variables_moved[paired_synapse_original_model.name]) | length > 0 %}
+{%-             if (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
 {#  for neuron-synapse co-generation: separate integrator for the emulated/dummy integrate_odes() below in NeuronClass.jinja2 #}
-{%-                 set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved[paired_synapse_original_model.name] + analytic_state_variables_moved[paired_synapse_original_model.name]) %}
+{%-                 set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
 {%-                 set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
 {%-                 set s = utils.integrate_odes_args_str_from_function_call(ast) %}
 extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );
@@ -202,11 +202,11 @@ public:
       , size_t access_counter
 
 {%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
-{%-         for var in purely_numeric_state_variables_moved[paired_synapse_original_model.name]|sort %}
+{%-         for var in purely_numeric_state_variables_moved|sort %}
       , double {{ var }} //numeric for {{ paired_synapse_original_model.name}}
 {%-         endfor %}
 
-{%-         for var in analytic_state_variables_moved[paired_synapse_original_model.name]|sort %}
+{%-         for var in analytic_state_variables_moved|sort %}
       , double {{ var }} // analyticfor {{ paired_synapse_original_model.name}}
 {%-         endfor %}
 {%-     endfor %}
@@ -219,7 +219,7 @@ public:
   : t_( t )
   , access_counter_( access_counter )
 {%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
-{%-         for var in (purely_numeric_state_variables_moved[paired_synapse_original_model.name] + analytic_state_variables_moved[paired_synapse_original_model.name]) | sort %}
+{%-         for var in (purely_numeric_state_variables_moved + analytic_state_variables_moved) | sort %}
   , {{ var }}_( {{ var }} )
 {%-         endfor %}
 {%-     endfor %}
@@ -236,7 +236,7 @@ public:
 
 
 {%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
-{%-         for var in (purely_numeric_state_variables_moved[paired_synapse_original_model.name] + analytic_state_variables_moved[paired_synapse_original_model.name]) | sort %}
+{%-         for var in (purely_numeric_state_variables_moved + analytic_state_variables_moved) | sort %}
   double {{ var }}_;
 
 {%-             set is_inline_getter = false %}
@@ -1009,7 +1009,7 @@ private:
 {%-     if paired_synapses is defined %}
 {%-         for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
 {#  for neuron-synapse co-generation: separate integrator for the emulated/dummy integrate_odes() below in NeuronClass.jinja2 #}
-{%-             set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved[paired_synapse_original_model.name] + analytic_state_variables_moved[paired_synapse_original_model.name]) %}
+{%-             set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
 {%-             set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
 {%-             set s = utils.integrate_odes_args_str_from_function_call(ast) %}
   friend int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );

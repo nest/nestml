@@ -84,8 +84,8 @@ extern "C" inline int {{modelName}}_dynamics{% if ast.get_args() | length > 0 %}
 
 {%-     if paired_synapses is defined %}
 {%-         for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
-{%-             set tmp = numeric_state_variables_to_be_integrated.extend(purely_numeric_state_variables_moved[paired_synapse_original_model.name]) %}
-{%-             set tmp = all_variables.extend(numeric_state_variables_moved[paired_synapse_original_model.name]) %}
+{%-             set tmp = numeric_state_variables_to_be_integrated.extend(purely_numeric_state_variables_moved) %}
+{%-             set tmp = all_variables.extend(numeric_state_variables_moved) %}
 {%-         endfor %}
 {%-     endif %}
 

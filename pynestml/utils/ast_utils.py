@@ -630,6 +630,7 @@ class ASTUtils:
         r"""Add suffix to variable names recursively throughout ``astnode``. Symbols will be resolved in the variable's default scope, unless ``altscope`` is set, in which case it will be used to try to resolve variables (this can be used in case of moved variables for neuron/synapse co-generation)."""
 
         if not isinstance(astnode, ASTNode):
+            import pdb;pdb.set_trace()
             for node in astnode:
                 ASTUtils.add_suffix_to_variable_names(node, suffix, altscope=altscope)
             return
