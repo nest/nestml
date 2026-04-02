@@ -49,7 +49,6 @@ class TestIgnoreAndFire:
 
         codegen_opts = {"neuron_synapse_pairs": [{"neuron": "ignore_and_fire_neuron",
                                                   "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}}],
-                        "delay_variable": {"stdp_synapse": "d"},
                         "weight_variable": {"stdp_synapse": "w"}}
 
         files = [os.path.join("models", "neurons", "ignore_and_fire_neuron.nestml"),

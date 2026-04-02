@@ -58,7 +58,6 @@ class TestSaturatingSTDP:
                                                                      "synapses": {"stdp_saturating_synapse": {"post_ports": ["post_spikes"]}}},
                                                                     {"neuron": "izhikevich_neuron",
                                                                      "synapses": {"stdp_saturating_synapse": {"post_ports": ["post_spikes"]}}}],
-                                           "delay_variable": {"stdp_saturating_synapse": "d"},
                                            "weight_variable": {"stdp_saturating_synapse": "w"}})
 
     @pytest.mark.parametrize("neuron_model_name,synapse_model_name", [("iaf_psc_delta_neuron_nestml__with_stdp_saturating_synapse_nestml", "stdp_saturating_synapse_nestml__with_iaf_psc_delta_neuron_nestml"),

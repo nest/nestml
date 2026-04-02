@@ -44,7 +44,7 @@ class TestWeightVariableSpecified:
                              suffix="_nestml",
                              codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                                      "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}}],
-                                           "delay_variable": {"stdp_synapse": "d"}})
+                                                                     "post_ports": ["post_spikes"]}]})
 
 
 @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
@@ -73,9 +73,6 @@ class TestSynapseWeightGetSet:
                                            "neuron_parent_class_include": "structural_plasticity_node.h",
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                                      "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}}],
-                                           "delay_variable": {"weight_test_plastic_synapse": "d",
-                                                              "weight_test_assigned_synapse": "d",
-                                                              "stdp_synapse": "d"},
                                            "weight_variable": {"weight_test_plastic_synapse": "w",
                                                                "weight_test_assigned_synapse": "w",
                                                                "stdp_synapse": "w"}})
