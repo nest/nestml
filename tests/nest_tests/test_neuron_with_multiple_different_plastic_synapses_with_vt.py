@@ -100,8 +100,6 @@ class TestNeuronWithMultipleDifferentSynapsesVt:
                                                                                                                "vt_ports": ["mod_spikes"]},
                                                                                       "stdp_nn_restr_symm_synapse": {"post_ports": ["post_spikes"],
                                                                                                                      "vt_ports": ["mod_spikes"]}}}],
-                                               "delay_variable": {"stdp_nn_symm_synapse": "d",
-                                                                  "stdp_nn_restr_symm_synapse": "d"},
                                                "weight_variable": {"stdp_nn_symm_synapse": "w",
                                                                    "stdp_nn_restr_symm_synapse": "w"}})
         finally:

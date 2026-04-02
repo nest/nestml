@@ -65,8 +65,6 @@ class TestNeuronWithMultipleDifferentSynapses:
                              codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                                      "synapses": {"stdp_nn_symm_synapse": {"post_ports": ["post_spikes"]},
                                                                                   "stdp_nn_restr_symm_synapse": {"post_ports": ["post_spikes"]}}}],
-                                           "delay_variable": {"stdp_nn_symm_synapse": "d",
-                                                              "stdp_nn_restr_symm_synapse": "d"},
                                            "weight_variable": {"stdp_nn_symm_synapse": "w",
                                                                "stdp_nn_restr_symm_synapse": "w"}})
 
