@@ -67,7 +67,6 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
         "solver": "analytic",
         "numeric_solver": "rk45",
         "neuron_synapse_pairs": [],
-        "delay_variable": {},
         "weight_variable": {}
     }
 
