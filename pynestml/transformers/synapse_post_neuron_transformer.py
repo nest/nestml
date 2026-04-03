@@ -191,7 +191,7 @@ class SynapsePostNeuronTransformer(Transformer):
         # exclude variables that are written to inside compound blocks
         for input_block in new_synapse.get_input_blocks():
             for port in input_block.get_input_ports():
-                if self.is_post_port(port.name, new_neuron.name, new_synapse.name):
+                if CodeGeneratorUtils.is_post_port(port.name, new_neuron.name, new_synapse.name, neuron_synapse_pairs=self._options["neuron_synapse_pairs"]):
                     post_receive_blocks = ASTUtils.get_on_receive_blocks_by_input_port_name(new_synapse, port.name)
                     for post_receive_block in post_receive_blocks:
 
