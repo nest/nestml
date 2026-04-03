@@ -24,7 +24,6 @@ import os
 import pytest
 
 import nest
-from nest.lib.hl_api_exceptions import NESTErrors
 
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 from pynestml.codegeneration.nest_tools import NESTTools
@@ -45,8 +44,7 @@ class TestWeightVariableSpecified:
                              suffix="_nestml",
                              codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                                      "synapse": "stdp_synapse",
-                                                                     "post_ports": ["post_spikes"]}],
-                                           "delay_variable": {"stdp_synapse": "d"}})
+                                                                     "post_ports": ["post_spikes"]}]})
 
 
 @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
@@ -63,7 +61,10 @@ class TestSynapseWeightGetSet:
         logging_level = "DEBUG"
         suffix = "_nestml"
 
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
 
         generate_nest_target(input_path,
                              logging_level=logging_level,
@@ -73,14 +74,11 @@ class TestSynapseWeightGetSet:
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                                      "synapse": "stdp_synapse",
                                                                      "post_ports": ["post_spikes"]}],
-                                           "delay_variable": {"weight_test_plastic_synapse": "d",
-                                                              "weight_test_assigned_synapse": "d",
-                                                              "stdp_synapse": "d"},
                                            "weight_variable": {"weight_test_plastic_synapse": "w",
                                                                "weight_test_assigned_synapse": "w",
                                                                "stdp_synapse": "w"}})
 
-    @pytest.mark.xfail(strict=True, raises=NESTErrors.BadProperty)
+    @pytest.mark.xfail(strict=True, raises=nest.NESTErrors.BadProperty)
     def test_synapse_weight_set_status1(self):
         nest.ResetKernel()
         nest.Install("nestmlmodule")

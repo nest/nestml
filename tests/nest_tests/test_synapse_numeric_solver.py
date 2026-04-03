@@ -70,7 +70,10 @@ class TestSynapseNumericSolver:
 
     def test_non_linear_synapse(self):
         nest.ResetKernel()
-        nest.set_verbosity("M_WARNING")
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_WARNING")
+        else:
+            nest.verbosity = nest.VerbosityLevel.WARNING
         dt = 0.1
         nest.resolution = dt
         sim_time = 30.
@@ -89,7 +92,6 @@ class TestSynapseNumericSolver:
                              module_name=modulename,
                              codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                                      "synapse": "non_linear_synapse"}],
-                                           "delay_variable": {"non_linear_synapse": "d"},
                                            "weight_variable": {"non_linear_synapse": "w"},
                                            "strictly_synaptic_vars": {"non_linear_synapse": ["x", "y"]}})
         nest.Install(modulename)

@@ -50,7 +50,6 @@ class TestIgnoreAndFire:
         codegen_opts = {"neuron_synapse_pairs": [{"neuron": "ignore_and_fire_neuron",
                                                   "synapse": "stdp_synapse",
                                                   "post_ports": ["post_spikes"]}],
-                        "delay_variable": {"stdp_synapse": "d"},
                         "weight_variable": {"stdp_synapse": "w"}}
 
         files = [os.path.join("models", "neurons", "ignore_and_fire_neuron.nestml"),
@@ -68,7 +67,10 @@ class TestIgnoreAndFire:
     def test_ignore_and_fire_with_stdp(self, resolution: float):
         sim_time = 1001.   # [ms]
 
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
         nest.ResetKernel()
         try:
             nest.Install("nestmlmodule")

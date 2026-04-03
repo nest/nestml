@@ -95,7 +95,6 @@ class TestNestSTDPSynapse:
         jit_codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                       "synapse": "stdp_synapse",
                                                       "post_ports": ["post_spikes"]}],
-                            "delay_variable": {"stdp_synapse": "d"},
                             "weight_variable": {"stdp_synapse": "w"}}
         if not NESTTools.detect_nest_version().startswith("v2"):
             jit_codegen_opts["neuron_parent_class"] = "StructuralPlasticityNode"
@@ -107,7 +106,7 @@ class TestNestSTDPSynapse:
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,
-                             target_path="/tmp/nestml-jit",
+                             target_path="nestml-stdp-synapse-test-jit",
                              logging_level="INFO",
                              module_name="nestml_jit_module",
                              suffix="_nestml",
@@ -123,7 +122,7 @@ class TestNestSTDPSynapse:
         # generate the "non-jit" model, that relies on ArchivingNode
         generate_nest_target(input_path=os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                       os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))),
-                             target_path="/tmp/nestml-non-jit",
+                             target_path="nestml-stdp-synapse-test-non-jit",
                              logging_level="INFO",
                              module_name="nestml_non_jit_module",
                              suffix="_nestml_non_jit",
@@ -185,7 +184,10 @@ class TestNestSTDPSynapse:
         if sim_time is None:
             sim_time = max(np.amax(pre_spike_times), np.amax(post_spike_times)) + 5 * delay
 
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
         nest.ResetKernel()
 
         # load the generated modules into NEST
@@ -204,15 +206,17 @@ class TestNestSTDPSynapse:
         print("Pre spike times: " + str(pre_spike_times))
         print("Post spike times: " + str(post_spike_times))
 
-        # nest.set_verbosity("M_WARNING")
-        nest.set_verbosity("M_ERROR")
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ERROR")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ERROR
 
         nest.SetKernelStatus({"resolution": resolution})
 
         wr = nest.Create("weight_recorder")
         wr_ref = nest.Create("weight_recorder")
         nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
-                       {"weight_recorder": wr[0], "w": 1., "d": 1., "receptor_type": 0})
+                       {"weight_recorder": wr[0], "w": 1., "delay": 1., "receptor_type": 0})
         nest.CopyModel(ref_synapse_model_name, "stdp_ref_rec",
                        {"weight_recorder": wr_ref[0], "weight": 1., "delay": 1., "receptor_type": 0})
 

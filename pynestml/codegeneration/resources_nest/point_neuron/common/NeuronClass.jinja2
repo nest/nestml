@@ -60,12 +60,14 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "nest_impl.h"
 #include "universal_data_logger_impl.h"
 
+{%- if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
 // Includes from sli:
 #include "dict.h"
 #include "dictutils.h"
 #include "doubledatum.h"
 #include "integerdatum.h"
 #include "lockptrdatum.h"
+{%- endif %}
 
 #include "{{ neuronName }}.h"
 
@@ -307,13 +309,13 @@ std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_i
   last_spike_ = __n.last_spike_;
 
   // cache initial values
-{%- for var_name in transferred_variables %}
+{%- for var_name in syn_to_neuron_state_vars %}
 {%-     set var = utils.get_variable_by_name(astnode, var_name) %}
-{%-     set variable_symbol = transferred_variables_syms[var_name] %}
+{%-     set variable_symbol = syn_to_neuron_state_vars_syms[var_name] %}
 {%-     if not var_name == variable_symbol.get_symbol_name() %}
-{{ raise('Error in resolving variable to symbol') }}
+{{          raise('Error in resolving variable to symbol') }}
 {%-     endif %}
-  {{var_name}}__iv = {{printer.print(var)}};
+  {{ var_name }}__iv = {{ printer.print(var) }};
 {%- endfor %}
 {%- endif %}
 }
@@ -361,7 +363,11 @@ void {{ neuronName }}::init_state_(const Node& proto)
 {%- if not nest_version.startswith("v2") %}
 void {{ neuronName }}::calibrate_time( const nest::TimeConverter& tc )
 {
+{%- if (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
+  LOG( nest::VerbosityLevel::WARNING,
+{%- else %}
   LOG( nest::M_WARNING,
+{%- endif %}
     "{{ neuronName }}",
     "Simulation resolution has changed. Internal state and parameters of the model have been reset!" );
 
@@ -413,9 +419,9 @@ void {{ neuronName }}::init_state_internal_()
   last_spike_ = -1.;
 
   // cache initial values
-{%- for var_name in transferred_variables %}
+{%- for var_name in syn_to_neuron_state_vars %}
 {%-     set var = utils.get_variable_by_name(astnode, var_name) %}
-{%-     set variable_symbol = transferred_variables_syms[var_name] %}
+{%-     set variable_symbol = syn_to_neuron_state_vars_syms[var_name] %}
 {%-     if not var_name == variable_symbol.get_symbol_name() %}
 {{ raise('Error in resolving variable to symbol') }}
 {%-     endif %}
@@ -1391,8 +1397,8 @@ void
 	generate getter functions for the transferred variables
 #}
 
-{%- for var in transferred_variables %}
-{%-     with variable_symbol = transferred_variables_syms[var] %}
+{%- for var in syn_to_neuron_state_vars %}
+{%- with variable_symbol = syn_to_neuron_state_vars_syms[var] %}
 
 {%-         if not variable_symbol %}
 {%-             set variable_symbol = astnode.get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE) %}

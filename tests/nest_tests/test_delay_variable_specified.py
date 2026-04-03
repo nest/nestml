@@ -24,29 +24,9 @@ import os
 import pytest
 
 import nest
-from nest.lib.hl_api_exceptions import NESTErrors
 
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 from pynestml.codegeneration.nest_tools import NESTTools
-
-
-class TestDelayVariableSpecified:
-    r"""Test that forgetting to specify the ``delay_variable`` when using a synapse results in failure to generate code."""
-
-    @pytest.mark.xfail(strict=True)
-    def test_delay_variable_not_specified_results_in_failure(self):
-        r"""Generate the model code"""
-
-        files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
-                 os.path.join("models", "synapses", "stdp_synapse.nestml")]
-        input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, os.pardir, s))) for s in files]
-        generate_nest_target(input_path=input_path,
-                             logging_level="DEBUG",
-                             suffix="_nestml",
-                             codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                                     "synapse": "stdp_synapse",
-                                                                     "post_ports": ["post_spikes"]}],
-                                           "weight_variable": {"stdp_synapse": "w"}})
 
 
 @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
@@ -57,7 +37,7 @@ class TestSynapseDelayGetSet:
     @pytest.fixture(scope="module", autouse=True)
     def setUp(self):
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))),
-                      os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, os.pardir, "models", "synapses", "stdp_synapse.nestml"))),
+                      os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, os.pardir, "tests", "nest_tests", "resources", "stdp_synapse_with_delay_parameter.nestml"))),
                       os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "delay_test_synapse.nestml"))),
                       os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "delay_test_assigned_synapse.nestml"))),
                       os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "delay_test_assigned_delay2_synapse.nestml"))),
@@ -65,7 +45,10 @@ class TestSynapseDelayGetSet:
         logging_level = "DEBUG"
         suffix = "_nestml"
 
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
 
         generate_nest_target(input_path,
                              logging_level=logging_level,
@@ -88,7 +71,7 @@ class TestSynapseDelayGetSet:
                                                                "delay_test_assigned_synapse": "w",
                                                                "stdp_synapse": "w"}})
 
-    @pytest.mark.xfail(strict=True, raises=NESTErrors.BadProperty)
+    @pytest.mark.xfail(strict=True, raises=nest.NESTErrors.BadProperty)
     def test_synapse_delay_set_status1(self):
         nest.ResetKernel()
         nest.Install("nestmlmodule")

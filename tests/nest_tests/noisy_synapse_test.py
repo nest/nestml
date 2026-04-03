@@ -53,8 +53,7 @@ class NoisySynapseTest(unittest.TestCase):
                              logging_level="INFO",
                              module_name="nestml_noisy_synapse_module",
                              suffix="_nestml",
-                             codegen_opts={"delay_variable": {"noisy_synapse": "d"},
-                                           "weight_variable": {"noisy_synapse": "w"}})
+                             codegen_opts={"weight_variable": {"noisy_synapse": "w"}})
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
@@ -85,13 +84,19 @@ class NoisySynapseTest(unittest.TestCase):
         if sim_time is None:
             sim_time = np.amax(pre_spike_times) + 5 * delay
 
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
         nest.ResetKernel()
         nest.Install("nestml_noisy_synapse_module")
 
         print("Pre spike times: " + str(pre_spike_times))
 
-        nest.set_verbosity("M_WARNING")
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_WARNING")
+        else:
+            nest.verbosity = nest.VerbosityLevel.WARNING
 
         post_weights = {"parrot": []}
 
@@ -99,7 +104,7 @@ class NoisySynapseTest(unittest.TestCase):
 
         wr = nest.Create("weight_recorder")
         nest.CopyModel(synapse_model_name, "noisy_synapse_nestml_rec",
-                       {"weight_recorder": wr[0], "w": 1., "d": 1., "receptor_type": 0})
+                       {"weight_recorder": wr[0], "w": 1., "delay": 1., "receptor_type": 0})
 
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",

@@ -71,7 +71,6 @@ class NestSTDPNeuromodTest(unittest.TestCase):
                                                                      "synapse": "neuromodulated_stdp_synapse",
                                                                      "post_ports": ["post_spikes"],
                                                                      "vt_ports": ["mod_spikes"]}],
-                                           "delay_variable": {"neuromodulated_stdp_synapse": "d"},
                                            "weight_variable": {"neuromodulated_stdp_synapse": "w"}})
 
         generate_nest_target(input_path=os.path.realpath(os.path.join(os.path.dirname(__file__),
@@ -132,7 +131,10 @@ class NestSTDPNeuromodTest(unittest.TestCase):
 
         nest.ResetKernel()
         # nest.set_verbosity("M_ALL")
-        nest.set_verbosity("M_ERROR")
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ERROR")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ERROR
         nest.SetKernelStatus({"resolution": resolution})
         nest.Install("nestml_jit_module")
         nest.Install("nestml_non_jit_module")
@@ -163,7 +165,7 @@ class NestSTDPNeuromodTest(unittest.TestCase):
         wr = nest.Create("weight_recorder")
         wr_ref = nest.Create("weight_recorder")
         nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
-                       {"weight_recorder": wr[0], "w": 1., "d": delay, "receptor_type": 0,
+                       {"weight_recorder": wr[0], "w": 1., "delay": delay, "receptor_type": 0,
                         "volume_transmitter": vt})
         nest.CopyModel(ref_synapse_model_name, "stdp_ref_rec",
                        {"weight_recorder": wr_ref[0], "weight": 1., "delay": delay, "receptor_type": 0,

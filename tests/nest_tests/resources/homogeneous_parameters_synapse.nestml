@@ -29,7 +29,6 @@ model static_synapse:
 
     parameters:
         w real = 900    @homogeneous
-        d ms = .9 ms    @heterogeneous
         a real = pi     @homogeneous
         b real = 100.   @heterogeneous
 
@@ -37,7 +36,7 @@ model static_synapse:
         pre_spikes <- spike
 
     output:
-        spike(weight real, delay ms)
+        spike
 
     onReceive(pre_spikes):
-        emit_spike(3.18E-3 * a * b * w, d)
+        emit_spike(3.18E-3 * a * b * w)

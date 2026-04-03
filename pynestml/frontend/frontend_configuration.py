@@ -73,11 +73,11 @@ class FrontendConfiguration:
     install_path = None
     target_path = None
     target_platform = ""
-    module_name = None
+    module_name = "nestmlmodule"
     store_log = False
     suffix = ""
     is_dev = False
-    codegen_opts = {}  # type: Mapping[str, Any]
+    codegen_opts: Mapping[str, Any] = {}
     codegen_opts_fn = ""
 
     @classmethod
@@ -180,7 +180,7 @@ appropriate numeric solver otherwise.
         return cls.install_path
 
     @classmethod
-    def get_module_name(cls):
+    def get_module_name(cls) -> str:
         """
         Returns the name of the module.
         :return: the name of the module.
@@ -227,7 +227,7 @@ appropriate numeric solver otherwise.
                 raise Exception("Errors occurred while processing code generator options file")
 
     @classmethod
-    def handle_module_name(cls, module_name):
+    def handle_module_name(cls, module_name: Optional[str]):
         """parse or compose the module name"""
         if module_name is not None:
             if not module_name.endswith("module"):

@@ -48,9 +48,7 @@ class TestStaticSynapse:
                              logging_level="DEBUG",
                              module_name="nestmlmodule",
                              suffix="_nestml",
-                             codegen_opts={"delay_variable": {"static_synapse": "d",
-                                                              "noisy_synapse": "d"},
-                                           "weight_variable": {"static_synapse": "w",
+                             codegen_opts={"weight_variable": {"static_synapse": "w",
                                                                "noisy_synapse": "w"}})
 
     @pytest.mark.parametrize("synapse_model_name", ["static_synapse_nestml", "noisy_synapse_nestml"])
@@ -60,7 +58,10 @@ class TestStaticSynapse:
         neuron_model_name = "iaf_psc_exp_neuron_nestml"
 
         nest.ResetKernel()
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
         nest.SetKernelStatus({"resolution": .1})
         try:
             nest.Install("nestmlmodule")

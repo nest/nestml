@@ -25,6 +25,7 @@ import pytest
 
 import nest
 
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 # try to import matplotlib; set the result in the flag TEST_PLOTS
@@ -67,7 +68,6 @@ class TestNESTContinuousBenchmarking:
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                                      "synapse": "stdp_nn_symm_synapse",
                                                                      "post_ports": ["post_spikes"]}],
-                                           "delay_variable": {"stdp_nn_symm_synapse": "d"},
                                            "weight_variable": {"stdp_nn_symm_synapse": "w"}})
 
         # generate the "non-jit" model, that relies on ArchivingNode
@@ -140,7 +140,10 @@ class TestNESTContinuousBenchmarking:
             sim_time = max(np.amax(pre_spike_times), np.amax(post_spike_times)) + 5 * delay
 
         nest.ResetKernel()
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
         nest.SetKernelStatus({"resolution": resolution})
 
         if sim_mdl:
@@ -164,7 +167,7 @@ class TestNESTContinuousBenchmarking:
         wr_ref = nest.Create("weight_recorder")
         if sim_mdl:
             nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
-                           {"weight_recorder": wr[0], "w": 1., "d": 1., "receptor_type": 0})
+                           {"weight_recorder": wr[0], "w": 1., "delay": 1., "receptor_type": 0})
         if sim_ref:
             nest.CopyModel(ref_synapse_model_name, "stdp_ref_rec",
                            {"weight_recorder": wr_ref[0], "weight": 1., "delay": 1., "receptor_type": 0})

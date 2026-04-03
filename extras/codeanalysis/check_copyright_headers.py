@@ -31,7 +31,7 @@ in the source code against the corresponding templates defined in
 
 This script was based on/adapted from:
 
-https://github.com/nest/nest-simulator/blob/master/extras/check_copyright_headers.py
+https://github.com/nest/nest-simulator/blob/main/extras/check_copyright_headers.py
 """
 
 import os

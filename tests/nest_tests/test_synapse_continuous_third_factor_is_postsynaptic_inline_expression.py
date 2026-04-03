@@ -69,7 +69,6 @@ class TestSynapseContinuousThirdFactorIsPostsynapticInlineExpression:
                     "synapse": self.synapse_model_name,
                     "post_ports": ["post_spikes", ("I_AMPA", "I_AMPA")],
                 }],
-                "delay_variable": {self.synapse_model_name: "d"},
                 "weight_variable": {self.synapse_model_name: "w"},
                 "continuous_state_buffering_method": "post_spike_based"
             }
@@ -83,7 +82,10 @@ class TestSynapseContinuousThirdFactorIsPostsynapticInlineExpression:
 
         nest.ResetKernel()
         nest.resolution = 1.
-        nest.set_verbosity("M_ERROR")
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ERROR")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ERROR
 
         nest.Install("nestmlmodule")
 
