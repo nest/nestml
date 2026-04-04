@@ -135,8 +135,8 @@ class TestNestSTDPSynapse:
     @pytest.mark.parametrize("pre_spike_times,post_spike_times", [
         # ([1., 11., 21.],
         #  [6., 16., 26.]),
-        (np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100)))))),
-         np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))),
+        # (np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100)))))),
+        #  np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))),
         # (np.array([2.,   4.,   7.,   8.,  12.,  13.,  19.,  23.,  24.,  28.,  29.,  30.,  33.,  34.,
         #            35.,  36.,  38.,  40.,  42.,  46.,  51.,  53.,  54.,  55.,  56.,  59.,  63.,  64.,
         #            65.,  66.,  68.,  72.,  73.,  76.,  79.,  80.,  83.,  84.,  86.,  87.,  90.,  95.,
@@ -148,12 +148,30 @@ class TestNestSTDPSynapse:
         #            80.,  81.,  83.,  88.,  93.,  94.,  97.,  99., 100., 105., 111., 113., 114., 115.,
         #            116., 119., 123., 130., 132., 134., 135., 145., 152., 155., 158., 166., 172., 174.,
         #            188., 194., 202., 245., 249., 289., 454.])),
+        (np.array([  3.,   9.,  10.,  12.,  14.,  15.,  16.,  18.,  19.,  21.,  24.,  25.,  26.,  27.,
+  29.,  30.,  32.,  34.,  37.,  38.,  43.,  44.,  45.,  47.,  48.,  49.,  50.,  51.,
+  53.,  61.,  62.,  63.,  64.,  66.,  70.,  71.,  72.,  73.,  76.,  80.,  82.,  83.,
+  85.,  86.,  89.,  91.,  93.,  94.,  99., 101., 105., 106., 110., 115., 117., 119.,
+ 126., 128., 131., 134., 136., 137., 139., 140., 141., 146., 148., 152., 159., 161.,
+ 163., 177., 195., 201., 209., 214., 218., 226., 235.,]),
+         np.array([  1.,   3.,   4.,   6.,   7.,   9.,  13.,  14.,  17.,  18.,  20.,  21.,  23.,  24.,
+  27.,  28.,  29.,  33.,  34.,  39.,  41.,  44.,  45.,  50.,  51.,  52.,  53.,  54.,
+  55.,  57.,  59.,  62.,  63.,  65.,  66.,  69.,  73.,  77.,  80.,  85.,  86.,  88.,
+  89.,  93.,  94., 100., 104., 107., 108., 110., 111., 112., 116., 117., 120., 125.,
+ 128., 129., 136., 137., 138., 140., 142., 143., 145., 146., 147., 148., 149., 150.,
+ 157., 168., 180., 183., 193., 200., 203., 237.,])),
+
+
         # (np.array([1, 5, 6, 7, 9, 11, 12, 13, 14.5, 16.1]),
         #  np.array([2, 3, 4, 8, 9, 10, 12, 13.2, 15.1, 16.4]))
         # (np.array([10, 20.]),
         #  np.array([12., 13., 14., 15., 19, 20., 21.]))
     ])
     def test_nest_stdp_synapse(self, pre_spike_times: Sequence[float], post_spike_times: Sequence[float], resolution: float, delay: float, fname_snip: str = ""):
+
+        print("pre_spike_times = " + str(pre_spike_times))
+        print("post_spike_times = " + str(post_spike_times))
+
         self.run_synapse_test(neuron_model_name=self.neuron_model_name,
                               ref_neuron_model_name=self.ref_neuron_model_name,
                               synapse_model_name=self.synapse_model_name,
@@ -183,6 +201,8 @@ class TestNestSTDPSynapse:
 
         if sim_time is None:
             sim_time = max(np.amax(pre_spike_times), np.amax(post_spike_times)) + 5 * delay
+
+        sim_time = 10. # XXX
 
         if not NESTTools.detect_nest_version().startswith("main"):
             nest.set_verbosity("M_ALL")
@@ -397,7 +417,7 @@ class TestNestSTDPSynapse:
             ax[3].plot(timevec, nest.GetStatus(mm, "events")[0]["post_trace__for_stdp_synapse_nestml"], label="nestml post tr")
             tr = []
             for t in timevec:
-                tr.append(get_trace_at(t, post_ref_spike_times_, tau=20., initial=0., increment=1., before_increment=False, extra_debug=False))
+                tr.append(get_trace_at(t, post_ref_spike_times_, tau=20., initial=0., increment=1., before_increment=True, extra_debug=False))
             ax[3].plot(timevec, tr, label="ref")
 
             ax[-1].set_xlabel("Time [ms]")

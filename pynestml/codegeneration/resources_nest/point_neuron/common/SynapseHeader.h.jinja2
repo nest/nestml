@@ -860,8 +860,9 @@ void get_entry_from_continuous_variable_history(double t,
       while ( start != finish )
       {
 #ifdef DEBUG
-        std::cout << "\tprocessing post spike at t = " << start->t_ + __dendritic_delay << std::endl;
+        std::cout << "[synapse " << this << "] \tprocessing post spike at t = " << start->t_ + __dendritic_delay << std::endl;
 #endif
+        std::cout << "[synapse " << this << "] \tbefore update: S_.w = " << S_.w << "\n";
 
         const double minus_dt = t_lastspike_ - ( start->t_ + __dendritic_delay );
         // get_history() should make sure that ``start->t_ > t_lastspike_ - dendritic_delay``, i.e. minus_dt < 0
@@ -947,9 +948,12 @@ void get_entry_from_continuous_variable_history(double t,
 
         t_lastspike_ = start->t_ + __dendritic_delay;
         ++start;
+
+        std::cout << "[synapse " << this << "] \tafter update: S_.w = " << S_.w << "\n";
       }
     }
 {%- endif %}
+    std::cout << "[synapse " << this << "] {{ synapseName }}::send(): handling pre spike at t = " << __t_spike << std::endl;
 
     /**
      * update synapse internal state from `t_lastspike_` to `__t_spike`
@@ -977,6 +981,9 @@ void get_entry_from_continuous_variable_history(double t,
 {%-     endfor %}
 {%- endif %}
 
+        std::cout << "[synapse " << this << "] \t   before update: S_.w = " << S_.w << "\n";
+        std::cout << "[synapse " << this << "] \t   tr(t = " << _tr_t << ") = " << ((post_neuron_t*)(__target))->get_post_trace__for_stdp_synapse_nestml(_tr_t) << "\n";
+
 {{ printer._expression_printer._simple_expression_printer._variable_printer.set_getter_string("((post_neuron_t*)(__target))->get_%s(_tr_t)") }} {# XXX: TODO: see https://github.com/nest/nestml/issues/1163 #}
 {%- for pre_port in pre_ports %}
 
@@ -993,6 +1000,10 @@ void get_entry_from_continuous_variable_history(double t,
 {%-     endif %}
 {%- endfor %}
 {{ printer._expression_printer._simple_expression_printer._variable_printer.set_getter_string("((post_neuron_t*)(__target))->get_%s(get_t())") }} {# XXX: TODO: see https://github.com/nest/nestml/issues/1163 #}
+
+        std::cout << "[synapse " << this << "] \t   after update: S_.w = " << S_.w << "\n";
+
+
     }
 
     /**
