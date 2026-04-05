@@ -475,7 +475,7 @@ public:
   // -------------------------------------------------------------------------
 
 {%-     for var in syn_to_neuron_state_vars %}
-  double get_{{ var }}( double t );
+  double get_{{ var }}( double t, const bool before_increment = true );
 {%-     endfor %}
 
 {%-     if state_vars_that_need_continuous_buffering | length > 0 %}

@@ -43,10 +43,10 @@ model postsyn_trace_synapse:
         post_spikes <- spike
 
     output:
-        spike(weight real, delay ms)
+        spike
 
     onReceive(post_spikes, priority=1):
-        zp_trace += 1    # Zp * (1 - zp_trace)
+        zp_trace += Zp * (1 - zp_trace)
 
         w += learning_rate * zp_trace
 

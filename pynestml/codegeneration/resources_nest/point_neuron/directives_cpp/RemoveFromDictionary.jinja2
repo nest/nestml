@@ -10,9 +10,9 @@ Removes an entry from the dictionary.
 {%-     endif -%}
 {%-   else %}
 {%-     if key_as_str -%}
-{{ dict_name }}->erase("{{ key }}");
+{{ dict_name }}.erase("{{ key }}");
 {%-     else  -%}
-{{ dict_name }}->erase({{ key }});
+{{ dict_name }}.erase({{ key }});
 {%-     endif -%}
 {%-   endif %}
 {%- endmacro -%}

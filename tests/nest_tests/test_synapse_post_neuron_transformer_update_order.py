@@ -84,10 +84,10 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
 
         files = [os.path.join("models", "neurons", "iaf_psc_delta_neuron.nestml")]
 
-        if update_order_w_before_traces:
-            files.append(os.path.join("tests", "resources", "postsyn_trace_update_w_before_traces_synapse.nestml"))
-        else:
-            files.append(os.path.join("tests", "resources", "postsyn_trace_update_traces_before_w_synapse.nestml"))
+        # if update_order_w_before_traces:
+        files.append(os.path.join("tests", "resources", "postsyn_trace_update_w_before_traces_synapse.nestml"))
+        # else:
+            # files.append(os.path.join("tests", "resources", "postsyn_trace_update_traces_before_w_synapse.nestml"))
 
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, os.pardir, s))) for s in files]
 
@@ -95,12 +95,13 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
                                                   "synapse": "postsyn_trace_synapse",
                                                   "post_ports": ["post_spikes"]}],
                         "delay_variable": {"postsyn_trace_synapse": "d"},
-                        "weight_variable": {"postsyn_trace_synapse": "w"}}
+                        "weight_variable": {"postsyn_trace_synapse": "w"},
+                        "strictly_synaptic_vars": {"postsyn_trace_synapse": ["zp_trace"]}}
 
-        # generate_nest_target(input_path=input_path,
-        #                      logging_level="DEBUG",
-        #                      suffix="_nestml",
-        #                      codegen_opts=codegen_opts)
+        generate_nest_target(input_path=input_path,
+                             logging_level="DEBUG",
+                             suffix="_nestml",
+                             codegen_opts=codegen_opts)
 
     # @pytest.mark.xfail(strict=True)
     # def test_postsyn_trace_synapse(self):
@@ -220,11 +221,15 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
             #     print("[REF] t = " + str(spk_time) + ": facilitating from " + str(old_weight) + " to " + str(weight) + " with pre tr = " + str(r1) + ", post tr = " + str(o2))
 
             #if t in spike_train_post:
-            tr = get_trace_at(t, spike_train_post + .1, p["tau_post2"], before_increment=before_increment, extra_debug=True)
+            # tr = get_trace_at(t, spike_train_post, p["tau_post2"], before_increment=True, extra_debug=False) # XXX before_increment=True to match NEST
+
+            tr *= np.exp(-dt / p["tau_post2"])
 
             if np.any([np.isclose(t, t_sp) for t_sp in spike_train_post]):
                 old_weight = w
                 w += p["learning_rate"] * tr
+                # tr += 1.
+                tr += .2 * (1 - tr)
                 print("[REF] t = " + str(t) + ": depressing from " + str(old_weight) + " to " + str(w) + " with tr = " + str(tr))
 
             w_history.append(w)
@@ -265,7 +270,6 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
 
         return timevec, z2_history, w_history
 
-
     def test_postsyn_trace_synapse_alternate_order(self):
         self.run_test_postsyn_trace_synapse(update_order_w_before_traces=False)
 
@@ -276,9 +280,9 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
         synapse_model_name = "postsyn_trace_synapse_nestml__with_iaf_psc_delta_neuron_nestml"
 
         nest.ResetKernel()
+        nest.verbosity=nest.VerbosityLevel.ERROR
         nest.Install("nestmlmodule")
         nest.print_time = False
-        nest.set_verbosity("M_ERROR")
 
         initial_w = 1.0
         T = 150.
@@ -286,8 +290,9 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
         syn_delay = dt
         nest.resolution = dt
 
-        spike_train_pre = np.array([ 65., 115.])
-        spike_train_post = np.array([  7.2,  12.2,  17.2,  22.2,  27.2,  32.2,  37.2,  42.2,  47.2, 52.2,  57.2,  62.2,  67.2,  72.2,  77.2,  82.2,  87.2,  92.2, 97.2, 102.2, 107.2, 112.2, 117.2, 122.2, 127.2, 132.2, 137.2, 142.2, 147.2])
+        spike_train_pre = np.array([ 50., 80., 100.])
+        spike_train_post = np.array([  10., 20., 30., 40., 80. - dt])
+        # spike_train_post = np.array([  7.2,  12.2,  17.2,  22.2,  27.2,  32.2,  37.2,  42.2,  47.2, 52.2,  57.2,  62.2,  67.2,  72.2,  77.2,  82.2,  87.2,  92.2, 97.2, 102.2, 107.2, 112.2, 117.2, 122.2, 127.2, 132.2, 137.2, 142.2, 147.2])
 
         p = {"Z2": 0.2,
              "tau_post2": 50.,
@@ -296,8 +301,7 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
         timevec_nest, trace_nest, w_nest, spike_train_pre_nest, spike_train_post_nest = self._run_nest_simulation(initial_w, neuron_model_name, synapse_model_name, T, dt, spike_train_pre, spike_train_post, syn_delay, p)
         np.testing.assert_allclose(spike_train_pre, spike_train_pre_nest)
 
-        timevec_ref, trace_ref, w_ref = self._run_ref_simulation(initial_w, T, dt, spike_train_post_nest, spike_train_post, p, before_increment=update_order_w_before_traces)
-
+        timevec_ref, trace_ref, w_ref = self._run_ref_simulation(initial_w, T, dt, spike_train_post_nest + .1, spike_train_post, p, before_increment=True)
 
         if TEST_PLOTS:
             fig, axs = plt.subplots(3, 1)
