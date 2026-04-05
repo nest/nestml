@@ -104,7 +104,7 @@ typedef Dictionary DictionaryDatum;
 **/
 
 // uncomment the next line to enable printing of detailed debug information
-#define DEBUG
+// #define DEBUG
 
 namespace nest
 {
@@ -343,7 +343,7 @@ public:
 {%- for variable_symbol in synapse.get_parameter_symbols() %}
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     if not isHomogeneous and not (variable_symbol.get_symbol_name() == nest_codegen_opt_delay_variable) %}
+{%-     if not isHomogeneous  and not (variable_symbol.get_symbol_name() == nest_codegen_opt_delay_variable) %}
 {%-         include 'directives_cpp/MemberDeclaration.jinja2' %}
 {%-     elif isHomogeneous %}
     // N.B. the parameter `{{ printer.print(variable) }}` is defined in the common properties class
@@ -860,7 +860,7 @@ void get_entry_from_continuous_variable_history(double t,
       while ( start != finish )
       {
 #ifdef DEBUG
-        std::cout << "[NESTML synapse] \tprocessing post spike at t = " << start->t_ + __dendritic_delay << std::endl;
+        std::cout << "\tprocessing post spike at t = " << start->t_ + __dendritic_delay << std::endl;
 #endif
 
         const double minus_dt = t_lastspike_ - ( start->t_ + __dendritic_delay );
@@ -929,10 +929,6 @@ void get_entry_from_continuous_variable_history(double t,
         const double t_hist_entry_ms = start->t_;
         auto get_t = [t_hist_entry_ms](){ return t_hist_entry_ms; };   // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
-        std::cout << "[NESTML synapse] \tS_.zp_trace before = " << S_.zp_trace << "\n";
-        std::cout << "[NESTML synapse] \tS_.w before = " << S_.w << "\n";
-
-
 {%  filter indent(8, True) %}
 {%- if post_ports is defined %}
 {%-     for post_port in spiking_post_ports %}
@@ -948,9 +944,6 @@ void get_entry_from_continuous_variable_history(double t,
 {%-     endfor %}
 {%- endif %}
 {%- endfilter %}
-
-        std::cout << "[NESTML synapse] \tS_.zp_trace after = " << S_.zp_trace << "\n";
-        std::cout << "[NESTML synapse] \tS_.w after = " << S_.w << "\n";
 
         /**
          * internal state has now been fully updated to `start->t_ + __dendritic_delay`
@@ -988,10 +981,6 @@ void get_entry_from_continuous_variable_history(double t,
 {%-     endfor %}
 {%- endif %}
 
-        std::cout << "[NESTML synapse] now processing pre spike:\n";
-        std::cout << "[NESTML synapse] \tS_.zp_trace before = " << S_.zp_trace << "\n";
-        std::cout << "[NESTML synapse] \tS_.w before = " << S_.w << "\n";
-
 {{ printer._expression_printer._simple_expression_printer._variable_printer.set_getter_string("((post_neuron_t*)(__target))->get_%s(_tr_t)") }} {# XXX: TODO: see https://github.com/nest/nestml/issues/1163 #}
 {%- for pre_port in pre_ports %}
 
@@ -1008,13 +997,6 @@ void get_entry_from_continuous_variable_history(double t,
 {%-     endif %}
 {%- endfor %}
 {{ printer._expression_printer._simple_expression_printer._variable_printer.set_getter_string("((post_neuron_t*)(__target))->get_%s(get_t())") }} {# XXX: TODO: see https://github.com/nest/nestml/issues/1163 #}
-
-
-
-        std::cout << "[NESTML synapse] \tS_.zp_trace after = " << S_.zp_trace << "\n";
-        std::cout << "[NESTML synapse] \tS_.w after = " << S_.w << "\n";
-
-
     }
 
     /**
@@ -1259,7 +1241,7 @@ void
   }
 {%- endif %}
 
-{%- if nest_codegen_opt_delay_variable and nest_codegen_opt_delay_variable != "delay" %}
+{%- if nest_codegen_opt_delay_variable != "delay" %}
   if ({{ exists_in_dictionary.ExistsInDictionary("__d", synapseName + "_names::_" + nest_codegen_opt_delay_variable) }} and {{ exists_in_dictionary.ExistsInDictionary("__d", "names::delay") }})
   {
     throw BadProperty( "To prevent inconsistencies, please set either 'delay' or '{{ nest_codegen_opt_delay_variable }}' variable; not both at the same time." );

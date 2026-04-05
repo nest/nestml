@@ -568,7 +568,7 @@ void {{ neuronName }}::pre_run_hook()
 {%- endif %}
 {
 #ifdef DEBUG
-  //std::cout << "[neuron " << this << "] {{ neuronName }}::pre_run_hook()" << std::endl;
+  std::cout << "[neuron " << this << "] {{ neuronName }}::pre_run_hook()" << std::endl;
 #endif
 
   B_.logger_.init();
@@ -684,7 +684,7 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     auto get_t = [origin, lag](){ return nest::Time( nest::Time::step( origin.get_steps() + lag + 1) ).get_ms(); };
 
 #ifdef DEBUG
-//    std::cout << "[neuron " << this << "] {{ neuronName }}::update{% if use_gap_junctions %}_{% endif %}: handling post spike at t = " << get_t() << std::endl;
+    std::cout << "[neuron " << this << "] {{ neuronName }}::update{% if use_gap_junctions %}_{% endif %}: handling post spike at t = " << get_t() << std::endl;
 #endif
 
 {%- if use_gap_junctions %}
