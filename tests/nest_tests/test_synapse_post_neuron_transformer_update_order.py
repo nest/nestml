@@ -84,17 +84,16 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
 
         files = [os.path.join("models", "neurons", "iaf_psc_delta_neuron.nestml")]
 
-        # if update_order_w_before_traces:
-        files.append(os.path.join("tests", "resources", "postsyn_trace_update_w_before_traces_synapse.nestml"))
-        # else:
-            # files.append(os.path.join("tests", "resources", "postsyn_trace_update_traces_before_w_synapse.nestml"))
+        if update_order_w_before_traces:
+            files.append(os.path.join("tests", "resources", "postsyn_trace_update_w_before_traces_synapse.nestml"))
+        else:
+            files.append(os.path.join("tests", "resources", "postsyn_trace_update_traces_before_w_synapse.nestml"))
 
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, os.pardir, s))) for s in files]
 
         codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_neuron",
                                                   "synapse": "postsyn_trace_synapse",
                                                   "post_ports": ["post_spikes"]}],
-                        "delay_variable": {"postsyn_trace_synapse": "d"},
                         "weight_variable": {"postsyn_trace_synapse": "w"},
                         "strictly_synaptic_vars": {"postsyn_trace_synapse": ["zp_trace"]}}
 
@@ -103,19 +102,19 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
                              suffix="_nestml",
                              codegen_opts=codegen_opts)
 
-    # @pytest.mark.xfail(strict=True)
-    # def test_postsyn_trace_synapse(self):
-    #     self.run_test_postsyn_trace_synapse(update_order_w_before_traces=True)
+    def test_postsyn_trace_synapse(self):
+        self.run_test_postsyn_trace_synapse(update_order_w_before_traces=True)
 
+    def test_postsyn_trace_synapse_alternate_order(self):
+        self.run_test_postsyn_trace_synapse(update_order_w_before_traces=False)
 
     def _run_nest_simulation(self, initial_w, neuron_model_name, synapse_model_name, T, dt, spike_train_pre, spike_train_post, syn_delay, p):
-
         # weight recorder
         wr = nest.Create("weight_recorder")
         syn_model = "stdp_stp_synapse_rec"
         nest.CopyModel(synapse_model_name, syn_model, {"weight_recorder": wr,
                                                        "w": initial_w,
-                                                       "d": syn_delay,
+                                                       "delay": syn_delay,
                                                        "receptor_type": 0,
                                                        "Zp": p["Z2"],
                                                        "tau_zp": p["tau_post2"],
@@ -195,7 +194,7 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
 
         return timevec_nest, trace_nest, w_nest, spike_train_pre_nest, spike_train_post_nest
 
-    def _run_ref_simulation(self, initial_w, T, dt, spike_train_pre, spike_train_post, p, before_increment):
+    def _run_ref_simulation(self, initial_w, T, dt, spike_train_pre, spike_train_post, p, update_order_w_before_traces):
         # state and initial values
         w = initial_w  # Initial synaptic weight
         tr = 0.
@@ -227,9 +226,14 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
 
             if np.any([np.isclose(t, t_sp) for t_sp in spike_train_post]):
                 old_weight = w
-                w += p["learning_rate"] * tr
-                # tr += 1.
-                tr += .2 * (1 - tr)
+                if update_order_w_before_traces:
+                    w += p["learning_rate"] * tr
+                    # tr += 1.
+                    tr += .2 * (1 - tr)
+                else:
+                    # tr += 1.
+                    tr += .2 * (1 - tr)
+                    w += p["learning_rate"] * tr
                 print("[REF] t = " + str(t) + ": depressing from " + str(old_weight) + " to " + str(w) + " with tr = " + str(tr))
 
             w_history.append(w)
@@ -270,9 +274,6 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
 
         return timevec, z2_history, w_history
 
-    def test_postsyn_trace_synapse_alternate_order(self):
-        self.run_test_postsyn_trace_synapse(update_order_w_before_traces=False)
-
     def run_test_postsyn_trace_synapse(self, update_order_w_before_traces: bool):
         self.generate_model_code(update_order_w_before_traces)
 
@@ -301,7 +302,7 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
         timevec_nest, trace_nest, w_nest, spike_train_pre_nest, spike_train_post_nest = self._run_nest_simulation(initial_w, neuron_model_name, synapse_model_name, T, dt, spike_train_pre, spike_train_post, syn_delay, p)
         np.testing.assert_allclose(spike_train_pre, spike_train_pre_nest)
 
-        timevec_ref, trace_ref, w_ref = self._run_ref_simulation(initial_w, T, dt, spike_train_post_nest + .1, spike_train_post, p, before_increment=True)
+        timevec_ref, trace_ref, w_ref = self._run_ref_simulation(initial_w, T, dt, spike_train_post_nest + .1, spike_train_post, p, update_order_w_before_traces=update_order_w_before_traces)
 
         if TEST_PLOTS:
             fig, axs = plt.subplots(3, 1)
@@ -334,8 +335,8 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
 
         assert len(spike_train_pre) > 0
         np.testing.assert_allclose(timevec_nest, timevec_ref)
+        np.testing.assert_allclose(w_nest[-1], w_ref[-1])    # final weight should be the same
 
-        np.testing.assert_allclose(w_nest, w_ref)
 
         # for pre_spike_time in spike_train_pre:
         #     tidx_nest = np.argmin((pre_spike_time - timevec_nest)**2)
