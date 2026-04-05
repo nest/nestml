@@ -37,46 +37,13 @@ import nest
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
-def get_trace_at(t, t_spikes, tau, initial=0., increment=1., before_increment=False, extra_debug=False):
-    if extra_debug:
-        print("\t-- obtaining trace at t = " + str(t))
-    if len(t_spikes) == 0:
-        return initial
-    tr = initial
-    t_sp_prev = 0.
-    for t_sp in t_spikes:
-        if t_sp > t:
-            break
-        if extra_debug:
-            _tr_prev = tr
-        tr *= np.exp(-(t_sp - t_sp_prev) / tau)
-        if t_sp == t:  # exact floating point match!
-            if before_increment:
-                if extra_debug:
-                    print("\t   [%] exact (before_increment = T), prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev)
-                          + ", decayed by dt = " + str(t - t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr))
-                return tr
-            else:
-                if extra_debug:
-                    print("\t   [%] exact (before_increment = F), prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev) + ", decayed by dt = " + str(
-                        t - t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr + increment))
-                return tr + increment
-        tr += increment
-        t_sp_prev = t_sp
-    if extra_debug:
-        _tr_prev = tr
-    tr *= np.exp(-(t - t_sp_prev) / tau)
-    if extra_debug:
-        print("\t   [&] prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev) + ", decayed by dt = "
-              + str(t - t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr))
-    return tr
 
 @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                     reason="This test does not support NEST 2")
 class TestSynapsePostNeuronTransformerUpdateOrder:
     r"""This test checks that postsynaptic update statements inside a synaptic on-post event handler result in updates in the expected order when transformed by the SynapsePostNeuronTransformer.
 
-    Note that when the SynapsePostNeuronTransformer is used, the numerical value obtained for the moved variables at a time of a spike is always the value "just before" the update due to the spike. This is why the test with ``update_order_w_before_traces=False`` is marked as expected to fail.
+    Note that the SynapsePostNeuronTransformer is not used in this test by setting ``strictly_synaptic_vars``.
     """
 
     def generate_model_code(self, update_order_w_before_traces: bool = False):
@@ -207,21 +174,6 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
         assert all(np.any(np.isclose(t_sp, timevec)) for t_sp in spike_train_pre)
         assert all(np.any(np.isclose(t_sp, timevec)) for t_sp in spike_train_post)
         for t in timevec:
-            # if t in spike_train_pre:
-            #     print("\tgetting pre trace r1")
-            #     r1 = get_trace_at(spk_time, times_spikes_pre,
-            #                     syn_opts["tau_plus"], before_increment=False, extra_debug=True)
-            #     print("\tgetting post trace o2")
-            #     o2 = get_trace_at(spk_time, times_spikes_post_syn_persp,
-            #                     syn_opts["tau_y"], before_increment=True, extra_debug=True)
-            #     old_weight = weight
-            #     weight = np.clip(weight + r1 * (syn_opts["A2_plus"] + syn_opts["A3_plus"]
-            #                     * o2), a_min=syn_opts["w_min"], a_max=syn_opts["w_max"])
-            #     print("[REF] t = " + str(spk_time) + ": facilitating from " + str(old_weight) + " to " + str(weight) + " with pre tr = " + str(r1) + ", post tr = " + str(o2))
-
-            #if t in spike_train_post:
-            # tr = get_trace_at(t, spike_train_post, p["tau_post2"], before_increment=True, extra_debug=False) # XXX before_increment=True to match NEST
-
             tr *= np.exp(-dt / p["tau_post2"])
 
             if np.any([np.isclose(t, t_sp) for t_sp in spike_train_post]):
@@ -238,36 +190,6 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
 
             w_history.append(w)
             z2_history.append(tr)
-
-            # last_t_sp = spk_time
-
-
-        # #for tidx, t in enumerate(range(len(timevec))[1:]):
-        #     z2 *= np.exp(-dt / p["tau_post2"])
-
-        #     if spike_train_pre[t] and spike_train_post_bool[t]:
-        #         raise Exception()
-
-        #     if spike_train_post_bool[t]:
-        #         print("Processing post spike at time t = " + str(time[t]))
-        #         if update_order_w_before_traces:
-        #             print("Updating w = " + str(w) + " (z2 = " + str(z2) + ") new weight = " + str(w + p["learning_rate"] * z2))
-        #             w += p["learning_rate"] * z2   # Update synaptic weight
-        #             # z += p["Z"] * (1 - z)  # Increment post-synaptic trace
-        #             # print("Updating z2: old z2 = " + str(z2) + ", new z2 = " + str(z2 + p["Z2"] * (1 - z2)))
-        #             print("Updating z2: old z2 = " + str(z2) + ", new z2 = " + str(z2 + 1))
-        #             z2 += 1#p["Z2"] * (1 - z2)
-        #         else:
-        #             # z += p["Z"] * (1 - z)  # Increment post-synaptic trace
-        #             print("Updating z2: old z2 = " + str(z2) + ", new z2 = " + str(z2 + 1))
-        #             # print("Updating z2: old z2 = " + str(z2) + ", new z2 = " + str(z2 + p["Z2"] * (1 - z2)))
-        #             z2 += 1#p["Z2"] * (1 - z2)
-        #             print("Updating w = " + str(w) + " (z2 = " + str(z2) + ") new weight = " + str(w + p["learning_rate"] * z2))
-        #             w += p["learning_rate"] * z2  # Update synaptic weight
-
-        #     w_history.append(w)
-        #     # z_history.append(z)
-        #     z2_history.append(z2)
 
         assert len(timevec) == len(z2_history)
         assert len(timevec) == len(w_history)
@@ -293,7 +215,6 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
 
         spike_train_pre = np.array([ 50., 80., 100.])
         spike_train_post = np.array([  10., 20., 30., 40., 80. - dt])
-        # spike_train_post = np.array([  7.2,  12.2,  17.2,  22.2,  27.2,  32.2,  37.2,  42.2,  47.2, 52.2,  57.2,  62.2,  67.2,  72.2,  77.2,  82.2,  87.2,  92.2, 97.2, 102.2, 107.2, 112.2, 117.2, 122.2, 127.2, 132.2, 137.2, 142.2, 147.2])
 
         p = {"Z2": 0.2,
              "tau_post2": 50.,
@@ -319,7 +240,6 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
 
             axs[0].plot(timevec_ref, w_ref, "--", color="black", label="w python")
 
-            # axs[1].plot(time, z_history, "--", label=r"$z_1$ python", color="red")
             axs[1].plot(timevec_ref, trace_ref, "--", label=r"$z_2$ python", color="black")
 
             for ax in axs:
@@ -336,15 +256,3 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
         assert len(spike_train_pre) > 0
         np.testing.assert_allclose(timevec_nest, timevec_ref)
         np.testing.assert_allclose(w_nest[-1], w_ref[-1])    # final weight should be the same
-
-
-        # for pre_spike_time in spike_train_pre:
-        #     tidx_nest = np.argmin((pre_spike_time - timevec_nest)**2)
-        #     w_according_to_nest = w_nest[tidx_nest + 1]
-
-        #     tidx_ref = np.argmin((pre_spike_time - time)**2)
-        #     w_according_to_ref = w_history[tidx_ref]
-
-        #     np.testing.assert_allclose(timevec_nest[tidx_nest], time[tidx_ref])
-
-        #     np.testing.assert_allclose(w_according_to_nest, w_according_to_ref)
