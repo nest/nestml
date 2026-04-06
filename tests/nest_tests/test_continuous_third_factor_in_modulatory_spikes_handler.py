@@ -42,7 +42,6 @@ class TestContinuousThirdFactorInModulatorySpikesHandler:
                                                   "vt_ports": ["mod_spikes"],
                                                   "post_ports": ["post_spikes",
                                                                  ["e_trace_d", "e_trace_dend"]]}],
-                        "delay_variable": {"test_continuous_third_factor_in_modulatory_spikes_handler_synapse": "d"},
                         "weight_variable": {"test_continuous_third_factor_in_modulatory_spikes_handler_synapse": "w"}}
 
         generate_nest_target(input_path=["tests/nest_tests/resources/test_continuous_third_factor_in_modulatory_spikes_handler_neuron.nestml",

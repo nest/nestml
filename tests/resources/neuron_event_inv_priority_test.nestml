@@ -32,7 +32,6 @@ model event_inv_priority_test_neuron:
 
     parameters:
         w real = 1
-        d ms = 1 ms
 
     input:
         in_port1 <- spike
