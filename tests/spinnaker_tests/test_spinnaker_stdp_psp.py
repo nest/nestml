@@ -37,7 +37,7 @@ class TestSpiNNakerSTDPPSP:
         codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                   "synapse": "stdp_synapse",
                                                   "post_ports": ["post_spikes"]}],
-                        "delay_variable": {"stdp_synapse":"d"},
+                        #"delay_variable": {"stdp_synapse":"d"},
                         "weight_variable": {"stdp_synapse": "w"},
                         "strictly_synaptic_vars": {"stdp_synapse": "pre_trace"}}
 

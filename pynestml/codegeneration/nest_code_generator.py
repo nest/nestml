@@ -764,11 +764,11 @@ class NESTCodeGenerator(CodeGenerator):
         # special case for NEST delay variable (state or parameter)
         # self._check_delay_variable_codegen_opt(synapse)
 
-        try:
-            synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
+        synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
+
         if self.get_option("delay_variable") and synapse_name_stripped in self.get_option("delay_variable").keys():
             namespace["nest_codegen_opt_delay_variable"] = self.get_option("delay_variable")[synapse_name_stripped]
-        except:
+        else:
             namespace["nest_codegen_opt_delay_variable"] = ""
 
         # special case for NEST weight variable (state or parameter)
