@@ -51,7 +51,7 @@ def generate_regular_spike_train(rate, T, dt, start_t=0.):
     - spike_train: Boolean array of length len(time), where True indicates a spike.
     - spike_times: same data as spike time data
     """
-    # Step 1: Generate spike times
+    # generate spike times
     spikes = []
     t = start_t
     while t < T:
@@ -62,20 +62,13 @@ def generate_regular_spike_train(rate, T, dt, start_t=0.):
 
     spike_times = np.array(spikes)
 
-    # Step 2: Create time array
     time = np.arange(0, T, dt)
-
-    # Step 3: Initialize spike train array
     spike_train = np.zeros(len(time), dtype=bool)
 
-    # Step 4: Map spike times to nearest indices in the time array
-    # Ensure that spike times correspond to time steps in "time"
+    # map spike times to nearest indices in the time array; ensure that spike times correspond to time steps in "time"
     indices = np.searchsorted(time, spike_times)
-
-    # Handle edge cases where indices might be equal to len(time)
     indices = indices[indices < len(time)]
 
-    # Step 5: Set corresponding indices in spike_train to True
     spike_train[indices] = True
 
     return spike_train, spike_times
@@ -259,18 +252,11 @@ class TestSynapsePostNeuronTransformerCompoundBlocks:
 
         def spike_times_to_bool_array(spike_times, T, dt):
             time = np.arange(0, T, dt)
-
-            # Step 3: Initialize spike train array
             spike_train = np.zeros(len(time), dtype=bool)
 
-            # Step 4: Map spike times to nearest indices in the time array
-            # Ensure that spike times correspond to time steps in "time"
+            # map spike times to nearest indices in the time array; ensure that spike times correspond to time steps in "time"
             indices = np.searchsorted(time, spike_times)
-
-            # Handle edge cases where indices might be equal to len(time)
             indices = indices[indices < len(time)]
-
-            # Step 5: Set corresponding indices in spike_train to True
             spike_train[indices] = True
 
             return spike_train
