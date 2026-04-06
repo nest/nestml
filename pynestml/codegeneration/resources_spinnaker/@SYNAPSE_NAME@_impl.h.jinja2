@@ -266,7 +266,7 @@ typedef struct {
     uint32_t prev_time;
 
     //! The header for this synaptic row
-{%- for var in syn_to_neuron_state_vars %}
+{%- for var in metadata[astnode.name]["paired_neuron"].get_state_variables() %}
     accum {{ var.name }};
 {%- endfor %}
 } synapse_row_plastic_header_t;
