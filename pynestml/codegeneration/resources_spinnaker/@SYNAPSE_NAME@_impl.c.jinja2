@@ -484,7 +484,7 @@ bool synapse_dynamics_process_plastic_synapses(
 
 
 
-    const accum __h = timestep;   // XXX: time constants are in ms, so __h should be as well! convert uint32_t to accum type
+    const accum __h = time - last_pre_time;   // XXX: time constants are in ms, so __h should be as well! convert uint32_t to accum type
 
 {%- for sym in synapse.get_internal_symbols() %}
 {%-     if sym.get_symbol_name().startswith("__P") %}
