@@ -2203,9 +2203,11 @@ class ASTUtils:
                 if cls.is_delta_kernel(neuron.get_kernel_by_name(kernel.get_variable().get_name())):
                     inport = conv_call.args[1].get_variable()
                     expr_str = str(expr)
-                    sympy_expr = sympy.parsing.sympy_parser.parse_expr(expr_str, global_dict=odetoolbox.Shape._sympy_globals)
+                    global_dict = odetoolbox.Shape._sympy_globals.copy()
+                    sympy_expr = sympy.parsing.sympy_parser.parse_expr(expr_str, global_dict=global_dict)
                     sympy_expr = sympy.expand(sympy_expr)
-                    sympy_conv_expr = sympy.parsing.sympy_parser.parse_expr(str(conv_call), global_dict=odetoolbox.Shape._sympy_globals)
+                    global_dict = odetoolbox.Shape._sympy_globals.copy()
+                    sympy_conv_expr = sympy.parsing.sympy_parser.parse_expr(str(conv_call), global_dict=global_dict)
                     factor_str = []
                     for term in sympy.Add.make_args(sympy_expr):
                         if term.find(sympy_conv_expr):

@@ -38,7 +38,7 @@ class ODEToolboxUtils:
                                        "Float": sympy.Float,
                                        "Function": sympy.Function}
 
-        sympy_expr = sympy.parsing.sympy_parser.parse_expr(s, global_dict=_sympy_globals_no_functions)
+        sympy_expr = sympy.parsing.sympy_parser.parse_expr(s, global_dict=_sympy_globals_no_functions.copy())
 
         class MySympyPrinter(StrPrinter):
             """Resulting expressions will be parsed by NESTML parser. R
