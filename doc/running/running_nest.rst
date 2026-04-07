@@ -340,6 +340,8 @@ For example, given the following model:
 
 .. code:: nestml
 
+.. code:: nestml
+
    model my_synapse:
        parameters:
            d ms = 1 ms
@@ -370,7 +372,7 @@ This will print the string ``dendritic_delay = 2.5``.
 
 
 Synaptic weights
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 
 As synaptic weights are hard-wired into the NEST C++ base class for the NESTML synapse class, a special annotation must be made in the code generation options to indicate which state variable or parameter corresponds to the weight. To indicate the correspondence, use the code generator option ``weight_variable``. For example, given the following model:
 

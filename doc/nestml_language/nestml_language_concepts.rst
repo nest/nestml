@@ -894,7 +894,19 @@ Each model can only send a single type of event. The type of the event has to be
 
 Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + timestep()``.
 
+Event attributes
+~~~~~~~~~~~~~~~~
+
 Each spiking output event corresponds to a Dirac delta pulse and can be parameterised by one attribute (the area of the pulse). For example, a synapse could assign a weight (as a real number) to its spike events by including this value in the call to ``emit_spike()``:
+
+.. code-block:: nestml
+
+   parameters:
+       weight real = 10.
+
+   update:
+       emit_spike(weight)
+If the parameter is not specified, the delta function will have an area of 1.
 
 Equations
 ---------
