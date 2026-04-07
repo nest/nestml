@@ -23,9 +23,6 @@ import numpy as np
 import os
 import pytest
 
-from pynestml.codegeneration.nest_tools import NESTTools
-from pynestml.frontend.pynestml_frontend import generate_nest_target
-
 # try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
     import matplotlib as mpl

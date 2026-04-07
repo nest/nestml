@@ -334,11 +334,22 @@ Simulation of volume-transmitted neuromodulation in NEST can be done using "volu
                                                            "synapse": "third_factor_stdp",
                                                             "vt_ports": ["dopa_spikes"]}]})
 
+Third-factor plasticity
+~~~~~~~~~~~~~~~~~~~~~~~
+
+When a continuous-time input port is defined in the synapse model which is connected to a postsynaptic neuron, a corresponding buffer is allocated in each neuron which retains the recent history of the needed state variables. Two options are available for how the buffer is implemented: a "continuous-time" based buffer, or a spike-based buffer (see the NEST code generator option ``continuous_state_buffering_method`` on https://nestml.readthedocs.io/en/latest/pynestml.codegeneration.html#pynestml.codegeneration.nest_code_generator.NESTCodeGenerator).
+
+By default, the "continuous-time" based buffer is selected. This covers the most general case of different synaptic delay values and a discontinuous third-factor signal. The implementation corresponds to the event-based update scheme in Fig. 4b of [Stapmanns2021]_. There, the authors observe that the storage and management of such a buffer can be expensive in terms of memory and runtime. In each time step, the value of the current dendritic current (or membrane potential, or other third factor) is appended to the buffer. The maximum length of the buffer depends on the maximum inter-spike interval of any of the presynaptic neurons.
+
+As a computationally more efficient alternative, a spike-based buffer can be selected. In this case, the third factor is not stored every timestep, but only upon the occurrence of postsynaptic (somatic) spikes. Because of the existence of a nonzero dendritic delay, the time at which the somatic spike is observed at the synapse is delayed, and the time at which the third factor is sampled should match the time of the spike at the synapse, rather than the soma. When the spike-based buffering method is used, the dendritic delay is therefore ignored, because the third factor is sampled instead at the time of the somatic spike.
+
+
+Dendritic delays
+~~~~~~~~~~~~~~~~
+
 In NEST, all synapses are expected to specify a nonzero dendritic delay, that is, the delay between arrival of a spike at the dendritic spine and the time at which its effects are felt at the soma (or conversely, the delay between a somatic action potential and the arrival at the dendritic spine due to dendritic backpropagation). Dendritic delays are managed entirely by NEST and can in principle not be read from or written to from inside the NESTML model. However, in some cases it can be useful to read the delay from inside the synapse. This can be achieved by using the code generator option ``delay_variable``.
 
 For example, given the following model:
-
-.. code:: nestml
 
 .. code:: nestml
 
@@ -372,9 +383,6 @@ This will print the string ``dendritic_delay = 2.5``.
 
 
 Synaptic weights
-~~~~~~~~~~~~~~~~~
-
-As synaptic weights are hard-wired into the NEST C++ base class for the NESTML synapse class, a special annotation must be made in the code generation options to indicate which state variable or parameter corresponds to the weight. To indicate the correspondence, use the code generator option ``weight_variable``. For example, given the following model:
 
 .. code:: nestml
 
@@ -466,6 +474,8 @@ However, if two separate ports are used (and weights are subsequently processed 
         I_syn_inh += unit_psc * sift(spike_in_port_inh, t)
 
 In this case, the ``linear_time_invariant_spiking_input_ports`` option can be used to specify that both ``spike_in_port_exc`` and ``spike_in_port_inh`` are LTI ports, for better runtime performance.
+
+
 
 
 References

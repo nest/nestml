@@ -2230,8 +2230,8 @@ class ASTUtils:
             "uV": micro * volt,             # Microvolt (10^-6 V)
             "nV": nano * volt,              # Nanovolt (10^-9 V)
 
-            "S": siemens,                    # Ampere
-            "nS": nano * siemens,                    # Ampere
+            "S": siemens,                   # Siemens
+            "nS": nano * siemens,           # Nanosiemens
 
             "A": ampere,                    # Ampere
             "mA": milli * ampere,           # Milliampere (10^-3 A)
@@ -2629,6 +2629,57 @@ class ASTUtils:
                 node.accept(visitor)
 
     @classmethod
+    def nestml_spiking_input_port_to_nest_rport_dict(cls, astnode: ASTModel) -> Dict[str, int]:
+        input_port_to_rport = {}
+        rport = 1    # if there is more than one spiking input port, count begins at 1
+        for input_block in astnode.get_input_blocks():
+            for input_port in input_block.get_input_ports():
+                if not input_port.is_spike():
+                    continue
+
+                if input_port.get_size_parameter():
+                    for i in range(int(str(input_port.size_parameter))):    # XXX: should be able to convert size_parameter expression to an integer more generically (allowing for e.g. parameters)
+                        input_port_to_rport[input_port.name + "_VEC_IDX_" + str(i)] = rport
+                        rport += 1
+                else:
+                    input_port_to_rport[input_port.name] = rport
+                    rport += 1
+
+        return input_port_to_rport
+
+    @classmethod
+    def nestml_continuous_input_port_to_nest_rport_dict(cls, astnode: ASTModel) -> Dict[str, int]:
+        input_port_to_rport = {}
+        rport = 1    # if there is more than one spiking input port, count begins at 1
+        for input_block in astnode.get_input_blocks():
+            for input_port in input_block.get_input_ports():
+                if not input_port.is_continuous():
+                    continue
+
+                if input_port.get_size_parameter():
+                    for i in range(int(str(input_port.size_parameter))):    # XXX: should be able to convert size_parameter expression to an integer more generically (allowing for e.g. parameters)
+                        input_port_to_rport[input_port.name + "_VEC_IDX_" + str(i)] = rport
+                        rport += 1
+                else:
+                    input_port_to_rport[input_port.name] = rport
+                    rport += 1
+
+        return input_port_to_rport
+
+    @classmethod
+    def nestml_input_port_to_nest_rport(cls, astnode: ASTModel, spike_in_port: ASTInputPort):
+        return ASTUtils.nestml_spiking_input_port_to_nest_rport_dict(astnode)[spike_in_port]
+
+    @classmethod
+    def port_name_printer(cls, variable: ASTVariable) -> str:
+        s = variable.get_name()
+        if variable.has_vector_parameter():
+            s += "_VEC_IDX_"
+            s += str(variable.get_vector_parameter())
+
+        return s
+
+    @classmethod
     def depends_only_on_vars(cls, expr, vars):
         r"""Returns True if and only if all variables that occur in ``expr`` are in ``vars``"""
 
@@ -2718,33 +2769,6 @@ class ASTUtils:
         return None
 
     @classmethod
-    def nestml_input_port_to_nest_rport(cls, astnode: ASTModel, spike_in_port: ASTInputPort):
-        return ASTUtils.nestml_spiking_input_port_to_nest_rport_dict(astnode)[spike_in_port]
-
-    @classmethod
-    def port_name_printer(cls, variable: ASTVariable) -> str:
-        s = variable.get_name()
-        if variable.has_vector_parameter():
-            s += "_VEC_IDX_"
-            s += str(variable.get_vector_parameter())
-
-        return s
-
-    @classmethod
-    def is_parameter(cls, variable) -> str:
-        return isinstance(variable, ASTParameter)
-
-    def get_spiking_input_port_terms(model: ASTModel, expr):
-        r"""Collect all terms that refer to a spiking input inside ``expr``"""
-
-        spiking_input_port_terms = []
-        spike_inports = model.get_spike_input_ports()
-        spike_inport_names = [inport.name for inport in spike_inports]
-
-        for var in expr.get_variables():
-            if str(var).split(".")[0] in spike_inport_names:
-                spiking_input_port_terms.append(var)
-
         for input_block in model.get_input_blocks():
             for port in input_block.get_input_ports():
                 if port.name not in post_port_names:

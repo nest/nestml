@@ -1122,24 +1122,37 @@ inline void {{neuronName}}::get_status(DictionaryDatum&__d) const
 
   {{neuron_parent_class}}::get_status( __d );
 
-  // input ports to NEST rport number mapping
-  {%- if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
+{%- if (neuron.get_multiple_receptors())|length > 1 or neuron.is_multisynapse_spikes() %}   // input ports to NEST rport number mapping
+{%-     if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
+  DictionaryDatum __receptor_types = new Dictionary();
+{%-     else %}
+  Dictionary __receptor_types;
+{%-     endif %}
+
 {%- for spike_in_port_name, rport in utils.nestml_spiking_input_port_to_nest_rport_dict(astnode).items() %}
-{%-     set spike_in_port = utils.get_input_port_by_name(astnode.get_input_blocks(), spike_in_port_name.split("_VEC_IDX_")[0]) %}
-  ( *__receptor_type )[ "{{spike_in_port_name.upper()}}" ] = {{ rport }};
+{%-     set ns = namespace(rport=key) %}
+{%-     set port = utils.get_input_port_by_name(astnode.get_input_blocks(), spike_in_port_name.split("_VEC_IDX_")[0]) %}{%-     if not port.has_vector_parameter() %}
+    {{ write_in_dictionary.WriteInDictionary("__receptor_types", "long", port.get_symbol_name().upper(), ns.rport + 1, true) }}
+{%-     else %}
+{%-         set size = utils.get_numeric_vector_size(port) %}
+{%-         for i in range(size)  %}
+    {{ write_in_dictionary.WriteInDictionary("__receptor_types", "long", port.get_symbol_name().upper() + "_" + i|string, ns.rport + i + 1, true) }}
+{%-         endfor %}
+{%-     endif %}
 {%- endfor %}
     {{ write_in_dictionary.WriteInDictionary("__d", "DictionaryDatum", "receptor_types", "__receptor_types", true) }}
 
 {%- if (neuron.get_continuous_input_ports())|length > 1 %}
-{%- if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
+{%-     if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
   DictionaryDatum __continuous_input_type = new Dictionary();
-{%- else %}
+{%-     else %}
   Dictionary __continuous_input_type;
-{%- endif %}
+{%-     endif %}
+
 {%-     set ns = namespace(count=0) %}
 {%-     for port in neuron.get_continuous_input_ports() %}
   ( *__continuous_input_type )[ "{{port.get_symbol_name().upper()}}" ] = {{port.get_symbol_name().upper()}};
-{%-     set ns.count = ns.count + 1 %}
+{%-         set ns.count = ns.count + 1 %}
 {%-     endfor %}
   ( *__d )[ "continuous_inputs" ] = __continuous_input_type;
 {%- endif %}

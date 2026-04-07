@@ -29,10 +29,6 @@
 # This model will instead be simulated using the numerical solver that is recommended by ODE-toolbox during code generation.
 #
 #
-# References
-# ++++++++++
-#
-# .. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
 #
 # Copyright statement
 # +++++++++++++++++++

@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from typing import Callable, List, Optional, Mapping, Any, Union, Sequence
+from typing import Callable, Dict, Iterable, List, Optional, Mapping, Any, Union, Sequence
 
 try:
     # Available in the standard library starting with Python 3.12
@@ -49,18 +49,6 @@ class ReplaceSiftWithBufferTransformer(Transformer):
         def visit_function_call(self, node: ASTFunctionCall):
             if node.get_name() == PredefinedFunctions.SIFT:
                 parent = node.get_parent()
-                # binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_times_op=True)
-                # prefactor = ASTNodeFactory.create_ast_simple_expression(numeric_literal=node.args[0].get_implicit_conversion_factor())
-                # node.args[0].implicit_conversion_factor = 1
-                # new_node = ASTExpression(binary_operator=binary_operator, lhs=prefactor, rhs=node.args[0])
-
-                # if parent.get_parent().rhs == parent:
-                #     parent.get_parent().rhs = new_node
-                # else:
-                #     assert parent.get_parent().lhs == parent
-                #     parent.get_parent().lhs = new_node
-
-                # import pdb;pdb.set_trace()
                 parent.function_call = None
                 parent.variable = node.args[0].variable
                 parent.variable.parent = parent
