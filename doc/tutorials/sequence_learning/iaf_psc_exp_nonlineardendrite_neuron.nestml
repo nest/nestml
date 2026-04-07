@@ -75,7 +75,7 @@ model iaf_psc_exp_nonlineardendrite_neuron:
         ref_timeout_ticks integer = steps(t_ref)
 
     internals:
-        unit_psr pA/ms = pA * exp(1) / tau_syn2         # Unitary postsynaptic response amplitude
+        unit_psc pA/ms = 1 pA * exp(1) / tau_syn2         # Unitary postsynaptic response amplitude
 
     input:
         I_1 <- spike

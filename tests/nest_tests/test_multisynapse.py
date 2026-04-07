@@ -32,6 +32,8 @@ try:
 except BaseException:
     TEST_PLOTS = False
 
+import nest
+
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 

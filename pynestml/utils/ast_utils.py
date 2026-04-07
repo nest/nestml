@@ -2618,44 +2618,6 @@ class ASTUtils:
                 node.accept(visitor)
 
     @classmethod
-    def nestml_spiking_input_port_to_nest_rport_dict(cls, astnode: ASTModel) -> Dict[str, int]:
-        input_port_to_rport = {}
-        rport = 1    # if there is more than one spiking input port, count begins at 1
-        for input_block in astnode.get_input_blocks():
-            for input_port in input_block.get_input_ports():
-                if not input_port.is_spike():
-                    continue
-
-                if input_port.get_size_parameter():
-                    for i in range(int(str(input_port.size_parameter))):    # XXX: should be able to convert size_parameter expression to an integer more generically (allowing for e.g. parameters)
-                        input_port_to_rport[input_port.name + "_VEC_IDX_" + str(i)] = rport
-                        rport += 1
-                else:
-                    input_port_to_rport[input_port.name] = rport
-                    rport += 1
-
-        return input_port_to_rport
-
-    @classmethod
-    def nestml_continuous_input_port_to_nest_rport_dict(cls, astnode: ASTModel) -> Dict[str, int]:
-        input_port_to_rport = {}
-        rport = 1    # if there is more than one spiking input port, count begins at 1
-        for input_block in astnode.get_input_blocks():
-            for input_port in input_block.get_input_ports():
-                if not input_port.is_continuous():
-                    continue
-
-                if input_port.get_size_parameter():
-                    for i in range(int(str(input_port.size_parameter))):    # XXX: should be able to convert size_parameter expression to an integer more generically (allowing for e.g. parameters)
-                        input_port_to_rport[input_port.name + "_VEC_IDX_" + str(i)] = rport
-                        rport += 1
-                else:
-                    input_port_to_rport[input_port.name] = rport
-                    rport += 1
-
-        return input_port_to_rport
-
-    @classmethod
     def nestml_input_port_to_nest_rport(cls, astnode: ASTModel, spike_in_port: ASTInputPort):
         return ASTUtils.nestml_spiking_input_port_to_nest_rport_dict(astnode)[spike_in_port]
 
@@ -2737,6 +2699,66 @@ class ASTUtils:
             _node = _node.get_parent()
 
         return None
+
+    @classmethod
+    def collect_variables_affected_by_ports(cls, model, post_port_names, strictly_synaptic_vars: Optional[Set[str]] = None):
+
+        if not strictly_synaptic_vars:
+            strictly_synaptic_vars: Set[str] = set()
+
+        strictly_synaptic_vars = set(strictly_synaptic_vars)    # make a copy
+
+        strictly_synaptic_vars.add(PredefinedVariables.TIME_CONSTANT)
+
+        #
+        #   determine which variables and dynamics in synapse can be transferred to neuron
+        #
+
+        if model.get_state_blocks():
+            all_state_vars = ASTUtils.all_variables_defined_in_block(model.get_state_blocks()[0])
+        else:
+            all_state_vars = []
+
+        all_state_vars = [var.get_complete_name() for var in all_state_vars]
+
+        # add names of convolutions
+        all_state_vars += ASTUtils.get_all_variables_used_in_convolutions(model.get_equations_blocks(), model)
+
+        # add names of kernels
+        kernel_buffers = ASTUtils.generate_kernel_buffers(model, model.get_equations_blocks())
+        all_state_vars += [var.name for k in kernel_buffers for var in k[0].variables]
+
+        for input_block in model.get_input_blocks():
+            for port in input_block.get_input_ports():
+                if port.name not in post_port_names:
+                    strictly_synaptic_vars |= ASTUtils.get_all_variables_assigned_to(model.get_on_receive_block(port.name))
+
+        # exclude all variables that are assigned to in the ``update`` block
+        for update_block in model.get_update_blocks():
+            strictly_synaptic_vars |= ASTUtils.get_all_variables_assigned_to(update_block)
+
+        # exclude convolutions if they are not with a postsynaptic variable
+        convolve_with_not_post_vars = ASTUtils.get_convolve_vars_exclude_port(model.get_equations_blocks(), post_port_names, model)
+
+        # exclude all variables that depend on the ones that are not to be moved
+        strictly_synaptic_vars_dependent = ASTUtils.recursive_dependent_variables_search(strictly_synaptic_vars, model)
+
+        # do set subtraction
+        syn_to_neuron_state_vars = list(set(all_state_vars) - (strictly_synaptic_vars | set(convolve_with_not_post_vars) | set(strictly_synaptic_vars_dependent)))
+
+        #
+        #   collect all the variable/parameter/kernel/function/etc. names used in defining expressions of `syn_to_neuron_state_vars`
+        #
+
+        recursive_vars_used = ASTUtils.recursive_necessary_variables_search(syn_to_neuron_state_vars, model)
+
+        # all state variables that will be moved from synapse to neuron
+        syn_to_neuron_state_vars = []
+        for var_name in recursive_vars_used:
+            if ASTUtils.get_state_variable_by_name(model, var_name) or ASTUtils.get_inline_expression_by_name(model, var_name) or ASTUtils.get_kernel_by_name(model, var_name):
+                syn_to_neuron_state_vars.append(var_name)
+
+        return syn_to_neuron_state_vars
 
     @classmethod
     def nestml_continuous_input_port_to_nest_rport_dict(cls, astnode: ASTModel) -> Dict[str, int]:

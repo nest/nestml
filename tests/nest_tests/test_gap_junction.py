@@ -91,7 +91,10 @@ class TestGapJunction:
                              params={"spike_times": pre_spike_times})
         pre_parrot = nest.Create("parrot_neuron")
         nest.Connect(pre_sg, pre_parrot)
-        nest.Connect(pre_parrot, pre_neuron, syn_spec={"weight": 999.})
+        try:
+            nest.Connect(pre_parrot, pre_neuron, syn_spec={"weight": 999.})
+        except:
+            nest.Connect(pre_parrot, pre_neuron, syn_spec={"weight": 999., "rport": pre_neuron.get("receptor_types")["EXC_SPIKES"]})
 
         nest.Connect(pre_neuron,
                      post_neuron,

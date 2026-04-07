@@ -133,6 +133,7 @@ namespace nest
     // add recordable inline expressions to recordables map
 {%- for variable_symbol in recordable_inline_expressions %}
 {%-     set variable_name = utils.get_inline_expression_by_name(astnode, variable_symbol.get_symbol_name()).get_variable_name() %}
+{%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 	  insert_({{ names_namespace }}::_{{ variable_symbol.get_symbol_name() }}, &{{ neuronName }}::{{ printer_no_origin.print(variable)[:-2] }});
 {%- endfor %}
 {%- endif %}

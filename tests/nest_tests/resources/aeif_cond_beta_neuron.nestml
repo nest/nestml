@@ -100,8 +100,8 @@ model aeif_cond_beta_neuron:
         unit_psg nS = 1 nS         # Unitary postsynaptic conductance amplitude
 
     input:
-        inh_spikes <- spike
         exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:
