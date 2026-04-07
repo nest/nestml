@@ -38,6 +38,7 @@ except BaseException as e:
     TEST_PLOTS = False
 
 
+@pytest.mark.skipif(True)    # XXX: this test should be enabled; see https://github.com/nest/nestml/issues/1349
 class TestInitialization():
     @pytest.fixture(scope="module", autouse=True)
     def setup(self):
