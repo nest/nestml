@@ -1519,17 +1519,6 @@ class ASTUtils:
         return rhs_is_delta_kernel or rhs_is_multiplied_delta_kernel
 
     @classmethod
-    def find_parent_node_by_type(cls, node: ASTNode, type_to_find):
-        _node = node.get_parent()
-        while _node:
-            if isinstance(_node, type_to_find):
-                return _node
-
-            _node = _node.get_parent()
-
-        return None
-
-    @classmethod
     def get_input_port_by_name(cls, input_blocks: List[ASTInputBlock], port_name: str) -> Optional[ASTInputPort]:
         """
         Get the input port given the port name
@@ -2738,6 +2727,18 @@ class ASTUtils:
         return input_port_to_rport
 
     @classmethod
+    def find_parent_node_by_type(cls, node: ASTNode, type_to_find: Any) -> Optional[Any]:
+        r"""Find the first parent of the given node that has the type ``type_to_find``. Return None if no parent with that type could be found."""
+        _node = node.get_parent()
+        while _node:
+            if isinstance(_node, type_to_find):
+                return _node
+
+            _node = _node.get_parent()
+
+        return None
+
+    @classmethod
     def nestml_continuous_input_port_to_nest_rport_dict(cls, astnode: ASTModel) -> Dict[str, int]:
         input_port_to_rport = {}
         rport = 1    # if there is more than one spiking input port, count begins at 1
@@ -2755,51 +2756,6 @@ class ASTUtils:
                     rport += 1
 
         return input_port_to_rport
-
-    @classmethod
-    def find_parent_node_by_type(cls, node: ASTNode, type_to_find: Any) -> Optional[Any]:
-        r"""Find the first parent of the given node that has the type ``type_to_find``. Return None if no parent with that type could be found."""
-        _node = node.get_parent()
-        while _node:
-            if isinstance(_node, type_to_find):
-                return _node
-
-            _node = _node.get_parent()
-
-        return None
-
-    @classmethod
-        for input_block in model.get_input_blocks():
-            for port in input_block.get_input_ports():
-                if port.name not in post_port_names:
-                    strictly_synaptic_vars |= ASTUtils.get_all_variables_assigned_to(model.get_on_receive_block(port.name))
-
-        # exclude all variables that are assigned to in the ``update`` block
-        for update_block in model.get_update_blocks():
-            strictly_synaptic_vars |= ASTUtils.get_all_variables_assigned_to(update_block)
-
-        # exclude convolutions if they are not with a postsynaptic variable
-        convolve_with_not_post_vars = ASTUtils.get_convolve_vars_exclude_port(model.get_equations_blocks(), post_port_names, model)
-
-        # exclude all variables that depend on the ones that are not to be moved
-        strictly_synaptic_vars_dependent = ASTUtils.recursive_dependent_variables_search(strictly_synaptic_vars, model)
-
-        # do set subtraction
-        syn_to_neuron_state_vars = list(set(all_state_vars) - (strictly_synaptic_vars | set(convolve_with_not_post_vars) | set(strictly_synaptic_vars_dependent)))
-
-        #
-        #   collect all the variable/parameter/kernel/function/etc. names used in defining expressions of `syn_to_neuron_state_vars`
-        #
-
-        recursive_vars_used = ASTUtils.recursive_necessary_variables_search(syn_to_neuron_state_vars, model)
-
-        # all state variables that will be moved from synapse to neuron
-        syn_to_neuron_state_vars = []
-        for var_name in recursive_vars_used:
-            if ASTUtils.get_state_variable_by_name(model, var_name) or ASTUtils.get_inline_expression_by_name(model, var_name) or ASTUtils.get_kernel_by_name(model, var_name):
-                syn_to_neuron_state_vars.append(var_name)
-
-        return syn_to_neuron_state_vars
 
     @classmethod
     def get_all_variables_assigned_to(cls, node: ASTNode) -> Set[str]:
