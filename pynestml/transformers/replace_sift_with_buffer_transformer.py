@@ -22,10 +22,17 @@
 from __future__ import annotations
 
 from typing import Callable, List, Optional, Mapping, Any, Union, Sequence
+
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
+
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_model import ASTModel
-
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.symbols.predefined_functions import PredefinedFunctions
@@ -62,17 +69,12 @@ class ReplaceSiftWithBufferTransformer(Transformer):
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super(Transformer, self).__init__(options)
 
-    def transform(self, models: Union[ASTNode, Sequence[ASTNode]]) -> Union[ASTNode, Sequence[ASTNode]]:
-        single = False
-
-        if isinstance(models, ASTNode):
-            single = True
-            models = [models]
+    @override
+    def transform(self,
+                  models: Iterable[ASTModel],
+                  metadata: Dict[str, Dict[str, Any]]) -> Iterable[ASTModel]:
 
         for model in models:
             model.accept(self.SiftRewriterVisitor())
-
-        if single:
-            return models[0]
 
         return models
