@@ -38,7 +38,7 @@ except BaseException as e:
     TEST_PLOTS = False
 
 
-@pytest.mark.skipif(True)    # XXX: this test should be enabled; see https://github.com/nest/nestml/issues/1349
+@pytest.mark.skipif(True, reason="XXX: TODO: this test should be enabled; see https://github.com/nest/nestml/issues/1349")
 class TestCompartmentalConcmech:
     @pytest.fixture(scope="module", autouse=True)
     def setup(self):
