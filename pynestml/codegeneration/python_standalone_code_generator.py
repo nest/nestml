@@ -78,10 +78,6 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
             if not k in self._options.keys():
                 self.add_options({k: v})
 
-        self.analytic_solver = {}
-        self.numeric_solver = {}
-        self.non_equations_state_variables = {}  # those state variables not defined as an ODE in the equations block
-
         self.setup_template_env()
         self.setup_printers()
 

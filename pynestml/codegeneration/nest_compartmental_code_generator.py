@@ -528,7 +528,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         # add propagator variables calculated by odetoolbox into internal blocks
         if self.analytic_solver[neuron.get_name()] is not None:
-            ASTUtils.add_declarations_to_internals(neuron, self.analytic_solver[neuron.get_name()]["propagators"])
+            neuron = ASTUtils.add_declarations_to_internals(
+                neuron, self.analytic_solver[neuron.get_name()]["propagators"])
 
         # generate how to calculate the next spike update
         self.update_symbol_table(neuron, kernel_buffers)
