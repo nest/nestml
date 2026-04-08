@@ -53,8 +53,6 @@ class TestRandomFunctionsWithNeuromodSpikes:
                                                                      "synapse": "random_functions_neuromod_synapse",
                                                                      "post_ports": ["post_spikes"],
                                                                      "vt_ports": ["mod_spikes"]}],
-                                           "delay_variable": {
-                                               "random_functions_neuromod_synapse": "d"},
                                            "weight_variable": {
                                                "random_functions_neuromod_synapse": "w"},
                                            "strictly_synaptic_vars": {"random_functions_neuromod_synapse": ["x", "y"]}})
@@ -103,7 +101,10 @@ class TestRandomFunctionsWithNeuromodSpikes:
                 post_spike_times, initial=0.), np.amax(vt_spike_times, initial=0.)) + 5 * delay
 
         nest.ResetKernel()
-        nest.set_verbosity("M_ERROR")
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ERROR")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ERROR
         nest.SetKernelStatus({"resolution": resolution})
         nest.Install("nestmlmodule")
 
@@ -132,7 +133,7 @@ class TestRandomFunctionsWithNeuromodSpikes:
         # set up custom synapse models
         wr = nest.Create("weight_recorder")
         nest.CopyModel(synapse_model_name, "neuromod_stdp_nestml_rec",
-                       {"weight_recorder": wr[0], "w": 1., "d": delay, "receptor_type": 0,
+                       {"weight_recorder": wr[0], "w": 1., "delay": delay, "receptor_type": 0,
                         "volume_transmitter": vt})
 
         # create parrot neurons and connect spike_generators

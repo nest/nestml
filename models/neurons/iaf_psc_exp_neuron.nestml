@@ -20,16 +20,6 @@
 # comparisons of simulation results for different computation step
 # sizes.
 #
-# .. note::
-#
-#    If tau_m is very close to tau_syn_exc or tau_syn_inh, numerical problems
-#    may arise due to singularities in the propagator matrics. If this is
-#    the case, replace equal-valued parameters by a single parameter.
-#
-# For details, please see ``IAF_neurons_singularity.ipynb`` in
-# the NEST source code (``docs/model_details``).
-#
-#
 # References
 # ++++++++++
 #
@@ -45,7 +35,6 @@
 #        subthreshold integration with continuous spike times in discrete time
 #        neural network simulations. Neural Computation, in press
 #        DOI: https://doi.org/10.1162/neco.2007.19.1.47
-#
 #
 # See also
 # ++++++++
@@ -99,6 +88,9 @@ model iaf_psc_exp_neuron:
         # constant external input current
         I_e pA = 0 pA
 
+    internals:
+        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+
     input:
         exc_spikes <- excitatory spike
         inh_spikes <- inhibitory spike
@@ -116,10 +108,10 @@ model iaf_psc_exp_neuron:
             integrate_odes(I_syn_exc, I_syn_inh, V_m)
 
     onReceive(exc_spikes):
-        I_syn_exc += exc_spikes * pA * s
+        I_syn_exc += unit_psc * exc_spikes * s
 
     onReceive(inh_spikes):
-        I_syn_inh += inh_spikes * pA * s
+        I_syn_inh += unit_psc * inh_spikes * s
 
     onCondition(refr_t <= 0 ms and V_m >= V_th):
         # threshold crossing

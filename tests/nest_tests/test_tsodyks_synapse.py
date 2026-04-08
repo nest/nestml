@@ -56,7 +56,6 @@ class TestNESTTsodyksSynapse:
 
         codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                   "synapse": "tsodyks_synapse"}],
-                        "delay_variable": {"tsodyks_synapse": "d"},
                         "weight_variable": {"tsodyks_synapse": "w"},
                         "neuron_parent_class": "StructuralPlasticityNode",
                         "neuron_parent_class_include": "structural_plasticity_node.h"}
@@ -75,7 +74,6 @@ class TestNESTTsodyksSynapse:
 
         nest_nestml_mixed_codegen_opts = {"neuron_parent_class": "ArchivingNode",
                                           "neuron_parent_class_include": "archiving_node.h",
-                                          "delay_variable": {"tsodyks_synapse": "d"},
                                           "weight_variable": {"tsodyks_synapse": "w"}}
 
         # generate the combined NEST/NESTML that relies on ArchivingNode and the NEST built-in Tsodyks2 synapse
@@ -133,7 +131,7 @@ class TestNESTTsodyksSynapse:
         wr = nest.Create("weight_recorder")
         wr_ref = nest.Create("weight_recorder")
         nest.CopyModel(synapse_model_name, "tsodyks_nestml_rec",
-                       {"weight_recorder": wr[0], "w": 1., "d": 1., "receptor_type": 0})
+                       {"weight_recorder": wr[0], "w": 1., "delay": 1., "receptor_type": 0})
         nest.CopyModel(ref_synapse_model_name, "tsodyks_ref_rec",
                        {"weight_recorder": wr_ref[0], "weight": 1., "delay": 1., "receptor_type": 0})
 
