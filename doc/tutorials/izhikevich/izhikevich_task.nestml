@@ -52,7 +52,7 @@ model izhikevich_tutorial_neuron:
 
     onReceive(spikes):
         # add synaptic current
-        v += sift(spikes, unit_psp)
+        v += unit_psp * sift(spikes, t)
 
     onCondition(v >= 30mV):
         # TODO: implement threshold crossing check
