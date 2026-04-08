@@ -87,9 +87,6 @@ model mat2_psc_exp_neuron:
         I_e pA = 0 pA
 
     internals:
-        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
-
-    internals:
         h ms = resolution()
         P11th real = exp(-h / tau_1)
         P22th real = exp(-h / tau_2)

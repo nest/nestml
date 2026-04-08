@@ -93,8 +93,6 @@ model iaf_chxk_2008_neuron:
     internals:
         PSConInit_AHP real = G_ahp * e / tau_ahp * (ms / nS)
 
-        unit_psg nS = 1 nS    # Unitary postsynaptic conductance amplitude
-
         unit_psg nS = 1 nS        # Unitary postsynaptic conductance amplitude
 
     input:

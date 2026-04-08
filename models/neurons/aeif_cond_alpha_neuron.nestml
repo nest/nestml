@@ -117,8 +117,6 @@ model aeif_cond_alpha_neuron:
     internals:
         unit_psg nS = 1 nS         # Unitary postsynaptic conductance amplitude
 
-        unit_psg nS = 1 nS    # Unitary postsynaptic conductance amplitude
-
     input:
         exc_spikes <- spike
         inh_spikes <- spike
