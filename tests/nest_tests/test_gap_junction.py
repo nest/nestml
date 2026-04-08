@@ -94,7 +94,7 @@ class TestGapJunction:
         try:
             nest.Connect(pre_parrot, pre_neuron, syn_spec={"weight": 999.})
         except BaseException:
-            nest.Connect(pre_parrot, pre_neuron, syn_spec={"weight": 999., "rport": pre_neuron.get("receptor_types")["EXC_SPIKES"]})
+            nest.Connect(pre_parrot, pre_neuron, syn_spec={"weight": 999., "receptor_type": pre_neuron.get("receptor_types")["EXC_SPIKES"]})
 
         nest.Connect(pre_neuron,
                      post_neuron,
