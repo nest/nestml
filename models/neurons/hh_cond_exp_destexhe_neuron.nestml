@@ -66,8 +66,8 @@ model hh_cond_exp_destexhe_neuron:
 
     equations:
         # synapses: exponential conductance
-        kernel g_inh = exp(-t/tau_syn_inh)
-        kernel g_exc = exp(-t/tau_syn_exc)
+        kernel g_inh = exp(-t / tau_syn_inh)
+        kernel g_exc = exp(-t / tau_syn_exc)
 
         # Add aliases to simplify the equation definition of V_m
         inline I_Na pA = g_Na * Act_m * Act_m * Act_m * Act_h * (V_m - E_Na)
@@ -142,6 +142,7 @@ model hh_cond_exp_destexhe_neuron:
     internals:
         D_exc uS**2/ms = 2 * sigma_noise_exc**2 / tau_syn_exc
         D_inh uS**2/ms = 2 * sigma_noise_inh**2 / tau_syn_inh
+        unit_psg nS = 1 nS    # Unitary postsynaptic conductance amplitude
 
         unit_psg nS = 1 nS        # Unitary postsynaptic conductance amplitude
 

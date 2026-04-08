@@ -23,8 +23,8 @@
 #
 # As published in [1]_, the numerics differs from the standard forward Euler technique in two ways:
 #
-# 1) the new value of :math:`U_{m}` is calculated based on the new value of :math:`V_{m}`, rather than the previous value
-# 2) the variable :math:`V_{m}` is updated using a time step half the size of that used to update variable :math:`U_{m}`.
+# 1. the new value of :math:`U_{m}` is calculated based on the new value of :math:`V_{m}`, rather than the previous value
+# 2. the variable :math:`V_{m}` is updated using a time step half the size of that used to update variable :math:`U_{m}`.
 #
 # This model will instead be simulated using the numerical solver that is recommended by ODE-toolbox during code generation.
 #

@@ -213,6 +213,16 @@ class Neuron_{{neuronName}}(Neuron):
 {%- endfor %}
 {%- endfilter %}
 
+  # -------------------------------------------------------------------------
+  #   Getters for internals block
+  # -------------------------------------------------------------------------
+{% filter indent(2, True) -%}
+{%- for variable_symbol in neuron.get_internal_symbols() %}
+{%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-   include "directives_py/MemberVariableGetterSetter.jinja2" %}
+{%- endfor %}
+{%- endfilter %}
+
 {% if neuron.get_equations_blocks()|length > 0 %}
   # -------------------------------------------------------------------------
   #   Numeric + analytic solver stepping function

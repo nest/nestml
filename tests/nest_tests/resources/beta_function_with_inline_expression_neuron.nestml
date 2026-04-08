@@ -38,6 +38,7 @@ model beta_function_with_inline_expression_neuron:
 
   internals:
     alpha real = 42.
+    unit_psc pA = 1 pA    # Unitary postsynaptic current amplitude
 
   equations:
     x' = x_ - x / tau2
@@ -55,4 +56,4 @@ model beta_function_with_inline_expression_neuron:
     integrate_odes()
 
   onReceive(weighted_input_spikes):
-    x_ += alpha * (1 / tau2 - 1 / tau1) * sift(spike_in_port, t)
+    x_ += unit_psc * (1 / tau2 - 1 / tau1) * sift(spike_in_port, t)

@@ -97,6 +97,8 @@ model aeif_cond_beta_neuron:
         # refractory time in steps
         RefractoryCounts integer = steps(t_ref)
 
+        unit_psg nS = 1 nS     # Unitary postsynaptic conductance amplitude
+
         unit_psg nS = 1 nS         # Unitary postsynaptic conductance amplitude
 
     input:

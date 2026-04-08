@@ -35,14 +35,14 @@ model iaf_psc_exp_nonlineardendrite_neuron:
 
     equations:
         # exponential shaped postsynaptic current kernel
-        kernel I_kernel1 = exp(-1/tau_syn1*t)
+        kernel I_kernel1 = exp(-t / tau_syn1)
 
         # alpha shaped postsynaptic current kernel
         I_dend' = I_dend$ - I_dend / tau_syn2
         I_dend$' = -I_dend$ / tau_syn2
 
         # exponential shaped postsynaptic current kernel
-        kernel I_kernel3 = exp(-1/tau_syn3*t)
+        kernel I_kernel3 = exp(-t / tau_syn3)
 
         # diff. eq. for membrane potential
         inline I_syn pA = unit_psc * (convolve(I_kernel1, I_1) - convolve(I_kernel3, I_3)) + I_e

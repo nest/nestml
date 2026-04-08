@@ -14,7 +14,7 @@
 # References
 # ++++++++++
 #
-# .. [1] R. D. Traub and R. Miles, Neuronal Networks of the Hippocampus,Cam- bridge University Press, Cambridge, UK, 1991.
+# .. [1] R. D. Traub and R. Miles, Neuronal Networks of the Hippocampus,Cambridge University Press, Cambridge, UK, 1991.
 # .. [2] Borgers, C., 2017. An introduction to modeling neuronal dynamics (Vol. 66). Cham: Springer.
 #
 # See also
@@ -155,6 +155,8 @@ model traub_cond_multisyn_neuron:
         beta_m_init real = 0.28 * (V_m / mV + 27.) / (exp((V_m / mV + 27.) / 5.) - 1.)
         alpha_h_init real = 0.128 * exp(-(V_m / mV + 50.0) / 18.0)
         beta_h_init real = 4.0 / (1.0 + exp(-(V_m / mV + 27.) / 5.))
+
+        unit_psg nS = 1 nS # Unitary postsynaptic conductance amplitude
 
         unit_psg nS = 1 nS        # Unitary postsynaptic conductance amplitude
 

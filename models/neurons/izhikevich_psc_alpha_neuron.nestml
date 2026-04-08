@@ -63,8 +63,8 @@ model izhikevich_psc_alpha_neuron:
 
     equations:
         # synapses: alpha functions
-        kernel K_syn_inh = (e/tau_syn_inh) * t * exp(-t/tau_syn_inh)
-        kernel K_syn_exc = (e/tau_syn_exc) * t * exp(-t/tau_syn_exc)
+        kernel K_syn_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
+        kernel K_syn_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
 
         inline I_syn_exc pA = unit_psc * convolve(K_syn_exc, exc_spikes)
         inline I_syn_inh pA = unit_psc * convolve(K_syn_inh, inh_spikes)

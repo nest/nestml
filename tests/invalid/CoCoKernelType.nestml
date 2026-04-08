@@ -39,4 +39,4 @@ model CoCoKernelCorrectlyTyped:
         g' ms**-1 = 1 ms**-1
 
     equations:
-        kernel g'' = (-1/tau**2 * g - 2/tau * g') * pA  # wrong type
+        kernel g'' = (-1 / tau**2 * g - 2 / tau * g') * pA  # wrong type

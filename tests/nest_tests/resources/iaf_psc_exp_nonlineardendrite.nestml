@@ -47,7 +47,7 @@ model iaf_psc_exp_nonlineardendrite:
         I_dend' = I_dend$ - I_dend / tau_syn2
         I_dend$' = -I_dend$ / tau_syn2
 
-        inline I_syn pA = convolve(I_kernel1, I_1) + dend_curr_enabled * I_dend + I_dend_ap + convolve(I_kernel3, I_3) + I_e
+        inline I_syn pA = unit_psc * convolve(I_kernel1, I_1) + dend_curr_enabled * I_dend + I_dend_ap + unit_psc * convolve(I_kernel3, I_3) + I_e
 
         V_m' = -(V_m - E_L) / tau_m + I_syn / C_m
 
@@ -68,7 +68,8 @@ model iaf_psc_exp_nonlineardendrite:
         T_dend_ap ms = 10 ms     # time window over which the dendritic current clamp is active
 
     internals:
-        unit_psr pA/ms = pA * exp(1) / tau_syn2       # Unitary postsynaptic response amplitude
+        unit_psr pA/ms = pA * exp(1) / tau_syn2       # Unitary postsynaptic response amplitude for I_2
+        unit_psc pA = 1 pA                            # Unitary postsynaptic response amplitude for I_1 and I_3
 
     input:
         I_1 <- spike

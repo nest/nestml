@@ -97,6 +97,8 @@ model wb_cond_exp_neuron:
         alpha_h_init 1/ms = 0.35/ms * exp(-(E_L + 58.0 mV) / 20.0 mV)
         beta_h_init  1/ms = 5.0 / (exp(-0.1 / mV * (E_L + 28.0 mV)) + 1.0) /ms
 
+        unit_psg nS = 1 nS    # Unitary postsynaptic conductance amplitude
+
         unit_psg nS = 1 nS        # Unitary postsynaptic conductance amplitude
 
     input:

@@ -147,7 +147,7 @@ model wb_cond_multisyn_neuron:
         alpha_h_init real = 0.35 * exp(-(V_m / mV + 58.0) / 20.0)
         beta_h_init  real = 5.0 / (exp(-0.1 * (V_m / mV + 28.0)) + 1.0)
 
-        unit_psg nS = 1 nS        # Unitary postsynaptic conductance amplitude
+        unit_psg nS = 1 nS    # Unitary postsynaptic conductance amplitude
 
     input:
         AMPA <- spike

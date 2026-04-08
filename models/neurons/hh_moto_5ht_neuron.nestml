@@ -78,7 +78,7 @@ model hh_moto_5ht_neuron:
         inline I_Ca_L pA = g_Ca_L * Act_p * (V_m - E_Ca)
         inline I_K_Ca pA = g_K_Ca_5ht * g_K_Ca * ((Ca_in * Ca_in) / (Ca_in * Ca_in + 0.014 * 0.014)) * (V_m - E_K)
 
-        V_m' =(-(I_Na + I_K + I_L + I_Ca_N + I_Ca_L + I_K_Ca) + I_stim + I_e + I_syn_inh + I_syn_exc) / C_m
+        V_m' = (-(I_Na + I_K + I_L + I_Ca_N + I_Ca_L + I_K_Ca) + I_stim + I_e + I_syn_inh + I_syn_exc) / C_m
         refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
 
         Inact_n' = (n_inf(V_m) - Inact_n) / n_tau(V_m)

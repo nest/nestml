@@ -123,11 +123,9 @@ model terub_gpe_neuron:
         # Calcium concentration
         Ca_con' = g_epsilon * (-I_Ca - I_T - g_k_Ca * Ca_con)
 
-        # synapses: alpha functions
-        ## alpha function for the g_inh
-        kernel g_inh = (e/tau_syn_inh) * t * exp(-t/tau_syn_inh)
-        ## alpha function for the g_exc
-        kernel g_exc = (e/tau_syn_exc) * t * exp(-t/tau_syn_exc)
+        # postsynaptic responses: alpha functions
+        kernel g_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
+        kernel g_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
 
     parameters:
         E_L mV = -55 mV             # Resting membrane potential
