@@ -8,7 +8,7 @@
 # References
 # ++++++++++
 #
-# .. [1] R. D. Traub and R. Miles, Neuronal Networks of the Hippocampus,Cam- bridge University Press, Cambridge, UK, 1991.
+# .. [1] R. D. Traub and R. Miles, Neuronal Networks of the Hippocampus,Cambridge University Press, Cambridge, UK, 1991.
 # .. [2] Borgers, C., 2017. An introduction to modeling neuronal dynamics (Vol. 66). Cham: Springer.
 #
 # See also
@@ -51,8 +51,8 @@ model traub_psc_alpha_neuron:
         kernel K_syn_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
         kernel K_syn_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
 
-        inline I_syn_exc pA = convolve(K_syn_exc, exc_spikes) * pA
-        inline I_syn_inh pA = convolve(K_syn_inh, inh_spikes) * pA
+        inline I_syn_exc pA = unit_psc * convolve(K_syn_exc, exc_spikes)
+        inline I_syn_inh pA = unit_psc * convolve(K_syn_inh, inh_spikes)
         inline I_Na pA = g_Na * Act_m * Act_m * Act_m * Inact_h * (V_m - E_Na)
         inline I_K pA = g_K * Act_n * Act_n * Act_n * Act_n * (V_m - E_K)
         inline I_L pA = g_L * (V_m - E_L)
@@ -100,6 +100,8 @@ model traub_psc_alpha_neuron:
         beta_m_init real = 0.28 * (V_m / mV + 27.) / (exp((V_m / mV + 27.) / 5.) - 1.)
         alpha_h_init real = 0.128 * exp(-(V_m / mV + 50.0) / 18.0)
         beta_h_init real = 4.0 / (1.0 + exp(-(V_m / mV + 27.) / 5.))
+
+        unit_psc pA = 1 pA # Unitary postsynaptic current amplitude
 
     input:
         exc_spikes <- excitatory spike

@@ -39,7 +39,7 @@ model commentTest:  #model in comment ok
 
     #equations comment ok
     equations:
-        test' = -test/tau  # ODE for test
+        test' = -test / tau  # ODE for test
 
     #parameters comment ok
     parameters:
