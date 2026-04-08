@@ -66,6 +66,7 @@ from pynestml.symbols.variable_symbol import VariableSymbol, VariableType
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
+from pynestml.utils.ode_toolbox_utils import ODEToolboxUtils
 from pynestml.utils.string_utils import removesuffix
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -2783,3 +2784,19 @@ class ASTUtils:
         syn_to_neuron_params = list(set(syn_to_neuron_params))
 
         return syn_to_neuron_params, all_declared_params
+
+    @classmethod
+    def expr_to_ast_expr(cls, astnode, expr):
+        from pynestml.utils.model_parser import ModelParser
+        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+
+        if isinstance(expr, str):
+                expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr)
+                expr_ast = ModelParser.parse_expression(expr_str)
+                # pretend that update expressions are in "equations" block, which should always be present,
+                # as differential equations must have been defined to get here
+                expr_ast.update_scope(astnode.get_equations_blocks()[0].get_scope())
+                expr_ast.accept(ASTSymbolTableVisitor())
+                return expr_ast
+
+        return expr

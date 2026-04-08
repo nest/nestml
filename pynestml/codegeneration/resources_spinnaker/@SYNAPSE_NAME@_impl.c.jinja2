@@ -265,7 +265,7 @@ static void process_pre_spike(synapse_state_t *state, uint32_t time) {
 static void process_plastic_synapse(
         uint32_t control_word,
         uint32_t last_pre_time,
-{%- for var in syn_to_neuron_state_vars %}
+{%- for var in paired_neuron.get_state_variables() %}
 		accum {{ var.name }},
 {%- endfor %}
         weight_t *ring_buffers, uint32_t pre_spike_time,
@@ -484,14 +484,10 @@ bool synapse_dynamics_process_plastic_synapses(
 
 
 
+{%- if paired_neuron is defined %}
+    // update the state of all variables common to all synapses
+
     const accum __h = time - last_pre_time;   // XXX: time constants are in ms, so __h should be as well! convert uint32_t to accum type
-
-{%- for sym in synapse.get_internal_symbols() %}
-{%-     if sym.get_symbol_name().startswith("__P") %}
-    const accum {{ sym.get_symbol_name() }} = {{ printer.print(sym.get_declaring_expression()) }};    // type: {{ sym.get_type_symbol().print_symbol() }}
-{%-     endif %}
-{%- endfor %}
-
 
 {%- for sym in metadata[synapse.name]["paired_neuron"].get_internal_symbols() %}
 {%-     if sym.get_symbol_name().startswith("__P") %}
@@ -499,17 +495,19 @@ bool synapse_dynamics_process_plastic_synapses(
 {%-     endif %}
 {%- endfor %}
 
-
-
-{%- if paired_neuron is defined %}
-    // update the state of all variables common to all synapses
     // first, update their state from the time of the last pre spike to the current time
-{%-         filter indent(6, True) -%}
-{#              emulate a call to ``integrate_odes(paired_neuron._syn_to_neuron_state_vars)`` #}
-{%-             set args = utils.resolve_variables_to_expressions(astnode, syn_to_neuron_state_vars) %}
-{%-             set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
-{%-             include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
-{%-         endfilter %}
+
+{%-     for variable_name in paired_neuron.get_state_variables() | map(attribute='name') %}
+{%-         set update_expr = utils.expr_to_ast_expr(astnode, metadata[metadata[synapse.name]["paired_neuron"].name]["analytic_solver"]["update_expressions"][variable_name]) %}
+{%-         set var_ast = utils.get_variable_by_name(metadata[synapse.name]["paired_neuron"], variable_name)%}
+{%-         set var_symbol = var_ast.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)%}
+    const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp = {{ printer.print(update_expr) }};
+{%-     endfor %}
+
+{%- for variable_name in paired_neuron.get_state_variables() | map(attribute='name') %}
+{%-   set variable_symbol = paired_neuron.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE) %}
+    {{ printer.print(utils.get_state_variable_by_name(paired_neuron, variable_symbol.get_symbol_name())) }} = {{ variable_name }}__tmp;
+{%- endfor %}
 
     // second, perform increments if needed from the onReceive spike handler
 {%-     filter indent(4) %}
@@ -532,10 +530,10 @@ bool synapse_dynamics_process_plastic_synapses(
 //        log_info("[NESTML synapse] old plastic word[%d] = %x\n", i, plastic_words[i * plastic_synapse_word_stride]);
         process_plastic_synapse(control_word,
                                 last_pre_time,
-{%- for var in syn_to_neuron_state_vars %}
+{%- for var in paired_neuron.get_state_variables() %}
 		                        plastic_region_address->history.{{ var.name }},
 {%- endfor %}
-                                plastic_region_address->history.prev_trace,
+//                                plastic_region_address->history.prev_trace,
                                 ring_buffers,
                                 time,
                                 colour_delay,

@@ -430,6 +430,10 @@ class NESTCodeGenerator(CodeGenerator):
         analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron, kernel_buffers)
         self.analytic_solver[neuron.get_name()] = analytic_solver
         self.numeric_solver[neuron.get_name()] = numeric_solver
+        metadata[neuron.get_name()]["analytic_solver"] = analytic_solver
+        metadata[neuron.get_name()]["numeric_solver"] = numeric_solver
+        print("XXXXXXXXXXXXXXXXXXXXXXXXX analysing neuron: " + str(neuron.name))
+        import pdb;pdb.set_trace()
 
         self.non_equations_state_variables[neuron.get_name()] = []
         for block in neuron.get_state_blocks():
@@ -498,7 +502,8 @@ class NESTCodeGenerator(CodeGenerator):
             analytic_solver, numeric_solver = self.ode_toolbox_analysis(synapse, kernel_buffers)
             self.analytic_solver[synapse.get_name()] = analytic_solver
             self.numeric_solver[synapse.get_name()] = numeric_solver
-
+            metadata[synapse.get_name()]["analytic_solver"] = analytic_solver
+            metadata[synapse.get_name()]["numeric_solver"] = numeric_solver
             ASTUtils.remove_initial_values_for_kernels(synapse)
             kernels = ASTUtils.remove_kernel_definitions_from_equations_block(synapse)
             ASTUtils.update_initial_values_for_odes(synapse, [analytic_solver, numeric_solver])
@@ -735,6 +740,9 @@ class NESTCodeGenerator(CodeGenerator):
                 expr_ast.update_scope(synapse.get_equations_blocks()[0].get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["update_expressions"][sym] = expr_ast
+
+                # XXX
+                #metadata[synapse.get_name()]["analytic_solver"]["update_expressions"]
             namespace["propagators"] = self.analytic_solver[synapse.get_name()]["propagators"]
 
         if namespace["uses_numeric_solver"]:

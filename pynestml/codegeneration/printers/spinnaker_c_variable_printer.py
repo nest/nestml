@@ -50,9 +50,6 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
 
         self.variables_special_cases = variables_special_cases
 
-
-
-
     def print_variable(self, variable: ASTVariable) -> str:
         """
         Converts a single variable to Spinnaker processable format.
