@@ -76,12 +76,14 @@ class ODEToolboxTransformer(Transformer):
     - **preserve_expressions**: Set to True, or a list of strings corresponding to individual variable names, to disable internal rewriting of expressions, and return same output as input expression where possible. Only applies to variables specified as first-order differential equations. (This parameter is passed to ODE-toolbox.)
     - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
     - **solver**: A string identifying the preferred ODE solver. ``"analytic"`` for propagator solver preferred; fallback to numeric solver in case ODEs are not analytically solvable. Use ``"numeric"`` to disable analytic solver.
+    - **ode_toolbox_json_options**: An optional extra dictionary; key-value pairs are passed to ODE-toolbox indict "options" key.
     """
 
     _default_options = {
         "preserve_expressions": True,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
-        "solver": "analytic"
+        "solver": "analytic",
+        "ode_toolbox_json_options": None
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
@@ -103,6 +105,11 @@ class ODEToolboxTransformer(Transformer):
         odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
         odetoolbox_indict["options"]["simplify_expression"] = self.get_option("simplify_expression")
 
+        # add overrides from the ``ode_toolbox_json_options`` option
+        if self.get_option("ode_toolbox_json_options"):
+            for key, value in self.get_option("ode_toolbox_json_options").items():
+                odetoolbox_indict["options"][key] = value
+
         return odetoolbox_indict
 
     def ode_toolbox_analysis(self,
@@ -123,7 +130,6 @@ class ODEToolboxTransformer(Transformer):
 
         odetoolbox_indict = self.create_ode_toolbox_indict(model, kernel_buffers)
 
-        odetoolbox_indict["options"]["simplify_expression"] = self.get_option("simplify_expression")
         disable_analytic_solver = self.get_option("solver") != "analytic"
         solver_result = odetoolbox.analysis(odetoolbox_indict,
                                             disable_stiffness_check=True,
