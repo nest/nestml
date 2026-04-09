@@ -416,6 +416,9 @@ class NESTCodeGenerator(CodeGenerator):
 
         spike_updates = {}
         if synapse.get_equations_blocks():
+            analytic_solver = metadata[synapse.name]["analytic_solver"]
+            numeric_solver = metadata[synapse.name]["numeric_solver"]
+
             ASTUtils.remove_initial_values_for_kernels(synapse)
             kernels = ASTUtils.remove_kernel_definitions_from_equations_block(synapse)
             ASTUtils.update_initial_values_for_odes(synapse, [analytic_solver, numeric_solver])
