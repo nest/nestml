@@ -147,13 +147,6 @@ class GeNNCodeGenerator(NESTCodeGenerator):
         self._py_function_call_printer._expression_printer = self._py_expr_printer
         self._genn_derived_params_printer = PythonStandalonePrinter(expression_printer=self._py_expr_printer)
 
-    def create_ode_toolbox_indict(self, neuron: ASTModel, kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
-        odetoolbox_indict = super().create_ode_toolbox_indict(neuron, kernel_buffers)
-        odetoolbox_indict["options"]["propagators_prefix"] = "P"    # GeNN does not support variable names that start with an underscore; hence, override the default "__P"
-        odetoolbox_indict["options"]["output_timestep_symbol"] = "dt"
-
-        return odetoolbox_indict
-
     def _get_neuron_model_namespace(self,
                                     neuron: ASTModel,
                                     metadata: Dict[str, Dict[str, Any]]) -> Dict:

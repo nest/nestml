@@ -95,31 +95,35 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         variable_name_rewriter = IllegalVariableNameTransformer({"forbidden_names": ["False", "None", "True", "and", "as", "assert", "async", "await", "break", "class", "continue", "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with", "yield"]})
         transformers.append(variable_name_rewriter)
 
-    # InlineExpressionExpansionTransformer
-    from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
-    transformer = InlineExpressionExpansionTransformer()
-    transformers.append(transformer)
+    if target_name.upper() not in ["NEST_COMPARTMENTAL"]:
+        # InlineExpressionExpansionTransformer
+        from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
+        transformer = InlineExpressionExpansionTransformer()
+        transformers.append(transformer)
 
-    # ConvolutionsToBuffersTransformer
-    from pynestml.transformers.convolutions_to_buffers_transformer import ConvolutionsToBuffersTransformer
-    transformer = ConvolutionsToBuffersTransformer()
-    transformers.append(transformer)
+        # ConvolutionsToBuffersTransformer
+        from pynestml.transformers.convolutions_to_buffers_transformer import ConvolutionsToBuffersTransformer
+        transformer = ConvolutionsToBuffersTransformer()
+        transformers.append(transformer)
 
-    # EquationsWithDelayVarsTransformer
-    from pynestml.transformers.equations_with_delay_vars_transformer import EquationsWithDelayVarsTransformer
-    transformer = EquationsWithDelayVarsTransformer()
-    transformers.append(transformer)
+        # EquationsWithDelayVarsTransformer
+        from pynestml.transformers.equations_with_delay_vars_transformer import EquationsWithDelayVarsTransformer
+        transformer = EquationsWithDelayVarsTransformer()
+        transformers.append(transformer)
 
-    # EquationsWithVectorVarsTransformer
-    from pynestml.transformers.equations_with_vector_vars_transformer import EquationsWithVectorVarsTransformer
-    transformer = EquationsWithVectorVarsTransformer()
-    transformers.append(transformer)
+        # EquationsWithVectorVarsTransformer
+        from pynestml.transformers.equations_with_vector_vars_transformer import EquationsWithVectorVarsTransformer
+        transformer = EquationsWithVectorVarsTransformer()
+        transformers.append(transformer)
 
-    # ODE-toolbox analysis
-    from pynestml.transformers.ode_toolbox_transformer import ODEToolboxTransformer
-    transformer = ODEToolboxTransformer()
-    options = transformer.set_options(options)
-    transformers.append(transformer)
+        # ODE-toolbox analysis
+        from pynestml.transformers.ode_toolbox_transformer import ODEToolboxTransformer
+        transformer = ODEToolboxTransformer()
+        if target_name.upper() == "GENN":
+            options["ode_toolbox_json_options"] = {"propagators_prefix": "P",    # GeNN does not support variable names that start with an underscore; hence, override the default "__P"
+                                                   "output_timestep_symbol": "dt"}
+        options = transformer.set_options(options)
+        transformers.append(transformer)
 
     return transformers, options
 
