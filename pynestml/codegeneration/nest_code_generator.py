@@ -299,9 +299,9 @@ class NESTCodeGenerator(CodeGenerator):
                 options = transformer.set_options(options)
                 transformer.transform([neuron], metadata)
 
+                import pdb;pdb.set_trace()
 
                 neurons.pop(neurons.index(neuron))
-
 
                 break
 
