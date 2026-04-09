@@ -409,6 +409,8 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(const std::vector
     double {{ printer_no_origin.print(channel_info["time_resolution_var"]) }} = Time::get_resolution().get_ms();
     {% endif %}
 
+    double self_spikes = *self_spikes_p;
+
         {%- for function in channel_info["Functions"] %}
         {{render_lambda(function, printer_no_origin)}}
         {%- endfor %}
@@ -807,6 +809,8 @@ void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(const std::ve
         double {{ printer_no_origin.print(concentration_info["time_resolution_var"]) }} = Time::get_resolution().get_ms();
     {% endif %}
 
+    double self_spikes = *self_spikes_p;
+
         {%- for function in concentration_info["Functions"] %}
         {{render_lambda(function, printer_no_origin)}}
         {%- endfor %}
@@ -1125,6 +1129,9 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::f_numstep(const std::vector< d
                         , std::vector< double >& i_val, std::vector< double >& g_val)
 {
     {% if receptor_info["ODEs"].items()|length %} double {{ printer_no_origin.print(receptor_info["analytic_helpers"]["__h"]["ASTVariable"]) }} = Time::get_resolution().get_ms(); {% endif %}
+
+
+    double self_spikes = *self_spikes_p;
 
   for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
       // get spikes
@@ -1617,6 +1624,8 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep
                         , std::vector< double >& i_val, std::vector< double >& g_val)
 {
 
+    double self_spikes = *self_spikes_p;
+
     for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
       // get spikes
       s_val[i] = {{receptor_info["buffer_name"]}}_[i]->get_value( lag ); //  * g_norm_;
@@ -2027,6 +2036,8 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::f_numstep(const std::vector<
     {% if "time_resolution_var" in continuous_info %}
     double {{ printer_no_origin.print(continuous_info["time_resolution_var"]) }} = Time::get_resolution().get_ms();
     {% endif %}
+
+    double self_spikes = *self_spikes_p;
 
     {% for port_name, port_info in continuous_info["Continuous"].items() %}
     std::vector< double > {{ port_name }}(neuron_{{ continuous_name }}_continuous_input_count, 0.);

@@ -105,7 +105,7 @@ private:
 
 public:
     // constructor, destructor
-    {{ion_channel_name}}{{cm_unique_suffix}}(bool* global_self_spikes) : self_spikes(global_self_spikes) {};
+    {{ion_channel_name}}{{cm_unique_suffix}}(bool* global_self_spikes) : self_spikes_p(global_self_spikes) {};
     ~{{ion_channel_name}}{{cm_unique_suffix}}(){};
 
     void set_new_indices(std::map< long, long > old_to_new_indices);
@@ -118,7 +118,7 @@ public:
 
     std::vector< size_t > compartment_association = {};
 
-    bool* self_spikes;
+    bool* self_spikes_p;
 
     // initialization channel
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
@@ -216,7 +216,7 @@ private:
 
 public:
     // constructor, destructor
-    {{ concentration_name }}{{cm_unique_suffix}}(bool* global_self_spikes) : self_spikes(global_self_spikes) {};
+    {{ concentration_name }}{{cm_unique_suffix}}(bool* global_self_spikes) : self_spikes_p(global_self_spikes) {};
     ~{{ concentration_name }}{{cm_unique_suffix}}(){};
 
     void set_new_indices(std::map< long, long > old_to_new_indices);
@@ -229,7 +229,7 @@ public:
 
     std::vector< size_t > compartment_association = {};
 
-    bool* self_spikes;
+    bool* self_spikes_p;
 
     // initialization concentration
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
@@ -334,7 +334,7 @@ private:
 
 public:
   // constructor, destructor
-  {{receptor_name}}{{cm_unique_suffix}}(bool* global_self_spikes) : self_spikes(global_self_spikes) {};
+  {{receptor_name}}{{cm_unique_suffix}}(bool* global_self_spikes) : self_spikes_p(global_self_spikes) {};
   ~{{receptor_name}}{{cm_unique_suffix}}(){};
 
   void set_new_indices(std::map< long, long > old_to_new_indices);
@@ -347,7 +347,7 @@ public:
 
   std::vector< size_t > compartment_association = {};
 
-    bool* self_spikes;
+    bool* self_spikes_p;
 
   // numerical integration step
   void f_numstep(const std::vector< double >& shared_v_comp, const long& lag {% for ode in receptor_info["Dependencies"]["concentrations"] %}, const std::vector< double >& shared_{{ode.lhs.name}}{% endfor %}{% if receptor_info["Dependencies"]["receptors"]|length %}
@@ -532,7 +532,7 @@ private:
 
 public:
   // constructor, destructor
-  {{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}(bool* global_self_spikes) : self_spikes(global_self_spikes) {};
+  {{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}(bool* global_self_spikes) : self_spikes_p(global_self_spikes) {};
   ~{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}(){};
 
   void set_new_indices(std::map< long, long > old_to_new_indices);
@@ -545,7 +545,7 @@ public:
 
   std::vector< size_t > compartment_association = {};
 
-    bool* self_spikes;
+    bool* self_spikes_p;
 
   // numerical integration step
     {%- with  %}
@@ -666,7 +666,7 @@ private:
 
 public:
   // constructor, destructor
-  {{continuous_name}}{{cm_unique_suffix}}(bool* global_self_spikes) : self_spikes(global_self_spikes) {};
+  {{continuous_name}}{{cm_unique_suffix}}(bool* global_self_spikes) : self_spikes_p(global_self_spikes) {};
   ~{{continuous_name}}{{cm_unique_suffix}}(){};
 
   void set_new_indices(std::map< long, long > old_to_new_indices);
@@ -679,7 +679,7 @@ public:
 
   std::vector< size_t > compartment_association = {};
 
-    bool* self_spikes;
+    bool* self_spikes_p;
 
   // numerical integration step
   void f_numstep(const std::vector< double >& shared_v_comp, const long& lag {% for ode in continuous_info["Dependencies"]["concentrations"] %}, const std::vector< double >& shared_{{ode.lhs.name}}{% endfor %}{% if continuous_info["Dependencies"]["receptors"]|length %}
