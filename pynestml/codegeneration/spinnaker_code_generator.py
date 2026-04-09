@@ -311,11 +311,20 @@ class SpiNNakerCodeGenerator(CodeGenerator):
             if "__header_for__" in model.name:
                 # XXX this is synapse header; do not gen code
                 # but run ODE toolbox transformer
+                from pynestml.transformers.add_timestep_to_internals_transformer import AddTimestepToInternalsTransformer
+                add_timestep_to_internals_transformer = AddTimestepToInternalsTransformer()
+                add_timestep_to_internals_transformer.transform([model], metadata)
+
                 print("XXXXXXXXXXXXXX this is synapse header; do not gen code but run ODE toolbox transformer 00000")
                 from pynestml.transformers.ode_toolbox_transformer import ODEToolboxTransformer
                 transformer = ODEToolboxTransformer()
-                options = transformer.set_options(self._options)
+                options = transformer.set_options(FrontendConfiguration.get_codegen_opts())
                 transformer.transform([model], metadata)
+
+                if metadata[model.name]["analytic_solver"] is not None:
+                    from pynestml.utils.ast_utils import ASTUtils
+                    ASTUtils.add_declarations_to_internals(model, metadata[model.name]["analytic_solver"]["propagators"])
+
                 break
 
 

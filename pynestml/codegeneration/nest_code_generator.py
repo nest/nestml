@@ -269,7 +269,6 @@ class NESTCodeGenerator(CodeGenerator):
                       models: Iterable[ASTModel],
                       metadata: Dict[str, Dict[str, Any]]) -> None:
         neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
-        import pdb;pdb.set_trace()
 
         for synapse in synapses:
             if "__header_for__" in synapse.name:
@@ -300,9 +299,9 @@ class NESTCodeGenerator(CodeGenerator):
                 options = transformer.set_options(options)
                 transformer.transform([neuron], metadata)
 
+                import pdb;pdb.set_trace()
 
                 neurons.pop(neurons.index(neuron))
-
 
                 break
 
