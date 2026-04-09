@@ -31,7 +31,6 @@ except ImportError:
 import datetime
 import re
 
-import odetoolbox
 import pynestml
 
 from pynestml.cocos.co_co_nest_synapse_delay_not_assigned_to import CoCoNESTSynapseDelayNotAssignedTo
@@ -54,14 +53,8 @@ from pynestml.codegeneration.printers.nest_variable_printer import NESTVariableP
 from pynestml.codegeneration.printers.nest2_cpp_function_call_printer import NEST2CppFunctionCallPrinter
 from pynestml.codegeneration.printers.nest_gsl_function_call_printer import NESTGSLFunctionCallPrinter
 from pynestml.codegeneration.printers.nest2_gsl_function_call_printer import NEST2GSLFunctionCallPrinter
-from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
-from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
-from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
-from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
-from pynestml.meta_model.ast_input_port import ASTInputPort
-from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
@@ -69,7 +62,6 @@ from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
 from pynestml.transformers.synapse_post_neuron_transformer import SynapsePostNeuronTransformer
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
@@ -368,6 +360,9 @@ class NESTCodeGenerator(CodeGenerator):
 
             return {}, {}, [], []
 
+        analytic_solver = metadata[neuron.name]["analytic_solver"]
+        numeric_solver = metadata[neuron.name]["numeric_solver"]
+
         self.non_equations_state_variables[neuron.get_name()] = []
         for block in neuron.get_state_blocks():
             for decl in block.get_declarations():
@@ -390,35 +385,6 @@ class NESTCodeGenerator(CodeGenerator):
         # cache state variables before symbol table update for the sake of delay variables
         state_vars_before_update = neuron.get_state_symbols()
 
-        # InlineExpressionExpansionTransformer
-        from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
-        transformer = InlineExpressionExpansionTransformer()
-        transformer.transform([neuron], metadata)
-
-        # ConvolutionsToBuffersTransformer
-        from pynestml.transformers.convolutions_to_buffers_transformer import ConvolutionsToBuffersTransformer
-        transformer = ConvolutionsToBuffersTransformer()
-        transformer.transform([neuron], metadata)
-
-        # EquationsWithDelayVarsTransformer
-        from pynestml.transformers.equations_with_delay_vars_transformer import EquationsWithDelayVarsTransformer
-        transformer = EquationsWithDelayVarsTransformer()
-        transformer.transform([neuron], metadata)
-
-        # EquationsWithDelayVarsTransformer
-        from pynestml.transformers.equations_with_vector_vars_transformer import EquationsWithVectorVarsTransformer
-        transformer = EquationsWithVectorVarsTransformer()
-        transformer.transform([neuron], metadata)
-
-        # ODE-toolbox analysis
-        from pynestml.transformers.ode_toolbox_transformer import ODEToolboxTransformer
-        transformer = ODEToolboxTransformer()
-        transformer.set_options(FrontendConfiguration.codegen_opts)
-        transformer.transform([neuron], metadata)
-
-        analytic_solver = metadata[neuron.name]["analytic_solver"]
-        numeric_solver = metadata[neuron.name]["numeric_solver"]
-
         ASTUtils.remove_initial_values_for_kernels(neuron)
         kernels = ASTUtils.remove_kernel_definitions_from_equations_block(neuron)
         ASTUtils.update_initial_values_for_odes(neuron, [analytic_solver, numeric_solver])
@@ -427,6 +393,9 @@ class NESTCodeGenerator(CodeGenerator):
         ASTUtils.create_integrate_odes_combinations(neuron)
         ASTUtils.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
         ASTUtils.replace_convolution_aliasing_inlines(neuron)
+
+        if metadata[neuron.name]["analytic_solver"] is not None:
+            ASTUtils.add_declarations_to_internals(neuron, metadata[neuron.name]["analytic_solver"]["propagators"])
 
         self.update_symbol_table(neuron)
 
@@ -447,24 +416,6 @@ class NESTCodeGenerator(CodeGenerator):
 
         spike_updates = {}
         if synapse.get_equations_blocks():
-            # InlineExpressionExpansionTransformer
-            from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
-            transformer = InlineExpressionExpansionTransformer()
-            transformer.transform([synapse], metadata)
-
-            # ConvolutionsToBuffersTransformer
-            from pynestml.transformers.convolutions_to_buffers_transformer import ConvolutionsToBuffersTransformer
-            transformer = ConvolutionsToBuffersTransformer()
-            transformer.transform([synapse], metadata)
-
-            # ODE-toolbox analysis
-            from pynestml.transformers.ode_toolbox_transformer import ODEToolboxTransformer
-            transformer = ODEToolboxTransformer()
-            transformer.set_options(FrontendConfiguration.codegen_opts)
-            transformer.transform([synapse], metadata)
-            analytic_solver = metadata[synapse.name]["analytic_solver"]
-            numeric_solver = metadata[synapse.name]["numeric_solver"]
-
             ASTUtils.remove_initial_values_for_kernels(synapse)
             kernels = ASTUtils.remove_kernel_definitions_from_equations_block(synapse)
             ASTUtils.update_initial_values_for_odes(synapse, [analytic_solver, numeric_solver])
@@ -474,6 +425,9 @@ class NESTCodeGenerator(CodeGenerator):
             ASTUtils.replace_variable_names_in_expressions(synapse, [analytic_solver, numeric_solver])
             self.update_symbol_table(synapse)
             spike_updates, _ = self.get_spike_update_expressions(synapse, metadata[synapse.name]["kernel_buffers"], [analytic_solver, numeric_solver], metadata[synapse.name]["delta_factors"], metadata)
+
+            if not metadata[synapse.get_name()]["analytic_solver"] is None:
+                ASTUtils.add_declarations_to_internals(synapse, metadata[synapse.get_name()]["analytic_solver"]["propagators"])
 
         self.update_symbol_table(synapse)
 

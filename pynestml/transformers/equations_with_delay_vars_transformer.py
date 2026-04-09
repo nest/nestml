@@ -25,13 +25,6 @@ from typing import Any, Dict, Iterable, Mapping, Optional, Set, Tuple
 
 import odetoolbox
 
-from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
-from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
-from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
-from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
-from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
-from pynestml.meta_model.ast_input_port import ASTInputPort
-from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.visitors.ast_equations_with_delay_vars_visitor import ASTEquationsWithDelayVarsVisitor
 
 try:
@@ -41,33 +34,15 @@ except ImportError:
     # Fallback for Python 3.8 - 3.11
     from typing_extensions import override
 
-from pynestml.cocos.co_cos_manager import CoCosManager
-from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
-from pynestml.frontend.frontend_configuration import FrontendConfiguration
-from pynestml.meta_model.ast_assignment import ASTAssignment
-from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
-from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_model import ASTModel
-from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
-from pynestml.meta_model.ast_variable import ASTVariable
-from pynestml.symbols.predefined_variables import PredefinedVariables
-from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.variable_symbol import BlockType
 from pynestml.transformers.transformer import Transformer
-from pynestml.utils.ast_utils import ASTUtils
-from pynestml.utils.logger import Logger
-from pynestml.utils.logger import LoggingLevel
-from pynestml.utils.string_utils import removesuffix
-from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
-from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
-from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class EquationsWithDelayVarsTransformer(Transformer):
     r"""
     Convert the delay variables parsed as function calls to ASTVariable and collects all the equations that have these delay variables in the metadata with key ``equations_with_delay_vars``.
+
+    Warning: this transformer sets attributes on the symbols in the model symbol table. If the ASTSymbolTableVisitor is run on the model, these attributes are lost.
     """
 
     @override
@@ -75,7 +50,6 @@ class EquationsWithDelayVarsTransformer(Transformer):
                   models: Iterable[ASTModel],
                   metadata: Dict[str, Dict[str, Any]]) -> Iterable[ASTModel]:
         for model in models:
-            # Collect all equations with delay variables and replace ASTFunctionCall to ASTVariable wherever necessary
             equations_with_delay_vars_visitor = ASTEquationsWithDelayVarsVisitor()
             model.accept(equations_with_delay_vars_visitor)
 

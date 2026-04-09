@@ -2098,7 +2098,7 @@ class ASTUtils:
 
         Each kernel has to be generated for each spike buffer convolve in which it occurs, e.g. if the NESTML model code contains the statements
 
-         .. code-block::
+        .. code-block::
 
            convolve(G, exc_spikes)
            convolve(G, inh_spikes)
@@ -2248,11 +2248,19 @@ class ASTUtils:
             var = el[0].get_variable()
             assert var is not None
             kernel = model.get_kernel_by_name(var.get_name())
-            assert kernel is not None, "In convolution \"convolve(" + str(var.name) + ", " + str(
-                el[1]) + ")\": no kernel by name \"" + var.get_name() + "\" found in model."
+            assert kernel is not None, "In convolution \"convolve(" + str(var.name) + ", " + str(el[1]) + ")\": no kernel by name \"" + var.get_name() + "\" found in model."
 
             el = (kernel, el[1])
-            kernel_buffers.add(el)
+
+            # make sure no duplicates are added -- expressions should be compared as strings
+            el_exists = False
+            for _el in kernel_buffers:
+                if el[0] == _el[0] and str(el[1]) == str(_el[1]):
+                    el_exists = True
+                    break
+
+            if not el_exists:
+                kernel_buffers.add(el)
 
         return kernel_buffers
 

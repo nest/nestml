@@ -152,9 +152,6 @@ class ODEToolboxTransformer(Transformer):
             if len(numeric_solvers) > 0:
                 numeric_solver = numeric_solvers[0]
 
-        if analytic_solver is not None:
-            ASTUtils.add_declarations_to_internals(model, analytic_solver["propagators"])
-
         #
         #   save the results to metadata
         #
@@ -183,8 +180,8 @@ class ODEToolboxTransformer(Transformer):
                 raise Exception("Only one equations block per model supported for now")
 
             assert "kernel_buffers" in metadata[model.name].keys(), "ConvolutionsToBuffersTransformer should have been run first on the model!"
-
             new_model = self.ode_toolbox_analysis(model, metadata[model.name]["kernel_buffers"], metadata)
+            assert new_model.has_delay_variables()
             new_models.append(new_model)
 
         return new_models
