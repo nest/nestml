@@ -381,6 +381,7 @@ class SynapsePreNeuronTransformer(Transformer):
                 raise Exception("Synapse used in pair (\"" + synapse_name + "\") not found")  # XXX: log error
 
             neuron_header_for_synapse, new_synapse = self.transform_synapse_with_pre_neuron(neuron, synapse, metadata)
+            print("Adding neuron_header_for_synapse = " + str(neuron_header_for_synapse))
             models.add(neuron_header_for_synapse)
             models.add(new_synapse)
 
