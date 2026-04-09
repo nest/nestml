@@ -180,12 +180,11 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
                 old_weight = w
                 if update_order_w_before_traces:
                     w += p["learning_rate"] * tr
-                    # tr += 1.
                     tr += .2 * (1 - tr)
                 else:
-                    # tr += 1.
                     tr += .2 * (1 - tr)
                     w += p["learning_rate"] * tr
+
                 print("[REF] t = " + str(t) + ": depressing from " + str(old_weight) + " to " + str(w) + " with tr = " + str(tr))
 
             w_history.append(w)
@@ -203,7 +202,10 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
         synapse_model_name = "postsyn_trace_synapse_nestml__with_iaf_psc_delta_neuron_nestml"
 
         nest.ResetKernel()
-        nest.verbosity=nest.VerbosityLevel.ERROR
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
         nest.Install("nestmlmodule")
         nest.print_time = False
 
@@ -213,8 +215,8 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
         syn_delay = dt
         nest.resolution = dt
 
-        spike_train_pre = np.array([ 50., 80., 100.])
-        spike_train_post = np.array([  10., 20., 30., 40., 80. - dt])
+        spike_train_pre = np.array([50., 80., 100.])
+        spike_train_post = np.array([10., 20., 30., 40., 80. - dt])
 
         p = {"Z2": 0.2,
              "tau_post2": 50.,
