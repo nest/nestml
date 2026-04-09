@@ -66,15 +66,24 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 class ODEToolboxTransformer(Transformer):
     r"""
+    Run ODE-toolbox analysis on a model.
+
+    Store the result in the model metadata with keys ``analytic_solver`` and ``numeric_solver``.
+
+    Options
+    -------
+
     - **preserve_expressions**: Set to True, or a list of strings corresponding to individual variable names, to disable internal rewriting of expressions, and return same output as input expression where possible. Only applies to variables specified as first-order differential equations. (This parameter is passed to ODE-toolbox.)
     - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
     - **solver**: A string identifying the preferred ODE solver. ``"analytic"`` for propagator solver preferred; fallback to numeric solver in case ODEs are not analytically solvable. Use ``"numeric"`` to disable analytic solver.
+    - **ode_toolbox_json_options**: An optional extra dictionary; key-value pairs are passed to ODE-toolbox indict "options" key.
     """
 
     _default_options = {
         "preserve_expressions": True,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
-        "solver": "analytic"
+        "solver": "analytic",
+        "ode_toolbox_json_options": None
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
@@ -96,6 +105,11 @@ class ODEToolboxTransformer(Transformer):
         odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
         odetoolbox_indict["options"]["simplify_expression"] = self.get_option("simplify_expression")
 
+        # add overrides from the ``ode_toolbox_json_options`` option
+        if self.get_option("ode_toolbox_json_options"):
+            for key, value in self.get_option("ode_toolbox_json_options").items():
+                odetoolbox_indict["options"][key] = value
+
         return odetoolbox_indict
 
     def ode_toolbox_analysis(self,
@@ -116,7 +130,6 @@ class ODEToolboxTransformer(Transformer):
 
         odetoolbox_indict = self.create_ode_toolbox_indict(model, kernel_buffers)
 
-        odetoolbox_indict["options"]["simplify_expression"] = self.get_option("simplify_expression")
         disable_analytic_solver = self.get_option("solver") != "analytic"
         solver_result = odetoolbox.analysis(odetoolbox_indict,
                                             disable_stiffness_check=True,
@@ -145,9 +158,6 @@ class ODEToolboxTransformer(Transformer):
             if len(numeric_solvers) > 0:
                 numeric_solver = numeric_solvers[0]
 
-        if analytic_solver is not None:
-            ASTUtils.add_declarations_to_internals(model, analytic_solver["propagators"])
-
         #
         #   save the results to metadata
         #
@@ -167,12 +177,16 @@ class ODEToolboxTransformer(Transformer):
         new_models = []
 
         for model in models:
+            if len(model.get_equations_blocks()) == 0:
+                # no equations, no need to call ODE-toolbox
+                new_models.append(model)
+                continue
+
             if len(model.get_equations_blocks()) > 1:
                 raise Exception("Only one equations block per model supported for now")
 
-            equations_block = model.get_equations_blocks()[0]
-            kernel_buffers = ASTUtils.generate_kernel_buffers(model, equations_block)
-            new_model = self.ode_toolbox_analysis(model, kernel_buffers, metadata)
+            assert "kernel_buffers" in metadata[model.name].keys(), "ConvolutionsToBuffersTransformer should have been run first on the model!"
+            new_model = self.ode_toolbox_analysis(model, metadata[model.name]["kernel_buffers"], metadata)
             new_models.append(new_model)
 
         return new_models

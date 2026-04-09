@@ -31,7 +31,6 @@ except ImportError:
 import datetime
 import re
 
-import odetoolbox
 import pynestml
 
 from pynestml.cocos.co_co_nest_synapse_delay_not_assigned_to import CoCoNESTSynapseDelayNotAssignedTo
@@ -54,14 +53,8 @@ from pynestml.codegeneration.printers.nest_variable_printer import NESTVariableP
 from pynestml.codegeneration.printers.nest2_cpp_function_call_printer import NEST2CppFunctionCallPrinter
 from pynestml.codegeneration.printers.nest_gsl_function_call_printer import NESTGSLFunctionCallPrinter
 from pynestml.codegeneration.printers.nest2_gsl_function_call_printer import NEST2GSLFunctionCallPrinter
-from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
-from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
-from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
-from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
-from pynestml.meta_model.ast_input_port import ASTInputPort
-from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
@@ -69,7 +62,6 @@ from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
 from pynestml.transformers.synapse_post_neuron_transformer import SynapsePostNeuronTransformer
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
@@ -78,8 +70,6 @@ from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.ode_toolbox_utils import ODEToolboxUtils
 from pynestml.utils.string_utils import removesuffix
-from pynestml.visitors.ast_equations_with_delay_vars_visitor import ASTEquationsWithDelayVarsVisitor
-from pynestml.visitors.ast_equations_with_vector_variables import ASTEquationsWithVectorVariablesVisitor
 from pynestml.visitors.ast_mark_delay_vars_visitor import ASTMarkDelayVarsVisitor
 from pynestml.visitors.ast_set_vector_parameter_in_update_expressions import ASTSetVectorParameterInUpdateExpressionVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
@@ -401,25 +391,8 @@ class NESTCodeGenerator(CodeGenerator):
 
             return {}, {}, [], []
 
-        if len(neuron.get_equations_blocks()) > 1:
-            raise Exception("Only one equations block per model supported for now")
-
-        equations_block = neuron.get_equations_blocks()[0]
-
-        kernel_buffers = ASTUtils.generate_kernel_buffers(neuron, equations_block)
-        InlineExpressionExpansionTransformer().transform([neuron], metadata=metadata)
-        delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
-        ASTUtils.replace_convolve_calls_with_buffers_(neuron, equations_block)
-
-        # Collect all equations with delay variables and replace ASTFunctionCall to ASTVariable wherever necessary
-        equations_with_delay_vars_visitor = ASTEquationsWithDelayVarsVisitor()
-        neuron.accept(equations_with_delay_vars_visitor)
-        equations_with_delay_vars = equations_with_delay_vars_visitor.equations
-
-        # Collect all the equations with vector variables
-        eqns_with_vector_vars_visitor = ASTEquationsWithVectorVariablesVisitor()
-        neuron.accept(eqns_with_vector_vars_visitor)
-        equations_with_vector_vars = eqns_with_vector_vars_visitor.equations
+        analytic_solver = metadata[neuron.name]["analytic_solver"]
+        numeric_solver = metadata[neuron.name]["numeric_solver"]
 
         self.non_equations_state_variables[neuron.get_name()] = []
         for block in neuron.get_state_blocks():
@@ -443,9 +416,6 @@ class NESTCodeGenerator(CodeGenerator):
         # cache state variables before symbol table update for the sake of delay variables
         state_vars_before_update = neuron.get_state_symbols()
 
-        analytic_solver = metadata[neuron.name]["analytic_solver"]
-        numeric_solver = metadata[neuron.name]["numeric_solver"]
-
         ASTUtils.remove_initial_values_for_kernels(neuron)
         kernels = ASTUtils.remove_kernel_definitions_from_equations_block(neuron)
         ASTUtils.update_initial_values_for_odes(neuron, [analytic_solver, numeric_solver])
@@ -455,14 +425,17 @@ class NESTCodeGenerator(CodeGenerator):
         ASTUtils.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
         ASTUtils.replace_convolution_aliasing_inlines(neuron)
 
+        if metadata[neuron.name]["analytic_solver"] is not None:
+            ASTUtils.add_declarations_to_internals(neuron, metadata[neuron.name]["analytic_solver"]["propagators"])
+
         self.update_symbol_table(neuron)
 
         # Update the delay parameter parameters after symbol table update
         ASTUtils.update_delay_parameter_in_state_vars(neuron, state_vars_before_update)
 
-        spike_updates, post_spike_updates = self.get_spike_update_expressions(neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors, metadata)
+        spike_updates, post_spike_updates = self.get_spike_update_expressions(neuron, metadata[neuron.name]["kernel_buffers"], [analytic_solver, numeric_solver], metadata[neuron.name]["delta_factors"], metadata)
 
-        return spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars
+        return spike_updates, post_spike_updates, metadata[neuron.name]["equations_with_delay_vars"], metadata[neuron.name]["equations_with_vector_vars"]
 
     def analyse_synapse(self, synapse: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> None:
         """
@@ -474,16 +447,6 @@ class NESTCodeGenerator(CodeGenerator):
 
         spike_updates = {}
         if synapse.get_equations_blocks():
-            if len(synapse.get_equations_blocks()) > 1:
-                raise Exception("Only one equations block per model supported for now")
-
-            equations_block = synapse.get_equations_blocks()[0]
-
-            kernel_buffers = ASTUtils.generate_kernel_buffers(synapse, equations_block)
-            InlineExpressionExpansionTransformer().transform([synapse], metadata=metadata)
-            delta_factors = ASTUtils.get_delta_factors_(synapse, equations_block)
-            ASTUtils.replace_convolve_calls_with_buffers_(synapse, equations_block)
-
             analytic_solver = metadata[synapse.name]["analytic_solver"]
             numeric_solver = metadata[synapse.name]["numeric_solver"]
 
@@ -495,7 +458,10 @@ class NESTCodeGenerator(CodeGenerator):
             ASTUtils.create_integrate_odes_combinations(synapse)
             ASTUtils.replace_variable_names_in_expressions(synapse, [analytic_solver, numeric_solver])
             self.update_symbol_table(synapse)
-            spike_updates, _ = self.get_spike_update_expressions(synapse, kernel_buffers, [analytic_solver, numeric_solver], delta_factors, metadata)
+            spike_updates, _ = self.get_spike_update_expressions(synapse, metadata[synapse.name]["kernel_buffers"], [analytic_solver, numeric_solver], metadata[synapse.name]["delta_factors"], metadata)
+
+            if not metadata[synapse.get_name()]["analytic_solver"] is None:
+                ASTUtils.add_declarations_to_internals(synapse, metadata[synapse.get_name()]["analytic_solver"]["propagators"])
 
         self.update_symbol_table(synapse)
 
