@@ -181,7 +181,6 @@ class ODEToolboxTransformer(Transformer):
 
             assert "kernel_buffers" in metadata[model.name].keys(), "ConvolutionsToBuffersTransformer should have been run first on the model!"
             new_model = self.ode_toolbox_analysis(model, metadata[model.name]["kernel_buffers"], metadata)
-            assert new_model.has_delay_variables()
             new_models.append(new_model)
 
         return new_models
