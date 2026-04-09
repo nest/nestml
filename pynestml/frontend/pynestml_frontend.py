@@ -130,7 +130,6 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         options = transformer.set_options(options)
         transformers.append(transformer)
 
->>>>>>> clinssen/ode-tb-transformer
     return transformers, options
 
 
