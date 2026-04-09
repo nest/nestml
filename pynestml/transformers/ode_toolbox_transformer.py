@@ -167,12 +167,17 @@ class ODEToolboxTransformer(Transformer):
         new_models = []
 
         for model in models:
+            if len(model.get_equations_blocks()) == 0:
+                # no equations, no need to call ODE-toolbox
+                new_models.append(model)
+                continue
+
             if len(model.get_equations_blocks()) > 1:
                 raise Exception("Only one equations block per model supported for now")
 
-            equations_block = model.get_equations_blocks()[0]
-            kernel_buffers = ASTUtils.generate_kernel_buffers(model, equations_block)
-            new_model = self.ode_toolbox_analysis(model, kernel_buffers, metadata)
+            assert "kernel_buffers" in metadata[model.name].keys(), "ConvolutionsToBuffersTransformer should have been run first on the model!"
+
+            new_model = self.ode_toolbox_analysis(model, metadata[model.name]["kernel_buffers"], metadata)
             new_models.append(new_model)
 
         return new_models

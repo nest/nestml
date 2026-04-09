@@ -95,12 +95,6 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         variable_name_rewriter = IllegalVariableNameTransformer({"forbidden_names": ["False", "None", "True", "and", "as", "assert", "async", "await", "break", "class", "continue", "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with", "yield"]})
         transformers.append(variable_name_rewriter)
 
-    # ODE-toolbox analysis for all models and all platforms
-    from pynestml.transformers.ode_toolbox_transformer import ODEToolboxTransformer
-    transformer = ODEToolboxTransformer()
-    options = transformer.set_options(options)
-    transformers.append(transformer)
-
     return transformers, options
 
 
