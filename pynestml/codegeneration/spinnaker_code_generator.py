@@ -21,6 +21,9 @@
 
 from typing import Any, Dict, Iterable, Mapping, Optional
 
+from pynestml.symbol_table.symbol_table import SymbolTable
+from pynestml.utils.ast_utils import ASTUtils
+
 try:
     # Available in the standard library starting with Python 3.12
     from typing import override
@@ -312,10 +315,22 @@ class SpiNNakerCodeGenerator(CodeGenerator):
                 # XXX this is synapse header; do not gen code
                 # but run ODE toolbox transformer
                 print("XXXXXXXXXXXXXX this is synapse header; do not gen code but run ODE toolbox transformer 00000")
+                print("00000000 The scope of neuron_header_for_synapse is: " + str(model.scope))
                 from pynestml.transformers.ode_toolbox_transformer import ODEToolboxTransformer
                 transformer = ODEToolboxTransformer()
                 options = transformer.set_options(self._options)
                 transformer.transform([model], metadata)
+
+                symbol_table_visitor = ASTSymbolTableVisitor()
+                model.accept(symbol_table_visitor)
+                SymbolTable.add_model_scope(model.get_name(), model.get_scope())
+
+
+                if metadata[model.name]["analytic_solver"] is not None:
+                    ASTUtils.add_declarations_to_internals(model, metadata[model.name]["analytic_solver"]["propagators"])
+
+                model.accept(symbol_table_visitor)
+
                 break
 
 
@@ -328,8 +343,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
 
             if "__header_for__" in model.name:
                 # XXX this is synapse header; do not gen code
-                # but run ODE toolbox transformer
-                print("XXXXXXXXXXXXXX this is synapse header; do not gen code but run ODE toolbox transformer")
+                print("XXXXXXXXXXXXXX this is synapse header; do not gen code")
                 continue
 
 
