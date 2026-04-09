@@ -308,6 +308,35 @@ class SpiNNakerCodeGenerator(CodeGenerator):
 
         for model in models:
             print("SpiNNakerCodeGenerator::generate_code(): model = " + str(model.name))
+            if "__header_for__" in model.name:
+                # XXX this is synapse header; do not gen code
+                # but run ODE toolbox transformer
+                print("XXXXXXXXXXXXXX this is synapse header; do not gen code but run ODE toolbox transformer 00000")
+                from pynestml.transformers.ode_toolbox_transformer import ODEToolboxTransformer
+                transformer = ODEToolboxTransformer()
+                options = transformer.set_options(self._options)
+                transformer.transform([model], metadata)
+                break
+
+
+        for model in models:
+
+            print("SpiNNakerCodeGenerator::generate_code(): model = " + str(model.name))
+
+
+
+
+            if "__header_for__" in model.name:
+                # XXX this is synapse header; do not gen code
+                # but run ODE toolbox transformer
+                print("XXXXXXXXXXXXXX this is synapse header; do not gen code but run ODE toolbox transformer")
+                continue
+
+
+
+
+
+
             cloned_model = model.clone()
             cloned_model.accept(ASTSymbolTableVisitor())
             if model in neurons:

@@ -279,6 +279,7 @@ class NESTCodeGenerator(CodeGenerator):
                       models: Iterable[ASTModel],
                       metadata: Dict[str, Dict[str, Any]]) -> None:
         neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
+        import pdb;pdb.set_trace()
 
         for synapse in synapses:
             if "__header_for__" in synapse.name:
@@ -286,8 +287,6 @@ class NESTCodeGenerator(CodeGenerator):
                 neurons.append(synapse)
                 synapses.pop(synapses.index(synapse))
                 break
-
-
 
         self.run_nest_target_specific_cocos(neurons, synapses)
         self.analyse_transform_neurons(neurons, metadata)
@@ -303,8 +302,20 @@ class NESTCodeGenerator(CodeGenerator):
         for neuron in neurons:
             if "__header_for__" in neuron.name:
                 # XXX this is synapse header; do not gen code
+
+
+                # but run ODE toolbox transformer
+                from pynestml.transformers.ode_toolbox_transformer import ODEToolboxTransformer
+                transformer = ODEToolboxTransformer()
+                options = transformer.set_options(options)
+                transformer.transform([neuron], metadata)
+
+
                 neurons.pop(neurons.index(neuron))
+
+
                 break
+
         self.generate_neurons(neurons, metadata)
         self.generate_synapses(synapses, metadata)
         self.generate_module_code(neurons, synapses, metadata)
