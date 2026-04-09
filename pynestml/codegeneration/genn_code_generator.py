@@ -96,8 +96,6 @@ class GeNNCodeGenerator(NESTCodeGenerator):
 
         self.set_options({"numeric_solver": "forward-Euler"})    # only forward Euler is supported for now for GeNN
 
-        self.analytic_solver = {}
-        self.numeric_solver = {}
         self.non_equations_state_variables = {}  # those state variables not defined as an ODE in the equations block
 
         self.setup_template_env()
