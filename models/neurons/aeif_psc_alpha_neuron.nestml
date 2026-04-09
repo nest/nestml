@@ -86,6 +86,9 @@ model aeif_psc_alpha_neuron:
         # constant external input current
         I_e pA = 0 pA
 
+    internals:
+        unit_psc pA = 1 pA    # Unitary postsynaptic current amplitude
+
     input:
         exc_spikes <- excitatory spike
         inh_spikes <- inhibitory spike
@@ -110,7 +113,7 @@ model aeif_psc_alpha_neuron:
         emit_spike()
 
     onReceive(exc_spikes): # Spike input
-        I_syn_exc' += exc_spikes * (e / tau_exc) * pA * s
+        I_syn_exc' += unit_psc * exc_spikes * (e / tau_exc) * s
 
     onReceive(inh_spikes): # Spike input
-        I_syn_inh' += inh_spikes * (e / tau_inh) * pA * s
+        I_syn_inh' += unit_psc * inh_spikes * (e / tau_inh) * s

@@ -728,7 +728,7 @@ public:
 {%- else %}
       Dictionary dd;
 {%- endif %}
-{{ write_in_dictionary.WriteInDictionary("dd", "long", "names::receptor_idx", "syn_it") }}
+{{ write_in_dictionary.WriteInDictionary("dd", "long", "names::receptor_idx", "static_cast< long >(syn_it)") }}
 {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::comp_idx", "compartment_index") }}
 {{ write_in_dictionary.WriteInDictionary("dd", "std::string", "names::receptor_type", "\"" + synapse_name + "\"") }}
       ad.push_back( dd );
@@ -743,7 +743,7 @@ public:
 {%- else %}
       Dictionary dd;
 {%- endif %}
-{{ write_in_dictionary.WriteInDictionary("dd", "long", "names::receptor_idx", "con_it") }}
+{{ write_in_dictionary.WriteInDictionary("dd", "long", "names::receptor_idx", "static_cast< long >(con_it)") }}
 {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::comp_idx", "compartment_index") }}
 {{ write_in_dictionary.WriteInDictionary("dd", "std::string", "names::receptor_type", "\"" + continuous_name + "\"") }}
       ad.push_back( dd );

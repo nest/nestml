@@ -49,8 +49,8 @@ model iaf_cond_exp_Istep_neuron:
         I_step_now pA = 0. pA  # momentaneous value of step current
 
     equations:
-        kernel g_in = exp(-t/tau_syn_in) # inputs from the inh conductance
-        kernel g_ex = exp(-t/tau_syn_ex) # inputs from the exc conductance
+        kernel g_in = exp(-t / tau_syn_in) # inputs from the inh conductance
+        kernel g_ex = exp(-t / tau_syn_ex) # inputs from the exc conductance
 
         inline I_syn_ex pA = convolve(g_ex, exc_spikes) * nS * (V_m - E_ex)
         inline I_syn_in pA = convolve(g_in, inh_spikes) * nS * (V_m - E_in)
