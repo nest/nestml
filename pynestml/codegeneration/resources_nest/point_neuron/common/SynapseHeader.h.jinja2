@@ -1241,7 +1241,7 @@ void
   }
 {%- endif %}
 
-{%- if nest_codegen_opt_delay_variable != "delay" %}
+{%- if nest_codegen_opt_delay_variable and nest_codegen_opt_delay_variable != "delay" %}
   if ({{ exists_in_dictionary.ExistsInDictionary("__d", synapseName + "_names::_" + nest_codegen_opt_delay_variable) }} and {{ exists_in_dictionary.ExistsInDictionary("__d", "names::delay") }})
   {
     throw BadProperty( "To prevent inconsistencies, please set either 'delay' or '{{ nest_codegen_opt_delay_variable }}' variable; not both at the same time." );
