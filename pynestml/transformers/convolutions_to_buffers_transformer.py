@@ -45,6 +45,9 @@ from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 
 class ConvolutionsToBuffersTransformer(Transformer):
     r"""
+    Replace all occurrences of `convolve(kernel[']^n, spike_input_port)` with the corresponding buffer variable, e.g. `g_E__X__spikes_exc[__d]^n` for a kernel named `g_E` and a spike input port named `spikes_exc`.
+
+    Store metadata pertaining to which buffer variables are needed (with key ``kernel_buffers``) and metadata pertaining to increments due to delta kernels (with key ``delta_factors``).
     """
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):

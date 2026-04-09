@@ -67,6 +67,7 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 class EquationsWithDelayVarsTransformer(Transformer):
     r"""
+    Convert the delay variables parsed as function calls to ASTVariable and collects all the equations that have these delay variables in the metadata with key ``equations_with_delay_vars``.
     """
 
     @override

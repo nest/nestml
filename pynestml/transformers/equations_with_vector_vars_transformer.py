@@ -37,6 +37,7 @@ from pynestml.visitors.ast_equations_with_vector_variables import ASTEquationsWi
 
 class EquationsWithVectorVarsTransformer(Transformer):
     r"""
+    Collect all the equations that contain vector variables and store them in the model metadata under the key ``equations_with_vector_vars``.
     """
 
     @override

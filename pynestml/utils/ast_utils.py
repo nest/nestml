@@ -1064,7 +1064,7 @@ class ASTUtils:
         return False
 
     @classmethod
-    def get_delay_variable_symbol(cls, node: ASTFunctionCall):
+    def get_delay_variable_symbol(cls, node: ASTFunctionCall) -> Optional[VariableSymbol]:
         """
         Returns the variable symbol for the corresponding delayed variable
         :param node: The delayed variable parsed as a function call
