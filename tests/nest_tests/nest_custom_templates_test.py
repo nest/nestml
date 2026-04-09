@@ -43,61 +43,61 @@ class NestCustomTemplatesTest(unittest.TestCase):
     Tests the code generation and installation with custom NESTML templates for NEST
     """
 
-    # @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-    #                     reason="This test does not support NEST 2")
-    # def test_custom_templates(self):
-    #     input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-    #         os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))))
-    #     target_path = "target"
-    #     target_platform = "NEST"
-    #     logging_level = "INFO"
-    #     module_name = "nestmlmodule"
-    #     suffix = "_nestml"
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                        reason="This test does not support NEST 2")
+    def test_custom_templates(self):
+        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+            os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))))
+        target_path = "target"
+        target_platform = "NEST"
+        logging_level = "INFO"
+        module_name = "nestmlmodule"
+        suffix = "_nestml"
 
-    #     codegen_opts = {"templates": {"path": "resources_nest/point_neuron",
-    #                                   "model_templates": {"neuron": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"],
-    #                                                       "synapse": ["@SYNAPSE_NAME@.h.jinja2"]},
-    #                                   "module_templates": ["setup/CMakeLists.txt.jinja2",
-    #                                                        "setup/@MODULE_NAME@.h.jinja2", "setup/@MODULE_NAME@.cpp.jinja2"]}}
+        codegen_opts = {"templates": {"path": "resources_nest/point_neuron",
+                                      "model_templates": {"neuron": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"],
+                                                          "synapse": ["@SYNAPSE_NAME@.h.jinja2"]},
+                                      "module_templates": ["setup/CMakeLists.txt.jinja2",
+                                                           "setup/@MODULE_NAME@.h.jinja2", "setup/@MODULE_NAME@.cpp.jinja2"]}}
 
-    #     generate_target(input_path, target_platform, target_path,
-    #                     logging_level=logging_level,
-    #                     module_name=module_name,
-    #                     suffix=suffix,
-    #                     codegen_opts=codegen_opts)
-    #     if not NESTTools.detect_nest_version().startswith("main"):
-    #         nest.set_verbosity("M_ALL")
-    #     else:
-    #         nest.verbosity = nest.VerbosityLevel.ALL
+        generate_target(input_path, target_platform, target_path,
+                        logging_level=logging_level,
+                        module_name=module_name,
+                        suffix=suffix,
+                        codegen_opts=codegen_opts)
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
 
-    #     nest.ResetKernel()
-    #     nest.Install("nestmlmodule")
+        nest.ResetKernel()
+        nest.Install("nestmlmodule")
 
-    #     nrn = nest.Create("iaf_psc_exp_neuron_nestml")
-    #     mm = nest.Create("multimeter")
-    #     mm.set({"record_from": ["V_m"]})
+        nrn = nest.Create("iaf_psc_exp_neuron_nestml")
+        mm = nest.Create("multimeter")
+        mm.set({"record_from": ["V_m"]})
 
-    #     nest.Connect(mm, nrn)
+        nest.Connect(mm, nrn)
 
-    #     nest.Simulate(5.0)
+        nest.Simulate(5.0)
 
-    #     fig, ax = plt.subplots(nrows=2)
-    #     ax1, ax2 = ax
+        fig, ax = plt.subplots(nrows=2)
+        ax1, ax2 = ax
 
-    #     timevec = nest.GetStatus(mm, "events")[0]["times"]
-    #     V_m = nest.GetStatus(mm, "events")[0]["V_m"]
-    #     # ax2.plot(timevec, nest.GetStatus(mm, "events")[0]["post_trace__for_stdp_nestml"], label="post_tr nestml")
-    #     ax1.plot(timevec, V_m, label="nestml", alpha=.7, linestyle=":")
+        timevec = nest.GetStatus(mm, "events")[0]["times"]
+        V_m = nest.GetStatus(mm, "events")[0]["V_m"]
+        # ax2.plot(timevec, nest.GetStatus(mm, "events")[0]["post_trace__for_stdp_nestml"], label="post_tr nestml")
+        ax1.plot(timevec, V_m, label="nestml", alpha=.7, linestyle=":")
 
-    #     ax1.set_ylabel("V_m")
+        ax1.set_ylabel("V_m")
 
-    #     for _ax in ax:
-    #         _ax.grid(which="major", axis="both")
-    #         _ax.grid(which="minor", axis="x", linestyle=":", alpha=.4)
-    #         # _ax.minorticks_on()
-    #         _ax.set_xlim(0., 5)
-    #         _ax.legend()
-    #     fig.savefig("/tmp/custom_template_test" + "_V_m.png", dpi=300)
+        for _ax in ax:
+            _ax.grid(which="major", axis="both")
+            _ax.grid(which="minor", axis="x", linestyle=":", alpha=.4)
+            # _ax.minorticks_on()
+            _ax.set_xlim(0., 5)
+            _ax.legend()
+        fig.savefig("/tmp/custom_template_test" + "_V_m.png", dpi=300)
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
