@@ -62,7 +62,7 @@ class SpiNNakerPythonVariablePrinter(VariablePrinter):
 
     def print_variable(self, variable: ASTVariable) -> str:
         """
-        Converts a single variable to nest processable format.
+        Converts a single variable to SpiNNaker Python format.
         :param variable: a single variable.
         :return: a string representation
         """

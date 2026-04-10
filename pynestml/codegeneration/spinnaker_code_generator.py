@@ -96,6 +96,14 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
             simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
                                                                constant_printer=self._constant_printer,
                                                                function_call_printer=self._nest_function_call_printer))
+
+            self._header_variable_printer = SpinnakerCVariablePrinter(expression_printer=None, with_origin="header",
+                                                                      with_vector_parameter=True)
+            self._header_printer = SpiNNakerCppExpressionPrinter(simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._header_variable_printer,
+                                                                                                                    constant_printer=self._constant_printer,
+                                                                                                                    function_call_printer=self._nest_function_call_printer))
+            self._header_variable_printer._expression_printer = self._header_printer
+
         self._nest_variable_printer._expression_printer = self._printer
         self._nest_function_call_printer._expression_printer = self._printer
         self._nest_printer = CppPrinter(expression_printer=self._printer)
@@ -157,6 +165,11 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
                                  template_namespace=self._get_synapse_model_namespace(synapse, metadata),
                                  metadata=metadata,
                                  model_name_escape_string="@SYNAPSE_NAME@")
+
+    def _get_synapse_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
+        namespace = super()._get_synapse_model_namespace(astnode, metadata)
+        namespace["header_printer"] = self._header_printer
+        return namespace
 
 class CustomPythonStandaloneCodeGenerator(PythonStandaloneCodeGenerator):
     def _get_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:

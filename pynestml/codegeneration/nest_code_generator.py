@@ -299,7 +299,7 @@ class NESTCodeGenerator(CodeGenerator):
                 options = transformer.set_options(options)
                 transformer.transform([neuron], metadata)
 
-                import pdb;pdb.set_trace()
+                # [x.name for x in variable.scope.declared_elements if "Symbol" in str(x)]
 
                 neurons.pop(neurons.index(neuron))
 
@@ -677,11 +677,18 @@ class NESTCodeGenerator(CodeGenerator):
                 expr_str = metadata[synapse.get_name()]["analytic_solver"]["update_expressions"][sym]
                 expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr_str)
                 expr_ast = ModelParser.parse_expression(expr_str)
-                # pretend that update expressions are in "equations" block, which should always be present,
-                # as differential equations must have been defined to get here
-                expr_ast.update_scope(synapse.get_equations_blocks()[0].get_scope())
+                expr_ast.update_scope(synapse.get_equations_blocks()[0].get_scope())       # pretend that update expressions are in "equations" block, which should always be present, as differential equations must have been defined to get here
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["update_expressions"][sym] = expr_ast
+
+            if "paired_neuron" in metadata[synapse.name].keys() and metadata[synapse.name]["paired_neuron"] is not None:
+                for sym_str in metadata[metadata[synapse.name]["paired_neuron"].name]["analytic_solver"]["state_variables"]:
+                    expr_str = metadata[metadata[synapse.name]["paired_neuron"].name]["analytic_solver"]["update_expressions"][sym_str]
+                    expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr_str)
+                    expr_ast = ModelParser.parse_expression(expr_str)
+                    expr_ast.update_scope(metadata[synapse.name]["paired_neuron"].get_scope())
+                    expr_ast.accept(ASTSymbolTableVisitor())
+                    namespace["update_expressions"][sym_str] = expr_ast
 
             namespace["propagators"] = metadata[synapse.get_name()]["analytic_solver"]["propagators"]
 
@@ -699,7 +706,10 @@ class NESTCodeGenerator(CodeGenerator):
                 expr_ast = ModelParser.parse_expression(expr_str)
                 # pretend that update expressions are in "equations" block, which should always be present,
                 # as differential equations must have been defined to get here
-                expr_ast.update_scope(synapse.get_equations_blocks()[0].get_scope())
+                if "paired_neuron" in metadata[synapse.name].keys() and metadata[synapse.name]["paired_neuron"] is not None:
+                    expr_ast.update_scope(metadata[synapse.name]["paired_neuron"].get_scope())
+                else:
+                    expr_ast.update_scope(synapse.get_equations_blocks()[0].get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["numeric_update_expressions"][sym] = expr_ast
 

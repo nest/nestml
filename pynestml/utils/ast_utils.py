@@ -2794,6 +2794,7 @@ class ASTUtils:
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
         if isinstance(expr, str):
+                assert False
                 expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr)
                 expr_ast = ModelParser.parse_expression(expr_str)
                 # pretend that update expressions are in "equations" block, which should always be present,
