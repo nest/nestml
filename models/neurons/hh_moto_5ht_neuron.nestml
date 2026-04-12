@@ -130,8 +130,8 @@ model hh_moto_5ht_neuron:
         unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
 
     input:
-        inh_spikes <- spike
         exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:
