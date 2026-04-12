@@ -1,0 +1,71 @@
+{#
+Adds compartment(s) to cm_tree.
+#}
+/**
+* Add a compartment (or compartments) to the tree, so that the new compartment
+* has the compartment specified by "parent_idx" as parent. The parent
+* has to be in the tree, otherwise an error will be raised.  We add either a
+* single compartment or multiple compartments, depending on wether the
+* entry was a list of dicts or a single dict
+*/
+if ( {{ exists_in_dictionary.ExistsInDictionary("statusdict", "names::compartments") }} )
+{
+     /**
+     * Until an operator to explicititly append compartments is added to the
+     * API, we disable this functionality
+     */
+    if ( c_tree_.get_size() > 0 )
+    {
+      throw BadProperty( "\"compartments\" is already defined for this model" );
+    }
+
+{%- if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
+
+    Datum* dat = ( *statusdict )[ names::compartments ].datum();
+    ArrayDatum* ad = dynamic_cast< ArrayDatum* >( dat );
+    DictionaryDatum* dd = dynamic_cast< DictionaryDatum* >( dat );
+
+    if ( ad != nullptr )
+    {
+      // A list of compartments is provided, we add them all to the tree
+      for ( Token* tt = ( *ad ).begin(); tt != ( *ad ).end(); ++tt )
+      {
+        // cast the Datum pointer stored within token dynamically to a
+        // DictionaryDatum pointer
+        add_compartment_( *dynamic_cast< DictionaryDatum* >( tt->datum() ) );
+      }
+    }
+    else if ( dd != nullptr )
+    {
+      // A single compartment is provided, we add add it to the tree
+      add_compartment_( *dd );
+    }
+    else
+    {
+      throw BadProperty(
+        "\"compartments\" entry could not be identified, provide "
+        "list of parameter dicts for multiple compartments" );
+    }
+{%- else %}
+    if ( std::holds_alternative< std::vector< Dictionary > >( statusdict.at( names::compartments ) ) )
+    {
+      auto compartments = statusdict.get< std::vector< Dictionary > >( names::compartments );
+      // A list of compartments is provided, we add them all to the tree
+      for ( auto& compartment_dict : compartments )
+      {
+        add_compartment_( compartment_dict );
+      }
+    }
+    else if ( std::holds_alternative< Dictionary >( statusdict.at( names::compartments ) ) )
+    {
+      // A single compartment is provided, we add it to the tree
+      add_compartment_( statusdict.get< Dictionary >( names::compartments ) );
+    }
+    else
+    {
+      throw BadProperty(
+        "\'compartments\' entry could not be identified, provide "
+        "list of parameter dicts for multiple compartments" );
+    }
+{%- endif %}
+}

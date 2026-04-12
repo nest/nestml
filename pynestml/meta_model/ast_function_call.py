@@ -32,7 +32,7 @@ class ASTFunctionCall(ASTNode):
     @attribute name The (qualified) name of the function
     @attribute args Comma separated list of expressions representing parameters.
     Grammar:
-        functionCall : calleeName=NAME '(' (rhs (',' rhs)*)? ')';
+        functionCall : calleeName=NAME "(" (rhs ("," rhs)*)? ")";
     Attributes:
         callee_name = None
         args = None

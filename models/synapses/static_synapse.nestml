@@ -1,16 +1,15 @@
 # Static synapse
 # ##############
-# 
+#
 # Description
 # +++++++++++
 # A synapse where the synaptic strength (weight) does not evolve with simulated time, but is defined as a (constant) parameter.
-#
 #
 # Copyright statement
 # +++++++++++++++++++
 #
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
 #
 # NEST is free software: you can redistribute it and/or modify
@@ -26,17 +25,15 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
-#
 model static_synapse:
     parameters:
         w real = 1    # Synaptic weight
-        d ms = 1 ms    # Synaptic transmission delay
 
     input:
         pre_spikes <- spike
 
     output:
-        spike(weight real, delay ms)
+        spike
 
     onReceive(pre_spikes):
-        emit_spike(w, d)
+        emit_spike(w)

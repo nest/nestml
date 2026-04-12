@@ -46,21 +46,21 @@ class NESTCppFunctionCallPrinter(CppFunctionCallPrinter):
         function_name = function_call.get_name()
 
         if function_name == PredefinedFunctions.TIME_TIMESTEP:
-            return '__timestep'
+            return "__timestep"
 
         if function_name == PredefinedFunctions.TIME_RESOLUTION:
-            return 'nest::Time::get_resolution().get_ms()'
+            return "nest::Time::get_resolution().get_ms()"
 
         if function_name == PredefinedFunctions.TIME_STEPS:
-            return 'nest::Time(nest::Time::ms((double) ({!s}))).get_steps()'
+            return "nest::Time(nest::Time::ms((double) ({!s}))).get_steps()"
 
         if function_name == PredefinedFunctions.RANDOM_NORMAL:
-            return '(({!s}) + ({!s}) * ' + 'normal_dev_( nest::get_vp_specific_rng( ' + 'get_thread() ) ))'
+            return "(({!s}) + ({!s}) * " + "normal_dev_( nest::get_vp_specific_rng( " + "get_thread() ) ))"
 
         if function_name == PredefinedFunctions.RANDOM_POISSON:
-            return '([&]() -> int {{ nest::poisson_distribution::param_type poisson_params({!s}); int sample = poisson_dev_( nest::get_vp_specific_rng( get_thread() ), poisson_params); return sample; }})()'   # double curly braces {{ }} due to passing through str.format() later
+            return "([&]() -> int {{ nest::poisson_distribution::param_type poisson_params({!s}); int sample = poisson_dev_( nest::get_vp_specific_rng( get_thread() ), poisson_params); return sample; }})()"   # double curly braces {{ }} due to passing through str.format() later
 
         if function_name == PredefinedFunctions.RANDOM_UNIFORM:
-            return '(({!s}) + ({!s}) * nest::get_vp_specific_rng( ' + 'get_thread() )->drand())'
+            return "(({!s}) + ({!s}) * nest::get_vp_specific_rng( " + "get_thread() )->drand())"
 
         return super()._print_function_call_format_string(function_call)

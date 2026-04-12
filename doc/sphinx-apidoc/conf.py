@@ -28,9 +28,9 @@ import pip
 import sys
 import datetime
 
-# pip.main(['install', 'Sphinx==1.5.6'])
+# pip.main(["install", "Sphinx==1.5.6"])
 
-# pip.main(['install', 'sphinx-gallery'])
+# pip.main(["install", "sphinx-gallery"])
 
 import subprocess
 
@@ -42,7 +42,7 @@ from sphinx.highlighting import lexers
 #   register NESTML custom syntax highlighting
 #
 
-sys.path.append('../../extras/syntax-highlighting/pygments')
+sys.path.append("../../extras/syntax-highlighting/pygments")
 
 from pygments_nestml import NESTMLLexer
 
@@ -53,22 +53,22 @@ lexers["nestml"] = NESTMLLexer(startinline=True)
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath('../doc/sphinx-apidoc'))
-sys.path.insert(0, os.path.abspath('doc/sphinx-apidoc'))
-sys.path.insert(0, os.path.abspath('../..'))
-sys.path.insert(0, os.path.abspath('..'))
-sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath('doc'))
-sys.path.insert(0, os.path.abspath('pynestml'))
-sys.path.insert(0, os.path.abspath('pynestml/codegeneration'))
+sys.path.insert(0, os.path.abspath("../doc/sphinx-apidoc"))
+sys.path.insert(0, os.path.abspath("doc/sphinx-apidoc"))
+sys.path.insert(0, os.path.abspath("../.."))
+sys.path.insert(0, os.path.abspath(".."))
+sys.path.insert(0, os.path.abspath("."))
+sys.path.insert(0, os.path.abspath("doc"))
+sys.path.insert(0, os.path.abspath("pynestml"))
+sys.path.insert(0, os.path.abspath("pynestml/codegeneration"))
 
 print("sys.path: " + str(sys.path))
 
 print("Running sphinx-apidoc...")
 os.system("sphinx-apidoc --module-first -o "
- + os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../pynestml')
+ + os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../pynestml")
  + " "
- + os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../pynestml'))	# in-source generation of necessary .rst files
+ + os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../pynestml"))	# in-source generation of necessary .rst files
 
 print("Copying documentation files...")
 import fnmatch
@@ -81,15 +81,15 @@ sys.path.insert(0, os.path.join(static_docs_dir, "sphinx-apidoc/pynestml_toolcha
 sys.path.insert(0, os.path.join(static_docs_dir, "sphinx-apidoc/"))
 matches = []
 for root, dirnames, filenames in os.walk(static_docs_dir):
-    for filename in fnmatch.filter(filenames, '*.rst'):
+    for filename in fnmatch.filter(filenames, "*.rst"):
             matches.append(os.path.join(root, filename))
-    for filename in fnmatch.filter(filenames, '*.pdf'):
+    for filename in fnmatch.filter(filenames, "*.pdf"):
             matches.append(os.path.join(root, filename))
-    for filename in fnmatch.filter(filenames, '*.png'):
+    for filename in fnmatch.filter(filenames, "*.png"):
             matches.append(os.path.join(root, filename))
-    for filename in fnmatch.filter(filenames, '*.svg'):
+    for filename in fnmatch.filter(filenames, "*.svg"):
             matches.append(os.path.join(root, filename))
-    for filename in fnmatch.filter(filenames, '*.ipynb'):
+    for filename in fnmatch.filter(filenames, "*.ipynb"):
             matches.append(os.path.join(root, filename))
 print("Matches:")
 print(matches)
@@ -109,62 +109,62 @@ for fn in matches:
     fn_from = fn
     fn_to = os.path.join(static_docs_dir, "sphinx-apidoc", fn[len(static_docs_dir)+1:])
     print("From " + fn_from + " to " + fn_to)
-    os.system('install -v -D ' + fn_from + " " + fn_to)
-#os.system('for i in `find .. -name "*.rst"` ; do if [[ ${i} != *"sphinx-apidoc"* ]] ; then install -v -D ${i} ${i/\.\.\//}; fi ; done')
+    os.system("install -v -D " + fn_from + " " + fn_to)
+#os.system("for i in `find .. -name "*.rst"` ; do if [[ ${i} != *"sphinx-apidoc"* ]] ; then install -v -D ${i} ${i/\.\.\//}; fi ; done")
 
-"""os.system('cp -v '
- + os.path.join(os.path.dirname(os.path.abspath(__file__)), 'contents.rst')
- + ' '
- + os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../pynestml/contents.rst'))	# copy master file into source directory as sphinx needs it there"""
+"""os.system("cp -v "
+ + os.path.join(os.path.dirname(os.path.abspath(__file__)), "contents.rst")
+ + " "
+ + os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../pynestml/contents.rst"))	# copy master file into source directory as sphinx needs it there"""
 
-os.system('cp -v '
- + os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../pynestml/*.rst')
- + ' '
- + os.path.join(os.path.dirname(os.path.abspath(__file__)), '.'))	# copy master file into source directory as sphinx needs it there
+os.system("cp -v "
+ + os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../pynestml/*.rst")
+ + " "
+ + os.path.join(os.path.dirname(os.path.abspath(__file__)), "."))	# copy master file into source directory as sphinx needs it there
 
-os.system('cp -v '
- + os.path.join(os.path.dirname(os.path.abspath(__file__)), '../*.rst')
- + ' '
- + os.path.join(os.path.dirname(os.path.abspath(__file__)), '.'))	# copy master file into source directory as sphinx needs it there
+os.system("cp -v "
+ + os.path.join(os.path.dirname(os.path.abspath(__file__)), "../*.rst")
+ + " "
+ + os.path.join(os.path.dirname(os.path.abspath(__file__)), "."))	# copy master file into source directory as sphinx needs it there
 
 # The master toctree document.
 master_doc = "index"
 
-source_suffix = ['.rst']
+source_suffix = [".rst"]
 
 
 # -- General configuration ------------------------------------------------
 
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.autosectionlabel',
-    'sphinx.ext.napoleon',
-    'sphinx.ext.autosummary',
-    'sphinx.ext.doctest',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.todo',
-    'sphinx.ext.coverage',
-    'sphinx.ext.mathjax',
-    'sphinx_design',
-    'nbsphinx',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosectionlabel",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.doctest",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.todo",
+    "sphinx.ext.coverage",
+    "sphinx.ext.mathjax",
+    "sphinx_design",
+    "nbsphinx",
 ]
 
 mathjax_path = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-# source_suffix = ['.rst', '.md']
-# source_suffix = '.rst'
+# source_suffix = [".rst", ".md"]
+# source_suffix = ".rst"
 
 # General information about the project.
 current_year = datetime.datetime.now().year
-project = u'NESTML documentation'
-copyright = f'2004-{current_year}, licensed under the GNU General Public License (GPL) v2 or later'
-author = u'nest-simulator'
+project = u"NESTML documentation"
+copyright = f"2004-{current_year}, licensed under the GNU General Public License (GPL) v2 or later"
+author = u"nest-simulator"
 
 
 # The version info for the project you're documenting, acts as replacement for
@@ -172,9 +172,9 @@ author = u'nest-simulator'
 # built documents.
 #
 # The short X.Y version.
-version = '1.0.0'
+version = "latest"
 # The full version, including alpha/beta/rc tagss
-release = '1.0.0'
+release = "latest"
 # The language for content autogenerated by Sphinx. Refer to documentation
 # for a list of supported languages.
 #
@@ -182,14 +182,16 @@ release = '1.0.0'
 # Usually you set "language" from the command line for these cases.
 language = None
 
+html_title = "NESTML documentation"
+
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'manni'
-highlight_language = 'none'	# default highlighting language: prevents keywords like "if" and "True" being highlighted when rendering plain text block
+pygments_style = "manni"
+highlight_language = "none"	# default highlighting language: prevents keywords like "if" and "True" being highlighted when rendering plain text block
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
@@ -198,80 +200,80 @@ todo_include_todos = False
 numfig = True
 
 numfig_secnum_depth = (2)
-numfig_format = {'figure': 'Figure %s', 'table': 'Table %s',
-                 'code-block': 'Code Block %s'}
+numfig_format = {"figure": "Figure %s", "table": "Table %s",
+                 "code-block": "Code Block %s"}
 # -- Options for HTML output ----------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 
-html_theme_options = {'logo_only': True}
+html_theme_options = {"logo_only": True}
 html_logo = "nestml-logo/nestml-logo.png"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 # These paths are either relative to html_static_path
 # or fully qualified paths (eg. https://...)
 html_css_files = [
-    'css/custom.css',
-    'css/pygments.css'
+    "css/custom.css",
+    "css/pygments.css"
 ]
 
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'NESTMLdoc'
+htmlhelp_basename = "NESTMLdoc"
 
 html_show_sphinx = False
 html_show_copyright = True
 
 # This way works for ReadTheDocs
-# With this local 'make html' is broken!
-github_doc_root = ''
+# With this local "make html" is broken!
+github_doc_root = ""
 
-intersphinx_mapping = {'https://docs.python.org/': None}
+intersphinx_mapping = {"https://docs.python.org/": None}
 
 
 def setup(app):
-    app.add_css_file('css/custom.css')
-    app.add_css_file('css/pygments.css')
+    app.add_css_file("css/custom.css")
+    app.add_css_file("css/pygments.css")
 
 
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_elements = {
-    # The paper size ('letterpaper' or 'a4paper').
+    # The paper size ("letterpaper" or "a4paper").
     #
-    # 'papersize': 'letterpaper',
+    # "papersize": "letterpaper",
 
-    # The font size ('10pt', '11pt' or '12pt').
+    # The font size ("10pt", "11pt" or "12pt").
     #
-    # 'pointsize': '10pt',
+    # "pointsize": "10pt",
 
     # Additional stuff for the LaTeX preamble.
     #
-    # 'preamble': '',
+    # "preamble": "",
 
     # Latex figure (float) alignment
     #
-    # 'figure_align': 'htbp',
+    # "figure_align": "htbp",
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'NESTML-doc.tex', u'NESTML documentation',
-     u'NESTML documentation', 'manual'),
+    (master_doc, "NESTML-doc.tex", u"NESTML documentation",
+     u"NESTML documentation", "manual"),
 ]
 
 
@@ -280,7 +282,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'nestml-doc', u'NESTML documentation',
+    (master_doc, "nestml-doc", u"NESTML documentation",
      [author], 1)
 ]
 
@@ -291,14 +293,14 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'NESTML-doc', u'NESTML documentation',
-     author, 'NESTML-doc', 'NESTML documentation',
-     'Miscellaneous'),
+    (master_doc, "NESTML-doc", u"NESTML documentation",
+     author, "NESTML-doc", "NESTML documentation",
+     "Miscellaneous"),
 ]
 
 # -- Options for readthedocs ----------------------------------------------
-# on_rtd = os.environ.get('READTHEDOCS') == 'True'
+# on_rtd = os.environ.get("READTHEDOCS") == "True"
 # if on_rtd:
-#    html_theme = 'alabaster'
+#    html_theme = "alabaster"
 # else:
-#    html_theme = 'nat'
+#    html_theme = "nat"
