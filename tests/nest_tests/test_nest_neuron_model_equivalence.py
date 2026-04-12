@@ -157,13 +157,13 @@ class TestNESTNeuronModelEquivalence:
         # models.append(("iaf_tum_2000", "iaf_tum_2000_nestml", None, 0.01))
         # models.append(("mat2_psc_exp", "mat2_psc_exp_nestml", None, 0.1))
 
-    def _test_model_equivalence_subthreshold(self, nest_model_name, nestml_model_name, gsl_error_tol=1E-3, tolerance=1E-7, tolerance_spiketimes=1E-9, nest_model_parameters=None, nestml_model_parameters=None, model_initial_state=None, kernel_opts=None, syn_spec=None):
-        self._test_model_equivalence_psc(nest_model_name, nestml_model_name, gsl_error_tol, tolerance, tolerance_spiketimes, nest_model_parameters, nestml_model_parameters, model_initial_state, kernel_opts=kernel_opts, fname_snip="[subthreshold]_", syn_spec=syn_spec)
+    def _test_model_equivalence_subthreshold(self, nest_model_name, nestml_model_name, tolerance=1E-7, tolerance_spiketimes=1E-9, nest_model_parameters=None, nestml_model_parameters=None, model_initial_state=None, kernel_opts=None, syn_spec=None):
+        self._test_model_equivalence_psc(nest_model_name, nestml_model_name, tolerance, tolerance_spiketimes, nest_model_parameters, nestml_model_parameters, model_initial_state, kernel_opts=kernel_opts, fname_snip="[subthreshold]_", syn_spec=syn_spec)
 
-    def _test_model_equivalence_spiking(self, nest_model_name, nestml_model_name, gsl_error_tol=1E-3, tolerance=1E-7, tolerance_spiketimes=1E-9, nest_model_parameters=None, nestml_model_parameters=None, model_initial_state=None, kernel_opts=None, syn_spec=None):
-        self._test_model_equivalence_psc(nest_model_name, nestml_model_name, gsl_error_tol, tolerance, tolerance_spiketimes, nest_model_parameters, nestml_model_parameters, model_initial_state, max_weight=5000., kernel_opts=kernel_opts, fname_snip="[spiking]_", syn_spec=syn_spec)
+    def _test_model_equivalence_spiking(self, nest_model_name, nestml_model_name, tolerance=1E-7, tolerance_spiketimes=1E-9, nest_model_parameters=None, nestml_model_parameters=None, model_initial_state=None, kernel_opts=None, syn_spec=None):
+        self._test_model_equivalence_psc(nest_model_name, nestml_model_name, tolerance, tolerance_spiketimes, nest_model_parameters, nestml_model_parameters, model_initial_state, max_weight=5000., kernel_opts=kernel_opts, fname_snip="[spiking]_", syn_spec=syn_spec)
 
-    def _test_model_equivalence_curr_inj(self, nest_model_name, nestml_model_name, gsl_error_tol=1E-3, tolerance=1E-7, nest_model_parameters=None, nestml_model_parameters=None, model_initial_state=None, kernel_opts=None, t_stop=1000., t_pulse_start=100., t_pulse_stop=300.):
+    def _test_model_equivalence_curr_inj(self, nest_model_name, nestml_model_name, tolerance=1E-7, nest_model_parameters=None, nestml_model_parameters=None, model_initial_state=None, kernel_opts=None, t_stop=1000., t_pulse_start=100., t_pulse_stop=300.):
         """For different levels of injected current, verify that behaviour is the same between NEST and NESTML"""
 
         I_stim_vec = np.linspace(10E-12, 1E-9, 3)  # [A]
@@ -191,9 +191,6 @@ class TestNESTNeuronModelEquivalence:
                 nest.SetStatus(nest_neuron, model_initial_state)
                 nest.SetStatus(nestml_neuron, model_initial_state)
 
-            # if gsl_error_tol is not None:
-            #     nest.SetStatus(nestml_neuron, {"gsl_error_tol": gsl_error_tol})
-
             dc = nest.Create("dc_generator", params={"amplitude": 0.})
 
             nest.Connect(dc, nest_neuron)
@@ -202,7 +199,7 @@ class TestNESTNeuronModelEquivalence:
             multimeter1 = nest.Create("multimeter")
             multimeter2 = nest.Create("multimeter")
 
-            V_m_specifier = "V_m"  # "delta_V_m"
+            V_m_specifier = "V_m"
             nest.SetStatus(multimeter1, {"record_from": [V_m_specifier]})
             nest.SetStatus(multimeter2, {"record_from": [V_m_specifier]})
 
@@ -247,7 +244,7 @@ class TestNESTNeuronModelEquivalence:
 
             np.testing.assert_allclose(Vms1, Vms2)
 
-    def _test_model_equivalence_fI_curve(self, nest_model_name, nestml_model_name, gsl_error_tol=1E-3, tolerance=1E-7, nest_model_parameters=None, nestml_model_parameters=None, model_initial_state=None, kernel_opts=None):
+    def _test_model_equivalence_fI_curve(self, nest_model_name, nestml_model_name, tolerance=1E-7, nest_model_parameters=None, nestml_model_parameters=None, model_initial_state=None, kernel_opts=None):
         """For different levels of injected current, verify that behaviour is the same between NEST and NESTML"""
         t_stop = 1000.  # [ms]
 
@@ -277,9 +274,6 @@ class TestNESTNeuronModelEquivalence:
             if model_initial_state is not None:
                 nest.SetStatus(nest_neuron, model_initial_state)
                 nest.SetStatus(nestml_neuron, model_initial_state)
-
-            # if gsl_error_tol is not None:
-            #     nest.SetStatus(nestml_neuron, {"gsl_error_tol": gsl_error_tol})
 
             dc = nest.Create("dc_generator", params={"amplitude": 1E12 * I_stim})  # 1E12: convert A to pA
 
@@ -358,10 +352,13 @@ class TestNESTNeuronModelEquivalence:
                 plt.savefig("/tmp/nestml_models_library_[" + nest_model_name + "]_f-I_curve" + fname_snip + ".png")
                 plt.close(fig)
 
-    def _test_model_equivalence_psc(self, nest_model_name, nestml_model_name, gsl_error_tol, tolerance=None, tolerance_spiketimes=1E-9, nest_model_parameters=None, nestml_model_parameters=None, model_initial_state=None, max_weight: float = 10., compare_V_m_traces: bool = True, kernel_opts=None, fname_snip="", syn_spec=None):
+    def _test_model_equivalence_psc(self, nest_model_name, nestml_model_name, tolerance=None, tolerance_spiketimes=1E-9, nest_model_parameters=None, nestml_model_parameters=None, model_initial_state=None, max_weight: float = 10., compare_V_m_traces: bool = True, kernel_opts=None, fname_snip="", syn_spec=None):
 
         spike_times = np.linspace(100, 200, 11)
         spike_weights = np.linspace(1, max_weight, 11)
+
+        if syn_spec is None:
+            syn_spec = {}
 
         nest.ResetKernel()
         if not NESTTools.detect_nest_version().startswith("main"):
@@ -387,20 +384,13 @@ class TestNESTNeuronModelEquivalence:
             nest.SetStatus(nest_neuron, model_initial_state)
             nest.SetStatus(nestml_neuron, model_initial_state)
 
-        # if gsl_error_tol is not None:
-        #     nest.SetStatus(nestml_neuron, {"gsl_error_tol": gsl_error_tol})
-
         spikegenerator = nest.Create("spike_generator",
                                      params={"spike_times": spike_times, "spike_weights": spike_weights})
         nest.Connect(spikegenerator, nest_neuron, syn_spec=syn_spec)
 
         if "receptor_types" in nestml_neuron.get().keys() and len(nestml_neuron.get("receptor_types")) > 1:
             # this NESTML neuron is written as having separate input ports for excitatory and inhibitory spikes
-            syn_spec_nestml = syn_spec
-            if syn_spec_nestml is None:
-                syn_spec_nestml = {}
-            syn_spec_nestml.update({"receptor_type": nestml_neuron.get("receptor_types")["EXC_SPIKES"]})
-            nest.Connect(spikegenerator, nestml_neuron, syn_spec=syn_spec_nestml)
+            nest.Connect(spikegenerator, nestml_neuron, syn_spec=syn_spec | {"receptor_type": nestml_neuron.get("receptor_types")["EXC_SPIKES"]})
         else:
             # this NESTML neuron is written as having one input port for excitatory and inhibitory spikes (with sign of the weight telling the difference)
             nest.Connect(spikegenerator, nestml_neuron, syn_spec=syn_spec)
