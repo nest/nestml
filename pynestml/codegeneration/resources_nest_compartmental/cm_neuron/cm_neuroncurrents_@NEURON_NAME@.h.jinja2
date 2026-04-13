@@ -96,10 +96,10 @@ public:
     std::vector< size_t > compartment_association = {};
 
     // initialization channel
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-    void calibrate() {
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
     void pre_run_hook() {
+{%- else %}
+    void calibrate() {
 {%- endif %}
     };
 
@@ -176,10 +176,10 @@ public:
     std::vector< size_t > compartment_association = {};
 
     // initialization concentration
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-    void calibrate() {
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
     void pre_run_hook() {
+{%- else %}
+    void calibrate() {
 {%- endif %}
     for(std::size_t concentration_id = 0; concentration_id < neuron_{{ concentration_name }}_concentration_count; concentration_id++){
     // states
@@ -294,10 +294,10 @@ public:
                         {% endif %}{% for inline in synapse_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %});
 
   // calibration
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  void calibrate();
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
   void pre_run_hook();
+{%- else %}
+  void calibrate();
 {%- endif %}
   void append_recordables(std::map< Name, double* >* recordables, const long compartment_idx);
   void set_buffer_ptr( std::vector< RingBuffer >& syn_buffers )
@@ -382,10 +382,10 @@ public:
                         {% endif %}{% for inline in continuous_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %});
 
   // calibration
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  void calibrate();
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
   void pre_run_hook();
+{%- else %}
+  void calibrate();
 {%- endif %}
   void append_recordables(std::map< Name, double* >* recordables, const long compartment_idx);
   void set_buffer_ptr( std::vector< RingBuffer >& continuous_buffers )
@@ -490,27 +490,15 @@ public:
   NeuronCurrents{{cm_unique_suffix}}(){};
   ~NeuronCurrents{{cm_unique_suffix}}(){};
 
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  void calibrate() {
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
   void pre_run_hook() {
+{%- else %}
+  void calibrate() {
 {%- endif %}
     // initialization of ion channels
   {%- with %}
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-    {%- for ion_channel_name, channel_info in chan_info.items() %}
-    {{ion_channel_name}}{{channel_suffix}}.calibrate();
-    {% endfor -%}
-    {%- for concentration_name, concentration_info in conc_info.items() %}
-    {{concentration_name}}{{concentration_suffix}}.calibrate();
-    {% endfor -%}
-    {%- for synapse_name, synapse_info in syns_info.items() %}
-    {{synapse_name}}{{synapse_suffix}}.calibrate();
-    {% endfor -%}
-    {%- for continuous_name, continuous_info in con_in_info.items() %}
-    {{continuous_name}}{{continuous_suffix}}.calibrate();
-    {% endfor -%}
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
+
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     {{ion_channel_name}}{{channel_suffix}}.pre_run_hook();
     {% endfor -%}
@@ -522,6 +510,19 @@ public:
     {% endfor -%}
     {%- for continuous_name, continuous_info in con_in_info.items() %}
     {{continuous_name}}{{continuous_suffix}}.pre_run_hook();
+    {% endfor -%}
+{%- else %}
+    {%- for ion_channel_name, channel_info in chan_info.items() %}
+    {{ion_channel_name}}{{channel_suffix}}.calibrate();
+    {% endfor -%}
+    {%- for concentration_name, concentration_info in conc_info.items() %}
+    {{concentration_name}}{{concentration_suffix}}.calibrate();
+    {% endfor -%}
+    {%- for synapse_name, synapse_info in syns_info.items() %}
+    {{synapse_name}}{{synapse_suffix}}.calibrate();
+    {% endfor -%}
+    {%- for continuous_name, continuous_info in con_in_info.items() %}
+    {{continuous_name}}{{continuous_suffix}}.calibrate();
     {% endfor -%}
 {%- endif %}
     int con_end_index;

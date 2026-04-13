@@ -169,10 +169,7 @@ class TestNESTNeuronModelEquivalence:
         I_stim_vec = np.linspace(10E-12, 1E-9, 3)  # [A]
         for i, I_stim in enumerate(I_stim_vec):
             nest.ResetKernel()
-            if not NESTTools.detect_nest_version().startswith("main"):
-                nest.set_verbosity("M_ERROR")
-            else:
-                nest.verbosity = nest.VerbosityLevel.ERROR
+            NESTTools.set_nest_verbosity("ERROR")
             nest.print_time = False
             if kernel_opts:
                 nest.SetKernelStatus(kernel_opts)
@@ -253,10 +250,7 @@ class TestNESTNeuronModelEquivalence:
         rate_reference = float("nan") * np.ones_like(I_stim_vec)
         for i, I_stim in enumerate(I_stim_vec):
             nest.ResetKernel()
-            if not NESTTools.detect_nest_version().startswith("main"):
-                nest.set_verbosity("M_ERROR")
-            else:
-                nest.verbosity = nest.VerbosityLevel.ERROR
+            NESTTools.set_nest_verbosity("ERROR")
             nest.print_time = False
             if kernel_opts:
                 nest.SetKernelStatus(kernel_opts)
@@ -361,10 +355,7 @@ class TestNESTNeuronModelEquivalence:
             syn_spec = {}
 
         nest.ResetKernel()
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ERROR")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ERROR
+        NESTTools.set_nest_verbosity("ERROR")
         nest.print_time = False
         if kernel_opts:
             nest.SetKernelStatus(kernel_opts)

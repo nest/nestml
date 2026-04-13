@@ -58,12 +58,8 @@ class TestNestSetWithDistribution:
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_nest_set_with_distribution(self):
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
-
         nest.ResetKernel()
+        NESTTools.set_nest_verbosity("ALL")
         nest.Install("nestmlmodule")
 
         neur = nest.Create("iaf_psc_exp_neuron_nestml__with_stdp_synapse_nestml", 100)
