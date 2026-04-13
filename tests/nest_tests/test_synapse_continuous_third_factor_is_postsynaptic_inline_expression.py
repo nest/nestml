@@ -82,10 +82,7 @@ class TestSynapseContinuousThirdFactorIsPostsynapticInlineExpression:
 
         nest.ResetKernel()
         nest.resolution = 1.
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ERROR")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ERROR
+        NESTTools.set_nest_verbosity("ERROR")
 
         nest.Install("nestmlmodule")
 

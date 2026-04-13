@@ -125,9 +125,39 @@ print(nest_version, file=sys.stderr)
         try:
             if version_string and "main" not in version_string:
                 version = semver.Version.parse(version_string.split("v")[1])
-                version_dict["major"], version_dict["minor"], version_dict["patch"] = version.major, version.minor, version.patch
+                version_dict["major"], version_dict["minor"], version_dict[
+                    "patch"] = version.major, version.minor, version.patch
         except ValueError:
             Logger.log_message(None, -1, "The NEST Simulator version cannot be parsed by semver: " + version_string,
                                None, LoggingLevel.WARNING)
 
         return version_dict
+
+    @classmethod
+    def set_nest_verbosity(cls, verbosity: str) -> None:
+        r"""Set NEST verbosity level; compatible with different versions of NEST.
+
+        Allowed values:
+        - "ALL"
+        - "INFO"
+        - "WARNING"
+        - "ERROR"
+        """
+        import nest
+
+        assert verbosity in ["ALL", "INFO", "WARNING",
+                             "ERROR"], "Verbosity level needs to be one of \"ALL\", \"INFO\", \"WARNING\", \"ERROR\""
+
+        # nest.verbosity is only present in versions >= 3.10
+        if "verbosity" in dir(nest):
+            if verbosity == "ALL":
+                nest.verbosity = nest.VerbosityLevel.ALL
+            elif verbosity == "INFO":
+                nest.verbosity = nest.VerbosityLevel.INFO
+            elif verbosity == "WARNING":
+                nest.verbosity = nest.VerbosityLevel.WARNING
+            else:
+                assert verbosity == "ERROR"
+                nest.verbosity = nest.VerbosityLevel.ERROR
+        else:
+            nest.set_verbosity("M_" + verbosity)
