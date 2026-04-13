@@ -271,7 +271,7 @@ jobs:
         env:
           LD_LIBRARY_PATH: ${{ env.NEST_INSTALL }}/lib/nest
         run: |
-          pytest -s -o log_cli=true -o log_cli_level="DEBUG" tests/nest_tests/nest_integration_test.py
+          pytest -s -o log_cli=true -o log_cli_level="DEBUG" tests/nest_tests/test_nest_neuron_model_equivalence.py
 
       - name: Run Jupyter notebooks
         if: ${{ matrix.nest_branch == 'main' }}
