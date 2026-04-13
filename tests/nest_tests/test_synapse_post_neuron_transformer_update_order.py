@@ -46,7 +46,7 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
     Note that the SynapsePostNeuronTransformer is not used in this test by setting ``strictly_synaptic_vars``.
     """
 
-    def generate_model_code(self, update_order_w_before_traces: bool = False):
+    def generate_model_code(self, update_order_w_before_traces: bool):
         r"""Generate the NEST C++ code for neuron and synapse models"""
 
         files = [os.path.join("models", "neurons", "iaf_psc_delta_neuron.nestml")]
@@ -66,16 +66,22 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
 
         generate_nest_target(input_path=input_path,
                              logging_level="DEBUG",
-                             suffix="_nestml",
+                             suffix=str(update_order_w_before_traces) + "_nestml",
+                             module_name="test_synapse_post_neuron_transformer_update_order_" + str(update_order_w_before_traces) + "_module",
                              codegen_opts=codegen_opts)
 
-    def test_postsyn_trace_synapse(self):
-        self.run_test_postsyn_trace_synapse(update_order_w_before_traces=True)
+        print("Generated code for update_order_w_before_traces = " + str(update_order_w_before_traces))
 
-    def test_postsyn_trace_synapse_alternate_order(self):
-        self.run_test_postsyn_trace_synapse(update_order_w_before_traces=False)
+    def _run_nest_simulation(self, initial_w, neuron_model_name, synapse_model_name, T, dt, spike_train_pre, spike_train_post, syn_delay, p, update_order_w_before_traces):
+        nest.ResetKernel()
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
+        nest.Install("test_synapse_post_neuron_transformer_update_order_" + str(update_order_w_before_traces) + "_module")
+        nest.print_time = False
+        nest.resolution = dt
 
-    def _run_nest_simulation(self, initial_w, neuron_model_name, synapse_model_name, T, dt, spike_train_pre, spike_train_post, syn_delay, p):
         # weight recorder
         wr = nest.Create("weight_recorder")
         syn_model = "stdp_stp_synapse_rec"
@@ -195,25 +201,18 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
 
         return timevec, z2_history, w_history
 
-    def run_test_postsyn_trace_synapse(self, update_order_w_before_traces: bool):
+    @pytest.mark.parametrize("update_order_w_before_traces", [True, False])
+    def test_postsyn_trace_synapse(self, update_order_w_before_traces: bool):
+        print("Running for update_order_w_before_traces = " + str(update_order_w_before_traces))
         self.generate_model_code(update_order_w_before_traces)
 
-        neuron_model_name = "iaf_psc_delta_neuron_nestml__with_postsyn_trace_synapse_nestml"
-        synapse_model_name = "postsyn_trace_synapse_nestml__with_iaf_psc_delta_neuron_nestml"
-
-        nest.ResetKernel()
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
-        nest.Install("nestmlmodule")
-        nest.print_time = False
+        neuron_model_name = "iaf_psc_delta_neuron" + str(update_order_w_before_traces) + "_nestml__with_postsyn_trace_synapse" + str(update_order_w_before_traces) + "_nestml"
+        synapse_model_name = "postsyn_trace_synapse" + str(update_order_w_before_traces) + "_nestml__with_iaf_psc_delta_neuron" + str(update_order_w_before_traces) + "_nestml"
 
         initial_w = 1.0
         T = 150.
         dt = 0.1
         syn_delay = dt
-        nest.resolution = dt
 
         spike_train_pre = np.array([50., 80., 100.])
         spike_train_post = np.array([10., 20., 30., 40., 80. - dt])
@@ -222,7 +221,7 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
              "tau_post2": 50.,
              "learning_rate": 1E-3}
 
-        timevec_nest, trace_nest, w_nest, spike_train_pre_nest, spike_train_post_nest = self._run_nest_simulation(initial_w, neuron_model_name, synapse_model_name, T, dt, spike_train_pre, spike_train_post, syn_delay, p)
+        timevec_nest, trace_nest, w_nest, spike_train_pre_nest, spike_train_post_nest = self._run_nest_simulation(initial_w, neuron_model_name, synapse_model_name, T, dt, spike_train_pre, spike_train_post, syn_delay, p, update_order_w_before_traces)
         np.testing.assert_allclose(spike_train_pre, spike_train_pre_nest)
 
         timevec_ref, trace_ref, w_ref = self._run_ref_simulation(initial_w, T, dt, spike_train_post_nest + .1, spike_train_post, p, update_order_w_before_traces=update_order_w_before_traces)
