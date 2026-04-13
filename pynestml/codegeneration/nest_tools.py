@@ -118,6 +118,9 @@ print(nest_version, file=sys.stderr)
 
     @classmethod
     def get_version_dict_from_version_string(cls, version_string):
+        """
+        Constructs a version dictionary from version string with major, minor, and patch parts.
+        """
         version_dict = {}
         try:
             if version_string and "main" not in version_string:
