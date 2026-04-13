@@ -130,11 +130,7 @@ class NestSTDPNeuromodTest(unittest.TestCase):
                 post_spike_times, initial=0.), np.amax(vt_spike_times, initial=0.)) + 5 * delay
 
         nest.ResetKernel()
-        # nest.set_verbosity("M_ALL")
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ERROR")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ERROR
+        NESTTools.set_nest_verbosity("ERROR")
         nest.SetKernelStatus({"resolution": resolution})
         nest.Install("nestml_jit_module")
         nest.Install("nestml_non_jit_module")

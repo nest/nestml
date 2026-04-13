@@ -46,12 +46,8 @@ class TestNestVectorsIntegration:
                              target_path=target_path,
                              logging_level=logging_level,
                              suffix=suffix)
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
-
         nest.ResetKernel()
+        NESTTools.set_nest_verbosity("ALL")
         try:
             nest.Install("nestmlmodule")
         except Exception:
@@ -94,12 +90,9 @@ class TestNestVectorsIntegration:
                              target_path=target_path,
                              logging_level=logging_level,
                              suffix=suffix)
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
 
         nest.ResetKernel()
+        NESTTools.set_nest_verbosity("ALL")
         try:
             nest.Install("nestmlmodule")
         except Exception:
