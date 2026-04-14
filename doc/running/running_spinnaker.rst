@@ -29,20 +29,32 @@ Generating code
 
    .. code-block:: bash
 
-      apptainer shell --overlay ~/spinnaker-overlay.img ~/spinnaker-apptainer.sif
+      apptainer shell --overlay spinnaker-overlay.img spinnaker-apptainer.sif
 
-4. Install NESTML in ``$HOME/nestml``.
+4. Clone the NESTML repository:
 
-5. Create the installation directory:
+   .. code-block:: bash
+
+      cd
+      git clone https://github.com/nest/nestml
+
+5. Install NESTML:
+
+   .. code-block:: bash
+
+      cd nestml
+      python3 setup.py install
+
+6. Create the installation directory for the generated SpiNNaker code:
 
    .. code-block:: bash
 
       # need to create this directory first, otherwise it gets ignored in the PYTHONPATH!
       mkdir $HOME/nestml/spinnaker-install
 
-   It is recommended to create a new, empty target and install directory every time before generating the code.
+   It is recommended to create a new, empty target and install directory every time before generating the code to avoid conflicts.
 
-6. Run the test
+7. Run the test
 
    .. code-block:: bash
 
@@ -52,7 +64,7 @@ Generating code
 Data types
 ^^^^^^^^^^
 
-- The NESTML data type ``real`` will be rendered as a 32-bit fixpoint number, which consists of a 16-bit integer part and a 15-bit fractional part. Additionally, one bit is used for the sign of the number, where negative numbers are stored with two's complement notation.
+- The NESTML data type ``real`` will be rendered as a 32-bit fixed point number, which consists of a 16-bit integer part and a 15-bit fractional part. Additionally, one bit is used for the sign of the number, where negative numbers are stored with two's complement notation.
 - The NESTML data type ``integer`` will be rendered as ``int32_t``.
 
 
