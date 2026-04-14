@@ -101,11 +101,11 @@ model traub_psc_alpha_neuron:
         alpha_h_init real = 0.128 * exp(-(V_m / mV + 50.0) / 18.0)
         beta_h_init real = 4.0 / (1.0 + exp(-(V_m / mV + 27.) / 5.))
 
-        unit_psc pA = 1 pA # Unitary postsynaptic current amplitude
+        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
 
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:

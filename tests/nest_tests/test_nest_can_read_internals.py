@@ -32,7 +32,7 @@ class TestNESTCanReadInternals:
     """Test that NEST can read internal parameters of the neuron and that internals are properly updated when parameters are changed."""
 
     def test_nest_can_read_internals(self):
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "models", "neurons", "aeif_cond_alpha_neuron.nestml")))
+        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "tests", "nest_tests", "resources", "test_nest_can_read_internals_neuron.nestml")))
         target_path = "target"
         logging_level = "DEBUG"
         module_name = "nestmlmodule"

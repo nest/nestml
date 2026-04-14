@@ -76,7 +76,7 @@ class TestContinuousThirdFactorInModulatorySpikesHandler:
         neuron1 = nest.Create("parrot_neuron")
         neuron2 = nest.Create(nestml_model_name)
         nest.CopyModel(synapse_model_name, "my_nestml_synapse", {"volume_transmitter": vt})
-        nest.Connect(neuron1, neuron2, syn_spec={"synapse_model": "my_nestml_synapse", "weight": 1., "delay": 1.})
+        nest.Connect(neuron1, neuron2, syn_spec={"synapse_model": "my_nestml_synapse", "weight": 1., "delay": 1., "receptor_type": neuron2.get("receptor_types")["EXC_SPIKES"]})
 
         sg = nest.Create("spike_generator",
                          params={"spike_times": [20., 50., 80.]})
