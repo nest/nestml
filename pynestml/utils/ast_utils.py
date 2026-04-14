@@ -1512,7 +1512,7 @@ class ASTUtils:
         return rhs_is_delta_kernel or rhs_is_multiplied_delta_kernel
 
     @classmethod
-    def get_input_port_by_name(cls, input_blocks: List[ASTInputBlock], port_name: str) -> ASTInputPort:
+    def get_input_port_by_name(cls, input_blocks: List[ASTInputBlock], port_name: str) -> Optional[ASTInputPort]:
         """
         Get the input port given the port name
         :param input_block: block to be searched
@@ -1521,15 +1521,20 @@ class ASTUtils:
         """
         for input_block in input_blocks:
             for input_port in input_block.get_input_ports():
+                if input_port.name == port_name:
+                    return input_port
+
                 if input_port.has_size_parameter():
                     size_parameter = input_port.get_size_parameter()
                     if isinstance(size_parameter, ASTSimpleExpression):
                         size_parameter = size_parameter.get_numeric_literal()
-                    port_name, port_index = port_name.split("_")
+
+                    port_name_, port_index = port_name.split("_")    # XXX: this seems very fragile
                     assert int(port_index) >= 0
                     assert int(port_index) <= size_parameter
-                if input_port.name == port_name:
-                    return input_port
+                    if input_port.name == port_name_:
+                        return input_port
+
         return None
 
     @classmethod
