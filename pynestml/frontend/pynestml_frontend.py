@@ -123,15 +123,7 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
 
         # rewrite all Python keywords
         # from: ``import keyword; print(keyword.kwlist)``
-        variable_name_rewriter = IllegalVariableNameTransformer({"forbidden_names": ["False", "None", "True", "and",
-                                                                                     "as", "assert", "async", "await",
-                                                                                     "break", "class", "continue",
-                                                                                     "def", "del", "elif", "else",
-                                                                                     "except", "finally", "for", "from",
-                                                                                     "global", "if", "import", "in",
-                                                                                     "is", "lambda", "nonlocal", "not",
-                                                                                     "or", "pass", "raise", "return",
-                                                                                     "try", "while", "with", "yield"]})
+        variable_name_rewriter = IllegalVariableNameTransformer({"forbidden_names": ["False", "None", "True", "and", "as", "assert", "async", "await", "break", "class", "continue", "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with", "yield"]})
         transformers.append(variable_name_rewriter)
 
     return transformers, options
@@ -343,8 +335,7 @@ def generate_nest_target(input_path: Union[str, Sequence[str]], target_path: Opt
 
 def generate_python_standalone_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None,
                                       logging_level="ERROR", module_name: str = "nestmlmodule", store_log: bool = False,
-                                      suffix: str = "", dev: bool = False,
-                                      codegen_opts: Optional[Mapping[str, Any]] = None):
+                                      suffix: str = "", dev: bool = False, codegen_opts: Optional[Mapping[str, Any]] = None):
     r"""Generate and build code for the standalone Python target.
 
     Parameters
@@ -620,7 +611,7 @@ def process() -> bool:
     models = list(set(models) - set(excluded_models))
 
     if len(models) == 0:
-        return True  # there is no model code to generate, return error condition
+        return True # there is no model code to generate, return error condition
 
     # transformation(s)
     models, metadata = transform_models(transformers, models)

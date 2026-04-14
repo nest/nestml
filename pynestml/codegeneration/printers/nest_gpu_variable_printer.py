@@ -20,10 +20,8 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import annotations
+
 from pynestml.codegeneration.nest_gpu_code_generator_utils import NESTGPUCodeGeneratorUtils
-
-from pynestml.utils.ast_utils import ASTUtils
-
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter

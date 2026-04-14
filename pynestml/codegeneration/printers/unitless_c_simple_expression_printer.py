@@ -20,10 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.codegeneration.printers.c_simple_expression_printer import CSimpleExpressionPrinter
-from pynestml.codegeneration.spinnaker_unit_converter import SpinnakerUnitConverter
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
-from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.predefined_units import PredefinedUnits
 
 
 class UnitlessCSimpleExpressionPrinter(CSimpleExpressionPrinter):
@@ -50,11 +47,6 @@ class UnitlessCSimpleExpressionPrinter(CSimpleExpressionPrinter):
             return self._constant_printer.print_constant(node.get_numeric_literal())
 
         if node.is_variable() and node.get_scope() is not None:
-            # node_is_variable_symbol = node.get_scope().resolve_to_symbol(
-            #     node.variable.get_complete_name(), SymbolKind.VARIABLE) is not None
-            # if not node_is_variable_symbol and PredefinedUnits.is_unit(node.variable.get_complete_name()):
-            #     # case for a literal unit, e.g. "ms"
-            #     return str(SpinnakerUnitConverter.get_factor(PredefinedUnits.get_unit(node.variable.get_complete_name()).get_unit()))
             self._variable_printer.print_variable(node.get_variable())
 
         return super().print_simple_expression(node)

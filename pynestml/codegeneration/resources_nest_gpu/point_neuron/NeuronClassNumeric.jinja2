@@ -40,6 +40,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *  You should have received a copy of the GNU General Public License
  *  along with NEST GPU.  If not, see <http://www.gnu.org/licenses/>.
  *
+ *  Generated from NESTML {{ nestml_version }} at time: {{ now }}
  */
 
 #include <config.h>
@@ -84,7 +85,7 @@ void NodeInit(int n_var, int n_param, double x, float *y, float *param,
 {%- endfor %}
 
     // State variables
-{%- for variable_symbol in neuron.get_state_symbols_sorted_by_suffix() %}
+{%- for variable_symbol in neuron.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     include "directives/MemberInitialization.jinja2" %}
 {%- endfor %}
@@ -98,7 +99,6 @@ void NodeInit(int n_var, int n_param, double x, float *y, float *param,
 {%- endif %}
 
 
-  {# TODO #}
   // Input port variables
 {%- for variable_symbol in neuron.get_spike_input_ports() %}
     y[N_SCAL_VAR + i_{{ variable_symbol.get_symbol_name() }}] = 0;
@@ -109,7 +109,6 @@ __device__
 void NodeCalibrate(int n_var, int n_param, double x, float *y,
 		       float *param, {{neuronName}}_rk5 data_struct)
 {
-  // refractory_step = 0;
 {%- filter indent(4,True) %}
 {%- for internals_block in neuron.get_internals_blocks() %}
 {%-     for decl in internals_block.get_declarations() %}
@@ -242,8 +241,11 @@ void Derivatives(double x, float *y, float *dydx, float *param,
 
 {%-       elif utils.is_elif_clause(parent) %}
     else if({{ gsl_printer.print(parent.get_condition()) }})
-{%-       else  %}
+{%-       elif utils.is_else_clause(parent) %}
     else
+{%-       else %}
+    // The code execution shouldn't reach here!
+    assert(0);
 {%-       endif %}
     {
       {{ neuronName }}_ns::Derivatives{% if ast.get_args() | length > 0 %}_{{ utils.integrate_odes_args_str_from_function_call(ast) }}{% endif %}<NVAR, NPARAM>(x, y, dydx, param, data_struct);
@@ -286,16 +288,13 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
   var_arr_ = rk5_.GetYArr();
   param_arr_ = rk5_.GetParamArr();
 
-  {# TODO: modify according to the new changes in models #}
   // multiplication factor of input signal is always 1 for all nodes
   float input_weight = 1.0;
-  gpuErrchk(cudaMalloc(&port_weight_arr_, sizeof(float)));
-  gpuErrchk(cudaMemcpy(port_weight_arr_, &input_weight,
-			 sizeof(float), cudaMemcpyHostToDevice));
+  CUDAMALLOCCTRL( "&port_weight_arr_", &port_weight_arr_, sizeof( float ) );
+  gpuErrchk( cudaMemcpy( port_weight_arr_, &input_weight, sizeof( float ), cudaMemcpyHostToDevice ) );
   port_weight_arr_step_ = 0;
   port_weight_port_step_ = 0;
 
-  {# TODO: change the way the port is obtained #}
   // process the input spikes
   port_input_arr_ = GetVarArr() + n_scal_var_ + GetPortVarIdx("{{ utils.get_first_excitatory_port(neuron) }}");
   port_input_arr_step_ = n_var_;

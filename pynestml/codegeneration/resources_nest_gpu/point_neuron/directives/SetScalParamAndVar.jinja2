@@ -5,7 +5,7 @@
 {%- macro SetScalParamAndVar(expr) -%}
 {%- if utils.is_declaring_expression_parameter(expr) %}
   *GetScalParam(0, n_node, "{{expr}}")
-{%- elif utils.is_declaring_expression_state_varible(expr) %}
+{%- elif utils.is_declaring_expression_state_variable(expr) %}
   *GetScalVar(0, n_node, "{{expr}}")
 {%- else %}
   {{printer_no_origin.print(expr)}}

@@ -38,6 +38,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *  You should have received a copy of the GNU General Public License
  *  along with NEST GPU.  If not, see <http://www.gnu.org/licenses/>.
  *
+ *  Generated from NESTML {{ nestml_version }} at time: {{ now }}
  */
 
 #include <config.h>
@@ -210,7 +211,7 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
 {%- endfor %}
 
     // State variables
-{%- for variable_symbol in neuron.get_state_symbols_sorted_by_suffix() %}
+{%- for variable_symbol in neuron.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
     SetScalVar(0, n_node, "{{ printer_no_origin.print(variable) }}", {{set_scal_param_var.SetScalParamAndVar(variable_symbol.get_declaring_expression())}});
 {%- endfor %}

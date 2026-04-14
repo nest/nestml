@@ -91,14 +91,14 @@ class NESTGPUBuilder(Builder):
             os.makedirs(nest_gpu_build_path, exist_ok=True)
         except (FileExistsError, FileNotFoundError):
             raise GeneratedCodeBuildException(
-                "Error occurred during \"make\"! More detailed error messages can be found in stdout.")
+                f"Error occurred while creating directory {nest_gpu_build_path}! More detailed error messages can be found in stdout.")
 
         # cmake
         try:
             subprocess.check_call(cmake_cmd, stderr=subprocess.STDOUT, cwd=nest_gpu_build_path)
         except subprocess.CalledProcessError as e:
             raise GeneratedCodeBuildException(
-                "Error occurred during \"make\"! More detailed error messages can be found in stdout.")
+                "Error occurred during \"cmake\"! More detailed error messages can be found in stdout.")
 
         # now execute make
         try:

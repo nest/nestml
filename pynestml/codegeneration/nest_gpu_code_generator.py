@@ -18,10 +18,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from typing import Dict, Sequence, Optional, Mapping, Any, List
+
 import glob
 import os
 import shutil
-from typing import Dict, Sequence, Optional, Mapping, Any, List
+
+from pynestml.codegeneration.nest_gpu_code_generator_utils import NESTGPUCodeGeneratorUtils
 from pynestml.codegeneration.printers.c_simple_expression_printer import CSimpleExpressionPrinter
 from pynestml.codegeneration.printers.cpp_printer import CppPrinter
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
@@ -36,34 +39,12 @@ from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
 
-def replace_text_between_tags(filepath, replace_str, begin_tag="// <<BEGIN_NESTML_GENERATED>>",
-                              end_tag="// <<END_NESTML_GENERATED>>", rfind=False):
-    with open(filepath, "r") as f:
-        file_str = f.read()
-
-    # Find the start and end positions of the tags
-    if rfind:
-        start_pos = file_str.rfind(begin_tag) + len(begin_tag)
-        end_pos = file_str.rfind(end_tag)
-    else:
-        start_pos = file_str.find(begin_tag) + len(begin_tag)
-        end_pos = file_str.find(end_tag)
-
-    # Concatenate the new string between the start and end tags and write it back to the file
-    file_str = file_str[:start_pos] + replace_str + file_str[end_pos:]
-    with open(filepath, "w") as f:
-        f.write(file_str)
-    f.close()
-
-
 class NESTGPUCodeGenerator(NESTCodeGenerator):
     """
     A code generator for NEST GPU target
     """
 
     _default_options = {
-        "neuron_parent_class": "BaseNeuron",
-        "neuron_parent_class_include": "archiving_node.h",
         "preserve_expressions": False,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "neuron_models": [],
@@ -81,7 +62,8 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
-        super(NESTCodeGenerator, self).__init__(NESTGPUCodeGenerator._default_options.update(options if options else {}))
+        super(NESTCodeGenerator, self).__init__(
+            NESTGPUCodeGenerator._default_options.update(options if options else {}))
         if not self.option_exists("nest_gpu_path") or not self.get_option("nest_gpu_path"):
             if "NEST_GPU" in os.environ:
                 self.nest_gpu_path = os.environ["NEST_GPU"]
@@ -138,7 +120,8 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
             function_call_printer=self._gsl_function_call_printer))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
 
-    def generate_module_code(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel], metadata: Dict[str, Dict[str, Any]]):
+    def generate_module_code(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel],
+                             metadata: Dict[str, Dict[str, Any]]):
         """
         Modify some header and CUDA files for the new models to be recognized
         """
@@ -170,8 +153,8 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
 
         neuron_indexes = "".join(neuron_indexes) + "\n"
         neuron_names = "".join(neuron_names) + "\n"
-        replace_text_between_tags(neuron_models_h_path, neuron_indexes)
-        replace_text_between_tags(neuron_models_h_path, neuron_names, rfind=True)
+        NESTGPUCodeGeneratorUtils.replace_text_between_tags(neuron_models_h_path, neuron_indexes)
+        NESTGPUCodeGeneratorUtils.replace_text_between_tags(neuron_models_h_path, neuron_names, rfind=True)
 
     def add_model_to_neuron_class(self, neurons: List[ASTModel]):
         """
@@ -195,8 +178,8 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
                                " }")
         include_files = "".join(include_files) + "\n"
         code_blocks = "".join(code_blocks) + "\n"
-        replace_text_between_tags(neuron_models_cu_path, include_files)
-        replace_text_between_tags(neuron_models_cu_path, code_blocks, rfind=True)
+        NESTGPUCodeGeneratorUtils.replace_text_between_tags(neuron_models_cu_path, include_files)
+        NESTGPUCodeGeneratorUtils.replace_text_between_tags(neuron_models_cu_path, code_blocks, rfind=True)
 
     def add_files_to_makefile(self, neurons: ASTModel):
         """
@@ -211,9 +194,9 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
                              f"    {neuron.get_name()}.h\n"
                              f"    {neuron.get_name()}.cu\n")
         gen_files = "".join(gen_files) + "\n"
-        replace_text_between_tags(cmakelists_path, gen_files,
-                                  begin_tag="# <<BEGIN_NESTML_GENERATED>>",
-                                  end_tag="# <<END_NESTML_GENERATED>>")
+        NESTGPUCodeGeneratorUtils.replace_text_between_tags(cmakelists_path, gen_files,
+                                                            begin_tag="# <<BEGIN_NESTML_GENERATED>>",
+                                                            end_tag="# <<END_NESTML_GENERATED>>")
 
     def _get_neuron_model_namespace(self, neuron: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
         namespace = super()._get_neuron_model_namespace(neuron, metadata)

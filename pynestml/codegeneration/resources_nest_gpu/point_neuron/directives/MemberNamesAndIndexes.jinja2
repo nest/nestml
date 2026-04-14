@@ -2,7 +2,7 @@
   Generates Enums for variable names and indexes
 #}
 enum ScalVarIndexes {
-{%- for variable_symbol in neuron.get_state_symbols_sorted_by_suffix() %}
+{%- for variable_symbol in neuron.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
   i_{{ printer_no_origin.print(variable) }},
 {%- endfor %}
@@ -42,7 +42,7 @@ enum PortVarIndexes {
 };
 
 const std::string {{ neuronName }}_scal_var_name[N_SCAL_VAR] = {
-{%- for variable_symbol in neuron.get_state_symbols_sorted_by_suffix() %}
+{%- for variable_symbol in neuron.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
   "{{ printer_no_origin.print(variable) }}",
 {%- endfor %}

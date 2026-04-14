@@ -2806,7 +2806,7 @@ class ASTUtils:
         return False
 
     @classmethod
-    def is_declaring_expression_state_varible(cls, expr: ASTExpression) -> bool:
+    def is_declaring_expression_state_variable(cls, expr: ASTExpression) -> bool:
         if isinstance(expr, ASTSimpleExpression):
             if expr.is_variable():
                 symbol = expr.get_scope().resolve_to_symbol(expr.get_variable().get_name(), SymbolKind.VARIABLE)

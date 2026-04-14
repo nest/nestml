@@ -45,3 +45,23 @@ class NESTGPUCodeGeneratorUtils:
             return "param[%s]"
 
         return ""
+
+    @classmethod
+    def replace_text_between_tags(cls, filepath, replace_str, begin_tag="// <<BEGIN_NESTML_GENERATED>>",
+                                  end_tag="// <<END_NESTML_GENERATED>>", rfind=False):
+        with open(filepath, "r") as f:
+            file_str = f.read()
+
+        # Find the start and end positions of the tags
+        if rfind:
+            start_pos = file_str.rfind(begin_tag) + len(begin_tag)
+            end_pos = file_str.rfind(end_tag)
+        else:
+            start_pos = file_str.find(begin_tag) + len(begin_tag)
+            end_pos = file_str.find(end_tag)
+
+        # Concatenate the new string between the start and end tags and write it back to the file
+        file_str = file_str[:start_pos] + replace_str + file_str[end_pos:]
+        with open(filepath, "w") as f:
+            f.write(file_str)
+        f.close()
