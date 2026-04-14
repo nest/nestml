@@ -113,7 +113,7 @@ class TestSynapsePostNeuronTransformerCompoundBlocks:
         nest.ResetKernel()
         nest.Install("nestmlmodule")
         nest.print_time = False
-        nest.set_verbosity("M_ERROR")
+        NESTTools.set_nest_verbosity("ERROR")
 
         # define spike train
         rate = 20

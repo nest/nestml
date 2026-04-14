@@ -74,10 +74,7 @@ class TestSynapsePostNeuronTransformerUpdateOrder:
 
     def _run_nest_simulation(self, initial_w, neuron_model_name, synapse_model_name, T, dt, spike_train_pre, spike_train_post, syn_delay, p, update_order_w_before_traces):
         nest.ResetKernel()
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
+        NESTTools.set_nest_verbosity("ALL")
         nest.Install("test_synapse_post_neuron_transformer_update_order_" + str(update_order_w_before_traces) + "_module")
         nest.print_time = False
         nest.resolution = dt
