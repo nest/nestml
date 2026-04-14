@@ -87,19 +87,19 @@ enum input_indices
 };
 
 typedef struct {
-{# Make shure count is |spike_input_ports| + |continous_input_ports| #}
+{# Make sure count is |spike_input_ports| + |continous_input_ports| #}
 // 0: exc, 1: inh, 2: Istim
 {%- if ns.count > 0 %}
     REAL inputs[{{ ns.count }}];
 {%- endif %}
-}neuron_input_t;
+} neuron_input_t;
 
 typedef struct {
 // State variables of the neuron
 {%- for sym in neuron.get_state_symbols() | sort(attribute="name") %}
     {{type_symbol_printer.print(sym.type_symbol)}} {{ sym.get_symbol_name() }};
 {%- endfor %}
-}neuron_state_t;
+} neuron_state_t;
 
 typedef struct {
     // Parameters of the neuron
@@ -109,7 +109,7 @@ typedef struct {
 
     // Internals of the neuron
 {%- for sym in neuron.get_internal_symbols() | sort(attribute="name") %}
-    {{type_symbol_printer.print(sym.type_symbol)}} {{sym.get_symbol_name()}};
+    {{ type_symbol_printer.print(sym.type_symbol) }} {{ sym.get_symbol_name() }};
 {%- endfor %}
 } neuron_parameter_t;
 
@@ -202,10 +202,19 @@ void on_receive_block_{{ blk.port_name }}(neuron_state_t *state, neuron_input_t 
 #ifdef DEBUG
     log_info("[NESTML neuron] on_receive_block_{{ blk.port_name }}()\n");
 #endif
+{% if "exc" in blk.port_name %}
+log_info("[NESTML neuron] before update: state->I_syn_exc = 0x%x\n", state->I_syn_exc);
+log_info("[NESTML neuron] input->inputs[EXC_SPIKES] = 0x%x\n", input->inputs[EXC_SPIKES]);
+log_info("[NESTML neuron] parameter->unit_psc = 0x%x\n", parameter->unit_psc);
+{% endif %}
 
 {%          filter indent(4, True) -%}
 {%-             include "directives_cpp/StmtsBody.jinja2" %}
 {%-         endfilter %}
+
+{% if "exc" in blk.port_name %}
+log_info("[NESTML neuron] after update: state->I_syn_exc = %k\n", state->I_syn_exc);
+{% endif %}
 }
 {%-     endfor %}
 {%- endif %}

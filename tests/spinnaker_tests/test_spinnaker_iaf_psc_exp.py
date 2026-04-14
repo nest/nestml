@@ -66,9 +66,6 @@ class TestSpiNNakerIafPscExp:
         # Set the time step of the simulation in milliseconds
         time_step = 1
 
-        # Set the number of neurons to simulate
-        n_neurons = 1
-
         # Set the i_offset current
         i_offset = 0.0
 
@@ -82,18 +79,15 @@ class TestSpiNNakerIafPscExp:
         #p.set_number_of_synapse_cores(iaf_psc_exp_neuron_nestml, 0)    # Fix an issue with new feature in the main code, where sPyNNaker is trying to determine whether to use a split core model where neurons and synapses are on separate cores, or a single core model where they are processed on the same core. In the older code, this was a more manual decision, but in the main code it is happening automatically unless overridden.  This is particularly true when you use the 0.1ms timestep, where it will be attempting to keep to real-time execution by using split cores.
 
         spikeArray = {"spike_times": spike_times}
-        excitation = p.Population(
-            n_neurons, p.SpikeSourceArray(**spikeArray), label="input")
+        excitation = p.Population(1, p.SpikeSourceArray(**spikeArray), label="input")
 
-        spiking_neuron = p.Population(
-            n_neurons, iaf_psc_exp_neuron_nestml(), label="iaf_psc_exp_neuron_nestml_spiking")
+        spiking_neuron = p.Population(1, iaf_psc_exp_neuron_nestml(), label="iaf_psc_exp_neuron_nestml_spiking")
         p.Projection(
             excitation, spiking_neuron,
             p.OneToOneConnector(), receptor_type=exc_input,
             synapse_type=p.StaticSynapse(weight=weight))
 
-        receiving_neuron = p.Population(
-            n_neurons, iaf_psc_exp_neuron_nestml(), label="iaf_psc_exp_neuron_nestml_receiving")
+        receiving_neuron = p.Population(1, iaf_psc_exp_neuron_nestml(), label="iaf_psc_exp_neuron_nestml_receiving")
         p.Projection(
             spiking_neuron, receiving_neuron,
             p.OneToOneConnector(), receptor_type=exc_input,
@@ -107,9 +101,10 @@ class TestSpiNNakerIafPscExp:
         receiving_neuron.record([membranePot])
         receiving_neuron.record([synapticRsp])
 
+        # run the simulation
         p.run(run_time)
 
-        # get v for each example
+        # grab recorded data
         spikes_spiking_neuron = spiking_neuron.get_data("spikes")
         v_spiking_neuron = spiking_neuron.get_data(membranePot)
         i_syn_exc_spiking_neuron = spiking_neuron.get_data(synapticRsp)
@@ -123,17 +118,9 @@ class TestSpiNNakerIafPscExp:
             combined_spikes.append(spike)
 
         Figure(
-            # membrane potentials for each example
-
             Panel(combined_spikes,
                   xlabel="Time (ms)",
                   data_labels=["spikes"],
-                  yticks=True, xlim=(0, run_time), xticks=True),
-
-            Panel(v_spiking_neuron.segments[0].filter(name=membranePot)[0],
-                  xlabel="Time (ms)",
-                  ylabel="Membrane potential (mV)",
-                  data_labels=[spiking_neuron.label],
                   yticks=True, xlim=(0, run_time), xticks=True),
 
             Panel(i_syn_exc_spiking_neuron.segments[0].filter(name=synapticRsp)[0],
@@ -142,10 +129,10 @@ class TestSpiNNakerIafPscExp:
                   data_labels=[spiking_neuron.label],
                   yticks=True, xlim=(0, run_time), xticks=True),
 
-            Panel(v_receiving_neuron.segments[0].filter(name=membranePot)[0],
+            Panel(v_spiking_neuron.segments[0].filter(name=membranePot)[0],
                   xlabel="Time (ms)",
                   ylabel="Membrane potential (mV)",
-                  data_labels=[receiving_neuron.label],
+                  data_labels=[spiking_neuron.label],
                   yticks=True, xlim=(0, run_time), xticks=True),
 
             Panel(i_syn_exc_receiving_neuron.segments[0].filter(name=synapticRsp)[0],
@@ -154,9 +141,15 @@ class TestSpiNNakerIafPscExp:
                   data_labels=[receiving_neuron.label],
                   yticks=True, xlim=(0, run_time), xticks=True),
 
+            Panel(v_receiving_neuron.segments[0].filter(name=membranePot)[0],
+                  xlabel="Time (ms)",
+                  ylabel="Membrane potential (mV)",
+                  data_labels=[receiving_neuron.label],
+                  yticks=True, xlim=(0, run_time), xticks=True),
+
             title="Generated: Two chained neurons",
             annotations="Simulated with {}".format(p.name())
         )
-        plt.savefig("spinnaker.png")
+        plt.savefig("test_spinnaker_iaf_psc_exp.png")
 
         p.end()
