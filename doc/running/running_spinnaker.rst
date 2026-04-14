@@ -15,7 +15,7 @@ As this solution uses a single bus, the scalability of the system is dependent o
 Generating code
 ~~~~~~~~~~~~~~~
 
-1. Before building the Apptainer image, make sure there is a ``.spynnaker.cfg`` in the current working directory. See https://spinnakermanchester.github.io/spynnaker/8.0.0/PyNNOnSpinnakerInstall.html for instructions on how to create this file.
+1. Before building the Apptainer image, make sure there is a ``.spynnaker.cfg`` in the current working directory. Make sure logging options (like ``extract_iobuf``) are enabled. See https://spinnakermanchester.github.io/spynnaker/8.0.0/PyNNOnSpinnakerInstall.html for instructions on how to create this file.
 
 2. Build the Apptainer image from https://github.com/nest/nestml/blob/main/extras/spinnaker-apptainer.def
 
@@ -54,7 +54,7 @@ Generating code
 
    It is recommended to create a new, empty target and install directory every time before generating the code to avoid conflicts.
 
-7. Run the test
+7. Run tests:
 
    .. code-block:: bash
 
