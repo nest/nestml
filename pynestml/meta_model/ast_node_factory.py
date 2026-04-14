@@ -100,7 +100,7 @@ class ASTNodeFactory:
         return ASTBitOperator(is_bit_and, is_bit_xor, is_bit_or, is_bit_shift_left, is_bit_shift_right, source_position=source_position)
 
     @classmethod
-    def create_ast_stmts_body(cls, stmts, source_position):
+    def create_ast_stmts_body(cls, stmts, source_position=None):
         # type: (list(ASTSmallStmt|ASTCompoundStmt),ASTSourceLocation) -> ASTStmtsBody
         return ASTStmtsBody(stmts, source_position=source_position)
 
@@ -276,8 +276,8 @@ class ASTNodeFactory:
         return instance
 
     @classmethod
-    def create_ast_model(cls, name: str, body: ASTModelBody, source_position: ASTSourceLocation, artifact_name: str) -> ASTModel:
-        return ASTModel(name, body, artifact_name, source_position=source_position)
+    def create_ast_model(cls, name: str, body: ASTModelBody, source_position: ASTSourceLocation, artifact_name: str, file_path: str) -> ASTModel:
+        return ASTModel(name, body, artifact_name, file_path, source_position=source_position)
 
     @classmethod
     def create_ast_ode_equation(cls, lhs, rhs, source_position, decorators=None):

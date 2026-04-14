@@ -1384,15 +1384,15 @@ void
 #}
 
 {%- for var in syn_to_neuron_state_vars %}
-{%- with variable_symbol = syn_to_neuron_state_vars_syms[var] %}
+{%-     with variable_symbol = syn_to_neuron_state_vars_syms[var] %}
 
-{%- if not variable_symbol %}
-{%-     set variable_symbol = astnode.get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE) %}
-{%- endif %}
+{%-         if not variable_symbol %}
+{%-             set variable_symbol = astnode.get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE) %}
+{%-         endif %}
 
-{%- if not var == variable_symbol.get_symbol_name() %}
-{{ raise('Error in resolving variable to symbol') }}
-{%- endif %}
+{%-         if not var == variable_symbol.get_symbol_name() %}
+{{              raise('Error in resolving variable to symbol') }}
+{%-         endif %}
 
 double
 {{ neuronName }}::get_{{ var }}( double t, const bool before_increment )

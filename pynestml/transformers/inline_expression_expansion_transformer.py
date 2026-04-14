@@ -35,6 +35,7 @@ except ImportError:
 import re
 
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.transformers.transformer import Transformer
@@ -67,10 +68,9 @@ class InlineExpressionExpansionTransformer(Transformer):
 
             for equations_block in model.get_equations_blocks():
                 self.replace_inline_expressions_through_defining_expressions(equations_block.get_ode_equations(), equations_block.get_inline_expressions())
-
         return models
 
-    def make_inline_expressions_self_contained(self, inline_expressions: List[ASTInlineExpression]) -> List[ASTInlineExpression]:
+    def make_inline_expressions_self_contained(self, inline_expressions: Iterable[ASTInlineExpression]) -> Iterable[ASTInlineExpression]:
         r"""
         Make inline expressions self contained, i.e. without any references to other inline expressions.
 
