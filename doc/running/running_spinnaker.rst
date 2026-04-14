@@ -15,22 +15,25 @@ As this solution uses a single bus, the scalability of the system is dependent o
 Generating code
 ~~~~~~~~~~~~~~~
 
-1. Build the Apptainer image from https://github.com/nest/nestml/blob/main/extras/spinnaker-apptainer.def
+1. Before building the Apptainer image, make sure there is a ``.spynnaker.cfg`` in the current working directory. See https://spinnakermanchester.github.io/spynnaker/8.0.0/PyNNOnSpinnakerInstall.html for instructions on how to create this file.
+
+2. Build the Apptainer image from https://github.com/nest/nestml/blob/main/extras/spinnaker-apptainer.def
 
    .. code-block:: bash
 
+      
       apptainer build spinnaker-apptainer.sif spinnaker-apptainer.def 
       apptainer overlay create --size 4096 spinnaker-overlay.img
 
-2. Run the Apptainer image:
+3. Run the Apptainer image:
 
    .. code-block:: bash
 
       apptainer shell --overlay ~/spinnaker_overlay.img ~/spinnaker_apptainer.sif
 
-3. Install NESTML in ``$HOME/nestml``.
+4. Install NESTML in ``$HOME/nestml``.
 
-4. Create the installation directory:
+5. Create the installation directory:
 
    .. code-block:: bash
 
@@ -39,7 +42,7 @@ Generating code
 
    It is recommended to create a new, empty target and install directory every time before generating the code.
 
-5. Run the test
+6. Run the test
 
    .. code-block:: bash
 
