@@ -56,10 +56,7 @@ class RecordableVariablesTest(unittest.TestCase):
                              logging_level=logging_level,
                              module_name=module_name,
                              suffix=suffix)
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
+        NESTTools.set_nest_verbosity("ALL")
 
         nest.ResetKernel()
         nest.Install(module_name)

@@ -65,13 +65,9 @@ class NestCustomTemplatesTest(unittest.TestCase):
                         module_name=module_name,
                         suffix=suffix,
                         codegen_opts=codegen_opts)
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
-
         nest.ResetKernel()
         nest.Install("nestmlmodule")
+        NESTTools.set_nest_verbosity("ALL")
 
         nrn = nest.Create("iaf_psc_exp_neuron_nestml")
         mm = nest.Create("multimeter")
@@ -134,7 +130,4 @@ class NestCustomTemplatesTest(unittest.TestCase):
                         module_name=module_name,
                         suffix=suffix,
                         codegen_opts=codegen_opts)
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
+        NESTTools.set_nest_verbosity("ALL")

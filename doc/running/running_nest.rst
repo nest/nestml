@@ -77,9 +77,9 @@ If ODE-toolbox is not successful in finding the propagator solver to a system of
 Setting and retrieving model properties
 ---------------------------------------
 
--  All variables in the ``state`` and ``parameters`` blocks are added to the status dictionary of the neuron.
--  Values can be set using the PyNEST API call ``node_collection.<variable> = <value>`` where ``<variable>`` is the name of the corresponding NESTML variable.
--  Values can be read using the PyNEST API call ``node_collection.<variable>``. This will return the value of the corresponding NESTML variable.
+All variables in the ``state`` and ``parameters`` blocks are added to the status dictionary of the neuron. Note that the numerical values given in the NESTML models are defaults, and can be overridden when constructing the network, or even between different simulation runs.
+
+Values can be set using the PyNEST API call ``node_collection.<variable> = <value>`` where ``<variable>`` is the name of the corresponding NESTML variable. Values can be read using the PyNEST API call ``node_collection.<variable>``. This will return the value of the corresponding NESTML variable.
 
 
 Recording values with devices
