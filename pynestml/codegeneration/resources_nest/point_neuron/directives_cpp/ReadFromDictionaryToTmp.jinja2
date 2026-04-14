@@ -10,7 +10,7 @@
 {%- if not variable_symbol.is_inline_expression %}
 {%-   if not variable_symbol.is_state() %}
 {{ declarations.print_variable_type(variable_symbol) }} tmp_{{ printer_no_origin.print(variable) }} = get_{{ printer_no_origin.print(variable) }}();
-{%-     if synapse is defined or variable_symbol in vector_symbols or nest_version.startswith("v2") %}
+{%-     if synapse is defined or variable_symbol in vector_symbols or (nest_version_dict and nest_version_dict["major"] == 2) %}
 {#- setting with probability distributions is not supported for synapses after they have been created; for vectors; or when using NEST 2 #}
 {{ read_from_dictionary.ReadFromDictionary("__d", declarations.print_variable_type(variable_symbol), "nest::" + names_namespace + "::_" + printer_no_origin.print(variable), "tmp_" + printer_no_origin.print(variable), "", false) }};
 {%-     else %}
@@ -33,7 +33,7 @@ if (tmp_{{ printer_no_origin.print(variable) }} != get_{{ printer_no_origin.prin
 
 {%-   else %}
 {{declarations.print_variable_type(variable_symbol)}} tmp_{{ printer_no_origin.print(variable) }} = get_{{printer_no_origin.print(variable)}}();
-{%-     if synapse is defined or variable_symbol in vector_symbols or nest_version.startswith("v2") %}
+{%-     if synapse is defined or variable_symbol in vector_symbols or (nest_version_dict and nest_version_dict["major"] == 2) %}
 {#- setting with probability distributions is not supported for synapses after they have been created; for vectors; or when using NEST 2 #}
 {{ read_from_dictionary.ReadFromDictionary("__d", declarations.print_variable_type(variable_symbol), "nest::" + names_namespace + "::_" + variable_symbol.get_symbol_name(), "tmp_" + printer_no_origin.print(variable), "", false) }};
 {%-     else %}

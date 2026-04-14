@@ -7,17 +7,6 @@
 #include <spin1_api.h>
 #include <debug.h>
 
-{%- if norm_rng %}
-
-// Includes for random number generator
-{%- if nest_version.startswith("v2") %}
-#include "normal_randomdev.h"
-#include "uniform_randomdev.h"
-{%- else %}
-#include <random>
-{%- endif %}
-{%- endif %}
-
 {%- if uses_numeric_solver %}
 
 #ifndef HAVE_GSL

@@ -88,8 +88,7 @@ continuous_variable_histentry_{{ neuronName }}::continuous_variable_histentry_{{
 {%-     endif %}
 {%- endif %}
 
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
-        or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] >= 3 and nest_version_dict["minor"] > 6) or nest_version_dict["major"] > 3) %}
 void
 register_{{ neuronName }}( const std::string& name )
 {
@@ -266,10 +265,10 @@ std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_i
   recordablesMap_.create();
 {%- endif %}
 
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  calibrate();
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
   pre_run_hook();
+{%- else %}
+  calibrate();
 {%- endif %}
 }
 
@@ -352,7 +351,7 @@ std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_i
 //   Node initialization functions
 // ---------------------------------------------------------------------------
 
-{%- if nest_version.startswith("v2") %}
+{%- if nest_version_dict and nest_version_dict["major"] == 2 %}
 void {{ neuronName }}::init_state_(const Node& proto)
 {
   const {{ neuronName }}& pr = downcast<{{ neuronName }}>(proto);
@@ -360,7 +359,7 @@ void {{ neuronName }}::init_state_(const Node& proto)
 }
 {%- endif %}
 
-{%- if not nest_version.startswith("v2") %}
+{%- if nest_version.startswith("main") or nest_version_dict and nest_version_dict["major"] >= 3 %}
 void {{ neuronName }}::calibrate_time( const nest::TimeConverter& tc )
 {
 {%- if (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
@@ -561,10 +560,10 @@ void {{ neuronName }}::recompute_internal_variables(bool exclude_timestep)
   }
 }
 
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-void {{ neuronName }}::calibrate()
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
 void {{ neuronName }}::pre_run_hook()
+{%- else %}
+void {{ neuronName }}::calibrate()
 {%- endif %}
 {
 #ifdef DEBUG
