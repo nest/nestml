@@ -204,6 +204,8 @@ private:
   void set_compartment_variables();
   void set_leafs();
 
+  std::set< std::string > get_all_available_vars();
+
   std::vector< double > v_comp_vec;
   std::vector< double > ca__div__dt_vec;
   std::vector< double > gl__div__2_vec;
