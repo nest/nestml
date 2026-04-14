@@ -29,7 +29,7 @@ Generating code
 
    .. code-block:: bash
 
-      apptainer shell --overlay ~/spinnaker_overlay.img ~/spinnaker_apptainer.sif
+      apptainer shell --overlay ~/spinnaker-overlay.img ~/spinnaker-apptainer.sif
 
 4. Install NESTML in ``$HOME/nestml``.
 
