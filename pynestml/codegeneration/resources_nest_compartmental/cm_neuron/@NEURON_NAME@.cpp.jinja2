@@ -1,3 +1,4 @@
+{%- set cm_scalar_t = "float" if fp_precision == "single" else "double" -%}
 {%- import 'directives_cpp/WriteInDictionary.jinja2' as write_in_dictionary with context %}
 /*
  *  cm_default.cpp
@@ -54,8 +55,8 @@ DynamicRecordablesMap< {{neuronSpecificFileNamesCmSyns["main"]}} >::create( {{ne
 nest::{{neuronSpecificFileNamesCmSyns["main"]}}::{{neuronSpecificFileNamesCmSyns["main"]}}()
   : ArchivingNode()
   , self_spikes( std::make_unique< bool >() )
-  , g_vals( std::make_unique< std::vector< double > >() )
-  , i_vals( std::make_unique< std::vector< double > >() )
+  , g_vals( std::make_unique< std::vector< {{ cm_scalar_t }} > >() )
+  , i_vals( std::make_unique< std::vector< {{ cm_scalar_t }} > >() )
   , c_tree_(self_spikes.get(), g_vals.get(), i_vals.get())
   , syn_buffers_( 0 )
   , logger_( *this )
@@ -73,8 +74,8 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::{{neuronSpecificFileNamesCmSyns
   , logger_( *this )
   , V_th_( n.V_th_ )
   , self_spikes( std::make_unique< bool >(*n.self_spikes.get()) )
-  , g_vals( std::make_unique< std::vector< double > >(*n.g_vals.get()) )
-  , i_vals( std::make_unique< std::vector< double > >(*n.i_vals.get()) )
+  , g_vals( std::make_unique< std::vector< {{ cm_scalar_t }} > >(*n.g_vals.get()) )
+  , i_vals( std::make_unique< std::vector< {{ cm_scalar_t }} > >(*n.i_vals.get()) )
 {
   c_tree_.init_pointers(self_spikes.get(), g_vals.get(), i_vals.get());
   recordables_values.resize( 0 );

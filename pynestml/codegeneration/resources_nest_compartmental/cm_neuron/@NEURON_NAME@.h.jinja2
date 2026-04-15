@@ -1,3 +1,4 @@
+{%- set cm_scalar_t = "float" if fp_precision == "single" else "double" -%}
 /*
  *  {{neuronSpecificFileNamesCmSyns["main"]}}.h
  *
@@ -256,8 +257,8 @@ public:
 
 private:
   std::unique_ptr< bool > self_spikes;
-  std::unique_ptr< std::vector< double > > g_vals;
-  std::unique_ptr< std::vector< double > > i_vals;
+  std::unique_ptr< std::vector< {{ cm_scalar_t }} > > g_vals;
+  std::unique_ptr< std::vector< {{ cm_scalar_t }} > > i_vals;
   bool thr_mem = true;
 
   void add_compartment_( DictionaryDatum& dd );
@@ -300,7 +301,7 @@ private:
   //! Logger for all analog data
   DynamicUniversalDataLogger< {{neuronSpecificFileNamesCmSyns["main"]}} > logger_;
 
-  double V_th_;
+  {{ cm_scalar_t }} V_th_;
   bool prev_sub_th = true;
 };
 
