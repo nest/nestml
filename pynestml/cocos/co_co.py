@@ -26,20 +26,19 @@ from pynestml.meta_model.ast_node import ASTNode
 
 class CoCo:
     """
-    This class represents an abstract super-class for all concrete context conditions to check. All concrete CoCos
-    have to inherit from this class. Hereby, the description can be used to state the condition the CoCo checks.
-    Attributes:
-        description type(str): This field can be used to give a short description regarding the properties which
-                                are checked by this coco.
+    This class represents an abstract super-class for all concrete context conditions to check. All context condition checks inherit from this class.
+
+    CoCos do not return values or raise exceptions; in case of issues, they messages are logged at the appropriate level.
     """
     __metaclass__ = ABCMeta
     description = None
 
+    @classmethod
     @abstractmethod
-    def check_co_co(self, node: ASTNode) -> bool:
+    def check_co_co(cls, node: ASTNode):
         """
-        This is an abstract method which should be implemented by all concrete cocos.
-        :param node: a single neuron instance on which the coco will be checked.
-        :return: True, if CoCo holds, otherwise False.
+        Check the coco.
+
+        :param node: a single model instance on which the coco will be checked.
         """
-        return False
+        raise NotImplementedError()
