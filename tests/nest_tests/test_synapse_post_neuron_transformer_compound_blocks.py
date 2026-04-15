@@ -89,7 +89,6 @@ class TestSynapsePostNeuronTransformerCompoundBlocks:
         codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_neuron",
                                                   "synapse": "double_postsyn_trace_synapse",
                                                   "post_ports": ["post_spikes"]}],
-                        "delay_variable": {"double_postsyn_trace_synapse": "d"},
                         "weight_variable": {"double_postsyn_trace_synapse": "w"}}
 
         use_synapse_post_neuron_transformer = request.param
@@ -141,7 +140,7 @@ class TestSynapsePostNeuronTransformerCompoundBlocks:
         initial_w = 1.0
         nest.CopyModel(synapse_model_name, syn_model, {"weight_recorder": wr,
                                                        "w": initial_w,
-                                                       "d": syn_delay,
+                                                       "delay": syn_delay,
                                                        "update_order_w_before_trace": update_order_w_before_trace,
                                                        "receptor_type": 0,
                                                        "Zp": p["Z2"],

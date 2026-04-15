@@ -191,12 +191,15 @@ class SynapsePostNeuronTransformer(Transformer):
         # exclude variables that are written to inside compound blocks
         for input_block in new_synapse.get_input_blocks():
             for port in input_block.get_input_ports():
-                if CodeGeneratorUtils.is_post_port(port.name, new_neuron.name, new_synapse.name, neuron_synapse_pairs=self._options["neuron_synapse_pairs"]):
+                if CodeGeneratorUtils.is_post_port(port.name, neuron.name, synapse.name, neuron_synapse_pairs=self._options["neuron_synapse_pairs"]):
                     post_receive_blocks = ASTUtils.get_on_receive_blocks_by_input_port_name(new_synapse, port.name)
                     for post_receive_block in post_receive_blocks:
 
                         class VariablesAssignedToInCompoundBlocksVisitor(ASTVisitor):
                             r"""Find variables assigned to in compound blocks"""
+
+                            variables_assigned_to_in_compound_block: Set[str] = set()
+
                             def __init__(self):
                                 super().__init__()
                                 self.variables_assigned_to_in_compound_block: Set[str] = set()
@@ -211,8 +214,7 @@ class SynapsePostNeuronTransformer(Transformer):
 
                         visitor = VariablesAssignedToInCompoundBlocksVisitor()
                         post_receive_block.accept(visitor)
-
-                        strictly_synaptic_vars.extend(list(visitor.variables_assigned_to_in_compound_block))
+                        strictly_synaptic_vars |= visitor.variables_assigned_to_in_compound_block
 
         affected_vars = ASTUtils.collect_variables_affected_by_ports(synapse, post_port_names, strictly_synaptic_vars=strictly_synaptic_vars)
         metadata[new_neuron.name]["syn_to_neuron_state_vars"] = [var for var in affected_vars if not (synapse.get_kernel_by_name(var) or neuron.get_kernel_by_name(var))]
