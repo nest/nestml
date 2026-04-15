@@ -108,7 +108,6 @@ class TestCM:
             logging_level="DEBUG"
         )
 
-
     def get_model(self, reinstall_flag=True):
         if self.nestml_flag:
             # Currently, we have no way of checking whether the *.so-file
