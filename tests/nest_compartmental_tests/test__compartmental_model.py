@@ -75,7 +75,6 @@ dend_params_active = {
 }
 
 
-# @pytest.mark.skipif(True, reason="XXX: TODO: this test should be enabled; see https://github.com/nest/nestml/issues/1353")
 class TestCM:
 
     def reset_nest(self):
