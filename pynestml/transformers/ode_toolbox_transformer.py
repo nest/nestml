@@ -120,7 +120,6 @@ class ODEToolboxTransformer(Transformer):
         Prepare data for ODE-toolbox input format, invoke ODE-toolbox analysis via its API, and return the output.
         """
         assert len(model.get_equations_blocks()) <= 1, "Only one equations block supported for now."
-        assert len(model.get_parameters_blocks()) <= 1, "Only one parameters block supported for now."
 
         equations_block = model.get_equations_blocks()[0]
 
@@ -174,19 +173,13 @@ class ODEToolboxTransformer(Transformer):
     def transform(self,
                   models: Iterable[ASTModel],
                   metadata: Dict[str, Dict[str, Any]]) -> Iterable[ASTModel]:
-        new_models = []
 
         for model in models:
             if len(model.get_equations_blocks()) == 0:
                 # no equations, no need to call ODE-toolbox
-                new_models.append(model)
                 continue
 
-            if len(model.get_equations_blocks()) > 1:
-                raise Exception("Only one equations block per model supported for now")
-
             assert "kernel_buffers" in metadata[model.name].keys(), "ConvolutionsToBuffersTransformer should have been run first on the model!"
-            new_model = self.ode_toolbox_analysis(model, metadata[model.name]["kernel_buffers"], metadata)
-            new_models.append(new_model)
+            self.ode_toolbox_analysis(model, metadata[model.name]["kernel_buffers"], metadata)
 
-        return new_models
+        return models
