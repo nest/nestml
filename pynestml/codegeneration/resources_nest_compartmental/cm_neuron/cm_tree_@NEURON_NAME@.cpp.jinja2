@@ -1,3 +1,4 @@
+{%- set cm_scalar_t = "float" if fp_precision == "single" else "double" -%}
 /*
  *  cm_tree.cpp
  *
@@ -20,6 +21,7 @@
  *
  */
 #include "{{neuronSpecificFileNamesCmSyns["tree"]}}.h"
+#include <algorithm>
 
 nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const long compartment_index, const long parent_index)
   : xx_( 0.0 )
@@ -27,7 +29,10 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
   , comp_index( compartment_index )
   , p_index( parent_index )
   , parent( nullptr )
-  , v_comp( new double(0.0) )
+  , v_comp( new {{ cm_scalar_t }}(0.0) )
+{%- if fp_precision == "single" %}
+  , v_comp_recordable_( 0.0 )
+{%- endif %}
   , ca( 1.0 )
   , gc( 0.01 )
   , gl( 0.1 )
@@ -41,16 +46,22 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
   , n_passed( 0 )
 {
   *v_comp = el;
+{%- if fp_precision == "single" %}
+  v_comp_recordable_ = static_cast< double >( *v_comp );
+{%- endif %}
 }
 
 nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const long compartment_index, const long parent_index,
-    double* v_comp_ref, double* ca__div__dt_ref, double* gl__times__el_ref, double* gg0_ref, double* gg_ref, double* ff_ref )
+    {{ cm_scalar_t }}* v_comp_ref, {{ cm_scalar_t }}* ca__div__dt_ref, {{ cm_scalar_t }}* gl__times__el_ref, {{ cm_scalar_t }}* gg0_ref, {{ cm_scalar_t }}* gg_ref, {{ cm_scalar_t }}* ff_ref )
   : xx_( 0.0 )
   , yy_( 0.0 )
   , comp_index( compartment_index )
   , p_index( parent_index )
   , parent( nullptr )
   , v_comp( v_comp_ref )
+{%- if fp_precision == "single" %}
+  , v_comp_recordable_( 0.0 )
+{%- endif %}
   , ca( 1.0 )
   , gc( 0.01 )
   , gl( 0.1 )
@@ -64,17 +75,23 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
   , n_passed( 0 )
 {
   *v_comp = el;
+{%- if fp_precision == "single" %}
+  v_comp_recordable_ = static_cast< double >( *v_comp );
+{%- endif %}
 }
 nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const long compartment_index,
   const long parent_index,
   const DictionaryDatum& compartment_params,
-  double* v_comp_ref, double* ca__div__dt_ref, double* gl__times__el_ref, double* gg0_ref, double* gg_ref, double* ff_ref)
+  {{ cm_scalar_t }}* v_comp_ref, {{ cm_scalar_t }}* ca__div__dt_ref, {{ cm_scalar_t }}* gl__times__el_ref, {{ cm_scalar_t }}* gg0_ref, {{ cm_scalar_t }}* gg_ref, {{ cm_scalar_t }}* ff_ref)
   : xx_( 0.0 )
   , yy_( 0.0 )
   , comp_index( compartment_index )
   , p_index( parent_index )
   , parent( nullptr )
   , v_comp( v_comp_ref )
+{%- if fp_precision == "single" %}
+  , v_comp_recordable_( 0.0 )
+{%- endif %}
   , ca( 1.0 )
   , gc( 0.01 )
   , gl( 0.1 )
@@ -92,10 +109,13 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
   updateValue< double >( compartment_params, names::g_C, gc );
   updateValue< double >( compartment_params, names::g_L, gl );
   updateValue< double >( compartment_params, names::e_L, el );
-  double v_comp_update = el;
+  {{ cm_scalar_t }} v_comp_update = el;
   if( compartment_params->known( "v_comp" ) ) updateValue< double >( compartment_params, "v_comp", v_comp_update);
 
   *v_comp = v_comp_update;
+{%- if fp_precision == "single" %}
+  v_comp_recordable_ = static_cast< double >( *v_comp );
+{%- endif %}
 }
 
 void
@@ -106,7 +126,7 @@ nest::Compartment{{cm_unique_suffix}}::pre_run_hook()
 {%- endif %}
 {
 
-  const double dt = Time::get_resolution().get_ms();
+  const {{ cm_scalar_t }} dt = Time::get_resolution().get_ms();
   // used in vectorized passive loop
   *ca__div__dt = ca / dt;
   *gl__times__el = gl * el;
@@ -118,7 +138,12 @@ nest::Compartment{{cm_unique_suffix}}::get_recordables()
 {
   std::map< Name, double* > recordables;
 
+{%- if fp_precision == "single" %}
+  v_comp_recordable_ = static_cast< double >( *v_comp );
+  recordables[ Name( "v_comp" + std::to_string( comp_index ) ) ] = &v_comp_recordable_;
+{%- else %}
   recordables[ Name( "v_comp" + std::to_string( comp_index ) ) ] = v_comp;
+{%- endif %}
 
   return recordables;
 }
@@ -141,7 +166,7 @@ nest::Compartment{{cm_unique_suffix}}::construct_matrix_coupling_elements()
 }
 
 
-nest::CompTree{{cm_unique_suffix}}::CompTree{{cm_unique_suffix}}(bool* self_spikes, std::vector< double >* g_vals_in, std::vector< double >* i_vals_in)
+nest::CompTree{{cm_unique_suffix}}::CompTree{{cm_unique_suffix}}(bool* self_spikes, std::vector< {{ cm_scalar_t }} >* g_vals_in, std::vector< {{ cm_scalar_t }} >* i_vals_in)
   : root_( -1, -1 )
   , size_( 0 )
   , g_vals(g_vals_in)
@@ -381,7 +406,7 @@ nest::CompTree{{cm_unique_suffix}}::get_compartment_opt( const long compartment_
  * Initialize all tree structure pointers
  */
 void
-nest::CompTree{{cm_unique_suffix}}::init_pointers(bool* self_spikes, std::vector< double >* g_vals_in, std::vector< double >* i_vals_in)
+nest::CompTree{{cm_unique_suffix}}::init_pointers(bool* self_spikes, std::vector< {{ cm_scalar_t }} >* g_vals_in, std::vector< {{ cm_scalar_t }} >* i_vals_in)
 {
   set_parents();
   set_compartments();
@@ -509,6 +534,7 @@ nest::CompTree{{cm_unique_suffix}}::pre_run_hook()
 
   sweeping_order = std::vector< std::vector< Compartment{{cm_unique_suffix}}* > >();
   compute_sweeping_order(leafs_);
+  create_tree_data_soa_by_sweeping_order();
 
   // initialize the compartments
   for ( auto compartment_it = compartments_.begin(); compartment_it != compartments_.end(); ++compartment_it )
@@ -529,7 +555,7 @@ nest::CompTree{{cm_unique_suffix}}::pre_run_hook()
 /**
  * Returns vector of voltage values, indices correspond to compartments in `compartments_`
  */
-std::vector< double >
+std::vector< {{ cm_scalar_t }} >
 nest::CompTree{{cm_unique_suffix}}::get_voltage() const
 {
   return v_comp_vec;
@@ -538,7 +564,7 @@ nest::CompTree{{cm_unique_suffix}}::get_voltage() const
 /**
  * Return voltage of single compartment voltage, indicated by the compartment_index
  */
-double
+{{ cm_scalar_t }}
 nest::CompTree{{cm_unique_suffix}}::get_compartment_voltage( const long compartment_index )
 {
   return *(compartments_[ compartment_index ]->v_comp);
@@ -581,9 +607,95 @@ nest::CompTree{{cm_unique_suffix}}::solve_matrix()
 
   // do up sweep to set voltages
   solve_matrix_upsweep();
+
+{%- if fp_precision == "single" %}
+  sync_voltage_recordables();
+{%- endif %}
 }
 
-void nest::CompTree{{cm_unique_suffix}}::compute_upsweep_order( std::vector< Compartment{{cm_unique_suffix}}* > parallel_comps )
+{%- if fp_precision == "single" %}
+void
+nest::CompTree{{cm_unique_suffix}}::sync_voltage_recordables()
+{
+  for ( auto compartment_it = compartments_.begin(); compartment_it != compartments_.end(); ++compartment_it )
+  {
+    ( *compartment_it )->sync_recordables();
+  }
+}
+{%- endif %}
+
+void nest::CompTree{{cm_unique_suffix}}::compute_sweeping_order( std::vector< Compartment{{cm_unique_suffix}}* > parallel_comps )
+{
+    if(parallel_comps.size() > 0){
+        sweeping_order.push_back(parallel_comps);
+
+        std::vector< Compartment{{cm_unique_suffix}}* > next_parallel_comps;
+        for(size_t i = 0; i < parallel_comps.size(); i++){
+            if(parallel_comps[i]->parent != nullptr){
+                Compartment{{cm_unique_suffix}}* parent = parallel_comps[i]->parent;
+                parent->n_passed++;
+                if ( parent->n_passed == int( parent->children.size() ) ){
+                    parent->n_passed = 0;
+                    next_parallel_comps.push_back(parent);
+                }
+            }
+        }
+        compute_sweeping_order(next_parallel_comps);
+    }
+}
+
+void nest::CompTree{{cm_unique_suffix}}::create_tree_data_soa_by_sweeping_order(){
+    const std::size_t n_comp = compartments_.size();
+    sweeping_order_idx_.clear();
+    sweeping_order_idx_.reserve(sweeping_order.size());
+
+    for(std::size_t level = 0; level < sweeping_order.size(); level++){
+        const std::vector< Compartment{{cm_unique_suffix}}* >& sweep_level = sweeping_order[level];
+        std::vector< std::size_t > level_idx;
+        level_idx.reserve(sweep_level.size());
+        for(std::size_t i = 0; i < sweep_level.size(); i++){
+            level_idx.push_back(std::size_t(sweep_level[i]->comp_index));
+        }
+        sweeping_order_idx_.push_back(level_idx);
+    }
+
+    parent_idx_.assign(n_comp, 0);
+    has_parent_.assign(n_comp, false);
+    hh_vec_.assign(n_comp, 0.0);
+    child_offsets_.assign(n_comp + 1, 0);
+    child_indices_.clear();
+
+    for(std::size_t comp_id = 0; comp_id < n_comp; comp_id++){
+        Compartment{{cm_unique_suffix}}* compartment = compartments_[comp_id];
+        if(compartment->parent != nullptr){
+            has_parent_[comp_id] = true;
+            parent_idx_[comp_id] = std::size_t(compartment->parent->comp_index);
+            // matrix off diagonal element used in Hines sweeps
+            hh_vec_[comp_id] = -compartment->gc;
+        }
+    }
+
+    std::size_t child_count_prefix = 0;
+    for(std::size_t comp_id = 0; comp_id < n_comp; comp_id++){
+        child_offsets_[comp_id] = child_count_prefix;
+        child_count_prefix += compartments_[comp_id]->children.size();
+    }
+    child_offsets_[n_comp] = child_count_prefix;
+    child_indices_.resize(child_count_prefix);
+
+    for(std::size_t comp_id = 0; comp_id < n_comp; comp_id++){
+        std::size_t out_idx = child_offsets_[comp_id];
+        const std::vector< Compartment{{cm_unique_suffix}} >& children = compartments_[comp_id]->children;
+        for(std::size_t child_idx = 0; child_idx < children.size(); child_idx++){
+            child_indices_[out_idx++] = std::size_t(children[child_idx].comp_index);
+        }
+    }
+
+    sweep_g_out_.assign(n_comp, 0.0);
+    sweep_f_out_.assign(n_comp, 0.0);
+}
+
+void nest::CompTree{{cm_unique_suffix}}::compute_sweeping_order_leander( std::vector< Compartment{{cm_unique_suffix}}* > parallel_comps )
 {
     if(parallel_comps.size() > 0){
         upsweep_order.push_back(parallel_comps);
@@ -662,7 +774,7 @@ std::vector< long > nest::CompTree{{cm_unique_suffix}}::interweave_children(){
     return output_order;
 }
 
-std::vector< long > nest::CompTree{{cm_unique_suffix}}::interweaved_sweep_order(std::vector< Compartment{{cm_unique_suffix}}* > level){
+std::vector< long > nest::CompTree{{cm_unique_suffix}}::interweaved_sweep_order_leander(std::vector< Compartment{{cm_unique_suffix}}* > level){
     std::vector< long > output_order;
     std::vector< long > non_passed_comps = compartment_indices_;
     std::vector< Compartment{{cm_unique_suffix}}* > next_level;
@@ -683,7 +795,7 @@ std::vector< long > nest::CompTree{{cm_unique_suffix}}::interweaved_sweep_order(
 }
 
 
-std::vector< long > nest::CompTree{{cm_unique_suffix}}::interweave_children(std::vector< Compartment{{cm_unique_suffix}}* > level){
+std::vector< long > nest::CompTree{{cm_unique_suffix}}::interweave_children_leander(std::vector< Compartment{{cm_unique_suffix}}* > level){
     for(size_t level = 0; level < downsweep_order.size(); level++){
         std::vector< Compartment{{cm_unique_suffix}}* > sweep_level = downsweep_order[level];
         std::vector< size_t > child_nums = downsweep_child_nums[level];
@@ -786,6 +898,68 @@ void nest::CompTree{{cm_unique_suffix}}::arrange_data_following_output_order(std
 void
 nest::CompTree{{cm_unique_suffix}}::solve_matrix_downsweep()
 {
+    // Base level (leaf compartments): no child accumulation, but their io()
+    // outputs are needed by the next level.
+    if(!sweeping_order_idx_.empty()){
+        const std::vector< std::size_t >& leaf_level = sweeping_order_idx_[0];
+        #pragma omp simd
+        for(std::size_t i = 0; i < leaf_level.size(); i++){
+            const std::size_t comp_id = leaf_level[i];
+            if(has_parent_[comp_id]){
+                const {{ cm_scalar_t }} hh = hh_vec_[comp_id];
+                sweep_g_out_[comp_id] = hh * hh / gg_vec[comp_id];
+                sweep_f_out_[comp_id] = ff_vec[comp_id] * hh / gg_vec[comp_id];
+            }
+        }
+    }
+
+    for(std::size_t level = 1; level < sweeping_order_idx_.size(); level++){
+        const std::vector< std::size_t >& sweep_level = sweeping_order_idx_[level];
+        #pragma omp simd
+        for(std::size_t i = 0; i < sweep_level.size(); i++){
+            const std::size_t comp_id = sweep_level[i];
+            {{ cm_scalar_t }} xx = 0.0;
+            {{ cm_scalar_t }} yy = 0.0;
+
+            for(std::size_t idx = child_offsets_[comp_id]; idx < child_offsets_[comp_id + 1]; idx++){
+                const std::size_t child_id = child_indices_[idx];
+                xx += sweep_g_out_[child_id];
+                yy += sweep_f_out_[child_id];
+            }
+
+            gg_vec[comp_id] -= xx;
+            ff_vec[comp_id] -= yy;
+
+            if(has_parent_[comp_id]){
+                const {{ cm_scalar_t }} hh = hh_vec_[comp_id];
+                sweep_g_out_[comp_id] = hh * hh / gg_vec[comp_id];
+                sweep_f_out_[comp_id] = ff_vec[comp_id] * hh / gg_vec[comp_id];
+            }
+        }
+    }
+}
+
+void
+nest::CompTree{{cm_unique_suffix}}::solve_matrix_upsweep()
+{
+    const std::size_t root_id = std::size_t(root_.comp_index);
+    v_comp_vec[root_id] = ff_vec[root_id] / gg_vec[root_id];
+
+    for(std::size_t level = sweeping_order_idx_.size() - 1; level > 0; level--){
+        const std::vector< std::size_t >& sweep_level = sweeping_order_idx_[level - 1];
+        #pragma omp simd
+        for(std::size_t i = 0; i < sweep_level.size(); i++){
+            const std::size_t comp_id = sweep_level[i];
+            const std::size_t parent_id = parent_idx_[comp_id];
+            const {{ cm_scalar_t }} vv_parent = v_comp_vec[parent_id];
+            v_comp_vec[comp_id] = (ff_vec[comp_id] - vv_parent * hh_vec_[comp_id]) / gg_vec[comp_id];
+        }
+    }
+}
+
+void
+nest::CompTree{{cm_unique_suffix}}::solve_matrix_downsweep_leander()
+{
     for(size_t level = 1; level < downsweep_order.size(); level++){
         parent_number = downsweep_order[level].size();
     }
@@ -807,7 +981,7 @@ nest::CompTree{{cm_unique_suffix}}::solve_matrix_downsweep()
 }
 
 void
-nest::CompTree{{cm_unique_suffix}}::solve_matrix_upsweep()
+nest::CompTree{{cm_unique_suffix}}::solve_matrix_upsweep_leander()
 {
     root_.calc_v(0.0);
     for(size_t level = sweeping_order.size()-1; level > 0; level--){

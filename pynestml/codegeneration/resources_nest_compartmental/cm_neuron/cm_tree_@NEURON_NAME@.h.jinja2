@@ -23,6 +23,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {%- import 'directives_cpp/ContinuousInputBufferGetter.jinja2' as continuous_buffer_getter with context %}
 {%- import 'directives_cpp/BufferDeclaration.jinja2' as buffer_declaration with context %}
 {%- import 'directives_cpp/FunctionDeclaration.jinja2' as function_declaration with context %}
+{%- set cm_scalar_t = "float" if fp_precision == "single" else "double" -%}
 {%- import 'directives_cpp/OutputEvent.jinja2' as output_event with context %}
 /*
  *  {{neuronSpecificFileNamesCmSyns["tree"]}}.h
@@ -81,8 +82,11 @@ class Compartment{{cm_unique_suffix}}
 {
 private:
   // aggragators for numerical integration
-  double xx_;
-  double yy_;
+  {{ cm_scalar_t }} xx_;
+  {{ cm_scalar_t }} yy_;
+{%- if fp_precision == "single" %}
+  double v_comp_recordable_;
+{%- endif %}
 
 public:
   // compartment index
@@ -96,29 +100,29 @@ public:
   // buffer for currents
   RingBuffer currents;
   // voltage variable
-  double* v_comp;
+  {{ cm_scalar_t }}* v_comp;
   // electrical parameters
-  double ca; // compartment capacitance [uF]
-  double gc; // coupling conductance with parent (meaningless if root) [uS]
-  double gl; // leak conductance of compartment [uS]
-  double el; // leak current reversal potential [mV]
+  {{ cm_scalar_t }} ca; // compartment capacitance [uF]
+  {{ cm_scalar_t }} gc; // coupling conductance with parent (meaningless if root) [uS]
+  {{ cm_scalar_t }} gl; // leak conductance of compartment [uS]
+  {{ cm_scalar_t }} el; // leak current reversal potential [mV]
   // auxiliary variables for efficienchy
-  double* gg0;
-  double* ca__div__dt;
-  double* gl__times__el;
+  {{ cm_scalar_t }}* gg0;
+  {{ cm_scalar_t }}* ca__div__dt;
+  {{ cm_scalar_t }}* gl__times__el;
   // for numerical integration
-  double* ff;
-  double* gg;
-  double hh;
+  {{ cm_scalar_t }}* ff;
+  {{ cm_scalar_t }}* gg;
+  {{ cm_scalar_t }} hh;
   // passage counter for recursion
   int n_passed;
 
   // constructor, destructor
   Compartment{{cm_unique_suffix}}( const long compartment_index, const long parent_index);
   Compartment{{cm_unique_suffix}}( const long compartment_index, const long parent_index,
-    double* v_comp_ref, double* ca__div__dt_ref, double* gl__times__el_ref, double* gg0_ref, double* gg_ref, double* ff_ref);
+    {{ cm_scalar_t }}* v_comp_ref, {{ cm_scalar_t }}* ca__div__dt_ref, {{ cm_scalar_t }}* gl__times__el_ref, {{ cm_scalar_t }}* gg0_ref, {{ cm_scalar_t }}* gg_ref, {{ cm_scalar_t }}* ff_ref);
   Compartment{{cm_unique_suffix}}( const long compartment_index, const long parent_index, const DictionaryDatum& compartment_params,
-    double* v_comp_ref, double* ca__div__dt_ref, double* gl__times__el_ref, double* gg0_ref, double* gg_ref, double* ff_ref);
+    {{ cm_scalar_t }}* v_comp_ref, {{ cm_scalar_t }}* ca__div__dt_ref, {{ cm_scalar_t }}* gl__times__el_ref, {{ cm_scalar_t }}* gg0_ref, {{ cm_scalar_t }}* gg_ref, {{ cm_scalar_t }}* ff_ref);
   ~Compartment{{cm_unique_suffix}}(){};
 
   // initialization
@@ -131,23 +135,26 @@ public:
 
   // matrix construction
   void construct_matrix_coupling_elements();
+{%- if fp_precision == "single" %}
+  inline void sync_recordables();
+{%- endif %}
 
   // maxtrix inversion
-  inline void gather_input( const std::pair< double, double >& in );
-  inline std::pair< double, double > io();
-  inline double calc_v( const double v_in );
+  inline void gather_input( const std::pair< {{ cm_scalar_t }}, {{ cm_scalar_t }} >& in );
+  inline std::pair< {{ cm_scalar_t }}, {{ cm_scalar_t }} > io();
+  inline {{ cm_scalar_t }} calc_v( const {{ cm_scalar_t }} v_in );
 }; // Compartment
 
 /*
 Short helper functions for solving the matrix equation. Can hopefully be inlined
 */
 inline void
-nest::Compartment{{cm_unique_suffix}}::gather_input( const std::pair< double, double >& in )
+nest::Compartment{{cm_unique_suffix}}::gather_input( const std::pair< {{ cm_scalar_t }}, {{ cm_scalar_t }} >& in )
 {
   xx_ += in.first;
   yy_ += in.second;
 }
-inline std::pair< double, double >
+inline std::pair< {{ cm_scalar_t }}, {{ cm_scalar_t }} >
 nest::Compartment{{cm_unique_suffix}}::io()
 {
   // include inputs from child compartments
@@ -155,13 +162,13 @@ nest::Compartment{{cm_unique_suffix}}::io()
   *ff -= yy_;
 
   // output values
-  double g_val( hh * hh / *gg );
-  double f_val( *ff * hh / *gg );
+  {{ cm_scalar_t }} g_val( hh * hh / *gg );
+  {{ cm_scalar_t }} f_val( *ff * hh / *gg );
 
   return std::make_pair( g_val, f_val );
 }
-inline double
-nest::Compartment{{cm_unique_suffix}}::calc_v( const double v_in )
+inline {{ cm_scalar_t }}
+nest::Compartment{{cm_unique_suffix}}::calc_v( const {{ cm_scalar_t }} v_in )
 {
   // reset recursion variables
   xx_ = 0.0;
@@ -169,9 +176,20 @@ nest::Compartment{{cm_unique_suffix}}::calc_v( const double v_in )
 
   // compute voltage
   *v_comp = ( *ff - v_in * hh ) / *gg;
+{%- if fp_precision == "single" %}
+  v_comp_recordable_ = static_cast< double >( *v_comp );
+{%- endif %}
 
   return *v_comp;
 }
+
+{%- if fp_precision == "single" %}
+inline void
+nest::Compartment{{cm_unique_suffix}}::sync_recordables()
+{
+  v_comp_recordable_ = static_cast< double >( *v_comp );
+}
+{%- endif %}
 
 
 class CompTree{{cm_unique_suffix}}
@@ -190,6 +208,9 @@ private:
   // recursion functions for matrix inversion
   void solve_matrix_downsweep();
   void solve_matrix_upsweep();
+{%- if fp_precision == "single" %}
+  void sync_voltage_recordables();
+{%- endif %}
 
   // functions for pointer initialization
   void set_parents();
@@ -197,24 +218,33 @@ private:
   void set_compartment_variables();
   void set_leafs();
   void compute_sweeping_order( std::vector< Compartment{{cm_unique_suffix}}* > parallel_comps );
+  void create_tree_data_soa_by_sweeping_order();
 
-  std::vector< double > v_comp_vec;
-  std::vector< double > ca__div__dt_vec;
-  std::vector< double > gl__div__2_vec;
-  std::vector< double > gl__times__el_vec;
-  std::vector< double > gg0_vec;
-  std::vector< double > gg_vec;
-  std::vector< double > ff_vec;
+  std::vector< {{ cm_scalar_t }} > v_comp_vec;
+  std::vector< {{ cm_scalar_t }} > ca__div__dt_vec;
+  std::vector< {{ cm_scalar_t }} > gl__div__2_vec;
+  std::vector< {{ cm_scalar_t }} > gl__times__el_vec;
+  std::vector< {{ cm_scalar_t }} > gg0_vec;
+  std::vector< {{ cm_scalar_t }} > gg_vec;
+  std::vector< {{ cm_scalar_t }} > ff_vec;
 
   std::vector< std::vector< Compartment{{cm_unique_suffix}}* > > sweeping_order;
+  std::vector< std::vector< std::size_t > > sweeping_order_idx_;
+  std::vector< std::size_t > parent_idx_;
+  std::vector< bool > has_parent_;
+  std::vector< {{ cm_scalar_t }} > hh_vec_;
+  std::vector< std::size_t > child_offsets_;
+  std::vector< std::size_t > child_indices_;
+  std::vector< {{ cm_scalar_t }} > sweep_g_out_;
+  std::vector< {{ cm_scalar_t }} > sweep_f_out_;
 
 public:
   // constructor, destructor
-  CompTree{{cm_unique_suffix}}(bool* self_spikes, std::vector< double >* g_vals_in, std::vector< double >* i_vals_in);
+  CompTree{{cm_unique_suffix}}(bool* self_spikes, std::vector< {{ cm_scalar_t }} >* g_vals_in, std::vector< {{ cm_scalar_t }} >* i_vals_in);
   ~CompTree{{cm_unique_suffix}}(){};
 
-  std::vector< double >* g_vals;
-  std::vector< double >* i_vals;
+  std::vector< {{ cm_scalar_t }} >* g_vals;
+  std::vector< {{ cm_scalar_t }} >* i_vals;
 
   NeuronCurrents{{cm_unique_suffix}} neuron_currents;
 
@@ -228,7 +258,7 @@ public:
   void pre_run_hook();
 {%- endif %}
 
-  void init_pointers(bool* self_spikes, std::vector< double >* g_vals_in, std::vector< double >* i_vals_in);
+  void init_pointers(bool* self_spikes, std::vector< {{ cm_scalar_t }} >* g_vals_in, std::vector< {{ cm_scalar_t }} >* i_vals_in);
   void set_syn_buffers( std::vector< RingBuffer >& syn_buffers );
   std::map< Name, double* > get_recordables();
 
@@ -250,8 +280,8 @@ public:
   };
 
   // get voltage values
-  std::vector< double > get_voltage() const;
-  double get_compartment_voltage( const long compartment_index );
+  std::vector< {{ cm_scalar_t }} > get_voltage() const;
+  {{ cm_scalar_t }} get_compartment_voltage( const long compartment_index );
 
   // construct the numerical integration matrix and vector
   void construct_matrix( const long lag );

@@ -120,7 +120,6 @@ class MechsInfoEnricher:
     @classmethod
     def global_common_subexpression_elimination(cls, neuron: ASTModel, mechs_info: dict):
         nestml_printer = NESTMLPrinter()
-        break_mech = "i_K_Pst"
         for mechanism_name, mechanism_info in mechs_info.items():
             allowed = ["v_comp", "self_spikes"]
 
@@ -154,17 +153,12 @@ class MechsInfoEnricher:
                 function_expressions = expression_collector.expressions
                 function_expression_association += expression_collector.expressions
                 for function_expression in function_expressions:
-                    if function.name == "tau_h_K_Pst":
-                        breakpoint()
                     inlined_function_expressions.append(parse_expr(cls._ode_toolbox_printer.print(function_expression)))
 
             # Run actual CSE:
             symb = sympy.numbered_symbols("simd_cse_tmp_"+mechanism_name)
 
             replacements, reduced_exprs = sympy.cse(inlined_function_expressions+simd_body_expressions, symbols=symb)
-
-            if mechanism_name == break_mech:
-                breakpoint()
 
             # Re-substitute CSE replacements if they depend on states
             # Find invalid replacements
@@ -182,9 +176,6 @@ class MechsInfoEnricher:
 
                 invalid_vars = invalid_vars | new_invalids
 
-            if mechanism_name == break_mech:
-                breakpoint()
-
             # Substitute invalid occurrences with originals in valid replacements
             valid_replacements = [replacement for replacement in replacements if replacement not in invalid_replacements]
             invalid_replacements = list(reversed(invalid_replacements))
@@ -198,9 +189,6 @@ class MechsInfoEnricher:
 
             replacements = new_replacements
 
-            if mechanism_name == break_mech:
-                breakpoint()
-
             # Substitute invalid occurrences with originals in original expressions
             new_expressions = list()
             for expression in reduced_exprs:
@@ -211,9 +199,6 @@ class MechsInfoEnricher:
                 new_expressions.append(new_expression)
 
             reduced_exprs = new_expressions
-
-            if mechanism_name == break_mech:
-                breakpoint()
 
             # Parse replacements
             cse_replacements = dict()
@@ -241,9 +226,6 @@ class MechsInfoEnricher:
 
                 parsed_args[cls.sympy_compatible_print(replacement[0])] = parsed_argument
 
-            if mechanism_name == break_mech:
-                breakpoint()
-
             # Parse and replace reduced SIMD expressions
             for reduced_expr, association in zip(reduced_exprs[len(inlined_function_expressions):], expression_association):
 
@@ -257,9 +239,6 @@ class MechsInfoEnricher:
 
                 original[association[-1]] = expression
 
-            if mechanism_name == break_mech:
-                breakpoint()
-
             # Parse reduced function expressions
             parsed_func_expressions = []
             for reduced_expr in reduced_exprs[:len(inlined_function_expressions)]:
@@ -268,9 +247,6 @@ class MechsInfoEnricher:
                 expression.accept(ASTSymbolTableVisitor())
 
                 parsed_func_expressions.append(expression)
-
-            if mechanism_name == break_mech:
-                breakpoint()
 
             # Replace function expressions
             all_function_arguments = set()
@@ -284,9 +260,6 @@ class MechsInfoEnricher:
                 cls.add_function_call_args(mechanism_info, function.name, function_arguments)
                 for replacement_name, replacement in cse_replacements.items():
                     cls.add_function_call_args(replacement, function.name, function_arguments)
-
-            if mechanism_name == break_mech:
-                breakpoint()
 
             # Save final replacements to mech dict
             body_cse_replacements = dict()

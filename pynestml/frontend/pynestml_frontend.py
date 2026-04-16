@@ -421,6 +421,12 @@ def generate_nest_compartmental_target(input_path: Union[str, Sequence[str]], ta
         Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
     codegen_opts : Optional[Mapping[str, Any]]
         A dictionary containing additional options for the target code generator.
+    Compartmental-specific options:
+        - ``fp_precision``: ``"single"`` or ``"double"`` (default: ``"double"``).
+        - ``use_fastexp``: bool (default: ``False``). If ``True``, generated
+          code uses a fast polynomial approximation only for dynamic propagator
+          ``exp()`` terms in hot loops; all other exponentials use
+          ``std::exp``/``std::expf``.
     """
     generate_target(input_path, target_platform="NEST_compartmental", target_path=target_path,
                     logging_level=logging_level, module_name=module_name, store_log=store_log,
