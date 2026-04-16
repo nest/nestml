@@ -39,6 +39,6 @@ class CoCo:
         """
         Check the coco.
 
-        :param node: a single model instance on which the coco will be checked.
+        :param node: a single ASTNode instance on which the coco will be checked.
         """
         raise NotImplementedError()
