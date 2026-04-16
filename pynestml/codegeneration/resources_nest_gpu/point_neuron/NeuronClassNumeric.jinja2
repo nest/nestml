@@ -233,6 +233,7 @@ __device__
 void Derivatives(double x, float *y, float *dydx, float *param,
 		 {{ neuronName }}_rk5 data_struct)
 {
+{# Check if the integrate_odes() is called inside an if..else block and call the respective solver function to solve the ODEs.#}
 {%- for ast in utils.get_all_integrate_odes_calls_unique(neuron) %}
 {%-    set parent = utils.get_integrate_odes_parent(ast) %}
 {%-    if parent is not none %}
@@ -300,7 +301,7 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
   port_input_arr_step_ = n_var_;
   port_input_port_step_ = 1;
 
-{# TODO #}
+{# TODO: Dendritic delay is by default set to 0. This value should be set with plastic synapses.#}
 {#  den_delay_arr_ =  GetParamArr() + GetScalParamIdx("den_delay"); #}
 
   return 0;

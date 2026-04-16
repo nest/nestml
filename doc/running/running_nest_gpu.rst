@@ -23,22 +23,16 @@ Generating code
 
 3. Install NESTML in ``$HOME/nestml``. The NESTML installation instructions can be found :doc:`here <../installation>`.
 
-4. Run the test from NESTML that generates and compiles the code for the neuron models with analytic and numeric solver for NEST GPU.
+4. Run the test from NESTML that generates and compiles the code for the neuron models with analytic and numeric solver for NEST GPU, and performs single-neuron simulations. The tests can be found in the directory `tests/nest_gpu_tests <https://github.com/nest/nestml/tree/main/tests/nest_gpu_tests>`_
 
    .. code-block:: bash
 
       # Test for a neuron model with analytic solver
-      pytest -s tests/nest_gpu_tests/nest_gpu_code_generator_test.py -k "test_nest_gpu_code_generator_analytic"
+      pytest -s tests/nest_gpu_tests/test_nest_gpu_code_generator_analytic.py
 
       # Test for neuron models with numeric solver
-      pytest -s tests/nest_gpu_tests/nest_gpu_code_generator_test.py -k "test_nest_gpu_code_generator_numeric"
+      pytest -s tests/nest_gpu_tests/test_nest_gpu_code_generator_numeric.py
 
-5. Run the script for the single neuron simuation. All the example scripts can be found in the directory ``extras/nest_gpu/examples``.
-
-   .. code-block:: bash
-
-      cd extras/nest_gpu/examples/iaf_psc_exp
-      python example_iaf_psc_exp.py
 
 References
 ~~~~~~~~~~

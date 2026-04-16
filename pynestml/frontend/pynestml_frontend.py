@@ -611,7 +611,7 @@ def process() -> bool:
     models = list(set(models) - set(excluded_models))
 
     if len(models) == 0:
-        return True # there is no model code to generate, return error condition
+        return True  # there is no model code to generate, return error condition
 
     # transformation(s)
     models, metadata = transform_models(transformers, models)
