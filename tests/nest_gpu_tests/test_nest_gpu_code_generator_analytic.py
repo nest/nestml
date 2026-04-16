@@ -57,8 +57,8 @@ class TestNESTGPUAnalyticCodeGenerator:
         ngpu.SetStatus(sg, {"spike_times": spike_times})
 
         conn_spec = {"rule": "all_to_all"}
-        syn_spec_exc = {'receptor': 0, 'weight': 200.0, 'delay': 1.0}
-        syn_spec_in = {'receptor': 1, 'weight': -1.0, 'delay': 100.0}
+        syn_spec_exc = {"receptor": 0, "weight": 200.0, "delay": 1.0}
+        syn_spec_in = {"receptor": 1, "weight": -1.0, "delay": 100.0}
 
         ngpu.Connect(sg, neuron, conn_spec, syn_spec_exc)
         ngpu.Connect(sg, neuron, conn_spec, syn_spec_in)

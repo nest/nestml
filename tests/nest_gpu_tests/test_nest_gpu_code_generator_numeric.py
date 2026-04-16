@@ -56,7 +56,7 @@ class TestNESTGPUNumericCodeGenerator:
                                  codegen_opts=codegen_opts)
 
         # Use spawn method for clean process creation
-        mp.set_start_method('spawn', force=True)
+        mp.set_start_method("spawn", force=True)
 
     def run_aeif_simulation(self, neuron_model_name, params):
         import nestgpu as ngpu
@@ -73,8 +73,8 @@ class TestNESTGPUNumericCodeGenerator:
         weight = [0.1, 0.2]
 
         conn_spec = {"rule": "all_to_all"}
-        syn_spec_ex = {'receptor': 0, 'weight': weight[0], 'delay': delay[0]}
-        syn_spec_in = {'receptor': 1, 'weight': weight[1], 'delay': delay[1]}
+        syn_spec_ex = {"receptor": 0, "weight": weight[0], "delay": delay[0]}
+        syn_spec_in = {"receptor": 1, "weight": weight[1], "delay": delay[1]}
         ngpu.Connect(spike, neuron, conn_spec, syn_spec_ex)
         ngpu.Connect(spike, neuron, conn_spec, syn_spec_in)
 
@@ -102,8 +102,8 @@ class TestNESTGPUNumericCodeGenerator:
 
         conn_spec = {"rule": "all_to_all"}
 
-        syn_spec_ex = {'weight': weight[0], 'delay': delay[0]}
-        syn_spec_in = {'weight': weight[1], 'delay': delay[1]}
+        syn_spec_ex = {"weight": weight[0], "delay": delay[0]}
+        syn_spec_in = {"weight": weight[1], "delay": delay[1]}
         ngpu.Connect(spike, neuron, conn_spec, syn_spec_ex)
         ngpu.Connect(spike, neuron, conn_spec, syn_spec_in)
 
@@ -122,8 +122,8 @@ class TestNESTGPUNumericCodeGenerator:
                                {"V_peak": 0.0, "a": 4.0, "b": 80.5, "E_L": -70.6, "g_L": 300.0, "tau_exc": 40.0,
                                 "tau_inh": 20.0}, "test_aeif_psc_exp_nest.txt"),
                               ("aeif_cond_alpha_alt_neuron_nestml",
-                               {"V_peak": 0.0, "a": 4.0, "b": 80.5, "E_L": -70.6, "g_L": 300.0, 'E_exc': 20.0,
-                                'E_inh': -85.0, 'tau_syn_exc': 40.0, 'tau_syn_inh': 20.0},
+                               {"V_peak": 0.0, "a": 4.0, "b": 80.5, "E_L": -70.6, "g_L": 300.0, "E_exc": 20.0,
+                                "E_inh": -85.0, "tau_syn_exc": 40.0, "tau_syn_inh": 20.0},
                                "test_aeif_cond_alpha_nest.txt")])
     def test_nest_gpu_code_generator_aeif(self, neuron_model_name, params, nest_data_file_name):
         tolerance = 0.0001
