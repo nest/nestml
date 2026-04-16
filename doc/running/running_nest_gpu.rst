@@ -34,6 +34,17 @@ Generating code
       pytest -s tests/nest_gpu_tests/test_nest_gpu_code_generator_numeric.py
 
 
+Models with numeric solvers
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Neuron models that require numeric solvers use Runge-Kutta Fehlberg (``rk45``) method to solve the ODEs. The minimum step size ``h_min_rel`` and initial integration step ``h0_rel`` are variables set inside the model during code generation. They can also be modified at runtime as parameters of the model instance.
+
+   .. code-block::
+
+    neuron = ngpu.Create("aeif_cond_alpha_neuron_nestml", 1)
+    ngpu.SetStatus(neuron, {"h_min_rel": 0.01, "h0_rel": 0.1})
+
+
 References
 ~~~~~~~~~~
 

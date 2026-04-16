@@ -67,8 +67,8 @@ enum GroupParamIndexes {
 };
 
 const std::string {{ neuronName }}_group_param_name[N_GROUP_PARAM] = {
-  "h_min_rel",
-  "h0_rel"
+  "h_min_rel",  //Minimum step size in ODE integration relative to time resolution
+  "h0_rel"      // Starting step in ODE integration relative to time resolution
 };
 
 }; //namespace
