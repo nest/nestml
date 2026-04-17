@@ -16,15 +16,6 @@
 # potential exceeds the threshold. The membrane potential is NOT reset,
 # but continuously integrated.
 #
-# .. note::
-#
-#    If tau_m is very close to tau_syn_exc or tau_syn_inh, numerical problems
-#    may arise due to singularities in the propagator matrics. If this is
-#    the case, replace equal-valued parameters by a single parameter.
-#
-#    For details, please see ``IAF_neurons_singularity.ipynb`` in
-#    the NEST source code (``docs/model_details``).
-#
 # References
 # ++++++++++
 #
@@ -72,10 +63,10 @@ model mat2_psc_exp_neuron:
         refr_t ms = 0 ms    # Refractory period timer
 
     equations:
-        kernel I_kernel_inh = exp(-t/tau_syn_inh)
-        kernel I_kernel_exc = exp(-t/tau_syn_exc)
+        kernel I_kernel_inh = exp(-t / tau_syn_inh)
+        kernel I_kernel_exc = exp(-t / tau_syn_exc)
 
-        inline I_syn pA = convolve(I_kernel_exc, exc_spikes) * pA - convolve(I_kernel_inh, inh_spikes) * pA
+        inline I_syn pA = unit_psc * (convolve(I_kernel_exc, exc_spikes) - convolve(I_kernel_inh, inh_spikes))
         V_m' = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
         refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
 
@@ -99,6 +90,8 @@ model mat2_psc_exp_neuron:
         h ms = resolution()
         P11th real = exp(-h / tau_1)
         P22th real = exp(-h / tau_2)
+
+        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
 
     input:
         exc_spikes <- excitatory spike

@@ -52,11 +52,8 @@ class NestResolutionBuiltinTest(unittest.TestCase):
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_resolution_function(self):
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
         nest.ResetKernel()
+        NESTTools.set_nest_verbosity("ALL")
         nest.Install("nestmlmodule")
         models = nest.Models(mtype="nodes")
         neuron_models = [m for m in models if str(nest.GetDefaults(m, "element_type")) == "neuron"]

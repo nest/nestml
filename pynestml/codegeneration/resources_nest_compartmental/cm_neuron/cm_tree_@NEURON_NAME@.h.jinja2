@@ -129,10 +129,10 @@ public:
   ~Compartment{{cm_unique_suffix}}(){};
 
   // initialization
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  void calibrate();
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
   void pre_run_hook();
+{%- else %}
+  void calibrate();
 {%- endif %}
   std::map< Name, double* > get_recordables();
 
@@ -204,6 +204,8 @@ private:
   void set_compartment_variables();
   void set_leafs();
 
+  std::set< std::string > get_all_available_vars();
+
   std::vector< double > v_comp_vec;
   std::vector< double > ca__div__dt_vec;
   std::vector< double > gl__div__2_vec;
@@ -223,10 +225,10 @@ public:
   void add_compartment( const long parent_index );
   void add_compartment( const long parent_index, const DictionaryDatum& compartment_params );
   void add_compartment( Compartment{{cm_unique_suffix}}* compartment, const long parent_index );
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  void calibrate();
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
   void pre_run_hook();
+{%- else %}
+  void calibrate();
 {%- endif %}
 
   void init_pointers();

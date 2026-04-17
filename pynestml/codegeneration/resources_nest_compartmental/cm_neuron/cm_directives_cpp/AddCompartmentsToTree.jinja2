@@ -47,7 +47,7 @@ if ( {{ exists_in_dictionary.ExistsInDictionary("statusdict", "names::compartmen
         "list of parameter dicts for multiple compartments" );
     }
 {%- else %}
-    if ( is_type< std::vector< Dictionary > >( statusdict.at( names::compartments ) ) )
+    if ( std::holds_alternative< std::vector< Dictionary > >( statusdict.at( names::compartments ) ) )
     {
       auto compartments = statusdict.get< std::vector< Dictionary > >( names::compartments );
       // A list of compartments is provided, we add them all to the tree
@@ -56,7 +56,7 @@ if ( {{ exists_in_dictionary.ExistsInDictionary("statusdict", "names::compartmen
         add_compartment_( compartment_dict );
       }
     }
-    else if ( is_type< Dictionary >( statusdict.at( names::compartments ) ) )
+    else if ( std::holds_alternative< Dictionary >( statusdict.at( names::compartments ) ) )
     {
       // A single compartment is provided, we add it to the tree
       add_compartment_( statusdict.get< Dictionary >( names::compartments ) );

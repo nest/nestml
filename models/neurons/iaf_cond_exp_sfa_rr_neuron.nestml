@@ -59,14 +59,14 @@ model iaf_cond_exp_sfa_rr_neuron:
         g_rr nS = 0 nS      # inputs from the rr conductance
 
     equations:
-        kernel g_inh = exp(-t/tau_syn_inh)    # inputs from the inh conductance
-        kernel g_exc = exp(-t/tau_syn_exc)    # inputs from the exc conductance
+        kernel g_inh = exp(-t / tau_syn_inh)    # inputs from the inh conductance
+        kernel g_exc = exp(-t / tau_syn_exc)    # inputs from the exc conductance
 
         g_sfa' = -g_sfa / tau_sfa
         g_rr' = -g_rr / tau_rr
 
-        inline I_syn_exc pA = convolve(g_exc, exc_spikes) * nS * (V_m - E_exc)
-        inline I_syn_inh pA = convolve(g_inh, inh_spikes) * nS * (V_m - E_inh)
+        inline I_syn_exc pA = unit_psg * convolve(g_exc, exc_spikes) * (V_m - E_exc)
+        inline I_syn_inh pA = unit_psg * convolve(g_inh, inh_spikes) * (V_m - E_inh)
         inline I_L pA = g_L * (V_m - E_L)
         inline I_sfa pA = g_sfa * (V_m - E_sfa)
         inline I_rr pA = g_rr * (V_m - E_rr)
@@ -94,6 +94,9 @@ model iaf_cond_exp_sfa_rr_neuron:
 
         # constant external input current
         I_e pA = 0 pA
+
+    internals:
+        unit_psg nS = 1 nS  # Unitary postsynaptic conductance amplitude
 
     input:
         inh_spikes <- inhibitory spike

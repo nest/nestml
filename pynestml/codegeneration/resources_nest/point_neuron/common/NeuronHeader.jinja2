@@ -61,12 +61,12 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {%- if norm_rng %}
 
 // Includes for random number generator
-{%- if nest_version.startswith("v2") %}
+{%- if nest_version.startswith("main") or nest_version_dict and nest_version_dict["major"] >= 3 %}
+#include <random>
+{%- else %}
 #include "normal_randomdev.h"
 #include "poisson_randomdev.h"
 #include "uniform_randomdev.h"
-{%- else %}
-#include <random>
 {%- endif %}
 {%- endif %}
 {%- if uses_numeric_solver %}
@@ -86,7 +86,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 // Includes from nestkernel:
 #include "{{neuron_parent_class_include}}"
 #include "connection.h"
-{%- if not nest_version.startswith("v2") %}
+{%- if nest_version.startswith("main") or nest_version_dict and nest_version_dict["major"] >= 3 %}
 #include "dict_util.h"
 {%- endif %}
 #include "event.h"
@@ -179,7 +179,7 @@ extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% e
 #include "nest_time.h"
 
 
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 4) or  nest_version_dict["major"] > 3) %}
   typedef size_t nest_port_t;
   typedef size_t nest_rport_t;
 {%- else %}
@@ -316,8 +316,7 @@ public:
 */
 
 // Register the neuron model
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
-        or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] >= 3 and nest_version_dict["minor"] > 6) or nest_version_dict["major"] > 3) %}
 void register_{{ neuronName }}( const std::string& name );
 {%- endif %}
 
@@ -533,7 +532,7 @@ public:
   //   Initialization functions
   // -------------------------------------------------------------------------
 
-{%- if not nest_version.startswith("v2") %}
+{%- if nest_version.startswith("main") or nest_version_dict and nest_version_dict["major"] >= 3 %}
   void calibrate_time( const nest::TimeConverter& tc ) override;
 {%- endif %}
 
@@ -643,7 +642,7 @@ private:
   /**
    * Reset state of neuron.
   **/
-{%- if nest_version.startswith("v2") %}
+{%- if nest_version_dict and nest_version_dict["major"] == 2 %}
   void init_state_(const Node& proto) override;
 {%- endif %}
 
@@ -657,10 +656,10 @@ private:
   /**
    * Initialize auxiliary quantities, leave parameters and state untouched.
   **/
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  void calibrate() override;
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
   void pre_run_hook() override;
+{%- else %}
+  void calibrate() override;
 {%- endif %}
 
   /**
@@ -1020,12 +1019,12 @@ private:
 
 {%- if norm_rng %}
 
-{%- if nest_version.startswith("v2") %}
-  librandom::NormalRandomDev normal_dev_; //!< random deviate generator
-  librandom::PoissonRandomDev poisson_dev_; //!< random deviate generator
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and nest_version_dict["major"] >= 3 %}
   nest::normal_distribution normal_dev_; //!< random deviate generator
   nest::poisson_distribution poisson_dev_; //!< random deviate generator
+{%- else %}
+  librandom::NormalRandomDev normal_dev_; //!< random deviate generator
+  librandom::PoissonRandomDev poisson_dev_; //!< random deviate generator
 {%- endif %}
 {%- endif %}
 {%- if has_delay_variables %}

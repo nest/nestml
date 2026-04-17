@@ -44,7 +44,7 @@ if ( {{ exists_in_dictionary.ExistsInDictionary("statusdict", "names::receptors"
         "list of parameter dicts for multiple receptors" );
     }
 {%- else %}
-    if ( is_type< std::vector< Dictionary > >( statusdict.at( names::receptors ) ) )
+    if ( std::holds_alternative< std::vector< Dictionary > >( statusdict.at( names::receptors ) ) )
     {
       auto receptors = statusdict.get< std::vector< Dictionary > >( names::receptors );
       for ( auto& receptor_dict : receptors )
@@ -52,7 +52,7 @@ if ( {{ exists_in_dictionary.ExistsInDictionary("statusdict", "names::receptors"
         add_receptor_( receptor_dict );
       }
     }
-    else if ( is_type< Dictionary >( statusdict.at( names::receptors ) ) )
+    else if ( std::holds_alternative< Dictionary >( statusdict.at( names::receptors ) ) )
     {
       add_receptor_( statusdict.get< Dictionary >( names::receptors ) );
     }

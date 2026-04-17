@@ -61,7 +61,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 {%- if norm_rng %}
 // Includes for random number generator
-{%-   if nest_version.startswith("v2") %}
+{%-   if nest_version_dict and nest_version_dict["major"] == 2 %}
 #include "normal_randomdev.h"
 #include "uniform_randomdev.h"
 {%-   else %}
@@ -89,7 +89,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {%-     endif %}
 {%- endif %}
 
-{%- if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
+{%- if nest_version_dict and (nest_version_dict["major"] <= 3 and nest_version_dict["minor"] < 10) %}
 // Includes from sli:
 #include "dictdatum.h"
 #include "dictutils.h"
@@ -108,8 +108,23 @@ typedef Dictionary DictionaryDatum;
 
 namespace nest
 {
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
-        or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
+{%- if nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 4) or  nest_version_dict["major"] > 3)) %}
+  typedef size_t nest_port_t;
+  typedef size_t nest_rport_t;
+  typedef size_t nest_thread_t;
+{%- else %}
+  typedef port nest_port_t;
+  typedef rport nest_rport_t;
+  typedef thread nest_thread_t;
+{%- endif %}
+
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or  nest_version_dict["major"] > 3) %}
+{%-      set invalid_port = "invalid_port" %}
+{%- else %}
+{%-      set invalid_port = "invalid_port_" %}
+{%- endif %}
+
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] >= 3 and nest_version_dict["minor"] > 6) or nest_version_dict["major"] > 3) %}
 // Register the synapse model
 void register_{{ synapseName }}( const std::string& name );
 {%- endif %}
@@ -210,12 +225,8 @@ public:
 {%-   endif %}
       if( {{ read_from_dictionary.ReadFromDictionary("d", "NodeCollectionDatum", "names::volume_transmitter", "vt_ptr", "", false) }})
       {
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
-        const size_t tid = kernel().vp_manager.get_thread_id();
-{%- else %}
-        const thread tid = kernel().vp_manager.get_thread_id();
-{%- endif %}
-{%- if nest_version.startswith("v2") %}
+        const nest_thread_t tid = kernel().vp_manager.get_thread_id();
+{%- if nest_version_dict and nest_version_dict["major"] == 2 %}
         Node* vt = kernel().node_manager.get_node( ( *vt_ptr )[ 0 ], tid );
 {%- else %}
         Node* vt = kernel().node_manager.get_node_or_proxy( ( *vt_ptr )[ 0 ], tid );
@@ -247,7 +258,7 @@ public:
     {
       if ( vt_ != nullptr )
       {
-{%- if nest_version.startswith("v2") %}
+{%- if nest_version_dict and nest_version_dict["major"] == 2 %}
         return vt_->get_gid();
 {%- else %}
         return vt_->get_node_id();
@@ -369,17 +380,10 @@ class {{synapseName}} : public Connection< targetidentifierT >
 {% endif %}
 {%- if vt_ports is defined and vt_ports|length > 0  %}
 public:
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
-  void trigger_update_weight( size_t t,
+  void trigger_update_weight( nest_thread_t t,
     const std::vector< spikecounter >& vt_spikes,
     double t_trig,
     const {{synapseName}}CommonSynapseProperties& cp );
-{%- else %}
-  void trigger_update_weight( thread t,
-    const std::vector< spikecounter >& vt_spikes,
-    double t_trig,
-    const {{synapseName}}CommonSynapseProperties& cp );
-{%- endif %}
 {%- endif %}
 private:
   double t_lastspike_;
@@ -389,7 +393,7 @@ private:
 
   // vt_spikes_idx_ refers to the vt spike that has just been processed after trigger_update_weight
   // a pseudo vt spike at t_trig is stored at index 0 and vt_spikes_idx_ = 0
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 4) or  nest_version_dict["major"] > 3) %}
   size_t vt_spikes_idx_;
 {%- else %}
   index vt_spikes_idx_;
@@ -506,7 +510,7 @@ public:
 
   typedef Connection< targetidentifierT > ConnectionBase;
 
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 4) or  nest_version_dict["major"] > 3) %}
   static constexpr ConnectionModelProperties properties = ConnectionModelProperties::HAS_DELAY
     | ConnectionModelProperties::IS_PRIMARY | ConnectionModelProperties::SUPPORTS_HPC
     | ConnectionModelProperties::SUPPORTS_LBL;
@@ -556,111 +560,53 @@ public:
     // Ensure proper overriding of overloaded virtual functions.
     // Return values from functions are ignored.
     using ConnTestDummyNodeBase::handles_test_event;
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
-    size_t
-    handles_test_event( SpikeEvent&, size_t ) override
-{%- else %}
-    port
-    handles_test_event( SpikeEvent&, rport ) override
-{%- endif %}
+    nest_port_t
+    handles_test_event( SpikeEvent&, nest_rport_t ) override
     {
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-      return invalid_port_;
-{%- else %}
-      return invalid_port;
-{%- endif %}
+      return {{ invalid_port }};
     }
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
-    size_t
-    handles_test_event( RateEvent&, size_t ) override
-{%- else %}
-    port
-    handles_test_event( RateEvent&, rport ) override
-{%- endif %}
+
+    nest_port_t
+    handles_test_event( RateEvent&, nest_rport_t ) override
     {
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-      return invalid_port_;
-{%- else %}
-      return invalid_port;
-{%- endif %}    }
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
-    size_t
-    handles_test_event( DataLoggingRequest&, size_t ) override
-{%- else %}
-    port
-    handles_test_event( DataLoggingRequest&, rport ) override
-{%- endif %}
+      return {{ invalid_port }};
+    }
+
+    nest_port_t
+    handles_test_event( DataLoggingRequest&, nest_rport_t ) override
     {
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-      return invalid_port_;
-{%- else %}
-      return invalid_port;
-{%- endif %}    }
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
-    size_t
-    handles_test_event( CurrentEvent&, size_t ) override
-{%- else %}
-    port
-    handles_test_event( CurrentEvent&, rport ) override
-{%- endif %}
+      return {{ invalid_port }};
+    }
+
+    nest_port_t
+    handles_test_event( CurrentEvent&, nest_rport_t ) override
     {
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-      return invalid_port_;
-{%- else %}
-      return invalid_port;
-{%- endif %}    }
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
-    size_t
-    handles_test_event( ConductanceEvent&, size_t ) override
-{%- else %}
-    port
-    handles_test_event( ConductanceEvent&, rport ) override
-{%- endif %}
+      return {{ invalid_port }};
+    }
+
+    nest_port_t
+    handles_test_event( ConductanceEvent&, nest_rport_t ) override
     {
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-      return invalid_port_;
-{%- else %}
-      return invalid_port;
-{%- endif %}    }
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
-    size_t
-    handles_test_event( DoubleDataEvent&, size_t ) override
-{%- else %}
-    port
-    handles_test_event( DoubleDataEvent&, rport ) override
-{%- endif %}
+      return {{ invalid_port }};
+    }
+
+    nest_port_t
+    handles_test_event( DoubleDataEvent&, nest_rport_t ) override
     {
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-      return invalid_port_;
-{%- else %}
-      return invalid_port;
-{%- endif %}    }
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
-    size_t
-    handles_test_event( DSSpikeEvent&, size_t ) override
-{%- else %}
-    port
-    handles_test_event( DSSpikeEvent&, rport ) override
-{%- endif %}
+      return {{ invalid_port }};
+    }
+
+    nest_port_t
+    handles_test_event( DSSpikeEvent&, nest_rport_t ) override
     {
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-      return invalid_port_;
-{%- else %}
-      return invalid_port;
-{%- endif %}    }
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
-    size_t
-    handles_test_event( DSCurrentEvent&, size_t ) override
-{%- else %}
-    port
-    handles_test_event( DSCurrentEvent&, rport ) override
-{%- endif %}
+      return {{ invalid_port }};
+    }
+
+    nest_port_t
+    handles_test_event( DSCurrentEvent&, nest_rport_t ) override
     {
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-      return invalid_port_;
-{%- else %}
-      return invalid_port;
-{%- endif %}    }
+      return {{ invalid_port }};
+    }
   };
 {%- if synapse_weight_variable | length > 0 and synapse_weight_variable != "weight" %}
 {%-     set variable = utils.get_variable_by_name(astnode, synapse_weight_variable) %}
@@ -693,19 +639,11 @@ public:
 {%-     endif %}
 {%- endif %}
 
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
   void
   check_connection( Node& s,
     Node& t,
-    size_t receptor_type,
+    nest_rport_t receptor_type,
     const CommonPropertiesType& cp )
-{%- else %}
-  void
-  check_connection( Node& s,
-    Node& t,
-    rport receptor_type,
-    const CommonPropertiesType& cp )
-{%- endif %}
   {
     ConnTestDummyNode dummy_target;
     ConnectionBase::check_connection_( dummy_target, s, t, receptor_type );
@@ -767,18 +705,12 @@ void get_entry_from_continuous_variable_history(double t,
 {%-     endif %}
 {%- endif %}
 
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
-{%-   if not (nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] >=3 and nest_version_dict["minor"] > 6) or nest_version_dict["major"] > 3) %}
   bool
-  send( Event& e, const size_t tid, const {{synapseName}}CommonSynapseProperties& cp )
-{%-   else %}
-  void
-  send( Event& e, const size_t tid, const {{synapseName}}CommonSynapseProperties& cp )
-{%-   endif %}
 {%- else %}
   void
-  send( Event& e, const thread tid, const {{synapseName}}CommonSynapseProperties& cp )
 {%- endif %}
+  send( Event& e, const nest_thread_t tid, const {{synapseName}}CommonSynapseProperties& cp )
   {
     const double __t_spike = e.get_stamp().get_ms();    // time of the presynaptic spike [ms]
 
@@ -1053,8 +985,7 @@ void get_entry_from_continuous_variable_history(double t,
 
     t_lastspike_ = __t_spike;
 
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
-        or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] >= 3 and nest_version_dict["minor"] > 6) or nest_version_dict["major"] > 3) %}
     return true;
 {%- endif %}
   }
@@ -1064,7 +995,7 @@ void get_entry_from_continuous_variable_history(double t,
   void set_status( const DictionaryDatum& d, ConnectorModel& cm );
 
 {%- if norm_rng %}
-{%- if nest_version.startswith("v2") %}
+{%- if nest_version_dict and nest_version_dict["major"] == 2 %}
   librandom::NormalRandomDev normal_dev_; //!< random deviate generator
 {%- else %}
   normal_distribution normal_dev_; //!< random deviate generator
@@ -1072,8 +1003,7 @@ void get_entry_from_continuous_variable_history(double t,
 {%- endif %}
 };
 
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
-        or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] >=3 and nest_version_dict["minor"] > 6) or nest_version_dict["major"] > 3) %}
 void
 register_{{ synapseName }}( const std::string& name )
 {
@@ -1081,7 +1011,7 @@ register_{{ synapseName }}( const std::string& name )
 }
 {%- endif %}
 
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 4) or  nest_version_dict["major"] > 3) %}
 template < typename targetidentifierT >
 constexpr ConnectionModelProperties {{synapseName}}< targetidentifierT >::properties;
 
@@ -1194,7 +1124,7 @@ void
 {{synapseName}}< targetidentifierT >::get_status( DictionaryDatum& __d ) const
 {
   ConnectionBase::get_status( __d );
-  {{ write_in_dictionary.WriteInDictionary("__d", "long", "names::size_of", "sizeof( *this )") }}
+  {{ write_in_dictionary.WriteInDictionary("__d", "long", "names::size_of", "static_cast< long >(sizeof( *this ))") }}
 
   // parameters and state variables
 {%- filter indent(2,True) %}
@@ -1583,18 +1513,11 @@ inline void
  * Update synapse internal state to end of timestep ``t_trig``, while processing vt spikes and post spikes
 **/
 template < typename targetidentifierT >
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
 inline void
-{{synapseName}}< targetidentifierT >::trigger_update_weight( size_t t,
+{{synapseName}}< targetidentifierT >::trigger_update_weight( nest_thread_t t,
   const std::vector< spikecounter >& vt_spikes,
   const double t_trig,
   const CommonPropertiesType& cp )
-{%- else %}
-{{synapseName}}< targetidentifierT >::trigger_update_weight( thread t,
-  const std::vector< spikecounter >& vt_spikes,
-  const double t_trig,
-  const CommonPropertiesType& cp )
-{%- endif %}
 {
   // propagate all state variables in the synapse to time t_trig
 

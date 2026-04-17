@@ -23,8 +23,8 @@
 #
 # As published in [1]_, the numerics differs from the standard forward Euler technique in two ways:
 #
-# 1) the new value of :math:`U_{m}` is calculated based on the new value of :math:`V_{m}`, rather than the previous value
-# 2) the variable :math:`V_{m}` is updated using a time step half the size of that used to update variable :math:`U_{m}`.
+# 1. the new value of :math:`U_{m}` is calculated based on the new value of :math:`V_{m}`, rather than the previous value
+# 2. the variable :math:`V_{m}` is updated using a time step half the size of that used to update variable :math:`U_{m}`.
 #
 # This model will instead be simulated using the numerical solver that is recommended by ODE-toolbox during code generation.
 #
@@ -59,8 +59,8 @@ model izhikevich_neuron:
         U_m real = b * V_m_init   # Membrane potential recovery variable
 
     equations:
-        V_m' = (0.04 * V_m * V_m / mV + 5.0 * V_m + (140 - U_m) * mV + ((I_e + I_stim) * GOhm)) / ms
-        U_m' = a*(b*V_m-U_m * mV) / (mV*ms)
+        V_m' = (0.04 * V_m * V_m / mV + 5 * V_m + (140 - U_m) * mV + ((I_e + I_stim) * GOhm)) / ms
+        U_m' = a * (b * V_m - U_m * mV) / (mV * ms)
 
     parameters:
         a real = 0.02        # describes time scale of recovery variable
@@ -74,6 +74,9 @@ model izhikevich_neuron:
         # constant external input current
         I_e pA = 0 pA
 
+    internals:
+        unit_psp mV = 1 mV        # Unitary postsynaptic membrane potential
+
     input:
         spikes <- spike
         I_stim pA <- continuous
@@ -85,7 +88,7 @@ model izhikevich_neuron:
         integrate_odes()
 
         # Add synaptic current
-        V_m += spikes * mV * s
+        V_m += unit_psp * spikes * s
 
         # lower bound of membrane potential
         V_m = max(V_min, V_m)

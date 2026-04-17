@@ -89,10 +89,7 @@ class TestNeuronPriority:
         sim_time = max(np.amax(port1_spike_times), np.amax(port2_spike_times)) + 10.
 
         nest.ResetKernel()
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
+        NESTTools.set_nest_verbosity("ALL")
         nest.SetKernelStatus({"resolution": resolution})
         try:
             nest.Install("nestmlmodule")
