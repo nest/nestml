@@ -1510,10 +1510,10 @@ nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::append_recorda
   {%- endfor %}
 }
 
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::calibrate()
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
 void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::pre_run_hook()
+{%- else %}
+void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::calibrate()
 {%- endif %}
 {
 
@@ -1937,10 +1937,10 @@ nest::{{continuous_name}}{{cm_unique_suffix}}::append_recordables(std::map< Name
   {%- endfor %}
 }
 
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-void nest::{{continuous_name}}{{cm_unique_suffix}}::calibrate()
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
 void nest::{{continuous_name}}{{cm_unique_suffix}}::pre_run_hook()
+{%- else %}
+void nest::{{continuous_name}}{{cm_unique_suffix}}::calibrate()
 {%- endif %}
 {
   {% if "time_resolution_var" in continuous_info %}

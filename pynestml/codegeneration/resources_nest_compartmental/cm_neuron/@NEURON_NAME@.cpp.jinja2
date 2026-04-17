@@ -29,8 +29,7 @@
 
 namespace nest
 {
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
-        or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] >=3 and nest_version_dict["minor"] > 6) or nest_version_dict["major"] > 3) %}
 void
 register_{{ neuronSpecificFileNamesCmSyns["main"] }}( const std::string& name )
 {
@@ -221,10 +220,10 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::init_recordables_pointers_()
 }
 
 void
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-nest::{{neuronSpecificFileNamesCmSyns["main"]}}::calibrate()
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
 nest::{{neuronSpecificFileNamesCmSyns["main"]}}::pre_run_hook()
+{%- else %}
+nest::{{neuronSpecificFileNamesCmSyns["main"]}}::calibrate()
 {%- endif %}
 {
   logger_.init();
@@ -236,10 +235,10 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::pre_run_hook()
   // initialize the recordables pointers
   init_recordables_pointers_();
 
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  c_tree_.calibrate();
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
   c_tree_.pre_run_hook();
+{%- else %}
+  c_tree_.calibrate();
 {%- endif %}
 }
 

@@ -31,7 +31,6 @@ except ImportError:
 import datetime
 import re
 
-import odetoolbox
 import pynestml
 
 from pynestml.cocos.co_co_nest_synapse_delay_not_assigned_to import CoCoNESTSynapseDelayNotAssignedTo
@@ -54,14 +53,8 @@ from pynestml.codegeneration.printers.nest_variable_printer import NESTVariableP
 from pynestml.codegeneration.printers.nest2_cpp_function_call_printer import NEST2CppFunctionCallPrinter
 from pynestml.codegeneration.printers.nest_gsl_function_call_printer import NESTGSLFunctionCallPrinter
 from pynestml.codegeneration.printers.nest2_gsl_function_call_printer import NEST2GSLFunctionCallPrinter
-from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
-from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
-from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
-from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
-from pynestml.meta_model.ast_input_port import ASTInputPort
-from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
@@ -69,7 +62,6 @@ from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
 from pynestml.transformers.synapse_post_neuron_transformer import SynapsePostNeuronTransformer
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
@@ -78,8 +70,6 @@ from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.ode_toolbox_utils import ODEToolboxUtils
 from pynestml.utils.string_utils import removesuffix
-from pynestml.visitors.ast_equations_with_delay_vars_visitor import ASTEquationsWithDelayVarsVisitor
-from pynestml.visitors.ast_equations_with_vector_variables import ASTEquationsWithVectorVariablesVisitor
 from pynestml.visitors.ast_mark_delay_vars_visitor import ASTMarkDelayVarsVisitor
 from pynestml.visitors.ast_set_vector_parameter_in_update_expressions import ASTSetVectorParameterInUpdateExpressionVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
@@ -104,8 +94,6 @@ class NESTCodeGenerator(CodeGenerator):
     - **neuron_parent_class_include**: The C++ header filename to include that contains **neuron_parent_class**. Default: ``"archiving_node.h"``.
     - **neuron_synapse_pairs**: List of pairs of (neuron, synapse) model names.
     - **synapse_models**: List of synapse model names. Instructs the code generator that models with these names are synapse models.
-    - **preserve_expressions**: Set to True, or a list of strings corresponding to individual variable names, to disable internal rewriting of expressions, and return same output as input expression where possible. Only applies to variables specified as first-order differential equations. (This parameter is passed to ODE-toolbox.)
-    - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
     - **gap_junctions**:
         - **membrane_potential_variable**
         - **gap_current_port**
@@ -116,7 +104,6 @@ class NESTCodeGenerator(CodeGenerator):
             - **synapse**: A list of synapse model jinja templates.
         - **module_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to generating the NEST module.
     - **nest_version**: A string identifying the version of NEST Simulator to generate code for. The string corresponds to the NEST Simulator git repository tag or git branch name, for instance, ``"v2.20.2"`` or ``"main"``. The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
-    - **solver**: A string identifying the preferred ODE solver. ``"analytic"`` for propagator solver preferred; fallback to numeric solver in case ODEs are not analytically solvable. Use ``"numeric"`` to disable analytic solver.
     - **gsl_adaptive_step_size_controller**: For the numeric (GSL) solver: how to interpret the absolute and relative tolerance values. Can be changed to trade off integration accuracy with numerical stability. The default value is ``"with_respect_to_solution"``. Can also be set to ``"with_respect_to_derivative"``. (Tolerance values can be specified at runtime as parameters of the model instance.) For further details, see https://www.gnu.org/software/gsl/doc/html/ode-initval.html#adaptive-step-size-control.
     - **numeric_solver**: A string identifying the preferred numeric ODE solver. Supported are ``"rk45"`` and ``"forward-Euler"``.
     - **continuous_state_buffering_method**: Which method to use for buffering state variables between neuron and synapse pairs. When a synapse has a "continuous" input port, connected to a postsynaptic neuron, either the value is obtained taking the synaptic (dendritic, that is, synapse-soma) delay into account, requiring a buffer to store the value at each timepoint (``continuous_state_buffering_method = "continuous_time_buffer"``); or the value is obtained at the times of the somatic spikes of the postsynaptic neuron, ignoring the synaptic delay (``continuous_state_buffering_method == "post_spike_based"``). The former is more physically accurate but requires a large buffer and can require a long time to simulate. The latter ignores the dendritic delay but is much more computationally efficient.
@@ -132,8 +119,6 @@ class NESTCodeGenerator(CodeGenerator):
         "neuron_parent_class_include": "archiving_node.h",
         "neuron_synapse_pairs": [],
         "synapse_models": [],
-        "preserve_expressions": True,
-        "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "gap_junctions": {
             "enable": False,
             "membrane_potential_variable": "V_m",
@@ -148,7 +133,6 @@ class NESTCodeGenerator(CodeGenerator):
             "module_templates": ["setup"]
         },
         "nest_version": "",
-        "solver": "analytic",
         "gsl_adaptive_step_size_controller": "with_respect_to_solution",
         "numeric_solver": "rk45",
         "continuous_state_buffering_method": "continuous_time_buffer",
@@ -170,8 +154,6 @@ class NESTCodeGenerator(CodeGenerator):
             self.set_options({"neuron_parent_class": "Archiving_Node",
                               "neuron_parent_class_include": "archiving_node.h"})
 
-        self.analytic_solver = {}
-        self.numeric_solver = {}
         self.non_equations_state_variables = {}  # those state variables not defined as an ODE in the equations block
 
         self.setup_template_env()
@@ -247,15 +229,6 @@ class NESTCodeGenerator(CodeGenerator):
                                                                                                                 function_call_printer=self._gsl_function_call_printer))
         self._gsl_variable_printer_no_origin._expression_printer = self._gsl_printer_no_origin
         self._gsl_function_call_printer_no_origin._expression_printer = self._gsl_printer_no_origin
-
-        # ODE-toolbox printers
-        self._ode_toolbox_variable_printer = ODEToolboxVariablePrinter(None)
-        self._ode_toolbox_function_call_printer = ODEToolboxFunctionCallPrinter(None)
-        self._ode_toolbox_printer = ODEToolboxExpressionPrinter(simple_expression_printer=SympySimpleExpressionPrinter(variable_printer=self._ode_toolbox_variable_printer,
-                                                                                                                       constant_printer=self._constant_printer,
-                                                                                                                       function_call_printer=self._ode_toolbox_function_call_printer))
-        self._ode_toolbox_variable_printer._expression_printer = self._ode_toolbox_printer
-        self._ode_toolbox_function_call_printer._expression_printer = self._ode_toolbox_printer
 
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
         # insist on using the old Archiving_Node class for NEST 2
@@ -387,29 +360,8 @@ class NESTCodeGenerator(CodeGenerator):
 
             return {}, {}, [], []
 
-        if len(neuron.get_equations_blocks()) > 1:
-            raise Exception("Only one equations block per model supported for now")
-
-        equations_block = neuron.get_equations_blocks()[0]
-
-        kernel_buffers = ASTUtils.generate_kernel_buffers(neuron, equations_block)
-        InlineExpressionExpansionTransformer().transform([neuron], metadata=metadata)
-        delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
-        ASTUtils.replace_convolve_calls_with_buffers_(neuron, equations_block)
-
-        # Collect all equations with delay variables and replace ASTFunctionCall to ASTVariable wherever necessary
-        equations_with_delay_vars_visitor = ASTEquationsWithDelayVarsVisitor()
-        neuron.accept(equations_with_delay_vars_visitor)
-        equations_with_delay_vars = equations_with_delay_vars_visitor.equations
-
-        # Collect all the equations with vector variables
-        eqns_with_vector_vars_visitor = ASTEquationsWithVectorVariablesVisitor()
-        neuron.accept(eqns_with_vector_vars_visitor)
-        equations_with_vector_vars = eqns_with_vector_vars_visitor.equations
-
-        analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron, kernel_buffers)
-        self.analytic_solver[neuron.get_name()] = analytic_solver
-        self.numeric_solver[neuron.get_name()] = numeric_solver
+        analytic_solver = metadata[neuron.name]["analytic_solver"]
+        numeric_solver = metadata[neuron.name]["numeric_solver"]
 
         self.non_equations_state_variables[neuron.get_name()] = []
         for block in neuron.get_state_blocks():
@@ -442,18 +394,17 @@ class NESTCodeGenerator(CodeGenerator):
         ASTUtils.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
         ASTUtils.replace_convolution_aliasing_inlines(neuron)
 
-        if self.analytic_solver[neuron.get_name()] is not None:
-            neuron = ASTUtils.add_declarations_to_internals(
-                neuron, self.analytic_solver[neuron.get_name()]["propagators"])
+        if metadata[neuron.name]["analytic_solver"] is not None:
+            ASTUtils.add_declarations_to_internals(neuron, metadata[neuron.name]["analytic_solver"]["propagators"])
 
         self.update_symbol_table(neuron)
 
         # Update the delay parameter parameters after symbol table update
         ASTUtils.update_delay_parameter_in_state_vars(neuron, state_vars_before_update)
 
-        spike_updates, post_spike_updates = self.get_spike_update_expressions(neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors, metadata)
+        spike_updates, post_spike_updates = self.get_spike_update_expressions(neuron, metadata[neuron.name]["kernel_buffers"], [analytic_solver, numeric_solver], metadata[neuron.name]["delta_factors"], metadata)
 
-        return spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars
+        return spike_updates, post_spike_updates, metadata[neuron.name]["equations_with_delay_vars"], metadata[neuron.name]["equations_with_vector_vars"]
 
     def analyse_synapse(self, synapse: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> None:
         """
@@ -465,19 +416,8 @@ class NESTCodeGenerator(CodeGenerator):
 
         spike_updates = {}
         if synapse.get_equations_blocks():
-            if len(synapse.get_equations_blocks()) > 1:
-                raise Exception("Only one equations block per model supported for now")
-
-            equations_block = synapse.get_equations_blocks()[0]
-
-            kernel_buffers = ASTUtils.generate_kernel_buffers(synapse, equations_block)
-            InlineExpressionExpansionTransformer().transform([synapse], metadata=metadata)
-            delta_factors = ASTUtils.get_delta_factors_(synapse, equations_block)
-            ASTUtils.replace_convolve_calls_with_buffers_(synapse, equations_block)
-
-            analytic_solver, numeric_solver = self.ode_toolbox_analysis(synapse, kernel_buffers)
-            self.analytic_solver[synapse.get_name()] = analytic_solver
-            self.numeric_solver[synapse.get_name()] = numeric_solver
+            analytic_solver = metadata[synapse.name]["analytic_solver"]
+            numeric_solver = metadata[synapse.name]["numeric_solver"]
 
             ASTUtils.remove_initial_values_for_kernels(synapse)
             kernels = ASTUtils.remove_kernel_definitions_from_equations_block(synapse)
@@ -487,11 +427,10 @@ class NESTCodeGenerator(CodeGenerator):
             ASTUtils.create_integrate_odes_combinations(synapse)
             ASTUtils.replace_variable_names_in_expressions(synapse, [analytic_solver, numeric_solver])
             self.update_symbol_table(synapse)
-            spike_updates, _ = self.get_spike_update_expressions(synapse, kernel_buffers, [analytic_solver, numeric_solver], delta_factors, metadata)
+            spike_updates, _ = self.get_spike_update_expressions(synapse, metadata[synapse.name]["kernel_buffers"], [analytic_solver, numeric_solver], metadata[synapse.name]["delta_factors"], metadata)
 
-            if not self.analytic_solver[synapse.get_name()] is None:
-                synapse = ASTUtils.add_declarations_to_internals(
-                    synapse, self.analytic_solver[synapse.get_name()]["propagators"])
+            if not metadata[synapse.get_name()]["analytic_solver"] is None:
+                ASTUtils.add_declarations_to_internals(synapse, metadata[synapse.get_name()]["analytic_solver"]["propagators"])
 
         self.update_symbol_table(synapse)
 
@@ -576,8 +515,8 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["remove_vector_index"] = lambda s: re.sub(r"\[\d+\]$", "", s)
 
         # ODE solving
-        namespace["uses_numeric_solver"] = astnode.get_name() in self.numeric_solver.keys() \
-            and self.numeric_solver[astnode.get_name()] is not None
+        namespace["uses_analytic_solver"] = astnode.get_name() in metadata.keys() and "analytic_solver" in metadata[astnode.name].keys() and metadata[astnode.name]["analytic_solver"] is not None
+        namespace["uses_numeric_solver"] = astnode.get_name() in metadata.keys() and "numeric_solver" in metadata[astnode.name].keys() and metadata[astnode.name]["numeric_solver"] is not None
 
         if namespace["uses_numeric_solver"]:
             namespace["numeric_solver"] = self.get_option("numeric_solver")
@@ -678,17 +617,15 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace["initial_values"] = {}
         namespace["variable_symbols"] = {}
-        namespace["uses_analytic_solver"] = synapse.get_name() in self.analytic_solver.keys() \
-            and self.analytic_solver[synapse.get_name()] is not None
         if namespace["uses_analytic_solver"]:
-            namespace["analytic_state_variables"] = self.analytic_solver[synapse.get_name()]["state_variables"]
+            namespace["analytic_state_variables"] = metadata[synapse.get_name()]["analytic_solver"]["state_variables"]
             namespace["variable_symbols"].update({sym: synapse.get_equations_blocks()[0].get_scope().resolve_to_symbol(
                 sym, SymbolKind.VARIABLE) for sym in namespace["analytic_state_variables"]})
             namespace["update_expressions"] = {}
-            for sym, expr in self.analytic_solver[synapse.get_name()]["initial_values"].items():
+            for sym, expr in metadata[synapse.get_name()]["analytic_solver"]["initial_values"].items():
                 namespace["initial_values"][sym] = expr
             for sym in namespace["analytic_state_variables"]:
-                expr_str = self.analytic_solver[synapse.get_name()]["update_expressions"][sym]
+                expr_str = metadata[synapse.get_name()]["analytic_solver"]["update_expressions"][sym]
                 expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr_str)
                 expr_ast = ModelParser.parse_expression(expr_str)
                 # pretend that update expressions are in "equations" block, which should always be present,
@@ -696,18 +633,18 @@ class NESTCodeGenerator(CodeGenerator):
                 expr_ast.update_scope(synapse.get_equations_blocks()[0].get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["update_expressions"][sym] = expr_ast
-            namespace["propagators"] = self.analytic_solver[synapse.get_name()]["propagators"]
+            namespace["propagators"] = metadata[synapse.get_name()]["analytic_solver"]["propagators"]
 
         if namespace["uses_numeric_solver"]:
-            namespace["numeric_state_variables"] = self.numeric_solver[synapse.get_name()]["state_variables"]
+            namespace["numeric_state_variables"] = metadata[synapse.get_name()]["numeric_solver"]["state_variables"]
             namespace["variable_symbols"].update({sym: synapse.get_equations_blocks()[0].get_scope().resolve_to_symbol(
                 sym, SymbolKind.VARIABLE) for sym in namespace["numeric_state_variables"]})
             assert not any([sym is None for sym in namespace["variable_symbols"].values()])
             namespace["numeric_update_expressions"] = {}
-            for sym, expr in self.numeric_solver[synapse.get_name()]["initial_values"].items():
+            for sym, expr in metadata[synapse.get_name()]["numeric_solver"]["initial_values"].items():
                 namespace["initial_values"][sym] = expr
             for sym in namespace["numeric_state_variables"]:
-                expr_str = self.numeric_solver[synapse.get_name()]["update_expressions"][sym]
+                expr_str = metadata[synapse.get_name()]["numeric_solver"]["update_expressions"][sym]
                 expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr_str)
                 expr_ast = ModelParser.parse_expression(expr_str)
                 # pretend that update expressions are in "equations" block, which should always be present,
@@ -804,13 +741,11 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["initial_values"] = {}
         namespace["variable_symbols"] = {}
 
-        namespace["uses_analytic_solver"] = neuron.get_name() in self.analytic_solver.keys() \
-            and self.analytic_solver[neuron.get_name()] is not None
         namespace["analytic_state_variables_moved"] = []
         if namespace["uses_analytic_solver"]:
             if "paired_synapse" in metadata[neuron.name].keys():
                 namespace["analytic_state_variables"] = []
-                for sv in self.analytic_solver[neuron.get_name()]["state_variables"]:
+                for sv in metadata[neuron.get_name()]["analytic_solver"]["state_variables"]:
                     moved = False
                     if "recursive_vars_used" in metadata[neuron.name].keys():
                         for mv in metadata[neuron.name]["recursive_vars_used"]:
@@ -825,16 +760,16 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace["variable_symbols"].update({sym: neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(
                     sym, SymbolKind.VARIABLE) for sym in namespace["analytic_state_variables_moved"]})
             else:
-                namespace["analytic_state_variables"] = self.analytic_solver[neuron.get_name()]["state_variables"]
+                namespace["analytic_state_variables"] = metadata[neuron.get_name()]["analytic_solver"]["state_variables"]
 
             namespace["variable_symbols"].update({sym: neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(sym, SymbolKind.VARIABLE) for sym in namespace["analytic_state_variables"]})
 
-            for sym, expr in self.analytic_solver[neuron.get_name()]["initial_values"].items():
+            for sym, expr in metadata[neuron.get_name()]["analytic_solver"]["initial_values"].items():
                 namespace["initial_values"][sym] = expr
 
             namespace["update_expressions"] = {}
             for sym in namespace["analytic_state_variables"] + namespace["analytic_state_variables_moved"]:
-                expr_str = self.analytic_solver[neuron.get_name()]["update_expressions"][sym]
+                expr_str = metadata[neuron.get_name()]["analytic_solver"]["update_expressions"][sym]
                 expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr_str)
                 expr_ast = ModelParser.parse_expression(expr_str)
                 # pretend that update expressions are in "equations" block, which should always be present, as differential equations must have been defined to get here
@@ -853,7 +788,7 @@ class NESTCodeGenerator(CodeGenerator):
                         sets_vector_param_in_update_expr_visitor = ASTSetVectorParameterInUpdateExpressionVisitor(var)
                         expr_ast.accept(sets_vector_param_in_update_expr_visitor)
 
-            namespace["propagators"] = self.analytic_solver[neuron.get_name()]["propagators"]
+            namespace["propagators"] = metadata[neuron.get_name()]["analytic_solver"]["propagators"]
 
             namespace["propagators_are_state_dependent"] = False
             for prop_name, prop_expr in namespace["propagators"].items():
@@ -873,7 +808,7 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["numeric_state_variables_moved"] = []
             if "paired_synapse" in metadata[neuron.name].keys():
                 namespace["numeric_state_variables"] = []
-                for sv in self.numeric_solver[neuron.get_name()]["state_variables"]:
+                for sv in metadata[neuron.get_name()]["numeric_solver"]["state_variables"]:
                     moved = False
                     for mv in metadata[neuron.name]["recursive_vars_used"]:
                         name_snip = mv + "__"
@@ -887,7 +822,7 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace["variable_symbols"].update({sym: neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(
                     sym, SymbolKind.VARIABLE) for sym in namespace["numeric_state_variables_moved"]})
             else:
-                namespace["numeric_state_variables"] = self.numeric_solver[neuron.get_name()]["state_variables"]
+                namespace["numeric_state_variables"] = metadata[neuron.get_name()]["numeric_solver"]["state_variables"]
 
             for var_name in namespace["numeric_state_variables"]:
                 for equations_block in neuron.get_equations_blocks():
@@ -897,7 +832,7 @@ class NESTCodeGenerator(CodeGenerator):
                         break
 
             assert not any([sym is None for sym in namespace["variable_symbols"].values()])
-            for sym, expr in self.numeric_solver[neuron.get_name()]["initial_values"].items():
+            for sym, expr in metadata[neuron.get_name()]["numeric_solver"]["initial_values"].items():
                 namespace["initial_values"][sym] = expr
 
             if namespace["uses_numeric_solver"]:
@@ -910,7 +845,7 @@ class NESTCodeGenerator(CodeGenerator):
 
             namespace["numeric_update_expressions"] = {}
             for sym in namespace["numeric_state_variables"] + namespace["numeric_state_variables_moved"]:
-                expr_str = self.numeric_solver[neuron.get_name()]["update_expressions"][sym]
+                expr_str = metadata[neuron.get_name()]["numeric_solver"]["update_expressions"][sym]
                 expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr_str)
                 expr_ast = ModelParser.parse_expression(expr_str)
                 # pretend that update expressions are in "equations" block, which should always be present, as differential equations must have been defined to get here
@@ -966,60 +901,6 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["gap_junction_port"] = self.get_option("gap_junctions")["gap_current_port"]
 
         return namespace
-
-    def create_ode_toolbox_indict(self, neuron: ASTModel, kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
-        odetoolbox_indict = ASTUtils.transform_ode_and_kernels_to_json(neuron, neuron.get_parameters_blocks(), kernel_buffers, printer=self._ode_toolbox_printer)
-        odetoolbox_indict["options"] = {}
-        odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
-        odetoolbox_indict["options"]["simplify_expression"] = self.get_option("simplify_expression")
-
-        return odetoolbox_indict
-
-    def ode_toolbox_analysis(self, neuron: ASTModel, kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
-        """
-        Prepare data for ODE-toolbox input format, invoke ODE-toolbox analysis via its API, and return the output.
-        """
-        assert len(neuron.get_equations_blocks()) <= 1, "Only one equations block supported for now."
-        assert len(neuron.get_parameters_blocks()) <= 1, "Only one parameters block supported for now."
-
-        equations_block = neuron.get_equations_blocks()[0]
-
-        if len(equations_block.get_kernels()) == 0 and len(equations_block.get_ode_equations()) == 0:
-            # no equations defined -> no changes to the neuron
-            return None, None
-
-        odetoolbox_indict = self.create_ode_toolbox_indict(neuron, kernel_buffers)
-
-        odetoolbox_indict["options"]["simplify_expression"] = self.get_option("simplify_expression")
-        disable_analytic_solver = self.get_option("solver") != "analytic"
-        solver_result = odetoolbox.analysis(odetoolbox_indict,
-                                            disable_stiffness_check=True,
-                                            disable_analytic_solver=disable_analytic_solver,
-                                            preserve_expressions=self.get_option("preserve_expressions"),
-                                            log_level=FrontendConfiguration.logging_level)
-        analytic_solver = None
-        analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
-        assert len(analytic_solvers) <= 1, "More than one analytic solver not presently supported"
-        if len(analytic_solvers) > 0:
-            analytic_solver = analytic_solvers[0]
-
-        # if numeric solver is required, generate a stepping function that includes each state variable, including the analytic ones
-        numeric_solver = None
-        numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
-        if numeric_solvers:
-            if analytic_solver:
-                # previous solver_result contains both analytic and numeric solver; re-run ODE-toolbox generating only numeric solver
-                solver_result = odetoolbox.analysis(odetoolbox_indict,
-                                                    disable_stiffness_check=True,
-                                                    disable_analytic_solver=True,
-                                                    preserve_expressions=self.get_option("preserve_expressions"),
-                                                    log_level=FrontendConfiguration.logging_level)
-            numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
-            assert len(numeric_solvers) <= 1, "More than one numeric solver not presently supported"
-            if len(numeric_solvers) > 0:
-                numeric_solver = numeric_solvers[0]
-
-        return analytic_solver, numeric_solver
 
     def update_symbol_table(self, model) -> None:
         """
