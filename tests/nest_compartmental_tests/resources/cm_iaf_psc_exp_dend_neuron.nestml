@@ -1,0 +1,84 @@
+# iaf_psc_exp_dend.nestml - Leaky integrate-and-fire neuron model with exponential PSCs
+# #########################################################################
+#
+# Description
+# +++++++++++
+#
+# compartmental version of a iaf_psc_exp type model. For further details see:
+# iaf_psc_exp.nestml
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+
+model iaf_psc_exp_cm_dend:
+
+    state:
+        v_comp real = 0           # Membrane potential
+        refr_t ms = 0 ms          # Refractory period timer
+
+        is_refr real = 0.0
+    
+
+    equations:
+        kernel I_kernel_inh = exp(-t/tau_syn_inh)
+        kernel I_kernel_exc = exp(-t/tau_syn_exc)
+
+        inline leak real = (E_l - v_comp) * C_m / tau_m @mechanism::channel
+        inline syn_exc real = convolve(I_kernel_exc, exc_spikes)  @mechanism::receptor
+        inline syn_inh real = convolve(I_kernel_inh, inh_spikes)  @mechanism::receptor
+        inline refr real = G_refr * is_refr * (V_reset - v_comp)  @mechanism::channel
+
+    parameters:
+        C_m pF = 250 pF           # Capacity of the membrane
+        tau_m ms = 10 ms          # Membrane time constant
+        tau_syn_inh ms = 2 ms     # Time constant of inhibitory synaptic current
+        tau_syn_exc ms = 2 ms     # Time constant of excitatory synaptic current
+        refr_T ms = 5 ms          # Duration of refractory period
+        E_l mV = -70 mV           # Resting potential
+        V_reset mV = -70 mV       # Reset potential of the membrane
+        V_th mV = -55 mV          # Spike threshold potential
+
+        # constant external input current
+        I_e pA = 0 pA
+
+        G_refr real = 0.
+
+    input:
+        exc_spikes <- excitatory spike
+        inh_spikes <- inhibitory spike
+        I_stim pA <- continuous
+
+    output:
+        spike
+
+    update:
+        if refr_t > resolution() / 2:
+            # neuron is absolute refractory, do not evolve V_m
+            refr_t -= resolution()
+        else:
+            refr_t = 0 ms
+            is_refr = 0
+
+    onReceive(self_spikes):
+        is_refr = 1
+        refr_t = refr_T
