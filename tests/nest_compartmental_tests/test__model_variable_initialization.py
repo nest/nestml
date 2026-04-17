@@ -38,7 +38,6 @@ except BaseException as e:
     TEST_PLOTS = False
 
 
-@pytest.mark.skipif(True, reason="XXX: TODO: this test should be enabled; see https://github.com/nest/nestml/issues/1353")
 class TestInitialization():
     @pytest.fixture(scope="module", autouse=True)
     def setup(self):
@@ -66,7 +65,7 @@ class TestInitialization():
 
         generate_nest_compartmental_target(
             input_path=input_path,
-            target_path="/tmp/nestml-component/",
+            target_path=target_path,
             module_name="concmech_module",
             suffix="_nestml",
             logging_level="INFO"
