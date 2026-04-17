@@ -214,7 +214,7 @@ static void update_internal_state_(synapse_state_t *state, uint32_t t_start, uin
 }
 
 
-static void process_post_spike(synapse_state_t *state, uint32_t time) {
+static void process_post_spike(synapse_state_t *state, uint32_t time, synapse_row_plastic_data_t *plastic_region_address) {
 {%- filter indent(8, True) %}
 {%- if post_ports is defined %}
 {%-     for post_port in spiking_post_ports %}
@@ -259,6 +259,7 @@ static void process_pre_spike(synapse_state_t *state, uint32_t time) {
 
 
 static void process_plastic_synapse(
+synapse_row_plastic_data_t *plastic_region_address,
         uint32_t control_word,
         uint32_t last_pre_time,
 {%- for var in paired_neuron.get_state_variables() %}
@@ -331,7 +332,7 @@ static void process_plastic_synapse(
          * handle the postsynaptic spike
         **/
 
-        process_post_spike(&state, current_time);
+        process_post_spike(&state, current_time, plastic_region_address);
 
 #ifdef PLOT_DETAILED_STATE
     log_info("[NESTML synapse] \tNEW state after applying post spike:");
@@ -525,7 +526,8 @@ bool synapse_dynamics_process_plastic_synapses(
         uint32_t control_word = *(control_words + i);
 
 //        log_info("[NESTML synapse] old plastic word[%d] = %x\n", i, plastic_words[i * plastic_synapse_word_stride]);
-        process_plastic_synapse(control_word,
+        process_plastic_synapse(plastic_region_address,
+                                control_word,
                                 last_pre_time,
 {%- for var in paired_neuron.get_state_variables() %}
 		                        plastic_region_address->history.{{ var.name }},

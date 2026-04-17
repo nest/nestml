@@ -157,6 +157,12 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         self._nestml_model_variables["{{ sym.get_symbol_name() }}"] = {{ printer.print(sym.get_declaring_expression()) }}  # type: {{ sym.get_type_symbol().print_symbol() }}
 {%- endfor %}
 
+{%- if "paired_neuron" in metadata[astnode.name].keys() and metadata[astnode.name]["paired_neuron"] is not none %}
+{%- for sym in metadata[astnode.name]["paired_neuron"].get_parameter_symbols() %}
+        self._nestml_model_variables["{{ sym.get_symbol_name() }}"] = {{ printer.print(sym.get_declaring_expression()) }}  # type: {{ sym.get_type_symbol().print_symbol() }}
+{%- endfor %}
+{%- endif %}
+
     def __init__(
             self,
             voltage_dependence: None = None,

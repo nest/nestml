@@ -100,7 +100,6 @@ class SynapsePreNeuronTransformer(Transformer):
         new_synapse.accept(ASTParentVisitor())
         # new_synapse.set_name(synapse.get_name() + "__with__" + neuron.get_name())
         neuron_header_for_synapse.accept(ASTSymbolTableVisitor())
-        print("00000000 The scope of neuron_header_for_synapse is: " + str(neuron_header_for_synapse.scope))
         new_synapse.accept(ASTSymbolTableVisitor())
 
         assert len(new_synapse.get_equations_blocks()) <= 1, "Only one equations block per synapse supported for now."

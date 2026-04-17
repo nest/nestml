@@ -21,8 +21,6 @@
 
 from __future__ import annotations
 
-from pynestml.utils.ast_utils import ASTUtils
-
 from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
@@ -35,6 +33,7 @@ from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.variable_symbol import BlockType
+from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
@@ -56,6 +55,11 @@ class SpinnakerSynapseCVariablePrinter(SpinnakerCVariablePrinter):
             return self._print_delay_variable(variable)
 
         if with_origin:
+
+            if "__for_" in symbol.name:
+                # XXX this is a terrible hack, remove!!
+                # make sure parameters in the synapse header are printed without suffix
+                return SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols, for_synapse=True) % variable_name.split("__for_")[0]
             return SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols, for_synapse=True) % variable_name
 
         return variable_name
