@@ -46,13 +46,12 @@ sim_ref = True
 class TestNeuronWithMultipleDifferentSynapses:
     r"""Test that code can be generated when a postsynaptic neuron is connected to by several different synapse models"""
     neuron_model_name = "iaf_psc_exp_neuron_nestml__with_stdp_nn_symm_synapse_nestml_and_stdp_nn_restr_symm_synapse_nestml"
-    synapse1_model_name = "stdp_nn_symm_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
-    synapse2_model_name = "stdp_nn_restr_symm_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
+    synapse1_model_name = "stdp_nn_symm_synapse_nestml__with_iaf_psc_exp_neuron_nestml__with_stdp_nn_symm_synapse_nestml_and_stdp_nn_restr_symm_synapse_nestml"
+    synapse2_model_name = "stdp_nn_restr_symm_synapse_nestml__with_iaf_psc_exp_neuron_nestml__with_stdp_nn_symm_synapse_nestml_and_stdp_nn_restr_symm_synapse_nestml"
 
     @pytest.fixture(scope="module", autouse=True)
     def setUp(self):
         """Generate the model code"""
-
         files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
                  os.path.join("models", "synapses", "stdp_nn_symm_synapse.nestml"),
                  os.path.join("models", "synapses", "stdp_nn_restr_symm_synapse.nestml")]
@@ -70,7 +69,7 @@ class TestNeuronWithMultipleDifferentSynapses:
 
     def test_stdp_nn_synapse(self):
         nest.ResetKernel()
-        nest.set_verbosity("M_ALL")
+        NESTTools.set_nest_verbosity("WARNING")
         nest.Install("nestmlmodule")
 
         post_neuron = nest.Create(TestNeuronWithMultipleDifferentSynapses.neuron_model_name)
@@ -94,7 +93,7 @@ class TestNeuronWithMultipleDifferentSynapses:
 
         # Experiment A: only pre_neuron1 fires
         nest.ResetKernel()
-        nest.set_verbosity("M_ALL")
+        NESTTools.set_nest_verbosity("WARNING")
         nest.Install("nestmlmodule")
         post = nest.Create(TestNeuronWithMultipleDifferentSynapses.neuron_model_name)
         p1 = nest.Create("parrot_neuron")
@@ -139,7 +138,7 @@ class TestNeuronWithMultipleDifferentSynapses:
 
         # Experiment B: only pre_neuron2 fires
         nest.ResetKernel()
-        nest.set_verbosity("M_ALL")
+        NESTTools.set_nest_verbosity("WARNING")
         nest.Install("nestmlmodule")
         post = nest.Create(TestNeuronWithMultipleDifferentSynapses.neuron_model_name)
         p1 = nest.Create("parrot_neuron")

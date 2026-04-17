@@ -48,8 +48,8 @@ sim_ref = True
 class TestNeuronWithMultipleDifferentSynapsesVt:
     r"""Test that code can be generated when a postsynaptic neuron is connected to by several different synapse models, as well as a volume transmitter connecting to the synapses"""
     neuron_model_name = "iaf_psc_exp_neuron_nestml__with_stdp_nn_symm_synapse_nestml_and_stdp_nn_restr_symm_synapse_nestml"
-    synapse1_model_name = "stdp_nn_symm_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
-    synapse2_model_name = "stdp_nn_restr_symm_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
+    synapse1_model_name = "stdp_nn_symm_synapse_nestml__with_iaf_psc_exp_neuron_nestml__with_stdp_nn_symm_synapse_nestml_and_stdp_nn_restr_symm_synapse_nestml"
+    synapse2_model_name = "stdp_nn_restr_symm_synapse_nestml__with_iaf_psc_exp_neuron_nestml__with_stdp_nn_symm_synapse_nestml_and_stdp_nn_restr_symm_synapse_nestml"
 
     @pytest.fixture(scope="module", autouse=True)
     def setUp(self):
@@ -123,7 +123,7 @@ class TestNeuronWithMultipleDifferentSynapsesVt:
 
         # Experiment A: only pre_neuron1 fires
         nest.ResetKernel()
-        nest.set_verbosity("M_ALL")
+        NESTTools.set_nest_verbosity("WARNING")
         nest.Install("nestmlmodule")
         vt = nest.Create("volume_transmitter")
         post = nest.Create(TestNeuronWithMultipleDifferentSynapsesVt.neuron_model_name)
@@ -173,7 +173,7 @@ class TestNeuronWithMultipleDifferentSynapsesVt:
 
         # Experiment B: only pre_neuron2 fires
         nest.ResetKernel()
-        nest.set_verbosity("M_ALL")
+        NESTTools.set_nest_verbosity("WARNING")
         nest.Install("nestmlmodule")
         vt = nest.Create("volume_transmitter")
 

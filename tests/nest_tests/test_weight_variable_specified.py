@@ -43,8 +43,7 @@ class TestWeightVariableSpecified:
                              logging_level="DEBUG",
                              suffix="_nestml",
                              codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                                     "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}}],
-                                                                     "post_ports": ["post_spikes"]}]})
+                                                                     "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}}]})
 
 
 @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),

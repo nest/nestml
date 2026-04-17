@@ -1343,7 +1343,6 @@ void
     if (V_.__h > 1E-12)
     {
       recompute_internal_variables(true);
-{%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
 {%          if (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
 {%-             filter indent(6, True) -%}
 {#                  emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
@@ -1352,7 +1351,6 @@ void
 {%-                 include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
 {%-             endfilter %}
 {%-         endif %}
-{%-     endfor %}
 
       V_.__h = old___h;
       recompute_internal_variables(true);
@@ -1385,7 +1383,6 @@ void
     last_spike_ = t_sp_ms;
     history_.push_back( histentry__{{ neuronName }}( last_spike_
         , 0 // access counter
-{%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
 {%-         for var in purely_numeric_state_variables_moved|sort %}
         , get_{{var}}()
 {%-         endfor %}
@@ -1401,7 +1398,6 @@ void
 {%-     endfor %}
 {%- endif %}
 
-{%-     endfor %}
     ) );
   }
   else

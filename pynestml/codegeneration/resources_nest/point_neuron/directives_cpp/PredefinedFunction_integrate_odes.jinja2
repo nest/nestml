@@ -10,9 +10,7 @@
 // 1 analytic_state_variables{{ ", ".join(analytic_state_variables_) }}
 
 {%-     if paired_synapses is defined %}
-{%-         for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
-{%-             set tmp = analytic_state_variables_.extend(analytic_state_variables_moved) %}
-{%-         endfor %}
+{%-         set tmp = analytic_state_variables_.extend(analytic_state_variables_moved) %}
 {%-     endif %}
 
 // 2 analytic_state_variables{{ ", ".join(analytic_state_variables_) }}

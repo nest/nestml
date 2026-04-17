@@ -21,8 +21,6 @@
 
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
-from nestml_python_target_vwazkq28 import synapse
-
 try:
     # Available in the standard library starting with Python 3.12
     from typing import override
@@ -686,7 +684,6 @@ class NESTCodeGenerator(CodeGenerator):
 
             if "extra_on_emit_spike_stmts_from_synapse" in metadata[neuron.name].keys():
                 namespace["extra_on_emit_spike_stmts_from_synapse"] = metadata[neuron.name]["extra_on_emit_spike_stmts_from_synapse"]
-                import pdb;pdb.set_trace()
             namespace["paired_synapses"] = metadata[neuron.name]["paired_synapses"]
             if "paired_synapse_original_models" in metadata[neuron.name].keys():
                 namespace["paired_synapse_original_models"] = metadata[neuron.name]["paired_synapse_original_models"]
@@ -721,10 +718,6 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["analytic_state_variables_moved"] = []
         namespace["numeric_state_variables_moved"] = []
         namespace["purely_numeric_state_variables_moved"] = []
-        # if "paired_synapses" in metadata[neuron.name].keys():
-            # for paired_synapse_original_model in metadata[neuron.name]["paired_synapse_original_models"]:
-            #     namespace["numeric_state_variables_moved"][paired_synapse_original_model.name] = []
-            #     namespace["purely_numeric_state_variables_moved"][paired_synapse_original_model.name] = []
 
         if namespace["uses_analytic_solver"]:
             if "paired_synapses" in metadata[neuron.name].keys():
@@ -1003,7 +996,7 @@ class NESTCodeGenerator(CodeGenerator):
                     is_post_port = CodeGeneratorUtils.is_post_port(orig_port_name, orig_neuron_name, orig_synapse_name, neuron_synapse_pairs=self._options["neuron_synapse_pairs"])
 
             if is_post_port:
-                buffer_type = metadata[neuron.name]["paired_synapse"].get_scope().resolve_to_symbol(orig_port_name, SymbolKind.VARIABLE).get_type_symbol() # XXX: TODO
+                buffer_type = metadata[neuron.name]["paired_synapse"].get_scope().resolve_to_symbol(orig_port_name, SymbolKind.VARIABLE).get_type_symbol()
             else:
                 buffer_type = neuron.get_scope().resolve_to_symbol(inport.get_name(), SymbolKind.VARIABLE).get_type_symbol()
 
