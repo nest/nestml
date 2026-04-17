@@ -55,7 +55,7 @@ class ConvolveCheckerVisitor(ASTVisitor):
 
     def visit_function_call(self, node):
         func_name = node.get_name()
-        if func_name == 'convolve':
+        if func_name == "convolve":
             symbol_var = node.get_scope().resolve_to_symbol(str(node.get_args()[0]),
                                                             SymbolKind.VARIABLE)
             symbol_port = node.get_scope().resolve_to_symbol(str(node.get_args()[1]),

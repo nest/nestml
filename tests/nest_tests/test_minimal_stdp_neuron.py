@@ -25,19 +25,20 @@ import numpy as np
 import os
 import pytest
 
+# try to import matplotlib; set the result in the flag TEST_PLOTS
+try:
+    import matplotlib as mpl
+    mpl.use("agg")
+    import matplotlib.pyplot as plt
+    TEST_PLOTS = True
+except BaseException:
+    TEST_PLOTS = False
+
 import nest
 
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
-try:
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.ticker
-    import matplotlib.pyplot as plt
-    TEST_PLOTS = True
-except Exception:
-    TEST_PLOTS = False
 
 sim_mdl = True
 sim_ref = True
@@ -53,7 +54,6 @@ class TestMinimalSTDPNeuron:
         codegen_opts = {"neuron_synapse_pairs": [{"neuron": "minimal_neuron",
                                                   "synapse": "stdp_synapse",
                                                   "post_ports": ["post_spikes"]}],
-                        "delay_variable": {"stdp_synapse": "d"},
                         "weight_variable": {"stdp_synapse": "w"}}
 
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode

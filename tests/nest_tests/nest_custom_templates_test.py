@@ -23,9 +23,16 @@ import os
 import unittest
 import pytest
 
-import nest
+# try to import matplotlib; set the result in the flag TEST_PLOTS
+try:
+    import matplotlib as mpl
+    mpl.use("agg")
+    import matplotlib.pyplot as plt
+    TEST_PLOTS = True
+except BaseException:
+    TEST_PLOTS = False
 
-import matplotlib.pyplot as plt
+import nest
 
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_target
@@ -58,7 +65,10 @@ class NestCustomTemplatesTest(unittest.TestCase):
                         module_name=module_name,
                         suffix=suffix,
                         codegen_opts=codegen_opts)
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
 
         nest.ResetKernel()
         nest.Install("nestmlmodule")
@@ -107,7 +117,6 @@ class NestCustomTemplatesTest(unittest.TestCase):
             "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_neuron",
                                       "synapse": "stdp_triplet_synapse",
                                       "post_ports": ["post_spikes"]}],
-            "delay_variable": {"stdp_triplet_synapse": "d"},
             "weight_variable": {"stdp_triplet_synapse": "w"},
             "templates": {
                 "path": "resources_nest/point_neuron",
@@ -125,4 +134,7 @@ class NestCustomTemplatesTest(unittest.TestCase):
                         module_name=module_name,
                         suffix=suffix,
                         codegen_opts=codegen_opts)
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL

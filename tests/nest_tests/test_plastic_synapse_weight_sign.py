@@ -25,19 +25,19 @@ import numpy as np
 import os
 import pytest
 
+# try to import matplotlib; set the result in the flag TEST_PLOTS
+try:
+    import matplotlib as mpl
+    mpl.use("agg")
+    import matplotlib.pyplot as plt
+    TEST_PLOTS = True
+except BaseException:
+    TEST_PLOTS = False
+
 import nest
 
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
-
-try:
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.ticker
-    import matplotlib.pyplot as plt
-    TEST_PLOTS = True
-except Exception:
-    TEST_PLOTS = False
 
 
 synapse_model_names = ["stdp_synapse", "stdp_triplet_synapse"]   # TODO: nearest-neighbour STDP synapses cannot yet be tested using this protocol
@@ -56,7 +56,6 @@ class TestPlasticSynapseWeightSign:
         r"""Generate the model code"""
 
         codegen_opts = {"neuron_synapse_pairs": [],
-                        "delay_variable": {},
                         "weight_variable": {}}
 
         files = [os.path.join("models", "neurons", self.neuron_model_name + ".nestml")]
@@ -65,7 +64,6 @@ class TestPlasticSynapseWeightSign:
             codegen_opts["neuron_synapse_pairs"].append({"neuron": self.neuron_model_name,
                                                          "synapse": synapse_model_name,
                                                          "post_ports": ["post_spikes"]})
-            codegen_opts["delay_variable"][synapse_model_name] = "d"
             codegen_opts["weight_variable"][synapse_model_name] = "w"
 
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, os.pardir, s))) for s in files]
@@ -92,7 +90,10 @@ class TestPlasticSynapseWeightSign:
             post_spike_times = pre_spike_times - 10.
 
         nest.ResetKernel()
-        nest.set_verbosity("M_ERROR")
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ERROR")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ERROR
 
         nest.Install("nestmlmodule")
 

@@ -46,7 +46,7 @@ class CoCoVCompDefined(CoCo):
         """
         from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
 
-        if not FrontendConfiguration.get_target_platform().upper() == 'NEST_COMPARTMENTAL':
+        if not FrontendConfiguration.get_target_platform().upper() == "NEST_COMPARTMENTAL":
             return
 
         if not isinstance(neuron, ASTModel):

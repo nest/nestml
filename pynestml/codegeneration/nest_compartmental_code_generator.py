@@ -19,7 +19,14 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
+
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
 
 import datetime
 import os
@@ -62,6 +69,7 @@ from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.global_info_enricher import GlobalInfoEnricher
 from pynestml.utils.global_processing import GlobalProcessing
 from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
+from pynestml.utils.ast_vector_parameter_setter_and_printer import ASTVectorParameterSetterAndPrinter
 from pynestml.utils.ast_vector_parameter_setter_and_printer_factory import ASTVectorParameterSetterAndPrinterFactory
 from pynestml.utils.mechanism_processing import MechanismProcessing
 from pynestml.utils.channel_processing import ChannelProcessing
@@ -99,7 +107,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         - **path**: Path containing jinja templates used to generate code for NEST simulator.
         - **model_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to the neuron model(s).
         - **module_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to generating the NEST module.
-    - **nest_version**: A string identifying the version of NEST Simulator to generate code for. The string corresponds to the NEST Simulator git repository tag or git branch name, for instance, ``"v2.20.2"`` or ``"master"``. The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
+    - **nest_version**: A string identifying the version of NEST Simulator to generate code for. The string corresponds to the NEST Simulator git repository tag or git branch name, for instance, ``"v2.20.2"`` or ``"main"``. The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
     - **delay_variable**: A mapping identifying, for each synapse (the name of which is given as a key), the variable or parameter in the model that corresponds with the NEST ``Connection`` class delay property.
     - **weight_variable**: Like ``delay_variable``, but for synaptic weight.
     """
@@ -216,7 +224,9 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         return ret
 
-    def generate_code(self, models: List[ASTModel]) -> None:
+    def generate_code(self,
+                      models: Iterable[ASTModel],
+                      metadata: Dict[str, Dict[str, Any]]) -> None:
         neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option(
             "synapse_models"))
         synapses_per_neuron = self.arrange_synapses_per_neuron(neurons, synapses)
@@ -225,7 +235,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         self.generate_compartmental_neurons(neurons, synapses_per_neuron)
         self.generate_module_code(neurons)
 
-    def generate_module_code(self, neurons: List[ASTModel]) -> None:
+    @override
+    def generate_module_code(self, neurons: List[ASTModel], metadata: Dict[str, Dict[str, Any]]) -> None:
         """t
         Generates code that is necessary to integrate neuron models into the NEST infrastructure.
         :param neurons: a list of neurons
@@ -304,7 +315,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
     def get_stdp_synapse_main_file_prefix(self, synapse):
         return synapse.get_name()
 
-    def analyse_transform_neurons(self, neurons: List[ASTModel]) -> None:
+    def analyse_transform_neurons(self, neurons: List[ASTModel], metadata: Dict[str, Dict[str, Any]]) -> None:
         """
         Analyse and transform a list of neurons.
         :param neurons: a list of neurons.
@@ -313,7 +324,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             code, message = Messages.get_start_code_generation(
                 neuron.get_name())
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
-            spike_updates = self.analyse_neuron(neuron)
+            spike_updates = self.analyse_neuron(neuron, metadata)
             neuron.spike_updates = spike_updates
 
             equations_block = neuron.get_equations_blocks()[0]
@@ -510,7 +521,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                     non_equations_state_variables.append(var)
         return non_equations_state_variables
 
-    def analyse_neuron(self, neuron: ASTModel) -> List[ASTAssignment]:
+    def analyse_neuron(self, neuron: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> List[ASTAssignment]:
         """
         Analyse and transform a single neuron.
         :param neuron: a single neuron.
@@ -555,7 +566,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         # substitute inline expressions with each other
         # such that no inline expression references another inline expression;
         # deference inline_expressions inside ode_equations
-        InlineExpressionExpansionTransformer().transform(neuron)
+        InlineExpressionExpansionTransformer().transform([neuron], metadata=metadata)
 
         # generate update expressions using ode toolbox
         # for each equation in the equation block attempt to solve analytically
@@ -660,7 +671,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             underscore_pos = ret.find("_")
         return ret
 
-    def _get_neuron_model_namespace(self, neuron: ASTModel, paired_synapse: ASTModel = None) -> Dict:
+    def _get_neuron_model_namespace(self, neuron: ASTModel, metadata: Dict[str, Dict[str, Any]], paired_synapse: ASTModel) -> Dict:
         """
         Returns a standard namespace for generating neuron code for NEST
         :param neuron: a single neuron instance

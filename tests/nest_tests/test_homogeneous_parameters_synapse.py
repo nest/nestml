@@ -23,19 +23,19 @@ import numpy as np
 import os
 import pytest
 
+# try to import matplotlib; set the result in the flag TEST_PLOTS
+try:
+    import matplotlib as mpl
+    mpl.use("agg")
+    import matplotlib.pyplot as plt
+    TEST_PLOTS = True
+except BaseException:
+    TEST_PLOTS = False
+
 import nest
 
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
-
-try:
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.ticker
-    import matplotlib.pyplot as plt
-    TEST_PLOTS = True
-except Exception:
-    TEST_PLOTS = False
 
 
 @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
@@ -55,8 +55,7 @@ class TestHomogeneousParametersSynapse:
                              logging_level="DEBUG",
                              module_name="nestmlmodule",
                              suffix="_nestml",
-                             codegen_opts={"delay_variable": {"static_synapse": "d"},
-                                           "weight_variable": {"static_synapse": "w"}})
+                             codegen_opts={"weight_variable": {"static_synapse": "w"}})
 
     def test_homogeneous_parameters_synapse(self):
 
@@ -65,7 +64,10 @@ class TestHomogeneousParametersSynapse:
         neuron_model_name = "iaf_psc_exp_neuron_nestml"
 
         nest.ResetKernel()
-        nest.set_verbosity("M_ALL")
+        if not NESTTools.detect_nest_version().startswith("main"):
+            nest.set_verbosity("M_ALL")
+        else:
+            nest.verbosity = nest.VerbosityLevel.ALL
         nest.SetKernelStatus({"resolution": .1})
         nest.Install("nestmlmodule")
 
