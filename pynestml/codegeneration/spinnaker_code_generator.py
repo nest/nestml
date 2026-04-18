@@ -21,9 +21,6 @@
 
 from typing import Any, Dict, Iterable, Mapping, Optional
 
-from pynestml.symbol_table.symbol_table import SymbolTable
-from pynestml.utils.ast_utils import ASTUtils
-
 try:
     # Available in the standard library starting with Python 3.12
     from typing import override
@@ -66,6 +63,8 @@ from pynestml.codegeneration.python_standalone_code_generator import PythonStand
 from pynestml.codegeneration.python_standalone_target_tools import PythonStandaloneTargetTools
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.symbol_table.symbol_table import SymbolTable
+from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.string_utils import removesuffix
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
@@ -169,6 +168,24 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
     def _get_synapse_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
         namespace = super()._get_synapse_model_namespace(astnode, metadata)
         namespace["header_printer"] = self._header_printer
+        return namespace
+
+    """def _get_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
+        namespace = super()._get_model_namespace(astnode, metadata)
+        namespace["spinnaker_paired_synapse"] = True   # set this to a value to trigger the right code path in the makefile
+        namespace["paired_synapse_original_model"] = "stqwef"
+        if there is a key in metadata that's "
+        # metadata["iaf_psc_exp_neuron_nestml__header_for__stdp_synapse_nestml"]["paired_synapse_original_model"]
+        return namespace"""
+
+    def _get_neuron_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
+        namespace = super()._get_neuron_model_namespace(astnode, metadata)
+        namespace["spinnaker_paired_synapse"] = True   # set this to a value to trigger the right code path in the makefile
+        for k, v in metadata.items():
+            if k.startswith(astnode.name + "__header_for__"):
+                namespace["paired_synapse"] = v["paired_synapse"]
+                namespace["paired_synapse_original_model"] = v["paired_synapse_original_model"]
+
         return namespace
 
 class CustomPythonStandaloneCodeGenerator(PythonStandaloneCodeGenerator):

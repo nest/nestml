@@ -20,7 +20,7 @@
 {%- endif %}
 
 // uncomment the next line to enable printing of detailed debug information
-#define DEBUG
+// #define DEBUG
 
 
 {% set ns = namespace(count=0) %}
@@ -205,12 +205,16 @@ void on_receive_block_{{ blk.port_name }}(neuron_state_t *state, neuron_input_t 
 {% if "exc" in blk.port_name %}
 log_info("[NESTML neuron] before update: state->I_syn_exc = 0x%x\n", state->I_syn_exc);
 log_info("[NESTML neuron] input->inputs[EXC_SPIKES] = 0x%x\n", input->inputs[EXC_SPIKES]);
+log_info("[NESTML neuron] (0.001 * input->inputs[EXC_SPIKES]) * 1000.0 = 0x%x\n", (0.001 * input->inputs[EXC_SPIKES]) * 1000.0);
+
 log_info("[NESTML neuron] parameter->unit_psc = 0x%x\n", parameter->unit_psc);
 {% endif %}
-
+{#
 {%          filter indent(4, True) -%}
 {%-             include "directives_cpp/StmtsBody.jinja2" %}
 {%-         endfilter %}
+#}
+    state->I_syn_exc += input->inputs[EXC_SPIKES];
 
 {% if "exc" in blk.port_name %}
 log_info("[NESTML neuron] after update: state->I_syn_exc = %k\n", state->I_syn_exc);
@@ -228,7 +232,8 @@ static void neuron_impl_add_inputs(
     neuron_impl_t *neuron = &neuron_array[neuron_index];
     neuron_input_t *input = &neuron->input;
 
-    // Do something to store the inputs for the next state update
+    // store the inputs for the next state update
+log_info("[NESTML neuron] neuron_impl_add_inputs, weight = 0x%x = %k\n", weights_this_timestep, weights_this_timestep);
     input->inputs[synapse_type_index] += weights_this_timestep;
 }
 

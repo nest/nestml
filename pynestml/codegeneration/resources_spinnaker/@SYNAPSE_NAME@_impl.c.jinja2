@@ -1,7 +1,7 @@
 #include "{{ synapseName }}_impl.h"
 
 // uncomment the next line to enable printing of detailed debug information
-#define DEBUG
+// #define DEBUG
 
 // uncomment the next line to enable printing of very detailed debug information (could overflow ITCM)
 //#define PLOT_DETAILED_STATE
@@ -280,12 +280,12 @@ synapse_row_plastic_data_t *plastic_region_address,
     }
 
     synapse_state_t state = synapse_word_to_state_t(synapse_word, plastic_synapse_word_stride);
-#ifdef PLOT_DETAILED_STATE
+//#ifdef PLOT_DETAILED_STATE
     log_info("[NESTML synapse] \tCurrent state:");
 {%- for sym in synapse.get_state_symbols() %}
     log_info("[NESTML synapse] \t\t{{ sym.get_symbol_name() }} = %k (raw: 0x%x)\n", state.{{ sym.get_symbol_name() }}, state.{{ sym.get_symbol_name() }});
 {%- endfor %}
-#endif
+//#endif
 
     uint32_t current_time = last_pre_time; // at the start, the state is either the initial state, or however we left it when the previous pre-synaptic spike was processed
 
@@ -377,7 +377,7 @@ synapse_row_plastic_data_t *plastic_region_address,
 
 	if (s.delay_axonal + s.delay_dendritic > colour_delay) {
 	    int32_t weight = TYPECAST_TO_UINT32_T(state.w);   // XXX: the variable name ``w`` is hard-coded here
-	    synapse_dynamics_stdp_update_ring_buffers(ring_buffers, s, weight);
+	    synapse_dynamics_stdp_update_ring_buffers(ring_buffers, s, weight >> 15);  // weights in sPyNNaker are represented as 16 bit integers; see section 3.2.2 in Rhodes et al. Front Neurosci 2018
         log_info("[NESTML synapse] \thard-coding weight, weight = 0x%x", weight);
     } else {
         skipped_synapses++;
