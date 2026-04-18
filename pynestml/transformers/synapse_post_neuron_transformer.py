@@ -155,7 +155,6 @@ class SynapsePostNeuronTransformer(Transformer):
         metadata[new_neuron.name]["state_vars_that_need_continuous_buffering_transformed"] = {}
         metadata[new_neuron.name]["state_vars_that_need_continuous_buffering_transformed_iv"] = {}
 
-
         #
         #   rename new neuron and synapse
         #
@@ -196,7 +195,6 @@ class SynapsePostNeuronTransformer(Transformer):
 
             post_port_names = CodeGeneratorUtils.get_post_port_names(synapse, base_neuron_name, base_synapse_name, self.get_option("neuron_synapse_pairs"))
 
-
             #
             #   suffix for variables that will be transferred to neuron
             #
@@ -225,7 +223,6 @@ class SynapsePostNeuronTransformer(Transformer):
             metadata[new_neuron.name]["transferred_variables"][synapse.name] = [neuron_state_var + var_name_suffix for neuron_state_var in syn_to_neuron_state_vars if new_synapse.get_kernel_by_name(neuron_state_var) is None]
 
             Logger.log_message(None, -1, "State variables that will be moved from synapse to neuron: " + str(syn_to_neuron_state_vars), None, LoggingLevel.INFO)
-
 
             #
             #   collect all the parameters
@@ -307,9 +304,6 @@ class SynapsePostNeuronTransformer(Transformer):
                         else:
                             metadata[new_neuron.name]["state_vars_that_need_continuous_buffering_transformed_iv"][port.name] = neuron.get_initial_value(neuron_var_name)
 
-
-
-
             # check that they are not used in the update block
             update_block_var_names = []
             for update_block in synapse.get_update_blocks():
@@ -317,15 +311,7 @@ class SynapsePostNeuronTransformer(Transformer):
 
             assert all([var not in update_block_var_names for var in metadata[new_synapse.name]["state_vars_that_need_continuous_buffering"]]), "State variables used as continuous-time buffers in the synapse are not allowed to be referenced in the ``update`` block"
 
-
-
             Logger.log_message(None, -1, "Synaptic state variables connected that will need continuous-time buffering: " + str(metadata[new_synapse.name]["state_vars_that_need_continuous_buffering"]), None, LoggingLevel.INFO)
-
-
-
-# get_neuron_var_name_from_syn_port_name(port_name, removesuffix(metadata[paired_neuron.name]["unpaired_name"], FrontendConfiguration.suffix), removesuffix(synapse_name.split("__with_")[0], FrontendConfiguration.suffix)) for port_name in metadata[paired_neuron.name]["state_vars_that_need_continuous_buffering"]]
-#             metadata[new_neuron.name]["state_vars_that_need_continuous_buffering"].append(...)
-
 
             #
             #   move defining equations for variables from synapse to neuron
@@ -393,7 +379,6 @@ class SynapsePostNeuronTransformer(Transformer):
             metadata[new_neuron.name]["extra_on_emit_spike_stmts_from_synapse"][synapse.name] = collected_on_post_stmts
 
             # XXX: TODO: add parameters used in stmts to parameters to be copied
-
 
             vars_used = list(set([str(v) for v in vars_used]))
             syn_to_neuron_params.extend([v for v in vars_used if v in [p + var_name_suffix for p in all_declared_params]])
