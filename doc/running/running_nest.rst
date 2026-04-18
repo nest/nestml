@@ -263,14 +263,14 @@ Synaptic and neuronal models should ideally be formulated independently of each 
 
 To prevent this redundancy, these values should only be stored and computed once; ideally in the instances of the neuron models, where the spike timings are readily available. To achieve this, NESTML has the capability to process a synapse model as a pair together with the (postsynaptic) neuron model that it will connect to when the network is instantiated in the simulation. A list of these (neuron, synapse) pairs can be provided as code generator options when invoking the NESTML toolchain to generate code. During code generation, state variables that depend only on postsynaptic spike timing are then automatically identified and moved from the NESTML synapse model into the neuron model by the toolchain. In the generated code, at the points where the respective variables are used by the synapse (for instance, where they are used in calculating the change in synaptic strength), the variable references are replaced by function calls into the postsynaptic neuron instance. All parameters that are only used by these postsynaptic dynamics (for instance, time constants) are also moved to reduce the memory requirements for the synapse. Detecting and moving the state, parameters, and dynamics (ODEs) from synapse to neuron is carried out fully autonomously. We refer to this feature as the "co-generation" of neuron and synapse. It enables flexibility and separation of concerns in the model formalisations without compromising on performance.
 
-When NESTML is invoked to generate code for plastic synapses, the (neuron, synapse) pairs can be specified as a list of two-element dictionaries of the form :code:`{"neuron": "neuron_model_name", "synapse": "synapse_model_name"}`, for example:
+When NESTML is invoked to generate code for plastic synapses, the synapses that will be co-generated with the postsynaptic neuron can be specified as a list of dictionaries of the form :code:`{"neuron": "neuron_model_name", "synapses": {"synapse_model_name": ...}}`, for example:
 
 .. code-block:: python
 
    generate_target(...,
                    codegen_opts={...,
                                  "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                           "synapse": "stdp_synapse"}]})
+                                                           "synapses": {"stdp_synapse": {}}}]})
 
 
 .. note::
@@ -284,10 +284,9 @@ Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to 
    generate_target(...,
                    codegen_opts={...,
                                  "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                           "synapse": "stdp_synapse",
-                                                           "post_ports": ["post_spikes"]}]})
+                                                           "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}}]})
 
-This specifies that the neuron ``iaf_psc_exp`` has to be generated paired with the synapse ``stdp_synapse``, and that the input ports ``post_spikes`` in the synapse are to be connected to the postsynaptic partner.
+This specifies that the neuron ``iaf_psc_exp`` has to be generated paired with the synapse ``stdp_synapse``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``. Note that inline expressions can also be used; in this example in case ``I_dend`` had been an inline expression in the postsynaptic neuron.
 
 Owing to the "co-generation" of neuron and synapse models, NESTML generates the model names with the associated neuron and synapse names. For the example above, the neuron name is changed to ``"iaf_psc_exp__with_stdp_synapse"``, and similarly, the synapse name to ``"stdp_synapse__with_iaf_psc_exp"`` during the code generation. Note that the modified neuron and synapse model names must be used in the simulation script for creating neurons and connections.
 
@@ -320,9 +319,7 @@ During code generation, the third-factor variable of the synapse and its corresp
    generate_target(...,
                    codegen_opts={...,
                                  "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                           "synapse": "third_factor_stdp",
-                                                           "post_ports": ["post_spikes",
-                                                                          ["I_post_dend", "I_dend"]]}]})
+                                                           "synapses": {"third_factor_stdp": {"post_ports": ["post_spikes"]}}}]})
 
 This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``. Note that inline expressions can also be used; in this example in case ``I_dend`` had been an inline expression in the postsynaptic neuron.
 

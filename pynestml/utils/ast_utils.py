@@ -19,9 +19,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import copy
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Set, Union
 
+import copy
 import re
 import sympy
 
@@ -530,6 +530,16 @@ class ASTUtils:
             model.get_body().get_body_elements().remove(equations_block_to_remove)
 
     @classmethod
+    def remove_empty_state_blocks(cls, model: ASTModel) -> None:
+        state_blocks_to_remove = []
+        for blk in model.get_state_blocks():
+            if not blk.get_declarations():
+                state_blocks_to_remove.append(blk)
+
+        for block_to_remove in state_blocks_to_remove:
+            model.get_body().get_body_elements().remove(block_to_remove)
+
+    @classmethod
     def contains_convolve_call(cls, variable: VariableSymbol) -> bool:
         """
         Indicates whether the declaring rhs of this variable symbol has a convolve() in it.
@@ -732,10 +742,11 @@ class ASTUtils:
     @classmethod
     def get_post_ports_of_neuron_synapse_pair(cls, neuron, synapse, codegen_opts_pairs):
         for pair in codegen_opts_pairs:
-            if pair["neuron"] == removesuffix(neuron.get_name().split("__with_")[0], FrontendConfiguration.suffix) \
-               and pair["synapse"] == removesuffix(synapse.get_name().split("__with_")[0], FrontendConfiguration.suffix) \
-               and "post_ports" in pair.keys():
-                return pair["post_ports"]
+            if pair["neuron"] == removesuffix(neuron.get_name().split("__with_")[0], FrontendConfiguration.suffix):
+                for synapse_name, syn_opts in pair["synapses"].items():
+                    if synapse_name == removesuffix(synapse.get_name().split("__with_")[0], FrontendConfiguration.suffix) \
+                       and "post_ports" in syn_opts.keys():
+                        return syn_opts["post_ports"]
 
         return []
 
@@ -2622,7 +2633,7 @@ class ASTUtils:
     @classmethod
     def collect_variables_affected_by_ports(cls, model, post_port_names, strictly_synaptic_vars: Optional[Set[str]] = None):
 
-        if not strictly_synaptic_vars:
+        if strictly_synaptic_vars is None:
             strictly_synaptic_vars: Set[str] = set()
 
         strictly_synaptic_vars = set(strictly_synaptic_vars)    # make a copy
@@ -2633,10 +2644,9 @@ class ASTUtils:
         #   determine which variables and dynamics in synapse can be transferred to neuron
         #
 
+        all_state_vars = []
         if model.get_state_blocks():
-            all_state_vars = ASTUtils.all_variables_defined_in_block(model.get_state_blocks()[0])
-        else:
-            all_state_vars = []
+            all_state_vars.extend(ASTUtils.all_variables_defined_in_block(model.get_state_blocks()[0]))
 
         all_state_vars = [var.get_complete_name() for var in all_state_vars]
 
@@ -2677,7 +2687,7 @@ class ASTUtils:
             if ASTUtils.get_state_variable_by_name(model, var_name) or ASTUtils.get_inline_expression_by_name(model, var_name) or ASTUtils.get_kernel_by_name(model, var_name):
                 syn_to_neuron_state_vars.append(var_name)
 
-        return syn_to_neuron_state_vars
+        return recursive_vars_used, syn_to_neuron_state_vars
 
     @classmethod
     def get_all_variables_assigned_to(cls, node: ASTNode) -> Set[str]:
@@ -2785,4 +2795,5 @@ class ASTUtils:
         syn_to_neuron_params.extend([var for var in vars_used if var in all_declared_params])
         syn_to_neuron_params = list(set(syn_to_neuron_params))
 
+        return syn_to_neuron_params, all_declared_params
         return syn_to_neuron_params, all_declared_params
