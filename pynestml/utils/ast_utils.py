@@ -1063,7 +1063,7 @@ class ASTUtils:
         return False
 
     @classmethod
-    def get_delay_variable_symbol(cls, node: ASTFunctionCall):
+    def get_delay_variable_symbol(cls, node: ASTFunctionCall) -> Optional[VariableSymbol]:
         """
         Returns the variable symbol for the corresponding delayed variable
         :param node: The delayed variable parsed as a function call
@@ -1109,33 +1109,30 @@ class ASTUtils:
         return False
 
     @classmethod
-    def add_declarations_to_internals(cls, neuron: ASTModel, declarations: Mapping[str, str]) -> ASTModel:
+    def add_declarations_to_internals(cls, model: ASTModel, declarations: Mapping[str, str]) -> None:
         """
-        Adds the variables as stored in the declaration tuples to the neuron.
-        :param neuron: a single neuron instance
+        Adds the variables as stored in the declaration tuples to the model.
+        :param model: a single model instance
         :param declarations: a map of variable names to declarations
-        :return: a modified neuron
         """
         for variable in declarations:
-            cls.add_declaration_to_internals(neuron, variable, declarations[variable])
-        return neuron
+            cls.add_declaration_to_internals(model, variable, declarations[variable])
 
     @classmethod
-    def add_declaration_to_internals(cls, neuron: ASTModel, variable_name: str, init_expression: str) -> ASTModel:
+    def add_declaration_to_internals(cls, model: ASTModel, variable_name: str, init_expression: str) -> None:
         """
-        Adds the variable as stored in the declaration tuple to the neuron. The declared variable is of type real.
-        :param neuron: a single neuron instance
+        Adds the variable as stored in the declaration tuple to the model. The declared variable is of type real.
+        :param model: a single model instance
         :param variable_name: the name of the variable to add
         :param init_expression: initialization expression
-        :return: the neuron extended by the variable
         """
-        assert len(neuron.get_internals_blocks()) <= 1, "Only one internals block supported for now"
+        assert len(model.get_internals_blocks()) <= 1, "Only one internals block supported for now"
 
         from pynestml.utils.model_parser import ModelParser
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
         tmp = ModelParser.parse_expression(init_expression)
-        vector_variable = ASTUtils.get_vectorized_variable(tmp, neuron.get_scope())
+        vector_variable = ASTUtils.get_vectorized_variable(tmp, model.get_scope())
 
         declaration_string = variable_name + " real" + (
             "[" + vector_variable.get_vector_parameter() + "]"
@@ -1143,18 +1140,16 @@ class ASTUtils:
         ast_declaration = ModelParser.parse_declaration(declaration_string)
         if vector_variable is not None:
             ast_declaration.set_size_parameter(vector_variable.get_vector_parameter())
-        neuron.add_to_internals_block(ast_declaration)
+        model.add_to_internals_block(ast_declaration)
 
         from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
-        neuron.accept(ASTParentVisitor())
+        model.accept(ASTParentVisitor())
 
-        ast_declaration.update_scope(neuron.get_internals_blocks()[0].get_scope())
+        ast_declaration.update_scope(model.get_internals_blocks()[0].get_scope())
         symtable_visitor = ASTSymbolTableVisitor()
         symtable_visitor.block_type_stack.push(BlockType.INTERNALS)
         ast_declaration.accept(symtable_visitor)
         symtable_visitor.block_type_stack.pop()
-
-        return neuron
 
     @classmethod
     def add_declarations_to_state_block(cls, neuron: ASTModel, variables: List, initial_values: List) -> ASTModel:
@@ -2107,7 +2102,7 @@ class ASTUtils:
 
         Each kernel has to be generated for each spike buffer convolve in which it occurs, e.g. if the NESTML model code contains the statements
 
-         .. code-block::
+        .. code-block::
 
            convolve(G, exc_spikes)
            convolve(G, inh_spikes)
@@ -2358,11 +2353,19 @@ class ASTUtils:
             var = el[0].get_variable()
             assert var is not None
             kernel = model.get_kernel_by_name(var.get_name())
-            assert kernel is not None, "In convolution \"convolve(" + str(var.name) + ", " + str(
-                el[1]) + ")\": no kernel by name \"" + var.get_name() + "\" found in model."
+            assert kernel is not None, "In convolution \"convolve(" + str(var.name) + ", " + str(el[1]) + ")\": no kernel by name \"" + var.get_name() + "\" found in model."
 
             el = (kernel, el[1])
-            kernel_buffers.add(el)
+
+            # make sure no duplicates are added -- expressions should be compared as strings
+            el_exists = False
+            for _el in kernel_buffers:
+                if el[0] == _el[0] and str(el[1]) == str(_el[1]):
+                    el_exists = True
+                    break
+
+            if not el_exists:
+                kernel_buffers.add(el)
 
         return kernel_buffers
 
