@@ -2208,6 +2208,34 @@ class ASTUtils:
         return delta_factors
 
     @classmethod
+    def get_delta_factors_from_input_port_references(cls, model: ASTModel) -> dict:
+        r"""
+        For every occurrence of a convolution of the form ``x^(n) = a * inport + ...``, add the element `(x^(n), inport) --> a` to the set.
+        """
+        delta_factors = {}
+
+        spike_inports = model.get_spike_input_ports()
+        for equations_block in model.get_equations_blocks():
+            for ode_eq in equations_block.get_ode_equations():
+                var = ode_eq.get_lhs()
+                expr = ode_eq.get_rhs()
+
+                for inport_sym in spike_inports:
+                    inport_ = ASTUtils.get_input_port_by_name(model.get_input_blocks(), inport_sym.name)
+
+                    inport_var = ASTNodeFactory.create_ast_variable(inport_sym.name)
+                    inport_var.update_scope(equations_block.get_scope())
+
+                    factor_str = ASTUtils.get_factor_str_from_expr_and_inport(expr, inport_var.name, skip_if_in_convolve_call=True)
+
+                    if factor_str:
+                        delta_factors[(var, inport_var)] = factor_str
+
+                    # XXX: what about vectors?????
+
+        return delta_factors
+
+    @classmethod
     def get_factor_str_from_expr_and_inport(cls, expr, sub_expr, skip_if_in_convolve_call: bool = False):
         from sympy.physics.units import Quantity, Unit, siemens, milli, micro, nano, pico, femto, kilo, mega, volt, ampere, ohm, farad, second, meter, hertz
         from sympy import sympify
@@ -2286,34 +2314,6 @@ class ASTUtils:
         factor_str = " + ".join(factor_str)
 
         return factor_str
-
-    @classmethod
-    def get_delta_factors_from_input_port_references(cls, model: ASTModel) -> dict:
-        r"""
-        For every occurrence of a convolution of the form ``x^(n) = a * inport + ...``, add the element `(x^(n), inport) --> a` to the set.
-        """
-        delta_factors = {}
-
-        spike_inports = model.get_spike_input_ports()
-        for equations_block in model.get_equations_blocks():
-            for ode_eq in equations_block.get_ode_equations():
-                var = ode_eq.get_lhs()
-                expr = ode_eq.get_rhs()
-
-                for inport_sym in spike_inports:
-                    inport_ = ASTUtils.get_input_port_by_name(model.get_input_blocks(), inport_sym.name)
-
-                    inport_var = ASTNodeFactory.create_ast_variable(inport_sym.name)
-                    inport_var.update_scope(equations_block.get_scope())
-
-                    factor_str = ASTUtils.get_factor_str_from_expr_and_inport(expr, inport_var.name, skip_if_in_convolve_call=True)
-
-                    if factor_str:
-                        delta_factors[(var, inport_var)] = factor_str
-
-                    # XXX: what about vectors?????
-
-        return delta_factors
 
     @classmethod
     def remove_kernel_definitions_from_equations_block(cls, model: ASTModel) -> ASTDeclaration:
