@@ -825,8 +825,8 @@ class NESTCodeGenerator(CodeGenerator):
 
             sym_list = []
             sym_list.extend(namespace["numeric_state_variables"])
-            for paired_synapse, paired_synapse_original_model in zip(metadata[neuron.name]["paired_synapses"], metadata[neuron.name]["paired_synapse_original_models"]):
-                sym_list.extend(namespace["numeric_state_variables_moved"])
+            sym_list.extend(namespace["numeric_state_variables_moved"])
+
             for sym in sym_list:
                 expr_str = metadata[neuron.get_name()]["numeric_solver"]["update_expressions"][sym]
                 expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr_str)
