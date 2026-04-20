@@ -612,7 +612,6 @@ void {{ neuronName }}::calibrate()
 // ---------------------------------------------------------------------------
 //   Update and spike handling functions
 // ---------------------------------------------------------------------------
-
 {%  if uses_numeric_solver %}
 {%-     for ast in utils.get_all_integrate_odes_calls_unique(neuron) %}
 {%-         include "directives_cpp/GSLDifferentiationFunction.jinja2" %}

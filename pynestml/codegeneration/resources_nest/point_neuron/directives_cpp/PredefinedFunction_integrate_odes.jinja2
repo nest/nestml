@@ -7,13 +7,9 @@
 {%- if uses_analytic_solver %}
 {%-     set analytic_state_variables_ = analytic_state_variables.copy() %}
 
-// 1 analytic_state_variables{{ ", ".join(analytic_state_variables_) }}
-
 {%-     if paired_synapses is defined %}
 {%-         set tmp = analytic_state_variables_.extend(analytic_state_variables_moved) %}
 {%-     endif %}
-
-// 2 analytic_state_variables{{ ", ".join(analytic_state_variables_) }}
 
 {%-     if ast.get_args() | length > 0 %}
 {%-         set analytic_state_variables_ = utils.filter_variables_list(analytic_state_variables_, ast.get_args()) %}
@@ -28,17 +24,14 @@
 {%- if uses_numeric_solver %}
 {%-     set numeric_state_variables_to_be_integrated = numeric_state_variables.copy() %}
 
-// XXX: numeric_state_variables = {{ numeric_state_variables }}
-
 {%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
-// XXX: purely_numeric_state_variables_moved[{{paired_synapse_original_model.name}}] = {{ purely_numeric_state_variables_moved }}
 {%-         set tmp = numeric_state_variables_to_be_integrated.extend(purely_numeric_state_variables_moved) %}
 {%-     endfor %}
-
 
 {%-     if ast.get_args() | length > 0 %}
 {%-         set numeric_state_variables_to_be_integrated = utils.filter_variables_list(numeric_state_variables_to_be_integrated, ast.get_args()) %}
 {%-     endif %}
+
 {%-     if numeric_state_variables_to_be_integrated | length > 0 %}
 // numeric solver: integrating state variables: {% for variable_name in numeric_state_variables_to_be_integrated %}{{ variable_name }}{% if not loop.last %}, {% endif %}{% endfor %}
 

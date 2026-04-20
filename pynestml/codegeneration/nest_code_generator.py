@@ -523,6 +523,7 @@ class NESTCodeGenerator(CodeGenerator):
         if namespace["uses_numeric_solver"]:
             namespace["numeric_solver"] = self.get_option("numeric_solver")
             namespace["gsl_adaptive_step_size_controller"] = self.get_option("gsl_adaptive_step_size_controller")
+            namespace["numeric_state_variables"] = []
 
         # continuous post ports
         namespace["continuous_state_buffering_method"] = self.get_option("continuous_state_buffering_method")
@@ -632,6 +633,10 @@ class NESTCodeGenerator(CodeGenerator):
             for sym, expr in metadata[synapse.get_name()]["numeric_solver"]["initial_values"].items():
                 namespace["initial_values"][sym] = expr
 
+            namespace["numeric_state_variables"] = metadata[synapse.get_name()]["numeric_solver"]["state_variables"]
+            namespace["variable_symbols"].update({sym: synapse.get_equations_blocks()[0].get_scope().resolve_to_symbol(sym, SymbolKind.VARIABLE) for sym in namespace["numeric_state_variables"]})
+            assert not any([sym is None for sym in namespace["variable_symbols"].values()])
+            namespace["numeric_update_expressions"] = {}
             for sym in namespace["numeric_state_variables"]:
                 expr_str = metadata[synapse.get_name()]["numeric_solver"]["update_expressions"][sym]
                 expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr_str)
