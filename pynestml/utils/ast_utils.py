@@ -57,6 +57,7 @@ from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.scope import Scope
 from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
@@ -2190,6 +2191,7 @@ class ASTUtils:
         r"""
         For every occurrence of a convolution of the form `x^(n) = a * convolve(kernel, inport) + ...` where `kernel` is a delta function, add the element `(x^(n), inport) --> a` to the set.
         """
+        print("get_delta_factors_from_convolutions")
         delta_factors = {}
 
         for equations_block in model.get_equations_blocks():
@@ -2227,7 +2229,7 @@ class ASTUtils:
                     inport_var = ASTNodeFactory.create_ast_variable(inport_sym.name)
                     inport_var.update_scope(equations_block.get_scope())
 
-                    factor_str = ASTUtils.get_factor_str_from_expr_and_inport(expr, inport_var.name, skip_if_in_convolve_call=True)
+                    factor_str = ASTUtils.get_factor_str_from_expr_and_inport(expr, inport_var.name)
 
                     if factor_str:
                         delta_factors[(var, inport_var)] = factor_str
@@ -2237,48 +2239,10 @@ class ASTUtils:
         return delta_factors
 
     @classmethod
-    def get_factor_str_from_expr_and_inport(cls, expr, sub_expr, skip_if_in_convolve_call: bool = False):
-        from sympy.physics.units import Quantity, Unit, siemens, milli, micro, nano, pico, femto, kilo, mega, volt, ampere, ohm, farad, second, meter, hertz
+    def get_factor_str_from_expr_and_inport(cls, expr, sub_expr):
+        r"""Use ``sympy.coeff()`` to extract the factor ``a`` with which ``sub_expr`` appears in ``expr = ... + a * sub_expr + ...``"""
+
         from sympy import sympify
-
-        units = {
-            "V": volt,                      # Volt
-            "mV": milli * volt,             # Millivolt (10^-3 V)
-            "uV": micro * volt,             # Microvolt (10^-6 V)
-            "nV": nano * volt,              # Nanovolt (10^-9 V)
-
-            "S": siemens,                   # Siemens
-            "nS": nano * siemens,           # Nanosiemens
-
-            "A": ampere,                    # Ampere
-            "mA": milli * ampere,           # Milliampere (10^-3 A)
-            "uA": micro * ampere,           # Microampere (10^-6 A)
-            "nA": nano * ampere,            # Nanoampere (10^-9 A)
-
-            "Ohm": ohm,                     # Ohm
-            "kOhm": kilo * ohm,             # Kiloohm (10^3 Ohm)
-            "MOhm": mega * ohm,             # Megaohm (10^6 Ohm)
-
-            "F": farad,                     # Farad
-            "uF": micro * farad,            # Microfarad (10^-6 F)
-            "nF": nano * farad,             # Nanofarad (10^-9 F)
-            "pF": pico * farad,             # Picofarad (10^-12 F)
-            "fF": femto * farad,            # Femtofarad (10^-15 F)
-
-            "s": second,                    # Second
-            "ms": milli * second,           # Millisecond (10^-3 s)
-            "us": micro * second,           # Microsecond (10^-6 s)
-            "ns": nano * second,            # Nanosecond (10^-9 s)
-
-            "Hz": hertz,                    # Hertz (1/s)
-            "kHz": kilo * hertz,            # Kilohertz (10^3 Hz)
-            "MHz": mega * hertz,            # Megahertz (10^6 Hz)
-
-            "m": meter,                     # Meter
-            "mm": milli * meter,            # Millimeter (10^-3 m)
-            "um": micro * meter,            # Micrometer (10^-6 m)
-            "nm": nano * meter,             # Nanometer (10^-9 m)
-        }
 
         from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
         from pynestml.codegeneration.printers.nestml_function_call_printer import NESTMLFunctionCallPrinter
@@ -2303,12 +2267,16 @@ class ASTUtils:
         all_variable_symbols = root_node.get_parameter_symbols() + root_node.get_state_symbols() + root_node.get_internal_symbols()
         all_variable_symbols_dict = {s.name: sympy.Symbol(s.name) for s in all_variable_symbols}
 
-        sympy_expr = sympify(expr_str, locals=units | all_variable_symbols_dict)  # minimal dict to make no assumptions (e.g. "beta" could otherwise be recognised as a function instead of as a parameter symbol)
+        # pretend that physical units are variables
+        unit_vars_str = PredefinedUnits.get_units().keys()
+        all_variable_symbols_dict |= {s: sympy.Symbol(s) for s in unit_vars_str}
+
+        sympy_expr = sympify(expr_str, locals=all_variable_symbols_dict)  # minimal dict to make no assumptions (e.g. "beta" could otherwise be recognised as a function instead of as a parameter symbol)
         sympy_expr = sympy.expand(sympy_expr)
-        sympy_conv_expr = sympy.parsing.sympy_parser.parse_expr(sub_expr)
+        sympy_sub_expr = sympy.parsing.sympy_parser.parse_expr(sub_expr)
         factor_str = []
         for term in sympy.Add.make_args(sympy_expr):
-            coeff = term.coeff(sympy_conv_expr)
+            coeff = term.coeff(sympy_sub_expr)
             if coeff:
                 factor_str.append(str(coeff))
 
@@ -2472,7 +2440,7 @@ class ASTUtils:
         def replace_spiking_input_port_with_zero(_expr=None):
             if _expr.get_variable():
                 port = ASTUtils.get_input_port_by_name(model.get_input_blocks(), _expr.get_variable().name)
-                if port and port.is_spike:
+                if port and port.is_spike():
                     # the spiking input port appears directly in the ODE -- this is equivalent to convolving with a delta kernel. Updates due to this term will be handled in ``delta_factors``
                     _expr.set_variable(None)
                     _expr.set_numeric_literal(0)
