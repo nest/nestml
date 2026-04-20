@@ -186,7 +186,7 @@ class SynapsePostNeuronTransformer(Transformer):
         if self.option_exists("weight_variable") and removesuffix(synapse.get_name(), FrontendConfiguration.suffix) in self.get_option("weight_variable").keys() and self.get_option("weight_variable")[removesuffix(synapse.get_name(), FrontendConfiguration.suffix)]:
             strictly_synaptic_vars.add(self.get_option("weight_variable")[removesuffix(synapse.get_name(), FrontendConfiguration.suffix)])
 
-        affected_vars = ASTUtils.collect_variables_affected_by_ports(synapse, post_port_names, strictly_synaptic_vars=strictly_synaptic_vars)
+        affected_vars = ASTUtils.collect_variables_affected_by_ports(synapse, post_port_names, metadata, strictly_synaptic_vars=strictly_synaptic_vars)
         metadata[new_neuron.name]["syn_to_neuron_state_vars"] = [var for var in affected_vars if not (synapse.get_kernel_by_name(var) or neuron.get_kernel_by_name(var))]
 
         Logger.log_message(None, -1, "State variables that will be moved from synapse to neuron: " + str(affected_vars),
