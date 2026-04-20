@@ -2466,10 +2466,22 @@ class ASTUtils:
                     ast_variable.set_source_position(_expr.get_source_position())
                     _expr.set_variable(ast_variable)
 
-        def func(x):
+        def func_replace_function_call_through_var(x):
             return replace_function_call_through_var(x) if isinstance(x, ASTSimpleExpression) else True
 
-        equations_block.accept(ASTHigherOrderVisitor(func))
+        def replace_spiking_input_port_with_zero(_expr=None):
+            if _expr.get_variable():
+                port = ASTUtils.get_input_port_by_name(model.get_input_blocks(), _expr.get_variable().name)
+                if port and port.is_spike:
+                    # the spiking input port appears directly in the ODE -- this is equivalent to convolving with a delta kernel. Updates due to this term will be handled in ``delta_factors``
+                    _expr.set_variable(None)
+                    _expr.set_numeric_literal(0)
+
+        def func_replace_spiking_input_port_with_zero(x):
+            return replace_spiking_input_port_with_zero(x) if isinstance(x, ASTSimpleExpression) else True
+
+        equations_block.accept(ASTHigherOrderVisitor(func_replace_function_call_through_var))
+        equations_block.accept(ASTHigherOrderVisitor(func_replace_spiking_input_port_with_zero))
         equations_block.accept(ASTSymbolTableVisitor())
 
     @classmethod
