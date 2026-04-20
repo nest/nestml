@@ -55,7 +55,7 @@ class TestNESTTsodyksSynapse:
         """Generate the model code"""
 
         codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                  "synapse": "tsodyks_synapse"}],
+                                                  "synapses": {"tsodyks_synapse": {}}}],
                         "weight_variable": {"tsodyks_synapse": "w"},
                         "neuron_parent_class": "StructuralPlasticityNode",
                         "neuron_parent_class_include": "structural_plasticity_node.h"}
