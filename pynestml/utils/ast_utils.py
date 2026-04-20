@@ -1424,7 +1424,7 @@ class ASTUtils:
 
         if isinstance(spike_input_port, ASTVariable):
             if spike_input_port.has_vector_parameter():
-                spike_input_port_name += "_" + str(cls.get_numeric_vector_size(spike_input_port))
+                spike_input_port_name += "__VEC_IDX__" + str(cls.get_numeric_vector_size(spike_input_port))
 
         return kernel_var_name.replace("$", "__DOLLAR") + suffix + "__X__" + spike_input_port_name + diff_order_symbol * order + suffix
 
@@ -1525,9 +1525,13 @@ class ASTUtils:
                     if isinstance(size_parameter, ASTSimpleExpression):
                         size_parameter = size_parameter.get_numeric_literal()
 
-                    port_name_, port_index = port_name.split("_")    # XXX: this seems very fragile
+                    if not "__VEC_IDX__" in port_name:
+                        continue
+
+                    port_name_, port_index = port_name.split("__VEC_IDX__")
                     assert int(port_index) >= 0
                     assert int(port_index) <= size_parameter
+
                     if input_port.name == port_name_:
                         return input_port
 
