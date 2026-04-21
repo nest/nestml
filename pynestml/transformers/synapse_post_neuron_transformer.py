@@ -100,13 +100,13 @@ class SynapsePostNeuronTransformer(Transformer):
 
         for neuron_synapse_pair in self._options["neuron_synapse_pairs"]:
             if not (neuron_name in [neuron_synapse_pair["neuron"], neuron_synapse_pair["neuron"] + FrontendConfiguration.suffix]
-                    and synapse_name in [neuron_synapse_pair["synapse"], neuron_synapse_pair["synapse"] + FrontendConfiguration.suffix]):
+                    and synapse_name in list(neuron_synapse_pair["synapses"].keys()) + list([syn_name + FrontendConfiguration.suffix for syn_name in neuron_synapse_pair["synapses"].keys()])):
                 continue
 
-            if not "post_ports" in neuron_synapse_pair.keys():
+            if not "post_ports" in neuron_synapse_pair["synapses"][removesuffix(synapse_name, FrontendConfiguration.suffix)].keys():
                 return None
 
-            post_ports = neuron_synapse_pair["post_ports"]
+            post_ports = neuron_synapse_pair["synapses"][removesuffix(synapse_name, FrontendConfiguration.suffix)]["post_ports"]
 
             for post_port in post_ports:
                 if type(post_port) is not str and len(post_port) == 2:  # (syn_port_name, neuron_var_name) tuple
@@ -152,7 +152,7 @@ class SynapsePostNeuronTransformer(Transformer):
         metadata[new_neuron.name]["extra_on_emit_spike_stmts_from_synapse"] = {}
         metadata[new_neuron.name]["unpaired_name"] = unpaired_name
         metadata[new_neuron.name]["state_vars_that_need_continuous_buffering"] = []
-        metadata[new_neuron.name]["state_vars_that_need_continuous_buffering_transformed"] = {}
+        metadata[new_neuron.name]["state_vars_that_need_continuous_buffering_transformed"] = []
         metadata[new_neuron.name]["state_vars_that_need_continuous_buffering_transformed_iv"] = {}
 
         #
@@ -281,6 +281,8 @@ class SynapsePostNeuronTransformer(Transformer):
             #
 
             metadata[new_synapse.name]["state_vars_that_need_continuous_buffering"] = []
+            metadata[new_synapse.name]["state_vars_that_need_continuous_buffering_transformed"] = []
+            metadata[new_synapse.name]["state_vars_that_need_continuous_buffering_transformed_iv"] = {}
             for input_block in new_synapse.get_input_blocks():
                 for port in input_block.get_input_ports():
                     if CodeGeneratorUtils.is_continuous_port(port.name, new_synapse):
@@ -289,7 +291,7 @@ class SynapsePostNeuronTransformer(Transformer):
                         neuron_var_name = self.get_neuron_var_name_from_syn_port_name(port.name, removesuffix(neuron.name, FrontendConfiguration.suffix), removesuffix(synapse.name.split("__with_")[0], FrontendConfiguration.suffix))
                         assert neuron_var_name is not None and len(neuron_var_name) > 0, "Could not find variable corresponding to synaptic input port \"" + port.name + "\" in the postsynaptic neuron"
 
-                        metadata[new_neuron.name]["state_vars_that_need_continuous_buffering_transformed"].append(neuron_var_name)
+                        metadata[new_synapse.name]["state_vars_that_need_continuous_buffering_transformed"].append(neuron_var_name)
 
                         #
                         #   add the initial value of the variable as defined in the neuron
@@ -298,11 +300,15 @@ class SynapsePostNeuronTransformer(Transformer):
                         if neuron.get_initial_value(neuron_var_name) is None:
                             if neuron_var_name in [sym.name for sym in neuron.get_inline_expression_symbols()]:
                                 # the postsynaptic variable is actually an inline expression: initial value is 0
-                                metadata[new_neuron.name]["state_vars_that_need_continuous_buffering_transformed_iv"][port.name] = ModelParser.parse_expression("0")
+                                metadata[new_synapse.name]["state_vars_that_need_continuous_buffering_transformed_iv"][port.name] = ModelParser.parse_expression("0")
                             else:
                                 raise Exception("State variable \"" + str(neuron_var_name) + "\" was not found in the neuron model \"" + neuron.name + "\"")
                         else:
-                            metadata[new_neuron.name]["state_vars_that_need_continuous_buffering_transformed_iv"][port.name] = neuron.get_initial_value(neuron_var_name)
+                            metadata[new_synapse.name]["state_vars_that_need_continuous_buffering_transformed_iv"][port.name] = neuron.get_initial_value(neuron_var_name)
+
+            metadata[new_neuron.name]["state_vars_that_need_continuous_buffering"].extend(metadata[new_synapse.name]["state_vars_that_need_continuous_buffering"])
+            metadata[new_neuron.name]["state_vars_that_need_continuous_buffering_transformed"].extend(metadata[new_synapse.name]["state_vars_that_need_continuous_buffering_transformed"])
+            metadata[new_neuron.name]["state_vars_that_need_continuous_buffering_transformed_iv"] |= metadata[new_synapse.name]["state_vars_that_need_continuous_buffering_transformed_iv"]
 
             # check that they are not used in the update block
             update_block_var_names = []
