@@ -1995,14 +1995,14 @@ class ASTUtils:
         return [var.get_name() for var in ASTUtils.get_all_variables_in_expression(expr)]
 
     @classmethod
-    def create_integrate_odes_combinations(cls, model: ASTModel) -> None:
+    def create_integrate_odes_combinations(cls, model: ASTModel) -> List[str]:
         r"""
-        Visit all integrate_odes() calls in the model, compose these as a list of strings, and set them as a model private member (``model.integrate_odes_combinations``).
+        Visit all integrate_odes() calls in the model and compose these as a list of strings.
         """
-        model.integrate_odes_combinations = []
+        integrate_odes_combinations: List[str] = []
 
         class IntegrateODEsFunctionCallVisitor(ASTVisitor):
-            all_args = None
+            all_args: Optional[List[str]] = None
 
             def __init__(self):
                 super().__init__()
@@ -2017,25 +2017,26 @@ class ASTUtils:
             def _visit(self, node):
                 if node.is_function_call() and node.get_function_call().get_name() == "integrate_odes":
                     args_str = ASTUtils.integrate_odes_args_str_from_function_call(node.get_function_call())
+                    assert self.all_args is not None
                     self.all_args.append(args_str)
 
         visitor = IntegrateODEsFunctionCallVisitor()
         model.accept(visitor)
-        model.integrate_odes_combinations = visitor.all_args
+        assert visitor.all_args is not None
+        integrate_odes_combinations = visitor.all_args
 
         # always ensure code is generated for an integrate_odes() call without any arguments. This is needed, for example, for gap junctions support
-        if not "" in model.integrate_odes_combinations:
-            model.integrate_odes_combinations.append("")
+        if "" not in integrate_odes_combinations:
+            integrate_odes_combinations.append("")
 
-        return model.integrate_odes_combinations
+        return integrate_odes_combinations
 
     @classmethod
-    def get_all_integrate_odes_calls_unique(cls, model: ASTModel) -> None:
+    def get_all_integrate_odes_calls_unique(cls, model: ASTModel) -> List[ASTFunctionCall]:
         r"""Get a list of all unique ``integrate_odes()`` function calls in the model (i.e. each having a different set of parameters)."""
-        model.integrate_odes_combinations = []
 
         class IntegrateODEsFunctionCallVisitor(ASTVisitor):
-            calls = None
+            calls: Optional[List[ASTFunctionCall]] = None
 
             def __init__(self):
                 super().__init__()
@@ -2048,7 +2049,7 @@ class ASTUtils:
                 self._visit(node)
 
             def _visit(self, node):
-                if node.is_function_call() and node.get_function_call().get_name() == "integrate_odes" and not any([call.equals(node.get_function_call()) for call in self.calls]):
+                if node.is_function_call() and node.get_function_call().get_name() == PredefinedFunctions.INTEGRATE_ODES and not any([call.equals(node.get_function_call()) for call in self.calls]):
                     self.calls.append(node.get_function_call())
 
         visitor = IntegrateODEsFunctionCallVisitor()
@@ -2211,20 +2212,22 @@ class ASTUtils:
         return delta_factors
 
     @classmethod
-    def remove_kernel_definitions_from_equations_block(cls, model: ASTModel) -> ASTDeclaration:
+    def remove_kernel_definitions_from_equations_block(cls, model: ASTModel) -> Set[ASTDeclaration]:
         r"""
         Removes all kernels in equations blocks.
         """
+        all_removed_decls = set()
         for equations_block in model.get_equations_blocks():
             decl_to_remove = set()
             for decl in equations_block.get_declarations():
                 if type(decl) is ASTKernel:
                     decl_to_remove.add(decl)
+                    all_removed_decls.add(decl)
 
             for decl in decl_to_remove:
                 equations_block.get_declarations().remove(decl)
 
-        return decl_to_remove
+        return all_removed_decls
 
     @classmethod
     def generate_kernel_buffers(cls, model: ASTModel, equations_block: Union[ASTEquationsBlock, List[ASTEquationsBlock]]) -> Mapping[ASTKernel, ASTInputPort]:

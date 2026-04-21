@@ -390,7 +390,6 @@ class NESTCodeGenerator(CodeGenerator):
         ASTUtils.update_initial_values_for_odes(neuron, [analytic_solver, numeric_solver])
         ASTUtils.remove_ode_definitions_from_equations_block(neuron)
         ASTUtils.create_initial_values_for_kernels(neuron, [analytic_solver, numeric_solver], kernels)
-        ASTUtils.create_integrate_odes_combinations(neuron)
         ASTUtils.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
         ASTUtils.replace_convolution_aliasing_inlines(neuron)
 
@@ -424,7 +423,6 @@ class NESTCodeGenerator(CodeGenerator):
             ASTUtils.update_initial_values_for_odes(synapse, [analytic_solver, numeric_solver])
             ASTUtils.remove_ode_definitions_from_equations_block(synapse)
             ASTUtils.create_initial_values_for_kernels(synapse, [analytic_solver, numeric_solver], kernels)
-            ASTUtils.create_integrate_odes_combinations(synapse)
             ASTUtils.replace_variable_names_in_expressions(synapse, [analytic_solver, numeric_solver])
             self.update_symbol_table(synapse)
             spike_updates, _ = self.get_spike_update_expressions(synapse, metadata[synapse.name]["kernel_buffers"], [analytic_solver, numeric_solver], metadata[synapse.name]["delta_factors"], metadata)
