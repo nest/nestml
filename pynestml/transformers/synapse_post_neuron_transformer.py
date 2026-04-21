@@ -149,7 +149,7 @@ class SynapsePostNeuronTransformer(Transformer):
         metadata[new_neuron.name]["paired_synapse_original_models"] = []
         metadata[new_neuron.name]["transferred_variables"] = {}
         metadata[new_neuron.name]["recursive_vars_used"] = {}
-        metadata[new_neuron.name]["extra_on_emit_spike_stmts_from_synapse"] = {}
+        metadata[new_neuron.name]["extra_on_emit_spike_stmts_from_synapses"] = []
         metadata[new_neuron.name]["unpaired_name"] = unpaired_name
         metadata[new_neuron.name]["state_vars_that_need_continuous_buffering"] = []
         metadata[new_neuron.name]["state_vars_that_need_continuous_buffering_transformed"] = []
@@ -179,7 +179,6 @@ class SynapsePostNeuronTransformer(Transformer):
             metadata[new_synapse.name]["paired_neuron"] = new_neuron
             metadata[new_neuron.name]["transferred_variables"][synapse.name] = []
             metadata[new_neuron.name]["recursive_vars_used"][synapse.name] = []
-            metadata[new_neuron.name]["extra_on_emit_spike_stmts_from_synapse"][synapse.name] = []
 
             new_synapse.parent_ = None    # set root element
             new_synapse.accept(ASTParentVisitor())
@@ -354,7 +353,7 @@ class SynapsePostNeuronTransformer(Transformer):
             #    move statements in post receive block from synapse to new_neuron
             #
 
-            # XXX: TODO: do not use a new metadata entry (``extra_on_emit_spike_stmts_from_synapse``) for this, but add a new event handler block in the neuron
+            # XXX: TODO: do not use a new metadata entry (``extra_on_emit_spike_stmts_from_synapses``) for this, but add a new event handler block in the neuron
 
             # find all statements in post receive block
             collected_on_post_stmts = []
@@ -382,7 +381,7 @@ class SynapsePostNeuronTransformer(Transformer):
                             for stmt in collected_on_post_stmts:
                                 stmts.pop(stmts.index(stmt))
 
-            metadata[new_neuron.name]["extra_on_emit_spike_stmts_from_synapse"][synapse.name] = collected_on_post_stmts
+            metadata[new_neuron.name]["extra_on_emit_spike_stmts_from_synapses"].extend(collected_on_post_stmts)
 
             # XXX: TODO: add parameters used in stmts to parameters to be copied
 
@@ -433,10 +432,9 @@ class SynapsePostNeuronTransformer(Transformer):
             Logger.log_message(
                 None, -1, "Adding suffix to variables in spike updates", None, LoggingLevel.INFO)
 
-            for synapse_name in metadata[new_neuron.name]["extra_on_emit_spike_stmts_from_synapse"].keys():
-                for stmt in metadata[new_neuron.name]["extra_on_emit_spike_stmts_from_synapse"][synapse_name]:
-                    ASTUtils.add_suffix_to_variable_names(stmt, var_name_suffix, altscope=synapse.get_scope())
-                    ASTUtils.set_new_scope(stmt, new_neuron.get_scope())
+            for stmt in metadata[new_neuron.name]["extra_on_emit_spike_stmts_from_synapses"]:
+                ASTUtils.add_suffix_to_variable_names(stmt, var_name_suffix, altscope=synapse.get_scope())
+                ASTUtils.set_new_scope(stmt, new_neuron.get_scope())
 
             #
             #    replace occurrences of the variables in expressions in the original synapse with calls to the corresponding neuron getters

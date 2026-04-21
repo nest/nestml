@@ -1359,13 +1359,11 @@ void
      * print extra on-emit statements transferred from synapse
     **/
 
-{%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
-{%-         filter indent(4, True) %}
-{%-             for stmt in extra_on_emit_spike_stmts_from_synapse[paired_synapse_original_model.name] %}
-{%-                 include "directives_cpp/Statement.jinja2" %}
-{%-             endfor %}
-{%-         endfilter %}
-{%-     endfor %}
+{%-     filter indent(4, True) %}
+{%-         for stmt in extra_on_emit_spike_stmts_from_synapses %}
+{%-             include "directives_cpp/Statement.jinja2" %}
+{%-         endfor %}
+{%-     endfilter %}
 
     /**
      * updates due to convolutions

@@ -687,8 +687,8 @@ class NESTCodeGenerator(CodeGenerator):
             else:
                 namespace["state_vars_that_need_continuous_buffering"] = []
 
-            if "extra_on_emit_spike_stmts_from_synapse" in metadata[neuron.name].keys():
-                namespace["extra_on_emit_spike_stmts_from_synapse"] = metadata[neuron.name]["extra_on_emit_spike_stmts_from_synapse"]
+            if "extra_on_emit_spike_stmts_from_synapses" in metadata[neuron.name].keys():
+                namespace["extra_on_emit_spike_stmts_from_synapses"] = metadata[neuron.name]["extra_on_emit_spike_stmts_from_synapses"]
             namespace["paired_synapses"] = metadata[neuron.name]["paired_synapses"]
             if "paired_synapse_original_models" in metadata[neuron.name].keys():
                 namespace["paired_synapse_original_models"] = metadata[neuron.name]["paired_synapse_original_models"]

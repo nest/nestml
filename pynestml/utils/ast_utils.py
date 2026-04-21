@@ -2555,8 +2555,8 @@ class ASTUtils:
         visitor._numeric_state_variables = numeric_state_variable_names
         model.accept(visitor)
 
-        if "extra_on_emit_spike_stmts_from_synapse" in metadata[model.name].keys():
-            for expr in metadata[model.name]["extra_on_emit_spike_stmts_from_synapse"]:
+        if "extra_on_emit_spike_stmts_from_synapses" in metadata[model.name].keys():
+            for expr in metadata[model.name]["extra_on_emit_spike_stmts_from_synapses"]:
                 expr.accept(visitor)
 
         if update_expressions:
