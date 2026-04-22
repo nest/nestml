@@ -2796,4 +2796,3 @@ class ASTUtils:
         syn_to_neuron_params = list(set(syn_to_neuron_params))
 
         return syn_to_neuron_params, all_declared_params
-        return syn_to_neuron_params, all_declared_params

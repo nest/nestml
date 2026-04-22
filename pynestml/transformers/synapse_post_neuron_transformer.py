@@ -23,8 +23,6 @@ from __future__ import annotations
 
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Set, Tuple
 
-from pynestml.utils.model_parser import ModelParser
-
 try:
     # Available in the standard library starting with Python 3.12
     from typing import override
@@ -41,6 +39,7 @@ from pynestml.transformers.transformer import Transformer
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
+from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.string_utils import removesuffix
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor

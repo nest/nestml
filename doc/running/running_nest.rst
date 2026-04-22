@@ -275,7 +275,7 @@ When NESTML is invoked to generate code for plastic synapses, the synapses that 
 
 .. note::
 
-   In NEST, synapses derive from the C++ class ``Connection``, whereas neurons derive from ``Node``. To make it clear to the code generator whether a given NESTML model is a neuron or synapse model, the code generator option ``synapse_models`` can be used. If the model name ends with the string ``"synapse"`` (for instance, ``"stdp_synapse"``), the model is also interpreted as a synapse.
+   In NEST, synapses derive from the C++ class ``Connection``, whereas neurons derive from ``Node``. To make it clear to the code generator whether a given NESTML model is a neuron or synapse model, the code generator option ``synapse_models`` can be used. If the model name ends with the string ``"synapse"`` (for instance, ``"stdp_synapse"``), the model is automatically interpreted as a synapse.
 
 Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to connect the input port on the synapse with the right variable of the postsynaptic neuron:
 
@@ -286,7 +286,7 @@ Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to 
                                  "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                            "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}}]})
 
-This specifies that the neuron ``iaf_psc_exp`` has to be generated paired with the synapse ``stdp_synapse``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``. Note that inline expressions can also be used; in this example in case ``I_dend`` had been an inline expression in the postsynaptic neuron.
+This specifies that the neuron ``iaf_psc_exp`` has to be generated paired with the synapse ``stdp_synapse``, and that the (spiking) input port ``post_spikes`` in the synapse is to be connected to the postsynaptic partner.
 
 Owing to the "co-generation" of neuron and synapse models, NESTML generates the model names with the associated neuron and synapse names. For the example above, the neuron name is changed to ``"iaf_psc_exp__with_stdp_synapse"``, and similarly, the synapse name to ``"stdp_synapse__with_iaf_psc_exp"`` during the code generation. Note that the modified neuron and synapse model names must be used in the simulation script for creating neurons and connections.
 
@@ -319,9 +319,9 @@ During code generation, the third-factor variable of the synapse and its corresp
    generate_target(...,
                    codegen_opts={...,
                                  "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                           "synapses": {"third_factor_stdp": {"post_ports": ["post_spikes"]}}}]})
+                                                           "synapses": {"third_factor_stdp": {"post_ports": [["I_post_dend", "I_dend"]]}}}]})
 
-This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``. Note that inline expressions can also be used; in this example in case ``I_dend`` had been an inline expression in the postsynaptic neuron.
+This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the (continuous-time) input port ``I_post_dend`` in the synapse is to be connected to the postsynaptic partner. The corresponding variable in the (postsynaptic) neuron is called ``I_dend``. Note that inline expressions can also be used; in this example ``I_dend`` could equivalently have been an inline expression in the postsynaptic neuron.
 
 When a continuous-time input port is defined in the synapse model which is connected to a postsynaptic neuron, a corresponding buffer is allocated in each neuron which retains the recent history of the needed state variables. Two options are available for how the buffer is implemented: a "continuous-time" based buffer, or a spike-based buffer (see the NEST code generator option ``continuous_state_buffering_method`` on :class:`pynestml.codegeneration.html#pynestml.codegeneration.nest_code_generator.NESTCodeGenerator`).
 

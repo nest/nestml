@@ -30,13 +30,6 @@ except ImportError:
     # Fallback for Python 3.8 - 3.11
     from typing_extensions import override
 
-try:
-    # Available in the standard library starting with Python 3.12
-    from typing import override
-except ImportError:
-    # Fallback for Python 3.8 - 3.11
-    from typing_extensions import override
-
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.transformers.transformer import Transformer
 from pynestml.utils.logger import Logger
