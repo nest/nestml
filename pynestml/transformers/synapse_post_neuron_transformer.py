@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Iterable, Mapping, Optional, Set, Tuple
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Set, Tuple
 
 from pynestml.utils.model_parser import ModelParser
 
@@ -32,18 +32,10 @@ except ImportError:
     # Fallback for Python 3.8 - 3.11
     from typing_extensions import override
 
-from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
-from pynestml.meta_model.ast_assignment import ASTAssignment
-from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
-from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_model import ASTModel
-from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
-from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_variables import PredefinedVariables
-from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.transformers.transformer import Transformer
 from pynestml.utils.ast_utils import ASTUtils
@@ -52,8 +44,6 @@ from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.string_utils import removesuffix
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
-from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class SynapsePostNeuronTransformer(Transformer):
@@ -117,7 +107,7 @@ class SynapsePostNeuronTransformer(Transformer):
 
         return None
 
-    def transform_neuron_with_synapses_(self, neuron: ASTModel, synapses: Iterable[ASTModel], metadata: Dict[str, Dict[str, Any]]) -> Tuple[ASTModel, ASTModel]:
+    def transform_neuron_with_synapses_(self, neuron: ASTModel, synapses: List[ASTModel], metadata: Dict[str, Dict[str, Any]]) -> Tuple[ASTModel, List[ASTModel]]:
         r"""
         "Co-generation" or in-tandem generation of neuron and synapse code.
 
@@ -133,6 +123,7 @@ class SynapsePostNeuronTransformer(Transformer):
         new_neuron = neuron.clone()
         new_neuron.parent_ = None    # set root element
         new_neuron.accept(ASTParentVisitor())
+        new_neuron.accept(ASTSymbolTableVisitor())
         new_neuron_name = neuron.get_name() + name_separator_str + "_and_".join([synapse.get_name() for synapse in synapses])
         unpaired_name = neuron.get_name()
         new_neuron.set_name(new_neuron_name)
