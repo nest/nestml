@@ -39,6 +39,10 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
 class TestWBCondExpNeuron:
+    r"""Test the wb_cond_exp neuron model.
+    - Tests that the neuron fires at a known rate when given a constant input current. The rate was determined by running the simulation and counting the number of output spikes produced.
+    - Tests that the excitatory synaptic current is typically positive and the inhibitory synaptic current is typically negative.
+    """
 
     @pytest.fixture(scope="module", autouse=True)
     def setUp(self):
