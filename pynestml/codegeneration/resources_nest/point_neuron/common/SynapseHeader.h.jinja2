@@ -681,7 +681,7 @@ void get_entry_from_continuous_variable_history(double t,
     // return initial value
     histentry.t_ = 0.;
 {%-         for state_var in state_vars_that_need_continuous_buffering %}
-    histentry.{{ state_var }} = {{ state_vars_that_need_continuous_buffering_transformed_iv[state_var] }};
+    histentry.{{ state_var }} = {{ state_vars_that_need_continuous_buffering_transformed_iv[astnode.name.split("__with_")[0]][state_var] }};
 {%-         endfor %}
     return;
   }
@@ -778,7 +778,7 @@ void get_entry_from_continuous_variable_history(double t,
       std::deque< continuous_variable_histentry_{{ paired_neuron_name }} >::iterator continuous_history_start;
       std::deque< continuous_variable_histentry_{{ paired_neuron_name }} >::iterator continuous_history_finish;
 
-      ((post_neuron_t*)(__target))->get_continuous_variable_history( t_lastspike_ ,
+      ((post_neuron_t*)(__target))->get_continuous_variable_history__for_{{ astnode.name.split("__with_")[0] }}( t_lastspike_,
         __t_spike,
         &continuous_history_start,
         &continuous_history_finish );
@@ -819,7 +819,7 @@ void get_entry_from_continuous_variable_history(double t,
 #endif
         continuous_variable_histentry_{{ paired_neuron_name }} histentry(0.,
 {%-         for state_var in state_vars_that_need_continuous_buffering %}
-      {{ state_vars_that_need_continuous_buffering_transformed_iv[state_var] }}{% if not loop.last %},{% endif %}
+      {{ state_vars_that_need_continuous_buffering_transformed_iv[astnode.name.split("__with_")[0]][state_var] }}{% if not loop.last %},{% endif %}
 {%-         endfor %});
         get_entry_from_continuous_variable_history(start->t_ + __dendritic_delay, continuous_history_start, continuous_history_finish, histentry);
 
@@ -907,6 +907,7 @@ void get_entry_from_continuous_variable_history(double t,
         /**
          * grab state variables from the postsynaptic neuron (at the "current" simulation time, which corresponds to t_pre)
         **/
+
 {%      for var_name in state_vars_that_need_continuous_buffering %}
 {%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
         const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}();
