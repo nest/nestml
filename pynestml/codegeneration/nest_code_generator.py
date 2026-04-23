@@ -941,7 +941,10 @@ class NESTCodeGenerator(CodeGenerator):
 
             if is_post_port:
                 orig_port_name = spike_input_port_name[:spike_input_port_name.index("__for_")]
-                buffer_type = metadata[neuron.name]["paired_synapses"].get_scope().resolve_to_symbol(orig_port_name, SymbolKind.VARIABLE).get_type_symbol()
+                for paired_synapse in metadata[neuron.name]["paired_synapses"]:
+                    buffer_type = paired_synapse.get_scope().resolve_to_symbol(orig_port_name, SymbolKind.VARIABLE).get_type_symbol()
+                    if buffer_type is not None:
+                        break
             else:
                 buffer_type = neuron.get_scope().resolve_to_symbol(spike_input_port_name, SymbolKind.VARIABLE).get_type_symbol()
 

@@ -240,14 +240,14 @@ public:
   double get_{{ inline.get_variable_name() + "__for_" + paired_synapse_original_model.get_name() }}() const     // getter for an inline expression
 {%-                 set is_inline_getter = true %}
 {%-             endif %}
-{%-         endfor %}
 
-{%-         if not is_inline_getter %}
+{%-             if not is_inline_getter %}
   double get_{{ var }}() const
-{%-         endif %}
+{%-             endif %}
   {
     return {{ var }}_;
   }
+{%-         endfor %}
 {%-     endfor %}
 {%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
 {%-     for state_var in state_vars_that_need_continuous_buffering %}
