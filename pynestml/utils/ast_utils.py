@@ -1116,11 +1116,12 @@ class ASTUtils:
         :param model: a single model instance
         :param declarations: a map of variable names to declarations
         """
-        for variable in declarations:
-            cls.add_declaration_to_internals(model, variable, declarations[variable])
+        for i, variable in enumerate(declarations):
+            run_symboltable_visitor: bool = i == len(declarations) - 1    # only on the last iteration
+            cls.add_declaration_to_internals(model, variable, declarations[variable], run_symboltable_visitor=run_symboltable_visitor)
 
     @classmethod
-    def add_declaration_to_internals(cls, model: ASTModel, variable_name: str, init_expression: str) -> None:
+    def add_declaration_to_internals(cls, model: ASTModel, variable_name: str, init_expression: str, run_symboltable_visitor: bool = True) -> None:
         """
         Adds the variable as stored in the declaration tuple to the model. The declared variable is of type real.
         :param model: a single model instance
@@ -1139,18 +1140,17 @@ class ASTUtils:
             "[" + vector_variable.get_vector_parameter() + "]"
             if vector_variable is not None and vector_variable.has_vector_parameter() else "") + " = " + init_expression
         ast_declaration = ModelParser.parse_declaration(declaration_string)
+        ast_declaration.update_scope(model.get_internals_blocks()[0].get_scope())
         if vector_variable is not None:
             ast_declaration.set_size_parameter(vector_variable.get_vector_parameter())
-        model.add_to_internals_block(ast_declaration)
+        model.add_to_internals_block(ast_declaration, run_symboltable_visitor=False)
 
-        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
-        model.accept(ASTParentVisitor())
+        if run_symboltable_visitor:
+            from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+            model.accept(ASTParentVisitor())
 
-        ast_declaration.update_scope(model.get_internals_blocks()[0].get_scope())
-        symtable_visitor = ASTSymbolTableVisitor()
-        symtable_visitor.block_type_stack.push(BlockType.INTERNALS)
-        ast_declaration.accept(symtable_visitor)
-        symtable_visitor.block_type_stack.pop()
+            symtable_visitor = ASTSymbolTableVisitor()
+            ast_declaration.accept(symtable_visitor)
 
     @classmethod
     def add_declarations_to_state_block(cls, neuron: ASTModel, variables: List, initial_values: List) -> ASTModel:
