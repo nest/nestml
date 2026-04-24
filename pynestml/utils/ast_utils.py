@@ -19,7 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Set, Union
 
 import re
@@ -31,6 +30,7 @@ from pynestml.codegeneration.printers.nestml_simple_expression_printer_units_as_
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.meta_model.ast_assignment import ASTAssignment
+from pynestml.meta_model.ast_else_clause import ASTElseClause
 from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_declaration import ASTDeclaration
@@ -54,6 +54,7 @@ from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
+from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.scope import Scope
 from pynestml.symbols.predefined_functions import PredefinedFunctions
@@ -2709,23 +2710,17 @@ class ASTUtils:
 
     @classmethod
     def collect_variables_affected_by_ports(cls, model, post_port_names, strictly_synaptic_vars: Optional[Set[str]] = None):
-
         if not strictly_synaptic_vars:
             strictly_synaptic_vars: Set[str] = set()
-
         strictly_synaptic_vars = set(strictly_synaptic_vars)    # make a copy
-
         strictly_synaptic_vars.add(PredefinedVariables.TIME_CONSTANT)
-
         #
         #   determine which variables and dynamics in synapse can be transferred to neuron
         #
-
         if model.get_state_blocks():
             all_state_vars = ASTUtils.all_variables_defined_in_block(model.get_state_blocks()[0])
         else:
             all_state_vars = []
-
         all_state_vars = [var.get_complete_name() for var in all_state_vars]
 
         # add names of convolutions
@@ -2874,3 +2869,68 @@ class ASTUtils:
         syn_to_neuron_params = list(set(syn_to_neuron_params))
 
         return syn_to_neuron_params, all_declared_params
+
+    @classmethod
+    def get_first_spike_port_from_spike_updates(cls, neuron: ASTModel) -> ASTVariable:
+        # Get the first variable in the sorted spike update expressions list
+        for update_expr in dict(sorted(neuron.spike_updates.items())).values():
+            for expr in update_expr:
+                return expr.get_variable()
+        return None
+
+    @classmethod
+    def get_first_excitatory_port(cls, neuron: ASTModel) -> str:
+        for port in neuron.get_spike_input_ports():
+            if port.is_excitatory():
+                return port.get_symbol_name()
+
+        # There is no port marked excitatory, return the first port name
+        return neuron.get_spike_input_ports()[0].get_symbol_name()
+
+    @classmethod
+    def is_declaring_expression_parameter(cls, expr: ASTExpression) -> bool:
+        if isinstance(expr, ASTSimpleExpression):
+            if expr.is_variable():
+                symbol = expr.get_scope().resolve_to_symbol(expr.get_variable().get_name(), SymbolKind.VARIABLE)
+                if symbol and symbol.is_parameters():
+                    return True
+        return False
+
+    @classmethod
+    def is_declaring_expression_state_variable(cls, expr: ASTExpression) -> bool:
+        if isinstance(expr, ASTSimpleExpression):
+            if expr.is_variable():
+                symbol = expr.get_scope().resolve_to_symbol(expr.get_variable().get_name(), SymbolKind.VARIABLE)
+                if symbol and symbol.is_state():
+                    return True
+        return False
+
+    @classmethod
+    def get_integrate_odes_parent(cls, node: ASTFunctionCall) -> ASTNode:
+        assert isinstance(node, ASTFunctionCall)
+        if node.get_name() == PredefinedFunctions.INTEGRATE_ODES:
+            parent = node
+            while parent:
+                parent = parent.get_parent()
+
+                if isinstance(parent, ASTIfClause) or isinstance(parent, ASTElifClause) \
+                        or isinstance(parent, ASTElseClause):
+                    return parent
+
+                if isinstance(parent, ASTUpdateBlock):
+                    # integrate_odes() is not in any if-else blocks but rather directly in the update block
+                    return None
+
+        return None
+
+    @classmethod
+    def is_if_clause(cls, node):
+        return isinstance(node, ASTIfClause)
+
+    @classmethod
+    def is_elif_clause(cls, node):
+        return isinstance(node, ASTElifClause)
+
+    @classmethod
+    def is_else_clause(cls, node):
+        return isinstance(node, ASTElseClause)
