@@ -1,4 +1,3 @@
-#
 # aeif_cond_alpha - Conductance based exponential integrate-and-fire neuron model
 # ###############################################################################
 #
@@ -11,16 +10,14 @@
 #
 # .. math::
 #
-#    C_m \frac{dV_m}{dt} =
-#    -g_L(V_m-E_L)+g_L\Delta_T\exp\left(\frac{V_m-V_{th}}{\Delta_T}\right) -
-#  g_e(t)(V_m-E_e) \\
-#                                                     -g_i(t)(V_m-E_i)-w + I_e
+#    C_m \frac{dV_m}{dt} = -g_L(V_m-E_L)+g_L\Delta_T\exp\left(\frac{V_m-V_{th}}{\Delta_T}\right) - g_e(t)(V_m-E_e) \\
+#                          -g_i(t)(V_m-E_i)-w + I_e
 #
 # and
 #
 # .. math::
 #
-#  \tau_w \frac{dw}{dt} = a(V_m-E_L) - w
+#    \tau_w \frac{dw}{dt} = a(V_m-E_L) - w
 #
 # Note that the membrane potential can diverge to positive infinity due to the exponential term. To avoid numerical instabilities, instead of :math:`V_m`, the value :math:`\min(V_m,V_{peak})` is used in the dynamical equations.
 #
@@ -38,7 +35,27 @@
 # ++++++++
 #
 # iaf_psc_alpha, aeif_psc_exp
-
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
 model aeif_cond_alpha_alt_neuron:
 
     state:
@@ -59,8 +76,6 @@ model aeif_cond_alpha_alt_neuron:
         # Add inlines to simplify the equation definition of V_m
         inline exp_arg real = (V_bounded - V_th) / Delta_T
         inline I_spike pA = g_L * Delta_T * exp(exp_arg)
-        # inline I_syn_exc pA = g_exc / nS * pA
-        # inline I_syn_inh pA = g_inh / nS * pA
 
         V_m' = (-g_L * (V_bounded - E_L) + I_spike - g_exc * (V_bounded - E_exc) - g_inh * (V_bounded - E_inh) - w + I_e + I_stim) / C_m
         w' = (a * (V_bounded - E_L) - w) / tau_w
@@ -69,11 +84,11 @@ model aeif_cond_alpha_alt_neuron:
 
     parameters:
         # membrane parameters
-        C_m pF = 281.0 pF         # Membrane Capacitance
+        C_m pF = 281.0 pF         # Membrane capacitance
         refr_T ms = 2 ms         # Duration of refractory period
         V_reset mV = -60.0 mV     # Reset Potential
         g_L nS = 30.0 nS          # Leak Conductance
-        E_L mV = -70.6 mV         # Leak reversal Potential (aka resting potential)
+        E_L mV = -70.6 mV         # Leak reversal potential (a.k.a. resting potential)
 
         # spike adaptation parameters
         a nS = 4 nS               # Subthreshold adaptation
@@ -112,12 +127,12 @@ model aeif_cond_alpha_alt_neuron:
             integrate_odes(g_exc, g_inh, V_m, w)
 
     onReceive(exc_spikes):
-        psg pA = unit_psg * (e / tau_syn_exc) * sift(exc_spikes, t)
-        g_exc' += psg
+        spike_weight nS = unit_psg * sift(exc_spikes, t)
+        g_exc' += spike_weight * (e / tau_syn_exc)
 
     onReceive(inh_spikes):
-        psg pA = unit_psg * (e / tau_syn_inh) * sift(inh_spikes, t)
-        g_inh' += psg
+        spike_weight nS = unit_psg * sift(inh_spikes, t)
+        g_inh' += spike_weight * (e / tau_syn_inh)
 
     onCondition(refr_t <= 0 ms and V_m >= V_peak):
         # threshold crossing
