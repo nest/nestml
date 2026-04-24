@@ -113,36 +113,39 @@ template <> void DynamicRecordablesMap<{{ neuronName }}>::create({{ neuronName }
 template <> void RecordablesMap<{{ neuronName }}>::create()
 {%- endif %}
   {
-
-{%- if recordable_state_variables|length > 0 %}
-{%- if has_state_vectors %}
-{%-   for variable in recordable_state_variables %}
-{%-     if not variable.has_vector_parameter() %}
+{%- if recordable_state_variables | length > 0 %}
+{%-     if has_state_vectors %}
+{%-         for variable in recordable_state_variables %}
+{%-             if not variable.has_vector_parameter() %}
     insert("{{variable.get_complete_name()}}", host.get_data_access_functor( {{ neuronName }}::State_::{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable.get_complete_name())).upper() }} ));
-{%-     endif %}
-{%-   endfor %}
-{%- else %}
+{%-             endif %}
+{%-         endfor %}
+{%-     else %}
     // add state variables to recordables map
-{%-   for variable in recordable_state_variables %}
-   insert_({{names_namespace}}::_{{ variable.get_complete_name() }}, &{{ neuronName }}::get_{{ printer_no_origin.print(variable) }});
-{%-   endfor %}
-{%- endif %}
+{%-         for variable in recordable_state_variables %}
+    insert_({{names_namespace}}::_{{ variable.get_complete_name() }}, &{{ neuronName }}::get_{{ printer_no_origin.print(variable) }});
+{%-         endfor %}
+{%-     endif %}
 {%- endif %}
 
-{%- if recordable_inline_expressions|length > 0 %}
+{%- if recordable_inline_expressions | length > 0 %}
     // add recordable inline expressions to recordables map
-{%- for variable_symbol in recordable_inline_expressions %}
-{%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-	insert_({{ names_namespace }}::_{{ variable_symbol.get_symbol_name() }}, &{{ neuronName }}::{{ printer_no_origin.print(variable)[:-2] }});
-{%- endfor %}
+{%-     for variable_symbol in recordable_inline_expressions %}
+{%-         set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-         if has_state_vectors %}
+//     insert({{ names_namespace }}::_{{ variable_symbol.get_symbol_name() }}, &{{ neuronName }}::{{ printer_no_origin.print(variable) }});
+{%          else %}
+    insert_({{ names_namespace }}::_{{ variable_symbol.get_symbol_name() }}, &{{ neuronName }}::{{ printer_no_origin.print(variable)[:-2] }});
+{%         endif %}
+{%-     endfor %}
 {%- endif %}
 
-    // Add vector variables
-{%- filter indent(2,True) %}
 {%- if has_state_vectors %}
+{%-     filter indent(2, True) %}
+    // Add vector variables
     host.insert_recordables();
+{%-     endfilter %}
 {%- endif %}
-{%- endfilter %}
   }
 }
 
@@ -182,6 +185,17 @@ std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_i
         recordablesMap_.insert(get_var_name(i, "{{ printer_no_origin.print(node).upper() }}_"), this->get_data_access_functor(elem));
       }
 {%- endfor %}
+
+
+{%- if recordable_inline_expressions | length > 0 %}
+    // add recordable inline expressions to recordables map
+{%-     for variable_symbol in recordable_inline_expressions %}
+{%-         set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-         if has_state_vectors %}
+      recordablesMap_.insert("{{ variable_symbol.get_symbol_name() }}", this->get_data_access_functor(State_::{{ variable_symbol.get_symbol_name().upper() }}));
+{%         endif %}
+{%-     endfor %}
+{%- endif %}
   }
 
   nest::DataAccessFunctor< {{ neuronName }} >
