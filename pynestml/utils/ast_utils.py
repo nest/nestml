@@ -24,8 +24,6 @@ from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Set, 
 import re
 import sympy
 
-import odetoolbox
-
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
@@ -59,6 +57,7 @@ from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.scope import Scope
 from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
@@ -1425,7 +1424,7 @@ class ASTUtils:
 
         if isinstance(spike_input_port, ASTVariable):
             if spike_input_port.has_vector_parameter():
-                spike_input_port_name += "_" + str(cls.get_numeric_vector_size(spike_input_port))
+                spike_input_port_name += "__VEC_IDX__" + str(cls.get_numeric_vector_size(spike_input_port))
 
         return kernel_var_name.replace("$", "__DOLLAR") + suffix + "__X__" + spike_input_port_name + diff_order_symbol * order + suffix
 
@@ -1509,7 +1508,7 @@ class ASTUtils:
         return rhs_is_delta_kernel or rhs_is_multiplied_delta_kernel
 
     @classmethod
-    def get_input_port_by_name(cls, input_blocks: List[ASTInputBlock], port_name: str) -> ASTInputPort:
+    def get_input_port_by_name(cls, input_blocks: List[ASTInputBlock], port_name: str) -> Optional[ASTInputPort]:
         """
         Get the input port given the port name
         :param input_block: block to be searched
@@ -1518,15 +1517,24 @@ class ASTUtils:
         """
         for input_block in input_blocks:
             for input_port in input_block.get_input_ports():
+                if input_port.name == port_name:
+                    return input_port
+
                 if input_port.has_size_parameter():
                     size_parameter = input_port.get_size_parameter()
                     if isinstance(size_parameter, ASTSimpleExpression):
                         size_parameter = size_parameter.get_numeric_literal()
-                    port_name, port_index = port_name.split("_")
+
+                    if not "__VEC_IDX__" in port_name:
+                        continue
+
+                    port_name_, port_index = port_name.split("__VEC_IDX__")
                     assert int(port_index) >= 0
                     assert int(port_index) <= size_parameter
-                if input_port.name == port_name:
-                    return input_port
+
+                    if input_port.name == port_name_:
+                        return input_port
+
         return None
 
     @classmethod
@@ -2183,36 +2191,6 @@ class ASTUtils:
                 equations_block.get_declarations().remove(decl)
 
     @classmethod
-    def get_delta_factors_(cls, neuron: ASTModel, equations_block: ASTEquationsBlock) -> dict:
-        r"""
-        For every occurrence of a convolution of the form `x^(n) = a * convolve(kernel, inport) + ...` where `kernel` is a delta function, add the element `(x^(n), inport) --> a` to the set.
-        """
-        delta_factors = {}
-
-        for ode_eq in equations_block.get_ode_equations():
-            var = ode_eq.get_lhs()
-            expr = ode_eq.get_rhs()
-            conv_calls = ASTUtils.get_convolve_function_calls(expr)
-            for conv_call in conv_calls:
-                assert len(
-                    conv_call.args) == 2, "convolve() function call should have precisely two arguments: kernel and spike input port"
-                kernel = conv_call.args[0]
-                if cls.is_delta_kernel(neuron.get_kernel_by_name(kernel.get_variable().get_name())):
-                    inport = conv_call.args[1].get_variable()
-                    expr_str = str(expr)
-                    sympy_expr = sympy.parsing.sympy_parser.parse_expr(expr_str, global_dict=odetoolbox.Shape._sympy_globals)
-                    sympy_expr = sympy.expand(sympy_expr)
-                    sympy_conv_expr = sympy.parsing.sympy_parser.parse_expr(str(conv_call), global_dict=odetoolbox.Shape._sympy_globals)
-                    factor_str = []
-                    for term in sympy.Add.make_args(sympy_expr):
-                        if term.find(sympy_conv_expr):
-                            factor_str.append(str(term.replace(sympy_conv_expr, 1)))
-                    factor_str = " + ".join(factor_str)
-                    delta_factors[(var, inport)] = factor_str
-
-        return delta_factors
-
-    @classmethod
     def remove_kernel_definitions_from_equations_block(cls, model: ASTModel) -> Set[ASTDeclaration]:
         r"""
         Removes all kernels in equations blocks.
@@ -2229,44 +2207,6 @@ class ASTUtils:
                 equations_block.get_declarations().remove(decl)
 
         return all_removed_decls
-
-    @classmethod
-    def generate_kernel_buffers(cls, model: ASTModel, equations_block: Union[ASTEquationsBlock, List[ASTEquationsBlock]]) -> Mapping[ASTKernel, ASTInputPort]:
-        """
-        For every occurrence of a convolution of the form `convolve(var, spike_buf)`: add the element `(kernel, spike_buf)` to the set, with `kernel` being the kernel that contains variable `var`.
-        """
-
-        kernel_buffers = set()
-        convolve_calls = ASTUtils.get_convolve_function_calls(equations_block)
-        for convolve in convolve_calls:
-            el = (convolve.get_args()[0], convolve.get_args()[1])
-            sym = convolve.get_args()[0].get_scope().resolve_to_symbol(convolve.get_args()[0].get_variable().name, SymbolKind.VARIABLE)
-            if sym is None:
-                raise Exception("No initial value(s) defined for kernel with variable \""
-                                + convolve.get_args()[0].get_variable().get_complete_name() + "\"")
-            if sym.block_type == BlockType.INPUT:
-                # swap the order
-                el = (el[1], el[0])
-
-            # find the corresponding kernel object
-            var = el[0].get_variable()
-            assert var is not None
-            kernel = model.get_kernel_by_name(var.get_name())
-            assert kernel is not None, "In convolution \"convolve(" + str(var.name) + ", " + str(el[1]) + ")\": no kernel by name \"" + var.get_name() + "\" found in model."
-
-            el = (kernel, el[1])
-
-            # make sure no duplicates are added -- expressions should be compared as strings
-            el_exists = False
-            for _el in kernel_buffers:
-                if el[0] == _el[0] and str(el[1]) == str(_el[1]):
-                    el_exists = True
-                    break
-
-            if not el_exists:
-                kernel_buffers.add(el)
-
-        return kernel_buffers
 
     @classmethod
     def replace_convolution_aliasing_inlines(cls, neuron: ASTModel) -> None:
@@ -2329,44 +2269,6 @@ class ASTUtils:
             return replace_var(x)
 
         model.accept(ASTHigherOrderVisitor(func))
-
-    @classmethod
-    def replace_convolve_calls_with_buffers_(cls, model: ASTModel, equations_block: ASTEquationsBlock) -> None:
-        r"""
-        Replace all occurrences of `convolve(kernel[']^n, spike_input_port)` with the corresponding buffer variable, e.g. `g_E__X__spikes_exc[__d]^n` for a kernel named `g_E` and a spike input port named `spikes_exc`.
-        """
-        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-
-        def replace_function_call_through_var(_expr=None):
-            if _expr.is_function_call() and _expr.get_function_call().get_name() == "convolve":
-                convolve = _expr.get_function_call()
-                el = (convolve.get_args()[0], convolve.get_args()[1])
-                sym = convolve.get_args()[0].get_scope().resolve_to_symbol(
-                    convolve.get_args()[0].get_variable().name, SymbolKind.VARIABLE)
-                if sym.block_type == BlockType.INPUT:
-                    # swap elements
-                    el = (el[1], el[0])
-                var = el[0].get_variable()
-                spike_input_port = el[1].get_variable()
-                kernel = model.get_kernel_by_name(var.get_name())
-
-                _expr.set_function_call(None)
-                buffer_var = cls.construct_kernel_X_spike_buf_name(
-                    var.get_name(), spike_input_port, var.get_differential_order() - 1)
-                if cls.is_delta_kernel(kernel):
-                    # delta kernels are treated separately, and should be kept out of the dynamics (computing derivates etc.) --> set to zero
-                    _expr.set_variable(None)
-                    _expr.set_numeric_literal(0)
-                else:
-                    ast_variable = ASTVariable(buffer_var)
-                    ast_variable.set_source_position(_expr.get_source_position())
-                    _expr.set_variable(ast_variable)
-
-        def func(x):
-            return replace_function_call_through_var(x) if isinstance(x, ASTSimpleExpression) else True
-
-        equations_block.accept(ASTHigherOrderVisitor(func))
-        equations_block.accept(ASTSymbolTableVisitor())
 
     @classmethod
     def update_blocktype_for_common_parameters(cls, node):
@@ -2624,7 +2526,7 @@ class ASTUtils:
         return None
 
     @classmethod
-    def collect_variables_affected_by_ports(cls, model, post_port_names, strictly_synaptic_vars: Optional[Set[str]] = None):
+    def collect_variables_affected_by_ports(cls, model, post_port_names, metadata: Dict[str, Dict[str, Any]], strictly_synaptic_vars: Optional[Set[str]] = None):
         if not strictly_synaptic_vars:
             strictly_synaptic_vars: Set[str] = set()
         strictly_synaptic_vars = set(strictly_synaptic_vars)    # make a copy
@@ -2641,10 +2543,7 @@ class ASTUtils:
         # add names of convolutions
         all_state_vars += ASTUtils.get_all_variables_used_in_convolutions(model.get_equations_blocks(), model)
 
-        # add names of kernels
-        kernel_buffers = ASTUtils.generate_kernel_buffers(model, model.get_equations_blocks())
-        all_state_vars += [var.name for k in kernel_buffers for var in k[0].variables]
-
+        # exclude variables that are not assigned to in postsynaptic spike handler onReceive blocks
         for input_block in model.get_input_blocks():
             for port in input_block.get_input_ports():
                 if port.name not in post_port_names:
