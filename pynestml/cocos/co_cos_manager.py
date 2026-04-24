@@ -31,6 +31,7 @@ from pynestml.cocos.co_co_convolve_cond_correctly_built import CoCoConvolveCondC
 from pynestml.cocos.co_co_correct_numerator_of_unit import CoCoCorrectNumeratorOfUnit
 from pynestml.cocos.co_co_correct_order_in_equation import CoCoCorrectOrderInEquation
 from pynestml.cocos.co_co_each_block_defined_at_most_once import CoCoEachBlockDefinedAtMostOnce
+from pynestml.cocos.co_co_emit_spike_function_arguments import CoCoEmitSpikeFunctionArguments
 from pynestml.cocos.co_co_equations_only_for_init_values import CoCoEquationsOnlyForInitValues
 from pynestml.cocos.co_co_function_argument_template_types_consistent import CoCoFunctionArgumentTemplateTypesConsistent
 from pynestml.cocos.co_co_function_calls_consistent import CoCoFunctionCallsConsistent
@@ -436,6 +437,14 @@ class CoCosManager:
         CoCoNestRandomFunctionsLegallyUsed.check_co_co(model)
 
     @classmethod
+    def check_co_co_emit_spike_function_arguments(cls, model: ASTModel):
+        """
+        Checks that all calls to the ``emit_spike()`` function contain zero or one parameter.
+        :param model: a single model object.
+        """
+        CoCoEmitSpikeFunctionArguments.check_co_co(model)
+
+    @classmethod
     def check_cocos(cls, model: ASTModel, after_ast_rewrite: bool = False):
         """
         Checks all context conditions.
@@ -443,6 +452,7 @@ class CoCosManager:
         """
         Logger.set_current_node(model)
 
+        cls.check_co_co_emit_spike_function_arguments(model)
         cls.check_each_block_defined_at_most_once(model)
         cls.check_function_defined(model)
         cls.check_variables_unique_in_scope(model)

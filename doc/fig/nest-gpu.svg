@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 53.229744 14.402354"
+   height="14.402354mm"
+   width="53.229744mm">
+  <defs
+     id="defs2" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(229.91864,-115.51624)"
+     id="layer1">
+    <g
+       style="stroke-width:1.94478607"
+       id="g4248"
+       transform="matrix(0.14511736,0,0,0.14511736,-132.11431,29.706823)">
+      <path
+         id="path4250"
+         style="fill:#ff6633;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.94478607"
+         d="m -437.63364,674.86299 c 0,8.09375 -6.4625,15.69375 -14.43875,15.69375 h -221.89375 l -10e-4,-84.5925 c 0,-8.0925 6.46375,-14.65375 14.44,-14.65375 h 207.455 c 7.97625,0 14.43875,6.56125 14.43875,14.65375 v 68.89875 z" />
+      <text
+         id="text4252"
+         y="657.8446"
+         x="-665.94263"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:0%;font-family:'Courier 10 Pitch';-inkscape-font-specification:'Courier 10 Pitch Bold';text-align:start;letter-spacing:-2.5px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.94478607"
+         xml:space="preserve"><tspan
+           y="657.8446"
+           x="-665.94263"
+           id="tspan4254"
+           style="font-size:74px;line-height:0;stroke-width:1.94478607">nest</tspan></text>
+      <ellipse
+         transform="matrix(0.6746707,0,0,0.77409589,-387.34411,272.29267)"
+         id="path4256"
+         style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.94478607"
+         cx="-133.20123"
+         cy="461.3093"
+         rx="9.6343298"
+         ry="8.3968925" />
+      <ellipse
+         style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.94478607"
+         id="path4258"
+         cx="-133.20123"
+         cy="461.3093"
+         transform="matrix(0.6746707,0,0,0.77409589,-365.34411,272.29267)"
+         ry="8.3968925"
+         rx="9.6343298" />
+      <ellipse
+         transform="matrix(0.6746707,0,0,0.77409589,-365.34411,294.29267)"
+         id="path4260"
+         style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.94478607"
+         cx="-133.20123"
+         cy="461.3093"
+         rx="9.6343298"
+         ry="8.3968925" />
+      <ellipse
+         style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.94478607"
+         id="path4262"
+         transform="matrix(0.6746707,0,0,0.77409589,-387.34411,294.29267)"
+         cx="-133.20123"
+         cy="461.3093"
+         rx="9.6343298"
+         ry="8.3968925" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:0%;font-family:'Courier 10 Pitch';-inkscape-font-specification:'Courier 10 Pitch Bold';text-align:start;letter-spacing:-2.5px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ff6633;fill-opacity:1;stroke:none;stroke-width:1.94478607"
+         x="-432.5596"
+         y="657.8446"
+         id="text4264"><tspan
+           id="tspan4266"
+           x="-432.5596"
+           y="657.8446"
+           style="font-size:74px;line-height:0;stroke-width:1.94478607">gpu</tspan></text>
+    </g>
+  </g>
+</svg>
