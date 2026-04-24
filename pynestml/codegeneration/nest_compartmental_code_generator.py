@@ -21,6 +21,8 @@
 
 from typing import Any, Dict, Iterable, List, Mapping, Optional
 
+from pynestml.transformers.convolutions_to_buffers_transformer import ConvolutionsToBuffersTransformer
+
 try:
     # Available in the standard library starting with Python 3.12
     from typing import override
@@ -440,29 +442,15 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
             return []
 
-        # goes through all convolve() inside ode's from equations block
-        # if they have delta kernels, use sympy to expand the expression, then
-        # find the convolve calls and replace them with constant value 1
-        # then return every subexpression that had that convolve() replaced
-        delta_factors = ASTUtils.get_delta_factors_from_input_port_references(neuron)
-        delta_factors |= ASTUtils.get_delta_factors_from_convolutions(neuron)
-
-        # goes through all convolve() inside equations block
-        # extracts what kernel is paired with what spike buffer
-        # returns pairs (kernel, spike_buffer)
-        kernel_buffers = ASTUtils.generate_kernel_buffers(
-            neuron, equations_block)
-
-        # replace convolve(g_E, spikes_exc) with g_E__X__spikes_exc[__d]
-        # done by searching for every ASTSimpleExpression inside equations_block
-        # which is a convolve call and substituting that call with
-        # newly created ASTVariable kernel__X__spike_buffer
-        ASTUtils.replace_convolve_calls_with_buffers_(neuron, equations_block)
+        # run the ConvolutionsToBuffersTransformer to get kernel_buffers and delta_factors
+        ConvolutionsToBuffersTransformer().transform([neuron], metadata)
+        kernel_buffers = metadata[neuron.name]["kernel_buffers"]
+        delta_factors = metadata[neuron.name]["delta_factors"]
 
         # substitute inline expressions with each other
         # such that no inline expression references another inline expression;
         # deference inline_expressions inside ode_equations
-        InlineExpressionExpansionTransformer().transform([neuron], metadata=metadata)
+        InlineExpressionExpansionTransformer().transform([neuron], metadata)
 
         # generate update expressions using ode toolbox
         # for each equation in the equation block attempt to solve analytically
