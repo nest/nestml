@@ -26,6 +26,7 @@ import sympy
 
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
+from pynestml.codegeneration.printers.nestml_simple_expression_printer_units_as_factors import NESTMLSimpleExpressionPrinterUnitsAsFactors
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.meta_model.ast_assignment import ASTAssignment
@@ -49,6 +50,7 @@ from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
+from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
@@ -360,12 +362,16 @@ class ASTUtils:
         return None
 
     @classmethod
-    def get_numeric_vector_size(cls, variable: ASTVariable) -> int:
+    def get_numeric_vector_size(cls, variable: VariableSymbol) -> int:
         """
         Returns the numerical size of the vector by resolving any variable used as a size parameter in declaration
         :param variable: vector variable
         :return: the size of the vector as a numerical value
         """
+
+        if isinstance(variable, ASTVariable):
+            variable = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+
         vector_parameter = variable.get_vector_parameter()
         if vector_parameter.is_variable():
             symbol = vector_parameter.get_scope().resolve_to_symbol(vector_parameter.get_variable().get_complete_name(), SymbolKind.VARIABLE)
@@ -1397,7 +1403,7 @@ class ASTUtils:
     @classmethod
     def construct_kernel_X_spike_buf_name(cls, kernel_var_name: str, spike_input_port: ASTInputPort, order: int,
                                           diff_order_symbol="__d", suffix=""):
-        """
+        r"""
         Construct a kernel-buffer name as <KERNEL_NAME__X__INPUT_PORT_NAME>
 
         For example, if the kernel is
@@ -1406,7 +1412,7 @@ class ASTUtils:
 
         and the input port is
         .. code-block::
-            pre_spikes nS <- spike
+            pre_spikes <- spike
 
         then the constructed variable will be "I_kernel__X__pre_pikes"
         """
@@ -1583,7 +1589,7 @@ class ASTUtils:
         return None
 
     @classmethod
-    def get_internal_variable_by_name(cls, node: ASTVariable, var_name: str) -> ASTVariable:
+    def get_internal_variable_by_name(cls, node: ASTModel, var_name: str) -> ASTVariable:
         """
         Get the internal parameter node based on the name of the internal parameter
         :param node: the neuron or synapse containing the parameter
@@ -2380,55 +2386,6 @@ class ASTUtils:
         return ""
 
     @classmethod
-    def _find_port_in_dict(cls, rport_to_port_map: Dict[int, List[VariableSymbol]], port: VariableSymbol) -> int:
-        """
-        Finds the corresponding "inhibitory" port for a given "excitatory" port and vice versa in the handed over map.
-        :param rport_to_port_map: map containing NESTML port names for the rport
-        :param port: port to be searched
-        :return: key value in the map if the port is found, else None
-        """
-        for key, value in rport_to_port_map.items():
-            if len(value) == 1:
-                if (port.is_excitatory() and value[0].is_inhibitory() and not value[0].is_excitatory()) \
-                        or (port.is_inhibitory() and value[0].is_excitatory() and not value[0].is_inhibitory()):
-                    if port.has_vector_parameter():
-                        if cls.get_numeric_vector_size(port) == cls.get_numeric_vector_size(value[0]):
-                            return key
-                    else:
-                        return key
-        return None
-
-    @classmethod
-    def get_spike_input_ports_in_pairs(cls, neuron: ASTModel) -> Dict[int, List[VariableSymbol]]:
-        """
-        Returns a list of spike input ports in pairs in case of input port qualifiers.
-        The result of this function is used to construct a vector that provides a mapping to the NESTML spike buffer index. The vector looks like below:
-        .. code-block::
-            [ {AMPA_SPIKES, GABA_SPIKES}, {NMDA_SPIKES, -1} ]
-
-        where the vector index is the NEST rport number. The value is a tuple containing the NESTML index(es) to the spike buffer.
-        In case if the rport is shared between two NESTML buffers, the vector element contains the tuple of the form (excitatory_port_index, inhibitory_port_index). Otherwise, the tuple is of the form (spike_port_index, -1).
-        """
-        rport_to_port_map = {}
-        rport = 0
-        for port in neuron.get_spike_input_ports():
-            if port.is_excitatory() and port.is_inhibitory():
-                rport_to_port_map[rport] = [port]
-                rport += cls.get_numeric_vector_size(port) if port.has_vector_parameter() else 1
-            else:
-                key = cls._find_port_in_dict(rport_to_port_map, port)
-                if key is not None:
-                    # The corresponding spiking input pair is found.
-                    # Add the port to the list and update rport
-                    rport_to_port_map[key].append(port)
-                    rport += cls.get_numeric_vector_size(port) if port.has_vector_parameter() else 1
-                else:
-                    # New input port. Retain the same rport number until the corresponding input port pair is found.
-                    rport_to_port_map[rport] = [port]
-
-        return rport_to_port_map
-
-    @classmethod
     def assign_numeric_non_numeric_state_variables(cls, model, numeric_state_variable_names, numeric_update_expressions, update_expressions, metadata):
         r"""For each ASTVariable, set the ``node._is_numeric`` member to True or False based on whether this variable will be solved with the analytic or numeric solver.
 
@@ -2475,6 +2432,19 @@ class ASTUtils:
                 node.accept(visitor)
 
     @classmethod
+    def nestml_input_port_to_nest_rport(cls, astnode: ASTModel, spike_in_port: ASTInputPort):
+        return ASTUtils.nestml_spiking_input_port_to_nest_rport_dict(astnode)[spike_in_port]
+
+    @classmethod
+    def port_name_printer(cls, variable: ASTVariable) -> str:
+        s = variable.get_name()
+        if variable.has_vector_parameter():
+            s += "_VEC_IDX_"
+            s += str(variable.get_vector_parameter())
+
+        return s
+
+    @classmethod
     def depends_only_on_vars(cls, expr, vars):
         r"""Returns True if and only if all variables that occur in ``expr`` are in ``vars``"""
 
@@ -2501,7 +2471,7 @@ class ASTUtils:
         r"""Get the onReceive blocks in the model associated with a given input port."""
         blks = []
         for blk in model.get_on_receive_blocks():
-            if blk.get_port_name() == port_name:
+            if blk.get_input_port_variable().get_name() == port_name:
                 blks.append(blk)
 
         return blks
@@ -2512,6 +2482,25 @@ class ASTUtils:
             return astnode.get_initial_value(var)
 
         return "0"
+
+    @classmethod
+    def nestml_spiking_input_port_to_nest_rport_dict(cls, astnode: ASTModel) -> Dict[str, int]:
+        input_port_to_rport = {}
+        rport = 1    # if there is more than one spiking input port, count begins at 1
+        for input_block in astnode.get_input_blocks():
+            for input_port in input_block.get_input_ports():
+                if not input_port.is_spike():
+                    continue
+
+                if input_port.get_size_parameter():
+                    for i in range(int(str(input_port.size_parameter))):    # XXX: should be able to convert size_parameter expression to an integer more generically (allowing for e.g. parameters)
+                        input_port_to_rport[input_port.name + "_VEC_IDX_" + str(i)] = rport
+                        rport += 1
+                else:
+                    input_port_to_rport[input_port.name] = rport
+                    rport += 1
+
+        return input_port_to_rport
 
     @classmethod
     def find_parent_node_by_type(cls, node: ASTNode, type_to_find: Any) -> Optional[Any]:
@@ -2575,6 +2564,25 @@ class ASTUtils:
                 syn_to_neuron_state_vars.append(var_name)
 
         return syn_to_neuron_state_vars
+
+    @classmethod
+    def nestml_continuous_input_port_to_nest_rport_dict(cls, astnode: ASTModel) -> Dict[str, int]:
+        input_port_to_rport = {}
+        rport = 1    # if there is more than one spiking input port, count begins at 1
+        for input_block in astnode.get_input_blocks():
+            for input_port in input_block.get_input_ports():
+                if not input_port.is_continuous():
+                    continue
+
+                if input_port.get_size_parameter():
+                    for i in range(int(str(input_port.size_parameter))):    # XXX: should be able to convert size_parameter expression to an integer more generically (allowing for e.g. parameters)
+                        input_port_to_rport[input_port.name + "_VEC_IDX_" + str(i)] = rport
+                        rport += 1
+                else:
+                    input_port_to_rport[input_port.name] = rport
+                    rport += 1
+
+        return input_port_to_rport
 
     @classmethod
     def get_all_variables_assigned_to(cls, node: ASTNode) -> Set[str]:

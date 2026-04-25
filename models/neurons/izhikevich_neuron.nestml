@@ -28,10 +28,7 @@
 #
 # This model will instead be simulated using the numerical solver that is recommended by ODE-toolbox during code generation.
 #
-# References
-# ++++++++++
 #
-# .. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
 #
 # Copyright statement
 # +++++++++++++++++++
@@ -78,20 +75,22 @@ model izhikevich_neuron:
         unit_psp mV = 1 mV        # Unitary postsynaptic membrane potential
 
     input:
-        spikes <- spike
+        spike_in_port <- spike
         I_stim pA <- continuous
 
     output:
         spike
 
-    update:
-        integrate_odes()
-
-        # Add synaptic current
-        V_m += unit_psp * spikes * s
+    onReceive(spike_in_port):
+        # Add synaptic contribution
+        spike_weight mV = unit_psp * sift(spike_in_port, t)
+        V_m += spike_weight
 
         # lower bound of membrane potential
         V_m = max(V_min, V_m)
+
+    update:
+        integrate_odes()
 
     onCondition(V_m >= V_th):
         # threshold crossing
