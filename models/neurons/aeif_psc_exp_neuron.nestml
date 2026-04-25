@@ -107,7 +107,7 @@ model aeif_psc_exp_neuron:
         I_syn_exc += psc
 
     onReceive(inh_spikes):
-        psc pA = unit_psc * sift(exc_spikes, t)    # obtain the postsynaptic current by integrating area under the curve of the spike
+        psc pA = unit_psc * sift(inh_spikes, t)    # obtain the postsynaptic current by integrating area under the curve of the spike
         I_syn_inh += psc
 
     onCondition(V_m >= V_th):
