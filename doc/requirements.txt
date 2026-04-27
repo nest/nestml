@@ -12,7 +12,7 @@ nbclient==0.10.0
 sphinx-design
 
 # the following list is a direct copy from requirements.txt in the root directory (requirements for NESTML itself rather than for doc building)
-numpy >= 1.8.2
+numpy >= 2.4.4
 scipy
 sympy
 antlr4-python3-runtime == 4.13.2
