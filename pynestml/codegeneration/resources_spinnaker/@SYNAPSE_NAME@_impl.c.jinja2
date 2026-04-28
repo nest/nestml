@@ -1,3 +1,47 @@
+{#-
+@SYNAPSE_NAME@_impl.c.jinja2
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#}
+
+/**
+ *  {{ synapseName }}.h
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Generated from NESTML {{ nestml_version }} at time: {{ now }}
+**/
+
 #include "{{ synapseName }}_impl.h"
 
 // uncomment the next line to enable printing of detailed debug information
@@ -10,6 +54,10 @@
 
 //! Global plasticity parameter data (in DTCM)
 plasticity_weight_region_data_t *plasticity_weight_region_data;
+
+
+extern uint32_t skipped_synapses;
+
 
 
 
@@ -75,33 +123,13 @@ accum _kdivk(accum a, accum b) {
 }
 
 
-
-
-
-
-
-
-
-
-
-//! The format of the plastic data region of a synaptic row
-struct synapse_row_plastic_data_t {
-    //! The pre-event history
-    synapse_row_plastic_header_t history;
-    //! The per-synapse information
-    synapse_word_t synapses[];
-};
-
-extern uint32_t skipped_synapses;
-
-
 bool synapse_dynamics_initialise(
         address_t address, uint32_t n_neurons, uint32_t n_synapse_types,
         uint32_t *ring_buffer_to_input_buffer_left_shifts) {
 
     char _string_buf[20];
 
-    //log_info("[NESTML synapse] In synapse_dynamics_initialise(n_neurons = %d, n_synapse_types = %d)", n_neurons, n_synapse_types);
+    log_info("[NESTML synapse] In synapse_dynamics_initialise(n_neurons = %d, n_synapse_types = %d)", n_neurons, n_synapse_types);
 
     // Load parameters
     plasticity_weight_region_data_t *config = (plasticity_weight_region_data_t *) address;
@@ -170,7 +198,7 @@ static void update_internal_state_(synapse_state_t *state, uint32_t t_start, uin
 
     const accum __h = timestep;   // XXX: time constants are in ms, so __h should be as well! convert uint32_t to accum type
 
-    // log_info("[NESTML synapse] ************** __h = 0x%x = %k\n", __h, __h);
+    log_info("[NESTML synapse] update_internal_state_(__h = %d)\n", timestep);
 
     if (timestep == 0) {
         return;
@@ -194,6 +222,8 @@ static void update_internal_state_(synapse_state_t *state, uint32_t t_start, uin
      * Begin NESTML generated code for the update block
     **/
 
+//log_info("[NESTML synapse] \tintegrating __P__post_trace__post_trace = %k = 0x%x\n", __P__post_trace__post_trace, __P__post_trace__post_trace);
+//log_info("[NESTML synapse] \tintegrating state->post_trace before = %k = 0x%x\n", state->post_trace, state->post_trace);
 {%- if synapse.get_update_blocks() %}
 {%-     filter indent(4) %}
 {%-         for block in synapse.get_update_blocks() %}
@@ -208,6 +238,7 @@ static void update_internal_state_(synapse_state_t *state, uint32_t t_start, uin
 {%-     endfilter %}
 {%- endif %}
 
+//log_info("[NESTML synapse] \tintegrating state->post_trace after = %k = 0x%x\n", state->post_trace, state->post_trace);
     /**
      * End NESTML generated code for the update block
     **/
@@ -221,18 +252,27 @@ static void process_post_spike(synapse_state_t *state, uint32_t time, synapse_ro
 /**
  *  NESTML generated onReceive code block for postsynaptic port "{{ post_port }}" begins here!
 **/
+
+log_info("[NESTML synapse] process_post_spike(time = %d = %k)\n", time, time);
+//log_info("[NESTML synapse] \tstate->w = %k (raw: 0x%x)\n", state->w, state->w);
+//log_info("[NESTML synapse] \tplastic_region_address->history.pre_trace__for_stdp_synapse_nestml = %k (raw: 0x%x)\n", plastic_region_address->history.pre_trace__for_stdp_synapse_nestml, plastic_region_address->history.pre_trace__for_stdp_synapse_nestml);
+
 {%-         if synapse.get_on_receive_block(post_port) %}
 {%-             set dynamics = synapse.get_on_receive_block(post_port) %}
 {%-             with ast = dynamics.get_stmts_body() %}
 {%-                 include "directives_cpp/StmtsBody.jinja2" %}
 {%-             endwith %}
 {%-         endif %}
+
+//log_info("[NESTML synapse] \tafter state->w = %k (raw: 0x%x)\n", state->w, state->w);
+
+
 {%-     endfor %}
 {%- endif %}
 {%- endfilter %}
 
 
-    log_info("[NESTML synapse] state->w = %k (raw: 0x%x), plasticity_weight_region_data->Wmax = %k (raw: 0x%x)\n", state->w, state->w, plasticity_weight_region_data->Wmax, plasticity_weight_region_data->Wmax);
+//    log_info("[NESTML synapse] state->w = %k (raw: 0x%x), plasticity_weight_region_data->Wmax = %k (raw: 0x%x)\n", state->w, state->w, plasticity_weight_region_data->Wmax, plasticity_weight_region_data->Wmax);
 }
 
 
@@ -246,6 +286,11 @@ static void process_pre_spike(synapse_state_t *state, uint32_t time) {
     /**
      *  NESTML generated onReceive code block for presynaptic port "{{ pre_port }}" begins here!
     **/
+
+  log_info("[NESTML synapse] process_pre_spike(time = %d)\n", time);
+//  log_info("[NESTML synapse] \tstate->w = %k (raw: 0x%x)\n", state->w, state->w);
+  //log_info("[NESTML synapse] \tplasticity_weight_region_data->lambda = %k (raW: 0x%x)\n", plasticity_weight_region_data->lambda, plasticity_weight_region_data->lambda);
+
 {%      if synapse.get_on_receive_block(pre_port) %}
 {%-         set dynamics = synapse.get_on_receive_block(pre_port) %}
 {%-         with ast = dynamics.get_stmts_body() %}
@@ -254,12 +299,14 @@ static void process_pre_spike(synapse_state_t *state, uint32_t time) {
 {%-             endfilter %}
 {%-         endwith %}
 {%-     endif %}
+
+//  log_info("[NESTML synapse] \tafter state->w = %k (raw: 0x%x)\n", state->w, state->w);
+
 {%- endfor %}
 }
 
 
-static void process_plastic_synapse(
-synapse_row_plastic_data_t *plastic_region_address,
+static void process_plastic_synapse(synapse_row_plastic_data_t *plastic_region_address,
         uint32_t control_word,
         uint32_t last_pre_time,
 {%- for var in paired_neuron.get_state_variables() %}
@@ -400,6 +447,7 @@ void print_low_level_synaptic_row_data(synapse_row_plastic_data_t *plastic_regio
                                        synapse_row_fixed_part_t *fixed_region) {
 
 #ifdef PLOT_DETAILED_STATE2
+log_info("[NESTML synapse] print_low_level_synaptic_row_data()\n");
     // data words: for each synapse, stores the complete state in a 32-bit word
     synapse_word_t *plastic_words = plastic_region_address->synapses;
 
@@ -428,17 +476,31 @@ void print_low_level_synaptic_row_data(synapse_row_plastic_data_t *plastic_regio
         uint32_t synapse_type = synapse_row_sparse_type(control_word, synapse_index_bits, synapse_type_mask);
 
         // Get state
-        const synapse_word_t data_word = *(plastic_words + i * plastic_synapse_word_stride * 4);  // 4 because of 32-bit word length
+        const synapse_word_t data_word = *(plastic_words + i * plastic_synapse_word_stride * sizeof(synapse_word_t));
         synapse_state_t update_state = synapse_structure_get_update_state(data_word, synapse_type);
 
-        log_info("[NESTML synapse] \t\tidx = %d; control word = 0x%08x; data word = 0x%08x; w = 0x%x; post_trace = 0x%x; d = 0x%x, post neuron id = %3u",
-//                     i, control_word, data_word, update_state.w, update_state.pre_trace, update_state.post_trace, synapse_row_sparse_delay(control_word, synapse_type_index_bits, synapse_delay_mask), synapse_row_sparse_index(control_word, synapse_index_mask));
-                     i, control_word, data_word, update_state.w, update_state.post_trace, synapse_row_sparse_delay(control_word, synapse_type_index_bits, synapse_delay_mask), synapse_row_sparse_index(control_word, synapse_index_mask));
-/*        log_info("[NESTML synapse] \td: %2u, n = %3u)] - { %08x %08x }\n",
-                synapse_row_sparse_delay(control_word, synapse_type_index_bits, synapse_delay_mask),
-                synapse_row_sparse_index(control_word, synapse_index_mask),
-                synapse_delay_mask, synapse_type_index_bits);*/
+        const uint32_t delay = synapse_row_sparse_delay(control_word, synapse_type_index_bits, synapse_delay_mask);
+        const uint32_t post_neuron_id = synapse_row_sparse_index(control_word, synapse_index_mask);
 
+      log_info("[NESTML synapse] synapse_index_mask === %x\n", synapse_index_mask);
+        log_info("[NESTML synapse] \t\tidx = %d; control word = 0x%x; data word = 0x%x; synapse_type = %u; d = 0x%x, post neuron id = %u, mask = %x",
+                   i,
+                   control_word,
+                   data_word,
+                   synapse_type,
+                   delay,
+                   post_neuron_id,
+                   synapse_index_mask);
+/*        io_printf(IO_BUF, "[NESTML synapse] \t\tidx = %d; control word = 0x%x; data word = 0x%x; synapse_type = %u; d = 0x%x, post neuron id = %u, mask = %x",
+                   i,
+                   control_word,
+                   data_word,
+                   synapse_type,
+                   delay,
+                   post_neuron_id,
+                   synapse_index_mask);
+*/
+      log_info("[NESTML synapse] synapse_index_mask === %x\n", synapse_index_mask);
     }
 #endif
 }
@@ -459,13 +521,13 @@ bool synapse_dynamics_process_plastic_synapses(
         weight_t *ring_buffers, uint32_t time, uint32_t colour_delay,
         bool *write_back) {
 
-    log_info("[NESTML synapse] synapse_dynamics_process_plastic_synapses(time = %u)", time);
 
     // Extract separate arrays of plastic synapses (from plastic region),
     // Control words (from fixed region) and number of plastic synapses
     synapse_word_t *plastic_words = plastic_region_address->synapses;
     control_t *control_words = synapse_row_plastic_controls(fixed_region);
     const size_t n_plastic_synapses = synapse_row_num_plastic_controls(fixed_region);
+    log_info("[NESTML synapse] synapse_dynamics_process_plastic_synapses(time = %u, n_plastic_synapses = %d)", time, n_plastic_synapses);
 
 #ifdef PLOT_DETAILED_STATE2
     print_low_level_synaptic_row_data(plastic_region_address, fixed_region);
@@ -549,16 +611,32 @@ bool synapse_dynamics_process_plastic_synapses(
 //! \param[in] time: The current simulation time
 //! \param[in] neuron_index: Which neuron are we processing
 void synapse_dynamics_process_post_synaptic_event(uint32_t time, index_t neuron_index) {
-    log_info("[NESTML synapse] Adding post-synaptic event to buffer at time: %u", time);
+    log_info("[NESTML synapse] Adding post-synaptic event to buffer at time: %u, neuron_idx = %d", time, neuron_index);
 
     // Add post-event
     post_event_history_t *history = &post_event_history[neuron_index];
     //const uint32_t last_post_time = history->times[history->count_minus_one];
+  
+    // Add the post-synaptic event to the history
+    if (history->count_minus_one < MAX_POST_SYNAPTIC_EVENTS - 1) {
+        // If there's still space, store time at current end and increment count minus 1
+        const uint32_t new_index = ++history->count_minus_one;
+        history->times[new_index] = time;
+        //history->traces[new_index] = trace;
+    } else {
+        // Otherwise Shuffle down elements
+        // **NOTE** 1st element is always an entry at time 0
+        for (uint32_t e = 2; e < MAX_POST_SYNAPTIC_EVENTS; e++) {
+            history->times[e - 1] = history->times[e];
+            //history->traces[e - 1] = history->traces[e];
+        }
 
-    post_events_add(time, history);
+        // Stick new time at end
+        history->times[MAX_POST_SYNAPTIC_EVENTS - 1] = time;
+        //history->traces[MAX_POST_SYNAPTIC_EVENTS - 1] = trace;
+    }
 
-
-    print_delayed_window_events(history, 0., 9999, 0);
+    //print_delayed_window_events(history, 0., 9999, 0);
 }
 
 

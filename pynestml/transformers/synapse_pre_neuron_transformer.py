@@ -361,7 +361,7 @@ class SynapsePreNeuronTransformer(Transformer):
 
         return neuron_header_for_synapse, new_synapse
 
-    @override
+    """@override
     def transform(self,
                   models: Iterable[ASTModel],
                   metadata: Dict[str, Dict[str, Any]]) -> Iterable[ASTModel]:
@@ -390,5 +390,43 @@ class SynapsePreNeuronTransformer(Transformer):
             synapse = ASTUtils.find_model_by_name(synapse_name + FrontendConfiguration.suffix, models)
             if synapse:
                 models.remove(synapse)
+
+        return models"""
+
+    @override
+    def transform(self,
+                  models: Iterable[ASTModel],
+                  metadata: Dict[str, Dict[str, Any]]) -> Iterable[ASTModel]:
+        print("XXX: skipping synapse_pre_neuron_transformer!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
+        return models
+        models = set(models)
+
+        for neuron_synapse_pair in self.get_option("neuron_synapse_pairs"):
+            neuron_name = neuron_synapse_pair["neuron"]
+            synapse_name = neuron_synapse_pair["synapse"]
+            neuron = ASTUtils.find_model_by_name(neuron_name + FrontendConfiguration.suffix, models)
+            if neuron is None:
+                raise Exception("Neuron used in pair (\"" + neuron_name + "\") not found")  # XXX: log error
+
+            synapse = ASTUtils.find_model_by_name(synapse_name + FrontendConfiguration.suffix, models)
+            if synapse is None:
+                raise Exception("Synapse used in pair (\"" + synapse_name + "\") not found")  # XXX: log error
+
+            #neuron_header_for_synapse, new_synapse = self.transform_synapse_with_pre_neuron(neuron, synapse, metadata)
+
+            metadata[neuron]["paired_synapse"] = new_synapse
+            metadata[neuron]["paired_synapse_original_model"] = synapse
+
+            print("Adding neuron_header_for_synapse = " + str(neuron_header_for_synapse))
+            #models.add(neuron_header_for_synapse)
+            #models.add(new_synapse)
+
+        """# remove the synapses used in neuron-synapse pairs, as they can potentially not be generated independently of a neuron and would otherwise result in an error
+        for neuron_synapse_pair in self.get_option("neuron_synapse_pairs"):
+            synapse_name = neuron_synapse_pair["synapse"]
+            synapse = ASTUtils.find_model_by_name(synapse_name + FrontendConfiguration.suffix, models)
+            if synapse:
+                models.remove(synapse)"""
 
         return models

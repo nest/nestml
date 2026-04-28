@@ -72,11 +72,11 @@ class TestSpiNNakerSTDPWindow:
         codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                   "synapse": "stdp_synapse",
                                                   "post_ports": ["post_spikes"]}],
-                        "delay_variable":{"stdp_synapse":"d"},
+                        #"delay_variable":{"stdp_synapse":"d"},
                         "weight_variable":{"stdp_synapse":"w"}}
 
         files = [
-            os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
+            os.path.join("models", "neurons", "iaf_psc_exp_with_ignore_neuron.nestml"),
             os.path.join("models", "synapses", "stdp_additive_synapse.nestml")
         ]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -144,17 +144,14 @@ class TestSpiNNakerSTDPWindow:
         from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml as iaf_psc_exp_neuron_nestml
         from python_models8.neuron.implementations.stdp_synapse_nestml_impl import stdp_synapse_nestmlDynamics as stdp_synapse_nestml
 
-        n_synapses = 3    # test with more than one synapse at a time (check that synapses with different dynamics do not interfere with one another)
-
-#        p.reset()
         p.setup(timestep=1.0)
         exc_input = "exc_spikes"
 
-        #inputs for pre and post synaptic neurons
+        # inputs for pre and post synaptic neurons
         pre_input = p.Population(1, p.SpikeSourceArray(spike_times=[0]), label="pre_input")
         post_input = p.Population(1, p.SpikeSourceArray(spike_times=[0]), label="post_input")
 
-        #pre and post synaptic spiking neuron populations
+        # pre and post synaptic spiking neuron populations
         pre_spiking = p.Population(1, iaf_psc_exp_neuron_nestml(), label="pre_spiking")
         post_spiking = p.Population(1, iaf_psc_exp_neuron_nestml(), label="post_spiking")
 
@@ -164,23 +161,11 @@ class TestSpiNNakerSTDPWindow:
         p.Projection(pre_input, pre_spiking, p.OneToOneConnector(), receptor_type=exc_input, synapse_type=p.StaticSynapse(weight=weight_pre))
         p.Projection(post_input, post_spiking, p.OneToOneConnector(), receptor_type=exc_input, synapse_type=p.StaticSynapse(weight=weight_post))
 
-        stdp_projection = n_synapses * [None]
-        for i in range(n_synapses):
-            stdp_model = stdp_synapse_nestml(weight=initial_weight)
-            if i == 0:
-                print("0")
-                stdp_model._nestml_model_variables["tau_tr_pre"] = 10.
-                stdp_model._nestml_model_variables["tau_tr_post"] = 10.
-            elif i == 1:
-                stdp_model._nestml_model_variables["tau_tr_pre"] = 20.
-                print("1")
-                stdp_model._nestml_model_variables["tau_tr_post"] = 20.
-            elif i == 2:
-                print("2")
-                stdp_model._nestml_model_variables["tau_tr_pre"] = 40.
-                stdp_model._nestml_model_variables["tau_tr_post"] = 40.
-            stdp_projection[i] = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type="ignore_spikes")   # connect to a port where incoming spikes are ignored, so the STDP synapse itself does not change the postsynaptic spike timing
-            print(stdp_model._nestml_model_variables)
+        stdp_model = stdp_synapse_nestml(weight=initial_weight)
+        stdp_model._nestml_model_variables["tau_tr_pre"] = 20.
+        stdp_model._nestml_model_variables["tau_tr_post"] = 20.
+        stdp_projection = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type="ignore_spikes")   # connect to a port where incoming spikes are ignored, so the STDP synapse itself does not change the postsynaptic spike timing
+        print("[NESTML synapse] Synapse parameters: " + str(stdp_model._nestml_model_variables))
             #for k, v in syn_opts.items():
             #    stdp_projection[i].set(k, v)
 #        stdp_projection = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type="exc_spikes")   # connect to a port where incoming spikes are ignored, so the STDP synapse itself does not change the postsynaptic spike timing
@@ -199,9 +184,7 @@ class TestSpiNNakerSTDPWindow:
         pre_spike_times = pre_neo.segments[0].spiketrains
         post_spike_times = post_neo.segments[0].spiketrains
 
-        w_final = np.empty((n_synapses, ))
-        for i in range(n_synapses):
-            w_final[i] = stdp_projection[i].get("weight", format="float")[0][0]    # get the weight at the end of the simulation
+        w_final = stdp_projection.get("weight", format="float")[0][0]    # get the weight at the end of the simulation
 
         dw = w_final - initial_weight
 
@@ -225,7 +208,8 @@ class TestSpiNNakerSTDPWindow:
 
         pre_spike_times = [250, 1000]
 
-        for t_post in np.linspace(200, 300, 7):  # XXX Should be 19
+#        for t_post in np.linspace(200, 300, 19):
+        for t_post in np.linspace(111, 333., 2) - 4: #[260., 270., 280.]: #np.linspace(240, 260, 2):  # XXX Should be 19
                 dw, actual_pre_spike_times, actual_post_spike_times = self.run_sim(pre_spike_times, [t_post])
                 sim_weights.append(dw)
 
@@ -240,6 +224,8 @@ class TestSpiNNakerSTDPWindow:
                     elif i == 2:
                         syn_opts["tau_pre_trace"] = 40.
                         syn_opts["tau_post_trace"] = 40.
+                    syn_opts["tau_pre_trace"] = 20. # XXX
+                    syn_opts["tau_post_trace"] = 20. # XXX
                     dw_ref[i] = self.run_reference_simulation(
                                  syn_opts,
                                  times_spikes_pre=np.array(actual_pre_spike_times)[0],
@@ -251,8 +237,8 @@ class TestSpiNNakerSTDPWindow:
 
                 print("actual pre_spikes: " + str(actual_pre_spike_times))
                 print("actual post_spikes: " + str(actual_post_spike_times))
-                print("weight after simulation: " + str(dw))
-                print("weight after simulation (ref): " + str(dw_ref))
+                print("delta weight after simulation: " + str(dw))
+                print("delta weight after simulation (ref): " + str(dw_ref))
 
         ref_weights = np.array(ref_weights)
         sim_weights = np.array(sim_weights)
@@ -260,15 +246,17 @@ class TestSpiNNakerSTDPWindow:
         print("Simulation results")
         print("------------------")
         print("post - pre spike times = " + str(spike_time_axis))
-        print("weights after sim = " + str(sim_weights))
-        print("weights after ref sim = " + str(ref_weights))
+        print("delta weights after sim = " + str(sim_weights))
+        print("delta weights after ref sim = " + str(ref_weights))
 
         fig, ax = plt.subplots()
-        ax.plot(spike_time_axis, 2 * sim_weights, '.', color="orange")
-        ax.plot(spike_time_axis, ref_weights, 'x', color="blue")
+        ax.plot(spike_time_axis, sim_weights, '.', color="orange", label="NESTML")
+        ax.plot(spike_time_axis, ref_weights, 'x', color="blue", label="ref")
         ax.set_xlabel(r"$t_\mathrm{pre} - t_\mathrm{post} [ms]$")
         ax.set_ylabel(r"$\Delta w$")
         ax.set_title("STDP-Window")
-        ax.set_ylim(-syn_opts["lambda"], syn_opts["lambda"])
+        #ax.set_ylim(-syn_opts["lambda"], syn_opts["lambda"])
+        #ax.set_ylim(-2*syn_opts["lambda"], 2*syn_opts["lambda"])
         ax.grid(True)
+        ax.legend()
         fig.savefig("nestml_stdp_window.png")

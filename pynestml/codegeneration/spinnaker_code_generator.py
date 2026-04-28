@@ -180,9 +180,9 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
 
     def _get_neuron_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
         namespace = super()._get_neuron_model_namespace(astnode, metadata)
-        namespace["spinnaker_paired_synapse"] = True   # set this to a value to trigger the right code path in the makefile
         for k, v in metadata.items():
             if k.startswith(astnode.name + "__header_for__"):
+                namespace["spinnaker_paired_synapse"] = True   # set this to a value to trigger the right code path in the makefile
                 namespace["paired_synapse"] = v["paired_synapse"]
                 namespace["paired_synapse_original_model"] = v["paired_synapse_original_model"]
 
@@ -348,8 +348,6 @@ class SpiNNakerCodeGenerator(CodeGenerator):
                 add_timestep_to_internals_transformer = AddTimestepToInternalsTransformer()
                 add_timestep_to_internals_transformer.transform([model], metadata)
 
-                print("XXXXXXXXXXXXXX this is synapse header; do not gen code but run ODE toolbox transformer 00000")
-                print("00000000 The scope of neuron_header_for_synapse is: " + str(model.scope))
                 from pynestml.transformers.ode_toolbox_transformer import ODEToolboxTransformer
                 transformer = ODEToolboxTransformer()
                 options = transformer.set_options(FrontendConfiguration.get_codegen_opts())
@@ -372,18 +370,9 @@ class SpiNNakerCodeGenerator(CodeGenerator):
 
             print("SpiNNakerCodeGenerator::generate_code(): model = " + str(model.name))
 
-
-
-
             if "__header_for__" in model.name:
                 # XXX this is synapse header; do not gen code
-                print("XXXXXXXXXXXXXX this is synapse header; do not gen code")
                 continue
-
-
-
-
-
 
             cloned_model = model.clone()
             cloned_model.accept(ASTSymbolTableVisitor())

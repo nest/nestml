@@ -196,14 +196,12 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
             raise NotImplementedError("All delays must be dendritic!")
 
     @overrides(AbstractPlasticSynapseDynamics.merge)
-    def merge(self, synapse_dynamics: AbstractSynapseDynamics
-              ) -> AbstractSynapseDynamics:
+    def merge(self, synapse_dynamics: AbstractSynapseDynamics) -> AbstractSynapseDynamics:
 
-        # If dynamics is Neuromodulation, merge with other neuromodulation,
-        # and then return ourselves, as neuromodulation can't be used by
-        # itself
         if isinstance(synapse_dynamics, SynapseDynamicsNeuromodulation):
             raise NotImplementedError("Neuromodulation not supported!")
+
+        print("[NESTML synapse] trying to merge with: " + str(type(synapse_dynamics)))
 
         """# If dynamics is STDP, test if same as
         if isinstance(synapse_dynamics, SynapseDynamicsSTDP):
@@ -229,8 +227,8 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
             assert False, "Not supported yet"
         """
 
-        # Otherwise, it is static or neuromodulation, so return ourselves
-        return synapse_dynamics
+        #return synapse_dynamics
+        return self
 
     @overrides(AbstractPlasticSynapseDynamics.get_value)
     def get_value(self, key: str) -> Any:

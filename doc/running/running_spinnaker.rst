@@ -108,6 +108,17 @@ Additive STDP model.
    :alt: Comparison between STDP window functions based on SpiNNaker simulation (orange crosses) and hand-coded Python "ground truth" simulation.
 
 
+Troubleshooting
+~~~~~~~~~~~~~~~
+
+The build process and simulation produce many log messages, so it can be hard to find the reason for a failing build.
+
+::
+   /home/dev/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/bin/ld: /users/.../nestml/spinnaker-install/c_models/build/iaf_psc_exp_neuron_nestml_impl/iaf_psc_exp_neuron_nestml_impl.elf section `RO_DATA' will not fit in region `ITCM'
+
+This error means that the compiled code does not fit into the ITCM memory. Typically this is due to too many logging statements; try commenting out logging statements.
+
+
 Further reading
 ~~~~~~~~~~~~~~~
 

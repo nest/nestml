@@ -19,9 +19,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import copy
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Set, Union
 
+import copy
 import re
 import sympy
 

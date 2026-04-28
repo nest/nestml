@@ -203,11 +203,11 @@ void on_receive_block_{{ blk.port_name }}(neuron_state_t *state, neuron_input_t 
     log_info("[NESTML neuron] on_receive_block_{{ blk.port_name }}()\n");
 #endif
 {% if "exc" in blk.port_name %}
-log_info("[NESTML neuron] before update: state->I_syn_exc = 0x%x\n", state->I_syn_exc);
-log_info("[NESTML neuron] input->inputs[EXC_SPIKES] = 0x%x\n", input->inputs[EXC_SPIKES]);
-log_info("[NESTML neuron] (0.001 * input->inputs[EXC_SPIKES]) * 1000.0 = 0x%x\n", (0.001 * input->inputs[EXC_SPIKES]) * 1000.0);
+//log_info("[NESTML neuron] before update: state->I_syn_exc = 0x%x\n", state->I_syn_exc);
+//log_info("[NESTML neuron] input->inputs[EXC_SPIKES] = 0x%x\n", input->inputs[EXC_SPIKES]);
+//log_info("[NESTML neuron] (0.001 * input->inputs[EXC_SPIKES]) * 1000.0 = 0x%x\n", (0.001 * input->inputs[EXC_SPIKES]) * 1000.0);
 
-log_info("[NESTML neuron] parameter->unit_psc = 0x%x\n", parameter->unit_psc);
+//log_info("[NESTML neuron] parameter->unit_psc = 0x%x\n", parameter->unit_psc);
 {% endif %}
 {#
 {%          filter indent(4, True) -%}
@@ -217,7 +217,7 @@ log_info("[NESTML neuron] parameter->unit_psc = 0x%x\n", parameter->unit_psc);
     state->I_syn_exc += input->inputs[EXC_SPIKES];
 
 {% if "exc" in blk.port_name %}
-log_info("[NESTML neuron] after update: state->I_syn_exc = %k\n", state->I_syn_exc);
+//log_info("[NESTML neuron] after update: state->I_syn_exc = %k\n", state->I_syn_exc);
 {% endif %}
 }
 {%-     endfor %}
