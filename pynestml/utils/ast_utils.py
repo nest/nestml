@@ -57,7 +57,6 @@ from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.scope import Scope
 from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
@@ -573,8 +572,11 @@ class ASTUtils:
         return vars
 
     @classmethod
-    def add_suffix_to_variable_name(cls, var_name: str, astnode: ASTNode, suffix: str, scope=None):
+    def add_suffix_to_variable_name(cls, var_name: Optional[str], astnode: ASTNode, suffix: str, scope=None):
         """add suffix to variable by given name recursively throughout astnode"""
+
+        if scope is None:
+            scope = astnode.get_scope()
 
         def replace_var(_expr=None):
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
@@ -585,9 +587,11 @@ class ASTUtils:
                 return
 
             if not suffix in var.get_name() \
-               and not var.get_name() == "t" \
-               and var.get_name() == var_name:
-                var.set_name(var.get_name() + suffix)
+               and var.get_name() not in PredefinedVariables.get_variables().keys() \
+               and (var_name is None or var.get_name() == var_name):
+                symbol = scope.resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
+                if symbol:    # make sure it is not a unit (like "ms")
+                    var.set_name(var.get_name() + suffix)
 
         astnode.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))
 
@@ -616,8 +620,11 @@ class ASTUtils:
         return expressions
 
     @classmethod
-    def add_suffix_to_variable_names(cls, astnode: Union[ASTNode, List], suffix: str, altscope: Optional[Scope] = None):
-        r"""Add suffix to variable names recursively throughout ``astnode``. Symbols will be resolved in the variable's default scope, unless ``altscope`` is set, in which case it will be used to try to resolve variables (this can be used in case of moved variables for neuron/synapse co-generation)."""
+    def add_suffix_to_variable_names(cls, astnode: Union[ASTNode, List], suffix: str, altscope: Optional[Scope] = None, variable_names: Optional[List[str]] = None):
+        r"""Add suffix to variable names recursively throughout ``astnode``. Symbols will be resolved in the variable's default scope, unless ``altscope`` is set, in which case it will be used to try to resolve variables (this can be used in case of moved variables for neuron/synapse co-generation).
+
+        If ``variable_names`` is provided, only add suffix to those variables in the list.
+        """
 
         if not isinstance(astnode, ASTNode):
             for node in astnode:
@@ -637,7 +644,8 @@ class ASTUtils:
             else:
                 return
 
-            if not var.get_name() in PredefinedVariables.get_variables().keys() \
+            if (variable_names is None or var.get_name() in variable_names) \
+               and var.get_name() not in PredefinedVariables.get_variables().keys() \
                and not var.get_name().endswith(suffix):
                 symbol = scope.resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
                 if symbol:    # make sure it is not a unit (like "ms")
@@ -670,29 +678,6 @@ class ASTUtils:
         astnode.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))
 
     @classmethod
-    def add_suffix_to_variable_names2(cls, variable_names: List[str], astnode: Union[ASTNode, List], suffix: str):
-        r"""add suffix to variable names recursively throughout astnode"""
-
-        if not isinstance(astnode, ASTNode):
-            for node in astnode:
-                ASTUtils.add_suffix_to_variable_names2(variable_names, node, suffix)
-            return
-
-        def replace_var(_expr=None):
-            if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
-                var = _expr.get_variable()
-            elif isinstance(_expr, ASTVariable):
-                var = _expr
-            else:
-                return
-
-            if var.get_name() in variable_names \
-               and not var.get_name().endswith(suffix):
-                var.set_name(var.get_name() + suffix)
-
-        astnode.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))
-
-    @classmethod
     def get_inline_expression_by_name(cls, node, name: str) -> Optional[ASTInlineExpression]:
         for equations_block in node.get_equations_blocks():
             for inline_expr in equations_block.get_inline_expressions():
@@ -705,6 +690,9 @@ class ASTUtils:
     def get_inline_expression_by_constructed_rhs_name(cls, node, name: str) -> Optional[ASTInlineExpression]:
         for equations_block in node.get_equations_blocks():
             for inline_expr in equations_block.get_inline_expressions():
+                if not isinstance(inline_expr.get_expression(), ASTSimpleExpression) or not inline_expr.get_expression().get_function_call():
+                    continue
+
                 constructed_name = ASTUtils.construct_kernel_X_spike_buf_name(str(inline_expr.get_expression().get_function_call().get_args()[0]), inline_expr.get_expression().get_function_call().get_args()[1], order=0, suffix="__for_" + node.get_name())
 
                 if name == constructed_name:
@@ -916,8 +904,22 @@ class ASTUtils:
                 if mode == "copy":
                     decl = decl.clone()
                 assert len(decl.get_variables()) <= 1
+
+                # add suffix to the left-hand side variable
                 if not decl.get_variables()[0].name.endswith(var_name_suffix) and var_name_suffix:
                     ASTUtils.add_suffix_to_decl_lhs(decl, suffix=var_name_suffix)
+
+                # add suffix to the vector parameter in case this variable is a vector
+                if decl.get_variables()[0].get_vector_parameter():
+                    vec_var = decl.get_variables()[0].get_vector_parameter().get_variable()    # the part between the square parentheses
+                    if vec_var is not None:
+                        assert isinstance(vec_var, ASTVariable)
+                        vec_var.name = vec_var.name + var_name_suffix
+
+                # add suffix to defining expression
+                defining_expression = decl.get_expression()
+                ASTUtils.add_suffix_to_variable_name(None, defining_expression, var_name_suffix)
+
                 to_block.get_declarations().append(decl)
                 decl.update_scope(to_block.get_scope())
 
@@ -2475,23 +2477,26 @@ class ASTUtils:
                 node.accept(visitor)
 
     @classmethod
-    def depends_only_on_vars(cls, expr, vars):
+    def depends_only_on_vars(cls, expr, var_names):
         r"""Returns True if and only if all variables that occur in ``expr`` are in ``vars``"""
 
         class VariableFinderVisitor(ASTVisitor):
             def __init__(self):
                 super(VariableFinderVisitor, self).__init__()
-                self.vars = []
+                self.var_names = set()
 
-            def visit_variable(self, node: ASTNode):
-                if not node.get_name() in self.vars:
-                    self.vars.append(node.get_name())
+            def visit_variable(self, node: ASTVariable):
+                self.var_names.add(node.get_name())
 
         visitor = VariableFinderVisitor()
         expr.accept(visitor)
 
-        for var in visitor.vars:
-            if not var in vars:
+        for var_name in visitor.var_names:
+            symbol = expr.get_scope().resolve_to_symbol(var_name, SymbolKind.VARIABLE)
+            if not symbol:    # ignore variables that are actually units (like "ms")
+                continue
+
+            if not var_name in var_names:
                 return False
 
         return True
