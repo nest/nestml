@@ -30,18 +30,12 @@ except ImportError:
     # Fallback for Python 3.8 - 3.11
     from typing_extensions import override
 
-from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
-from pynestml.meta_model.ast_assignment import ASTAssignment
-from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
-from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_model import ASTModel
-from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_variables import PredefinedVariables
-from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.transformers.transformer import Transformer
 from pynestml.utils.ast_utils import ASTUtils
@@ -51,7 +45,6 @@ from pynestml.utils.string_utils import removesuffix
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
-from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class SynapsePostNeuronTransformer(Transformer):
@@ -259,7 +252,10 @@ class SynapsePostNeuronTransformer(Transformer):
                                                            new_neuron.get_equations_blocks()[0],
                                                            var_name_suffix,
                                                            mode="move")
-            ASTUtils.add_suffix_to_variable_names2(post_port_names + affected_vars + syn_to_neuron_params, decls, var_name_suffix)
+            ASTUtils.add_suffix_to_variable_names(decls,
+                                                  variable_names=post_port_names + affected_vars + syn_to_neuron_params,
+                                                  suffix=var_name_suffix,
+                                                  altscope=synapse.get_scope())
             ASTUtils.replace_post_moved_variable_names(decls, [name + var_name_suffix for name in post_connected_continuous_input_ports], post_variable_names)
             ASTUtils.remove_state_var_from_integrate_odes_calls(new_synapse, var)
             # ASTUtils.add_integrate_odes_call_to_update_block(new_neuron, var)   # the moved state variables are never needed inside the neuron, their values are only read out from the side of the synapse. Therefore they do not have to be added to integrate_odes() calls; we just have to make sure the value has been updated before the end of the timestep
@@ -312,7 +308,7 @@ class SynapsePostNeuronTransformer(Transformer):
         #    move statements in post receive block from synapse to new_neuron
         #
 
-        # XXX: TODO: do not use a new member variable (`extra_on_emit_spike_stmts_from_synapse`) for this, but add a new event handler block in the neuron
+        # XXX: TODO: do not use a new metadata variable (`extra_on_emit_spike_stmts_from_synapse`) for this, but use an event handler block in the neuron
 
         # find all statements in post receive block
         collected_on_post_stmts = []
