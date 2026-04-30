@@ -454,7 +454,7 @@ class ASTModel(ASTNode):
         update_block = ASTNodeFactory.create_ast_update_block(block, ASTSourceLocation.get_predefined_source_position())
         self.get_body().get_body_elements().append(update_block)
 
-    def add_to_internals_block(self, declaration: ASTDeclaration, index: int = -1) -> None:
+    def add_to_internals_block(self, declaration: ASTDeclaration, index: int = -1, run_symboltable_visitor: bool = True) -> None:
         """
         Adds the handed over declaration the internals block
         :param declaration: a single declaration
@@ -476,11 +476,11 @@ class ASTModel(ASTNode):
 
         self.get_internals_blocks()[0].get_declarations().insert(index, declaration)
         declaration.update_scope(self.get_internals_blocks()[0].get_scope())
-        symtable_vistor = ASTSymbolTableVisitor()
-        symtable_vistor.block_type_stack.push(BlockType.INTERNALS)
-        self.accept(ASTParentVisitor())
-        self.accept(symtable_vistor)
-        symtable_vistor.block_type_stack.pop()
+
+        if run_symboltable_visitor:
+            symtable_vistor = ASTSymbolTableVisitor()
+            self.accept(ASTParentVisitor())
+            self.accept(symtable_vistor)
 
     def add_to_state_block(self, declaration: ASTDeclaration) -> None:
         """
