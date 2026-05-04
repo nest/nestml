@@ -17,7 +17,7 @@ scipy
 sympy
 antlr4-python3-runtime == 4.13.2
 setuptools
-Jinja2 >= 2.10
+Jinja2 >= 3.1.6
 typing;python_version<"3.5"
 astropy
 odetoolbox >= 2.4
