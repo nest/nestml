@@ -38,7 +38,7 @@ for dir_to_include in ["doc", "models", "extras"]:
         data_files.append((dirname, fileslist))
 
 setup(
-    name="NESTML",
+    name="nestml",
     version="8.3.0-rc2",
     description="NESTML is a domain specific language that supports the specification of neuron models in a"
                 " precise and concise syntax, based on the syntax of Python. Model equations can either be given"
