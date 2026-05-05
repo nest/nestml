@@ -848,8 +848,8 @@ The unit of the Dirac delta function follows from its definition:
 Here :math:`f(x)` is a continuous function of x. As the unit of the :math:`f()` is the same on both left- and right-hand side, the unit of :math:`dx \delta(x)` must be equal to 1.
 Therefore, the unit of :math:`\delta(x)` must be equal to the inverse of the unit of :math:`x`.
 
-In the context of neuroscience, the spikes are represented as events in time with a unit of :math:`\text{s}`. Consequently, the delta pulses will have a unit of inverse of time, :math:`\text{1/s}`.
-Therefore, all the incoming spikes defined in the input block will have an implicit unit of :math:`\text{1/s}`.
+In the context of neuroscience, the spikes are represented as events in time with a unit of :math:`\text{s}`. Consequently, the delta pulses will have a unit of inverse of time, :math:`\text{s}^{-1}`.
+Therefore, all the incoming spikes defined in the input block will have an implicit unit of :math:`\text{s}^{-1}`.
 
 Physical units such as millivolts (:math:`\text{mV}`) and nanoamperes (:math:`\text{nA}`) can be directly combined with the Dirac delta function to model an impulse with a physical quantity such as voltage or current.
 In such cases, the Dirac delta function is multiplied by the appropriate unit of the physical quantity, such as :math:`\text{mV}` or :math:`\text{nA}`, to obtain a quantity with units of volts or amperes, respectively.
@@ -881,19 +881,6 @@ To specify in which sequence the event handlers should be called in case multipl
 
 In this case, if a pre- and postsynaptic spike are received at the exact same time, the higher-priority ``spikes_post`` handler will be invoked first.
 
-
-Output
-------
-
-Each model can only send a single type of event. The type of the event has to be given in the `output` block. Currently, however, only spike output is supported.
-
-.. code-block:: nestml
-
-   output:
-       spike
-
-Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + timestep()``.
-
 Event attributes
 ~~~~~~~~~~~~~~~~
 
@@ -906,7 +893,20 @@ Each spiking output event corresponds to a Dirac delta pulse and can be paramete
 
    update:
        emit_spike(weight)
+
 If the parameter is not specified, the delta function will have an area of 1.
+
+Output
+------
+
+Each model can only send a single type of event. The type of the event has to be given in the `output` block. Currently, however, only spike output is supported.
+
+.. code-block:: nestml
+
+   output:
+       spike
+
+Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + timestep()``.
 
 Equations
 ---------
@@ -1095,7 +1095,7 @@ Each spiking output event can optionally be parameterised by using the area-unde
 Input
 -----
 
-External input into the model is said to be received through _input ports_. A NESTML model may contain none, or any number of input ports. Models can receive two distinct types of input: spikes and time-continuous functions.
+External input into the model is said to be received through *input ports*. A NESTML model may contain none, or any number of input ports. Models can receive two distinct types of input: spikes and time-continuous functions.
 
 
 Continuous-time input ports
@@ -1133,7 +1133,7 @@ The unit of the Dirac delta function follows from its definition. Consider the s
 
    f(T) = \int f(t) \delta(t - T) dt
 
-Here :math:`f(t)` is a continuous function of :math:`t`, the value of which is selected at time :math:`t = T`. As the unit of :math:`f()` must be the same on both the left and the right-hand side, the unit of :math:`\delta(t) dt` must be equal to 1. Therefore, the unit of :math:`\delta(t)` must be equal to the inverse of the unit of :math:`t`, that is, the delta function has units :math:`s^{-1}`. Therefore, all the incoming spikes defined in the input block will implicitly have the unit of :math:`\text{1/s}`. (Note that the physical units of a train of spikes, which is a sum of delta functions, is also :math:`\text{1/s}`.)
+Here :math:`f(t)` is a continuous function of :math:`t`, the value of which is selected at time :math:`t = T`. As the unit of :math:`f()` must be the same on both the left and the right-hand side, the unit of :math:`\delta(t) dt` must be equal to 1. Therefore, the unit of :math:`\delta(t)` must be equal to the inverse of the unit of :math:`t`, that is, the delta function has units :math:`\text{s}^{-1}`. Therefore, all the incoming spikes defined in the input block will implicitly have the unit of :math:`\text{s}^{-1}`. (Note that the physical units of a train of spikes, which is a sum of delta functions, is also :math:`\text{s}^{-1}`.)
 
 In the more general case, a delta function can be weighted by a real number :math:`w`. This weights the area under the delta function. Additionally, spikes can occur at different times :math:`t_k` for :math:`k=0,1,2,\ldots`. A spiking input port can therefore be represented as a sum of weighted delta functions occurring at times :math:`t_k`:
 
@@ -1148,7 +1148,7 @@ A corresponding spiking input port can be defined in a NESTML model as follows:
    input:
        spikes_pre <- spike
 
-Note that the units of ``spikes_pre`` are in 1/s, as ``w`` has been defined as a dimensionless real number.
+Note that the units of ``spikes_pre`` are in :math:`\text{s}^{-1}`, as ``w`` has been defined as a dimensionless real number.
 
 Spiking input can be processed either by referencing the input port in the right-hand side of an equation (see :ref:`Handling spiking input in equations`) or by means of ``onReceive`` event handlers (see :ref:`Handling spiking input by event handlers`).
 
@@ -1162,7 +1162,7 @@ The spiking input port name ``spikes_pre`` can be used directly in the right-han
 
    \frac{dx}{dt} = -\frac{x}{\tau} + \mathrm{spikes\_pre}(t)
 
-If ``x`` is a real number, then the units here are consistent (in 1/s) on left- and right-hand side of the equation. This can be written in NESTML as:
+If ``x`` is a real number, then the units here are consistent (in :math:`\text{s}^{-1}`) on left- and right-hand side of the equation. This can be written in NESTML as:
 
 .. code-block:: nestml
 
@@ -1174,7 +1174,7 @@ The name of the input port can also be used inside of a convolution. For instanc
 
    \frac{dx}{dt} = -\frac{x}{\tau} + \frac{1}{C} \left(K \ast \mathrm{spikes\_pre}\right)
 
-Note that applying the convolution means integrating over time, hence dropping the :math:`\mathrm{1/s}` unit, leaving a unitless quantity (the function of time (:math:`K \ast \mathrm{spikes\_pre}`). To make the units consistent in this case, an explicit division by time (such as by a constant :math:`C` with units :math:`\mathrm{s}`) is required.
+Note that applying the convolution means integrating over time, hence dropping the :math:`\text{s}^{-1}` unit, leaving a unitless quantity (the function of time :math:`K \ast \mathrm{spikes\_pre}`). To make the units consistent in this case, an explicit division by time (such as by a constant :math:`C` with units :math:`\mathrm{s}`) is required.
 
 This can be written in NESTML as:
 
@@ -1192,7 +1192,7 @@ Physical units such as millivolts (:math:`\text{mV}`) and picoamperes (:math:`\t
    equations:
        I' = -I / tau + unit_psc * spikes_pre
 
-Here, the incoming spike train (``spikes_pre``) is, as before, in units of :math:`\mathrm{1/s}`, and ``unit_psc`` has been defined as an internal parameter having units :math:`\text{pA}`, so that the units match those on the left-hand side, namely, :math:`\text{pA/s}`.
+Here, the incoming spike train (``spikes_pre``) is, as before, in units of :math:`\text{s}^{-1}`, and ``unit_psc`` has been defined as an internal parameter having units :math:`\text{pA}`, so that the units match those on the left-hand side, namely, :math:`\text{pA/s}`.
 
 
 Handling spiking input by event handlers
@@ -1218,15 +1218,15 @@ for any :math:`\Delta t > 0`. In NESTML, the sifting property can be expressed b
 
 .. math::
 
-    \text{sift}(f(t), t_0) &= \int_{-\infty}^\infty f(u) \delta(u - t_0) du
+    \text{sift}(f(t), t_0) &= \int_{-\infty}^\infty f(u) \delta(u - t_0) du\\
                            &= f(t_0)
 
 If the input port spike train :math:`\mathrm{spikes\_pre}(t)` is passed as the first argument, then we have
 
 .. math::
 
-    \text{sift}(\mathrm{spikes\_pre}(t), t_0) &= \int_{-\infty}^\infty  \left(\sum_k w_k \delta(u - t_k)\right) \delta(u - t_0) du
-                           &= \sum_k w_k \int_{-\infty}^\infty\delta(u - t_k)\,\delta(u - t_0) du
+    \text{sift}(\mathrm{spikes\_pre}(t), t_0) &= \int_{-\infty}^\infty  \left(\sum_k w_k \delta(u - t_k)\right) \delta(u - t_0) du\\
+                           &= \sum_k w_k \int_{-\infty}^\infty\delta(u - t_k)\,\delta(u - t_0) du\\
                            &= \left\{
                                      \begin{array}{ll}
                                      w_k & \quad \text{if } t_0 = t_k\\
@@ -1247,7 +1247,7 @@ For example, to increment a real number ``x`` by the weight of an incoming spike
        spike_weight real = sift(spikes_pre, t)   # extract the weight of the spike occurring at time t
        x += spike_weight    # increment x by the weight of the spike
 
-Integration across time causes the 1/s unit of the spike train to drop out, so that what remains is a scalar value (the weight of the spike). If :math:`x` is defined as a real number, the units on the left- and right-hand side are thus consistent.
+Integration across time causes the :math:`\text{s}^{-1}` unit of the spike train to drop out, so that what remains is a scalar value (the weight of the spike). If :math:`x` is defined as a real number, the units on the left- and right-hand side are thus consistent.
 
 If a particular physical unit is desired for the increment, for example, millivolts (:math:`\text{mV}`), then the weight of the spike can be multiplied by an internal parameter with the desired unit. For example, to increment a membrane potential ``V_m`` (in :math:`\text{mV}`) by 1 mV for every incoming spike, one can write:
 
