@@ -343,9 +343,10 @@ class NESTCodeGenerator(CodeGenerator):
     def analyse_neuron(self, neuron: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment], List[ASTOdeEquation], List[ASTOdeEquation]]:
         """
         Analyse and transform a single neuron.
+        See documentation for get_spike_update_expressions() for more information.
         :param neuron: a single neuron.
-        :return: see documentation for get_spike_update_expressions() for more information.
-        :return: post_spike_updates: list of post-synaptic spike update expressions
+        :return: spike_updates: dict from input port to list of pre-synaptic spike update expressions
+        :return: post_spike_updates: dict from input port to list of post-synaptic spike update expressions
         :return: equations_with_delay_vars: list of equations containing delay variables
         :return: equations_with_vector_vars: list of equations containing delay variables
         """
