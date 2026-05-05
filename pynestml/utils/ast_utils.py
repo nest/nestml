@@ -678,7 +678,7 @@ class ASTUtils:
         astnode.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))
 
     @classmethod
-    def get_inline_expression_by_name(cls, node, name: str) -> Optional[ASTInlineExpression]:
+    def get_inline_expression_by_name(cls, node: ASTModel, name: str) -> Optional[ASTInlineExpression]:
         for equations_block in node.get_equations_blocks():
             for inline_expr in equations_block.get_inline_expressions():
                 if name == inline_expr.variable_name:
@@ -777,6 +777,7 @@ class ASTUtils:
                     _expr.get_parent().lhs = ast_ext_var
                 elif isinstance(_expr.get_parent(), ASTSimpleExpression) and _expr.get_parent().is_variable():
                     _expr.get_parent().set_variable(ast_ext_var)
+                # elif isinstance(_expr.get_parent(), ASTKernel):
                 elif isinstance(_expr.get_parent(), ASTDeclaration):
                     # variable could occur on the left-hand side; ignore. Only replace if it occurs on the right-hand side.
                     pass
@@ -838,46 +839,55 @@ class ASTUtils:
         return all_variables
 
     @classmethod
-    def get_all_variables_used_in_convolutions(cls, nodes: Union[ASTEquationsBlock, List[ASTEquationsBlock]], parent_node: ASTNode) -> List[str]:
-        """Make a list of all variable symbol names that are in one of the equation blocks in ``nodes`` and used in a convolution"""
-        if not nodes:
-            return []
+    def get_all_variables_affected_by_convolutions(cls, nodes: Union[ASTEquationsBlock, List[ASTEquationsBlock]], parent_node: ASTNode, excluded_port_names: Optional[List[str]] = None) -> Set[str]:
+        r"""Gather all variables that are affected by a convolution with an input port that is not in ``excluded_port_names``."""
+
+        if excluded_port_names is None:
+            excluded_port_names = []
 
         if isinstance(nodes, ASTNode):
             nodes = [nodes]
 
-        class ASTAllVariablesUsedInConvolutionVisitor(ASTVisitor):
-            _variables = []
-            parent_node = None
+        class ASTVariablesUsedInConvolutionVisitor(ASTVisitor):
+            _variables: Optional[Set[str]] = None
 
-            def __init__(self, node, parent_node):
-                super(ASTAllVariablesUsedInConvolutionVisitor, self).__init__()
+            def __init__(self, node: ASTNode, parent_node: ASTNode, excluded_port_names: List[str]):
+                super(ASTVariablesUsedInConvolutionVisitor, self).__init__()
+                self._variables = set()
                 self.node = node
                 self.parent_node = parent_node
+                self.excluded_port_names = excluded_port_names
 
             def visit_function_call(self, node):
-                func_name = node.get_name()
-                if func_name == "convolve":
-                    symbol_buffer = node.get_scope().resolve_to_symbol(str(node.get_args()[1]),
-                                                                       SymbolKind.VARIABLE)
-                    input_port = ASTUtils.get_input_port_by_name(
-                        self.parent_node.get_input_blocks(), symbol_buffer.name)
-                    if input_port:
-                        found_parent_assignment = False
-                        node_ = node
-                        while not found_parent_assignment:
-                            node_ = node_.get_parent()
-                            # XXX TODO also needs to accept normal ASTExpression, ASTAssignment?
-                            if isinstance(node_, ASTInlineExpression):
-                                found_parent_assignment = True
-                        var_name = node_.get_variable_name()
-                        self._variables.append(var_name)
+                assert self._variables is not None
 
-        variables = []
+                func_name = node.get_name()
+                if func_name == PredefinedFunctions.CONVOLVE:
+                    symbol_buffer = node.get_scope().resolve_to_symbol(str(node.get_args()[1]), SymbolKind.VARIABLE)
+                    input_port = ASTUtils.get_input_port_by_name(self.parent_node.get_input_blocks(), symbol_buffer.name)
+                    if input_port and input_port.name not in self.excluded_port_names:
+                        node_ = node
+                        var_name = None
+                        while True:
+                            node_ = node_.get_parent()
+                            if isinstance(node_, ASTInlineExpression):
+                                var_name = node_.get_variable_name()
+                                break
+                            elif isinstance(node_, ASTOdeEquation):
+                                var_name = node_.get_lhs().get_name()
+                                break
+
+                        assert var_name
+                        self._variables.add(var_name)
+
+        if not nodes:
+            return set()
+
+        variables = set()
         for node in nodes:
-            visitor = ASTAllVariablesUsedInConvolutionVisitor(node, parent_node)
+            visitor = ASTVariablesUsedInConvolutionVisitor(node, parent_node, excluded_port_names)
             node.accept(visitor)
-            variables.extend(visitor._variables)
+            variables |= visitor._variables
 
         return variables
 
@@ -886,6 +896,8 @@ class ASTUtils:
         r"""Move or copy declarations from ``from_block`` to ``to_block``."""
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
         assert mode in ["move", "copy"]
+
+        ret = []
 
         if not from_block \
            or not to_block:
@@ -896,8 +908,6 @@ class ASTUtils:
             decls.extend(ASTUtils.get_declarations_from_block(removesuffix(var_name, var_name_suffix), from_block))
 
         if decls:
-            Logger.log_message(None, -1, ("Moving" if mode == "move" else "Copying") + " definition of " + var_name + " from synapse to neuron",
-                               None, LoggingLevel.INFO)
             for decl in decls:
                 if mode == "move":
                     from_block.declarations.remove(decl)
@@ -928,14 +938,18 @@ class ASTUtils:
                 decl.accept(ast_symbol_table_visitor)
                 ast_symbol_table_visitor.block_type_stack.pop()
 
+                ret.append(decl)
+
         from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
         to_block.accept(ASTParentVisitor())
 
-        return decls
+        return ret
 
     @classmethod
     def equations_from_block_to_block(cls, state_var, from_block, to_block, var_name_suffix, mode) -> List[ASTDeclaration]:
         assert mode in ["move", "copy"]
+
+        ret = []
 
         if not from_block:
             return []
@@ -945,11 +959,13 @@ class ASTUtils:
         for decl in decls:
             if mode == "move":
                 from_block.declarations.remove(decl)
+            decl = decl.clone()
             ASTUtils.add_suffix_to_decl_lhs(decl, suffix=var_name_suffix)
             to_block.get_declarations().append(decl)
             decl.update_scope(to_block.get_scope())
+            ret.append(decl)
 
-        return decls
+        return ret
 
     @classmethod
     def collects_vars_used_in_equation(cls, state_var, from_block):
@@ -2472,6 +2488,10 @@ class ASTUtils:
             for update_expr in metadata[model.name]["post_spike_updates"].values():
                 update_expr.accept(visitor)
 
+        if "pre_spike_updates" in metadata[model.name].keys():
+            for update_expr in metadata[model.name]["pre_spike_updates"].values():
+                update_expr.accept(visitor)
+
         if "equations_with_delay_vars" in metadata[model.name].keys():
             for node in metadata[model.name]["equations_with_delay_vars"] + metadata[model.name]["equations_with_vector_vars"]:
                 node.accept(visitor)
@@ -2546,7 +2566,7 @@ class ASTUtils:
         all_state_vars = [var.get_complete_name() for var in all_state_vars]
 
         # add names of convolutions
-        all_state_vars += ASTUtils.get_all_variables_used_in_convolutions(model.get_equations_blocks(), model)
+        all_state_vars += ASTUtils.get_all_variables_affected_by_convolutions(model.get_equations_blocks(), model)
 
         # exclude variables that are not assigned to in postsynaptic spike handler onReceive blocks
         for input_block in model.get_input_blocks():
@@ -2559,7 +2579,7 @@ class ASTUtils:
             strictly_synaptic_vars |= ASTUtils.get_all_variables_assigned_to(update_block)
 
         # exclude convolutions if they are not with a postsynaptic variable
-        convolve_with_not_post_vars = ASTUtils.get_convolve_vars_exclude_port(model.get_equations_blocks(), post_port_names, model)
+        convolve_with_not_post_vars = ASTUtils.get_all_variables_affected_by_convolutions(model.get_equations_blocks(), model, excluded_port_names=post_port_names)
 
         # exclude all variables that depend on the ones that are not to be moved
         strictly_synaptic_vars_dependent = ASTUtils.recursive_dependent_variables_search(strictly_synaptic_vars, model)
@@ -2572,6 +2592,10 @@ class ASTUtils:
         #
 
         recursive_vars_used = ASTUtils.recursive_necessary_variables_search(syn_to_neuron_state_vars, model)
+
+        # XXX: TODO:
+        # copy the kernel, don't move; it could be used in another convolution in the model
+        # if the kernel is in a convolve, only add a suffix if it's a convolution with a post_spike port
 
         # all state variables that will be moved from synapse to neuron
         syn_to_neuron_state_vars = []
@@ -2601,54 +2625,6 @@ class ASTUtils:
         node.accept(visitor)
 
         return visitor._variable_names
-
-    @classmethod
-    def get_convolve_vars_exclude_port(cls, nodes: Union[ASTEquationsBlock, Sequence[ASTEquationsBlock]], excluded_port_names: List[str], parent_node: ASTNode):
-        r"""Gather all variables that are used in a convolution with an input port that is not in ``excluded_port_names``."""
-
-        class ASTVariablesUsedInConvolutionVisitor(ASTVisitor):
-            _variables = []
-
-            def __init__(self, node: ASTNode, parent_node: ASTNode, excluded_port_names: List[str]):
-                super(ASTVariablesUsedInConvolutionVisitor, self).__init__()
-                self.node = node
-                self.parent_node = parent_node
-                self.excluded_port_names = excluded_port_names
-
-            def visit_function_call(self, node):
-                func_name = node.get_name()
-                if func_name == "convolve":
-                    symbol_buffer = node.get_scope().resolve_to_symbol(str(node.get_args()[1]),
-                                                                       SymbolKind.VARIABLE)
-                    input_port = ASTUtils.get_input_port_by_name(
-                        self.parent_node.get_input_blocks(), symbol_buffer.name)
-                    if input_port and input_port.name not in self.excluded_port_names:
-                        kernel_name = node.get_args()[0].get_variable().name
-                        self._variables.append(kernel_name)
-
-                        found_parent_assignment = False
-                        node_ = node
-                        while not found_parent_assignment:
-                            node_ = node_.get_parent()
-                            # XXX TODO also needs to accept normal ASTExpression, ASTAssignment?
-                            if isinstance(node_, ASTInlineExpression):
-                                found_parent_assignment = True
-                        var_name = node_.get_variable_name()
-                        self._variables.append(var_name)
-
-        if not nodes:
-            return []
-
-        if isinstance(nodes, ASTNode):
-            nodes = [nodes]
-
-        variables = []
-        for node in nodes:
-            visitor = ASTVariablesUsedInConvolutionVisitor(node, parent_node, excluded_port_names)
-            node.accept(visitor)
-            variables.extend(visitor._variables)
-
-        return variables
 
     @classmethod
     def collect_parameters_needed_for_state_vars(cls, model, syn_to_neuron_state_vars):

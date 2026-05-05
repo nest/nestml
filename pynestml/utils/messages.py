@@ -470,7 +470,7 @@ class Messages:
         :param variable_name: the name of the variable of an equation which is not defined in an equations block
         :return: a message
         """
-        message = "Ode equation lhs-variable \"%s\" not defined in state block!" % variable_name
+        message = "ODE left-hand side variable \"%s\" not defined in state block!" % variable_name
         return MessageCode.VARIABLE_NOT_IN_STATE_BLOCK, message
 
     @classmethod
