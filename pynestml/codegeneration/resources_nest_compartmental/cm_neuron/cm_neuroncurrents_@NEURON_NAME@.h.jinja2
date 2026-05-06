@@ -806,7 +806,6 @@ public:
 {%- endif %}
     if(!initialized){
     // initialization of ion channels
-  {%- with %}
 {%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
 
     {%- for ion_channel_name, channel_info in chan_info.items() %}
