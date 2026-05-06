@@ -230,10 +230,10 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option(
             "synapse_models"))
         synapses_per_neuron = self.arrange_synapses_per_neuron(neurons, synapses)
-        self.analyse_transform_neurons(neurons)
+        self.analyse_transform_neurons(neurons, metadata)
         self.analyse_transform_synapses(synapses)
         self.generate_compartmental_neurons(neurons, synapses_per_neuron)
-        self.generate_module_code(neurons)
+        self.generate_module_code(neurons, metadata)
 
     @override
     def generate_module_code(self, neurons: List[ASTModel], metadata: Dict[str, Dict[str, Any]]) -> None:
@@ -330,18 +330,18 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             equations_block = neuron.get_equations_blocks()[0]
             kernel_buffers = ASTUtils.generate_kernel_buffers(neuron, equations_block)
 
-            analytic_solver, numeric_solver = self._nest_code_generator.ode_toolbox_analysis(neuron, kernel_buffers)
+            analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron, kernel_buffers)
 
             delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
 
-            spike_updates, post_spike_updates = self._nest_code_generator.get_spike_update_expressions(neuron,
-                                                                                                       kernel_buffers,
-                                                                                                       [analytic_solver,
-                                                                                                        numeric_solver],
-                                                                                                       delta_factors)
+            spike_updates, post_spike_updates = self.get_spike_update_expressions(neuron,
+                                                                                   kernel_buffers,
+                                                                                   [analytic_solver,
+                                                                                    numeric_solver],
+                                                                                   delta_factors)
 
-            neuron.spike_updates = spike_updates
-            neuron.post_spike_updates = post_spike_updates
+            #neuron.spike_updates = spike_updates
+            #neuron.post_spike_updates = post_spike_updates
 
     def analyse_transform_synapses(self, synapses: List[ASTModel]) -> None:
         """
@@ -671,7 +671,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             underscore_pos = ret.find("_")
         return ret
 
-    def _get_neuron_model_namespace(self, neuron: ASTModel, metadata: Dict[str, Dict[str, Any]], paired_synapse: ASTModel) -> Dict:
+    def _get_neuron_model_namespace(self, neuron: ASTModel, paired_synapse: ASTModel) -> Dict:
         """
         Returns a standard namespace for generating neuron code for NEST
         :param neuron: a single neuron instance
