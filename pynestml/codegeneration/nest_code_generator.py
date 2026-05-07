@@ -271,7 +271,10 @@ class NESTCodeGenerator(CodeGenerator):
         for synapse in synapses:
             if "neuron_synapse_pairs" in FrontendConfiguration.get_codegen_opts().keys() and "paired_neuron" in metadata[synapse.name].keys():
                 post_ports = ASTUtils.get_post_ports_of_neuron_synapse_pair(metadata[synapse.name]["paired_neuron"], synapse, FrontendConfiguration.get_codegen_opts()["neuron_synapse_pairs"])
-                metadata[synapse.name]["continuous_post_ports"] = [v for v in post_ports if isinstance(v, tuple) or isinstance(v, list)]
+                if post_ports is not None:
+                    metadata[synapse.name]["continuous_post_ports"] = [v for v in post_ports if isinstance(v, tuple) or isinstance(v, list)]
+                else:
+                    metadata[synapse.name]["continuous_post_ports"] = []
                 paired_neuron = metadata[synapse.name]["paired_neuron"]
                 metadata[paired_neuron.name]["continuous_post_ports"] = metadata[synapse.name]["continuous_post_ports"]
 
@@ -575,7 +578,10 @@ class NESTCodeGenerator(CodeGenerator):
             if "neuron_synapse_pairs" in FrontendConfiguration.get_codegen_opts().keys():
                 paired_neuron = metadata[synapse.name]["paired_neuron"]
                 post_ports = ASTUtils.get_post_ports_of_neuron_synapse_pair(paired_neuron, synapse, FrontendConfiguration.get_codegen_opts()["neuron_synapse_pairs"])
-                namespace["continuous_post_ports"] = [v for v in post_ports if isinstance(v, tuple) or isinstance(v, list)]
+                if post_ports is not None:
+                    metadata[synapse.name]["continuous_post_ports"] = [v for v in post_ports if isinstance(v, tuple) or isinstance(v, list)]
+                else:
+                    metadata[synapse.name]["continuous_post_ports"] = []
 
             namespace["vt_ports"] = metadata[synapse.name]["vt_port_names"]
             namespace["pre_ports"] = list(set(all_input_port_names)
