@@ -1533,6 +1533,10 @@ inline void
 {
   // propagate all state variables in the synapse to time t_trig
 
+#ifdef DEBUG
+    std::cout << "[synapse " << this << "] {{ synapseName }}::trigger_update_weight(): t = " << t_trig << std::endl;
+#endif
+
   const size_t tid = kernel().vp_manager.get_thread_id();
 {%- if paired_neuron_name is not none and paired_neuron_name|length > 0 %}
   typedef {{ paired_neuron_name }} post_neuron_t;

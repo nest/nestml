@@ -849,57 +849,47 @@ class ASTUtils:
         all_variables = [v.name for v in visitor._variables]
         return all_variables
 
-
     @classmethod
-    def get_all_variables_affected_by_convolutions(cls, nodes: Union[ASTEquationsBlock, List[ASTEquationsBlock]], parent_node: ASTNode, excluded_port_names: Optional[List[str]] = None) -> Set[str]:
-        r"""Gather all variables that are affected by a convolution with an input port that is not in ``excluded_port_names``."""
-
-        if excluded_port_names is None:
-            excluded_port_names = []
+    def get_all_variables_used_in_convolutions(cls, nodes: Union[ASTEquationsBlock, List[ASTEquationsBlock]], parent_node: ASTNode) -> List[str]:
+        """Make a list of all variable symbol names that are in one of the equation blocks in ``nodes`` and used in a convolution"""
+        if not nodes:
+            return []
 
         if isinstance(nodes, ASTNode):
             nodes = [nodes]
 
-        class ASTVariablesUsedInConvolutionVisitor(ASTVisitor):
-            _variables: Optional[Set[str]] = None
+        class ASTAllVariablesUsedInConvolutionVisitor(ASTVisitor):
+            _variables = []
+            parent_node = None
 
-            def __init__(self, node: ASTNode, parent_node: ASTNode, excluded_port_names: List[str]):
-                super(ASTVariablesUsedInConvolutionVisitor, self).__init__()
-                self._variables = set()
+            def __init__(self, node, parent_node):
+                super(ASTAllVariablesUsedInConvolutionVisitor, self).__init__()
                 self.node = node
                 self.parent_node = parent_node
-                self.excluded_port_names = excluded_port_names
 
             def visit_function_call(self, node):
-                assert self._variables is not None
-
                 func_name = node.get_name()
-                if func_name == PredefinedFunctions.CONVOLVE:
-                    symbol_buffer = node.get_scope().resolve_to_symbol(str(node.get_args()[1]), SymbolKind.VARIABLE)
-                    input_port = ASTUtils.get_input_port_by_name(self.parent_node.get_input_blocks(), symbol_buffer.name)
-                    if input_port and input_port.name not in self.excluded_port_names:
+                if func_name == "convolve":
+                    symbol_buffer = node.get_scope().resolve_to_symbol(str(node.get_args()[1]),
+                                                                       SymbolKind.VARIABLE)
+                    input_port = ASTUtils.get_input_port_by_name(
+                        self.parent_node.get_input_blocks(), symbol_buffer.name)
+                    if input_port:
+                        found_parent_assignment = False
                         node_ = node
-                        var_name = None
-                        while True:
+                        while not found_parent_assignment:
                             node_ = node_.get_parent()
+                            # XXX TODO also needs to accept normal ASTExpression, ASTAssignment?
                             if isinstance(node_, ASTInlineExpression):
-                                var_name = node_.get_variable_name()
-                                break
-                            elif isinstance(node_, ASTOdeEquation):
-                                var_name = node_.get_lhs().get_name()
-                                break
+                                found_parent_assignment = True
+                        var_name = node_.get_variable_name()
+                        self._variables.append(var_name)
 
-                        assert var_name
-                        self._variables.add(var_name)
-
-        if not nodes:
-            return set()
-
-        variables: Set[str] = set()
+        variables = []
         for node in nodes:
-            visitor = ASTVariablesUsedInConvolutionVisitor(node, parent_node, excluded_port_names)
+            visitor = ASTAllVariablesUsedInConvolutionVisitor(node, parent_node)
             node.accept(visitor)
-            variables |= visitor._variables
+            variables.extend(visitor._variables)
 
         return variables
 
@@ -2551,7 +2541,7 @@ class ASTUtils:
         all_state_vars = [var.get_complete_name() for var in all_state_vars]
 
         # add names of convolutions
-        all_state_vars += ASTUtils.get_all_variables_affected_by_convolutions(model.get_equations_blocks(), model)
+        all_state_vars += ASTUtils.get_all_variables_used_in_convolutions(model.get_equations_blocks(), model)
 
         # exclude variables that are not assigned to in postsynaptic spike handler onReceive blocks
         for input_block in model.get_input_blocks():

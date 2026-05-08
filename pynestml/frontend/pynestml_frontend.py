@@ -118,12 +118,6 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         options = synapse_post_neuron_co_generation.set_options(options)
         transformers.append(synapse_post_neuron_co_generation)
 
-    if target_name.upper() not in ["NEST_COMPARTMENTAL"]:
-        # InlineExpressionExpansionTransformer
-        from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
-        transformer = InlineExpressionExpansionTransformer()
-        transformers.append(transformer)
-
     if target_name.upper() in ["PYTHON_STANDALONE"]:
         from pynestml.transformers.illegal_variable_name_transformer import IllegalVariableNameTransformer
 
@@ -133,6 +127,11 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         transformers.append(variable_name_rewriter)
 
     if target_name.upper() not in ["NEST_COMPARTMENTAL"]:
+        # InlineExpressionExpansionTransformer
+        from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
+        transformer = InlineExpressionExpansionTransformer()
+        transformers.append(transformer)
+
         # ConvolutionsToBuffersTransformer
         from pynestml.transformers.convolutions_to_buffers_transformer import ConvolutionsToBuffersTransformer
         transformer = ConvolutionsToBuffersTransformer()
