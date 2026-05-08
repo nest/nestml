@@ -181,6 +181,7 @@ class CodeGenerator(WithOptions):
                             model_name: str,
                             model_templates: List[Template],
                             template_namespace: Dict[str, Any],
+                            metadata: Dict[str, Dict[str, Any]],
                             model_name_escape_string: str = "@MODEL_NAME@") -> None:
         """
         For a handed over model, this method generates the corresponding header and implementation file.

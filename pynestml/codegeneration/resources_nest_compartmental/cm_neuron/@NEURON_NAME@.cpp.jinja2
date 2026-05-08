@@ -141,9 +141,8 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::set_status( const DictionaryDat
    */
   std::map< Name, double* > recordables = c_tree_.get_recordables();
   for(auto recordable : recordables){
-      if(statusdict->known(recordable.first)){
-          *recordable.second = getValue< double >(statusdict, recordable.first);
-          statusdict->remove(recordable.first);
+      if({{ exists_in_dictionary.ExistsInDictionary("statusdict", "recordable.first", false) }}){
+          *recordable.second = {{ get_value_from_dict.GetValueFromDictionary("statusdict", "double", "recordable.first", false) }};
       }
   }
 }

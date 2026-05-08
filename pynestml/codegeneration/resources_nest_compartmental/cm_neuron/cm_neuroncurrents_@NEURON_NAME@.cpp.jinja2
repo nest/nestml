@@ -1341,7 +1341,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
 
 
     if( {{ exists_in_dictionary.ExistsInDictionary("receptor_params", synapse_info["DelayVariable"], true) }} )
-        delayed_spikes.push_back(TimerDeque({{ get_value_from_dict.GetValueFromDictionary("receptor_params", "double", synapse_info["DelayVariable"], true) }});
+        delayed_spikes.push_back(TimerDeque({{ get_value_from_dict.GetValueFromDictionary("receptor_params", "double", synapse_info["DelayVariable"], true) }}));
 
     else delayed_spikes.push_back(TimerDeque(Time::get_resolution().get_ms()));
 
