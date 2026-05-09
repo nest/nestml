@@ -15,31 +15,46 @@ As this solution uses a single bus, the scalability of the system is dependent o
 Generating code
 ~~~~~~~~~~~~~~~
 
-1. Build the Apptainer image from https://github.com/nest/nestml/blob/main/extras/spinnaker-apptainer.def
+1. Before building the Apptainer image, make sure there is a ``.spynnaker.cfg`` in the current working directory. Make sure logging options (like ``extract_iobuf``) are enabled. See https://spinnakermanchester.github.io/spynnaker/8.0.0/PyNNOnSpinnakerInstall.html for instructions on how to create this file.
+
+2. Build the Apptainer image from https://github.com/nest/nestml/blob/main/extras/spinnaker-apptainer.def
 
    .. code-block:: bash
 
+      
       apptainer build spinnaker-apptainer.sif spinnaker-apptainer.def 
       apptainer overlay create --size 4096 spinnaker-overlay.img
 
-2. Run the Apptainer image:
+3. Run the Apptainer image:
 
    .. code-block:: bash
 
-      apptainer shell --overlay ~/spinnaker_overlay.img ~/spinnaker_apptainer.sif
+      apptainer shell --overlay spinnaker-overlay.img spinnaker-apptainer.sif
 
-3. Install NESTML in ``$HOME/nestml``.
+4. Clone the NESTML repository:
 
-4. Create the installation directory:
+   .. code-block:: bash
+
+      cd
+      git clone https://github.com/nest/nestml
+
+5. Install NESTML:
+
+   .. code-block:: bash
+
+      cd nestml
+      python3 setup.py install
+
+6. Create the installation directory for the generated SpiNNaker code:
 
    .. code-block:: bash
 
       # need to create this directory first, otherwise it gets ignored in the PYTHONPATH!
       mkdir $HOME/nestml/spinnaker-install
 
-   It is recommended to create a new, empty target and install directory every time before generating the code.
+   It is recommended to create a new, empty target and install directory every time before generating the code to avoid conflicts.
 
-5. Run the test
+7. Run tests:
 
    .. code-block:: bash
 
@@ -49,7 +64,7 @@ Generating code
 Data types
 ^^^^^^^^^^
 
-- The NESTML data type ``real`` will be rendered as a 32-bit fixpoint number, which consists of a 16-bit integer part and a 15-bit fractional part. Additionally, one bit is used for the sign of the number, where negative numbers are stored with two's complement notation.
+- The NESTML data type ``real`` will be rendered as a 32-bit fixed point number, which consists of a 16-bit integer part and a 15-bit fractional part. Additionally, one bit is used for the sign of the number, where negative numbers are stored with two's complement notation.
 - The NESTML data type ``integer`` will be rendered as ``int32_t``.
 
 
