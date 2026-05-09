@@ -2538,11 +2538,12 @@ class ASTUtils:
         return None
 
     @classmethod
-    def collect_variables_affected_by_ports(cls, model, post_port_names, metadata: Dict[str, Dict[str, Any]], strictly_synaptic_vars: Optional[Set[str]] = None):
+    def collect_variables_affected_by_ports(cls, model, post_port_names, strictly_synaptic_vars: Optional[Set[str]] = None):
         if strictly_synaptic_vars is None:
             strictly_synaptic_vars: Set[str] = set()
         strictly_synaptic_vars = set(strictly_synaptic_vars)    # make a copy
         strictly_synaptic_vars.add(PredefinedVariables.TIME_CONSTANT)
+
         #
         #   determine which variables and dynamics in synapse can be transferred to neuron
         #

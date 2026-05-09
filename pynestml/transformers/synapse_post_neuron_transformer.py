@@ -206,7 +206,7 @@ class SynapsePostNeuronTransformer(Transformer):
             if self.option_exists("weight_variable") and removesuffix(synapse.get_name(), FrontendConfiguration.suffix) in self.get_option("weight_variable").keys() and self.get_option("weight_variable")[removesuffix(synapse.get_name(), FrontendConfiguration.suffix)]:
                 strictly_synaptic_vars.append(self.get_option("weight_variable")[removesuffix(synapse.get_name(), FrontendConfiguration.suffix)])
 
-            affected_vars = ASTUtils.collect_variables_affected_by_ports(synapse, post_port_names, metadata, strictly_synaptic_vars=strictly_synaptic_vars)
+            recursive_vars_used, syn_to_neuron_state_vars = ASTUtils.collect_variables_affected_by_ports(synapse, post_port_names, set(strictly_synaptic_vars))
 
             metadata[new_neuron.name]["recursive_vars_used"][synapse.name] = recursive_vars_used
             metadata[new_neuron.name]["transferred_variables"][synapse.name] = [neuron_state_var + var_name_suffix for neuron_state_var in syn_to_neuron_state_vars if new_synapse.get_kernel_by_name(neuron_state_var) is None]
