@@ -9,13 +9,11 @@ inline double get_state_element(size_t elem)
 {%- for variable in recordable_state_variables %}
 {%-  if loop.index == 1 %}
     if
-{%-  elif loop.index == len %}
-    else
 {%-  else %}
     else if
 {%-  endif %}
 
-{%- if len == 1 or loop.index < len %}
+{%- if len == 1 or loop.index <= len %}
 {%-   if variable.has_vector_parameter() %}
 {%-   set size =  variable.get_vector_parameter() %}
 {%-     if size|int == 0 %}
@@ -45,4 +43,18 @@ inline double get_state_element(size_t elem)
 {%-   endif %}
 {%- endif %}
 {%- endfor %}
+
+
+{%- if recordable_inline_expressions | length > 0 %}
+    // add recordable inline expressions to recordables map
+{%-     for variable_symbol in recordable_inline_expressions %}
+{%-         set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-         if has_state_vectors %}
+    if (elem == State_::{{ variable_symbol.get_symbol_name().upper() }}) {
+      return get_{{ variable_symbol.get_symbol_name() }}();
+    }
+{%         endif %}
+{%-     endfor %}
+{%- endif %}
+
   }
