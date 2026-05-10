@@ -199,7 +199,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        nest_branch: ["v3.0", "v3.9", "main"]
+        nest_branch: ["v3.10_rc1", "main"]    # XXX: make "v3.10_rc1" -> "v3.10"
       fail-fast: false
     steps:
       - name: Checkout repository contents
@@ -255,7 +255,7 @@ jobs:
           nestml --input_path $ALL_MODEL_FILENAMES --target_path target --suffix _nestml --logging_level INFO --module_name nestml_allmodels_module
 
       - name: Run integration tests
-        if: ${{ matrix.nest_branch == 'main' || matrix.nest_branch == 'v2.20.2' }}
+        if: ${{ matrix.nest_branch == 'main' || matrix.nest_branch == 'v3.10_rc1' }}    # XXX: remove v3.10_rc1 here
         env:
           LD_LIBRARY_PATH: ${{ env.NEST_INSTALL }}/lib/nest
         run: |
@@ -265,16 +265,16 @@ jobs:
           done;
           exit $rc
 
-      # Run only the nest integration tests for NEST versions other than main and 2.20.2
+      # Run only the nest integration tests for NEST versions other than main
       - name: Run integration tests
-        if: ${{ !(matrix.nest_branch == 'main' || matrix.nest_branch == 'v2.20.2') }}
+        if: ${{ !(matrix.nest_branch == 'main' || matrix.nest_branch == 'v3.10_rc1') }}    # XXX: remove v3.10_rc1 here
         env:
           LD_LIBRARY_PATH: ${{ env.NEST_INSTALL }}/lib/nest
         run: |
           pytest -s -o log_cli=true -o log_cli_level="DEBUG" tests/nest_tests/test_nest_neuron_model_equivalence.py
 
       - name: Run Jupyter notebooks
-        if: ${{ matrix.nest_branch == 'main' }}
+        if: ${{ matrix.nest_branch == 'main' || matrix.nest_branch == 'v3.10_rc1' }}    # XXX: remove v3.10_rc1 here
         run: |
           ipynb_fns=$(find $GITHUB_WORKSPACE/doc/tutorials -name '*.ipynb')
           rc=0
