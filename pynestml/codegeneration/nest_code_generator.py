@@ -558,10 +558,10 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["post_ports"] = metadata[synapse.name]["post_port_names"]
             namespace["spiking_post_ports"] = metadata[synapse.name]["spiking_post_port_names"]
 
-            if "state_vars_that_need_continuous_buffering" in metadata[paired_neuron.name].keys():
-                namespace["state_vars_that_need_continuous_buffering"] = metadata[paired_neuron.name]["state_vars_that_need_continuous_buffering"]
-                namespace["state_vars_that_need_continuous_buffering_transformed"] = metadata[paired_neuron.name]["state_vars_that_need_continuous_buffering_transformed"]
-                namespace["state_vars_that_need_continuous_buffering_transformed_iv"] = metadata[paired_neuron.name]["state_vars_that_need_continuous_buffering_transformed_iv"]
+            if "state_vars_that_need_continuous_buffering" in metadata[synapse.name].keys():
+                namespace["state_vars_that_need_continuous_buffering"] = metadata[synapse.name]["state_vars_that_need_continuous_buffering"]
+                namespace["state_vars_that_need_continuous_buffering_transformed"] = metadata[synapse.name]["state_vars_that_need_continuous_buffering_transformed"]
+                namespace["state_vars_that_need_continuous_buffering_transformed_iv"] = metadata[synapse.name]["state_vars_that_need_continuous_buffering_transformed_iv"]
             else:
                 namespace["state_vars_that_need_continuous_buffering"] = {}
 
@@ -679,11 +679,10 @@ class NESTCodeGenerator(CodeGenerator):
 
             if "state_vars_that_need_continuous_buffering" in metadata[neuron.name].keys():
                 assert self.get_option("continuous_state_buffering_method") in ["continuous_time_buffer", "post_spike_based"]
-                namespace["state_vars_that_need_continuous_buffering"] = metadata[neuron.name]["state_vars_that_need_continuous_buffering"]
-                namespace["state_vars_that_need_continuous_buffering_transformed"] = metadata[neuron.name]["state_vars_that_need_continuous_buffering_transformed"]
-                namespace["state_vars_that_need_continuous_buffering_transformed_iv"] = metadata[neuron.name]["state_vars_that_need_continuous_buffering_transformed_iv"]
+                namespace["neuron_state_vars_that_need_continuous_buffering"] = metadata[neuron.name]["state_vars_that_need_continuous_buffering"]
+                namespace["neuron_state_vars_that_need_continuous_buffering_transformed_iv"] = metadata[neuron.name]["state_vars_that_need_continuous_buffering_transformed_iv"]
             else:
-                namespace["state_vars_that_need_continuous_buffering"] = []
+                namespace["neuron_state_vars_that_need_continuous_buffering"] = []
 
             if "extra_on_emit_spike_stmts_from_synapses" in metadata[neuron.name].keys():
                 namespace["extra_on_emit_spike_stmts_from_synapses"] = metadata[neuron.name]["extra_on_emit_spike_stmts_from_synapses"]

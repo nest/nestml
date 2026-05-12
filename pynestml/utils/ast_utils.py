@@ -752,17 +752,6 @@ class ASTUtils:
         return []
 
     @classmethod
-    def get_var_name_tuples_of_neuron_synapse_pair(cls, post_port_names, post_port, reverse=False):
-        for pair in post_port_names:
-            if reverse and pair[1] == post_port:
-                return pair[0]
-
-            if not reverse and pair[0] == post_port:
-                return pair[1]
-
-        raise Exception("Port name not found!")
-
-    @classmethod
     def replace_with_external_variable(cls, var_name, node: ASTNode, suffix: str, new_scope, alternate_name=None):
         r"""
         Replace all occurrences of variables (``ASTVariable``s) (e.g. ``post_trace'``) in the node with ``ASTExternalVariable``s, indicating that they are moved to the postsynaptic neuron.

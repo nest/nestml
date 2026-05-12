@@ -208,9 +208,9 @@ public:
 {%-     for var in analytic_state_variables_moved|sort %}
       , double {{ var }}
 {%-     endfor %}
-{%-     if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
-{%-         for state_var in state_vars_that_need_continuous_buffering | sort %}
-      , double {{ state_var }}
+{%-     if neuron_state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
+{%-         for var_name in neuron_state_vars_that_need_continuous_buffering | sort %}
+      , double {{ var_name }}
 {%-         endfor %}
 {%-     endif %}
   )
@@ -219,9 +219,9 @@ public:
 {%-     for var in (purely_numeric_state_variables_moved + analytic_state_variables_moved) | sort %}
   , {{ var }}_( {{ var }} )
 {%-     endfor %}
-{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
-{%-     for state_var in state_vars_that_need_continuous_buffering | sort %}
-  , {{ state_var }}_( {{ state_var }} )
+{%- if neuron_state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
+{%-     for var_name in neuron_state_vars_that_need_continuous_buffering | sort %}
+  , {{ var_name }}_( {{ var_name }} )
 {%-     endfor %}
 {%- endif %}
   {
@@ -252,15 +252,15 @@ public:
   }
 {%-         endif %}
 {%-     endfor %}
-{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
-{%-     for state_var in state_vars_that_need_continuous_buffering %}
-  double {{ state_var }}_;
+{%- if neuron_state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
+{%-     for var_name in neuron_state_vars_that_need_continuous_buffering %}
+  double {{ var_name }}_;
 {%-     endfor %}
 {%- endif %}
 };
 
 
-{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
+{%- if neuron_state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
 
 /**
  * Entry in the spiking history for continuous variable buffering, storing the time at which values were recorded, and the state of the variables needed by the synapse model(s) at that time.
@@ -270,16 +270,17 @@ public:
 class continuous_variable_histentry_{{ neuronName }}
 {
 public:
+  continuous_variable_histentry_{{ neuronName }}();
   continuous_variable_histentry_{{ neuronName }}( double t,
-{%-     for state_var in state_vars_that_need_continuous_buffering %}
-      double {{ state_var }}{% if not loop.last %}, {% endif %}
+{%-     for var_name in neuron_state_vars_that_need_continuous_buffering %}
+      double {{ var_name }}{% if not loop.last %}, {% endif %}
 {%-     endfor %} );
 
   double t_;              //!< point in time for history entry
   size_t access_counter_;
 
-{%-     for state_var in state_vars_that_need_continuous_buffering %}
-  double {{ state_var }};
+{%-     for var_name in neuron_state_vars_that_need_continuous_buffering %}
+  double {{ var_name }};
 {%-     endfor %}
 };
 {%- endif %}
@@ -425,14 +426,14 @@ public:
    */
   void register_stdp_connection( double t_first_read, double delay );
 
-{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
+{%- if neuron_state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
 
   /**
    * Write continuous variable history
   **/
   void write_continuous_variable_history(nest::Time const &t,
-{%-     for state_var in state_vars_that_need_continuous_buffering %}
-      const double {{ state_var }}{% if not loop.last %}, {% endif %}
+{%-     for var_name in neuron_state_vars_that_need_continuous_buffering %}
+      const double {{ var_name }}{% if not loop.last %}, {% endif %}
 {%-     endfor %});
 
   /**
@@ -499,32 +500,29 @@ public:
   //   Getters/setters for variables transferred from synapse {{ paired_synapse.name }}
   // -------------------------------------------------------------------------
 
-{%-         for var in transferred_variables[paired_synapse_original_model.name] %}
-  double get_{{ var }}( double t, const bool before_increment = true );
+{%-         for var_name in transferred_variables[paired_synapse_original_model.name] %}
+  double get_{{ var_name }}( double t, const bool before_increment = true );
 {%-         endfor %}
+{%      endfor %}
 
-{%-         if state_vars_that_need_continuous_buffering | length > 0 %}
-
+{%-     if neuron_state_vars_that_need_continuous_buffering | length > 0 %}
   // -------------------------------------------------------------------------
   //   Getters/setters for variables that need continuous time buffering
   // -------------------------------------------------------------------------
 
-{%-             for var in state_vars_that_need_continuous_buffering | sort %}
-  double get_{{ var }}( double t, const bool before_increment = true );
-{%-             endfor %}
-{%-         endif %}
-{%-    endfor %}
+{%-         for var_name in neuron_state_vars_that_need_continuous_buffering | sort %}
+  double get_{{ var_name }}( double t, const bool before_increment = true );
+{%-         endfor %}
+{%-     endif %}
 {%- endif %}
 
   // -------------------------------------------------------------------------
   //   Methods corresponding to event handlers
   // -------------------------------------------------------------------------
 
-{%  filter indent(2, True) -%}
-{%-     for blk in neuron.get_on_receive_blocks() %}
-    void on_receive_block_{{ blk.get_port_name() }}(nest::Time const &origin, const long lag);
-{%-     endfor %}
-{%- endfilter %}
+{%- for blk in neuron.get_on_receive_blocks() %}
+  void on_receive_block_{{ blk.get_port_name() }}(nest::Time const &origin, const long lag);
+{%- endfor %}
 
   // -------------------------------------------------------------------------
   //   Initialization functions
@@ -575,10 +573,15 @@ private:
 
   // cache for initial values
 {%- for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
-{%-     for var in transferred_variables[paired_synapse_original_model.name] + state_vars_that_need_continuous_buffering %}
-  double {{var}}__iv;
+{%-     for var_name in transferred_variables[paired_synapse_original_model.name] %}
+  double {{ var_name }}__iv;
 {%-     endfor %}
 {%- endfor %}
+
+{%- for var_name in neuron_state_vars_that_need_continuous_buffering %}
+  double {{ var_name }}__iv;
+{%- endfor %}
+
 {%- endif %}
 
 private:
