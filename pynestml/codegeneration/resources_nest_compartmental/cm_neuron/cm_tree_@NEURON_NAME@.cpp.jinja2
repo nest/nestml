@@ -694,7 +694,7 @@ void nest::CompTree{{cm_unique_suffix}}::create_tree_data_soa_by_sweeping_order(
     sweep_g_out_.assign(n_comp, 0.0);
     sweep_f_out_.assign(n_comp, 0.0);
 }
-
+/*
 void nest::CompTree{{cm_unique_suffix}}::compute_sweeping_order_leander( std::vector< Compartment{{cm_unique_suffix}}* > parallel_comps )
 {
     if(parallel_comps.size() > 0){
@@ -714,7 +714,8 @@ void nest::CompTree{{cm_unique_suffix}}::compute_sweeping_order_leander( std::ve
         compute_sweeping_order(next_parallel_comps);
     }
 }
-
+*/
+/*
 void nest::CompTree{{cm_unique_suffix}}::compute_downsweep_order( std::vector< Compartment{{cm_unique_suffix}}* > child_comps )
 {
     if(child_comps.size() > 0){
@@ -749,7 +750,8 @@ void nest::CompTree{{cm_unique_suffix}}::compute_downsweep_order( std::vector< C
         compute_sweeping_order(next_child_comps);
     }
 }
-
+*/
+/*
 std::vector< long > nest::CompTree{{cm_unique_suffix}}::interweave_children(){
     std::vector< long > output_order;
     for(size_t inv_level = 0; inv_level < downsweep_order.size(); inv_level++){
@@ -773,7 +775,8 @@ std::vector< long > nest::CompTree{{cm_unique_suffix}}::interweave_children(){
     }
     return output_order;
 }
-
+*/
+/*
 std::vector< long > nest::CompTree{{cm_unique_suffix}}::interweaved_sweep_order_leander(std::vector< Compartment{{cm_unique_suffix}}* > level){
     std::vector< long > output_order;
     std::vector< long > non_passed_comps = compartment_indices_;
@@ -793,8 +796,8 @@ std::vector< long > nest::CompTree{{cm_unique_suffix}}::interweaved_sweep_order_
         child_id++;
     }
 }
-
-
+*/
+/*
 std::vector< long > nest::CompTree{{cm_unique_suffix}}::interweave_children_leander(std::vector< Compartment{{cm_unique_suffix}}* > level){
     for(size_t level = 0; level < downsweep_order.size(); level++){
         std::vector< Compartment{{cm_unique_suffix}}* > sweep_level = downsweep_order[level];
@@ -816,7 +819,8 @@ std::vector< long > nest::CompTree{{cm_unique_suffix}}::interweave_children_lean
     }
     return output_order;
 }
-
++/
+/*
 void nest::CompTree{{cm_unique_suffix}}::arrange_data_following_output_order(std::vector< long > output_order){
     // build new data order
     std::vector< double > new_v_comp_vec;
@@ -894,7 +898,7 @@ void nest::CompTree{{cm_unique_suffix}}::arrange_data_following_output_order(std
 
     compartments_ = new_compartments_;
 }
-
+*/
 void
 nest::CompTree{{cm_unique_suffix}}::solve_matrix_downsweep()
 {
@@ -956,7 +960,7 @@ nest::CompTree{{cm_unique_suffix}}::solve_matrix_upsweep()
         }
     }
 }
-
+/*
 void
 nest::CompTree{{cm_unique_suffix}}::solve_matrix_downsweep_leander()
 {
@@ -979,7 +983,8 @@ nest::CompTree{{cm_unique_suffix}}::solve_matrix_downsweep_leander()
     }
     root_.io();
 }
-
+*/
+/*
 void
 nest::CompTree{{cm_unique_suffix}}::solve_matrix_upsweep_leander()
 {
@@ -995,7 +1000,7 @@ nest::CompTree{{cm_unique_suffix}}::solve_matrix_upsweep_leander()
         }
     }
 }
-
+*/
 /**
  * Print the tree graph
  */

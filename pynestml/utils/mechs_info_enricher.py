@@ -241,9 +241,10 @@ class MechsInfoEnricher:
 
             # Parse reduced function expressions
             parsed_func_expressions = []
-            for reduced_expr in reduced_exprs[:len(inlined_function_expressions)]:
+            for expr_id, reduced_expr in enumerate(reduced_exprs[:len(inlined_function_expressions)]):
                 expression = ModelParser.parse_expression(cls.sympy_compatible_print(reduced_expr))
-                expression.update_scope(neuron.get_equations_blocks()[0].get_scope())
+                expression.update_scope(function_expression_association[expr_id].get_scope())
+                #expression.update_scope(neuron.get_equations_blocks()[0].get_scope())
                 expression.accept(ASTSymbolTableVisitor())
 
                 parsed_func_expressions.append(expression)

@@ -866,21 +866,21 @@ public:
     i_vals_comp = i_vals;
 
   {%- for ion_channel_name, channel_info in chan_info.items() %}
-    {{ion_channel_name}}{{channel_suffix}}.self_spikes = self_spikes;
+    {{ion_channel_name}}{{channel_suffix}}.self_spikes_p = self_spikes;
   {% endfor -%}
   {%- for concentration_name, concentration_info in conc_info.items() %}
-    {{concentration_name}}{{concentration_suffix}}.self_spikes = self_spikes;
+    {{concentration_name}}{{concentration_suffix}}.self_spikes_p = self_spikes;
   {% endfor -%}
   {%- for receptor_name, receptor_info in recs_info.items() %}
-    {{receptor_name}}{{receptor_suffix}}.self_spikes = self_spikes;
+    {{receptor_name}}{{receptor_suffix}}.self_spikes_p = self_spikes;
   {% endfor -%}
   {%- for receptor_name, receptor_info in recs_info.items() %}
     {%- for synapse_name, synapse_info in syns_info.items() %}
-    {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}.self_spikes = self_spikes;
+    {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}.self_spikes_p = self_spikes;
     {% endfor -%}
   {% endfor -%}
   {%- for continuous_name, continuous_info in con_in_info.items() %}
-    {{continuous_name}}{{continuous_suffix}}.self_spikes = self_spikes;
+    {{continuous_name}}{{continuous_suffix}}.self_spikes_p = self_spikes;
   {% endfor -%}
   }
 
