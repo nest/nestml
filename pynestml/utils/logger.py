@@ -114,7 +114,7 @@ class Logger:
         cls.curr_message = counter
 
     @classmethod
-    def log_message(cls, node: ASTNode = None, code: MessageCode = None, message: str = None, error_position: ASTSourceLocation = None, log_level: LoggingLevel = None, allow_duplicates: bool = False):
+    def log_message(cls, node: Optional[ASTNode] = None, code: MessageCode = None, message: str = None, error_position: Optional[ASTSourceLocation] = None, log_level: LoggingLevel = None, allow_duplicates: bool = False):
         """
         Logs the handed over message on the handed over node. If the current logging is appropriate, the message is also printed.
 
