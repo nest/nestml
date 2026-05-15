@@ -1263,7 +1263,7 @@ If a particular physical unit is desired for the increment, for example, millivo
        in_spikes <- spike
 
    onReceive(spikes_pre):
-       V_m += unit_psp + sift(spikes_pre, t)
+       V_m += unit_psp * sift(spikes_pre, t)
 
 In ``onReceive`` blocks, a spiking input port may not appear outside of a ``sift()`` call. For example, the following is not allowed:
 

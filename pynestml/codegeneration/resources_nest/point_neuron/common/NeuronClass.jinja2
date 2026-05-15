@@ -194,20 +194,37 @@ namespace nest
 {{ neuronName }}::Buffers_::Buffers_({{ neuronName }} &n):
   logger_(n)
 {%- for inputPortSymbol in neuron.get_spike_input_ports() %}
-{%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name.split(".")[0]) %}
+{%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name) %}
+{%-     if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
+{#-         linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
+{%-         if inputPortSymbol.has_vector_parameter() %}
+{%-             set size = utils.get_numeric_vector_size(inputPortSymbol) %}
+{%-             for i in range(size)  %}
+  , spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_( nest::RingBuffer() )
+  , spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_grid_sum_( 0. )
+{%-             endfor %}
+{%-         else %}
+  , spike_input_{{ inputPort.name }}_( nest::RingBuffer() )
+  , spike_input_{{ inputPort.name }}_grid_sum_( 0. )
+{%-         endif %}
+{%-     else %}
+{#-         generic input port: use lists of spike events for each buffer slot #}
+{%-         if inputPortSymbol.has_vector_parameter() %}
+{%-             set size = utils.get_numeric_vector_size(inputPortSymbol) %}
+{%-             for i in range(size)  %}
+  , spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_( nest::VectorRingBuffer() )
+{%-             endfor %}
+{%-         else %}
+  , spike_input_{{ inputPort.name }}_( nest::VectorRingBuffer() )
+{%-         endif %}
+{%-     endif %}
+
 {%-     if inputPortSymbol.has_vector_parameter() %}
 {%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
 {%-         for i in range(size)  %}
+  , spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_n_spikes_received_( nest::RingBuffer() )
 {%-         endfor %}
 {%-     else %}
-{%-         if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
-{#-             linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
-  , spike_input_{{ inputPort.name }}_( nest::RingBuffer() )
-  , spike_input_{{ inputPort.name }}_grid_sum_( 0. )
-{%-         else %}
-{#-             generic input port: use lists of spike events for each buffer slot #}
-  , spike_input_{{ inputPort.name }}_( nest::VectorRingBuffer() )
-{%-         endif %}
   , spike_input_{{ inputPort.name }}_n_spikes_received_( nest::RingBuffer() )
 {%-     endif %}
 {%- endfor %}
@@ -228,7 +245,7 @@ namespace nest
   logger_(n)
 {%- if neuron.get_spike_input_ports() | length > 0 %}
 {%-     for inputPortSymbol in neuron.get_spike_input_ports() %}
-{%-         set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name.split(".")[0]) %}
+{%-         set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name) %}
 {%-         if inputPortSymbol.has_vector_parameter() %}
 {%-             set size = utils.get_numeric_vector_size(inputPortSymbol) %}
 {%-             for i in range(size)  %}
@@ -459,12 +476,12 @@ void {{ neuronName }}::init_buffers_()
   // spike input buffers -- note that .clear() includes a resize
 
 {%- for inputPortSymbol in neuron.get_spike_input_ports() %}
-{%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name.split(".")[0]) %}
+{%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name) %}
 {%-     if inputPortSymbol.has_vector_parameter() %}
 {%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
 {%-         for i in range(size)  %}
-  B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_.clear();
-  B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_n_spikes_received_.clear();
+  B_.spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_.clear();
+  B_.spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_n_spikes_received_.clear();
 {%-         endfor %}
 {%-     else %}
   B_.spike_input_{{ inputPort.name }}_.clear();
@@ -763,21 +780,34 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     **/
 
 {%- for inputPortSymbol in neuron.get_spike_input_ports() %}
-{%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name.split(".")[0]) %}
-{%-     if inputPortSymbol.has_vector_parameter() %}
-{%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
-{%-         for i in range(size)  %}
-{%-         endfor %}
-{%-     else %}
-{%-         if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
-{#-             linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
-  B_.spike_input_{{ inputPort.name }}_grid_sum_ = B_.spike_input_{{ inputPort.name }}_.get_value(lag);
-  const double  __spike_input_{{ inputPort.name }} = B_.spike_input_{{ inputPort.name }}_grid_sum_;
+{%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name) %}
+{%-     if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
+{#-         linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
+{%-         if inputPortSymbol.has_vector_parameter() %}
+{#-             vector input port #}
+{%-             set size = utils.get_numeric_vector_size(inputPortSymbol) %}
+{%-             for i in range(size)  %}
+    B_.spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_grid_sum_ = B_.spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_.get_value(lag);
+    const double __spike_input_{{ inputPort.name }} = B_.spike_input__VEC_IDX__{{ i }}_{{ inputPort.name }}__VEC_IDX__{{ i }}_grid_sum_;
+{%-             endfor %}
 {%-         else %}
-{#-     generic input port: use lists of spike events for each buffer slot #}
-  const double  __spike_input_{{ inputPort.name }} = std::accumulate(B_.spike_input_{{ inputPort.name }}_.get_list(lag).begin(), B_.spike_input_{{ inputPort.name }}_.get_list(lag).end(), 0.0);
+{#-             non-vector input port #}
+    B_.spike_input_{{ inputPort.name }}_grid_sum_ = B_.spike_input_{{ inputPort.name }}_.get_value(lag);
+    const double __spike_input_{{ inputPort.name }} = B_.spike_input_{{ inputPort.name }}_grid_sum_;
 {%-         endif %}
-{%-     endif %}
+{%-     else %}
+{#-         generic input port: use lists of spike events for each buffer slot #}
+{%-         if inputPortSymbol.has_vector_parameter() %}
+{#-             vector input port #}
+{%-             set size = utils.get_numeric_vector_size(inputPortSymbol) %}
+{%-             for i in range(size)  %}
+    const double __spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }} = std::accumulate(B_.spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_.get_list(lag).begin(), B_.spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_.get_list(lag).end(), 0.0);
+{%-             endfor %}
+{%-         else %}
+{#-             non-vector input port #}
+    const double __spike_input_{{ inputPort.name }} = std::accumulate(B_.spike_input_{{ inputPort.name }}_.get_list(lag).begin(), B_.spike_input_{{ inputPort.name }}_.get_list(lag).end(), 0.0);
+{%-         endif %}
+{%-      endif %}
 {%- endfor %}
 
 {%- if has_delay_variables %}
@@ -938,22 +968,21 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     **/
 
 {%- if neuron.get_spike_input_ports() | length > 0 %}
-{%- for inputPortSymbol in neuron.get_spike_input_ports() %}
-{%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name.split(".")[0]) %}
-
-{%- if inputPortSymbol.name not in linear_time_invariant_spiking_input_ports %}
-
-{%-     if inputPortSymbol.has_vector_parameter() %}
-{%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
-{%-         for i in range(size)  %}
-{%-         endfor %}
-{%-     else %}
+{%-     for inputPortSymbol in neuron.get_spike_input_ports() %}
+{%-         set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name) %}
+{%-         if inputPortSymbol.name not in linear_time_invariant_spiking_input_ports %}
+{%-             if inputPortSymbol.has_vector_parameter() %}
+{%-                 set size = utils.get_numeric_vector_size(inputPortSymbol) %}
+{%-                 for i in range(size)  %}
+    std::vector< double >& __spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_list = B_.spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_.get_list(lag);
+    __spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_list.clear();
+{%-                 endfor %}
+{%-             else %}
     std::vector< double >& __spike_input_{{ inputPort.name }}_list = B_.spike_input_{{ inputPort.name }}_.get_list(lag);
     __spike_input_{{ inputPort.name }}_list.clear();
-{%-     endif %}
-{%- endif %}
-
-{%- endfor %}
+{%-             endif %}
+{%-         endif %}
+{%-     endfor %}
 {%- endif %}
 
 
@@ -1164,7 +1193,7 @@ void {{ neuronName }}::handle(nest::SpikeEvent &e)
   assert(e.get_rport() <= {{ utils.nestml_spiking_input_port_to_nest_rport_dict(astnode) | length }});    // the neuron should not receive spike on an rport that does not exist
 
 {%-     for spike_in_port_name, rport in utils.nestml_spiking_input_port_to_nest_rport_dict(astnode).items() %}
-{%-         set spike_in_port = utils.get_input_port_by_name(astnode.get_input_blocks(), spike_in_port_name.split("_VEC_IDX_")[0]) %}
+{%-         set spike_in_port = utils.get_input_port_by_name(astnode.get_input_blocks(), spike_in_port_name.split("__VEC_IDX__")[0]) %}
 {%-         if astnode.get_body().get_spike_input_ports() | length > 1 or astnode.is_multisynapse_spikes() %}
   if (e.get_rport() == {{ rport }})
 {%-         endif %}
@@ -1175,7 +1204,7 @@ void {{ neuronName }}::handle(nest::SpikeEvent &e)
       e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
       e.get_weight() * e.get_multiplicity() ); // XXX: TODO: factor 1E3 should be removed; see https://github.com/nest/nestml/issues/984
 {%-         else %}
-{#-     generic input port: use lists of spike events for each buffer slot #}
+{#-             generic input port: use lists of spike events for each buffer slot #}
     B_.spike_input_{{ spike_in_port_name }}_.append_value(
       e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
       e.get_weight() * e.get_multiplicity() ); // XXX: TODO: factor 1E3 should be removed; see https://github.com/nest/nestml/issues/984
@@ -1237,9 +1266,11 @@ void
 {%-     if inputPortSymbol.has_vector_parameter() %}
 {%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
 {%-         for i in range(size)  %}
+    const double __spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }} = B_.spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_grid_sum_;
 {%-         endfor %}
-{%-     endif %}
+{%-     else %}
     const double __spike_input_{{ inputPort.name }} = B_.spike_input_{{ inputPort.name }}_grid_sum_;
+{%-     endif %}
 {{ printer._expression_printer._simple_expression_printer._variable_printer.set_buffers_to_zero(True) }}
 
     /**

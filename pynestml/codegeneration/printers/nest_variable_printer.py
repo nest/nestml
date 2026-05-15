@@ -172,21 +172,15 @@ class NESTVariablePrinter(CppVariablePrinter):
         return ""
 
     def __print_buffer_value(self, variable: ASTVariable) -> str:
-
         variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         if variable_symbol.is_spike_input_port():
             if self.buffers_are_zero:
                 return "0.0"   # XXX this should be spun off to a NESTVariablePrinterWithFactorsAsZeros
 
-            var_name = variable_symbol.get_symbol_name().upper()
             if variable.has_vector_parameter():
-                if variable.get_vector_parameter().is_variable():
-                    # the enum corresponding to the first input port in a vector of input ports will have the _0 suffixed to the enum's name.
-                    var_name += "_0 + " + variable.get_vector_parameter().get_variable().get_name()
-                else:
-                    var_name += "_" + str(variable.get_vector_parameter())
+                assert variable.get_vector_parameter().is_numeric_literal(), "Vector spiking input ports can only be indexed by constants, not variables."
+                return "__spike_input_" + variable.get_name() + "__VEC_IDX__" + str(variable.get_vector_parameter().get_numeric_literal())
 
-            # no vector indices
             return "__spike_input_" + str(variable)
 
         if self.cpp_variable_suffix:

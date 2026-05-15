@@ -1430,7 +1430,8 @@ class ASTUtils:
 
         if isinstance(spike_input_port, ASTVariable):
             if spike_input_port.has_vector_parameter():
-                spike_input_port_name += "__VEC_IDX__" + str(cls.get_numeric_vector_size(spike_input_port))
+                assert spike_input_port.get_vector_parameter().is_numeric_literal(), "Only numeric literals are supported as vector input port indices"
+                spike_input_port_name += "__VEC_IDX__" + str(spike_input_port.get_vector_parameter().get_numeric_literal())
 
         return kernel_var_name.replace("$", "__DOLLAR") + suffix + "__X__" + spike_input_port_name + diff_order_symbol * order + suffix
 
@@ -2439,7 +2440,7 @@ class ASTUtils:
     def port_name_printer(cls, variable: ASTVariable) -> str:
         s = variable.get_name()
         if variable.has_vector_parameter():
-            s += "_VEC_IDX_"
+            s += "__VEC_IDX__"
             s += str(variable.get_vector_parameter())
 
         return s
@@ -2494,7 +2495,7 @@ class ASTUtils:
 
                 if input_port.get_size_parameter():
                     for i in range(int(str(input_port.size_parameter))):    # XXX: should be able to convert size_parameter expression to an integer more generically (allowing for e.g. parameters)
-                        input_port_to_rport[input_port.name + "_VEC_IDX_" + str(i)] = rport
+                        input_port_to_rport[input_port.name + "__VEC_IDX__" + str(i)] = rport
                         rport += 1
                 else:
                     input_port_to_rport[input_port.name] = rport
@@ -2576,7 +2577,7 @@ class ASTUtils:
 
                 if input_port.get_size_parameter():
                     for i in range(int(str(input_port.size_parameter))):    # XXX: should be able to convert size_parameter expression to an integer more generically (allowing for e.g. parameters)
-                        input_port_to_rport[input_port.name + "_VEC_IDX_" + str(i)] = rport
+                        input_port_to_rport[input_port.name + "__VEC_IDX__" + str(i)] = rport
                         rport += 1
                 else:
                     input_port_to_rport[input_port.name] = rport

@@ -39,7 +39,7 @@ class ODEToolboxVariablePrinter(VariablePrinter):
         s = node.get_name().replace("$", "__DOLLAR")
 
         if node.get_vector_parameter():
-            s += "_VEC_IDX_" + self._expression_printer.print(node.get_vector_parameter())
+            s += "__VEC_IDX__" + self._expression_printer.print(node.get_vector_parameter())
 
         s += "__d" * node.get_differential_order()
 
