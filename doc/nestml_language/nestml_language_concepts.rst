@@ -1182,7 +1182,7 @@ This can be written in NESTML as:
 
    x' = -x / tau + convolve(K, spikes_pre) / C
 
-Physical units such as millivolts (:math:`\text{mV}`) and picoamperes (:math:`\text{pA}`) can be directly combined with the Dirac delta function to model an impulse with a physical quantity such as voltage or current. In such cases, the Dirac delta function is multiplied by the appropriate unit of the physical quantity to obtain a quantity with units of volts or amperes. For instance, if ``I`` is in ``pA``, then we can write:
+Physical units such as millivolts (:math:`\text{mV}`) and picoamperes (:math:`\text{pA}`) can be directly combined with the Dirac delta function to model an impulse with a physical quantity such as voltage or current. In such cases, the Dirac delta function is multiplied by the appropriate unit of the physical quantity to obtain a quantity with units of volts or amperes. For instance, if :math:`I` is in :math:`\mathrm{pA}`, then we can write:
 
 .. code-block:: nestml
 
@@ -1249,7 +1249,7 @@ For example, to increment a real number ``x`` by the weight of an incoming spike
 
 Integration across time causes the :math:`\text{s}^{-1}` unit of the spike train to drop out, so that what remains is a scalar value (the weight of the spike). If :math:`x` is defined as a real number, the units on the left- and right-hand side are thus consistent.
 
-If a particular physical unit is desired for the increment, for example, millivolts (:math:`\text{mV}`), then the weight of the spike can be multiplied by an internal parameter with the desired unit. For example, to increment a membrane potential ``V_m`` (in :math:`\text{mV}`) by 1 mV for every incoming spike, one can write:
+If a particular physical unit is desired for the increment, for example, millivolts (:math:`\text{mV}`), then the weight of the spike can be multiplied by an internal parameter with the desired unit. For example, to increment a membrane potential ``V_m`` (in :math:`\text{mV}`) by :math:`w~\text{mV}` for every incoming spike with weight :math:`w`, one can write:
 
 .. code-block:: nestml
 
