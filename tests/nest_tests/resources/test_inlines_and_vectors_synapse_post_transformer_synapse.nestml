@@ -1,0 +1,63 @@
+# test_inlines_and_vectors_synapse_post_transformer_synapse
+# #########################################################
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+model test_inlines_and_vectors_synapse_post_transformer_synapse:
+    state:
+        w real = 1    # Synaptic weight
+        foo real = 0.
+        current_idx integer = 0
+        delay_idx integer = 0
+        ca_buffer[size_ca_buffer] real = 0.0
+
+    parameters:
+        size_ca_buffer integer = 100    # resolution dependent
+        num_delay_steps integer = 42
+        tau ms = 20 ms
+        denom_sub_expr real = 42
+
+    equations:
+        kernel K = exp(-t / tau)
+        inline spiking_inline_pre pA = 42 pA * convolve(K, pre_spikes)
+        inline spiking_inline_post nS = 42 nS * convolve(K, post_spikes)
+        inline foo_sub_expression real = 42 * exp(pi) / denom_sub_expr
+        foo' = -(foo + foo_sub_expression) / tau + (spiking_inline_pre / pA + spiking_inline_post / nS)
+
+    input:
+        pre_spikes <- spike
+        post_spikes <- spike
+
+    output:
+        spike
+
+    onReceive(pre_spikes):
+        ca_buffer[delay_idx] += 1
+
+        # deliver spike to postsynaptic partner
+        emit_spike(w)
+
+    update:
+        ca_buffer[current_idx] = 0
+        current_idx = (current_idx + 1) % size_ca_buffer
+        delay_idx = (current_idx + num_delay_steps) % size_ca_buffer
+
+        integrate_odes()

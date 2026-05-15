@@ -29,15 +29,9 @@ except ImportError:
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.template_type_symbol import TemplateTypeSymbol
-from pynestml.symbols.variadic_type_symbol import VariadicTypeSymbol
-from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
-from pynestml.utils.type_caster import TypeCaster
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
