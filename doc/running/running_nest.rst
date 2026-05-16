@@ -206,21 +206,21 @@ The above code querying for ``receptor_types`` gives a list of port names and NE
      - 1
    * - NMDA_spikes
      - 2
-   * - FOO_0 XXXXX _VEC_IDX_
+   * - FOO__VEC_IDX__0
      - 3
-   * - FOO_1
+   * - FOO__VEC_IDX__1
      - 4
-   * - EXC_SPIKES_0
+   * - EXC_SPIKES__VEC_IDX__0
      - 5
-   * - EXC_SPIKES_1
+   * - EXC_SPIKES__VEC_IDX__1
      - 6
-   * - EXC_SPIKES_2
+   * - EXC_SPIKES__VEC_IDX__2
      - 7
-   * - INH_SPIKES_0
+   * - INH_SPIKES__VEC_IDX__0
      - 5
-   * - INH_SPIKES_1
+   * - INH_SPIKES__VEC_IDX__1
      - 6
-   * - INH_SPIKES_2
+   * - INH_SPIKES__VEC_IDX__2
      - 7
 
 For a full example, please see `iaf_psc_exp_multisynapse_vectors.nestml <https://github.com/nest/nestml/blob/main/tests/nest_tests/resources/iaf_psc_exp_multisynapse_vectors.nestml>`_ for the neuron model and ``test_multisynapse_with_vector_input_ports`` in `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/main/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test.
