@@ -54,9 +54,8 @@ class ASTVariableVisitor(ASTVisitor):
         # update the type of the variable according to its symbol type.
         if var_resolve is not None:
             try:
-                inport = ASTUtils.get_input_port_by_name(ASTUtils.find_parent_node_by_type(node, ASTModel).get_input_blocks(), node.get_variable().
-                get_name())
-            except:
+                inport = ASTUtils.get_input_port_by_name(ASTUtils.find_parent_node_by_type(node, ASTModel).get_input_blocks(), node.get_variable().get_name())
+            except BaseException:
                 # get_input_port_by_name() can fail for isolated expressions that were created by parsing a string outside of any model
                 inport = None
 
