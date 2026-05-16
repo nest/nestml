@@ -53,7 +53,13 @@ class ASTVariableVisitor(ASTVisitor):
 
         # update the type of the variable according to its symbol type.
         if var_resolve is not None:
-            inport = ASTUtils.get_input_port_by_name(ASTUtils.find_parent_node_by_type(node, ASTModel).get_input_blocks(), node.get_variable().get_name())
+            try:
+                inport = ASTUtils.get_input_port_by_name(ASTUtils.find_parent_node_by_type(node, ASTModel).get_input_blocks(), node.get_variable().
+                get_name())
+            except:
+                # get_input_port_by_name() can fail for isolated expressions that were created by parsing a string outside of any model
+                inport = None
+
             if inport and inport.is_spike():
                 # this variable represents a spiking input port
                 if ASTUtils.find_parent_node_by_type(node, ASTEquationsBlock):
