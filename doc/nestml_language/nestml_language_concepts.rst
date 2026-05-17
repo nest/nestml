@@ -1130,7 +1130,7 @@ For example, to increment a real number ``x`` by the weight of an incoming spike
        x real = 0
 
    onReceive(spikes_pre):    # when incoming spike at time t is received, do the following:
-       spike_weight real = sift(spikes_pre, t)   # extract the weight of the spike occurring at time t
+       spike_weight real = sift(spikes_pre, t)   # weight of the spike occurring at time t
        x += spike_weight    # increment x by the weight of the spike
 
 Integration across time causes the :math:`\text{s}^{-1}` unit of the spike train to drop out, so that what remains is a scalar value (the weight of the spike). If :math:`x` is defined as a real number, the units on the left- and right-hand side are thus consistent.
@@ -1156,7 +1156,7 @@ In ``onReceive`` blocks, a spiking input port may not appear outside of a ``sift
 .. code-block:: nestml
 
    onReceive(in_spikes):
-       V_m += 1 mV/s * in_spikes    # error!
+       V_m += unit_psp * in_spikes    # error!
 
 The second parameter of the ``sift()`` function is only allowed to be the current time (the time at the spike event) ``t``.
 
