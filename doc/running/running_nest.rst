@@ -191,7 +191,7 @@ For the example mentioned :ref:`here <Multiple input ports with vectors>`, the `
    neuron = nest.Create("multi_synapse_vectors")
    receptor_types = nest.GetStatus(neuron, "receptor_types")
 
-The name of the receptors of the input ports are denoted by suffixing the ``vector index`` to the port name. For instance, the receptor name for ``foo[0]`` would be ``FOO_0``.
+The name of the receptors of the input ports are denoted by suffixing the string ``__VEC_IDX__`` and the vector index (an integer) to the port name. For instance, the receptor name for ``foo[0]`` would be ``FOO__VEC_IDX__0``.
 
 The above code querying for ``receptor_types`` gives a list of port names and NEST ``rport`` numbers as shown below:
 
