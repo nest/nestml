@@ -564,8 +564,6 @@ private:
   **/
   static const nest_port_t MAX_SPIKE_RECEPTOR = {{ utils.nestml_spiking_input_port_to_nest_rport_dict(astnode) | length }};
 
-  //static const nest_port_t NUM_CONTINUOUS_INPUT_PORTS = {{ utils.nestml_continuous_input_port_to_nest_rport_dict(astnode) | length }};
-
   enum ContinuousInput
   {
 {%- set ns = namespace(count=0) %}

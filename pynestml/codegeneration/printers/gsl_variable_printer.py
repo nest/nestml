@@ -103,7 +103,7 @@ class GSLVariablePrinter(CppVariablePrinter):
 
         # case of continuous-type input port
         assert variable_symbol.is_continuous_input_port()
-        # return variable_symbol.get_symbol_name() + '_grid_sum_'
+
         return "continuous_inputs_grid_sum_[" + var_name_upper + "]"
 
     def _print(self, variable, symbol, with_origin: bool = True):

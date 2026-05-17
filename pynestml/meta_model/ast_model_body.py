@@ -176,14 +176,6 @@ class ASTModelBody(ASTNode):
 
         return on_receive_blocks
 
-    def get_on_condition_block(self, port_name) -> Optional[ASTOnConditionBlock]:
-        for elem in self.get_body_elements():
-            assert not "." in elem.input_port_variable.name
-            if isinstance(elem, ASTOnConditionBlock) and elem.input_port_variable.name == port_name:
-                return elem
-
-        return None
-
     def get_on_condition_blocks(self) -> List[ASTOnConditionBlock]:
         on_condition_blocks = []
         for elem in self.get_body_elements():

@@ -306,7 +306,6 @@ parser grammar PyNestMLParser;
    * @attribute name: The name of the input port.
    * @attribute sizeParameter: Optional size parameter for model with multiple input ports.
    * @attribute datatype: Optional data type of the port.
-   * @attribute inputQualifier: The qualifier keyword of the input port, to indicate e.g. inhibitory-only or excitatory-only spiking inputs on this port.
   **/
   spikeInputPort : name=NAME
                    (LEFT_SQUARE_BRACKET sizeParameter=expression RIGHT_SQUARE_BRACKET)?

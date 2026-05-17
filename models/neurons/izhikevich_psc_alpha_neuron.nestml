@@ -11,18 +11,18 @@
 #
 # .. math::
 #
-#    C_m \frac{dV_m}{dt} = k (V - V_t)(V - V_t) - u + I + I_{syn,ex} + I_{syn,in}
-#    \frac{dU_m}{dt} = a(b(V_m - E_L) - U_m)
+#    C_m \frac{dV_\mathrm{m}}{dt} = k (V - V_\mathrm{t})(V - V_\mathrm{t}) - u + I + I_\mathrm{syn,ex} + I_\mathrm{syn,in}
+#    \frac{dU_\mathrm{m}}{dt} = a(b(V_\mathrm{m} - E_\mathrm{L}) - U_\mathrm{m})
 #
-#    &\text{if}\;\;\; V_m \geq V_{th}:\\
-#    &\;\;\;\; V_m \text{ is set to } c
-#    &\;\;\;\; U_m \text{ is incremented by } d
+#    &\text{if}\;\;\; V_\mathrm{m} \geq V_\mathrm{th}:\\
+#    &\;\;\;\; V_\mathrm{m} \text{ is set to } c
+#    &\;\;\;\; U_\mathrm{m} \text{ is incremented by } d
 #
 # On each spike arrival, the membrane potential is subject to an alpha-kernel current of the form:
 #
 # .. math::
 #
-#    I_syn = I_0 \cdot t \cdot \exp\left(-t/\tau_{syn}\right) / \tau_{syn}
+#    I_syn = I_0 \cdot t \cdot \exp\left(-t/\tau_\mathrm{syn}\right) / \tau_\mathrm{syn}
 #
 # See also
 # ++++++++

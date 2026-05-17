@@ -52,7 +52,6 @@ class NESTVariablePrinter(CppVariablePrinter):
         self.variables_special_cases = variables_special_cases
         self.cpp_variable_suffix = ""
         # self.postsynaptic_getter_string_ = "start->get_%s()"   # XXX: TODO: see https://github.com/nest/nestml/issues/1163
-        # self.postsynaptic_getter_string_ = "((post_neuron_t*)(__target))->get_%s(t_hist_entry_ms)"
         self.postsynaptic_getter_string_ = "((post_neuron_t*)(__target))->get_%s(get_t())"
         self.buffers_are_zero = True
 
@@ -135,7 +134,7 @@ class NESTVariablePrinter(CppVariablePrinter):
                 s += "(" + str(units_conversion_factor) + " * "
             if self.cpp_variable_suffix == "":
                 if self.buffers_are_zero and symbol.is_spike_input_port():
-                    # XXX do this in a derived class
+                    # XXX: TODO: do this in a derived class
                     return "0.0"
 
                 s += "B_."

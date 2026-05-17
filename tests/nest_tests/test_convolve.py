@@ -30,6 +30,7 @@ from pynestml.codegeneration.nest_tools import NESTTools
 
 class TestConvolve:
     """
+    Test convolution with delta kernels.
     """
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),

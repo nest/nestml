@@ -311,12 +311,12 @@ During code generation, the third-factor variable of the synapse and its corresp
 
    generate_target(...,
                    codegen_opts={...,
-                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                           "synapse": "third_factor_stdp",
+                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend_neuron",
+                                                           "synapse": "third_factor_stdp_synapse",
                                                            "post_ports": ["post_spikes",
                                                                           ["I_post_dend", "I_dend"]]}]})
 
-This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``. Note that inline expressions can also be used; in this example in case ``I_dend`` had been an inline expression in the postsynaptic neuron.
+This specifies that the neuron ``iaf_psc_exp_dend_neuron`` has to be generated paired with the synapse ``third_factor_stdp_synapse``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``. Note that inline expressions can also be used; in this example in case ``I_dend`` had been an inline expression in the postsynaptic neuron.
 
 When a continuous-time input port is defined in the synapse model which is connected to a postsynaptic neuron, a corresponding buffer is allocated in each neuron which retains the recent history of the needed state variables. Two options are available for how the buffer is implemented: a "continuous-time" based buffer, or a spike-based buffer (see the NEST code generator option ``continuous_state_buffering_method`` on :class:`pynestml.codegeneration.html#pynestml.codegeneration.nest_code_generator.NESTCodeGenerator`).
 
@@ -330,8 +330,8 @@ Simulation of volume-transmitted neuromodulation in NEST can be done using "volu
 
    generate_target(...,
                    codegen_opts={...,
-                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                           "synapse": "third_factor_stdp",
+                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend_neuron",
+                                                           "synapse": "third_factor_stdp_synapse",
                                                             "vt_ports": ["dopa_spikes"]}]})
 
 Third-factor plasticity
