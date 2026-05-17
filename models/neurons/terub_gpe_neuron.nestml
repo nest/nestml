@@ -151,8 +151,8 @@ model terub_gpe_neuron:
         unit_psg pA = 1 pA        # Unitary postsynaptic conductance amplitude
 
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:

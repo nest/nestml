@@ -111,8 +111,7 @@ model aeif_cond_alpha_alt_neuron:
         unit_psg nS = 1 nS        # Unitary postsynaptic conductance amplitude
 
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        spike_in_port <- spike
         I_stim pA <- continuous
 
     output:
@@ -126,11 +125,12 @@ model aeif_cond_alpha_alt_neuron:
             # neuron not refractory
             integrate_odes(g_exc, g_inh, V_m, w)
 
-    onReceive(exc_spikes):
-        g_exc' += unit_psg * exc_spikes * (e / tau_syn_exc) * s
-
-    onReceive(inh_spikes):
-        g_inh' += unit_psg * inh_spikes * (e / tau_syn_inh) * s
+    onReceive(spike_in_port):
+        spike_weight nS = unit_psg * sift(spike_in_port, t)
+        if spike_weight > 0:
+            g_exc' += spike_weight * (e / tau_syn_exc)
+        else:
+            g_inh' -= spike_weight * (e / tau_syn_inh)
 
     onCondition(refr_t <= 0 ms and V_m >= V_th):
         # threshold crossing

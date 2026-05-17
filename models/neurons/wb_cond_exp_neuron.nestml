@@ -100,8 +100,8 @@ model wb_cond_exp_neuron:
         unit_psg nS = 1 nS    # Unitary postsynaptic conductance amplitude
 
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:

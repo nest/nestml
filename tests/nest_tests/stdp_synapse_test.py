@@ -306,9 +306,11 @@ class TestNestSTDPSynapse:
             if sim_mdl:
                 post_spike_times_ = nest.GetStatus(spikedet_post, "events")[0]["times"]
                 print("Actual post spike times: " + str(post_spike_times_))
+                assert len(post_spike_times_) > 0, "Postsynaptic neuron didn't spike!"
             if sim_ref:
                 post_ref_spike_times_ = nest.GetStatus(spikedet_post_ref, "events")[0]["times"]
                 print("Actual post ref spike times: " + str(post_ref_spike_times_))
+                assert len(post_spike_times_) > 0, "Postsynaptic neuron didn't spike!"
 
             if sim_ref:
                 n_spikes = len(pre_ref_spike_times_)

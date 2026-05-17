@@ -202,7 +202,7 @@ model hill_tononi_neuron:
         GABA_AInitialValue real = compute_synapse_constant(GABA_A_Tau_1, GABA_A_Tau_2, GABA_A_g_peak)
         GABA_BInitialValue real = compute_synapse_constant(GABA_B_Tau_1, GABA_B_Tau_2, GABA_B_g_peak)
 
-        unit_psg nS = 1 nS    # Unitary postsynaptic conductance amplitude
+        unit_psg nS = 1 nS        # Unitary postsynaptic conductance amplitude
 
     input:
         AMPA <- spike

@@ -31,48 +31,7 @@ A neuron model written in NESTML can be configured to receive two distinct types
        AMPA_spikes <- spike
        I_stim pA <- continuous
 
-The general syntax is:
-
-::
-
-    port_name <- inputQualifier spike
-    port_name dataType <- continuous
-
 The spiking input ports are declared without a data type, whereas the continuous input ports must have a data type.
-For spiking input ports, the qualifier keywords decide whether inhibitory and excitatory inputs are lumped together into a single named input port, or if they are separated into differently named input ports based on their sign. When processing a spike event, some simulators (including NEST) use the sign of the amplitude (or weight) property in the spike event to indicate whether it should be considered an excitatory or inhibitory spike. By using the qualifier keywords, a single spike handler can route each incoming spike event to the correct input buffer (excitatory or inhibitory). Compare:
-
-.. code-block:: nestml
-
-   input:
-       # [...]
-       all_spikes <- spike
-
-In this case, all spike events will be processed through the ``all_spikes`` input port. A spike weight could be positive or negative, and the occurrences of ``all_spikes`` in the model should be considered a signed quantity.
-
-.. code-block:: nestml
-
-   input:
-       # [...]
-       AMPA_spikes <- excitatory spike
-       GABA_spikes <- inhibitory spike
-
-In this case, spike events that have a negative weight are routed to the ``GABA_spikes`` input port, and those that have a positive weight to the ``AMPA_spikes`` port.
-
-It is equivalent if either both `inhibitory` and `excitatory` are given, or neither: an unmarked port will by default handle all incoming presynaptic spikes.
-
-.. list-table::
-   :header-rows: 1
-   :widths: 10 60
-
-   * - Keyword
-     - The incoming weight :math:`w`...
-   * - none, or ``excitatory`` and ``inhibitory``
-     - ... may be positive or negative. It is added to the buffer with signed value :math:`w` (positive or negative).
-   * - ``excitatory``
-     - ... should not be negative. It is added to the buffer with non-negative magnitude :math:`w`.
-   * - ``inhibitory``
-     - ... should be negative. It is added to the buffer with non-negative magnitude :math:`-w`.
-
 
 
 Integrating current input
@@ -92,14 +51,6 @@ The current port symbol (here, ``I_stim``) is available as a variable and can be
 Integrating spiking input
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Spikes arriving at the input port of a neuron can be written as a spike train :math:`s(t)`:
-
-.. math::
-
-   \large s(t) = \sum_{i=1}^N w_i \cdot \delta(t - t_i)
-
-where :math:`w_i` is the weight of spike :math:`i`.
-
 To model the effect that an arriving spike has on the state of the neuron, a convolution with a kernel can be used. The kernel defines the postsynaptic response kernel, for example, an alpha (bi-exponential) function, decaying exponential, or a delta function. (See :ref:`Kernel functions` for how to define a kernel.) The convolution of the kernel with the spike train is defined as follows:
 
 .. math::
@@ -110,16 +61,20 @@ To model the effect that an arriving spike has on the state of the neuron, a con
                         &= \sum_{i=1}^N w_i \cdot f(t - t_i)
    \end{align*}
 
-For example, say there is a spiking input port defined named ``spikes``. A decaying exponential with time constant ``tau_syn`` is defined as postsynaptic kernel ``G``. Their convolution is expressed using the ``convolve()`` function, which takes a kernel and input port, respectively, as its arguments:
+For example, say there is a spiking input port defined named ``spike_in_port``, which receives weighted spike events:
+
+.. code-block:: nestml
+
+   input:
+       spike_in_port <- spike
+
+A decaying exponential with time constant ``tau_syn`` is defined as postsynaptic kernel ``G``. Their convolution is expressed using the ``convolve()`` function, which takes a kernel and input port, respectively, as its arguments:
 
 .. code-block:: nestml
 
    equations:
        kernel G = exp(-t / tau_syn)
-       inline I_syn pA = convolve(G, spikes) * pA
-       V_m' = -V_m / tau_m + I_syn / C_m
-
-Note that in this example, the intended physical unit (pA) was assigned by multiplying the scalar convolution result with the unit literal. By the definition of convolution, ``convolve(G, spikes)`` will have the unit of kernel ``G`` multiplied by the unit of ``spikes`` and unit of time, i.e., ``[G] * [spikes] * s``. Kernel functions in NESTML are always untyped and the unit of spikes is :math:`1/s` as discussed above. As a result, the unit of convolution is :math:`(1/s) * s`, a scalar quantity without a unit.
+       inline I_syn pA = convolve(G, spike_in_port)
 
 The incoming spikes could have been equivalently handled with an ``onReceive`` event handler block:
 
@@ -130,14 +85,9 @@ The incoming spikes could have been equivalently handled with an ``onReceive`` e
 
    equations:
        I_syn' = -I_syn / tau_syn
-       V_m' = -V_m / tau_m + I_syn / C_m
 
-   onReceive(spikes):
-       I_syn += spikes * pA * s
-
-Note that in this example, the intended physical unit (pA) was assigned by multiplying the type of the input port ``spikes`` (which is 1/s) by pA·s, resulting in a unit of pA for ``I_syn``.
-
-
+   onReceive(spike_in_port):
+       I_syn += sift(spike_in_port, t)
 Multiple input ports
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -146,9 +96,9 @@ If there is more than one line specifying a `spike` or `continuous` port with th
 .. code-block:: nestml
 
    input:
-       spikes1 <- spike
-       spikes2 <- spike
-       spikes3 <- spike
+       spike_in_port1 <- spike
+       spike_in_port2 <- spike
+       spike_in_port3 <- spike
        I_stim1 <- continuous
        I_stim2 <- continuous
 
@@ -160,7 +110,7 @@ For the sake of keeping the example simple, we assign a decaying exponential-ker
        kernel I_kernel1 = exp(-t / tau_syn1)
        kernel I_kernel2 = exp(-t / tau_syn2)
        kernel I_kernel3 = -exp(-t / tau_syn3)
-       inline I_syn pA = (convolve(I_kernel1, spikes1) - convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3)) * pA
+       inline I_syn pA = unit_psc * (convolve(I_kernel1, spike_in_port1) - convolve(I_kernel2, spike_in_port2) + convolve(I_kernel3, spike_in_port3))
        V_m' = -(V_m - E_L) / tau_m + (I_syn + I_stim1) / C_m
        V_d' = -(V_d - E_L) / tau_d + I_stim2 / C_m
 
@@ -174,16 +124,16 @@ The input ports can also be defined as vectors. For example,
 
    neuron multi_synapse_vectors:
        input:
-           AMPA_spikes <- excitatory spike
-           GABA_spikes <- inhibitory spike
+           AMPA_spikes <- spike
+           GABA_spikes <- spike
            NMDA_spikes <- spike
            foo[2] <- spike
-           exc_spikes[3] <- excitatory spike
-           inh_spikes[3] <- inhibitory spike
+           exc_spikes[3] <- spike
+           inh_spikes[3] <- spike
 
        equations:
-           kernel I_kernel_exc = exp(-1 / tau_syn_exc * t)
-           kernel I_kernel_inh = exp(-1 / tau_syn_inh * t)
+           kernel I_kernel_exc = exp(-t / tau_syn_exc)
+           kernel I_kernel_inh = exp(-t / tau_syn_inh)
            inline I_syn_exc pA = convolve(I_kernel_exc, exc_spikes[1]) * pA
            inline I_syn_inh pA = convolve(I_kernel_inh, inh_spikes[1]) * pA
 

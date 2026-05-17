@@ -88,10 +88,10 @@ class TestTraubCondMultiSyn:
                                            "interval": dt})
 
         receptor_types = nest.GetStatus(neuron2, "receptor_types")[0]
-        nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": receptor_types["AMPA"]})
-        nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": receptor_types["NMDA"]})
-        nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": receptor_types["GABA_A"]})
-        nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": receptor_types["GABA_B"]})
+        nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": receptor_types["AMPA_SPIKES"]})
+        nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": receptor_types["NMDA_SPIKES"]})
+        nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": receptor_types["GABA_A_SPIKES"]})
+        nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": receptor_types["GABA_B_SPIKES"]})
 
         if NESTTools.detect_nest_version().startswith("v2"):
             nest.Connect([multimeter[0]], neuron1, "one_to_one")
