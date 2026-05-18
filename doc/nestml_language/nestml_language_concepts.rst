@@ -1019,7 +1019,7 @@ The unit of the Dirac delta function follows from its definition. Consider the s
 
    f(T) = \int f(t) \delta(t - T) dt
 
-Here :math:`f(t)` is a continuous function of :math:`t`, the value of which is selected at time :math:`t = T`. As the unit of :math:`f()` must be the same on both the left and the right-hand side, the unit of :math:`\delta(t) dt` must be equal to 1. Therefore, the unit of :math:`\delta(t)` must be equal to the inverse of the unit of :math:`t`, that is, the delta function has units :math:`\text{s}^{-1}`. Therefore, all the incoming spikes defined in the input block will implicitly have the unit of :math:`\text{s}^{-1}`. (Note that the physical units of a train of spikes, which is a sum of delta functions, is also :math:`\text{s}^{-1}`.)
+Here :math:`f(t)` is a continuous function of :math:`t`, the value of which is selected at time :math:`t = T`. As the unit of :math:`f()` must be the same on both the left and the right-hand side, the unit of :math:`\delta(t) dt` must be equal to 1. Therefore, the unit of :math:`\delta(t)` must be equal to the inverse of the unit of :math:`t`, that is, the delta function has units :math:`\text{s}^{-1}`. Therefore, all the incoming spikes defined in the input block will implicitly have the unit :math:`\text{s}^{-1}`. 
 
 In the more general case, a delta function can be weighted by a real number :math:`w`. This weights the area under the delta function. Additionally, spikes can occur at different times :math:`t_k` for :math:`k=0,1,2,\ldots`. A spiking input port can therefore be represented as a sum of weighted delta functions occurring at times :math:`t_k`:
 
