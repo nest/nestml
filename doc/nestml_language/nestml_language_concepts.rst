@@ -981,7 +981,7 @@ A Dirac delta impulse kernel can be defined by using the predefined function ``d
 Input
 -----
 
-External input into the model is said to be received through *input ports*. A NESTML model may contain none, or any number of input ports. Models can receive two distinct types of input: spikes and time-continuous functions.
+External input to the model is received through *input ports*. A NESTML model may contain none, or any number of input ports. Models can receive two distinct types of input: spikes and time-continuous functions.
 
 
 Continuous-time input ports
