@@ -1034,7 +1034,7 @@ A corresponding spiking input port can be defined in a NESTML model as follows:
    input:
        spikes_pre <- spike
 
-Note that the units of ``spikes_pre`` are in :math:`\text{s}^{-1}`, as ``w`` has been defined as a dimensionless real number.
+Note that the unit of ``spikes_pre`` is :math:`\text{s}^{-1}`, as ``w`` has been defined as a dimensionless real number.
 
 Spiking input can be processed either by referencing the input port in the right-hand side of an equation (see :ref:`Handling spiking input in equations`) or by means of ``onReceive`` event handlers (see :ref:`Handling spiking input by event handlers`).
 
