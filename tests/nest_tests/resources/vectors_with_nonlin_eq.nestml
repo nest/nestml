@@ -1,0 +1,54 @@
+# vectors_with_nonlin_eq.nestml
+# #############################
+#
+# Description
+# +++++++++++
+#
+# Model for Finite Impulse Response (FIR) filter
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+model vectors_with_nonlin_eq:
+
+    state:
+        foo real = 42
+        I_NMDA_AMPA_delay_buf[delay_steps] pA = 0 pA
+        I_NMDA_AMPA_idx integer = 0
+
+    equations:
+        foo' = -foo**2 / tau
+
+    parameters:
+        tau ms = 4 ms
+        delay_steps integer = 10
+
+    output:
+        spike
+
+    update:
+        integrate_odes()
+        if I_NMDA_AMPA_idx % 2 == 0:
+            I_NMDA_AMPA_delay_buf[I_NMDA_AMPA_idx] = 42 pA
+        else:
+            I_NMDA_AMPA_delay_buf[I_NMDA_AMPA_idx] = foo - 42 pA
+
+        I_NMDA_AMPA_idx += 1
+        I_NMDA_AMPA_idx = I_NMDA_AMPA_idx % delay_steps
