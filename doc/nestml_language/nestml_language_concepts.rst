@@ -1058,7 +1058,7 @@ The name of the input port can also be used inside of a convolution. For instanc
 
 .. math::
 
-   \frac{dx}{dt} = -\frac{x}{\tau} + \frac{1}{C} \left(K \ast \mathrm{spikes\_pre}\right)
+   \frac{dx}{dt} = -\frac{x}{\tau} + \frac{1}{C} \left(K \ast \mathrm{spikes\_pre}\right)(t)
 
 Note that applying the convolution means integrating over time, hence dropping the :math:`\text{s}^{-1}` unit, leaving a unitless quantity (the function of time :math:`K \ast \mathrm{spikes\_pre}`). To make the units consistent in this case, an explicit division by time (such as by a constant :math:`C` with units :math:`\mathrm{s}`) is required.
 
