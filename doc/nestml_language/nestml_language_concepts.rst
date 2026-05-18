@@ -1042,7 +1042,7 @@ Spiking input can be processed either by referencing the input port in the right
 Handling spiking input in equations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The spiking input port name ``spikes_pre`` can be used directly in the right-hand side of ODEs, for instance as follows:
+The spiking input port name ``spikes_pre`` can be used directly on the right-hand side of an ODE, for instance as follows:
 
 .. math::
 
