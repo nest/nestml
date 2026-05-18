@@ -1048,7 +1048,7 @@ The spiking input port name ``spikes_pre`` can be used directly on the right-han
 
    \frac{dx}{dt} = -\frac{x}{\tau} + \mathrm{spikes\_pre}(t)
 
-If ``x`` is a real number, then the units here are consistent (in :math:`\text{s}^{-1}`) on left- and right-hand side of the equation. This can be written in NESTML as:
+If ``x`` is a real number, then the units here are consistent (in :math:`\text{s}^{-1}`) on the left- and on the right-hand side of the equation. This can be written in NESTML as:
 
 .. code-block:: nestml
 
