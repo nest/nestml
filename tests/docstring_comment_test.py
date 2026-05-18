@@ -54,17 +54,17 @@ class TestDocstringComment:
         Logger.init_logger(LoggingLevel.ERROR)
 
     def test_docstring_success(self):
-        self.run_docstring_test('valid')
+        self.run_docstring_test("valid")
 
     @pytest.mark.xfail(strict=True)
     def test_docstring_failure(self):
-        self.run_docstring_test('invalid')
+        self.run_docstring_test("invalid")
 
     def run_docstring_test(self, case: str):
-        assert case in ['valid', 'invalid']
+        assert case in ["valid", "invalid"]
         input_file = FileStream(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), case)),
-                         'DocstringCommentTest.nestml'))
+                         "DocstringCommentTest.nestml"))
         lexer = PyNestMLLexer(input_file)
         lexer._errHandler = BailErrorStrategy()
         lexer._errHandler.reset(lexer)
@@ -82,4 +82,4 @@ class TestDocstringComment:
 
         assert len(ast.get_model_list()) == 1, "Model failed to load correctly"
 
-        assert "\n".join(ast.get_model_list()[0].pre_comments) == "DocstringCommentTest.nestml\n###########################\n\n\nDescription\n+++++++++++\n\nThis model is used to test whether docstring comments are detected.\n\nPositive case.\n\n\nCopyright statement\n+++++++++++++++++++\n\nThis file is part of NEST.\n\nCopyright (C) 2004 The NEST Initiative\n\nNEST is free software: you can redistribute it and/or modify\nit under the terms of the GNU General Public License as published by\nthe Free Software Foundation, either version 2 of the License, or\n(at your option) any later version.\n\nNEST is distributed in the hope that it will be useful,\nbut WITHOUT ANY WARRANTY; without even the implied warranty of\nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\nGNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License\nalong with NEST.  If not, see <http://www.gnu.org/licenses/>.\n"
+        assert "\n".join(ast.get_model_list()[0].pre_comments) == "DocstringCommentTest.nestml\n###########################\n\nDescription\n+++++++++++\n\nThis model is used to test whether docstring comments are detected.\n\nPositive case.\n\nCopyright statement\n+++++++++++++++++++\n\nThis file is part of NEST.\n\nCopyright (C) 2004 The NEST Initiative\n\nNEST is free software: you can redistribute it and/or modify\nit under the terms of the GNU General Public License as published by\nthe Free Software Foundation, either version 2 of the License, or\n(at your option) any later version.\n\nNEST is distributed in the hope that it will be useful,\nbut WITHOUT ANY WARRANTY; without even the implied warranty of\nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\nGNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License\nalong with NEST.  If not, see <http://www.gnu.org/licenses/>.\n"

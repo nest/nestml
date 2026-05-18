@@ -454,7 +454,17 @@ class NESTMLPrinter(ModelPrinter):
             return "(" + self.print(node.compound_unit) + ")"
 
         if node.is_pow:
-            return self.print(node.base) + "**" + str(node.exponent)
+            s = self.print(node.base) + "**"
+            if node.exponent is not None:
+                # ``node.exponent`` is either a float or an int
+                s += str(node.exponent)
+            else:
+                assert node.exponent_num is not None and node.exponent_den is not None
+                if node.exponent_num < 0:
+                    s += "-"
+                s += "(" + str(int(abs(node.exponent_num))) + "/" + str(int(node.exponent_den)) + ")"
+
+            return s
 
         if node.is_arithmetic_expression():
             t_lhs = self.print(node.get_lhs()) if isinstance(node.get_lhs(), ASTUnitType) else str(node.get_lhs())

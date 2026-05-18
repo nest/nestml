@@ -63,11 +63,11 @@ class ASTModel(ASTNode):
         """
         super(ASTModel, self).__init__(*args, **kwargs)
         assert isinstance(name, str), \
-            'No or wrong type of model name provided (%s)!' % type(name)
+            "No or wrong type of model name provided (%s)!" % type(name)
         assert isinstance(body, ASTModelBody) or isinstance(body, ASTModelBody), \
-            'No or wrong type of model body provided (%s)!' % type(body)
+            "No or wrong type of model body provided (%s)!" % type(body)
         assert (artifact_name is not None and isinstance(artifact_name, str)), \
-            'No or wrong type of artifact name provided (%s)!' % type(artifact_name)
+            "No or wrong type of artifact name provided (%s)!" % type(artifact_name)
 
         self.name = name
         self.body = body
@@ -459,7 +459,7 @@ class ASTModel(ASTNode):
         update_block = ASTNodeFactory.create_ast_update_block(block, ASTSourceLocation.get_predefined_source_position())
         self.get_body().get_body_elements().append(update_block)
 
-    def add_to_internals_block(self, declaration: ASTDeclaration, index: int = -1) -> None:
+    def add_to_internals_block(self, declaration: ASTDeclaration, index: int = -1, run_symboltable_visitor: bool = True) -> None:
         """
         Adds the handed over declaration the internals block
         :param declaration: a single declaration
@@ -481,11 +481,11 @@ class ASTModel(ASTNode):
 
         self.get_internals_blocks()[0].get_declarations().insert(index, declaration)
         declaration.update_scope(self.get_internals_blocks()[0].get_scope())
-        symtable_vistor = ASTSymbolTableVisitor()
-        symtable_vistor.block_type_stack.push(BlockType.INTERNALS)
-        self.accept(ASTParentVisitor())
-        self.accept(symtable_vistor)
-        symtable_vistor.block_type_stack.pop()
+
+        if run_symboltable_visitor:
+            symtable_vistor = ASTSymbolTableVisitor()
+            self.accept(ASTParentVisitor())
+            self.accept(symtable_vistor)
 
     def add_to_state_block(self, declaration: ASTDeclaration) -> None:
         """
@@ -522,9 +522,9 @@ class ASTModel(ASTNode):
         if self.get_comment() is None or len(self.get_comment()) == 0:
             return prefix
 
-        ret = ''
+        ret = ""
         for comment in self.get_comment():
-            ret += prefix + comment + '\n'
+            ret += prefix + comment + "\n"
 
         return ret
 
@@ -721,17 +721,14 @@ class ASTModel(ASTNode):
     def get_on_receive_block(self, port_name: str) -> Optional[ASTOnReceiveBlock]:
         if not self.get_body():
             return None
+
         return self.get_body().get_on_receive_block(port_name)
 
     def get_on_condition_blocks(self) -> List[ASTOnConditionBlock]:
         if not self.get_body():
             return []
-        return self.get_body().get_on_condition_blocks()
 
-    def get_on_condition_block(self, port_name: str) -> Optional[ASTOnConditionBlock]:
-        if not self.get_body():
-            return None
-        return self.get_body().get_on_condition_block(port_name)
+        return self.get_body().get_on_condition_blocks()
 
     def get_input_buffers(self):
         """

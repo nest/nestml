@@ -42,7 +42,7 @@ class ASTEquationsBlock(ASTNode):
         :type declarations: ast_block
         """
         assert (declarations is not None and isinstance(declarations, list)), \
-            '(PyNestML.AST.EquationsBlock) No or wrong type of declarations provided (%s)!' % type(declarations)
+            "(PyNestML.AST.EquationsBlock) No or wrong type of declarations provided (%s)!" % type(declarations)
 
         if declarations is None:
             declarations = []
@@ -51,7 +51,7 @@ class ASTEquationsBlock(ASTNode):
             assert decl is not None and (isinstance(decl, ASTKernel)
                                          or isinstance(decl, ASTOdeEquation)
                                          or isinstance(decl, ASTInlineExpression)), \
-                '(PyNestML.AST.EquationsBlock) No or wrong type of ode-element provided (%s)' % type(decl)
+                "(PyNestML.AST.EquationsBlock) No or wrong type of ode-element provided (%s)" % type(decl)
 
         super(ASTEquationsBlock, self).__init__(*args, **kwargs)
 

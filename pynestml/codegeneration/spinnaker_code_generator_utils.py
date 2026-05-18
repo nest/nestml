@@ -34,20 +34,20 @@ class SPINNAKERCodeGeneratorUtils:
         """
         if variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
             if numerical_state_symbols and variable_symbol.get_symbol_name() in numerical_state_symbols:
-                return 'S_.ode_state[State_::%s]'
+                return "S_.ode_state[State_::%s]"
 
-            return 'state->%s'
+            return "state->%s"
 
         if variable_symbol.block_type == BlockType.PARAMETERS:
-            return 'parameter->%s'
+            return "parameter->%s"
 
         if variable_symbol.block_type == BlockType.COMMON_PARAMETERS:
-            return 'parameter->%s'
+            return "parameter->%s"
 
         if variable_symbol.block_type == BlockType.INTERNALS:
-            return 'parameter->%s'
+            return "parameter->%s"
 
         if variable_symbol.block_type == BlockType.INPUT:
-            return 'input->%s'
+            return "input->%s"
 
-        return ''
+        return ""

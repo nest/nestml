@@ -52,10 +52,10 @@ class ASTInputBlock(ASTNode):
         if input_definitions is None:
             input_definitions = []
         assert (input_definitions is not None and isinstance(input_definitions, list)), \
-            '(PyNestML.AST.Input) No or wrong type of input definitions provided (%s)!' % type(input_definitions)
+            "(PyNestML.AST.Input) No or wrong type of input definitions provided (%s)!" % type(input_definitions)
         for definition in input_definitions:
             assert (definition is not None and isinstance(definition, ASTInputPort)), \
-                '(PyNestML.AST.Input) No or wrong type of input definition provided (%s)!' % type(definition)
+                "(PyNestML.AST.Input) No or wrong type of input definition provided (%s)!" % type(definition)
         self.input_definitions = input_definitions
 
     def clone(self):

@@ -1,13 +1,13 @@
 The NESTML modeling language
 ============================
 
-.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/neuron_illustration.svg
+.. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/fig/neuron_illustration.svg
    :width: 324px
    :height: 307px
    :align: right
    :target: nestml_language/neurons_in_nestml.html
 
-.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/synapse_illustration.svg
+.. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/fig/synapse_illustration.svg
    :width: 326px
    :height: 203px
    :align: right
@@ -42,6 +42,8 @@ Internally, differential equations are analyzed by the associated `ODE-toolbox <
    getting_help
    citing
    license
+   Impressum <https://nest-initiative.org/impressum/>
+   Data protection <https://www.nest-initiative.org/data-protection/>
 
 .. .. figure:: nestml-logo/nestml-logo.png
       :scale: 30 %

@@ -53,8 +53,8 @@ class ExpressionParsingTest(unittest.TestCase):
 
     def test(self):
         input_file = FileStream(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
-                         'ExpressionCollection.nestml'))
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")),
+                         "ExpressionCollection.nestml"))
         lexer = PyNestMLLexer(input_file)
         lexer._errHandler = BailErrorStrategy()
         lexer._errHandler.reset(lexer)
@@ -75,5 +75,5 @@ class ExpressionParsingTest(unittest.TestCase):
         self.assertTrue(isinstance(ast, ASTNestMLCompilationUnit))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

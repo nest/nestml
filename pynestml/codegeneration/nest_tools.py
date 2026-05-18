@@ -18,9 +18,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+import os
 import subprocess
 import sys
 import tempfile
+
+import semver
 
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
@@ -46,6 +50,7 @@ import sys
 
 try:
     import nest
+    import semver
 
     vt = nest.Create("volume_transmitter")
 
@@ -58,38 +63,47 @@ try:
     except Exception:
         pass
 
-    if "DataConnect" in dir(nest):
-            nest_version = "v2.20.2"
-    else:
-        nest_version = "v" + nest.__version__
-        if nest_version.startswith("v3.5") or nest_version.startswith("v3.6") or nest_version.startswith("v3.7") or nest_version.startswith("v3.8"):
-            if "post0.dev0" in nest_version:
-                nest_version = "master"
+    try:
+        # For NEST version <= 3.4, the version string is not parsable by semver.
+        if "__version__" in dir(nest):
+            nest_version = nest.__version__
+        elif "build_info" in dir(nest):
+            nest_version = nest.build_info["version"]
+
+        ver = semver.Version.parse(nest_version)
+        if ver.prerelease and "post0.dev" in ver.prerelease:
+            nest_version = "main"
         else:
-            if "kernel_status" not in dir(nest):  # added in v3.1
-                nest_version = "v3.0"
-            elif "prepared" in nest.GetKernelStatus().keys():  # "prepared" key was added after v3.3 release
-                nest_version = "v3.4"
-            elif "tau_u_bar_minus" in neuron.get().keys():   # added in v3.3
-                nest_version = "v3.3"
-            elif "tau_Ca" in vt.get().keys():   # removed in v3.2
-                nest_version = "v3.1"
-            else:
-                nest_version = "v3.2"
+            nest_version = "v" + nest_version
+
+    except (AttributeError, ValueError):
+        if "DataConnect" in dir(nest):
+            nest_version = "v2.20.2"
+        elif "kernel_status" not in dir(nest):  # added in v3.1
+            nest_version = "v3.0.0"
+        elif "prepared" in nest.GetKernelStatus().keys():  # "prepared" key was added after v3.3 release
+            nest_version = "v3.4.0"
+        elif "tau_u_bar_minus" in neuron.get().keys():   # added in v3.3
+            nest_version = "v3.3.0"
+        elif "tau_Ca" in vt.get().keys():   # removed in v3.2
+            nest_version = "v3.1.0"
+        else:
+            nest_version = "v3.2.0"
 except ModuleNotFoundError:
     nest_version = ""
 
 print(nest_version, file=sys.stderr)
 """
 
-        with tempfile.NamedTemporaryFile() as f:
-            f.write(bytes(script, encoding="UTF-8"))
-            f.seek(0)
-            cmd = [sys.executable, f.name]
-
-            process = subprocess.Popen(cmd, stderr=subprocess.PIPE)
-            stdout, stderr = process.communicate()
-            nest_version = stderr.decode("UTF-8").strip()
+        with tempfile.TemporaryDirectory() as tmp_dir_name:
+            with tempfile.NamedTemporaryFile(dir=tmp_dir_name, delete=True) as f:
+                cwd = os.path.dirname(f.name)
+                f.write(bytes(script, encoding="UTF-8"))
+                f.seek(0)
+                cmd = [sys.executable, f.name]
+                process = subprocess.Popen(cmd, cwd=cwd, stderr=subprocess.PIPE)
+                stdout, stderr = process.communicate()
+                nest_version = stderr.decode("UTF-8").strip()
 
         if nest_version == "":
             Logger.log_message(None, -1,
@@ -101,3 +115,49 @@ print(nest_version, file=sys.stderr)
                            LoggingLevel.INFO)
 
         return nest_version
+
+    @classmethod
+    def get_version_dict_from_version_string(cls, version_string):
+        """
+        Constructs a version dictionary from version string with major, minor, and patch parts.
+        """
+        version_dict = {}
+        try:
+            if version_string and "main" not in version_string:
+                version = semver.Version.parse(version_string.split("v")[1])
+                version_dict["major"], version_dict["minor"], version_dict[
+                    "patch"] = version.major, version.minor, version.patch
+        except ValueError:
+            Logger.log_message(None, -1, "The NEST Simulator version cannot be parsed by semver: " + version_string,
+                               None, LoggingLevel.WARNING)
+
+        return version_dict
+
+    @classmethod
+    def set_nest_verbosity(cls, verbosity: str) -> None:
+        r"""Set NEST verbosity level; compatible with different versions of NEST.
+
+        Allowed values:
+        - "ALL"
+        - "INFO"
+        - "WARNING"
+        - "ERROR"
+        """
+        import nest
+
+        assert verbosity in ["ALL", "INFO", "WARNING",
+                             "ERROR"], "Verbosity level needs to be one of \"ALL\", \"INFO\", \"WARNING\", \"ERROR\""
+
+        # nest.verbosity is only present in versions >= 3.10
+        if "verbosity" in dir(nest):
+            if verbosity == "ALL":
+                nest.verbosity = nest.VerbosityLevel.ALL
+            elif verbosity == "INFO":
+                nest.verbosity = nest.VerbosityLevel.INFO
+            elif verbosity == "WARNING":
+                nest.verbosity = nest.VerbosityLevel.WARNING
+            else:
+                assert verbosity == "ERROR"
+                nest.verbosity = nest.VerbosityLevel.ERROR
+        else:
+            nest.set_verbosity("M_" + verbosity)

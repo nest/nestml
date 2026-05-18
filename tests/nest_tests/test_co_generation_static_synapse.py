@@ -21,17 +21,17 @@
 
 import os
 
-from pynestml.codegeneration.nest_tools import NESTTools
-from pynestml.frontend.pynestml_frontend import generate_nest_target
-
+# try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.ticker
+    import matplotlib as mpl
+    mpl.use("agg")
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
-except Exception:
+except BaseException:
     TEST_PLOTS = False
+
+from pynestml.codegeneration.nest_tools import NESTTools
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
 def test_co_generation_static_synapse():
@@ -46,5 +46,4 @@ def test_co_generation_static_synapse():
                          suffix="_nestml",
                          codegen_opts={"neuron_synapse_pairs": [{"neuron": "hill_tononi_neuron",
                                                                  "synapse": "static_synapse"}],
-                                       "delay_variable": {"static_synapse": "d"},
                                        "weight_variable": {"static_synapse": "w"}})

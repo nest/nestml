@@ -43,14 +43,14 @@ parser grammar PyNestMLParser;
   /**
    * ASTUnitType. Represents an unit data type. It can be a plain data type as 'mV' or a complex data type as 'mV/s'
   **/
+  unitTypeExponent : (negative=MINUS?) leftParentheses=LEFT_PAREN num=UNSIGNED_INTEGER divOp=FORWARD_SLASH den=UNSIGNED_INTEGER rightParentheses=RIGHT_PAREN
+                   | ( PLUS | MINUS )? (UNSIGNED_INTEGER | FLOAT);
+
   unitType : leftParentheses=LEFT_PAREN compoundUnit=unitType rightParentheses=RIGHT_PAREN
            | base=unitType powOp=STAR_STAR exponent=unitTypeExponent
            | left=unitType (timesOp=STAR | divOp=FORWARD_SLASH) right=unitType
            | unitlessLiteral=UNSIGNED_INTEGER divOp=FORWARD_SLASH right=unitType
            | unit=NAME;
-
-  unitTypeExponent : ( PLUS | MINUS )? UNSIGNED_INTEGER;
-
 
   // -------------------------------------------------------------------------
   //  Decorators on equations, expressions, declarations, etc.
@@ -201,7 +201,7 @@ parser grammar PyNestMLParser;
 
   ifStmt : ifClause elifClause* (elseClause)?;
 
-  ifClause : IF_KEYWORD expression COLON 
+  ifClause : IF_KEYWORD expression COLON
              NEWLINE INDENT stmtsBody DEDENT;
 
   elifClause : ELIF_KEYWORD expression COLON
@@ -329,7 +329,7 @@ parser grammar PyNestMLParser;
    * @attribute isContinuous: true if and only if the model has a continuous-time output.
   **/
   outputBlock : OUTPUT_KEYWORD COLON
-                NEWLINE INDENT ((isSpike=SPIKE_KEYWORD (LEFT_PAREN (attribute=parameter (COMMA attribute=parameter)*)? RIGHT_PAREN)?) | isContinuous=CONTINUOUS_KEYWORD)
+                NEWLINE INDENT (isSpike=SPIKE_KEYWORD | isContinuous=CONTINUOUS_KEYWORD)
                 NEWLINE DEDENT;
 
   /**

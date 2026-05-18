@@ -22,7 +22,6 @@
 from abc import ABCMeta, abstractmethod
 
 from pynestml.symbols.symbol import Symbol
-from pynestml.utils.logger import Logger, LoggingLevel
 
 
 class TypeSymbol(Symbol):
@@ -63,7 +62,7 @@ class TypeSymbol(Symbol):
         """
         elem_type = self.print_nestml_type()
         if self.is_buffer:
-            elem_type += ' buffer'
+            elem_type += " buffer"
         return elem_type
 
     @abstractmethod
@@ -89,52 +88,52 @@ class TypeSymbol(Symbol):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
-        self.binary_operation_not_defined_error('*', other)
+        self.binary_operation_not_defined_error("*", other)
 
     def __mod__(self, other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
-        self.binary_operation_not_defined_error('%', other)
+        self.binary_operation_not_defined_error("%", other)
 
     def __truediv__(self, other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
-        self.binary_operation_not_defined_error('/', other)
+        self.binary_operation_not_defined_error("/", other)
 
     def __div__(self, other):
         return self.__truediv__(other)
 
     def __neg__(self):
-        self.unary_operation_not_defined_error('-')
+        self.unary_operation_not_defined_error("-")
 
     def __pos__(self):
-        self.unary_operation_not_defined_error('+')
+        self.unary_operation_not_defined_error("+")
 
     def __invert__(self):
-        self.unary_operation_not_defined_error('~')
+        self.unary_operation_not_defined_error("~")
 
     def __pow__(self, power, modulo=None):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         if isinstance(power, ErrorTypeSymbol):
             return power
-        self.binary_operation_not_defined_error('**', power)
+        self.binary_operation_not_defined_error("**", power)
 
     def negate(self):
-        self.unary_operation_not_defined_error('not ')
+        self.unary_operation_not_defined_error("not ")
 
     def __add__(self, other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
-        self.binary_operation_not_defined_error('+', other)
+        self.binary_operation_not_defined_error("+", other)
 
     def __sub__(self, other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
-        self.binary_operation_not_defined_error('-', other)
+        self.binary_operation_not_defined_error("-", other)
 
     def is_numeric_primitive(self):
         """
@@ -199,21 +198,27 @@ class TypeSymbol(Symbol):
     def binary_operation_not_defined_error(self, _operator, _other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         from pynestml.utils.messages import Messages
+        from pynestml.utils.logger import Logger, LoggingLevel
+
         result = ErrorTypeSymbol()
         code, message = Messages.get_binary_operation_not_defined(
             lhs=self.print_nestml_type(), operator=_operator, rhs=_other.print_nestml_type())
         Logger.log_message(code=code, message=message, error_position=self.referenced_object.get_source_position(),
                            log_level=LoggingLevel.ERROR)
+
         return result
 
     def unary_operation_not_defined_error(self, _operator):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
-        result = ErrorTypeSymbol()
         from pynestml.utils.messages import Messages
+        from pynestml.utils.logger import Logger, LoggingLevel
+
+        result = ErrorTypeSymbol()
         code, message = Messages.get_unary_operation_not_defined(_operator,
                                                                  self.print_symbol())
         Logger.log_message(code=code, message=message, error_position=self.referenced_object.get_source_position(),
                            log_level=LoggingLevel.ERROR)
+
         return result
 
     @classmethod
@@ -228,9 +233,12 @@ class TypeSymbol(Symbol):
         return result
 
     def warn_implicit_cast_from_to(self, _from, _to):
+        from pynestml.utils.logger import Logger, LoggingLevel
         from pynestml.utils.messages import Messages
+
         code, message = Messages.get_implicit_cast_rhs_to_lhs(_to.print_symbol(), _from.print_symbol())
         Logger.log_message(code=code, message=message,
                            error_position=self.get_referenced_object().get_source_position(),
                            log_level=LoggingLevel.WARNING)
+
         return _to

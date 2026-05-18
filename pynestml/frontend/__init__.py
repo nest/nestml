@@ -19,4 +19,4 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ['frontend_configuration.py', 'pynestml_frontend.py']
+__all__ = ["frontend_configuration.py", "pynestml_frontend.py"]

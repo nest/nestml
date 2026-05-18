@@ -46,7 +46,7 @@ class CoCoIntegrateODEsParamsCorrect(CoCo):
 class IntegrateODEsCheckerVisitor(ASTVisitor):
     def visit_function_call(self, node):
         func_name = node.get_name()
-        if func_name == 'integrate_odes':
+        if func_name == "integrate_odes":
             for arg in node.get_args():
                 symbol_var = node.get_scope().resolve_to_symbol(str(arg), SymbolKind.VARIABLE)
                 if symbol_var is None or not symbol_var.is_state():

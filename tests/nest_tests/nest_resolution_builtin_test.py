@@ -47,14 +47,13 @@ class NestResolutionBuiltinTest(unittest.TestCase):
                                            "neuron_parent_class_include": "structural_plasticity_node.h",
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_resolution_test_neuron",
                                                                      "synapse": "resolution_legally_used_synapse"}],
-                                           "delay_variable": {"resolution_legally_used_synapse": "d"},
                                            "weight_variable": {"resolution_legally_used_synapse": "w"}})
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_resolution_function(self):
-        nest.set_verbosity("M_ALL")
         nest.ResetKernel()
+        NESTTools.set_nest_verbosity("ALL")
         nest.Install("nestmlmodule")
         models = nest.Models(mtype="nodes")
         neuron_models = [m for m in models if str(nest.GetDefaults(m, "element_type")) == "neuron"]
@@ -62,5 +61,5 @@ class NestResolutionBuiltinTest(unittest.TestCase):
         pre = nest.Create("iaf_psc_exp", 100)
         post = nest.Create("iaf_psc_exp_resolution_test_neuron_nestml__with_resolution_legally_used_synapse_nestml")
         nest.Connect(pre, post, "all_to_all",
-                     syn_spec={'synapse_model': "resolution_legally_used_synapse_nestml__with_iaf_psc_exp_resolution_test_neuron_nestml"})
+                     syn_spec={"synapse_model": "resolution_legally_used_synapse_nestml__with_iaf_psc_exp_resolution_test_neuron_nestml"})
         nest.Simulate(100.0)

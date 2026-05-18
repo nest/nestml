@@ -138,13 +138,13 @@ class TestNESTMLPrinter:
 
     def test_declaration_with_comments(self):
         declaration = "# pre\n" \
-                      "test mV = 10mV # in\n"
+                      "test mV = 10 mV # in\n"
         model = ModelParser.parse_stmts_body(declaration)
         model_printer = NESTMLPrinter()
         assert declaration == model_printer.print(model)
 
     def test_declaration_without_comments(self):
-        declaration = "test mV = 10mV\n"
+        declaration = "test mV = 10 mV\n"
         model = ModelParser.parse_declaration(declaration)
         model_printer = NESTMLPrinter()
         assert declaration == model_printer.print(model)
@@ -219,6 +219,30 @@ class TestNESTMLPrinter:
 
     def test_unit_type(self):
         unit = "1/(mV*kg**2)"
+        model = ModelParser.parse_unit_type(unit)
+        model_printer = NESTMLPrinter()
+        assert unit == model_printer.print(model)
+
+    def test_unit_type_frac_float_exponent(self):
+        unit = "1/(mV*kg**0.5)"
+        model = ModelParser.parse_unit_type(unit)
+        model_printer = NESTMLPrinter()
+        assert unit == model_printer.print(model)
+
+    def test_unit_type_frac_float_negative_exponent(self):
+        unit = "1/(mV*kg**-0.5)"
+        model = ModelParser.parse_unit_type(unit)
+        model_printer = NESTMLPrinter()
+        assert unit == model_printer.print(model)
+
+    def test_unit_type_frac_exponent(self):
+        unit = "1/(mV*kg**(1/2))"
+        model = ModelParser.parse_unit_type(unit)
+        model_printer = NESTMLPrinter()
+        assert unit == model_printer.print(model)
+
+    def test_unit_type_negative_frac_exponent(self):
+        unit = "1/(mV*kg**-(1/2))"
         model = ModelParser.parse_unit_type(unit)
         model_printer = NESTMLPrinter()
         assert unit == model_printer.print(model)

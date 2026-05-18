@@ -60,7 +60,6 @@ class TestNestMultithreading:
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                                      "synapse": "stdp_synapse",
                                                                      "post_ports": ["post_spikes"]}],
-                                           "delay_variable": {"stdp_synapse": "d"},
                                            "weight_variable": {"stdp_synapse": "w"}})
 
         # Neuron model
@@ -128,7 +127,7 @@ class TestNestMultithreading:
 
         wr = nest.Create("weight_recorder")
         nest.CopyModel(self.neuron_synapse_synapse_model, "stdp_nestml_rec",
-                       {"weight_recorder": wr[0], "w": 1., "d": 1., "receptor_type": 0})
+                       {"weight_recorder": wr[0], "w": 1., "delay": 1., "receptor_type": 0})
 
         # Spike generators
         pre_sg = nest.Create("spike_generator", 2,

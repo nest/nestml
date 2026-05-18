@@ -58,7 +58,7 @@ State variables
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `stdp_triplet_synapse <https://github.com/nest/nestml/tree/master/models/synapses/stdp_triplet_synapse.nestml>`_.
+The model source code can be found in the NESTML models repository here: `stdp_triplet_synapse <https://github.com/nest/nestml/tree/main/models/synapses/stdp_triplet_synapse.nestml>`_.
 
 
 .. include:: stdp_triplet_synapse_characterisation.rst

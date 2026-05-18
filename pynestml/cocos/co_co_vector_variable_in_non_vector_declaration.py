@@ -42,7 +42,7 @@ class CoCoVectorVariableInNonVectorDeclaration(CoCo):
         :type node: ASTModel
         """
         assert node is not None and (isinstance(node, ASTModel)), \
-            '(PyNestML.CoCo.BufferNotAssigned) No or wrong type provided (%s): expecting neuron or synapse!' % type(node)
+            "(PyNestML.CoCo.BufferNotAssigned) No or wrong type provided (%s): expecting neuron or synapse!" % type(node)
         node.accept(VectorInDeclarationVisitor())
         return
 

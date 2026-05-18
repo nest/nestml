@@ -41,12 +41,12 @@ class UnitType:
         :type unit: astropy.units.core.Unit
         """
         assert isinstance(name, str), \
-            '(PyNestML.SymbolTable.UnitType) No or wrong type of name provided (%s)!' % type(name)
+            "(PyNestML.SymbolTable.UnitType) No or wrong type of name provided (%s)!" % type(name)
         assert (isinstance(unit, Unit) or isinstance(unit, PrefixUnit)
                 or isinstance(unit, IrreducibleUnit)
                 or isinstance(unit, CompositeUnit)
                 or isinstance(unit, Quantity)), \
-            '(PyNestML.SymbolTable.UnitType) No or wrong type of unit provided (%s)!' % type(unit)
+            "(PyNestML.SymbolTable.UnitType) No or wrong type of unit provided (%s)!" % type(unit)
         self.name = name
         self.unit = unit
         return

@@ -28,7 +28,7 @@ class ASTUnaryOperator(ASTNode):
     """
     This class is used to store a single unary operator, e.g., ~.
     Grammar:
-        unaryOperator : (unaryPlus='+' | unaryMinus='-' | unaryTilde='~');
+        unaryOperator : (unaryPlus="+" | unaryMinus="-" | unaryTilde="~");
     Attributes:
         is_unary_plus = False
         is_unary_minus = False
@@ -49,7 +49,7 @@ class ASTUnaryOperator(ASTNode):
         :type is_unary_tilde: bool
         """
         assert ((is_unary_tilde + is_unary_minus + is_unary_plus) == 1), \
-            '(PyNestML.AST.UnaryOperator) Type of unary operator not correctly specified!'
+            "(PyNestML.AST.UnaryOperator) Type of unary operator not correctly specified!"
         super(ASTUnaryOperator, self).__init__(*args, **kwargs)
         self.is_unary_plus = is_unary_plus
         self.is_unary_minus = is_unary_minus

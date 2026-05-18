@@ -1,16 +1,30 @@
 {#
   Creates GSL implementation of the differentiation step for the system of ODEs.
 -#}
-extern "C" inline int {{neuronName}}_dynamics{% if ast.get_args() | length > 0 %}_{{ utils.integrate_odes_args_str_from_function_call(ast) }}{% endif %}(double __time, const double ode_state[], double f[], void* pnode)
+{%- if neuronName is defined %}
+{%-   set modelName = neuronName %}
+{%- else %}
+{%-   set modelName = synapseName %}
+{%- endif %}
+extern "C" inline int {{modelName}}_dynamics{% if ast.get_args() | length > 0 %}_{{ utils.integrate_odes_args_str_from_function_call(ast) }}{% endif %}(double __time, const double ode_state[], double f[], void* pnode)
 {
-  typedef {{neuronName}}::State_ State_;
-  // get access to node so we can almost work as in a member function
+{%- if neuronName is defined  %}
+  typedef {{modelName}}::State_ State_;
+   // get access to node so we can almost work as in a member function
   assert( pnode );
   const {{neuronName}}& node = *( reinterpret_cast< {{neuronName}}* >( pnode ) );
-
+{%- for port in neuron.get_continuous_input_ports()  %}
+  constexpr int {{ port.get_symbol_name().upper() }} = {{ neuronName }}::{{ port.get_symbol_name().upper() }};
+{%- endfor  %}
+{%- else %}
+  // get access to node so we can almost work as in a member function
+  assert( pnode );
+  const Parameters_& node = *( reinterpret_cast< Parameters_* >( pnode ) );
+{%- endif %}
   // ode_state[] here is---and must be---the state vector supplied by the integrator,
   // not the state vector in the node, node.S_.ode_state[].
 
+{%- if neuronName is defined  %}
 {%- for eq_block in neuron.get_equations_blocks() %}
 {%-     for ode in eq_block.get_declarations() %}
 {%-         for inline_expr in utils.get_inline_expression_symbols(ode) %}
@@ -22,7 +36,20 @@ extern "C" inline int {{neuronName}}_dynamics{% if ast.get_args() | length > 0 %
 {%-     endfor %}
 {%- endfor %}
 
-{%- if use_gap_junctions %}
+{%- else %}
+{%- for eq_block in synapse.get_equations_blocks() %}
+{%-     for ode in eq_block.get_declarations() %}
+{%-         for inline_expr in utils.get_inline_expression_symbols(ode) %}
+{%-             if not inline_expr.is_equation() %}
+{%-                 set declaring_expr = inline_expr.get_declaring_expression() %}
+  double {{ printer.print(utils.get_state_variable_by_name(astnode, inline_expr)) }} = {{ gsl_printer.print(declaring_expr) }};
+{%-             endif %}
+{%-         endfor %}
+{%-     endfor %}
+{%- endfor %}
+{%- endif %}
+
+{%- if use_gap_junctions and neuronName is defined %}
   // set I_gap depending on interpolation order
   double __I_gap = 0.0;
 
@@ -51,6 +78,7 @@ extern "C" inline int {{neuronName}}_dynamics{% if ast.get_args() | length > 0 %
   }
 {%- endif %}
 
+{%- if neuronName is defined %}
 {%      set numeric_state_variables_to_be_integrated = numeric_state_variables + purely_numeric_state_variables_moved %}
 {%-     if ast.get_args() | length > 0 %}
 {%-         set numeric_state_variables_to_be_integrated = utils.filter_variables_list(numeric_state_variables_to_be_integrated, ast.get_args()) %}
@@ -59,11 +87,19 @@ extern "C" inline int {{neuronName}}_dynamics{% if ast.get_args() | length > 0 %
 {%-   set update_expr = numeric_update_expressions[variable_name] %}
 {%-   set variable_symbol = variable_symbols[variable_name] %}
 {%- if use_gap_junctions %}
-  f[State_::{{ variable_symbol.get_symbol_name() }}] = {% if ast.get_args() | length > 0 %}{% if variable_name in numeric_state_variables_to_be_integrated + utils.all_convolution_variable_names(astnode) %}{{ gsl_printer.print(update_expr)|replace("node.B_." + gap_junction_port + "_grid_sum_", "(node.B_." + gap_junction_port + "_grid_sum_ + __I_gap)") }}{% else %}0{% endif %}{% else %}{{ gsl_printer.print(update_expr) }}{% endif %};
+  f[State_::{{ variable_symbol.get_symbol_name() }}] = {% if ast.get_args() | length > 0 %}{% if variable_name in numeric_state_variables_to_be_integrated + utils.all_convolution_variable_names(astnode) %}{{ gsl_printer.print(update_expr)|replace("node.B_.continuous_inputs_grid_sum_[" + gap_junction_port.upper() + "]", "(node.B_.continuous_inputs_grid_sum_[" + gap_junction_port.upper() + "] + __I_gap)") }}{% else %}0{% endif %}{% else %}{{ gsl_printer.print(update_expr)|replace("node.B_.continuous_inputs_grid_sum_[" + gap_junction_port.upper() + "]", "(node.B_.continuous_inputs_grid_sum_[" + gap_junction_port.upper() + "] + __I_gap)") }}{% endif %};
 {%- else %}
   f[State_::{{ variable_symbol.get_symbol_name() }}] = {% if ast.get_args() | length > 0 %}{% if variable_name in numeric_state_variables_to_be_integrated + utils.all_convolution_variable_names(astnode) %}{{ gsl_printer.print(update_expr) }}{% else %}0{% endif %}{% else %}{{ gsl_printer.print(update_expr) }}{% endif %};
 {%- endif %}
 {%- endfor %}
+
+{%- else %}
+{%- for variable_name in numeric_state_variables %}
+{%-   set update_expr = numeric_update_expressions[variable_name] %}
+{%-   set variable_symbol = variable_symbols[variable_name] %}
+  f[State_::{{ variable_symbol.get_symbol_name() }}] = {% if ast.get_args() | length > 0 %}{% if variable_name in utils.integrate_odes_args_strs_from_function_call(ast) + utils.all_convolution_variable_names(astnode) %}{{ gsl_printer_no_origin.print(update_expr) }}{% else %}0{% endif %}{% else %}{{ gsl_printer_no_origin.print(update_expr) }}{% endif %};
+{%- endfor %}
+{%- endif %}
 
 {%- if numeric_solver == "rk45" %}
   return GSL_SUCCESS;
@@ -71,3 +107,4 @@ extern "C" inline int {{neuronName}}_dynamics{% if ast.get_args() | length > 0 %
   return 0;
 {%- endif %}
 }
+

@@ -164,7 +164,8 @@ class NESTVariablePrinter(CppVariablePrinter):
         if self.cpp_variable_suffix:
             return variable_symbol.get_symbol_name() + self.cpp_variable_suffix
 
-        return variable_symbol.get_symbol_name() + '_grid_sum_'
+        assert variable_symbol.is_continuous_input_port()
+        return "continuous_inputs_grid_sum_[" + variable.get_name().upper() + "]"
 
     def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:
         variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())

@@ -38,91 +38,39 @@ Similar to Python, a single line can be split into multiple lines by using a bac
 Data types and physical units
 -----------------------------
 
-Data types define types of variables as well as parameters and return values of functions. NESTML provides the following primitive types and physical data types:
+Data types define types of variables, as well as parameters and return values of functions. NESTML provides the following primitive types and physical data types, which can both be used to indicate types.
 
 
 Primitive data types
 ~~~~~~~~~~~~~~~~~~~~
 
--  ``real`` corresponds to the ``double`` data type in C++. Example literals are: ``42.0``, ``-0.42``, ``.44``
--  ``integer`` corresponds to the ``long`` data type in C++. Example literals are: ``42``, ``-7``
--  ``boolean`` corresponds to the ``bool`` data type in C++. Its only literals are ``true`` and ``false``
--  ``string`` corresponds to the ``std::string`` data type in C++. Example literals are: ``"Bob"``, ``""``, ``"Hello World!"``
--  ``void`` corresponds to the ``void`` data type in C++. No literals are possible and this can only be used in the declaration of a function without a return value.
+-  ``real`` indicates a real number. Example literals are: ``42.0``, ``-0.42``, ``.44``
+-  ``integer`` indicates a natural number (signed integer). Example literals are: ``42``, ``-7``
+-  ``boolean`` indicates a Boolean value. Its only literals are ``true`` and ``false``
+-  ``string`` indicates a text string. Example literals are: ``"Bob"``, ``""``, ``"Hello World!"``
+-  ``void`` can only be used in the declaration of a function to indicate that it does not return a value.
 
 
 Physical units
 ~~~~~~~~~~~~~~
 
-A physical unit in NESTML can be either a simple physical unit or a complex physical unit. A simple physical unit is composed of an optional magnitude prefix and the name of the unit.
+A physical unit in NESTML can be either a base physical unit or a derived physical unit. The following table lists the seven base units as defined in `the SI standard <https://en.wikipedia.org/wiki/International_System_of_Units>`__.
 
-The following table lists seven base units, which can be used to specify any physical unit. This idea is based on `the SI units <https://en.wikipedia.org/wiki/International_System_of_Units>`__.
++-----------+--------+---------------------+
+| Name      | Symbol | Quantity            |
+|===========|========|=====================|
+| meter     | m      | length              |
+| kilogram  | kg     | mass                |
+| second    | s      | time                |
+| Ampère    | A      | electric current    |
+| Kelvin    | K      | temperature         |
+| mole      | mol    | amount of substance |
+| candela   | cd     | luminous intensity  |
++-----------+--------+---------------------+
 
-+-----------------------+-------------+------------------+
-| Quantity              | Unit Name   | NESTML/SI unit   |
-+=======================+=============+==================+
-| length                | meter       | m                |
-+-----------------------+-------------+------------------+
-| mass                  | kilogram    | kg               |
-+-----------------------+-------------+------------------+
-| time                  | second      | s                |
-+-----------------------+-------------+------------------+
-| electric current      | ampere      | A                |
-+-----------------------+-------------+------------------+
-| temperature           | kelvin      | K                |
-+-----------------------+-------------+------------------+
-| amount of substance   | mole        | mol              |
-+-----------------------+-------------+------------------+
-| luminous intensity    | candela     | cd               |
-+-----------------------+-------------+------------------+
+Any other physical unit can be expressed as a combination of these seven units. For this, the operators ``*`` (multiplication), ``/`` (division), ``**`` (power) and ``()`` (parentheses) can be used (see below for examples).
 
-Any other physical unit can be expressed as a combination of these seven units. These other units are called derived units. NESTML provides a concept for the derivation of new physical units, i.e., by combining simple units (consisting of a prefix and an SI unit), the user is able to create arbitrary physical units.
-
-Units can have at most one of the following magnitude prefixes:
-
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| Factor   | SI Name   | NESTML prefix   | Factor   | SI Name   | NESTML prefix   |
-+==========+===========+=================+==========+===========+=================+
-| 10^-1    | deci      | d               | 10^1     | deca      | da              |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-2    | centi     | c               | 10^2     | hecto     | h               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-3    | milli     | m               | 10^3     | kilo      | k               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-6    | micro     | u               | 10^6     | mega      | M               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-9    | nano      | n               | 10^9     | giga      | G               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-12   | pico      | p               | 10^12    | tera      | T               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-15   | femto     | f               | 10^15    | peta      | P               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-18   | atto      | a               | 10^18    | exa       | E               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-21   | zepto     | z               | 10^21    | zetta     | Z               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-24   | yocto     | y               | 10^24    | yotta     | Y               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-
-Simple physical units can be combined to complex units. For this, the operators , ``*`` (multiplication), ``/`` (division), ``**`` (power) and ``()`` (parenthesis) can be used. An example could be
-
-.. code-block:: nestml
-
-   mV*mV*nS**2/(mS*pA)
-
-Units of the form ``<unit> ** -1`` can also be expressed as ``1/<unit>``. For example
-
-.. code-block:: nestml
-
-   (ms*mV)**-1
-
-is equivalent to
-
-.. code-block:: nestml
-
-   1/(ms*mV)
-
-NESTML also supports the usage of named derived-units such as Newton, Henry or lux:
+NESTML also supports the usage of many named derived units such as Newton, Henry or lux. The following units are defined:
 
 .. list-table::
    :header-rows: 1
@@ -184,14 +132,14 @@ NESTML also supports the usage of named derived-units such as Newton, Henry or l
      - C/V
      - kg\ :sup:`−1`\ ⋅ m\ :sup:`−2`\ ⋅ s\ :sup:`4`\ ⋅ A\ :sup:`2`
    * - Ohm
-     - Ω
+     - Ohm
      - resistance, impedance, reactance
      - V/A
      - kg⋅(m\ :sup:`2`\ ) ⋅ (s\ :sup:`−3`\ ) ⋅(A\ :sup:`−2`\ )
    * - Siemens
      - S
      - electrical conductance
-     - Ω\ :sup:`−1`
+     - Ohm\ :sup:`−1`
      - (kg\ :sup:`−1`\ ) ⋅(m\ :sup:`−2`\ ) ⋅(s\ :sup:`3`\ ) ⋅ A\ :sup:`2`
    * - Weber
      - Wb
@@ -240,17 +188,61 @@ NESTML also supports the usage of named derived-units such as Newton, Henry or l
      - mol⋅(s\ :sup:`−1`\ )
 
 
-Here, except for Ohm, the symbol of the unit has to be used in the model, e.g.:
+These unit symbols can be used to define physical quantites, for instance:
 
 .. code-block:: nestml
 
-   x = 10 N * 22 Ohm / 0.5 V
+   x N/A = 10 N * 22 Ohm / 0.5 V
+
+Physical units can have at most one of the following magnitude prefixes:
+
++----------+-----------+-----------------+----------+-----------+-----------------+
+| Factor   | SI Name   | NESTML prefix   | Factor   | SI Name   | NESTML prefix   |
++==========+===========+=================+==========+===========+=================+
+| 10^-1    | deci      | d               | 10^1     | deca      | da              |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-2    | centi     | c               | 10^2     | hecto     | h               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-3    | milli     | m               | 10^3     | kilo      | k               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-6    | micro     | u               | 10^6     | mega      | M               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-9    | nano      | n               | 10^9     | giga      | G               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-12   | pico      | p               | 10^12    | tera      | T               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-15   | femto     | f               | 10^15    | peta      | P               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-18   | atto      | a               | 10^18    | exa       | E               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-21   | zepto     | z               | 10^21    | zetta     | Z               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-24   | yocto     | y               | 10^24    | yotta     | Y               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+
+For example, the following defines a possible unit:
+
+.. code-block:: nestml
+
+   mV*mV*nS**2/(mS*pA)
+
+Units of the form ``<unit>**-1`` can also be expressed as ``1/<unit>``. For example
+
+.. code-block:: nestml
+
+   (ms*mV)**-1
+
+is equivalent to
+
+.. code-block:: nestml
+
+   1/(ms*mV)
 
 
 Type and unit checks
 ~~~~~~~~~~~~~~~~~~~~
 
-NESTML checks type correctness of all expressions. This also applies to assignments, declarations with an initialization and function calls. NESTML supports conversion of ``integer``\ s to ``real``\ s. A conversion between ``unit``-typed and ``real``-typed variables is also possible. However, these conversions are reported as warnings. Finally, there is no conversion between numeric types and boolean or string types.
+NESTML checks type correctness of all expressions. This also applies to assignments, declarations with an initialization, ODEs, and function calls. Conversion of ``integer``\ s to ``real``\ s is allowed. A conversion between ``unit``-typed and ``real``-typed variables is also allowed. However, these conversions are reported as warnings. No conversion is allowed between numeric types and Boolean or string types.
 
 
 Basic elements of the embedded programming language
@@ -339,7 +331,7 @@ Whitelines are therefore used to separate comment targets:
    # I am a comment of the resting potential.
    V_rest mV = -60 mV
 
-The text of each comment is interpreted as `Sphinx reStructuredText format <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_.
+The text of each comment is interpreted as `Sphinx reStructuredText format <https://www.sphinx-doc.org/en/main/usage/restructuredtext/index.html>`_.
 
 Documentation for a model may appear directly in front of the model definition, akin to Python "docstrings" (see `PEP 257 "Docstring Conventions" <https://www.python.org/dev/peps/pep-0257/>`_). For example:
 
@@ -905,7 +897,7 @@ Calling the ``emit_spike()`` function in the ``update`` block results in firing 
 Event attributes
 ~~~~~~~~~~~~~~~~
 
-Each spiking output event can be parameterised by one or more attributes. For example, a synapse could assign a weight (as a real number) and delay (in milliseconds) to its spike events by including these values in the call to ``emit_spike()``:
+Each spiking output event corresponds to a Dirac delta pulse and can be parameterised by one attribute (the area of the pulse). For example, a synapse could assign a weight (as a real number) to its spike events by including this value in the call to ``emit_spike()``:
 
 .. code-block:: nestml
 
@@ -913,18 +905,9 @@ Each spiking output event can be parameterised by one or more attributes. For ex
        weight real = 10.
 
    update:
-       emit_spike(weight, 1 ms)
+       emit_spike(weight)
 
-If spike event attributes are used, their names and types must be given as part of the output port specification, for example:
-
-.. code-block:: nestml
-
-   output:
-       spike(weight real, delay ms)
-
-The names are only used externally, so that other models can refer to the correct attribute (such as a downstream neuron that is receiving the spike through its input port). It is thus allowed to have a state variable called ``weight`` and an output port attribute by the same name; the output port attribute name does not refer to names declared inside the model.
-
-Specific code generators may support a specific set of attributes; please check the documentation of each individual code generator for more details.
+If the parameter is not specified, the delta function will have an area of 1.
 
 
 Equations
@@ -973,7 +956,7 @@ Note that the ``delay`` can be a numeric constant or a constant defined in the `
        tau ms = 3.5 ms
        delay ms = 5.0 ms
 
-For a full example, please refer to the tests at `tests/nest_tests/nest_delay_based_variables_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest_delay_based_variables_test.py>`_.
+For a full example, please refer to the tests at `tests/nest_tests/nest_delay_based_variables_test.py <https://github.com/nest/nestml/blob/main/tests/nest_tests/nest_delay_based_variables_test.py>`_.
 
 .. note::
 
@@ -1007,21 +990,6 @@ The ``recordable`` keyword can be used to make the variable in inline expression
    equations:
        ...
        recordable inline V_m mV = V_rel + E_L
-
-During simulation, one or more state variables are used to maintain the dynamical state of each convolution across time. To be able to reference these variables from within the model, a special case occurs when an inline expression is defined as a convolution and marked ``recordable``:
-
-.. code-block:: nestml
-
-   recordable inline I_syn pA = convolve(alpha_kernel, spiking_input_port) * pA
-
-Then, the state variables corresponding to this convolution can be referenced in the rest of the model, for instance:
-
-.. code-block:: nestml
-
-   update:
-     # reset the state of synaptic integration
-     I_syn = 0 pA
-     I_syn' = 0 * s**-1
 
 
 Kernel functions
@@ -1169,12 +1137,12 @@ During simulation, the simulation kernel (for example, NEST Simulator) is respon
 The recommended update sequence for a spiking neuron model is shown below (panel A), which is optimal ("gives the fewest surprises") in the case the simulator uses a minimum synaptic transmission delay (this includes NEST). In this sequence, first the subthreshold dynamics are evaluated (that is, ``integrate_odes()`` is called; in the simplest case, all equations are solved simultaneously) and only afterwards, incoming spikes are processed.
 
 .. _label:fig_integration_order
-.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/integration_order.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/fig/integration_order.png
    :alt: Different conventions for the integration sequence. Modified after [1]_, their Fig. 10.2. The precise sequence of operations depends on whether the simulation is considered to have synaptic propagation delays (A) or not (B).
 
 The numeric results of a typical simulation run are shown below. Consider a leaky integrate-and-fire neuron with exponentially decaying postsynaptic currents :math:`I_\text{syn}`. The neuron is integrated using a fixed timestep of :math:`1~\text{ms}` (left) and using an event-based method (right):
 
-.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/integration_order_example.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/fig/integration_order_example.png
    :alt: Numerical example for two different integration sequences.
 
 On the left, both pre-synaptic spikes are only processed at the end of the interval in which they occur. The statements in the ``update`` block are run every timestep for a fixed timestep of :math:`1~\text{ms}`, alternating with the statements in the ``onReceive`` handler for the spiking input port. Note that this means that the effect of the spikes becomes visible at the end of the timestep in :math:`I_\text{syn}`, but it takes another timestep before ``integrate_odes()`` is called again and consequently for the effect of the spikes to become visible in the membrane potential. This results in a threshold crossing and the neuron firing a spike. On the right half of the figure, the same presynaptic spike timing is used, but events are processed at their exact time of occurrence. In this case, the ``update`` statements are called once to update the neuron from time 0 to :math:`1~\text{ms}`, then again to update from :math:`1~\text{ms}` to the time of the first spike, then the spike is processed by running the statements in its ``onReceive`` block, then ``update`` is called to update from the time of the first spike to the second spike, and so on. The time courses of :math:`I_\text{syn}` and :math:`V_\text{m}` are such that the threshold is not reached and the neuron does not fire, illustrating the numerical differences that can occur when the same model is simulated using different strategies.

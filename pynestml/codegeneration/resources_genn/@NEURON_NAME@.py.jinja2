@@ -1,0 +1,125 @@
+{#-
+@NEURON_NAME@_genn.py.jinja2
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#}
+
+import pygenn
+from numpy import exp
+
+{%- if astnode.print_comment('#') | length > 1 %}
+{{ astnode.print_comment('# ') }}
+{%- endif %}
+{{ neuronName }}_model = pygenn.create_neuron_model(
+    "{{ neuronName }}",
+
+    additional_input_vars=[
+{%- for port in neuron.get_spike_input_ports() %}
+{%-   if port.has_vector_parameter() -%}
+{%      set size = utils.get_numeric_vector_size(port) | int %}
+{%-     for i in range(size) %}
+        ("{{ port.get_symbol_name() }}_{{ i }}", "scalar", 1.0),
+{%-     endfor %}
+{%-   else %}
+        ("{{ port.get_symbol_name() }}", "scalar", 1.0),
+{%-   endif -%}
+{%- endfor %}
+{%- for port in neuron.get_continuous_input_ports() %}
+        ("{{ port.get_symbol_name() }}", "scalar", 1.0),
+{%- endfor %}
+        ],
+
+    sim_code=
+        """
+{%-  if neuron.get_update_blocks() %}
+{%-     filter indent(8) %}
+
+// -------------------------------------------------------------------------
+//   Begin generated code for the update block
+// -------------------------------------------------------------------------
+
+{%-         for block in neuron.get_update_blocks() %}
+{%-             set ast = block.get_stmts_body() %}
+{%-             include "directives_cpp/StmtsBody.jinja2" %}
+{%-         endfor %}
+{%-     endfilter %}
+{%- endif %}
+
+
+{%- if neuron.get_on_receive_blocks() %}
+{%-     filter indent(8) %}
+
+// -------------------------------------------------------------------------
+//   Begin generated code for the event handler blocks
+// -------------------------------------------------------------------------
+
+{%-         for blk in neuron.get_on_receive_blocks() %}
+{%-             set ast = blk.get_stmts_body() %}
+if ({{ blk.get_port_name() }} != 0) {
+{%-             filter indent(4, True) -%}
+{%-                 include "directives_cpp/StmtsBody.jinja2" %}
+{%-             endfilter %}
+}
+{%-         endfor %}
+{%-     endfilter %}
+{%- endif %}
+
+        """,
+    threshold_condition_code="""
+{%- filter indent(8) %}
+{{ printer.print(threshold_condition) }}
+{%- endfilter %}
+        """,
+
+    reset_code="""
+{%-         set ast = threshold_reset_stmts %}
+{%-         filter indent(8) %}
+{%-             include "directives_cpp/StmtsBody.jinja2" %}
+{%-         endfilter %}
+        """,
+
+    params=[
+{%- for variable_symbol in neuron.get_parameter_symbols() %}
+{%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+            "{{ CppVariablePrinter._print_cpp_name(variable.get_complete_name()) }}",
+{%- endfor %}
+        ],
+
+    vars=[
+{%- for variable_symbol in neuron.get_state_symbols() %}
+{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+          ("{{ CppVariablePrinter._print_cpp_name(variable.get_complete_name()) }}", "scalar", pygenn.VarAccess.READ_WRITE),
+{%- endfor %}
+        ],
+
+{%  if neuron.get_internals_blocks() %}
+    derived_params=[
+{%-     for internals_block in neuron.get_internals_blocks() %}
+{%-         for decl in internals_block.get_declarations() %}
+{%-             for variable in decl.get_variables() %}
+{%-                 set variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
+{%-                 set sym = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
+{%-                 if variable.name not in ["dt", "__h"] %}
+                    ("{{ printer.print(variable) }}", lambda pars, dt: {{ genn_derived_params_printer.print(sym.get_declaring_expression()) }}),
+{%-                 endif %}
+{%-             endfor %}
+{%-         endfor %}
+{%-     endfor %}
+{%- endif %}
+
+        ])

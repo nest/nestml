@@ -1,23 +1,25 @@
+# concmech.nestml
+# ###############
+#
 # Copyright statement
 # +++++++++++++++++++
-# 
+#
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
-# 
+#
 # NEST is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # NEST is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
 #
 model multichannel_test_model:
     parameters:
@@ -75,31 +77,31 @@ model multichannel_test_model:
         c_Ca real = 0.0001
 
     equations:
-        kernel g_AMPA = g_norm_AMPA * ( - exp(-t / tau_r_AMPA) + exp(-t / tau_d_AMPA) )
+        kernel g_AMPA = g_norm_AMPA * (- exp(-t / tau_r_AMPA) + exp(-t / tau_d_AMPA))
         inline AMPA real = convolve(g_AMPA, spikes_AMPA) * (e_AMPA - v_comp) @mechanism::receptor
 
         # equations Ca_HVA
         inline Ca_HVA real = gbar_Ca_HVA * (h_Ca_HVA*m_Ca_HVA**2) * (e_Ca_HVA - v_comp) @mechanism::channel
-        m_Ca_HVA' = ( m_inf_Ca_HVA(v_comp) - m_Ca_HVA ) / (tau_m_Ca_HVA(v_comp)*1s)
-        h_Ca_HVA' = ( h_inf_Ca_HVA(v_comp) - h_Ca_HVA ) / (tau_h_Ca_HVA(v_comp)*1s)
+        m_Ca_HVA' = (m_inf_Ca_HVA(v_comp) - m_Ca_HVA) / (tau_m_Ca_HVA(v_comp)*1s)
+        h_Ca_HVA' = (h_inf_Ca_HVA(v_comp) - h_Ca_HVA) / (tau_h_Ca_HVA(v_comp)*1s)
 
         # equations Ca_LVAst
         inline Ca_LVAst real = gbar_Ca_LVAst * (h_Ca_LVAst*m_Ca_LVAst**2) * (e_Ca_LVAst - v_comp) @mechanism::channel
-        m_Ca_LVAst' = ( m_inf_Ca_LVAst(v_comp) - m_Ca_LVAst ) / (tau_m_Ca_LVAst(v_comp)*1s)
-        h_Ca_LVAst' = ( h_inf_Ca_LVAst(v_comp) - h_Ca_LVAst ) / (tau_h_Ca_LVAst(v_comp)*1s)
+        m_Ca_LVAst' = (m_inf_Ca_LVAst(v_comp) - m_Ca_LVAst) / (tau_m_Ca_LVAst(v_comp)*1s)
+        h_Ca_LVAst' = (h_inf_Ca_LVAst(v_comp) - h_Ca_LVAst) / (tau_h_Ca_LVAst(v_comp)*1s)
 
         # equations NaTa_t
         inline NaTa_t real = gbar_NaTa_t * (h_NaTa_t*m_NaTa_t**3) * (e_NaTa_t - v_comp) @mechanism::channel
-        m_NaTa_t' = ( m_inf_NaTa_t(v_comp) - m_NaTa_t ) / (tau_m_NaTa_t(v_comp)*1s)
-        h_NaTa_t' = ( h_inf_NaTa_t(v_comp) - h_NaTa_t ) / (tau_h_NaTa_t(v_comp)*1s)
+        m_NaTa_t' = (m_inf_NaTa_t(v_comp) - m_NaTa_t) / (tau_m_NaTa_t(v_comp)*1s)
+        h_NaTa_t' = (h_inf_NaTa_t(v_comp) - h_NaTa_t) / (tau_h_NaTa_t(v_comp)*1s)
 
         # equations SKv3_1
         #inline SKv3_1 real = gbar_SKv3_1 * (z_SKv3_1) * (e_SKv3_1 - v_comp) @mechanism::channel
-        #z_SKv3_1' = ( z_inf_SKv3_1(v_comp) - z_SKv3_1 ) / (tau_z_SKv3_1(v_comp)*1s)
+        #z_SKv3_1' = (z_inf_SKv3_1(v_comp) - z_SKv3_1) / (tau_z_SKv3_1(v_comp)*1s)
 
         # equations SK_E2
         inline SK_E2 real = gbar_SK_E2 * (z_SK_E2) * (e_SK_E2 - v_comp) @mechanism::channel
-        z_SK_E2' = ( z_inf_SK_E2(c_Ca) - z_SK_E2) / 1.0s
+        z_SK_E2' = (z_inf_SK_E2(c_Ca) - z_SK_E2) / 1.0s
 
         # equations Ca concentration mechanism
         c_Ca' = (inf_Ca - c_Ca) / (tau_Ca*1s) + (gamma_Ca * (Ca_HVA + Ca_LVAst)) / 1s @mechanism::concentration
@@ -209,8 +211,8 @@ model multichannel_test_model:
         return val
 
     internals:
-        tp_AMPA real = (tau_r_AMPA * tau_d_AMPA) / (tau_d_AMPA - tau_r_AMPA) * ln( tau_d_AMPA / tau_r_AMPA )
-        g_norm_AMPA real =  1. / ( -exp( -tp_AMPA / tau_r_AMPA ) + exp( -tp_AMPA / tau_d_AMPA ) )
+        tp_AMPA real = (tau_r_AMPA * tau_d_AMPA) / (tau_d_AMPA - tau_r_AMPA) * ln(tau_d_AMPA / tau_r_AMPA)
+        g_norm_AMPA real =  1. / (-exp(-tp_AMPA / tau_r_AMPA) + exp(-tp_AMPA / tau_d_AMPA))
 
     input:
         spikes_AMPA <- spike

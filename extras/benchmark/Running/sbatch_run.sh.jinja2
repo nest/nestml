@@ -1,0 +1,26 @@
+#!/bin/bash
+#SBATCH --job-name=nestml_benchmark
+#SBATCH --account=jinm60
+#SBATCH --partition=dc-cpu
+#SBATCH --time=05:00:00
+#SBATCH --nodes={{nodes}}
+#SBATCH --ntasks-per-node={{ntasks_per_node}}
+#SBATCH --cpus-per-task={{cpus_per_task}}
+#SBATCH --hint=nomultithread
+#SBTACH --exclusive
+#SBATCH --output={{combination["output_file"]}}
+#SBATCH --error={{combination["error_file"]}}
+#SBATCH --disable-perfparanoid
+
+{%- if enable_profile %}
+ml AMD-uProf
+{%- endif %}
+
+export OMP_PROC_BIND=TRUE
+export PROGRAM="python3 Running/brunel_alpha_nest.py --simulated_neuron {{combination["simulated_neuron"]}} --network_scale {{combination["network_scale"]}} --nodes {{ combination["nodes"] }} --threads {{combination["threads"]}}  --iteration {{combination["iteration"]}} --benchmarkPath {{combination["benchmarkPath"]}} --rng_seed {{combination["rng_seed"]}}"
+
+{%- if enable_profile %}
+srun AMDuProfCLI collect --config tbp --mpi -o cpuprof $PROGRAM
+{%- else %}
+srun $PROGRAM
+{%- endif %}
