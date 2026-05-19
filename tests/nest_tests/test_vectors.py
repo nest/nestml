@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest_vectors_test.py
+# test_vectors.py
 #
 # This file is part of NEST.
 #
@@ -34,10 +34,8 @@ class TestNestVectorsIntegration:
     Tests the code generation and vector operations from NESTML to NEST.
     """
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     def test_vectors(self):
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "Vectors.nestml")))
+        input_path = os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "Vectors.nestml"))
         target_path = "target"
         logging_level = "INFO"
         suffix = "_nestml"
@@ -68,20 +66,15 @@ class TestNestVectorsIntegration:
         events = multimeter.get("events")
         g_in = events["G_IN_0"]
         g_ex = events["G_EX_1"]
-        print("g_in: {}, g_ex: {}".format(g_in, g_ex))
         np.testing.assert_almost_equal(g_in[-1], 11.)
         np.testing.assert_almost_equal(g_ex[-1], -2.)
 
         v_m = multimeter.get("events")["V_m"]
-        print("V_m: {}".format(v_m))
         np.testing.assert_almost_equal(v_m[-1], -0.3)
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     @pytest.mark.xfail(strict=True, raises=nest.NESTErrors.BadProperty)
     def test_vectors_resize(self):
-        input_path = os.path.join(
-            os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "VectorsResize.nestml")))
+        input_path = os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "VectorsResize.nestml"))
         target_path = "target"
         logging_level = "INFO"
         suffix = "_nestml"
@@ -101,3 +94,41 @@ class TestNestVectorsIntegration:
 
         neuron = nest.Create("vector_resize_nestml", params={"N": 200})
         neuron.set(x=[1.0, 1.0, 4.0])
+
+    def test_vectors_with_non_linear_odes(self):
+        input_path = os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "vectors_with_nonlin_eq.nestml"))
+        target_path = "target"
+        logging_level = "INFO"
+        suffix = "_nestml"
+
+        resolution = 1.    # [ms]
+        sim_time = 10.    # [ms]
+
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level=logging_level,
+                             suffix=suffix)
+
+        nest.ResetKernel()
+        nest.Install("nestmlmodule")
+        nest.resolution = resolution
+        NESTTools.set_nest_verbosity("ALL")
+
+        neuron = nest.Create("vectors_with_nonlin_eq_nestml")
+        neuron.buf_len = int(np.ceil(sim_time / resolution))
+
+        #
+        #    run the simulation
+        #
+
+        nest.Simulate(sim_time)
+
+        #
+        #    check the results
+        #
+
+        np.testing.assert_allclose(neuron.x_buf[0], 42.)
+        np.testing.assert_allclose(neuron.x_buf[-1], 42. * np.exp(-(neuron.buf_len - 1) / neuron.tau))
+
+        np.testing.assert_allclose(neuron.y_buf[0], 42.)
+        np.testing.assert_allclose(neuron.y_buf[-1], 42. * neuron.tau / (42 * (neuron.buf_len - 1) + neuron.tau), rtol=1E-6)    # low rtol due to numerical (GSL) solver tolerances
