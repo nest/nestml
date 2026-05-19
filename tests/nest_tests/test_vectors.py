@@ -1,0 +1,134 @@
+# -*- coding: utf-8 -*-
+#
+# test_vectors.py
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+import os
+import numpy as np
+import pytest
+
+import nest
+
+from pynestml.codegeneration.nest_tools import NESTTools
+from pynestml.frontend.pynestml_frontend import generate_nest_target
+
+
+class TestNestVectorsIntegration:
+    r"""
+    Tests the code generation and vector operations from NESTML to NEST.
+    """
+
+    def test_vectors(self):
+        input_path = os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "Vectors.nestml"))
+        target_path = "target"
+        logging_level = "INFO"
+        suffix = "_nestml"
+
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level=logging_level,
+                             suffix=suffix)
+        nest.ResetKernel()
+        NESTTools.set_nest_verbosity("ALL")
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
+
+        neuron = nest.Create("vectors_nestml")
+        multimeter = nest.Create("multimeter")
+        recordables = list()
+        recordables.extend(["G_IN_" + str(i) for i in range(0, 20)])
+        recordables.extend(["G_EX_" + str(i) for i in range(0, 10)])
+        recordables.append("V_m")
+        multimeter.set({"record_from": recordables})
+        nest.Connect(multimeter, neuron)
+
+        nest.Simulate(2.0)
+
+        events = multimeter.get("events")
+        g_in = events["G_IN_0"]
+        g_ex = events["G_EX_1"]
+        np.testing.assert_almost_equal(g_in[-1], 11.)
+        np.testing.assert_almost_equal(g_ex[-1], -2.)
+
+        v_m = multimeter.get("events")["V_m"]
+        np.testing.assert_almost_equal(v_m[-1], -0.3)
+
+    @pytest.mark.xfail(strict=True, raises=nest.NESTErrors.BadProperty)
+    def test_vectors_resize(self):
+        input_path = os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "VectorsResize.nestml"))
+        target_path = "target"
+        logging_level = "INFO"
+        suffix = "_nestml"
+
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level=logging_level,
+                             suffix=suffix)
+
+        nest.ResetKernel()
+        NESTTools.set_nest_verbosity("ALL")
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
+
+        neuron = nest.Create("vector_resize_nestml", params={"N": 200})
+        neuron.set(x=[1.0, 1.0, 4.0])
+
+    def test_vectors_with_non_linear_odes(self):
+        input_path = os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "vectors_with_nonlin_eq.nestml"))
+        target_path = "target"
+        logging_level = "INFO"
+        suffix = "_nestml"
+
+        resolution = 1.    # [ms]
+        sim_time = 10.    # [ms]
+
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level=logging_level,
+                             suffix=suffix)
+
+        nest.ResetKernel()
+        nest.Install("nestmlmodule")
+        nest.resolution = resolution
+        NESTTools.set_nest_verbosity("ALL")
+
+        neuron = nest.Create("vectors_with_nonlin_eq_nestml")
+        neuron.buf_len = int(np.ceil(sim_time / resolution))
+
+        #
+        #    run the simulation
+        #
+
+        nest.Simulate(sim_time)
+
+        #
+        #    check the results
+        #
+
+        np.testing.assert_allclose(neuron.x_buf[0], 42.)
+        np.testing.assert_allclose(neuron.x_buf[-1], 42. * np.exp(-(neuron.buf_len - 1) / neuron.tau))
+
+        np.testing.assert_allclose(neuron.y_buf[0], 42.)
+        np.testing.assert_allclose(neuron.y_buf[-1], 42. * neuron.tau / (42 * (neuron.buf_len - 1) + neuron.tau), rtol=1E-6)    # low rtol due to numerical (GSL) solver tolerances
