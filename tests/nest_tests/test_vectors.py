@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest_vectors_test.py
+# test_vectors.py
 #
 # This file is part of NEST.
 #
@@ -34,8 +34,6 @@ class TestNestVectorsIntegration:
     Tests the code generation and vector operations from NESTML to NEST.
     """
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     def test_vectors(self):
         input_path = os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "Vectors.nestml"))
         target_path = "target"
@@ -74,8 +72,6 @@ class TestNestVectorsIntegration:
         v_m = multimeter.get("events")["V_m"]
         np.testing.assert_almost_equal(v_m[-1], -0.3)
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     @pytest.mark.xfail(strict=True, raises=nest.NESTErrors.BadProperty)
     def test_vectors_resize(self):
         input_path = os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "VectorsResize.nestml"))
@@ -105,29 +101,34 @@ class TestNestVectorsIntegration:
         logging_level = "INFO"
         suffix = "_nestml"
 
+        resolution = 1.    # [ms]
+        sim_time = 10.    # [ms]
+
         generate_nest_target(input_path,
                              target_path=target_path,
                              logging_level=logging_level,
                              suffix=suffix)
+
         nest.ResetKernel()
         nest.Install("nestmlmodule")
+        nest.resolution = resolution
         NESTTools.set_nest_verbosity("ALL")
 
         neuron = nest.Create("vectors_with_nonlin_eq_nestml")
-        multimeter = nest.Create("multimeter")
-        recordables = list()
-        recordables.extend(["I_NMDA_AMPA_DELAY_BUF_" + str(i) for i in range(0, 10)])
-        recordables.append("foo")
-        multimeter.set({"record_from": recordables, "interval": 0.1})
-        nest.Connect(multimeter, neuron)
+        neuron.buf_len = int(np.ceil(sim_time / resolution))
 
-        nest.Simulate(100.0)
+        #
+        #    run the simulation
+        #
 
-        events = multimeter.get("events")
-        buf_0 = events["I_NMDA_AMPA_DELAY_BUF_0"]
-        buf_7 = events["I_NMDA_AMPA_DELAY_BUF_7"]
-        np.testing.assert_allclose(buf_0[-1], 42.0)
-        np.testing.assert_allclose(buf_7[-1], -41.95955)
+        nest.Simulate(sim_time)
 
-        foo = events["foo"]
-        np.testing.assert_allclose(foo[-1], 0.0403652091)
+        #
+        #    check the results
+        #
+
+        np.testing.assert_allclose(neuron.x_buf[0], 42.)
+        np.testing.assert_allclose(neuron.x_buf[-1], 42. * np.exp(-(neuron.buf_len - 1) / neuron.tau))
+
+        np.testing.assert_allclose(neuron.y_buf[0], 42.)
+        np.testing.assert_allclose(neuron.y_buf[-1], 42. * neuron.tau / (42 * (neuron.buf_len - 1) + neuron.tau), rtol=1E-6)    # low rtol due to numerical (GSL) solver tolerances
