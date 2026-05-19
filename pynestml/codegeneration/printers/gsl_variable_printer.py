@@ -51,7 +51,6 @@ class GSLVariablePrinter(CppVariablePrinter):
             # test if variable name can be resolved to a type
             if PredefinedUnits.is_unit(variable.get_complete_name()):
                 return str(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit())
-                    NESTUnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
 
             code, message = Messages.get_could_not_resolve(variable.get_name())
             Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,

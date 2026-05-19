@@ -21,11 +21,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Sequence, Mapping, Optional, Union
+from typing import Any, Dict, Iterable, Sequence, Mapping, Optional, Union
 
-
-from pynestml.cocos.co_cos_manager import CoCosManager
-from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_data_type import ASTDataType
@@ -95,7 +92,7 @@ class NonDimVis(ASTVisitor):
         "y": 1e-24,     # yocto
     }
 
-    
+
     def get_conversion_factor_to_si(self, from_unit_str):
         r"""
         Return the conversion factor from the unit we have in the NESTML file to SI units.
@@ -105,7 +102,7 @@ class NonDimVis(ASTVisitor):
         scale = from_unit.si.scale
 
         return scale
-    
+
     def _is_valid_astropy_unit(self, unit_string):
         """Check if a string can be interpreted as an astropy unit"""
         try:
@@ -736,20 +733,13 @@ class NonDimensionalisationTransformer(Transformer):
 
         return transformed_model
 
-    def transform(
-        self, models: Union[ASTNode, Sequence[ASTNode]]
-    ) -> Union[ASTNode, Sequence[ASTNode]]:
+    def transform(self,
+                  models: Iterable[ASTModel],
+                  metadata: Dict[str, Dict[str, Any]]) -> Iterable[ASTModel]:
+        import pdb;pdb.set_trace()
         transformed_models = []
-
-        single = False
-        if isinstance(models, ASTNode):
-            single = True
-            model = [models]
 
         for model in models:
             transformed_models.append(self.transform_(model))
-
-        if single:
-            return transformed_models[0]
 
         return transformed_models
