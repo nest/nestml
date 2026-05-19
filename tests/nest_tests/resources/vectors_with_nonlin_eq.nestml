@@ -29,26 +29,27 @@
 model vectors_with_nonlin_eq:
 
     state:
-        foo real = 42
-        I_NMDA_AMPA_delay_buf[delay_steps] pA = 0 pA
-        I_NMDA_AMPA_idx integer = 0
+        x real = 42
+        y real = 42
+        x_buf[buf_len] real = 0
+        y_buf[buf_len] real = 0
+        buf_idx integer = 0
 
     equations:
-        foo' = -foo**2 / tau
+        x' = -x / tau
+        y' = -y**2 / tau
 
     parameters:
         tau ms = 4 ms
-        delay_steps integer = 10
+        buf_len integer = 10
 
     output:
         spike
 
     update:
-        integrate_odes()
-        if I_NMDA_AMPA_idx % 2 == 0:
-            I_NMDA_AMPA_delay_buf[I_NMDA_AMPA_idx] = 42 pA
-        else:
-            I_NMDA_AMPA_delay_buf[I_NMDA_AMPA_idx] = foo - 42 pA
+        x_buf[buf_idx] = x
+        y_buf[buf_idx] = y
 
-        I_NMDA_AMPA_idx += 1
-        I_NMDA_AMPA_idx = I_NMDA_AMPA_idx % delay_steps
+        buf_idx = (buf_idx + 1) % buf_len
+
+        integrate_odes()
