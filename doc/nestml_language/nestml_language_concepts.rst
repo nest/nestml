@@ -981,7 +981,7 @@ A Dirac delta impulse kernel can be defined by using the predefined function ``d
 Input
 -----
 
-External input into the model is said to be received through *input ports*. A NESTML model may contain none, or any number of input ports. Models can receive two distinct types of input: spikes and time-continuous functions.
+External input to the model is received through *input ports*. A NESTML model may contain none, or any number of input ports. Models can receive two distinct types of input: spikes and time-continuous functions.
 
 
 Continuous-time input ports
@@ -1019,7 +1019,7 @@ The unit of the Dirac delta function follows from its definition. Consider the s
 
    f(T) = \int f(t) \delta(t - T) dt
 
-Here :math:`f(t)` is a continuous function of :math:`t`, the value of which is selected at time :math:`t = T`. As the unit of :math:`f()` must be the same on both the left and the right-hand side, the unit of :math:`\delta(t) dt` must be equal to 1. Therefore, the unit of :math:`\delta(t)` must be equal to the inverse of the unit of :math:`t`, that is, the delta function has units :math:`\text{s}^{-1}`. Therefore, all the incoming spikes defined in the input block will implicitly have the unit of :math:`\text{s}^{-1}`. (Note that the physical units of a train of spikes, which is a sum of delta functions, is also :math:`\text{s}^{-1}`.)
+Here :math:`f(t)` is a continuous function of :math:`t`, the value of which is selected at time :math:`t = T`. As the unit of :math:`f()` must be the same on both the left and the right-hand side, the unit of :math:`\delta(t) dt` must be equal to 1. Therefore, the unit of :math:`\delta(t)` must be equal to the inverse of the unit of :math:`t`, that is, the delta function has units :math:`\text{s}^{-1}`. Therefore, all the incoming spikes defined in the input block will implicitly have the unit :math:`\text{s}^{-1}`. 
 
 In the more general case, a delta function can be weighted by a real number :math:`w`. This weights the area under the delta function. Additionally, spikes can occur at different times :math:`t_k` for :math:`k=0,1,2,\ldots`. A spiking input port can therefore be represented as a sum of weighted delta functions occurring at times :math:`t_k`:
 
@@ -1034,7 +1034,7 @@ A corresponding spiking input port can be defined in a NESTML model as follows:
    input:
        spikes_pre <- spike
 
-Note that the units of ``spikes_pre`` are in :math:`\text{s}^{-1}`, as ``w`` has been defined as a dimensionless real number.
+Note that the unit of ``spikes_pre`` is :math:`\text{s}^{-1}`, as ``w`` has been defined as a dimensionless real number.
 
 Spiking input can be processed either by referencing the input port in the right-hand side of an equation (see :ref:`Handling spiking input in equations`) or by means of ``onReceive`` event handlers (see :ref:`Handling spiking input by event handlers`).
 
@@ -1042,13 +1042,13 @@ Spiking input can be processed either by referencing the input port in the right
 Handling spiking input in equations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The spiking input port name ``spikes_pre`` can be used directly in the right-hand side of ODEs, for instance as follows:
+The spiking input port name ``spikes_pre`` can be used directly on the right-hand side of an ODE, for instance as follows:
 
 .. math::
 
    \frac{dx}{dt} = -\frac{x}{\tau} + \mathrm{spikes\_pre}(t)
 
-If ``x`` is a real number, then the units here are consistent (in :math:`\text{s}^{-1}`) on left- and right-hand side of the equation. This can be written in NESTML as:
+If ``x`` is a real number, then the units here are consistent (in :math:`\text{s}^{-1}`) on the left- and on the right-hand side of the equation. This can be written in NESTML as:
 
 .. code-block:: nestml
 
@@ -1058,7 +1058,7 @@ The name of the input port can also be used inside of a convolution. For instanc
 
 .. math::
 
-   \frac{dx}{dt} = -\frac{x}{\tau} + \frac{1}{C} \left(K \ast \mathrm{spikes\_pre}\right)
+   \frac{dx}{dt} = -\frac{x}{\tau} + \frac{1}{C} \left(K \ast \mathrm{spikes\_pre}\right)(t)
 
 Note that applying the convolution means integrating over time, hence dropping the :math:`\text{s}^{-1}` unit, leaving a unitless quantity (the function of time :math:`K \ast \mathrm{spikes\_pre}`). To make the units consistent in this case, an explicit division by time (such as by a constant :math:`C` with units :math:`\mathrm{s}`) is required.
 
