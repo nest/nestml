@@ -141,7 +141,7 @@ template <> void RecordablesMap<{{ neuronName }}>::create()
 {%-         set variable_name = utils.get_inline_expression_by_name(astnode, variable_symbol.get_symbol_name()).get_variable_name() %}
 {%-         set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-         if has_state_vectors %}
-    insert("{{ variable.get_complete_name() }}", host.get_recordable_inline_data_access_functor( &{{ neuronName }}::{{ printer_no_origin.print(variable)[:-2] }} ));
+    insert("{{ variable.get_complete_name() }}", host.get_recordable_inline_data_access_functor( static_cast< double ({{ neuronName }}::*)() const >(&{{ neuronName }}::{{ printer_no_origin.print(variable)[:-2] }}) ));    // static cast to pick the no-argument variant of the method in case it is overloaded due to also needing continuous-time buffering
 {%-         else %}
     insert_({{ names_namespace }}::_{{ variable_symbol.get_symbol_name() }}, &{{ neuronName }}::{{ printer_no_origin.print(variable)[:-2] }});
 {%-         endif %}
@@ -199,10 +199,10 @@ std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_i
     return nest::DataAccessFunctor< {{ neuronName }} >( *this, elem );
   }
 
-  nest::DataAccessFunctorForInlineExpressions< {{ neuronName }} >
+  nest::DataAccessFunctorForInlineExpressions_{{ neuronName }}< {{ neuronName }} >
   {{ neuronName }}::get_recordable_inline_data_access_functor( std::function< void({{ neuronName }}&) > fp )
   {
-    return nest::DataAccessFunctorForInlineExpressions< {{ neuronName }} >( *this, fp );
+    return nest::DataAccessFunctorForInlineExpressions_{{ neuronName }}< {{ neuronName }} >( *this, fp );
   }
 
 {%- endif %}
