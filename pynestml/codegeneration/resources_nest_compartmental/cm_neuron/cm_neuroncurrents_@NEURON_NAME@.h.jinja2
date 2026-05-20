@@ -107,6 +107,19 @@ private:
     std::vector< {{ cm_scalar_t }} > i_tot_{{ion_channel_name}} = {};
     std::vector< {{ cm_scalar_t }} > i_vals_{{ion_channel_name}} = {};
     std::vector< {{ cm_scalar_t }} > g_vals_{{ion_channel_name}} = {};
+    std::vector< {{ cm_scalar_t }} > v_comp_chan_ = {};
+    {%- for ode in channel_info["Dependencies"]["concentrations"] %}
+    std::vector< {{ cm_scalar_t }} > dep_conc_{{ode.lhs.name}}_chan_ = {};
+    {%- endfor %}
+    {%- for inline in channel_info["Dependencies"]["receptors"] %}
+    std::vector< {{ cm_scalar_t }} > dep_rec_{{inline.variable_name}}_chan_ = {};
+    {%- endfor %}
+    {%- for inline in channel_info["Dependencies"]["channels"] %}
+    std::vector< {{ cm_scalar_t }} > dep_chan_{{inline.variable_name}}_chan_ = {};
+    {%- endfor %}
+    {%- for inline in channel_info["Dependencies"]["continuous"] %}
+    std::vector< {{ cm_scalar_t }} > dep_con_in_{{inline.variable_name}}_chan_ = {};
+    {%- endfor %}
     std::vector< std::pair< std::size_t, int > > con_area = {};
 
     //zero recordable variable in case of zero contribution channel
@@ -219,6 +232,19 @@ private:
 
     // concentration value (root-ode state)
     std::vector< {{ cm_scalar_t }} > {{concentration_name}} = {};
+    std::vector< {{ cm_scalar_t }} > v_comp_conc_ = {};
+    {%- for ode in concentration_info["Dependencies"]["concentrations"] %}
+    std::vector< {{ cm_scalar_t }} > dep_conc_{{ode.lhs.name}}_conc_ = {};
+    {%- endfor %}
+    {%- for inline in concentration_info["Dependencies"]["receptors"] %}
+    std::vector< {{ cm_scalar_t }} > dep_rec_{{inline.variable_name}}_conc_ = {};
+    {%- endfor %}
+    {%- for inline in concentration_info["Dependencies"]["channels"] %}
+    std::vector< {{ cm_scalar_t }} > dep_chan_{{inline.variable_name}}_conc_ = {};
+    {%- endfor %}
+    {%- for inline in concentration_info["Dependencies"]["continuous"] %}
+    std::vector< {{ cm_scalar_t }} > dep_con_in_{{inline.variable_name}}_conc_ = {};
+    {%- endfor %}
 
     //zero recordable variable in case of zero contribution concentration
     {{ cm_scalar_t }} zero_recordable = 0;
@@ -334,6 +360,19 @@ private:
   std::vector< {{ cm_scalar_t }} > i_tot_{{receptor_name}} = {};
   std::vector< {{ cm_scalar_t }} > i_vals_{{receptor_name}} = {};
   std::vector< {{ cm_scalar_t }} > g_vals_{{receptor_name}} = {};
+  std::vector< {{ cm_scalar_t }} > v_comp_rec_ = {};
+  {%- for ode in receptor_info["Dependencies"]["concentrations"] %}
+  std::vector< {{ cm_scalar_t }} > dep_conc_{{ode.lhs.name}}_rec_ = {};
+  {%- endfor %}
+  {%- for inline in receptor_info["Dependencies"]["receptors"] %}
+  std::vector< {{ cm_scalar_t }} > dep_rec_{{inline.variable_name}}_rec_ = {};
+  {%- endfor %}
+  {%- for inline in receptor_info["Dependencies"]["channels"] %}
+  std::vector< {{ cm_scalar_t }} > dep_chan_{{inline.variable_name}}_rec_ = {};
+  {%- endfor %}
+  {%- for inline in receptor_info["Dependencies"]["continuous"] %}
+  std::vector< {{ cm_scalar_t }} > dep_con_in_{{inline.variable_name}}_rec_ = {};
+  {%- endfor %}
   std::vector< std::pair< std::size_t, int > > con_area = {};
 
   // user declared internals in order they were declared, initialized via pre_run_hook() or calibrate()
@@ -494,6 +533,23 @@ private:
   std::vector< {{ cm_scalar_t }} > i_tot_{{receptor_name}} = {};
   std::vector< {{ cm_scalar_t }} > i_vals_{{receptor_name}} = {};
   std::vector< {{ cm_scalar_t }} > g_vals_{{receptor_name}} = {};
+  std::vector< {{ cm_scalar_t }} > v_comp_rec_ = {};
+  {%- set conc_dep = set(receptor_info["Dependencies"]["concentrations"]).union(synapse_info["Dependencies"]["concentrations"])%}
+  {%- set rec_dep = set(receptor_info["Dependencies"]["receptors"]).union(synapse_info["Dependencies"]["receptors"])%}
+  {%- set chan_dep = set(receptor_info["Dependencies"]["channels"]).union(synapse_info["Dependencies"]["channels"])%}
+  {%- set con_in_dep = set(receptor_info["Dependencies"]["continuous"]).union(synapse_info["Dependencies"]["continuous"])%}
+  {%- for ode in conc_dep %}
+  std::vector< {{ cm_scalar_t }} > dep_conc_{{ode.lhs.name}}_rec_ = {};
+  {%- endfor %}
+  {%- for inline in rec_dep %}
+  std::vector< {{ cm_scalar_t }} > dep_rec_{{inline.variable_name}}_rec_ = {};
+  {%- endfor %}
+  {%- for inline in chan_dep %}
+  std::vector< {{ cm_scalar_t }} > dep_chan_{{inline.variable_name}}_rec_ = {};
+  {%- endfor %}
+  {%- for inline in con_in_dep %}
+  std::vector< {{ cm_scalar_t }} > dep_con_in_{{inline.variable_name}}_rec_ = {};
+  {%- endfor %}
   std::vector< std::pair< std::size_t, int > > con_area = {};
 
   // user declared internals in order they were declared, initialized via pre_run_hook() or calibrate()
@@ -526,7 +582,7 @@ private:
 
   {%- for in_function_declaration in synapse_info["InFunctionDeclarationsVars"] %}
       {%- for variable in declarations.get_variables(in_function_declaration) %}
-  std::vector<{{declarations.print_variable_type(variable)}}> {{variable.get_symbol_name()}} = {};
+  std::vector<{{cm_scalar_t if declarations.print_variable_type(variable) == "double"}}> {{variable.get_symbol_name()}} = {};
       {%- endfor %}
   {%- endfor %}
 
@@ -670,6 +726,19 @@ private:
   std::vector< {{ cm_scalar_t }} > i_tot_{{continuous_name}} = {};
   std::vector< {{ cm_scalar_t }} > i_vals_{{continuous_name}} = {};
   std::vector< {{ cm_scalar_t }} > g_vals_{{continuous_name}} = {};
+  std::vector< {{ cm_scalar_t }} > v_comp_con_in_ = {};
+  {%- for ode in continuous_info["Dependencies"]["concentrations"] %}
+  std::vector< {{ cm_scalar_t }} > dep_conc_{{ode.lhs.name}}_con_in_ = {};
+  {%- endfor %}
+  {%- for inline in continuous_info["Dependencies"]["receptors"] %}
+  std::vector< {{ cm_scalar_t }} > dep_rec_{{inline.variable_name}}_con_in_ = {};
+  {%- endfor %}
+  {%- for inline in continuous_info["Dependencies"]["channels"] %}
+  std::vector< {{ cm_scalar_t }} > dep_chan_{{inline.variable_name}}_con_in_ = {};
+  {%- endfor %}
+  {%- for inline in continuous_info["Dependencies"]["continuous"] %}
+  std::vector< {{ cm_scalar_t }} > dep_con_in_{{inline.variable_name}}_con_in_ = {};
+  {%- endfor %}
   std::vector< std::pair< std::size_t, int > > con_area = {};
 
   // user declared internals in order they were declared, initialized via pre_run_hook() or calibrate()
@@ -821,21 +890,6 @@ private:
   //compartment gi states
   std::vector< {{ cm_scalar_t }} >* g_vals_comp;
   std::vector< {{ cm_scalar_t }} >* i_vals_comp;
-{%- if fp_precision == "single" %}
-  std::map< Name, {{ cm_scalar_t }}* > recordable_sources_;
-  std::map< Name, double > recordable_mirrors_;
-
-  inline void update_recordable_mirrors()
-  {
-    for ( auto& rec_it : recordable_sources_ )
-    {
-      if ( rec_it.second )
-      {
-        recordable_mirrors_[ rec_it.first ] = static_cast< double >( *rec_it.second );
-      }
-    }
-  }
-{%- endif %}
 
 public:
   NeuronCurrents{{cm_unique_suffix}}(std::vector< {{ cm_scalar_t }} >* g_vals, std::vector< {{ cm_scalar_t }} >* i_vals, bool* self_spikes)
@@ -1164,43 +1218,28 @@ public:
     {% endfor -%}
   };
 
-  std::map< Name, double* > get_recordables( const long compartment_idx )
+  std::map< Name, {{ cm_scalar_t }}* > get_recordables( const long compartment_idx )
   {
-{%- if fp_precision == "single" %}
-    std::map< Name, {{ cm_scalar_t }}* > raw_recordables;
-{%- endif %}
-    std::map< Name, double* > recordables;
+    std::map< Name, {{ cm_scalar_t }}* > recordables;
 
     // append ion channel state variables to recordables
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     {{ion_channel_name}}{{channel_suffix}}.append_recordables(
-{%- if fp_precision == "single" %}
-      &raw_recordables
-{%- else %}
       &recordables
-{%- endif %}
       , compartment_idx );
     {% endfor %}
 
     // append concentration state variables to recordables
     {%- for concentration_name, concentration_info in conc_info.items() %}
     {{concentration_name}}{{concentration_suffix}}.append_recordables(
-{%- if fp_precision == "single" %}
-      &raw_recordables
-{%- else %}
       &recordables
-{%- endif %}
       , compartment_idx );
     {% endfor %}
 
     // append receptor state variables to recordables
     {%- for receptor_name, receptor_info in recs_info.items() %}
     {{receptor_name}}{{receptor_suffix}}.append_recordables(
-{%- if fp_precision == "single" %}
-      &raw_recordables
-{%- else %}
       &recordables
-{%- endif %}
       , compartment_idx );
     {% endfor %}
 
@@ -1208,11 +1247,7 @@ public:
     {%- for receptor_name, receptor_info in recs_info.items() %}
     {%- for synapse_name, synapse_info in syns_info.items() %}
     {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}.append_recordables(
-{%- if fp_precision == "single" %}
-      &raw_recordables
-{%- else %}
       &recordables
-{%- endif %}
       , compartment_idx );
     {% endfor %}
     {% endfor %}
@@ -1220,22 +1255,9 @@ public:
     // append continuous input state variables to recordables
     {%- for continuous_name, continuous_info in con_in_info.items() %}
     {{continuous_name}}{{continuous_suffix}}.append_recordables(
-{%- if fp_precision == "single" %}
-      &raw_recordables
-{%- else %}
       &recordables
-{%- endif %}
       , compartment_idx );
     {% endfor %}
-
-{%- if fp_precision == "single" %}
-    for ( const auto& rec_it : raw_recordables )
-    {
-      recordable_sources_[ rec_it.first ] = rec_it.second;
-      recordable_mirrors_[ rec_it.first ] = rec_it.second ? static_cast< double >( *rec_it.second ) : 0.0;
-      recordables[ rec_it.first ] = &recordable_mirrors_[ rec_it.first ];
-    }
-{%- endif %}
 
     return recordables;
   };
@@ -1277,29 +1299,29 @@ public:
     {%- set dep = namespace(needed=false) %}
     {%- for concentration_name, concentration_info in conc_info.items() %}
       {%- for inline in concentration_info["Dependencies"]["receptors"] %}
-        {%- if inline.variable_name == receptor_name %}{% set dep.needed = true %}{% endif %}
+        {%- if inline.variable_name == receptor_name or inline.variable_name == receptor_name ~ receptor_suffix %}{% set dep.needed = true %}{% endif %}
       {%- endfor %}
     {%- endfor %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
       {%- for inline in channel_info["Dependencies"]["receptors"] %}
-        {%- if inline.variable_name == receptor_name %}{% set dep.needed = true %}{% endif %}
+        {%- if inline.variable_name == receptor_name or inline.variable_name == receptor_name ~ receptor_suffix %}{% set dep.needed = true %}{% endif %}
       {%- endfor %}
     {%- endfor %}
     {%- for receptor_nm, receptor_dep_info in recs_info.items() %}
       {%- for inline in receptor_dep_info["Dependencies"]["receptors"] %}
-        {%- if inline.variable_name == receptor_name %}{% set dep.needed = true %}{% endif %}
+        {%- if inline.variable_name == receptor_name or inline.variable_name == receptor_name ~ receptor_suffix %}{% set dep.needed = true %}{% endif %}
       {%- endfor %}
     {%- endfor %}
     {%- for receptor_nm, receptor_dep_info in recs_info.items() %}
       {%- for synapse_name, synapse_info in syns_info.items() %}
         {%- for inline in synapse_info["Dependencies"]["receptors"] %}
-          {%- if inline.variable_name == receptor_name %}{% set dep.needed = true %}{% endif %}
+          {%- if inline.variable_name == receptor_name or inline.variable_name == receptor_name ~ receptor_suffix %}{% set dep.needed = true %}{% endif %}
         {%- endfor %}
       {%- endfor %}
     {%- endfor %}
     {%- for continuous_name, continuous_info in con_in_info.items() %}
       {%- for inline in continuous_info["Dependencies"]["receptors"] %}
-        {%- if inline.variable_name == receptor_name %}{% set dep.needed = true %}{% endif %}
+        {%- if inline.variable_name == receptor_name or inline.variable_name == receptor_name ~ receptor_suffix %}{% set dep.needed = true %}{% endif %}
       {%- endfor %}
     {%- endfor %}
     {%- if dep.needed %}
@@ -1316,29 +1338,29 @@ public:
     {%- set dep = namespace(needed=false) %}
     {%- for concentration_name, concentration_info in conc_info.items() %}
       {%- for inline in concentration_info["Dependencies"]["continuous"] %}
-        {%- if inline.variable_name == continuous_name %}{% set dep.needed = true %}{% endif %}
+        {%- if inline.variable_name == continuous_name or inline.variable_name == continuous_name ~ continuous_suffix %}{% set dep.needed = true %}{% endif %}
       {%- endfor %}
     {%- endfor %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
       {%- for inline in channel_info["Dependencies"]["continuous"] %}
-        {%- if inline.variable_name == continuous_name %}{% set dep.needed = true %}{% endif %}
+        {%- if inline.variable_name == continuous_name or inline.variable_name == continuous_name ~ continuous_suffix %}{% set dep.needed = true %}{% endif %}
       {%- endfor %}
     {%- endfor %}
     {%- for receptor_name, receptor_info in recs_info.items() %}
       {%- for inline in receptor_info["Dependencies"]["continuous"] %}
-        {%- if inline.variable_name == continuous_name %}{% set dep.needed = true %}{% endif %}
+        {%- if inline.variable_name == continuous_name or inline.variable_name == continuous_name ~ continuous_suffix %}{% set dep.needed = true %}{% endif %}
       {%- endfor %}
     {%- endfor %}
     {%- for receptor_name, receptor_info in recs_info.items() %}
       {%- for synapse_name, synapse_info in syns_info.items() %}
         {%- for inline in synapse_info["Dependencies"]["continuous"] %}
-          {%- if inline.variable_name == continuous_name %}{% set dep.needed = true %}{% endif %}
+          {%- if inline.variable_name == continuous_name or inline.variable_name == continuous_name ~ continuous_suffix %}{% set dep.needed = true %}{% endif %}
         {%- endfor %}
       {%- endfor %}
     {%- endfor %}
     {%- for continuous_dep_name, continuous_dep_info in con_in_info.items() %}
       {%- for inline in continuous_dep_info["Dependencies"]["continuous"] %}
-        {%- if inline.variable_name == continuous_name %}{% set dep.needed = true %}{% endif %}
+        {%- if inline.variable_name == continuous_name or inline.variable_name == continuous_name ~ continuous_suffix %}{% set dep.needed = true %}{% endif %}
       {%- endfor %}
     {%- endfor %}
     {%- if dep.needed %}
@@ -1382,29 +1404,29 @@ public:
     {%- set dep = namespace(needed=false) %}
     {%- for concentration_name, concentration_info in conc_info.items() %}
       {%- for inline in concentration_info["Dependencies"]["channels"] %}
-        {%- if inline.variable_name == ion_channel_name %}{% set dep.needed = true %}{% endif %}
+        {%- if inline.variable_name == ion_channel_name or inline.variable_name == ion_channel_name ~ channel_suffix %}{% set dep.needed = true %}{% endif %}
       {%- endfor %}
     {%- endfor %}
     {%- for ion_channel_dep_name, channel_dep_info in chan_info.items() %}
       {%- for inline in channel_dep_info["Dependencies"]["channels"] %}
-        {%- if inline.variable_name == ion_channel_name %}{% set dep.needed = true %}{% endif %}
+        {%- if inline.variable_name == ion_channel_name or inline.variable_name == ion_channel_name ~ channel_suffix %}{% set dep.needed = true %}{% endif %}
       {%- endfor %}
     {%- endfor %}
     {%- for receptor_name, receptor_info in recs_info.items() %}
       {%- for inline in receptor_info["Dependencies"]["channels"] %}
-        {%- if inline.variable_name == ion_channel_name %}{% set dep.needed = true %}{% endif %}
+        {%- if inline.variable_name == ion_channel_name or inline.variable_name == ion_channel_name ~ channel_suffix %}{% set dep.needed = true %}{% endif %}
       {%- endfor %}
     {%- endfor %}
     {%- for receptor_name, receptor_info in recs_info.items() %}
       {%- for synapse_name, synapse_info in syns_info.items() %}
         {%- for inline in synapse_info["Dependencies"]["channels"] %}
-          {%- if inline.variable_name == ion_channel_name %}{% set dep.needed = true %}{% endif %}
+          {%- if inline.variable_name == ion_channel_name or inline.variable_name == ion_channel_name ~ channel_suffix %}{% set dep.needed = true %}{% endif %}
         {%- endfor %}
       {%- endfor %}
     {%- endfor %}
     {%- for continuous_name, continuous_info in con_in_info.items() %}
       {%- for inline in continuous_info["Dependencies"]["channels"] %}
-        {%- if inline.variable_name == ion_channel_name %}{% set dep.needed = true %}{% endif %}
+        {%- if inline.variable_name == ion_channel_name or inline.variable_name == ion_channel_name ~ channel_suffix %}{% set dep.needed = true %}{% endif %}
       {%- endfor %}
     {%- endfor %}
     {%- if dep.needed %}
@@ -1463,9 +1485,6 @@ public:
                         {% endif %}{% for inline in continuous_info["Dependencies"]["continuous"] %}, {{inline.variable_name}}{{continuous_suffix}}_shared_current{% endfor %}
                         , *i_vals_comp, *g_vals_comp);
     {% endfor -%}
-{%- if fp_precision == "single" %}
-    update_recordable_mirrors();
-{%- endif %}
   };
 
   void f_self_spike(){
@@ -1495,9 +1514,6 @@ public:
     {{continuous_name}}{{continuous_suffix}}.f_self_spike();
     {%- endif %}
     {% endfor -%}
-{%- if fp_precision == "single" %}
-    update_recordable_mirrors();
-{%- endif %}
   };
 };
 

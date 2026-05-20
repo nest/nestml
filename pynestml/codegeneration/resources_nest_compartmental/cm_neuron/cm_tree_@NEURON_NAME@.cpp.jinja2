@@ -30,9 +30,6 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
   , p_index( parent_index )
   , parent( nullptr )
   , v_comp( new {{ cm_scalar_t }}(0.0) )
-{%- if fp_precision == "single" %}
-  , v_comp_recordable_( 0.0 )
-{%- endif %}
   , ca( 1.0 )
   , gc( 0.01 )
   , gl( 0.1 )
@@ -46,9 +43,6 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
   , n_passed( 0 )
 {
   *v_comp = el;
-{%- if fp_precision == "single" %}
-  v_comp_recordable_ = static_cast< double >( *v_comp );
-{%- endif %}
 }
 
 nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const long compartment_index, const long parent_index,
@@ -59,9 +53,6 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
   , p_index( parent_index )
   , parent( nullptr )
   , v_comp( v_comp_ref )
-{%- if fp_precision == "single" %}
-  , v_comp_recordable_( 0.0 )
-{%- endif %}
   , ca( 1.0 )
   , gc( 0.01 )
   , gl( 0.1 )
@@ -75,9 +66,6 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
   , n_passed( 0 )
 {
   *v_comp = el;
-{%- if fp_precision == "single" %}
-  v_comp_recordable_ = static_cast< double >( *v_comp );
-{%- endif %}
 }
 nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const long compartment_index,
   const long parent_index,
@@ -89,9 +77,6 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
   , p_index( parent_index )
   , parent( nullptr )
   , v_comp( v_comp_ref )
-{%- if fp_precision == "single" %}
-  , v_comp_recordable_( 0.0 )
-{%- endif %}
   , ca( 1.0 )
   , gc( 0.01 )
   , gl( 0.1 )
@@ -113,9 +98,6 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
   if( compartment_params->known( "v_comp" ) ) updateValue< double >( compartment_params, "v_comp", v_comp_update);
 
   *v_comp = v_comp_update;
-{%- if fp_precision == "single" %}
-  v_comp_recordable_ = static_cast< double >( *v_comp );
-{%- endif %}
 }
 
 void
@@ -133,17 +115,11 @@ nest::Compartment{{cm_unique_suffix}}::pre_run_hook()
   *gg0 = *ca__div__dt + gl;
 }
 
-std::map< Name, double* >
+std::map< Name, {{ cm_scalar_t }}* >
 nest::Compartment{{cm_unique_suffix}}::get_recordables()
 {
-  std::map< Name, double* > recordables;
-
-{%- if fp_precision == "single" %}
-  v_comp_recordable_ = static_cast< double >( *v_comp );
-  recordables[ Name( "v_comp" + std::to_string( comp_index ) ) ] = &v_comp_recordable_;
-{%- else %}
+  std::map< Name, {{ cm_scalar_t }}* > recordables;
   recordables[ Name( "v_comp" + std::to_string( comp_index ) ) ] = v_comp;
-{%- endif %}
 
   return recordables;
 }
@@ -495,10 +471,10 @@ nest::CompTree{{cm_unique_suffix}}::set_syn_buffers( std::vector< RingBuffer >& 
 /**
  * Returns a map of variable names and pointers to the recordables
  */
-std::map< Name, double* >
+std::map< Name, {{ cm_scalar_t }}* >
 nest::CompTree{{cm_unique_suffix}}::get_recordables()
 {
-  std::map< Name, double* > recordables;
+  std::map< Name, {{ cm_scalar_t }}* > recordables;
 
   /**
    * add recordables for all compartments, suffixed by compartment_idx,
@@ -507,11 +483,9 @@ nest::CompTree{{cm_unique_suffix}}::get_recordables()
   for ( auto compartment_it = compartments_.begin(); compartment_it != compartments_.end(); ++compartment_it )
   {
     long comp_index = (*compartment_it)->comp_index;
-    std::map< Name, double* > recordables_comp = neuron_currents.get_recordables( comp_index );
+    std::map< Name, {{ cm_scalar_t }}* > recordables_comp = neuron_currents.get_recordables( comp_index );
     recordables.insert( recordables_comp.begin(), recordables_comp.end() );
-
-    recordables_comp = ( *compartment_it )->get_recordables();
-    recordables.insert( recordables_comp.begin(), recordables_comp.end() );
+    recordables[ Name( "v_comp" + std::to_string( comp_index ) ) ] = &v_comp_vec[ comp_index ];
   }
   return recordables;
 }
@@ -607,22 +581,7 @@ nest::CompTree{{cm_unique_suffix}}::solve_matrix()
 
   // do up sweep to set voltages
   solve_matrix_upsweep();
-
-{%- if fp_precision == "single" %}
-  sync_voltage_recordables();
-{%- endif %}
 }
-
-{%- if fp_precision == "single" %}
-void
-nest::CompTree{{cm_unique_suffix}}::sync_voltage_recordables()
-{
-  for ( auto compartment_it = compartments_.begin(); compartment_it != compartments_.end(); ++compartment_it )
-  {
-    ( *compartment_it )->sync_recordables();
-  }
-}
-{%- endif %}
 
 void nest::CompTree{{cm_unique_suffix}}::compute_sweeping_order( std::vector< Compartment{{cm_unique_suffix}}* > parallel_comps )
 {

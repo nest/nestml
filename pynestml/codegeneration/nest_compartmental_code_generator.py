@@ -23,6 +23,7 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import datetime
 import os
+import re
 
 from jinja2 import TemplateRuntimeError
 
@@ -165,7 +166,12 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         exp_function = "std::exp"
         if self.get_option("fp_precision") == "single":
             exp_function = "std::expf"
-        propagator_exp_function = "cm_fast_propagator_exp" if self.get_option("use_fastexp") else exp_function
+        if self.get_option("use_fastexp"):
+            propagator_exp_function = "cm_fast_propagator_exp"
+        elif self.get_option("fp_precision") == "single":
+            propagator_exp_function = "bounded_propagator_expf"
+        else:
+            propagator_exp_function = exp_function
 
         # C++/NEST API printers
         self._type_symbol_printer = NESTCppTypeSymbolPrinter()
@@ -191,6 +197,22 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                                                                  function_call_printer=self._nest_function_call_printer_no_origin))
         self._nest_variable_printer_no_origin._expression_printer = self._printer_no_origin
         self._nest_function_call_printer_no_origin._expression_printer = self._printer_no_origin
+
+        self._nest_variable_printer_no_origin_propagator = NESTVariablePrinter(
+            None,
+            with_origin=False,
+            with_vector_parameter=True,
+            enforce_getter=False)
+        self._nest_function_call_printer_no_origin_propagator = NESTCppFunctionCallPrinter(
+            None,
+            exp_function=propagator_exp_function)
+        self._printer_no_origin_propagator = CppExpressionPrinter(
+            simple_expression_printer=CppSimpleExpressionPrinter(
+                variable_printer=self._nest_variable_printer_no_origin_propagator,
+                constant_printer=self._constant_printer,
+                function_call_printer=self._nest_function_call_printer_no_origin_propagator))
+        self._nest_variable_printer_no_origin_propagator._expression_printer = self._printer_no_origin_propagator
+        self._nest_function_call_printer_no_origin_propagator._expression_printer = self._printer_no_origin_propagator
 
         # GSL printers
         self._gsl_variable_printer = GSLVariablePrinter(None)
@@ -277,6 +299,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace = {"neurons": neurons,
                      "nest_version": self.get_option("nest_version"),
                      "moduleName": FrontendConfiguration.get_module_name(),
+                     "fp_precision": self.get_option("fp_precision"),
+                     "use_fastexp": self.get_option("use_fastexp"),
                      "nestml_version": pynestml.__version__,
                      "now": datetime.datetime.utcnow()}
 
@@ -705,11 +729,40 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         neuron.accept(rng_visitor)
         namespace["norm_rng"] = rng_visitor._norm_rng_is_used
 
+        def _suffix_float_literals(expr: str) -> str:
+            if self.get_option("fp_precision") != "single":
+                return expr
+            # Suffix decimal/scientific literals at final C++ rendering time only.
+            # Keep integers untouched.
+            float_lit_re = re.compile(
+                r'(?<![A-Za-z0-9_])'
+                r'('
+                r'(?:\d+\.\d*|\.\d+)(?:[eE][+-]?\d+)?'
+                r'|'
+                r'\d+[eE][+-]?\d+'
+                r')'
+                r'(?![A-Za-z0-9_])'
+            )
+            return float_lit_re.sub(lambda m: m.group(1) + "f", expr)
+
+        class FinalFloatSuffixPrinter:
+            def __init__(self, base_printer):
+                self._base_printer = base_printer
+
+            def print(self, node):
+                return _suffix_float_literals(self._base_printer.print(node))
+
+            def __getattr__(self, attr):
+                return getattr(self._base_printer, attr)
+
+        render_printer = FinalFloatSuffixPrinter(self._nest_printer)
+        render_printer_no_origin = FinalFloatSuffixPrinter(self._printer_no_origin)
+
         # printers
-        namespace["printer"] = self._nest_printer
-        namespace["printer_no_origin"] = self._printer_no_origin
+        namespace["printer"] = render_printer
+        namespace["printer_no_origin"] = render_printer_no_origin
         namespace["gsl_printer"] = self._gsl_printer
-        namespace["nest_printer"] = self._nest_printer
+        namespace["nest_printer"] = render_printer
         namespace["nestml_printer"] = NESTMLPrinter()
         namespace["type_symbol_printer"] = self._type_symbol_printer
 
@@ -727,7 +780,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 self.std_vector_parameter = index
                 return self.printer_factory.create_ast_vector_parameter_setter_and_printer(index, black_list)
 
-        vector_printer = VectorPrinter(neuron, self._printer_no_origin)
+        vector_printer = VectorPrinter(neuron, render_printer_no_origin)
 
         namespace["vector_printer"] = vector_printer
 

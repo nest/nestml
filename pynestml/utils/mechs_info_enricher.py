@@ -243,9 +243,13 @@ class MechsInfoEnricher:
             parsed_func_expressions = []
             for expr_id, reduced_expr in enumerate(reduced_exprs[:len(inlined_function_expressions)]):
                 expression = ModelParser.parse_expression(cls.sympy_compatible_print(reduced_expr))
-                expression.update_scope(function_expression_association[expr_id].get_scope())
-                #expression.update_scope(neuron.get_equations_blocks()[0].get_scope())
-                expression.accept(ASTSymbolTableVisitor())
+                #scope = neuron.get_equations_blocks()[0].get_scope()
+                #scope.add_scope(function_expression_association[expr_id].get_scope())
+                #expression.update_scope(scope)
+                #breakpoint()
+                #if reduced_expr.lhs.name == "m_inf":
+                #    breakpoint()
+                #expression.accept(ASTSymbolTableVisitor())
 
                 parsed_func_expressions.append(expression)
 
@@ -261,6 +265,8 @@ class MechsInfoEnricher:
                 cls.add_function_call_args(mechanism_info, function.name, function_arguments)
                 for replacement_name, replacement in cse_replacements.items():
                     cls.add_function_call_args(replacement, function.name, function_arguments)
+
+                function.accept(ASTSymbolTableVisitor())
 
             # Save final replacements to mech dict
             body_cse_replacements = dict()
@@ -288,6 +294,323 @@ class MechsInfoEnricher:
             SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
 
         return mechs_info
+
+    """
+    @classmethod
+    def global_common_subexpression_elimination(cls, neuron: ASTModel, mechs_info: dict):
+        nestml_printer = NESTMLPrinter()
+
+        def rebuild_symbol_table():
+            SymbolTable.delete_model_scope(neuron.get_name())
+            symbol_table_visitor = ASTSymbolTableVisitor()
+            neuron.accept(symbol_table_visitor)
+            CoCosManager.check_cocos(neuron, after_ast_rewrite=True)
+            SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
+
+        for mechanism_name, mechanism_info in mechs_info.items():
+            allowed = ["v_comp", "self_spikes"]
+
+            simd_body_expressions = []
+            inlined_function_expressions = []
+
+            expression_association = []
+            function_expression_association = []
+
+            # Collect and parse SIMD body expressions and associate with originals
+            for ode_variable, ode_info in mechanism_info["ODEs"].items():
+                for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items():
+                    simd_body_expressions.append(
+                        parse_expr(
+                            cls._ode_toolbox_printer.print(
+                                propagator_info["init_expression"]
+                            )
+                        )
+                    )
+                    expression_association.append([
+                        "ODEs",
+                        ode_variable,
+                        "transformed_solutions",
+                        0,
+                        "propagators",
+                        propagator,
+                        "init_expression",
+                    ])
+
+                for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items():
+                    simd_body_expressions.append(
+                        parse_expr(
+                            cls._ode_toolbox_printer.print(
+                                state_solution_info["update_expression"]
+                            )
+                        )
+                    )
+                    expression_association.append([
+                        "ODEs",
+                        ode_variable,
+                        "transformed_solutions",
+                        0,
+                        "states",
+                        state,
+                        "update_expression",
+                    ])
+
+            if isinstance(mechanism_info["root_expression"], ASTInlineExpression):
+                simd_body_expressions.append(
+                    parse_expr(
+                        cls._ode_toolbox_printer.print(
+                            mechanism_info["root_expression"].expression
+                        )
+                    )
+                )
+                expression_association.append(["root_expression"])
+
+                simd_body_expressions.append(
+                    parse_expr(
+                        cls._ode_toolbox_printer.print(
+                            mechanism_info["inline_derivative"]
+                        )
+                    )
+                )
+                expression_association.append(["inline_derivative"])
+
+            # Collect and parse function expressions and associate with originals
+            for function in mechanism_info["Functions"]:
+                expression_collector = ASTFunctionExpressionExtractor()
+                function.accept(expression_collector)
+
+                function_expressions = expression_collector.expressions
+                function_expression_association += function_expressions
+
+                for function_expression in function_expressions:
+                    inlined_function_expressions.append(
+                        parse_expr(
+                            cls._ode_toolbox_printer.print(function_expression)
+                        )
+                    )
+
+            # Run actual CSE
+            symb = sympy.numbered_symbols("simd_cse_tmp_" + mechanism_name)
+
+            replacements, reduced_exprs = sympy.cse(
+                inlined_function_expressions + simd_body_expressions,
+                symbols=symb,
+            )
+
+            # Re-substitute CSE replacements if they depend on states
+            invalid_vars = set(mechanism_info["States"].keys()) - set(allowed)
+            invalid_replacements = []
+
+            for replacement in replacements:
+                replacement_name, replacement_expr = replacement
+
+                new_invalids = set()
+                rep_expression_txt = cls.sympy_compatible_print(replacement_expr)
+                devalidated = False
+
+                for state in invalid_vars:
+                    if rep_expression_txt.find(state) >= 0 and not devalidated:
+                        invalid_replacements.append(replacement)
+                        new_invalids.add(cls.sympy_compatible_print(replacement_name))
+                        devalidated = True
+
+                invalid_vars = invalid_vars | new_invalids
+
+            # Substitute invalid occurrences with originals in valid replacements
+            valid_replacements = [
+                replacement
+                for replacement in replacements
+                if replacement not in invalid_replacements
+            ]
+
+            invalid_replacements = list(reversed(invalid_replacements))
+
+            new_replacements = []
+            for replacement_name, replacement_expr in valid_replacements:
+                new_replacement_exp = replacement_expr
+
+                for invalid_name, invalid_expr in invalid_replacements:
+                    new_replacement_exp = new_replacement_exp.subs(
+                        invalid_name,
+                        invalid_expr,
+                    )
+
+                new_replacements.append((replacement_name, new_replacement_exp))
+
+            replacements = new_replacements
+
+            # Substitute invalid occurrences with originals in original expressions
+            new_expressions = []
+            for expression in reduced_exprs:
+                new_expression = expression
+
+                for invalid_name, invalid_expr in invalid_replacements:
+                    new_expression = new_expression.subs(
+                        invalid_name,
+                        invalid_expr,
+                    )
+
+                new_expressions.append(new_expression)
+
+            reduced_exprs = new_expressions
+
+            # ------------------------------------------------------------------
+            # From here on:
+            #   - parse AST fragments without scopes
+            #   - insert them structurally
+            #   - rebuild scopes once at the end
+            # ------------------------------------------------------------------
+
+            replacement_names_in_order = [
+                cls.sympy_compatible_print(replacement_name)
+                for replacement_name, _ in replacements
+            ]
+
+            replacement_exprs_by_name = {
+                cls.sympy_compatible_print(replacement_name): replacement_expr
+                for replacement_name, replacement_expr in replacements
+            }
+
+            replacement_names = set(replacement_names_in_order)
+
+            # Parse CSE replacement expressions without assigning scopes.
+            cse_replacements = {}
+            parsed_parameters = []
+            parsed_args = {}
+
+            for replacement_name in replacement_names_in_order:
+                replacement_expr = replacement_exprs_by_name[replacement_name]
+
+                parsed_replacement = ModelParser.parse_expression(
+                    cls.sympy_compatible_print(replacement_expr)
+                )
+                cse_replacements[replacement_name] = parsed_replacement
+
+                mechanism_info["non_vec_vars"].append(replacement_name)
+
+                # This structurally inserts the CSE storage variable.
+                # Scope will be rebuilt later.
+                ASTUtils.add_declaration_to_state_block(
+                    neuron,
+                    replacement_name,
+                    "0",
+                )
+
+                # Parse parameters and call arguments without scopes.
+                # These will become valid once inserted into function signatures /
+                # call sites and after the final symbol-table rebuild.
+                parsed_parameter = ModelParser.parse_parameter(
+                    replacement_name + " real"
+                )
+                parsed_parameters.append(parsed_parameter)
+
+                parsed_argument = ModelParser.parse_expression(replacement_name)
+                parsed_args[replacement_name] = parsed_argument
+
+            # Parse and replace reduced SIMD expressions without assigning scopes.
+            body_reduced_exprs = reduced_exprs[len(inlined_function_expressions):]
+
+            for reduced_expr, association in zip(body_reduced_exprs, expression_association):
+                expression = ModelParser.parse_expression(
+                    cls.sympy_compatible_print(reduced_expr)
+                )
+
+                original = mechanism_info
+                for key in association[:-1]:
+                    original = original[key]
+
+                original[association[-1]] = expression
+
+            # Parse reduced function expressions without assigning scopes.
+            function_reduced_exprs = reduced_exprs[:len(inlined_function_expressions)]
+
+            parsed_func_expressions = []
+            for reduced_expr in function_reduced_exprs:
+                expression = ModelParser.parse_expression(
+                    cls.sympy_compatible_print(reduced_expr)
+                )
+                parsed_func_expressions.append(expression)
+
+            # Replace function expressions.
+            #
+            # This is where the function ASTs should be structurally modified:
+            #   - old expressions are replaced by parsed_func_expressions
+            #   - needed CSE vars are added as function parameters
+            #
+            # Because we do not run symbol-table construction before this point,
+            # the newly inserted CSE parameters and expressions will be scoped
+            # together during the final rebuild.
+            all_function_arguments = set()
+
+            for function in mechanism_info["Functions"]:
+                replacer = ASTFunctionExpressionReplacer(
+                    function,
+                    function_expression_association,
+                    parsed_func_expressions,
+                    parsed_parameters,
+                )
+
+                function_arguments = []
+
+                for arg_name in replacer.cse_function_vars:
+                    function_arguments.append(parsed_args[arg_name])
+                    all_function_arguments.add(arg_name)
+
+                # Add matching CSE arguments at function call sites.
+                # These parsed argument expressions are intentionally still
+                # unscoped here.
+                cls.add_function_call_args(
+                    mechanism_info,
+                    function.name,
+                    function_arguments,
+                )
+
+                # Also update function calls inside CSE replacement expressions.
+                for replacement_name, replacement in cse_replacements.items():
+                    cls.add_function_call_args(
+                        replacement,
+                        function.name,
+                        function_arguments,
+                    )
+
+                function.accept(ASTSymbolTableVisitor)
+
+
+            # Save final replacements to mech dict.
+            #
+            # This preserves your original reverse/f_found logic.
+            body_cse_replacements = {}
+            function_cse_replacements = {}
+
+            rev_cse_rep = dict(reversed(list(cse_replacements.items())))
+
+            f_found = False
+            for replacement_name, replacement in rev_cse_rep.items():
+                if f_found:
+                    function_cse_replacements[replacement_name] = replacement
+                elif replacement_name in all_function_arguments:
+                    function_cse_replacements[replacement_name] = replacement
+                    f_found = True
+                else:
+                    body_cse_replacements[replacement_name] = replacement
+
+            mechanism_info["cse_body_replacements"] = dict(
+                reversed(list(body_cse_replacements.items()))
+            )
+
+            mechanism_info["cse_function_replacements"] = dict(
+                reversed(list(function_cse_replacements.items()))
+            )
+
+            # One complete rebuild after all structural changes.
+            #rebuild_symbol_table()
+            SymbolTable.delete_model_scope(neuron.get_name())
+            symbol_table_visitor = ASTSymbolTableVisitor()
+            neuron.accept(symbol_table_visitor)
+            CoCosManager.check_cocos(neuron, after_ast_rewrite=True)
+            SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
+
+        return mechs_info
+    """
 
     @classmethod
     def add_function_call_args(cls, obj, function_name, function_arguments):

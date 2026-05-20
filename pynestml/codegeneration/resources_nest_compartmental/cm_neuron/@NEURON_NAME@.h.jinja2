@@ -280,7 +280,11 @@ private:
   double
   get_state_element( size_t elem )
   {
+{%- if fp_precision == "single" %}
+    return static_cast< double >( *recordables_values[ elem ] );
+{%- else %}
     return *recordables_values[ elem ];
+{%- endif %}
   };
 
   // The next classes need to be friends to access the State_ class/member
@@ -294,7 +298,7 @@ private:
   present in the model
   */
   std::vector< Name > recordables_names;
-  std::vector< double* > recordables_values;
+  std::vector< {{ cm_scalar_t }}* > recordables_values;
 
   //! Mapping of recordables names to access functions
   DynamicRecordablesMap< {{neuronSpecificFileNamesCmSyns["main"]}} > recordablesMap_;

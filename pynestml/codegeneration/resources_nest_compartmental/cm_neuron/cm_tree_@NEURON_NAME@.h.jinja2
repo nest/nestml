@@ -71,7 +71,6 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "dict.h"
 #include "dictutils.h"
 
-#include <algorithm>
 #include <functional>
 
 
@@ -84,9 +83,6 @@ private:
   // aggragators for numerical integration
   {{ cm_scalar_t }} xx_;
   {{ cm_scalar_t }} yy_;
-{%- if fp_precision == "single" %}
-  double v_comp_recordable_;
-{%- endif %}
 
 public:
   // compartment index
@@ -131,13 +127,10 @@ public:
 {%- else %}
   void pre_run_hook();
 {%- endif %}
-  std::map< Name, double* > get_recordables();
+  std::map< Name, {{ cm_scalar_t }}* > get_recordables();
 
   // matrix construction
   void construct_matrix_coupling_elements();
-{%- if fp_precision == "single" %}
-  inline void sync_recordables();
-{%- endif %}
 
   // maxtrix inversion
   inline void gather_input( const std::pair< {{ cm_scalar_t }}, {{ cm_scalar_t }} >& in );
@@ -176,20 +169,9 @@ nest::Compartment{{cm_unique_suffix}}::calc_v( const {{ cm_scalar_t }} v_in )
 
   // compute voltage
   *v_comp = ( *ff - v_in * hh ) / *gg;
-{%- if fp_precision == "single" %}
-  v_comp_recordable_ = static_cast< double >( *v_comp );
-{%- endif %}
 
   return *v_comp;
 }
-
-{%- if fp_precision == "single" %}
-inline void
-nest::Compartment{{cm_unique_suffix}}::sync_recordables()
-{
-  v_comp_recordable_ = static_cast< double >( *v_comp );
-}
-{%- endif %}
 
 
 class CompTree{{cm_unique_suffix}}
@@ -208,9 +190,6 @@ private:
   // recursion functions for matrix inversion
   void solve_matrix_downsweep();
   void solve_matrix_upsweep();
-{%- if fp_precision == "single" %}
-  void sync_voltage_recordables();
-{%- endif %}
 
   // functions for pointer initialization
   void set_parents();
@@ -260,7 +239,7 @@ public:
 
   void init_pointers(bool* self_spikes, std::vector< {{ cm_scalar_t }} >* g_vals_in, std::vector< {{ cm_scalar_t }} >* i_vals_in);
   void set_syn_buffers( std::vector< RingBuffer >& syn_buffers );
-  std::map< Name, double* > get_recordables();
+  std::map< Name, {{ cm_scalar_t }}* > get_recordables();
 
   // get a compartment pointer from the tree
   Compartment{{cm_unique_suffix}}* get_compartment( const long compartment_index ) const;

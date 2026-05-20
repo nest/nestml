@@ -67,7 +67,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
 
         nest.ResetKernel()
         nest.SetKernelStatus(dict(resolution=.1))
-        """
+
         generate_nest_compartmental_target(
             input_path=[neuron_input_path, synapse_input_path],
             target_path=target_path,
@@ -81,7 +81,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
                           "weight_variable": {"stdp_synapse": "w"}
                           }
         )
-        """
+
         nest.Install("cm_stdp_module.so")
 
     def run_model(self, model_case, pre_spike, post_spike, sim_time):
