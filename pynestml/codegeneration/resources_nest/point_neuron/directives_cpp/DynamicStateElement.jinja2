@@ -5,21 +5,6 @@
 {%- import 'directives_cpp/VectorSizeParameter.jinja2' as vector_size_parameter with context %}
 inline double get_state_element(size_t elem)
   {
-
-/*
-{%- if recordable_inline_expressions | length > 0 %}
-    // add recordable inline expressions to recordables map
-{%-     for variable_symbol in recordable_inline_expressions %}
-{%-         set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-         if has_state_vectors %}
-    if (elem == State_::StateVecVars::{{ variable_symbol.get_symbol_name().upper() }}) {
-      return get_{{ variable_symbol.get_symbol_name() }}();
-    }
-{%         endif %}
-{%-     endfor %}
-{%- endif %}
-*/
-
 {%- set len = recordable_state_variables | length %}
 {%- for variable in recordable_state_variables %}
 {%-  if loop.index == 1 %}

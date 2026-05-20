@@ -72,6 +72,8 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "{{ neuronName }}.h"
 
 
+
+
 {%- if state_vars_that_need_continuous_buffering | length > 0 %}
 {%-     if continuous_state_buffering_method == "continuous_time_buffer" %}
 continuous_variable_histentry_{{ neuronName }}::continuous_variable_histentry_{{ neuronName }}( double t,
@@ -105,6 +107,9 @@ nest::RecordablesMap<{{ neuronName }}> {{ neuronName }}::recordablesMap_;
 namespace nest
 {
 
+
+
+
   // Override the create() method with one call to RecordablesMap::insert_()
   // for each quantity to be recorded.
 {%- if has_state_vectors %}
@@ -136,7 +141,7 @@ template <> void RecordablesMap<{{ neuronName }}>::create()
 {%-         set variable_name = utils.get_inline_expression_by_name(astnode, variable_symbol.get_symbol_name()).get_variable_name() %}
 {%-         set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-         if has_state_vectors %}
-    //insert("{{ variable.get_complete_name() }}", host.get_data_access_functor( &{{ neuronName }}::{{ printer_no_origin.print(variable)[:-2] }} ));
+    insert("{{ variable.get_complete_name() }}", host.get_recordable_inline_data_access_functor( &{{ neuronName }}::{{ printer_no_origin.print(variable)[:-2] }} ));
 {%-         else %}
     insert_({{ names_namespace }}::_{{ variable_symbol.get_symbol_name() }}, &{{ neuronName }}::{{ printer_no_origin.print(variable)[:-2] }});
 {%-         endif %}
@@ -193,6 +198,13 @@ std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_i
   {
     return nest::DataAccessFunctor< {{ neuronName }} >( *this, elem );
   }
+
+  nest::DataAccessFunctorForInlineExpressions< {{ neuronName }} >
+  {{ neuronName }}::get_recordable_inline_data_access_functor( std::function< void({{ neuronName }}&) > fp )
+  {
+    return nest::DataAccessFunctorForInlineExpressions< {{ neuronName }} >( *this, fp );
+  }
+
 {%- endif %}
 
 // ---------------------------------------------------------------------------

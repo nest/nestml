@@ -96,6 +96,10 @@ class TestNestVectorsIntegration:
         neuron.set(x=[1.0, 1.0, 4.0])
 
     def test_vectors_with_non_linear_odes(self):
+        r"""Test a neural model with both a linear and nonlinear ODE, the value of which is written into a circular buffer at every timestep.
+
+        Also test that recording from an inline expression works (note that using vector variables in a model changes the RecordablesMap into a DynamicRecordablesMap)."""
+
         input_path = os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "vectors_with_nonlin_eq.nestml"))
         target_path = "target"
         logging_level = "INFO"
@@ -117,6 +121,10 @@ class TestNestVectorsIntegration:
         neuron = nest.Create("vectors_with_nonlin_eq_nestml")
         neuron.buf_len = int(np.ceil(sim_time / resolution))
 
+        multimeter = nest.Create("multimeter")
+        multimeter.set({"record_from": ["rec_inline"]})    # check that recording from an inline expression (``rec_inline``) works
+        nest.Connect(multimeter, neuron)
+
         #
         #    run the simulation
         #
@@ -126,6 +134,11 @@ class TestNestVectorsIntegration:
         #
         #    check the results
         #
+
+        events = multimeter.get("events")
+        rec_inline = events["rec_inline"]
+        assert len(rec_inline) > 0
+        assert np.amax(rec_inline) > 0
 
         np.testing.assert_allclose(neuron.x_buf[0], 42.)
         np.testing.assert_allclose(neuron.x_buf[-1], 42. * np.exp(-(neuron.buf_len - 1) / neuron.tau))
