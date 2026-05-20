@@ -184,6 +184,33 @@ extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% e
 {%- endif %}
 
 
+{%- if has_state_vectors %}
+
+namespace nest
+{
+/**
+ * Class that reads out state vector elements, used by DynamicUniversalDataLogger
+ * Note that the use of vectors in a model changes the UniversalDataLogger into a DynamicUniversalDataLogger.
+**/
+template < typename HostNode >
+class DataAccessFunctorForInlineExpressions : public DataAccessFunctor< HostNode >
+{
+  std::function< void(HostNode&) > fp_;    // function pointer to the getter for the inline expression
+
+public:
+  DataAccessFunctorForInlineExpressions( HostNode& n, std::function< void(HostNode&) > fp )
+    : DataAccessFunctor<HostNode>( n, 0 )
+    , fp_( std::move(fp) ) {};
+
+  double
+  operator()() const
+  {
+    return fp_();
+  };
+};
+}
+{%- endif %}
+
 {%- if paired_synapse is defined %}
 
 /**
@@ -970,6 +997,7 @@ private:
 {%- if has_state_vectors %}
   nest::DynamicRecordablesMap<{{neuronName}}> recordablesMap_;
   nest::DataAccessFunctor< {{neuronName}} > get_data_access_functor( size_t elem );
+  nest::DataAccessFunctorForInlineExpressions< {{neuronName}} > get_recordable_inline_data_access_functor( std::function< void({{neuronName}}&) > fp );
   std::string get_var_name(size_t elem, std::string var_name);
   void insert_recordables(size_t first=0);
 
