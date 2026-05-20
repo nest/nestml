@@ -995,10 +995,6 @@ private:
 
   //! Mapping of recordables names to access functions
 {%- if has_state_vectors %}
-
-
-
-
   nest::DynamicRecordablesMap<{{neuronName}}> recordablesMap_;
   nest::DataAccessFunctor< {{neuronName}} > get_data_access_functor( size_t elem );
   nest::DataAccessFunctorForInlineExpressions< {{neuronName}} > get_recordable_inline_data_access_functor( std::function< void({{neuronName}}&) > fp );

@@ -72,8 +72,6 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "{{ neuronName }}.h"
 
 
-
-
 {%- if state_vars_that_need_continuous_buffering | length > 0 %}
 {%-     if continuous_state_buffering_method == "continuous_time_buffer" %}
 continuous_variable_histentry_{{ neuronName }}::continuous_variable_histentry_{{ neuronName }}( double t,
@@ -106,12 +104,7 @@ nest::RecordablesMap<{{ neuronName }}> {{ neuronName }}::recordablesMap_;
 {%- endif %}
 namespace nest
 {
-
-
-
-
-  // Override the create() method with one call to RecordablesMap::insert_()
-  // for each quantity to be recorded.
+  // Override the create() method with one call to RecordablesMap::insert_() for each quantity to be recorded.
 {%- if has_state_vectors %}
 template <> void DynamicRecordablesMap<{{ neuronName }}>::create({{ neuronName }}& host)
 {%- else %}
