@@ -460,19 +460,18 @@ private:
             {}
 
         void push({{ cm_scalar_t }} value) {
-            values.push_back(value);
-            times.push_back(countdown - total_countdown);
+            int local_countdown = countdown - total_countdown;
             total_countdown = countdown;
+            dq.push_back(std::make_pair(local_countdown, value));
         }
 
         {{ cm_scalar_t }} tick() {
-            if (!times.empty()) {
-                times.front()--;
+            if (!dq.empty()) {
+                dq.front().first--;
                 total_countdown--;
-                if (times.front() == 0) {
-                    {{ cm_scalar_t }} value = values.front();
-                    values.pop_front();
-                    times.pop_front();
+                if (dq.front().first == 0) {
+                    {{ cm_scalar_t }} value = dq.front().second;
+                    dq.pop_front();
                     return value;
                 }
             }
@@ -480,8 +479,7 @@ private:
         }
 
     private:
-        std::deque< int > times;
-        std::deque< {{ cm_scalar_t }} > values;
+        std::deque<std::pair<int, {{ cm_scalar_t }}>> dq;
 
         const int countdown;
         int total_countdown = 0;
