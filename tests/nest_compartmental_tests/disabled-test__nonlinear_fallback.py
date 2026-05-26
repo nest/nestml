@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# test__compartmental_model.py
+# disabled-test__compartmental_model.py
 #
 # This file is part of NEST.
 #
