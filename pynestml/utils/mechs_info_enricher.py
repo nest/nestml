@@ -129,15 +129,26 @@ class MechsInfoEnricher:
             expression_association = []
             function_expression_association = []
 
+            invalid_vars = set()
+
             # Collect and parse simd body expressions and associate with the originals
             for ode_variable, ode_info in mechanism_info["ODEs"].items():
                 for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items():
                     simd_body_expressions.append(parse_expr(cls._ode_toolbox_printer.print(propagator_info["init_expression"])))
                     expression_association.append(["ODEs", ode_variable, "transformed_solutions", 0, "propagators", propagator, "init_expression"])
+                    invalid_vars.add(propagator)
 
                 for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items():
                     simd_body_expressions.append(parse_expr(cls._ode_toolbox_printer.print(state_solution_info["update_expression"])))
                     expression_association.append(["ODEs", ode_variable, "transformed_solutions", 0, "states", state, "update_expression"])
+                    invalid_vars.add(state)
+
+            for conv, conv_info in mechanism_info["convolutions"].items():
+                for propagator, propagator_info in conv_info["analytic_solution"]["propagators"].items():
+                    invalid_vars.add(propagator)
+
+                for state, state_solution_info in conv_info["analytic_solution"]["kernel_states"].items():
+                    invalid_vars.add(state)
 
             if isinstance(mechanism_info["root_expression"], ASTInlineExpression):
                 simd_body_expressions.append(parse_expr(cls._ode_toolbox_printer.print(mechanism_info["root_expression"].expression)))
@@ -162,7 +173,7 @@ class MechsInfoEnricher:
 
             # Re-substitute CSE replacements if they depend on states
             # Find invalid replacements
-            invalid_vars = set(mechanism_info["States"].keys()) - set(allowed)
+            invalid_vars = (invalid_vars | set(mechanism_info["States"].keys())) - set(allowed)
             invalid_replacements = list()
             for replacement in replacements:
                 new_invalids = set()

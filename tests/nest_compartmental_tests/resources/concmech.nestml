@@ -27,7 +27,7 @@
 #
 model multichannel_test_model:
     parameters:
-        e_AMPA real = 0 mV
+        e_AMPA real = 0.0 mV
         tau_r_AMPA real = 0.2 ms
         tau_d_AMPA real = 3.0 ms
 

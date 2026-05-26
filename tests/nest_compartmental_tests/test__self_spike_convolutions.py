@@ -68,7 +68,7 @@ class TestSelfSpikeConvolutions:
             target_path=target_path,
             module_name="self_spike_convolutions_module",
             suffix="_nestml",
-            logging_level="INFO"
+            logging_level="DEBUG"
         )
 
         nest.Install("self_spike_convolutions_module.so")
