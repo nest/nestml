@@ -64,11 +64,6 @@ class ASTVectorParameterSetterAndPrinter(ASTPrinter):
 
         write_permission = [True] * len(text)
 
-        observe = False
-        #if text.find("w") >= 0:
-        #    observe = True
-        #    breakpoint()
-
         for var in local_white_list:
             pos = 0
             next_pos = 0
@@ -76,12 +71,9 @@ class ASTVectorParameterSetterAndPrinter(ASTPrinter):
                 pos = next_pos
                 pos = text.find(var, pos)
                 if pos >= 0:
-                    for j in range(pos, pos+len(var)):
+                    for j in range(pos, pos + len(var)):
                         write_permission[j] = False
                 next_pos = pos + len(var)
-
-        if observe:
-            breakpoint()
 
         ordered_black_list = sorted(self.black_list, key=len, reverse=True)
         for var in ordered_black_list:
@@ -92,20 +84,18 @@ class ASTVectorParameterSetterAndPrinter(ASTPrinter):
                 pos = text.find(var, pos)
                 if pos >= 0:
                     overwrite = False
-                    for j in range(pos, pos+len(var)):
+                    for j in range(pos, pos + len(var)):
                         if write_permission[j]:
                             overwrite = True
                     if overwrite:
-                        start = pos+len(var)
-                        end = pos+len(var)+len(self.vector_parameter)+2
+                        start = pos + len(var)
+                        end = pos + len(var) + len(self.vector_parameter) + 2
                         text = text[:start] + text[end:]
                         write_permission = write_permission[:pos] + ([False] * len(var)) + write_permission[end:]
                 next_pos = pos + len(var)
 
-        if observe:
-            breakpoint()
-
         return text
+
 
 class ASTSimpleVariableCollectorVisitor(ASTVisitor):
     def __init__(self):
@@ -119,3 +109,4 @@ class ASTSimpleVariableCollectorVisitor(ASTVisitor):
 
     def endvisit_variable(self, node):
         self.inside_variable = False
+

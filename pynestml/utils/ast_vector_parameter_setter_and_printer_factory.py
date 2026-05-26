@@ -38,7 +38,7 @@ class ASTVectorParameterSetterAndPrinterFactory:
         self.printer = printer
         self.model = model
 
-    def create_ast_vector_parameter_setter_and_printer(self, vector_parameter=None, black_list = []):
+    def create_ast_vector_parameter_setter_and_printer(self, vector_parameter=None, black_list=[]):
         my_printer = ASTVectorParameterSetterAndPrinter()
         my_printer.printer = self.printer
         my_printer.model = self.model

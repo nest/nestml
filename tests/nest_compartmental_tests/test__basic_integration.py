@@ -149,10 +149,7 @@ class TestBasicIntegration:
         neuron = nest.Create(self.MODEL_NAME)
         neuron.V_th = 100.0
         neuron.compartments = compartments
-        neuron.receptors = [{
-                "comp_idx": idx, "receptor_type": "inp"
-            } for idx in range(len(compartments))
-        ]
+        neuron.receptors = [{"comp_idx": idx, "receptor_type": "inp"} for idx in range(len(compartments))]
 
         n_comp = len(compartments)
         mm = nest.Create(

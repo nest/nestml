@@ -91,7 +91,7 @@ class TestCompartmentalConcmechDecayHalfTime:
         mm = nest.Create("multimeter", 1, {"record_from": ["c_Ca0"], "interval": 0.1})
         nest.Connect(mm, cm)
 
-        nest.Simulate((round(expected_half_time*10)/10) + 5.0)
+        nest.Simulate((round(expected_half_time * 10) / 10) + 5.0)
 
         res = nest.GetStatus(mm, "events")[0]
         measured_half_time = self._interpolated_crossing_time(
