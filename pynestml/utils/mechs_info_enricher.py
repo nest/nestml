@@ -916,7 +916,7 @@ class ASTFunctionExpressionReplacer(ASTVisitor):
 
     def visit_function(self, node):
         self.inside_function = True
-        
+
     def endvisit_function(self, node):
         self.inside_function = False
         var_extractor = ASTUsedVariableNamesExtractor(node)
@@ -946,4 +946,3 @@ class ASTFunctionCallParameterAdder(ASTVisitor):
         self.recursion -= 1
         if self.recursion == 0:
             self.inside_function_call = False
-

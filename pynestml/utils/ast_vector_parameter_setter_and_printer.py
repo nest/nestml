@@ -109,4 +109,3 @@ class ASTSimpleVariableCollectorVisitor(ASTVisitor):
 
     def endvisit_variable(self, node):
         self.inside_variable = False
-
