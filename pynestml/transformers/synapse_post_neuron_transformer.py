@@ -23,8 +23,6 @@ from __future__ import annotations
 
 from typing import Any, Dict, Iterable, Mapping, Optional, Set, Tuple
 
-from pynestml.symbols.predefined_functions import PredefinedFunctions
-
 try:
     # Available in the standard library starting with Python 3.12
     from typing import override
@@ -37,6 +35,7 @@ from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.transformers.transformer import Transformer
@@ -261,7 +260,7 @@ class SynapsePostNeuronTransformer(Transformer):
         if not new_neuron.get_equations_blocks():
             ASTUtils.create_equations_block(new_neuron)
 
-        Logger.log_message(None, -1, "Moving definition(s) for variables \"" + "\", \"".join(affected_vars) + "\"", None, LoggingLevel.INFO)
+        Logger.log_message(None, -1, "Moving definition(s) for variable(s) \"" + "\", \"".join(affected_vars) + "\"", None, LoggingLevel.INFO)
 
         for var in affected_vars:
             if ASTUtils.get_inline_expression_by_name(synapse, var):

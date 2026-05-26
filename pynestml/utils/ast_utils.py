@@ -687,20 +687,6 @@ class ASTUtils:
         return None
 
     @classmethod
-    def get_inline_expression_by_constructed_rhs_name(cls, node, name: str) -> Optional[ASTInlineExpression]:
-        for equations_block in node.get_equations_blocks():
-            for inline_expr in equations_block.get_inline_expressions():
-                if not isinstance(inline_expr.get_expression(), ASTSimpleExpression) or not inline_expr.get_expression().get_function_call():
-                    continue
-
-                constructed_name = ASTUtils.construct_kernel_X_spike_buf_name(str(inline_expr.get_expression().get_function_call().get_args()[0]), inline_expr.get_expression().get_function_call().get_args()[1], order=0, suffix="__for_" + node.get_name())
-
-                if name == constructed_name:
-                    return inline_expr
-
-        return None
-
-    @classmethod
     def get_kernel_by_name(cls, node, name: str) -> Optional[ASTKernel]:
         for equations_block in node.get_equations_blocks():
             for kernel in equations_block.get_kernels():
@@ -777,7 +763,6 @@ class ASTUtils:
                     _expr.get_parent().lhs = ast_ext_var
                 elif isinstance(_expr.get_parent(), ASTSimpleExpression) and _expr.get_parent().is_variable():
                     _expr.get_parent().set_variable(ast_ext_var)
-                # elif isinstance(_expr.get_parent(), ASTKernel):
                 elif isinstance(_expr.get_parent(), ASTDeclaration):
                     # variable could occur on the left-hand side; ignore. Only replace if it occurs on the right-hand side.
                     pass
@@ -1601,7 +1586,7 @@ class ASTUtils:
         return None
 
     @classmethod
-    def get_internal_variable_by_name(cls, node: ASTVariable, var_name: str) -> ASTVariable:
+    def get_internal_variable_by_name(cls, node: ASTModel, var_name: str) -> ASTVariable:
         """
         Get the internal parameter node based on the name of the internal parameter
         :param node: the neuron or synapse containing the parameter
@@ -2602,10 +2587,6 @@ class ASTUtils:
         #
 
         recursive_vars_used = ASTUtils.recursive_necessary_variables_search(syn_to_neuron_state_vars, model)
-
-        # XXX: TODO:
-        # copy the kernel, don't move; it could be used in another convolution in the model
-        # if the kernel is in a convolve, only add a suffix if it's a convolution with a post_spike port
 
         # all state variables that will be moved from synapse to neuron
         syn_to_neuron_state_vars = []
