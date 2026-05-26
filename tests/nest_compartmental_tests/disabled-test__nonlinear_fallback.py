@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# disabled-test__compartmental_model.py
+# disabled-test__nonlinear_fallback.py
 #
 # This file is part of NEST.
 #
