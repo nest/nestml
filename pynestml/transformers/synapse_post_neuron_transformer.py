@@ -135,14 +135,14 @@ class SynapsePostNeuronTransformer(Transformer):
             ASTUtils.create_state_block(new_neuron)
 
         metadata[new_neuron.name] = {}
-        metadata[new_neuron.name]["paired_synapses"] = []
-        metadata[new_neuron.name]["paired_synapse_original_models"] = []
-        metadata[new_neuron.name]["transferred_variables"] = {}
-        metadata[new_neuron.name]["recursive_vars_used"] = {}
-        metadata[new_neuron.name]["extra_on_emit_spike_stmts_from_synapses"] = []
         metadata[new_neuron.name]["unpaired_name"] = unpaired_name
-        metadata[new_neuron.name]["state_vars_that_need_continuous_buffering"] = []
-        metadata[new_neuron.name]["state_vars_that_need_continuous_buffering_transformed_iv"] = {}
+        metadata[new_neuron.name]["paired_synapses"] = []    # a list of all synapses this post neuron is paired with
+        metadata[new_neuron.name]["paired_synapse_original_models"] = []    # a list of all original, untransformed synapse models that this neuron is paired with (in the same order as ``paired_synapses``)
+        metadata[new_neuron.name]["transferred_variables"] = {}    # a dict from paired synapse name to list of post variables transferred for that synapse
+        metadata[new_neuron.name]["recursive_vars_used"] = {}    # a dict from paired synapse name to list of post variables transferred for that synapse
+        metadata[new_neuron.name]["extra_on_emit_spike_stmts_from_synapses"] = []    # a list of statements that gets executed upon a post spike by the post neuron (transferred from synapses)
+        metadata[new_neuron.name]["state_vars_that_need_continuous_buffering"] = []    # a list of state variables (on the neuron side) that need continuous-time buffering
+        metadata[new_neuron.name]["state_vars_that_need_continuous_buffering_transformed_iv"] = {}    # initial values for ``state_vars_that_need_continuous_buffering``
 
         #
         #   rename new neuron and synapse

@@ -1519,11 +1519,9 @@ double
   // this case occurs when the trace was requested at a time precisely at that of the first spike in the history
   if ( (!before_increment) and t == history_[ 0 ].t_)
   {
-
 {%-                for var_ in purely_numeric_state_variables_moved %}
     {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = history_[ 0 ].{{var_}}_;
 {%-                 endfor %}
-
 {%-                 for var_ in analytic_state_variables_moved %}
     {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = history_[ 0 ].{{var_}}_;
 {%-                 endfor %}
@@ -1551,11 +1549,9 @@ double
 {%-                 for var_ in purely_numeric_state_variables_moved %}
   {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
 {%-                 endfor %}
-
 {%-                 for var_ in analytic_state_variables_moved %}
   {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
 {%-                 endfor %}
-
 {%-                 if (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
   /**
    * update state variables transferred from synapse from initial condition to `t`
@@ -1589,9 +1585,9 @@ double
 
 
 {%- if use_gap_junctions %}
-/**
- * Gap junction event handler
-**/
+// ---------------------------------------------------------------------------
+//   Gap junction event handler
+// ---------------------------------------------------------------------------
 
 void {{ neuronName }}::handle( nest::GapJunctionEvent& e )
 {
