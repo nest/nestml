@@ -205,25 +205,10 @@ class SynapsePostNeuronTransformer(Transformer):
             if self.option_exists("weight_variable") and removesuffix(synapse.get_name(), FrontendConfiguration.suffix) in self.get_option("weight_variable").keys() and self.get_option("weight_variable")[removesuffix(synapse.get_name(), FrontendConfiguration.suffix)]:
                 strictly_synaptic_vars.append(self.get_option("weight_variable")[removesuffix(synapse.get_name(), FrontendConfiguration.suffix)])
 
-            # # exclude kernels
-            # syn_to_neuron_state_vars = [var for var in syn_to_neuron_state_vars if not (synapse.get_kernel_by_name(var) or neuron.get_kernel_by_name(var))]
-
-            # # exclude inline expressions that contain a convolve with a post port. We cannot (yet) move this into the neuron at time of writing; skip
-            # for var in [var.name for var in synapse.get_inline_expression_symbols()]:
-            #     inline_expr = ASTUtils.get_inline_expression_by_name(synapse, var)
-            #     if inline_expr:
-            #         if ASTUtils.contains_convolve_function_call(inline_expr):
-            #             convolve_function_calls = ASTUtils.get_function_calls(inline_expr, [PredefinedFunctions.CONVOLVE])
-            #             for convolve_function_call in convolve_function_calls:
-            #                 if CodeGeneratorUtils.is_post_port(str(convolve_function_call.get_args()[1]), base_neuron_name, base_synapse_name, neuron_synapse_pairs=self._options["neuron_synapse_pairs"]):
-            #                     # ``var`` corresponds to an inline expression that contains a convolve with a post port. We cannot (yet) move this into the neuron at time of writing; skip
-            #                     strictly_synaptic_vars.add(var)
-
             recursive_vars_used, syn_to_neuron_state_vars = ASTUtils.collect_variables_affected_by_ports(synapse, post_port_names, set(strictly_synaptic_vars))
 
             metadata[new_neuron.name]["recursive_vars_used"][synapse.name] = recursive_vars_used
             metadata[new_neuron.name]["transferred_variables"][synapse.name] = [neuron_state_var + var_name_suffix for neuron_state_var in syn_to_neuron_state_vars if new_synapse.get_kernel_by_name(neuron_state_var) is None]
-
 
             Logger.log_message(None, -1, "State variables that will be moved from synapse to neuron: \"" + "\", \"".join(syn_to_neuron_state_vars) + "\"", None, LoggingLevel.INFO)
 
@@ -329,22 +314,15 @@ class SynapsePostNeuronTransformer(Transformer):
             #   move defining equations for variables from synapse to neuron
             #
 
-            Logger.log_message(None, -1, "Moving definition(s) for variable(s) \"" + "\", \"".join(syn_to_neuron_state_vars) + "\"", None, LoggingLevel.INFO)
-
             for state_var in syn_to_neuron_state_vars:
-                if ASTUtils.get_inline_expression_by_name(synapse, var):
-                    mode = "copy"
-                else:
-                    mode = "move"                # move the ODE so a solver will be generated for it by ODE-toolbox
+                Logger.log_message(None, -1, "Moving definition(s) for variable(s) \"" + "\", \"".join(syn_to_neuron_state_vars) + "\"", None, LoggingLevel.INFO)
+                # move the ODE so a solver will be generated for it by ODE-toolbox
                 decls = ASTUtils.equations_from_block_to_block(state_var,
                                                                new_synapse.get_equations_blocks()[0],
                                                                new_neuron.get_equations_blocks()[0],
                                                                var_name_suffix,
-                                                               mode=mode)
-                ASTUtils.add_suffix_to_variable_names(decls,
-                                                  variable_names=post_port_names + syn_to_neuron_state_vars + syn_to_neuron_params,
-                                                  suffix=var_name_suffix,
-                                                  altscope=synapse.get_scope())
+                                                               mode="move")
+                ASTUtils.add_suffix_to_variable_names2(post_port_names + syn_to_neuron_state_vars + syn_to_neuron_params, decls, var_name_suffix)
                 ASTUtils.replace_post_moved_variable_names(decls, [name + var_name_suffix for name in post_connected_continuous_input_ports], post_variable_names)
                 ASTUtils.remove_state_var_from_integrate_odes_calls(new_synapse, state_var)
                 # ASTUtils.add_integrate_odes_call_to_update_block(new_neuron, state_var)   # the moved state variables are never needed inside the neuron, their values are only read out from the side of the synapse. Therefore they do not have to be added to integrate_odes() calls; we just have to make sure the value has been updated before the end of the timestep
@@ -453,9 +431,6 @@ class SynapsePostNeuronTransformer(Transformer):
             #
 
             for state_var in syn_to_neuron_state_vars:
-                # if ASTUtils.get_kernel_by_name(synapse, var):
-                    # continue
-
                 ASTUtils.replace_with_external_variable(state_var, new_synapse, var_name_suffix, new_neuron.get_scope())
 
             #
