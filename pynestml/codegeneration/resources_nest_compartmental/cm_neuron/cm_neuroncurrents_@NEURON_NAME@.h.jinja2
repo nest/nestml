@@ -130,8 +130,6 @@ public:
     {{ion_channel_name}}{{cm_unique_suffix}}(bool* global_self_spikes) : self_spikes_p(global_self_spikes) {};
     ~{{ion_channel_name}}{{cm_unique_suffix}}(){};
 
-    void set_new_indices(std::map< long, long > old_to_new_indices);
-
     void new_channel(std::size_t comp_ass);
     void new_channel(std::size_t comp_ass, const DictionaryDatum& channel_params);
 
@@ -253,8 +251,6 @@ public:
     // constructor, destructor
     {{ concentration_name }}{{cm_unique_suffix}}(bool* global_self_spikes) : self_spikes_p(global_self_spikes) {};
     ~{{ concentration_name }}{{cm_unique_suffix}}(){};
-
-    void set_new_indices(std::map< long, long > old_to_new_indices);
 
     void new_concentration(std::size_t comp_ass);
     void new_concentration(std::size_t comp_ass, const DictionaryDatum& concentration_params);
@@ -387,8 +383,6 @@ public:
   // constructor, destructor
   {{receptor_name}}{{cm_unique_suffix}}(bool* global_self_spikes) : self_spikes_p(global_self_spikes) {};
   ~{{receptor_name}}{{cm_unique_suffix}}(){};
-
-  void set_new_indices(std::map< long, long > old_to_new_indices);
 
   void new_receptor(std::size_t comp_ass, const long rec_index);
   void new_receptor(std::size_t comp_ass, const long rec_index, const DictionaryDatum& receptor_params);
@@ -605,8 +599,6 @@ public:
   {{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}(bool* global_self_spikes) : self_spikes_p(global_self_spikes) {};
   ~{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}(){};
 
-  void set_new_indices(std::map< long, long > old_to_new_indices);
-
   void new_receptor(std::size_t comp_ass, const long syn_index);
   void new_receptor(std::size_t comp_ass, const long syn_index, const DictionaryDatum& receptor_params);
 
@@ -755,8 +747,6 @@ public:
   // constructor, destructor
   {{continuous_name}}{{cm_unique_suffix}}(bool* global_self_spikes) : self_spikes_p(global_self_spikes) {};
   ~{{continuous_name}}{{cm_unique_suffix}}(){};
-
-  void set_new_indices(std::map< long, long > old_to_new_indices);
 
   void new_continuous_input(std::size_t comp_ass, const long con_in_index);
   void new_continuous_input(std::size_t comp_ass, const long con_in_index, const DictionaryDatum& con_in_params);
@@ -1259,34 +1249,6 @@ public:
 
     return recordables;
   };
-
-  void set_new_indices(std::vector< long > old_indices, std::vector< long > new_indices){
-    std::map< long, long > old_to_new_indices;
-    for (size_t i = 0; i < old_indices.size(); ++i) {
-        old_to_new_indices[old_indices[i]] = new_indices[i];
-    }
-    {%- for ion_channel_name, channel_info in chan_info.items() %}
-    {{ion_channel_name}}{{channel_suffix}}.set_new_indices(old_to_new_indices);
-    {% endfor %}
-
-    {%- for concentration_name, concentration_info in conc_info.items() %}
-    {{concentration_name}}{{concentration_suffix}}.set_new_indices(old_to_new_indices);
-    {% endfor %}
-
-    {%- for receptor_name, receptor_info in recs_info.items() %}
-    {{receptor_name}}{{receptor_suffix}}.set_new_indices(old_to_new_indices);
-    {% endfor %}
-
-    {%- for receptor_name, receptor_info in recs_info.items() %}
-    {%- for synapse_name, synapse_info in syns_info.items() %}
-    {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}.set_new_indices(old_to_new_indices);
-    {% endfor %}
-    {% endfor %}
-
-    {%- for continuous_name, continuous_info in con_in_info.items() %}
-    {{continuous_name}}{{continuous_suffix}}.set_new_indices(old_to_new_indices);
-    {% endfor %}
-  }
 
   void f_numstep( const std::vector< {{ cm_scalar_t }} >& v_comp_vec, const long& lag )
   {

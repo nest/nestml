@@ -672,12 +672,6 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::distribute_shared_vector(st
 
 // {{ concentration_name }} concentration /////////////////////////////////////////////////////
 
-void nest::{{concentration_name}}{{cm_unique_suffix}}::set_new_indices(std::map< long, long > old_to_new_indices){
-    for(size_t i = 0; i < neuron_{{ concentration_name }}_concentration_count; i++){
-        compartment_association[i] = old_to_new_indices[compartment_association[i]];
-    }
-}
-
 void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::size_t comp_ass)
 {
     //Check whether the concentration will contribute at all based on initial key-parameters. If not then don't add the concentration.
@@ -1106,12 +1100,6 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::distribute_shared_vector(
 {%- for receptor_name, receptor_info in recs_info.items() %}
 // {{receptor_name}} receptor ////////////////////////////////////////////////////////////////
     {%- set non_vec_vars = receptor_info["non_vec_vars"] %}
-
-void nest::{{receptor_name}}{{cm_unique_suffix}}::set_new_indices(std::map< long, long > old_to_new_indices){
-    for(size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
-        compartment_association[i] = old_to_new_indices[compartment_association[i]];
-    }
-}
 
 void nest::{{receptor_name}}{{cm_unique_suffix}}::new_receptor(std::size_t comp_ass, const long rec_index)
 {
@@ -1565,12 +1553,6 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::distribute_shared_vector(std::
     {%- set non_vec_vars = receptor_info["non_vec_vars"] + synapse_info["non_vec_vars"] %}
 
 // {{receptor_name}} receptor ////////////////////////////////////////////////////////////////
-
-void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::set_new_indices(std::map< long, long > old_to_new_indices){
-    for(size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
-        compartment_association[i] = old_to_new_indices[compartment_association[i]];
-    }
-}
 
 void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_receptor(std::size_t comp_ass, const long syn_index)
 {
@@ -2231,12 +2213,6 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::distribut
 {%- for continuous_name, continuous_info in con_in_info.items() %}
 // {{continuous_name}} continuous input ///////////////////////////////////////////////////
     {%- set non_vec_vars = continuous_info["non_vec_vars"] %}
-
-void nest::{{continuous_name}}{{cm_unique_suffix}}::set_new_indices(std::map< long, long > old_to_new_indices){
-    for(size_t i = 0; i < neuron_{{ continuous_name }}_continuous_input_count; i++){
-        compartment_association[i] = old_to_new_indices[compartment_association[i]];
-    }
-}
 
 void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::size_t comp_ass, const long con_in_index)
 {

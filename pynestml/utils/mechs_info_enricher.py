@@ -128,8 +128,10 @@ class MechsInfoEnricher:
 
             expression_association = []
             function_expression_association = []
+            function_expression_function_association = []
 
             invalid_vars = set()
+            function_parameter_vars = set()
 
             # Collect and parse simd body expressions and associate with the originals
             for ode_variable, ode_info in mechanism_info["ODEs"].items():
@@ -159,10 +161,14 @@ class MechsInfoEnricher:
 
             # Collect and parse function expressions and associate with originals
             for function in mechanism_info["Functions"]:
+                for parameter in function.get_parameters():
+                    function_parameter_vars.add(parameter.name)
+
                 expression_collector = ASTFunctionExpressionExtractor()
                 function.accept(expression_collector)
                 function_expressions = expression_collector.expressions
                 function_expression_association += expression_collector.expressions
+                function_expression_function_association += [function] * len(function_expressions)
                 for function_expression in function_expressions:
                     inlined_function_expressions.append(parse_expr(cls._ode_toolbox_printer.print(function_expression)))
 
@@ -171,9 +177,9 @@ class MechsInfoEnricher:
 
             replacements, reduced_exprs = sympy.cse(inlined_function_expressions + simd_body_expressions, symbols=symb)
 
-            # Re-substitute CSE replacements if they depend on states
+            # Re-substitute CSE replacements if they depend on states or function-local parameters
             # Find invalid replacements
-            invalid_vars = (invalid_vars | set(mechanism_info["States"].keys())) - set(allowed)
+            invalid_vars = (invalid_vars | set(mechanism_info["States"].keys()) | function_parameter_vars) - set(allowed)
             invalid_replacements = list()
             for replacement in replacements:
                 new_invalids = set()
@@ -220,22 +226,20 @@ class MechsInfoEnricher:
                 parsed_replacement.update_scope(neuron.get_equations_blocks()[0].get_scope())
                 parsed_replacement.accept(ASTSymbolTableVisitor())
 
-                cse_replacements[cls.sympy_compatible_print(replacement[0])] = parsed_replacement
-                mechanism_info["non_vec_vars"].append(cls.sympy_compatible_print(replacement[0]))
+                replacement_name = cls.sympy_compatible_print(replacement[0])
+                cse_replacements[replacement_name] = parsed_replacement
+                mechanism_info["non_vec_vars"].append(replacement_name)
 
-                ASTUtils.add_declaration_to_state_block(neuron, cls.sympy_compatible_print(replacement[0]), "0")
+                ASTUtils.add_declaration_to_state_block(neuron, replacement_name, "0")
 
-                parsed_parameter = ModelParser.parse_parameter(cls.sympy_compatible_print(replacement[0]) + " real")
-                parsed_parameter.update_scope(neuron.get_equations_blocks()[0].get_scope())
-                parsed_parameter.accept(ASTSymbolTableVisitor())
-
+                parsed_parameter = ModelParser.parse_parameter(replacement_name + " real")
                 parsed_parameters.append(parsed_parameter)
 
-                parsed_argument = ModelParser.parse_expression(cls.sympy_compatible_print(replacement[0]))
+                parsed_argument = ModelParser.parse_expression(replacement_name)
                 parsed_argument.update_scope(neuron.get_equations_blocks()[0].get_scope())
                 parsed_argument.accept(ASTSymbolTableVisitor())
 
-                parsed_args[cls.sympy_compatible_print(replacement[0])] = parsed_argument
+                parsed_args[replacement_name] = parsed_argument
 
             # Parse and replace reduced SIMD expressions
             for reduced_expr, association in zip(reduced_exprs[len(inlined_function_expressions):], expression_association):
@@ -250,19 +254,48 @@ class MechsInfoEnricher:
 
                 original[association[-1]] = expression
 
+            # Add CSE replacement parameters to functions before parsing reduced function expressions
+            cse_var_names = set(cse_replacements.keys())
+            function_cse_parameters = defaultdict(list)
+            for reduced_expr, function in zip(
+                    reduced_exprs[:len(inlined_function_expressions)], function_expression_function_association):
+                required_cse_vars = {cls.sympy_compatible_print(sym) for sym in reduced_expr.free_symbols} & cse_var_names
+                for parsed_parameter in parsed_parameters:
+                    if parsed_parameter.name in required_cse_vars \
+                            and parsed_parameter.name not in function_cse_parameters[function]:
+                        function_cse_parameters[function].append(parsed_parameter.name)
+
+            for function, parameter_names in function_cse_parameters.items():
+                for parameter_name in parameter_names:
+                    for parsed_parameter in parsed_parameters:
+                        if parsed_parameter.name == parameter_name:
+                            function.parameters.append(parsed_parameter.clone())
+
+            neuron.accept(ASTParentVisitor())
+            SymbolTable.delete_model_scope(neuron.get_name())
+            symbol_table_visitor = ASTSymbolTableVisitor()
+            neuron.accept(symbol_table_visitor)
+            SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
+
             # Parse reduced function expressions
             parsed_func_expressions = []
-            for expr_id, reduced_expr in enumerate(reduced_exprs[:len(inlined_function_expressions)]):
+            for reduced_expr, function in zip(
+                    reduced_exprs[:len(inlined_function_expressions)], function_expression_function_association):
+                function_scope = function.get_stmts_body().get_scope()
                 expression = ModelParser.parse_expression(cls.sympy_compatible_print(reduced_expr))
+                expression.update_scope(function_scope)
+                expression.accept(ASTSymbolTableVisitor())
 
                 parsed_func_expressions.append(expression)
 
             # Replace function expressions
             all_function_arguments = set()
             for function in mechanism_info["Functions"]:
-                replacer = ASTFunctionExpressionReplacer(function, function_expression_association, parsed_func_expressions, parsed_parameters)
+                ASTFunctionExpressionReplacer(
+                    function, function_expression_association, parsed_func_expressions)
+
                 function_arguments = list()
-                for arg_name in replacer.cse_function_vars:
+                for arg_name in function_cse_parameters[function]:
                     function_arguments.append(parsed_args[arg_name])
                     all_function_arguments.add(arg_name)
 
@@ -877,21 +910,13 @@ class ASTFunctionExpressionExtractor(ASTVisitor):
 
 
 class ASTFunctionExpressionReplacer(ASTVisitor):
-    def __init__(self, node, originals, replacements, parameters):
+    def __init__(self, node, originals, replacements):
         super(ASTFunctionExpressionReplacer, self).__init__()
         self.originals = originals
         self.replacements = replacements
-        self.parameters = dict()
-        self.cse_vars = set()
-        for parameter in parameters:
-            self.parameters[parameter.name] = parameter
-            self.cse_vars.add(parameter.name)
 
         self.inside_expression = False
-        self.inside_function = False
-        self.inside_variable = False
         self.recursion_depth = 0
-        self.cse_function_vars = set()
         node.accept(ASTParentVisitor())
         node.accept(self)
 
@@ -915,23 +940,14 @@ class ASTFunctionExpressionReplacer(ASTVisitor):
                     for name, value in vars(parent).items():
                         if isinstance(value, ASTExpression) or isinstance(value, ASTSimpleExpression):
                             if value.equals(original):
-                                setattr(parent, name, replacement)
+                                replacement_clone = replacement.clone()
+                                replacement_clone.update_scope(parent.get_scope())
+                                replacement_clone.accept(ASTSymbolTableVisitor())
+                                setattr(parent, name, replacement_clone)
                                 parent.accept(ASTParentVisitor())
                     node.accept(ASTParentVisitor())
 
             self.inside_expression = False
-
-    def visit_function(self, node):
-        self.inside_function = True
-
-    def endvisit_function(self, node):
-        self.inside_function = False
-        var_extractor = ASTUsedVariableNamesExtractor(node)
-        self.cse_function_vars = self.cse_vars & var_extractor.variable_names
-        for new_param in self.cse_function_vars:
-            node.parameters.append(self.parameters[new_param])
-
-        node.accept(ASTParentVisitor())
 
 
 class ASTFunctionCallParameterAdder(ASTVisitor):
