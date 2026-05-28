@@ -904,7 +904,14 @@ class ASTFunctionExpressionReplacer(ASTVisitor):
         if self.recursion_depth == 0:
             for original, replacement in zip(self.originals, self.replacements):
                 if node.equals(original):
-                    parent = node.get_parent()
+                    try:
+                        parent = node.get_parent()
+                    except AssertionError:
+                        # The visitor can still finish an expression node that was
+                        # detached by replacing an ancestor earlier in the traversal.
+                        # In that case the current tree already contains the
+                        # replacement, so there is nothing left to update here.
+                        continue
                     for name, value in vars(parent).items():
                         if isinstance(value, ASTExpression) or isinstance(value, ASTSimpleExpression):
                             if value.equals(original):
