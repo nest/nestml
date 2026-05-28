@@ -84,15 +84,11 @@ class NoisySynapseTest(unittest.TestCase):
         if sim_time is None:
             sim_time = np.amax(pre_spike_times) + 5 * delay
 
-        NESTTools.set_nest_verbosity("ALL")
         nest.ResetKernel()
+        NESTTools.set_nest_verbosity("WARNING")
         nest.Install("nestml_noisy_synapse_module")
 
         print("Pre spike times: " + str(pre_spike_times))
-
-        NESTTools.set_nest_verbosity("WARNING")
-
-        post_weights = {"parrot": []}
 
         nest.SetKernelStatus({"resolution": resolution})
 
