@@ -680,8 +680,8 @@ void get_entry_from_continuous_variable_history(double t,
   {
     // return initial value
     histentry.t_ = 0.;
-{%-         for state_var in state_vars_that_need_continuous_buffering %}
-    histentry.{{ state_var }} = {{ state_vars_that_need_continuous_buffering_transformed_iv[state_var] }};
+{%-         for var_name in metadata[paired_neuron.name]["state_vars_that_need_continuous_buffering"] %}
+    histentry.{{ var_name }} = {{ printer.print(metadata[paired_neuron.name]["state_vars_that_need_continuous_buffering_transformed_iv"][var_name]) }};
 {%-         endfor %}
     return;
   }
@@ -778,7 +778,7 @@ void get_entry_from_continuous_variable_history(double t,
       std::deque< continuous_variable_histentry_{{ paired_neuron_name }} >::iterator continuous_history_start;
       std::deque< continuous_variable_histentry_{{ paired_neuron_name }} >::iterator continuous_history_finish;
 
-      ((post_neuron_t*)(__target))->get_continuous_variable_history( t_lastspike_ ,
+      ((post_neuron_t*)(__target))->get_continuous_variable_history( t_lastspike_,
         __t_spike,
         &continuous_history_start,
         &continuous_history_finish );
@@ -806,9 +806,8 @@ void get_entry_from_continuous_variable_history(double t,
 
 {#- post spike based: grab the entry from the post spiking history buffer #}
 {%-     if continuous_state_buffering_method == "post_spike_based" %}
-{%-         for var_name in state_vars_that_need_continuous_buffering %}
-{%-             set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
-        const double __{{ var_name }} = start->{{ var_name }}_;
+{%-         for syn_port_name, post_neuron_var_name in zip(state_vars_that_need_continuous_buffering, state_vars_that_need_continuous_buffering_transformed) %}
+        const double __{{ syn_port_name }} = start->{{ post_neuron_var_name }}_;
 {%-         endfor %}
 {%-     endif %}
 
@@ -817,15 +816,11 @@ void get_entry_from_continuous_variable_history(double t,
 #ifdef DEBUG
       std::cout << "Grabbing continuous_variable_history at t = " << start->t_ + __dendritic_delay << "\n";
 #endif
-        continuous_variable_histentry_{{ paired_neuron_name }} histentry(0.,
-{%-         for state_var in state_vars_that_need_continuous_buffering %}
-      {{ state_vars_that_need_continuous_buffering_transformed_iv[state_var] }}{% if not loop.last %},{% endif %}
-{%-         endfor %});
+        continuous_variable_histentry_{{ paired_neuron_name }} histentry;
         get_entry_from_continuous_variable_history(start->t_ + __dendritic_delay, continuous_history_start, continuous_history_finish, histentry);
 
-{%-         for var_name in state_vars_that_need_continuous_buffering %}
-{%-             set var = utils.get_parameter_variable_by_name(astnode, var_name) %}
-        const double __{{ var_name }} = histentry.{{ var_name }};
+{%-         for syn_port_name, post_neuron_var_name in zip(state_vars_that_need_continuous_buffering, state_vars_that_need_continuous_buffering_transformed) %}
+        const double __{{ syn_port_name }} = histentry.{{ post_neuron_var_name }};
 {%-         endfor %}
 {%-     endif %}
 {%- endif %}
@@ -916,9 +911,9 @@ void get_entry_from_continuous_variable_history(double t,
         /**
          * grab state variables from the postsynaptic neuron (at the "current" simulation time, which corresponds to t_pre)
         **/
-{%      for var_name in state_vars_that_need_continuous_buffering %}
-{%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
-        const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}();
+
+{%-     for syn_port_name, post_neuron_var_name in zip(state_vars_that_need_continuous_buffering, state_vars_that_need_continuous_buffering_transformed) %}
+        const double __{{ syn_port_name }} = ((post_neuron_t*)(__target))->get_{{ post_neuron_var_name }}();
 {%-     endfor %}
 {%- endif %}
 
@@ -961,9 +956,8 @@ void get_entry_from_continuous_variable_history(double t,
         /**
          * grab state variables from the postsynaptic neuron (at the "current" simulation time, which corresponds to t_pre)
         **/
-{%      for var_name in state_vars_that_need_continuous_buffering %}
-{%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
-        const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}();
+{%-     for syn_port_name, post_neuron_var_name in zip(state_vars_that_need_continuous_buffering, state_vars_that_need_continuous_buffering_transformed) %}
+        const double __{{ syn_port_name }} = ((post_neuron_t*)(__target))->get_{{ post_neuron_var_name }}();
 {%-     endfor %}
 {%- endif %}
 
@@ -1043,9 +1037,8 @@ void
   typedef {{ paired_neuron_name }} post_neuron_t;
   {{ paired_neuron_name }}* __target = static_cast< {{ paired_neuron_name }}* >(get_target(tid));
   assert(__target);
-{%      for var_name in state_vars_that_need_continuous_buffering %}
-{%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
-  const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}();
+{%-     for syn_port_name, post_neuron_var_name in zip(state_vars_that_need_continuous_buffering, state_vars_that_need_continuous_buffering_transformed) %}
+  const double __{{ syn_port_name }} = ((post_neuron_t*)(__target))->get_{{ post_neuron_var_name }}();
 {%-     endfor %}
 {%- endif %}
   auto get_thread = [tid]()
@@ -1536,9 +1529,8 @@ inline void
   {{ paired_neuron_name }}* __target = static_cast< {{ paired_neuron_name }}* >(get_target(tid));
   assert(__target);
 
-{%      for var_name in state_vars_that_need_continuous_buffering %}
-{%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
-  const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}();
+{%-     for syn_port_name, post_neuron_var_name in zip(state_vars_that_need_continuous_buffering, state_vars_that_need_continuous_buffering_transformed) %}
+  const double __{{ syn_port_name }} = ((post_neuron_t*)(__target))->get_{{ post_neuron_var_name }}();
 {%-     endfor %}
 
 {%- else %}
@@ -1546,10 +1538,6 @@ inline void
 {%- endif %}
 
   auto get_t = [t_trig](){ return t_trig; };    // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
-
-{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
-#error "For third-factor plasticity combining spiking and continuous-time inputs, \"continuous_time_buffer\" is not supported yet!"
-{%- endif %}
 
   // purely dendritic delay
   double dendritic_delay = get_delay();
@@ -1579,16 +1567,15 @@ inline void
      * update synapse internal state from `t_last_update_` to `start->t_ + dendritic_delay`
     **/
 
-{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and state_vars_that_need_continuous_buffering | length > 0 %}
+{%- if paired_neuron_name is not none and paired_neuron_name | length > 0 and state_vars_that_need_continuous_buffering | length > 0 %}
     /**
      * grab state variables from the postsynaptic neuron at the time of the post spike
     **/
 
 {#-     post spike based: grab the entry from the post spiking history buffer #}
 {%-     if continuous_state_buffering_method == "post_spike_based" %}
-{%-         for var_name in state_vars_that_need_continuous_buffering %}
-{%-             set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
-        const double __{{ var_name }} = start->{{ var_name }}_;
+{%-         for syn_port_name, post_neuron_var_name in zip(state_vars_that_need_continuous_buffering, state_vars_that_need_continuous_buffering_transformed) %}
+    const double __{{ syn_port_name }} = start->{{ post_neuron_var_name }}_;
 {%-         endfor %}
 {%-     endif %}
 {%- endif %}
