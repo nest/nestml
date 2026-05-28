@@ -290,20 +290,6 @@ class ASTModel(ASTNode):
                 ret.append(symbol)
         return ret
 
-    def get_kernel_symbols(self) -> List[VariableSymbol]:
-        """
-        Returns a list of all inline expression symbols defined in the model.
-        :return: a list of symbols
-        """
-        symbols = self.get_scope().get_symbols_in_this_scope()
-        ret = list()
-        for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) \
-                    and (symbol.block_type == BlockType.EQUATION or symbol.block_type == BlockType.STATE) \
-                    and symbol.is_kernel():
-                ret.append(symbol)
-        return ret
-
     def is_multisynapse_spikes(self) -> bool:
         """
         Returns whether this neuron uses multi-synapse inputs.

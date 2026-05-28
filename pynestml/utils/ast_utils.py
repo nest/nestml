@@ -945,7 +945,8 @@ class ASTUtils:
         for decl in decls:
             if mode == "move":
                 from_block.declarations.remove(decl)
-            decl = decl.clone()
+            else:
+                decl = decl.clone()
             ASTUtils.add_suffix_to_decl_lhs(decl, suffix=var_name_suffix)
             to_block.get_declarations().append(decl)
             decl.update_scope(to_block.get_scope())

@@ -322,7 +322,10 @@ class SynapsePostNeuronTransformer(Transformer):
                                                                new_neuron.get_equations_blocks()[0],
                                                                var_name_suffix,
                                                                mode="move")
-                ASTUtils.add_suffix_to_variable_names2(post_port_names + syn_to_neuron_state_vars + syn_to_neuron_params, decls, var_name_suffix)
+                ASTUtils.add_suffix_to_variable_names(decls,
+                                                      variable_names=post_port_names + syn_to_neuron_state_vars + syn_to_neuron_params,
+                                                      suffix=var_name_suffix,
+                                                      altscope=synapse.get_scope())
                 ASTUtils.replace_post_moved_variable_names(decls, [name + var_name_suffix for name in post_connected_continuous_input_ports], post_variable_names)
                 ASTUtils.remove_state_var_from_integrate_odes_calls(new_synapse, state_var)
                 # ASTUtils.add_integrate_odes_call_to_update_block(new_neuron, state_var)   # the moved state variables are never needed inside the neuron, their values are only read out from the side of the synapse. Therefore they do not have to be added to integrate_odes() calls; we just have to make sure the value has been updated before the end of the timestep

@@ -939,7 +939,7 @@ void get_entry_from_continuous_variable_history(double t,
      *  update all convolutions with pre spikes
     **/
 {%  for expr in pre_spike_updates %}
-    {{ printer.print(expr.get_variable()) }} += 1.;    // XXX: TODO: increment with initial value instead of 1
+    {{ printer.print(expr.get_variable()) }} += 1.;    // NEST synapse does not accept weighted spikes; the increment can only ever be 1
 {%- endfor %}
 
 
