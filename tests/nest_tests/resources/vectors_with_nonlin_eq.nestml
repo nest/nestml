@@ -36,6 +36,7 @@ model vectors_with_nonlin_eq:
         buf_idx integer = 0
 
     equations:
+        recordable inline rec_inline real = e * x * y
         x' = -x / tau
         y' = -y**2 / tau
 
