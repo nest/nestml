@@ -307,6 +307,7 @@ Alternatively, the modified model names can also be obtained using ``NESTCodeGen
 
 To prevent the NESTML code generator from moving specific variables from synapse into postsynaptic neuron, the code generation option ``strictly_synaptic_vars`` may be used (see :class:`pynestml.transformers.synapse_post_neuron_transformer.SynapsePostNeuronTransformer`).
 
+
 Third-factor plasticity
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -336,8 +337,28 @@ Simulation of volume-transmitted neuromodulation in NEST can be done using "volu
    generate_target(...,
                    codegen_opts={...,
                                  "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                           "synapse": "third_factor_stdp",
-                                                            "vt_ports": ["dopa_spikes"]}]})
+                                                           "synapses": {"third_factor_stdp": {...}},
+                                                           "vt_ports": ["dopa_spikes"]}]})
+
+Multiple synapses
+~~~~~~~~~~~~~~~~~
+
+Any number of synapse models can be used in combination with one postsynaptic neuron model. Each synapse can be specified individually in the ``neuron_synapse_pairs`` code generator option, and for each synapse, any number of third factors as well as a volume transmitter port can optionally be specified, for instance as follows:
+
+.. code-block:: python
+
+   generate_nest_target(...,
+                        codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
+                                                                "synapses": {"stdp_nn_symm_vt_synapse": {"post_ports": ["post_spikes"],
+                                                                                                         "vt_ports": ["mod_spikes"]},
+                                                                             "stdp_nn_restr_symm_synapse": {"post_ports": ["post_spikes"]}},
+                                                                ...}]})
+
+For a full demonstration of this feature, please see `test_neuron_with_multiple_different_plastic_synapses.py <https://github.com/nest/nestml/blob/main/tests/nest_tests/test_neuron_with_multiple_different_plastic_synapses.py>`_.
+
+
+Synaptic delay
+~~~~~~~~~~~~~~
 
 In NEST, all synapses are expected to specify a nonzero dendritic delay, that is, the delay between arrival of a spike at the dendritic spine and the time at which its effects are felt at the soma (or conversely, the delay between a somatic action potential and the arrival at the dendritic spine due to dendritic backpropagation). Dendritic delays are managed entirely by NEST and can in principle not be read from or written to from inside the NESTML model. However, in some cases it can be useful to read the delay from inside the synapse. This can be achieved by using the code generator option ``delay_variable``.
 

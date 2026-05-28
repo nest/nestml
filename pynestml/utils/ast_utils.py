@@ -2528,6 +2528,7 @@ class ASTUtils:
 
     @classmethod
     def collect_variables_affected_by_ports(cls, model, post_port_names, strictly_synaptic_vars: Optional[Set[str]] = None):
+        r"""Recursively collect a list of all variables in a model that are affected by spikes from ``post_port_names``. These variables are marked for moving to the postsynaptic neuron. If a variable is to strictly remain part of the synapse, it should be passed in ``strictly_synaptic_vars``."""
         if strictly_synaptic_vars is None:
             strictly_synaptic_vars: Set[str] = set()
         strictly_synaptic_vars = set(strictly_synaptic_vars)    # make a copy
