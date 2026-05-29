@@ -92,7 +92,7 @@ model iaf_psc_alpha_adapt_thresh_neuron:
         # constant external input current
         I_e pA = 0 pA
 
-]    internals:
+    internals:
         unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
 
     input:
