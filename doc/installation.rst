@@ -96,7 +96,7 @@ Please make sure to have the latest conda version installed and to create a new 
 Alternatively, NEST can also be installed from source in a conda environment. The instructions can be found `here <https://nest-simulator.readthedocs.io/en/stable/installation/condaenv_install.html#condaenv>`_.
 
 After installing NESTML, the neuron and synapse models can be found in the path ``$HOME/miniforge3/envs/<env_name>/models`` and the tutorial notebooks can be found under ``$HOME/miniforge3/envs/<env_name>/doc/tutorials``.
-For more information on how to run NESTML, please refer to `Running NESTML <https://nestml.readthedocs.io/en/latest/running/index.html>`_.
+For more information on how to run NESTML, please refer to :ref:`Running NESTML`.
 
 
 Docker installation
