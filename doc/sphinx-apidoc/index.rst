@@ -21,7 +21,7 @@ NESTML combines:
 - a flexible processing toolchain, written in Python;
 - good simulation performance by means of code generation (C++ for NEST Simulator).
 
-To see what the NESTML language looks like, please see the :doc:`models library <models_library/index>`. The library contains a variety of models from standard integrate-and-fire to a family of biophysical, Hodgkin-Huxley type neurons, as well as several synaptic plasticity models such as spike-timing dependent plasticity (STDP) variants and third-factor plasticity rules.
+To see what the NESTML language looks like, please see the :doc:`models library <models_library/index>`. The library contains a variety of models from standard integrate-and-fire to a family of biophysical, Hodgkin-Huxley-type neurons, as well as several synaptic plasticity models such as spike-timing-dependent plasticity (STDP) variants and third-factor plasticity rules.
 
 :doc:`PyNESTML <pynestml_toolchain/index>` is the Python-based toolchain for the NESTML language: it parses the model and performs code generation. Modify PyNESTML to add language elements such as new predefined functions, or to add new target platforms in the form of `Jinja <https://jinja.palletsprojects.com>`_ templates.
 
