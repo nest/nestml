@@ -17,11 +17,10 @@ Generating code
 
 1. Before building the Apptainer image, make sure there is a ``.spynnaker.cfg`` in the current working directory. Make sure logging options (like ``extract_iobuf``) are enabled. See https://spinnakermanchester.github.io/spynnaker/8.0.0/PyNNOnSpinnakerInstall.html for instructions on how to create this file.
 
-2. Build the Apptainer image from https://github.com/nest/nestml/blob/main/extras/spinnaker-apptainer.def
+2. Build the Apptainer image from https://github.com/nest/nestml/blob/main/extras/spinnaker-apptainer.def:
 
    .. code-block:: bash
 
-      
       apptainer build spinnaker-apptainer.sif spinnaker-apptainer.def 
       apptainer overlay create --size 4096 spinnaker-overlay.img
 
@@ -30,6 +29,8 @@ Generating code
    .. code-block:: bash
 
       apptainer shell --overlay spinnaker-overlay.img spinnaker-apptainer.sif
+
+   The following commands are to be executed inside the Apptainer image shell.
 
 4. Clone the NESTML repository:
 
