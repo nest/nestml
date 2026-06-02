@@ -41,7 +41,7 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                     reason="This test does not support NEST 2")
 class TestDeltaKernel:
-    r"""XXX TODO: this test is temporarily disabled (see https://github.com/nest/nestml/issues/1020)"""
+    r"""Test delta responses"""
     def test_delta_kernel(self):
         input_path = os.path.join(os.path.realpath(os.path.join(
             os.path.dirname(__file__), "resources", "test_delta_kernel_neuron.nestml")))
@@ -50,15 +50,15 @@ class TestDeltaKernel:
         module_name = "nestmlmodule"
         suffix = "_nestml"
 
-        # generate_nest_target(input_path,
-        #                      target_path=target_path,
-        #                      logging_level=logging_level,
-        #                      module_name=module_name,
-        #                      suffix=suffix)
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level=logging_level,
+                             module_name=module_name,
+                             suffix=suffix)
 
         nest.ResetKernel()
         nest.Install(module_name)
-        nest.set_verbosity("M_ALL")
+        NESTTools.set_nest_verbosity("ERROR")
         nest.resolution = 0.1
 
         # network construction
@@ -67,7 +67,7 @@ class TestDeltaKernel:
         sg = nest.Create("spike_generator", params={"spike_times": [20., 80.]})
         nest.Connect(sg, neuron, syn_spec={"weight": 1000., "delay": 0.1})
 
-        mm = nest.Create("multimeter", params={"record_from": ["x"],
+        mm = nest.Create("multimeter", params={"record_from": ["x", "y", "z"],
                                                "interval": nest.resolution})
         nest.Connect(mm, neuron)
 
@@ -85,10 +85,15 @@ class TestDeltaKernel:
         if TEST_PLOTS:
             fig, ax = plt.subplots()
 
-            ax.plot(mm.get()["events"]["times"], mm.get()["events"]["x"])
+            for linestyle, var in zip(["-", "--", ":"], ["x", "y", "z"]):
+                ax.plot(mm.get()["events"]["times"], mm.get()["events"][var], linestyle=linestyle, alpha=.5, label=var)
+
+            ax.legend()
+            ax.grid()
 
             fig.savefig("/tmp/test_delta_kernel.png")
 
         # testing
-        np.testing.assert_allclose(np.amax(mm.get()["events"]["x"]), 1000.)
-        np.testing.assert_allclose(np.amin(mm.get()["events"]["x"]), -1000., rtol=5E-3)
+        for var in ["x", "y", "z"]:
+            np.testing.assert_allclose(np.amax(mm.get()["events"][var]), 1000.)
+            np.testing.assert_allclose(np.amin(mm.get()["events"][var]), -1000., rtol=5E-3)

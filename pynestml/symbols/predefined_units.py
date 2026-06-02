@@ -52,6 +52,10 @@ class PredefinedUnits:
 
             if issubclass(type(unit), u.core.UnitBase):
                 for unit_name in unit.names:
+                    if unit_name == "min":
+                        # this conflicts with the predefined function ``min()``
+                        continue
+
                     temp_unit = UnitType(name=str(unit_name), unit=unit)
                     cls.name2unit[str(unit_name)] = temp_unit
 

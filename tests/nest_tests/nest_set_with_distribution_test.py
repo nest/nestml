@@ -39,8 +39,7 @@ class TestNestSetWithDistribution:
         """Generate the model code"""
 
         codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                  "synapse": "stdp_synapse",
-                                                  "post_ports": ["post_spikes"]}],
+                                                  "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}}],
                         "weight_variable": {"stdp_synapse": "w"}}
 
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode

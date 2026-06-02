@@ -94,10 +94,7 @@ class NESTBuilder(Builder):
                 Logger.log_message(None, -1, "An error occurred while importing the `nest` module in Python. Please check your NEST installation-related environment variables and paths, or specify ``nest_path`` manually in the code generator options.", None, LoggingLevel.ERROR)
                 sys.exit(1)
 
-            nest_version = NESTTools.detect_nest_version()
-            nest_version_dict = NESTTools.get_version_dict_from_version_string(nest_version)
-            if nest_version.startswith("main") \
-                    or (nest_version_dict and (nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3):
+            if "build_info" in dir(nest):
                 nest_path = nest.build_info["prefix"]
             else:
                 nest_path = nest.ll_api.sli_func("statusdict/prefix ::")

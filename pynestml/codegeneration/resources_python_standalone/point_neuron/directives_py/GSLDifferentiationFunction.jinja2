@@ -21,8 +21,8 @@ def dynamics{% if ast.get_args() | length > 0 %}_{{ utils.integrate_odes_args_st
 {%-   endfor %}
 {%- endfor %}
 
-{%- set var_names = numeric_state_variables %}
-{%- if paired_synapse is defined %}
+{%- set var_names = numeric_state_variables.copy() %}
+{%- if paired_synapses is defined %}
 {%-     set tmp = var_names.extend(numeric_state_variables_moved) %}
 {%- endif %}
 

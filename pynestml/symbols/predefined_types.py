@@ -258,7 +258,6 @@ class PredefinedTypes:
         :type unit: astropy.units.core.Unit
         """
         unit_type = UnitType(str(unit), unit)
-        PredefinedUnits.register_unit(unit_type)
         type_symbol = UnitTypeSymbol(unit=unit_type)
         cls.register_type(type_symbol)
         return
