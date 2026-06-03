@@ -56,6 +56,8 @@ from pynestml.codegeneration.printers.nest_gsl_function_call_printer import NEST
 from pynestml.codegeneration.printers.nest2_gsl_function_call_printer import NEST2GSLFunctionCallPrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
+from pynestml.meta_model.ast_input_port import ASTInputPort
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
@@ -404,7 +406,7 @@ class NESTCodeGenerator(CodeGenerator):
             else:
                 propagators = metadata[neuron.name]["analytic_solver"]["propagators"]
 
-            neuron = ASTUtils.add_declarations_to_internals(neuron, propagators)
+            ASTUtils.add_declarations_to_internals(neuron, propagators)
 
         self.update_symbol_table(neuron)
 
@@ -438,12 +440,12 @@ class NESTCodeGenerator(CodeGenerator):
             spike_updates, _ = self.get_spike_update_expressions(synapse, metadata[synapse.name]["kernel_buffers"], [analytic_solver, numeric_solver], metadata[synapse.name]["delta_factors"], metadata)
 
             if not metadata[synapse.get_name()]["analytic_solver"] is None:
-                if "conditions" in metadata[neuron.name]["analytic_solver"].keys():
-                    propagators = metadata[neuron.name]["analytic_solver"]["conditions"]["default"]["propagators"]
+                if "conditions" in metadata[synapse.name]["analytic_solver"].keys():
+                    propagators = metadata[synapse.name]["analytic_solver"]["conditions"]["default"]["propagators"]
                 else:
-                    propagators = metadata[neuron.name]["analytic_solver"]["propagators"]
+                    propagators = metadata[synapse.name]["analytic_solver"]["propagators"]
 
-                synapse = ASTUtils.add_declarations_to_internals(synapse, propagators)
+                ASTUtils.add_declarations_to_internals(synapse, propagators)
 
         self.update_symbol_table(synapse)
 
