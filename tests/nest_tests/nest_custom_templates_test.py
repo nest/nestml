@@ -111,8 +111,7 @@ class NestCustomTemplatesTest(unittest.TestCase):
             "neuron_parent_class": "StructuralPlasticityNode",
             "neuron_parent_class_include": "structural_plasticity_node.h",
             "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_neuron",
-                                      "synapse": "stdp_triplet_synapse",
-                                      "post_ports": ["post_spikes"]}],
+                                      "synapses": {"stdp_triplet_synapse": {"post_ports": ["post_spikes"]}}}],
             "weight_variable": {"stdp_triplet_synapse": "w"},
             "templates": {
                 "path": "resources_nest/point_neuron",

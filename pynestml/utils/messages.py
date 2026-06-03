@@ -150,6 +150,7 @@ class MessageCode(Enum):
     WEIGHT_VARIABLE_NOT_FOUND = 121
     CM_VAR_MULTIUSE = 122
     CM_INVALID_CONVOLUTION_BUFFER = 123
+    CONVOLVE_NEEDS_BUFFER_PARAMETER = 122
 
 
 class Messages:
@@ -1017,7 +1018,7 @@ class Messages:
     def get_syns_bad_buffer_count(cls, buffers: set, synapse_name: str) -> Tuple[MessageCode, str]:
         message = "Synapse `\"%s\" uses the following input buffers: %s" % (
             synapse_name, buffers)
-        message += " However exaxtly one spike input buffer aside the self_spikes buffer is allowed per synapse."
+        message += " However exactly one spike input buffer aside the self_spikes buffer is allowed per synapse."
         return MessageCode.SYNS_BAD_BUFFER_COUNT, message
 
     @classmethod

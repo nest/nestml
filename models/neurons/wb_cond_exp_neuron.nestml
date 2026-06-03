@@ -60,14 +60,14 @@ model wb_cond_exp_neuron:
         kernel g_inh = exp(-t / tau_syn_inh)
         kernel g_exc = exp(-t / tau_syn_exc)
 
-        recordable inline I_syn_exc pA = unit_psg * convolve(g_exc, exc_spikes) * (V_m - E_exc)
-        recordable inline I_syn_inh pA = unit_psg * convolve(g_inh, inh_spikes) * (V_m - E_inh)
+        recordable inline I_syn_exc pA = unit_psg * convolve(g_exc, exc_spikes) * (E_exc - V_m)
+        recordable inline I_syn_inh pA = unit_psg * convolve(g_inh, inh_spikes) * (E_inh - V_m)
 
         inline I_Na  pA = g_Na * _subexpr(V_m) * Inact_h * (V_m - E_Na)
         inline I_K   pA = g_K * Act_n**4 * (V_m - E_K)
         inline I_L   pA = g_L * (V_m - E_L)
 
-        V_m' = (-(I_Na + I_K + I_L) + I_e + I_stim + I_syn_exc - I_syn_inh) / C_m
+        V_m' = (-(I_Na + I_K + I_L) + I_e + I_stim + I_syn_exc + I_syn_inh) / C_m
         Act_n' = (alpha_n(V_m) * (1 - Act_n) - beta_n(V_m) * Act_n)    # n-variable
         Inact_h' = (alpha_h(V_m) * (1 - Inact_h) - beta_h(V_m) * Inact_h)    # h-variable
         refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
