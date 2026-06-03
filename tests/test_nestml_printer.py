@@ -138,13 +138,13 @@ class TestNESTMLPrinter:
 
     def test_declaration_with_comments(self):
         declaration = "# pre\n" \
-                      "test mV = 10mV # in\n"
+                      "test mV = 10 mV # in\n"
         model = ModelParser.parse_stmts_body(declaration)
         model_printer = NESTMLPrinter()
         assert declaration == model_printer.print(model)
 
     def test_declaration_without_comments(self):
-        declaration = "test mV = 10mV\n"
+        declaration = "test mV = 10 mV\n"
         model = ModelParser.parse_declaration(declaration)
         model_printer = NESTMLPrinter()
         assert declaration == model_printer.print(model)

@@ -201,7 +201,7 @@ class ASTNodeFactory:
                                                  or isinstance(binary_operator, ASTComparisonOperator)
                                                  or isinstance(binary_operator, ASTLogicalOperator)
                                                  or isinstance(binary_operator, ASTArithmeticOperator))), \
-            '(PyNestML.AST.Expression) No or wrong type of binary operator provided (%s)!' % type(binary_operator)
+            "(PyNestML.AST.Expression) No or wrong type of binary operator provided (%s)!" % type(binary_operator)
         return ASTExpression(lhs=lhs, binary_operator=binary_operator, rhs=rhs, source_position=source_position)
 
     @classmethod

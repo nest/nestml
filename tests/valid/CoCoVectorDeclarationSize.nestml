@@ -1,7 +1,6 @@
 # CoCoVectorParameterSize.nestml
 # ##############################
 #
-#
 # Description
 # +++++++++++
 #
@@ -9,7 +8,6 @@
 # Here, if the vector parameter or the size of the vector is greater than 0.
 #
 # Positive case.
-#
 #
 # Copyright statement
 # +++++++++++++++++++

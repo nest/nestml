@@ -62,7 +62,7 @@ class TypeSymbol(Symbol):
         """
         elem_type = self.print_nestml_type()
         if self.is_buffer:
-            elem_type += ' buffer'
+            elem_type += " buffer"
         return elem_type
 
     @abstractmethod
@@ -88,52 +88,52 @@ class TypeSymbol(Symbol):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
-        self.binary_operation_not_defined_error('*', other)
+        self.binary_operation_not_defined_error("*", other)
 
     def __mod__(self, other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
-        self.binary_operation_not_defined_error('%', other)
+        self.binary_operation_not_defined_error("%", other)
 
     def __truediv__(self, other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
-        self.binary_operation_not_defined_error('/', other)
+        self.binary_operation_not_defined_error("/", other)
 
     def __div__(self, other):
         return self.__truediv__(other)
 
     def __neg__(self):
-        self.unary_operation_not_defined_error('-')
+        self.unary_operation_not_defined_error("-")
 
     def __pos__(self):
-        self.unary_operation_not_defined_error('+')
+        self.unary_operation_not_defined_error("+")
 
     def __invert__(self):
-        self.unary_operation_not_defined_error('~')
+        self.unary_operation_not_defined_error("~")
 
     def __pow__(self, power, modulo=None):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         if isinstance(power, ErrorTypeSymbol):
             return power
-        self.binary_operation_not_defined_error('**', power)
+        self.binary_operation_not_defined_error("**", power)
 
     def negate(self):
-        self.unary_operation_not_defined_error('not ')
+        self.unary_operation_not_defined_error("not ")
 
     def __add__(self, other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
-        self.binary_operation_not_defined_error('+', other)
+        self.binary_operation_not_defined_error("+", other)
 
     def __sub__(self, other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
-        self.binary_operation_not_defined_error('-', other)
+        self.binary_operation_not_defined_error("-", other)
 
     def is_numeric_primitive(self):
         """

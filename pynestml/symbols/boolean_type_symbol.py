@@ -30,10 +30,10 @@ class BooleanTypeSymbol(TypeSymbol):
         return True
 
     def __init__(self):
-        super(BooleanTypeSymbol, self).__init__(name='boolean')
+        super(BooleanTypeSymbol, self).__init__(name="boolean")
 
     def print_nestml_type(self) -> str:
-        return 'boolean'
+        return "boolean"
 
     def negate(self):
         return self
@@ -42,7 +42,7 @@ class BooleanTypeSymbol(TypeSymbol):
         from pynestml.symbols.string_type_symbol import StringTypeSymbol
         if other.is_instance_of(StringTypeSymbol):
             return other
-        return self.binary_operation_not_defined_error('+', other)
+        return self.binary_operation_not_defined_error("+", other)
 
     def is_castable_to(self, _other_type):
         if _other_type is None:

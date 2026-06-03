@@ -1,10 +1,30 @@
 # iaf_psc_exp_resolution_test
 # ###########################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # Used to test resolution() function.
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
 model iaf_psc_exp_resolution_test_neuron:
     state:
@@ -14,9 +34,9 @@ model iaf_psc_exp_resolution_test_neuron:
         a ms = resolution()
 
     equations:
-        kernel I_kernel_inh = exp(-t/tau_syn_inh)
-        kernel I_kernel_exc = exp(-t/tau_syn_exc)
-        inline I_syn pA = convolve(I_kernel_inh, inh_spikes) * pA + convolve(I_kernel_exc, exc_spikes) * pA + I_e + I_stim
+        kernel I_kernel_inh = exp(-t / tau_syn_inh)
+        kernel I_kernel_exc = exp(-t / tau_syn_exc)
+        inline I_syn pA = unit_psc * convolve(I_kernel_inh, inh_spikes) + unit_psc * convolve(I_kernel_exc, exc_spikes) + I_e + I_stim
         V_m' = -(V_m - E_L) / tau_m + I_syn / C_m
 
     parameters:
@@ -35,6 +55,7 @@ model iaf_psc_exp_resolution_test_neuron:
 
     internals:
         c ms = resolution()
+        unit_psc pA = 1 pA     # Unitary postsynaptic current amplitude
 
     input:
         exc_spikes <- excitatory spike

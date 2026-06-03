@@ -57,9 +57,9 @@ class TestCoCos:
             os.path.join(
                 os.path.realpath(
                     os.path.join(
-                        os.path.dirname(__file__), 'resources',
-                        'invalid')),
-                'CoCoCmVariablesDeclared.nestml'))
+                        os.path.dirname(__file__), "resources",
+                        "invalid")),
+                "CoCoCmVariablesDeclared.nestml"))
         assert len(Logger.get_messages(
             model, LoggingLevel.ERROR)) == 6
 
@@ -68,9 +68,9 @@ class TestCoCos:
             os.path.join(
                 os.path.realpath(
                     os.path.join(
-                        os.path.dirname(__file__), 'resources',
-                        'valid')),
-                'CoCoCmVariablesDeclared.nestml'))
+                        os.path.dirname(__file__), "resources",
+                        "valid")),
+                "CoCoCmVariablesDeclared.nestml"))
         assert len(Logger.get_messages(
             model, LoggingLevel.ERROR)) == 0
 
@@ -81,9 +81,9 @@ class TestCoCos:
             os.path.join(
                 os.path.realpath(
                     os.path.join(
-                        os.path.dirname(__file__), 'resources',
-                        'invalid')),
-                'CoCoCmVariableHasRhs.nestml'))
+                        os.path.dirname(__file__), "resources",
+                        "invalid")),
+                "CoCoCmVariableHasRhs.nestml"))
         assert len(Logger.get_messages(
             model, LoggingLevel.ERROR)) == 2
 
@@ -93,9 +93,9 @@ class TestCoCos:
             os.path.join(
                 os.path.realpath(
                     os.path.join(
-                        os.path.dirname(__file__), 'resources',
-                        'valid')),
-                'CoCoCmVariableHasRhs.nestml'))
+                        os.path.dirname(__file__), "resources",
+                        "valid")),
+                "CoCoCmVariableHasRhs.nestml"))
         assert len(Logger.get_messages(
             model, LoggingLevel.ERROR)) == 0
 
@@ -106,9 +106,9 @@ class TestCoCos:
             os.path.join(
                 os.path.realpath(
                     os.path.join(
-                        os.path.dirname(__file__), 'resources',
-                        'invalid')),
-                'CoCoCmVcompExists.nestml'))
+                        os.path.dirname(__file__), "resources",
+                        "invalid")),
+                "CoCoCmVcompExists.nestml"))
         assert len(Logger.get_messages(
             model, LoggingLevel.ERROR)) == 4
 
@@ -118,9 +118,9 @@ class TestCoCos:
             os.path.join(
                 os.path.realpath(
                     os.path.join(
-                        os.path.dirname(__file__), 'resources',
-                        'valid')),
-                'CoCoCmVcompExists.nestml'))
+                        os.path.dirname(__file__), "resources",
+                        "valid")),
+                "CoCoCmVcompExists.nestml"))
         assert len(Logger.get_messages(
             model, LoggingLevel.ERROR)) == 0
 

@@ -51,7 +51,7 @@ class CoCoParametersAssignedOnlyInParameterBlock(CoCo):
         :type node: ASTModel
         """
         assert (node is not None and (isinstance(node, ASTModel))), \
-            '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(node)
+            "(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!" % type(node)
         node.accept(ParametersAssignmentVisitor())
         return
 

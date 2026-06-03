@@ -32,7 +32,7 @@ class ASTInputQualifier(ASTNode):
     @attribute excitatory true Indicates that this spiking input port is excitatory.
 
     Grammar:
-        inputQualifier : ('inhibitory' | 'excitatory');
+        inputQualifier : ("inhibitory" | "excitatory");
 
     Attributes:
         is_inhibitory = False

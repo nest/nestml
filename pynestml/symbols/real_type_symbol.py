@@ -30,10 +30,10 @@ class RealTypeSymbol(TypeSymbol):
         return True
 
     def __init__(self):
-        super(RealTypeSymbol, self).__init__(name='real')
+        super(RealTypeSymbol, self).__init__(name="real")
 
     def print_nestml_type(self):
-        return 'real'
+        return "real"
 
     def __mul__(self, other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
@@ -45,7 +45,7 @@ class RealTypeSymbol(TypeSymbol):
             return other
         if other.is_numeric_primitive():
             return self
-        return self.binary_operation_not_defined_error('*', other)
+        return self.binary_operation_not_defined_error("*", other)
 
     def __truediv__(self, other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
@@ -57,7 +57,7 @@ class RealTypeSymbol(TypeSymbol):
             return self.inverse_of_unit(other)
         if other.is_numeric_primitive():
             return self
-        return self.binary_operation_not_defined_error('/', other)
+        return self.binary_operation_not_defined_error("/", other)
 
     def __div__(self, other):
         return self.__truediv__(other)
@@ -69,7 +69,7 @@ class RealTypeSymbol(TypeSymbol):
         return self
 
     def __invert__(self):
-        return self.unary_operation_not_defined_error('~')
+        return self.unary_operation_not_defined_error("~")
 
     def __pow__(self, power, modulo=None):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
@@ -78,7 +78,7 @@ class RealTypeSymbol(TypeSymbol):
             return power
         if power.is_numeric_primitive():
             return self
-        return self.binary_operation_not_defined_error('**', power)
+        return self.binary_operation_not_defined_error("**", power)
 
     def __add__(self, other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
@@ -92,7 +92,7 @@ class RealTypeSymbol(TypeSymbol):
             return self
         if other.is_instance_of(UnitTypeSymbol):
             return self.warn_implicit_cast_from_to(self, other)
-        return self.binary_operation_not_defined_error('+', other)
+        return self.binary_operation_not_defined_error("+", other)
 
     def __sub__(self, other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
@@ -103,7 +103,7 @@ class RealTypeSymbol(TypeSymbol):
             return self
         if other.is_instance_of(UnitTypeSymbol):
             return self.warn_implicit_cast_from_to(self, other)
-        return self.binary_operation_not_defined_error('-', other)
+        return self.binary_operation_not_defined_error("-", other)
 
     def is_castable_to(self, _other_type):
         if super(RealTypeSymbol, self).is_castable_to(_other_type):

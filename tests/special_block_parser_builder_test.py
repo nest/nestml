@@ -54,8 +54,8 @@ class SpecialBlockParserBuilderTest(unittest.TestCase):
     def test(self):
         # print('Start special block parsing and AST-building test...'),
         input_file = FileStream(
-            os.path.join(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
-                                      'BlockTest.nestml')))
+            os.path.join(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")),
+                                      "BlockTest.nestml")))
         lexer = PyNestMLLexer(input_file)
         lexer._errHandler = BailErrorStrategy()
         lexer._errHandler.reset(lexer)
@@ -75,5 +75,5 @@ class SpecialBlockParserBuilderTest(unittest.TestCase):
         self.assertTrue(isinstance(ast, ASTNestMLCompilationUnit))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

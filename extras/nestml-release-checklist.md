@@ -19,7 +19,7 @@ Follow this checklist to successfully perform a NESTML release. Let's say that 5
 
 - Log in to Zenodo, and create a new upload. Press the "Reserve DOI" button.
 
-- Go back to GitHub and create a new release from the web interface. 
+- Go back to GitHub and create a new release from the web interface.
   - Select the right branch, e.g. `release-v5.0.1`
   - Under version tag, enter the new version number. Since v3.0.0 we're adding the "v" prefix (e.g. "v5.0.1").
   - For release title, use "NESTML" + version number, e.g. "NESTML 5.0.0".
@@ -48,14 +48,21 @@ Follow this checklist to successfully perform a NESTML release. Let's say that 5
   twine upload dist/*
   ```
 
-- Update version number on master branch: edit `setup.py` and add suffix to version number, e.g. `version='5.0.1-post-dev'`, to distinguish master branch version from release version. Do the same for `pynestml/__init__.py`.
+- Update version number on main branch: edit `setup.py` and add suffix to version number, e.g. `version='5.0.1-post-dev'`, to distinguish main branch version from release version. Do the same for `pynestml/__init__.py`.
 
   ```bash
   git add setup.py
-  git commit -m "add -post-dev suffix to version number to distinguish master branch version from release version"
-  git push -u origin master
+  git commit -m "add -post-dev suffix to version number to distinguish main branch version from release version"
+  git push -u origin main
   ```
 
 - Delete the release branch (in this example, `release-v5.0.1`).
 - Add the new tag ("v5.0.0") as an _active version_ in ReadTheDocs, and then change the _default version_ to this tag.
 - Create a PR updating ``doc/citing.rst``.
+
+Deployment checklist
+--------------------
+
+- Make update(s) for compatibility with PyNN (see https://github.com/NeuralEnsemble/PyNN/)
+- Update versions in EBRAINS container
+- Update version in NEST Simulator Docker container (ask @steffengraber)

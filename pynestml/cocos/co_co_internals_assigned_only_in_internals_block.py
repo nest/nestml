@@ -43,7 +43,7 @@ class CoCoInternalsAssignedOnlyInInternalsBlock(CoCo):
         :param node: a single neuron instance.
         """
         assert (node is not None and isinstance(node, ASTModel)), \
-            '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(node)
+            "(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!" % type(node)
         visitor = InternalsAssignmentVisitor()
         visitor.neuron_ = node
         node.accept(visitor)

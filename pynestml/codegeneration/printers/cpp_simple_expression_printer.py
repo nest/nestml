@@ -30,6 +30,6 @@ class CppSimpleExpressionPrinter(CSimpleExpressionPrinter):
 
     def print_simple_expression(self, node: ASTSimpleExpression) -> str:
         if node.is_inf_literal:
-            return 'std::numeric_limits< double_t >::infinity()'
+            return "std::numeric_limits< double_t >::infinity()"
 
         return super().print_simple_expression(node)

@@ -21,7 +21,7 @@
 
 """
 Expr = unaryOperator term=rhs
-unaryOperator : (unaryPlus='+' | unaryMinus='-' | unaryTilde='~');
+unaryOperator : (unaryPlus="+" | unaryMinus="-" | unaryTilde="~");
 """
 from pynestml.visitors.ast_visitor import ASTVisitor
 

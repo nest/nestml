@@ -96,8 +96,6 @@ class GeNNCodeGenerator(NESTCodeGenerator):
 
         self.set_options({"numeric_solver": "forward-Euler"})    # only forward Euler is supported for now for GeNN
 
-        self.analytic_solver = {}
-        self.numeric_solver = {}
         self.non_equations_state_variables = {}  # those state variables not defined as an ODE in the equations block
 
         self.setup_template_env()
@@ -149,18 +147,13 @@ class GeNNCodeGenerator(NESTCodeGenerator):
         self._py_function_call_printer._expression_printer = self._py_expr_printer
         self._genn_derived_params_printer = PythonStandalonePrinter(expression_printer=self._py_expr_printer)
 
-    def create_ode_toolbox_indict(self, neuron: ASTModel, kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
-        odetoolbox_indict = super().create_ode_toolbox_indict(neuron, kernel_buffers)
-        odetoolbox_indict["options"]["propagators_prefix"] = "P"    # GeNN does not support variable names that start with an underscore; hence, override the default "__P"
-        odetoolbox_indict["options"]["output_timestep_symbol"] = "dt"
+    def _get_neuron_model_namespace(self,
+                                    neuron: ASTModel,
+                                    metadata: Dict[str, Dict[str, Any]]) -> Dict:
+        namespace = super()._get_neuron_model_namespace(neuron, metadata)
 
-        return odetoolbox_indict
-
-    def _get_model_namespace(self, astnode: ASTModel) -> Dict:
-        namespace = super()._get_model_namespace(astnode)
-
-        namespace["threshold_condition"] = self._get_model_threshold_condition_block(astnode).get_cond_expr()
-        namespace["threshold_reset_stmts"] = self._get_model_threshold_condition_block(astnode).get_stmts_body()
+        namespace["threshold_condition"] = self._get_model_threshold_condition_block(neuron).get_cond_expr()
+        namespace["threshold_reset_stmts"] = self._get_model_threshold_condition_block(neuron).get_stmts_body()
 
         namespace["CppVariablePrinter"] = CppVariablePrinter
         namespace["genn_derived_params_printer"] = self._genn_derived_params_printer
@@ -189,7 +182,7 @@ class GeNNCodeGenerator(NESTCodeGenerator):
 
         raise Exception("Could not find an onCondition block in the NESTML model \"" + astnode.name + "\" that contains the membrane potential variable \"" + self.get_option("membrane_potential_variable") + "\". Please check the GeNN code generator option \"membrane_potential_variable\"")
 
-    def analyse_neuron(self, neuron: ASTModel) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment], List[ASTOdeEquation], List[ASTOdeEquation]]:
+    def analyse_neuron(self, neuron: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment], List[ASTOdeEquation], List[ASTOdeEquation]]:
         # timestep symbol in GeNN is "dt" rather than "__h"
-        neuron.add_to_internals_block(ModelParser.parse_declaration('dt ms = resolution()'), index=0)
-        return super().analyse_neuron(neuron)
+        neuron.add_to_internals_block(ModelParser.parse_declaration("dt ms = resolution()"), index=0)
+        return super().analyse_neuron(neuron, metadata)
