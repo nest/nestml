@@ -73,7 +73,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
             target_path=target_path,
             module_name="cm_stdp_module",
             suffix="_nestml",
-            logging_level="INFO",
+            logging_level="DEBUG",
             codegen_opts={"neuron_synapse_pairs": [{"neuron": "multichannel_test_model",
                                                     "synapse": "stdp_synapse",
                                                     "post_ports": ["post_spikes"]}],

@@ -66,7 +66,7 @@ class TestCompartmentalIAF:
             target_path=target_path,
             module_name="iaf_psc_exp_dend_neuron_compartmental_module",
             suffix="_nestml",
-            logging_level="INFO"
+            logging_level="DEBUG"
         )
 
         nest.Install("iaf_psc_exp_dend_neuron_compartmental_module.so")

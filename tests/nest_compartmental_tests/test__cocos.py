@@ -148,8 +148,8 @@ class TestCoCos:
             os.path.join(
                 os.path.realpath(
                     os.path.join(
-                        os.path.dirname(__file__), 'resources',
-                        'invalid')),
-                'CoCoCmMechSharedCode.nestml'))
+                        os.path.dirname(__file__), "resources",
+                        "invalid")),
+                "CoCoCmMechSharedCode.nestml"))
         assert len(Logger.get_messages(
             model, LoggingLevel.ERROR)) == 4
