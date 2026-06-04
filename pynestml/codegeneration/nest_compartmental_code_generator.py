@@ -326,22 +326,22 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             code, message = Messages.get_start_code_generation(
                 neuron.get_name())
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
-            spike_updates = self.analyse_neuron(neuron, metadata)
-            neuron.spike_updates = spike_updates
+            spike_updates, post_spike_updates = self.analyse_neuron(neuron, metadata)
+            #neuron.spike_updates = spike_updates
 
-            equations_block = neuron.get_equations_blocks()[0]
-            kernel_buffers = ASTUtils.generate_kernel_buffers(neuron, equations_block)
+            #equations_block = neuron.get_equations_blocks()[0]
+            #kernel_buffers = ASTUtils.generate_kernel_buffers(neuron, equations_block)
 
-            analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron, kernel_buffers)
+            #analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron, kernel_buffers)
 
-            delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
+            #delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
 
-            spike_updates, post_spike_updates = self._nest_code_generator.get_spike_update_expressions(neuron,
-                                                                                                       kernel_buffers,
-                                                                                                       [analytic_solver,
-                                                                                                        numeric_solver],
-                                                                                                       delta_factors,
-                                                                                                       metadata)
+            #spike_updates, post_spike_updates = self._nest_code_generator.get_spike_update_expressions(neuron,
+            #                                                                                           kernel_buffers,
+            #                                                                                           [analytic_solver,
+            #                                                                                            numeric_solver],
+            #                                                                                           delta_factors,
+            #                                                                                           metadata)
 
             neuron.spike_updates = spike_updates
             neuron.post_spike_updates = post_spike_updates
@@ -379,15 +379,16 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
             equations_block = synapse.get_equations_blocks()[0]
 
-            kernel_buffers = ASTUtils.generate_kernel_buffers(synapse, equations_block)
+            ConvolutionsToBuffersTransformer().transform([synapse], metadata)
+            kernel_buffers = metadata[synapse.name]["kernel_buffers"]
+            delta_factors = metadata[synapse.name]["delta_factors"]
 
             # substitute inline expressions with each other
             # such that no inline expression references another inline expression;
             # deference inline_expressions inside ode_equations
             InlineExpressionExpansionTransformer().transform([synapse], metadata)
 
-            delta_factors = ASTUtils.get_delta_factors_(synapse, equations_block)
-            ASTUtils.replace_convolve_calls_with_buffers_(synapse, equations_block)
+            #ASTUtils.replace_convolve_calls_with_buffers_(synapse, equations_block)
 
             analytic_solver, numeric_solver = self.ode_toolbox_analysis(synapse, kernel_buffers)
             self.analytic_solver[synapse.get_name()] = analytic_solver
@@ -619,10 +620,14 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         # generate how to calculate the next spike update
         self.update_symbol_table(neuron)
         # find any spike update expressions defined by the user
-        spike_updates = self.get_spike_update_expressions(
-            neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
+        spike_updates, post_spike_updates = self._nest_code_generator.get_spike_update_expressions(neuron,
+                                                                                                   kernel_buffers,
+                                                                                                   [analytic_solver,
+                                                                                                    numeric_solver],
+                                                                                                   delta_factors,
+                                                                                                   metadata)
 
-        return spike_updates
+        return spike_updates, post_spike_updates
 
     def compute_name_of_generated_file(self, jinja_file_name, neuron):
         file_name_no_extension = os.path.basename(
