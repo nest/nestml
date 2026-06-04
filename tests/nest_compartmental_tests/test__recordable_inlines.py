@@ -76,9 +76,9 @@ class TestCompartmentalConcmech:
     def test_concmech(self):
         """We test the concentration mechanism by comparing the concentration value at a certain critical point in
         time to a previously achieved value at this point"""
-        cm = nest.Create('cm_default_nestml')
+        cm = nest.Create("cm_default_nestml")
 
-        params = {'C_m': 10.0, 'g_C': 0.0, 'g_L': 1.5, 'e_L': -70.0, 'gbar_Na': 1.0}
+        params = {"C_m": 10.0, "g_C": 0.0, "g_L": 1.5, "e_L": -70.0, "gbar_Na": 1.0}
 
         cm.compartments = [
             {"parent_idx": -1, "params": params}
@@ -88,29 +88,29 @@ class TestCompartmentalConcmech:
             {"comp_idx": 0, "receptor_type": "AMPA"}
         ]
 
-        sg1 = nest.Create('spike_generator', 1, {'spike_times': [100.]})
+        sg1 = nest.Create("spike_generator", 1, {"spike_times": [100.]})
 
-        nest.Connect(sg1, cm, syn_spec={'synapse_model': 'static_synapse', 'weight': 4.0, 'delay': 0.5, 'receptor_type': 0})
+        nest.Connect(sg1, cm, syn_spec={"synapse_model": "static_synapse", "weight": 4.0, "delay": 0.5, "receptor_type": 0})
 
-        mm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'Na0', 'open_probability0', 'equilibrium_distance0'], 'interval': .1})
+        mm = nest.Create("multimeter", 1, {"record_from": ["v_comp0", "Na0", "open_probability0", "equilibrium_distance0"], "interval": .1})
 
         nest.Connect(mm, cm)
 
         nest.Simulate(1000.)
 
-        res = nest.GetStatus(mm, 'events')[0]
+        res = nest.GetStatus(mm, "events")[0]
 
         fig, axs = plt.subplots(4)
 
-        axs[0].plot(res['times'], res['v_comp0'], c='r', label='V_m')
-        axs[1].plot(res['times'], res['Na0'], c='y', label='I_Na')
-        axs[2].plot(res['times'], res['open_probability0'], c='b', label='open probability')
-        axs[3].plot(res['times'], res['equilibrium_distance0'], c='b', label='equilibrium distance')
+        axs[0].plot(res["times"], res["v_comp0"], c="r", label="V_m")
+        axs[1].plot(res["times"], res["Na0"], c="y", label="I_Na")
+        axs[2].plot(res["times"], res["open_probability0"], c="b", label="open probability")
+        axs[3].plot(res["times"], res["equilibrium_distance0"], c="b", label="equilibrium distance")
 
-        axs[0].set_title('V_m')
-        axs[1].set_title('I_Na')
-        axs[2].set_title('open probability')
-        axs[3].set_title('equilibrium distance')
+        axs[0].set_title("V_m")
+        axs[1].set_title("I_Na")
+        axs[2].set_title("open probability")
+        axs[3].set_title("equilibrium distance")
 
         axs[0].legend()
         axs[1].legend()
@@ -119,4 +119,4 @@ class TestCompartmentalConcmech:
 
         plt.savefig("rec inline test.png")
 
-        assert res['open_probability0'][1100] != 0, "the recordable inlines could not be recorded correctly"
+        assert res["open_probability0"][1100] != 0, "the recordable inlines could not be recorded correctly"

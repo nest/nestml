@@ -257,9 +257,9 @@ class MechsInfoEnricher:
 
                         for variable in expression_variable_collector.all_variables:
                             for internal_declaration in neuron_internal_declaration_collector.internal_declarations:
-                                if variable.get_name() == internal_declaration.get_variables()[0].get_name() \
-                                        and internal_declaration.get_expression().is_function_call() \
-                                        and internal_declaration.get_expression().get_function_call().callee_name == \
+                                if variable.get_name() == internal_declaration.get_variables()[0].get_name()\
+                                        and internal_declaration.get_expression().is_function_call()\
+                                        and internal_declaration.get_expression().get_function_call().callee_name ==\
                                         PredefinedFunctions.TIME_RESOLUTION:
                                     mechanism_info["time_resolution_var"] = variable
 
@@ -300,7 +300,7 @@ class MechsInfoEnricher:
                         neuron.get_equations_blocks()[0].get_scope())
                     update_expr_ast.accept(ASTSymbolTableVisitor())
 
-                    analytic_solution_transformed['kernel_states'][variable_name] = {
+                    analytic_solution_transformed["kernel_states"][variable_name] = {
                         "ASTVariable": variable,
                         "init_expression": expression,
                         "update_expression": update_expr_ast,
@@ -319,17 +319,17 @@ class MechsInfoEnricher:
                     expression.update_scope(
                         neuron.get_equations_blocks()[0].get_scope())
                     expression.accept(ASTSymbolTableVisitor())
-                    analytic_solution_transformed['propagators'][variable_name] = {
+                    analytic_solution_transformed["propagators"][variable_name] = {
                         "ASTVariable": variable, "init_expression": expression, }
 
                     mechanism_info = cls.get_time_res_var_conv_declaration(neuron, mechanism_info, expression)
 
-                enriched_syns_info[mechanism_name]["convolutions"][convolution_name]["analytic_solution"] = \
+                enriched_syns_info[mechanism_name]["convolutions"][convolution_name]["analytic_solution"] =\
                     analytic_solution_transformed
 
             if isinstance(enriched_syns_info[mechanism_name]["root_expression"], ASTInlineExpression):
                 inline_expression_name = enriched_syns_info[mechanism_name]["root_expression"].variable_name
-                enriched_syns_info[mechanism_name]["root_expression"] = \
+                enriched_syns_info[mechanism_name]["root_expression"] =\
                     SynsInfoEnricherVisitor.inline_name_to_transformed_inline[inline_expression_name]
 
             transformed_inlines = list()
@@ -453,11 +453,11 @@ class MechsInfoEnricher:
 
         for variable in expression_variable_collector.all_variables:
             for internal_declaration in neuron_internal_declaration_collector.internal_declarations:
-                if variable.get_name() == internal_declaration.get_variables()[0].get_name() \
+                if variable.get_name() == internal_declaration.get_variables()[0].get_name()\
                         and (isinstance(internal_declaration.get_expression(), ASTSmallStmt)
-                             or isinstance(internal_declaration.get_expression(), ASTSimpleExpression)) \
-                        and internal_declaration.get_expression().is_function_call() \
-                        and internal_declaration.get_expression().get_function_call().callee_name == \
+                             or isinstance(internal_declaration.get_expression(), ASTSimpleExpression))\
+                        and internal_declaration.get_expression().is_function_call()\
+                        and internal_declaration.get_expression().get_function_call().callee_name ==\
                         PredefinedFunctions.TIME_RESOLUTION:
                     mechanism_info["time_resolution_var"] = variable
 

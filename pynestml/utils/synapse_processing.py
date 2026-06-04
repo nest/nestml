@@ -36,8 +36,7 @@ from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.utils.ast_synapse_information_collector import ASTSynapseInformationCollector, \
-    ASTKernelInformationCollectorVisitor
+from pynestml.utils.ast_synapse_information_collector import ASTSynapseInformationCollector, ASTKernelInformationCollectorVisitor
 from pynestml.utils.ast_utils import ASTUtils
 
 from odetoolbox import analysis
@@ -382,7 +381,7 @@ class SynapseProcessing:
             message += "\n"
             message += cls.print_dictionary(element, rec_step + 1)
         else:
-            if hasattr(element, 'name'):
+            if hasattr(element, "name"):
                 message += element.name
             elif isinstance(element, str):
                 message += element

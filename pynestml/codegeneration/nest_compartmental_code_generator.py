@@ -327,21 +327,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 neuron.get_name())
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
             spike_updates, post_spike_updates = self.analyse_neuron(neuron, metadata)
-            #neuron.spike_updates = spike_updates
-
-            #equations_block = neuron.get_equations_blocks()[0]
-            #kernel_buffers = ASTUtils.generate_kernel_buffers(neuron, equations_block)
-
-            #analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron, kernel_buffers)
-
-            #delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
-
-            #spike_updates, post_spike_updates = self._nest_code_generator.get_spike_update_expressions(neuron,
-            #                                                                                           kernel_buffers,
-            #                                                                                           [analytic_solver,
-            #                                                                                            numeric_solver],
-            #                                                                                           delta_factors,
-            #                                                                                           metadata)
 
             neuron.spike_updates = spike_updates
             neuron.post_spike_updates = post_spike_updates
@@ -387,8 +372,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             # such that no inline expression references another inline expression;
             # deference inline_expressions inside ode_equations
             InlineExpressionExpansionTransformer().transform([synapse], metadata)
-
-            #ASTUtils.replace_convolve_calls_with_buffers_(synapse, equations_block)
 
             analytic_solver, numeric_solver = self.ode_toolbox_analysis(synapse, kernel_buffers)
             self.analytic_solver[synapse.get_name()] = analytic_solver
