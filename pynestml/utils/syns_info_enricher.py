@@ -21,6 +21,7 @@
 import copy
 
 import sympy
+from pynestml.cocos.co_co_plan import CoCoPlan
 from pynestml.cocos.co_cos_manager import CoCosManager
 
 from pynestml.symbol_table.symbol_table import SymbolTable
@@ -83,7 +84,7 @@ class SynsInfoEnricher:
         SymbolTable.delete_model_scope(neuron.get_name())
         symbol_table_visitor = ASTSymbolTableVisitor()
         neuron.accept(symbol_table_visitor)
-        CoCosManager.check_cocos(neuron, after_ast_rewrite=True, syn_model=True)
+        CoCosManager.check_cocos(neuron, after_ast_rewrite=True, coco_plan=CoCoPlan())
         SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
 
     @classmethod

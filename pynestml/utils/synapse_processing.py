@@ -38,6 +38,7 @@ from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.ast_synapse_information_collector import ASTSynapseInformationCollector, ASTKernelInformationCollectorVisitor
 from pynestml.utils.ast_utils import ASTUtils
+from pynestml.utils.string_utils import removesuffix
 
 from odetoolbox import analysis
 
@@ -153,13 +154,42 @@ class SynapseProcessing:
         return spiking_port_names, continuous_port_names
 
     @classmethod
-    def collect_kernels(cls, neuron, syn_info, neuron_synapse_pairs):
+    def get_synapse_options(cls, synapse: ASTModel, neuron_synapse_pairs):
+        synapse_name = removesuffix(synapse.get_name(), FrontendConfiguration.suffix)
+        for pair in neuron_synapse_pairs:
+            if synapse_name in pair["synapses"].keys():
+                return pair["synapses"][synapse_name]
+
+        return {}
+
+    @classmethod
+    def get_post_port_names(cls, post_ports):
+        post_port_names = []
+        for post_port in post_ports:
+            if type(post_port) is not str and len(post_port) > 0:
+                post_port = post_port[0]
+
+            post_port_names.append(post_port)
+
+        return post_port_names
+
+    @classmethod
+    def is_post_port(cls, spikes_name: str, post_ports) -> bool:
+        for post_port_name in cls.get_post_port_names(post_ports):
+            if spikes_name == post_port_name:
+                return True
+
+        return False
+
+    @classmethod
+    def collect_kernels(cls, synapse, syn_info, neuron_synapse_pairs):
         """
         Collect internals, kernels, inputs and convolutions associated with the synapse.
         """
         syn_info["convolutions"] = defaultdict()
         info_collector = ASTKernelInformationCollectorVisitor()
-        neuron.accept(info_collector)
+        synapse.accept(info_collector)
+        post_ports = cls.get_synapse_options(synapse, neuron_synapse_pairs).get("post_ports", [])
         for inline in syn_info["Inlines"]:
             synapse_inline = inline
             syn_info[
@@ -184,9 +214,7 @@ class SynapseProcessing:
                             "name": spikes_name,
                             "ASTInputPort": info_collector.get_input_port_by_name(spikes_name),
                         },
-                        "post_port": (len([dict for dict in neuron_synapse_pairs if
-                                           dict["synapse"] + "_nestml" == neuron.name and spikes_name in dict[
-                                               "post_ports"]]) > 0),
+                        "post_port": cls.is_post_port(spikes_name, post_ports),
                     }
         return syn_info
 
@@ -351,8 +379,9 @@ class SynapseProcessing:
 
             # collect the onReceive function of pre- and post-spikes
             spiking_port_names, continuous_port_names = cls.get_port_names(syn_info)
-            post_ports = FrontendConfiguration.get_codegen_opts()["neuron_synapse_pairs"][0]["post_ports"]
-            pre_ports = list(set(spiking_port_names) - set(post_ports))
+            post_ports = cls.get_synapse_options(
+                synapse, FrontendConfiguration.get_codegen_opts()["neuron_synapse_pairs"]).get("post_ports", [])
+            pre_ports = list(set(spiking_port_names) - set(cls.get_post_port_names(post_ports)))
             syn_info = info_collector.collect_on_receive_blocks(synapse, syn_info, pre_ports, post_ports)
 
             # get corresponding delay variable

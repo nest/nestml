@@ -75,8 +75,9 @@ class TestCompartmentalConcmech(unittest.TestCase):
             suffix="_nestml",
             logging_level="DEBUG",
             codegen_opts={"neuron_synapse_pairs": [{"neuron": "multichannel_test_model",
-                                                    "synapse": "stdp_synapse",
-                                                    "post_ports": ["post_spikes"]}],
+                                                    "synapses": {
+                                                        "stdp_synapse": {"post_ports": ["post_spikes"]},
+                                                    }}],
                           "delay_variable": {"stdp_synapse": "d"},
                           "weight_variable": {"stdp_synapse": "w"}
                           }

@@ -72,7 +72,7 @@ from pynestml.cocos.co_co_vector_declaration_right_size import CoCoVectorDeclara
 from pynestml.cocos.co_co_vector_input_port_correct_size_type import CoCoVectorInputPortsCorrectSizeType
 from pynestml.cocos.co_co_vector_parameter_declared_in_right_block import CoCoVectorParameterDeclaredInRightBlock
 from pynestml.cocos.co_co_vector_variable_in_non_vector_declaration import CoCoVectorVariableInNonVectorDeclaration
-from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.cocos.co_co_plan import CoCoPlan
 from pynestml.utils.global_processing import GlobalProcessing
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.logger import Logger
@@ -448,7 +448,7 @@ class CoCosManager:
         CoCoEmitSpikeFunctionArguments.check_co_co(model)
 
     @classmethod
-    def check_cocos(cls, model: ASTModel, after_ast_rewrite: bool = False, syn_model: bool = False):
+    def check_cocos(cls, model: ASTModel, after_ast_rewrite: bool = False, coco_plan: CoCoPlan = CoCoPlan()):
         """
         Checks all context conditions.
         :param model: a single model object.
@@ -462,10 +462,8 @@ class CoCosManager:
         cls.check_inline_expression_not_assigned_to(model)
         cls.check_state_variables_initialized(model)
         cls.check_variables_defined_before_usage(model)
-        if FrontendConfiguration.get_target_platform().upper() == "NEST_COMPARTMENTAL":
-            # XXX: TODO: refactor this out; define a ``cocos_from_target_name()`` in the frontend instead.
-            if not syn_model:
-                cls.check_compartmental_neuron_model(model)
+        if coco_plan.run_compartmental_neuron_cocos:
+            cls.check_compartmental_neuron_model(model)
         cls.check_inline_expressions_have_rhs(model)
         cls.check_inline_has_max_one_lhs(model)
         cls.check_input_ports_not_assigned_to(model)
@@ -489,7 +487,7 @@ class CoCosManager:
             cls.check_ode_functions_have_consistent_units(model)
             cls.check_correct_usage_of_kernels(model)
             cls.check_resolution_func_used(model)    # ``__h = resolution()`` is added after transformations; put this check inside the ``if`` to make sure it's not always triggered
-            if FrontendConfiguration.get_target_platform().upper() != "NEST_COMPARTMENTAL":
+            if coco_plan.require_integrate_odes_call:
                 cls.check_integrate_odes_called_if_equations_defined(model)
         cls.check_invariant_type_correct(model)
         cls.check_vector_in_non_vector_declaration_detected(model)
