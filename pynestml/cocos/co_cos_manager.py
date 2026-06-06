@@ -66,7 +66,7 @@ from pynestml.cocos.co_co_cm_concentration_model import CoCoCmConcentrationModel
 from pynestml.cocos.co_co_input_port_qualifier_unique import CoCoInputPortQualifierUnique
 from pynestml.cocos.co_co_timestep_function_legally_used import CoCoTimestepFuncLegallyUsed
 from pynestml.cocos.co_co_user_defined_function_correctly_defined import CoCoUserDefinedFunctionCorrectlyDefined
-from pynestml.cocos.co_co_v_comp_exists import CoCoVCompDefined
+from pynestml.cocos.co_co_v_comp_exists import CoCoVCompExists
 from pynestml.cocos.co_co_variable_once_per_scope import CoCoVariableOncePerScope
 from pynestml.cocos.co_co_vector_declaration_right_size import CoCoVectorDeclarationRightSize
 from pynestml.cocos.co_co_vector_input_port_correct_size_type import CoCoVectorInputPortsCorrectSizeType
@@ -143,7 +143,7 @@ class CoCosManager:
         In compartmental case, checks if v_comp variable was defined
         :param neuron: a single neuron object
         """
-        CoCoVCompDefined.check_co_co(neuron)
+        CoCoVCompExists.check_co_co(neuron)
 
     @classmethod
     def check_compartmental_neuron_model(cls, neuron: ASTModel) -> None:

@@ -26,7 +26,7 @@ from pynestml.utils.messages import Messages
 from pynestml.utils.logger import Logger, LoggingLevel
 
 
-class CoCoVCompDefined(CoCo):
+class CoCoVCompExists(CoCo):
     """
     This class represents a constraint condition which ensures that variable v_comp has been
     defined for compartmental neuron models.
