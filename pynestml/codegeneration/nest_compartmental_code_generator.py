@@ -103,6 +103,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
     - **neuron_parent_class**: The C++ class from which the generated NESTML neuron class inherits. Examples: ``"ArchivingNode"``, ``"StructuralPlasticityNode"``. Default: ``"ArchivingNode"``.
     - **neuron_parent_class_include**: The C++ header filename to include that contains **neuron_parent_class**. Default: ``"archiving_node.h"``.
     - **neuron_synapse_pairs**: List of pairs of (neuron, synapse) model names.
+      XXX: TODO: support explicit continuous synapse-port to neuron-variable mappings for compartmental co-generation, analogous to the point-neuron ``post_ports`` tuple/list associations.
     - **synapse_models**: List of synapse model names. Instructs the code generator that models with these names are synapse models.
     - **preserve_expressions**: Set to True, or a list of strings corresponding to individual variable names, to disable internal rewriting of expressions, and return same output as input expression where possible. Only applies to variables specified as first-order differential equations. (This parameter is passed to ODE-toolbox.)
     - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
@@ -337,10 +338,12 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         Analyse and transform a list of synapses.
         :param synapses: a list of synapses.
         """
+        synapse_post_port_options = SynapseProcessing.normalize_synapse_post_port_options(
+            self.get_option("neuron_synapse_pairs"))
         for synapse in synapses:
             Logger.log_message(None, None, "Analysing/transforming synapse {}.".format(synapse.get_name()), None,
                                LoggingLevel.INFO)
-            SynapseProcessing.process(synapse, self.get_option("neuron_synapse_pairs"))
+            SynapseProcessing.process(synapse, synapse_post_port_options)
             self.analyse_synapse(synapse, metadata)
             SynapseProcessing.update_syn_info(
                 SynsInfoEnricher.enrich_with_additional_info([synapse], SynapseProcessing.get_syn_info()))

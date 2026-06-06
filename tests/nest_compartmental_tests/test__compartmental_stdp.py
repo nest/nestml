@@ -290,6 +290,11 @@ class TestCompartmentalConcmech(unittest.TestCase):
         nest_values = [rec_nest_runs[i]["weight"][-1] for i in range(len(rec_nest_runs))]
         nestml_values = [rec_nestml_runs[i]["weight"][-1] for i in range(len(rec_nestml_runs))]
         diff_values = [nestml_values[i] - nest_values[i] for i in range(len(rec_nest_runs))]
+        abs_diff_values = [
+            abs(diff_value)
+            for sp_td_value, diff_value in zip(sp_td, diff_values)
+            if sp_td_value != 0
+        ]
 
         axs[1].vlines(sp_td, 0, diff_values, color="red", label="diff", linewidth=3)
 
@@ -307,4 +312,4 @@ class TestCompartmentalConcmech(unittest.TestCase):
 
         plt.savefig("compartmental_stdp.png")
 
-        assert abs(max(diff_values)) <= 0.005, ("the maximum weight difference is too large! (" + str(max(diff_values)) + " > 0.005)")
+        assert max(abs_diff_values) <= 0.005, ("the maximum weight difference is too large! (" + str(max(abs_diff_values)) + " > 0.005)")

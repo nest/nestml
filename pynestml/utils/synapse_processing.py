@@ -154,13 +154,55 @@ class SynapseProcessing:
         return spiking_port_names, continuous_port_names
 
     @classmethod
-    def get_synapse_options(cls, synapse: ASTModel, neuron_synapse_pairs):
+    def get_synapse_options(cls, synapse: ASTModel, synapse_options):
         synapse_name = removesuffix(synapse.get_name(), FrontendConfiguration.suffix)
-        for pair in neuron_synapse_pairs:
-            if synapse_name in pair["synapses"].keys():
-                return pair["synapses"][synapse_name]
+        if synapse_name in synapse_options.keys():
+            return synapse_options[synapse_name]
 
         return {}
+
+    @classmethod
+    def normalize_synapse_post_port_options(cls, neuron_synapse_pairs):
+        """
+        Extract compartmental synapse-global post-spike ports from the pair-based
+        codegen options and reject conflicting definitions for the same synapse.
+        """
+        synapse_options = {}
+        post_ports_by_synapse = {}
+        for pair in neuron_synapse_pairs:
+            for synapse_name, options in pair["synapses"].items():
+                for post_port in options.get("post_ports", []):
+                    if not isinstance(post_port, str):
+                        Logger.log_message(
+                            code=None,
+                            message="Continuous post-port associations for synapse \""
+                            + synapse_name
+                            + "\" are not yet defined for the compartmental context. "
+                            + "Please refer to the appropriate NESTML co-generation documentation.",
+                            error_position=None,
+                            log_level=LoggingLevel.ERROR)
+
+                post_ports = [
+                    post_port
+                    for post_port in options.get("post_ports", [])
+                    if isinstance(post_port, str)
+                ]
+
+                if synapse_name in post_ports_by_synapse:
+                    if set(post_ports_by_synapse[synapse_name]) != set(post_ports):
+                        raise Exception(
+                            "Conflicting post_ports for synapse \""
+                            + synapse_name
+                            + "\": "
+                            + str(post_ports_by_synapse[synapse_name])
+                            + " vs "
+                            + str(post_ports))
+                    continue
+
+                post_ports_by_synapse[synapse_name] = post_ports
+                synapse_options[synapse_name] = {"post_ports": post_ports}
+
+        return synapse_options
 
     @classmethod
     def get_post_port_names(cls, post_ports):
@@ -182,14 +224,14 @@ class SynapseProcessing:
         return False
 
     @classmethod
-    def collect_kernels(cls, synapse, syn_info, neuron_synapse_pairs):
+    def collect_kernels(cls, synapse, syn_info, synapse_options):
         """
         Collect internals, kernels, inputs and convolutions associated with the synapse.
         """
         syn_info["convolutions"] = defaultdict()
         info_collector = ASTKernelInformationCollectorVisitor()
         synapse.accept(info_collector)
-        post_ports = cls.get_synapse_options(synapse, neuron_synapse_pairs).get("post_ports", [])
+        post_ports = cls.get_synapse_options(synapse, synapse_options).get("post_ports", [])
         for inline in syn_info["Inlines"]:
             synapse_inline = inline
             syn_info[
@@ -359,7 +401,7 @@ class SynapseProcessing:
             cls.syn_info[synapse_name] = synapse_info
 
     @classmethod
-    def process(cls, synapse: ASTModel, neuron_synapse_pairs):
+    def process(cls, synapse: ASTModel, synapse_options):
         """
         Checks if mechanism conditions apply for the handed over synapse.
         :param synapse: a single synapse instance.
@@ -384,7 +426,7 @@ class SynapseProcessing:
             # collect the onReceive function of pre- and post-spikes
             spiking_port_names, continuous_port_names = cls.get_port_names(syn_info)
             post_ports = cls.get_synapse_options(
-                synapse, neuron_synapse_pairs).get("post_ports", [])
+                synapse, synapse_options).get("post_ports", [])
             pre_ports = list(set(spiking_port_names) - set(cls.get_post_port_names(post_ports)))
             syn_info = info_collector.collect_on_receive_blocks(synapse, syn_info, pre_ports, post_ports)
 
@@ -397,7 +439,7 @@ class SynapseProcessing:
             # collect dependencies (defined mechanism in neuron and no LHS appearance in synapse)
             syn_info = info_collector.collect_potential_dependencies(synapse, syn_info)
 
-            syn_info = cls.collect_kernels(synapse, syn_info, neuron_synapse_pairs)
+            syn_info = cls.collect_kernels(synapse, syn_info, synapse_options)
 
             syn_info = cls.convolution_ode_toolbox_processing(synapse, syn_info)
 

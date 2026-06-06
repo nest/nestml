@@ -254,8 +254,8 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
             {%- set variable = variable_info["ASTVariable"] %}
             {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
         // {{ion_channel_name}} channel parameter {{dynamic_variable }}
-        if({{ exists_in_dictionary.ExistsInDictionary("channel_params", variable_name, true) }} )
-            {{variable.name}}[neuron_{{ ion_channel_name }}_channel_count-1] = {{ get_value_from_dict.GetValueFromDictionary("channel_params", "double", variable_name, true) }};
+        if({{ exists_in_dictionary.ExistsInDictionary("channel_params", variable.name, true) }} )
+            {{variable.name}}[neuron_{{ ion_channel_name }}_channel_count-1] = {{ get_value_from_dict.GetValueFromDictionary("channel_params", "double", variable.name, true) }};
         {%- endfor %}
 
         {%- for variable_type, variable_info in channel_info["ODEs"].items() %}
@@ -969,7 +969,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::new_receptor(std::size_t comp_
         {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
     // {{concentration_name}} concentration ODE state {{dynamic_variable }}
         if( {{ exists_in_dictionary.ExistsInDictionary("receptor_params", variable_name, true) }} )
-        {{variable.name}}[neuron_{{ receptor_name }}_receptor_count-1] = {{ get_value_from_dict.GetValueFromDictionary("receptor_params", "double", variable_name, true) }};
+        {{variable_name}}[neuron_{{ receptor_name }}_receptor_count-1] = {{ get_value_from_dict.GetValueFromDictionary("receptor_params", "double", variable_name, true) }};
     {%- endfor %}
 
     {% for variable_type, variable_info in receptor_info["Parameters"].items() %}
@@ -981,8 +981,8 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::new_receptor(std::size_t comp_
 
     {%- for variable_type, variable_info in receptor_info["Parameters"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
-        if( {{ exists_in_dictionary.ExistsInDictionary("receptor_params", variable_name, true) }} )
-        {{variable.name}}[neuron_{{ receptor_name }}_receptor_count-1] = {{ get_value_from_dict.GetValueFromDictionary("receptor_params", "double", variable_name, true) }};
+        if( {{ exists_in_dictionary.ExistsInDictionary("receptor_params", variable.name, true) }} )
+        {{variable.name}}[neuron_{{ receptor_name }}_receptor_count-1] = {{ get_value_from_dict.GetValueFromDictionary("receptor_params", "double", variable.name, true) }};
     {%- endfor %}
 
     // set propagators to ode toolbox returned value
@@ -1363,7 +1363,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
         {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
     // {{concentration_name}} concentration ODE state {{dynamic_variable }}
     if( {{ exists_in_dictionary.ExistsInDictionary("receptor_params", variable_name, true) }} )
-        {{variable.name}}[neuron_{{ receptor_name }}_receptor_count-1] = {{ get_value_from_dict.GetValueFromDictionary("receptor_params", "double", variable_name, true) }};
+        {{variable_name}}[neuron_{{ receptor_name }}_receptor_count-1] = {{ get_value_from_dict.GetValueFromDictionary("receptor_params", "double", variable_name, true) }};
     {%- endfor %}
 
     {% for variable_type, variable_info in receptor_info["Parameters"].items() %}
@@ -1866,8 +1866,7 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::si
             {%- set variable_name = variable_type %}
             {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
         // {{continuous_name}} concentration ODE state {{dynamic_variable }}
-        if( {{ exists_in_dictionary.ExistsInDictionary("con_in_params", variable_name) }} )
-        {{ exists_in_dictionary.ExistsInDictionary("con_in_params", variable_name, true) }}
+        if( {{ exists_in_dictionary.ExistsInDictionary("con_in_params", variable_name, true) }} )
             {{variable_name}}[neuron_{{ continuous_name }}_continuous_input_count-1] = {{ get_value_from_dict.GetValueFromDictionary("con_in_params", "double", variable_name, true) }};
         {%- endfor %}
 
