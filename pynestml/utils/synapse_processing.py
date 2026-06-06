@@ -354,6 +354,11 @@ class SynapseProcessing:
         return copy.deepcopy(cls.syn_info)
 
     @classmethod
+    def update_syn_info(cls, syns_info: dict):
+        for synapse_name, synapse_info in syns_info.items():
+            cls.syn_info[synapse_name] = synapse_info
+
+    @classmethod
     def process(cls, synapse: ASTModel, neuron_synapse_pairs):
         """
         Checks if mechanism conditions apply for the handed over synapse.

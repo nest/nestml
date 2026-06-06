@@ -51,8 +51,7 @@ class SynsInfoEnricher:
     """
 
     @classmethod
-    def enrich_with_additional_info(cls, synapses: list, syns_info: dict, chan_info: dict, recs_info: dict,
-                                    conc_info: dict, con_in_info: dict):
+    def enrich_with_additional_info(cls, synapses: list, syns_info: dict):
         enriched_syns_info = dict()
 
         for synapse in synapses:
@@ -65,7 +64,6 @@ class SynsInfoEnricher:
 
             synapse_info = paired_syns_info[synapse_name]
             synapse_info = cls.transform_ode_solutions(synapse, synapse_info)
-            synapse_info = cls.confirm_dependencies(synapse_info, chan_info, recs_info, conc_info, con_in_info)
             synapse_info = cls.extract_infunction_declarations(synapse_info)
 
             synapse_info = cls.transform_convolutions_analytic_solutions(synapse, synapse_info)
@@ -196,6 +194,19 @@ class SynsInfoEnricher:
         actual_dependencies["continuous"] = con_in_deps
         syns_info["Dependencies"] = actual_dependencies
         return syns_info
+
+    @classmethod
+    def confirm_dependencies_for_synapses(cls, synapses: list, syns_info: dict, chan_info: dict, recs_info: dict,
+                                          conc_info: dict, con_in_info: dict):
+        confirmed_syns_info = dict()
+
+        for synapse in synapses:
+            synapse_name = synapse.get_name()
+            synapse_info = syns_info[synapse_name]
+            confirmed_syns_info[synapse_name] = cls.confirm_dependencies(
+                synapse_info, chan_info, recs_info, conc_info, con_in_info)
+
+        return confirmed_syns_info
 
     @classmethod
     def extract_infunction_declarations(cls, syn_info):

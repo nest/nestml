@@ -342,6 +342,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                                LoggingLevel.INFO)
             SynapseProcessing.process(synapse, self.get_option("neuron_synapse_pairs"))
             self.analyse_synapse(synapse, metadata)
+            SynapseProcessing.update_syn_info(
+                SynsInfoEnricher.enrich_with_additional_info([synapse], SynapseProcessing.get_syn_info()))
 
     def analyse_synapse(self, synapse: ASTModel, metadata: Dict[str, Dict[str, Any]]):  # -> Dict[str, ASTAssignment]:
         """
@@ -815,12 +817,12 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["con_in_info"] = ContinuousInputProcessing.get_mechs_info(neuron)
         namespace["con_in_info"] = ConInInfoEnricher.enrich_with_additional_info(neuron, namespace["con_in_info"])
 
-        namespace["syns_info"] = SynsInfoEnricher.enrich_with_additional_info(paired_synapses,
-                                                                              SynapseProcessing.get_syn_info(),
-                                                                              namespace["chan_info"],
-                                                                              namespace["recs_info"],
-                                                                              namespace["conc_info"],
-                                                                              namespace["con_in_info"])
+        namespace["syns_info"] = SynsInfoEnricher.confirm_dependencies_for_synapses(paired_synapses,
+                                                                                    SynapseProcessing.get_syn_info(),
+                                                                                    namespace["chan_info"],
+                                                                                    namespace["recs_info"],
+                                                                                    namespace["conc_info"],
+                                                                                    namespace["con_in_info"])
 
         namespace["global_info"] = GlobalProcessing.get_global_info(neuron)
         namespace["global_info"] = GlobalInfoEnricher.enrich_with_additional_info(neuron, namespace["global_info"])
