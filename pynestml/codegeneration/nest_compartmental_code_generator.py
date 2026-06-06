@@ -1029,17 +1029,25 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             neuron_index += 1
 
     def arrange_synapses_per_neuron(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
-        paired_synapses = dict()
-        for neuron in neurons:
-            paired_synapses[neuron.get_name()] = list()
+        neurons_by_name = {neuron.get_name(): neuron for neuron in neurons}
+        synapses_by_name = {synapse.get_name(): synapse for synapse in synapses}
+        paired_synapses = {neuron_name: list() for neuron_name in neurons_by_name.keys()}
 
         neuron_synapse_pairs = self.get_option("neuron_synapse_pairs")
         for pair in neuron_synapse_pairs:
             neuron_name = pair["neuron"] + FrontendConfiguration.suffix
+            if neuron_name not in neurons_by_name:
+                code, message = Messages.get_unknown_neuron_synapse_pair_model("neuron", pair["neuron"])
+                Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR)
+                raise Exception(message)
+
             for synapse_name in pair["synapses"].keys():
-                synapse_name = synapse_name + FrontendConfiguration.suffix
-                for synapse in synapses:
-                    if synapse.get_name() == synapse_name:
-                        paired_synapses[neuron_name].append(synapse)
+                synapse_model_name = synapse_name + FrontendConfiguration.suffix
+                if synapse_model_name not in synapses_by_name:
+                    code, message = Messages.get_unknown_neuron_synapse_pair_model("synapse", synapse_name)
+                    Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR)
+                    raise Exception(message)
+
+                paired_synapses[neuron_name].append(synapses_by_name[synapse_model_name])
 
         return paired_synapses

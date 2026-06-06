@@ -150,6 +150,7 @@ class MessageCode(Enum):
     WEIGHT_VARIABLE_NOT_FOUND = 121
     CM_VAR_MULTIUSE = 122
     CM_INVALID_CONVOLUTION_BUFFER = 123
+    UNKNOWN_NEURON_SYNAPSE_PAIR_MODEL = 124
     CONVOLVE_NEEDS_BUFFER_PARAMETER = 122
 
 
@@ -1190,3 +1191,9 @@ class Messages:
         message = "Weight variable \"" + variable_name + "\" not found in synapse. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
 
         return MessageCode.WEIGHT_VARIABLE_NOT_FOUND, message
+
+    @classmethod
+    def get_unknown_neuron_synapse_pair_model(cls, model_type: str, model_name: str) -> Tuple[MessageCode, str]:
+        message = "Unknown " + model_type + " model \"" + model_name + "\" in neuron_synapse_pairs."
+
+        return MessageCode.UNKNOWN_NEURON_SYNAPSE_PAIR_MODEL, message

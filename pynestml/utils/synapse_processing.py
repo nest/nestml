@@ -53,9 +53,6 @@ class SynapseProcessing:
     Synapse information processing.
     """
 
-    # used to keep track of whenever check_co_co was already called
-    # see inside check_co_co
-    first_time_run = defaultdict(lambda: True)
     # stores synapse from the first call of check_co_co
     syn_info = defaultdict()
 
@@ -407,44 +404,39 @@ class SynapseProcessing:
         :param synapse: a single synapse instance.
         """
 
-        # make sure we only run this a single time
-        # subsequent calls will be after AST has been transformed
-        # and there would be no kernels or inlines any more
-        if cls.first_time_run[synapse]:
-            # collect root expressions and initialize collector
-            info_collector = ASTSynapseInformationCollector(synapse)
+        # collect root expressions and initialize collector
+        info_collector = ASTSynapseInformationCollector(synapse)
 
-            # collect and process all basic mechanism information
-            syn_info = defaultdict()
-            syn_info = info_collector.collect_definitions(synapse, syn_info)
-            syn_info = info_collector.extend_variables_with_initialisations(synapse, syn_info)
-            syn_info = cls.ode_toolbox_processing(synapse, syn_info)
+        # collect and process all basic mechanism information
+        syn_info = defaultdict()
+        syn_info = info_collector.collect_definitions(synapse, syn_info)
+        syn_info = info_collector.extend_variables_with_initialisations(synapse, syn_info)
+        syn_info = cls.ode_toolbox_processing(synapse, syn_info)
 
-            # collect all spiking ports
-            syn_info = info_collector.collect_ports(synapse, syn_info)
+        # collect all spiking ports
+        syn_info = info_collector.collect_ports(synapse, syn_info)
 
-            # collect the onReceive function of pre- and post-spikes
-            spiking_port_names, continuous_port_names = cls.get_port_names(syn_info)
-            post_ports = cls.get_synapse_options(
-                synapse, synapse_options).get("post_ports", [])
-            pre_ports = list(set(spiking_port_names) - set(cls.get_post_port_names(post_ports)))
-            syn_info = info_collector.collect_on_receive_blocks(synapse, syn_info, pre_ports, post_ports)
+        # collect the onReceive function of pre- and post-spikes
+        spiking_port_names, continuous_port_names = cls.get_port_names(syn_info)
+        post_ports = cls.get_synapse_options(
+            synapse, synapse_options).get("post_ports", [])
+        pre_ports = list(set(spiking_port_names) - set(cls.get_post_port_names(post_ports)))
+        syn_info = info_collector.collect_on_receive_blocks(synapse, syn_info, pre_ports, post_ports)
 
-            # get corresponding delay variable
-            syn_info["DelayVariable"] = FrontendConfiguration.get_codegen_opts()["delay_variable"][synapse.get_name().removesuffix("_nestml")]
+        # get corresponding delay variable
+        syn_info["DelayVariable"] = FrontendConfiguration.get_codegen_opts()["delay_variable"][synapse.get_name().removesuffix("_nestml")]
 
-            # collect the update block
-            syn_info = info_collector.collect_update_block(synapse, syn_info)
+        # collect the update block
+        syn_info = info_collector.collect_update_block(synapse, syn_info)
 
-            # collect dependencies (defined mechanism in neuron and no LHS appearance in synapse)
-            syn_info = info_collector.collect_potential_dependencies(synapse, syn_info)
+        # collect dependencies (defined mechanism in neuron and no LHS appearance in synapse)
+        syn_info = info_collector.collect_potential_dependencies(synapse, syn_info)
 
-            syn_info = cls.collect_kernels(synapse, syn_info, synapse_options)
+        syn_info = cls.collect_kernels(synapse, syn_info, synapse_options)
 
-            syn_info = cls.convolution_ode_toolbox_processing(synapse, syn_info)
+        syn_info = cls.convolution_ode_toolbox_processing(synapse, syn_info)
 
-            cls.syn_info[synapse.get_name()] = syn_info
-            cls.first_time_run[synapse.get_name()] = False
+        cls.syn_info[synapse.get_name()] = syn_info
 
     @classmethod
     def print_element(cls, name, element, rec_step):
