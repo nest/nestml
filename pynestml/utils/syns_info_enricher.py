@@ -51,22 +51,27 @@ class SynsInfoEnricher:
     """
 
     @classmethod
-    def enrich_with_additional_info(cls, synapse: ASTModel, syns_info: dict, chan_info: dict, recs_info: dict,
+    def enrich_with_additional_info(cls, synapses: list, syns_info: dict, chan_info: dict, recs_info: dict,
                                     conc_info: dict, con_in_info: dict):
-        specific_enricher_visitor = SynsInfoEnricherVisitor()
+        enriched_syns_info = dict()
 
-        cls.add_propagators_to_internals(synapse, syns_info)
-        synapse.accept(specific_enricher_visitor)
+        for synapse in synapses:
+            specific_enricher_visitor = SynsInfoEnricherVisitor()
+            synapse_name = synapse.get_name()
+            paired_syns_info = {synapse_name: syns_info[synapse_name]}
 
-        synapse_info = syns_info[synapse.get_name()]
-        synapse_info = cls.transform_ode_solutions(synapse, synapse_info)
-        synapse_info = cls.confirm_dependencies(synapse_info, chan_info, recs_info, conc_info, con_in_info)
-        synapse_info = cls.extract_infunction_declarations(synapse_info)
+            cls.add_propagators_to_internals(synapse, paired_syns_info)
+            synapse.accept(specific_enricher_visitor)
 
-        synapse_info = cls.transform_convolutions_analytic_solutions(synapse, synapse_info)
-        syns_info[synapse.get_name()] = synapse_info
+            synapse_info = paired_syns_info[synapse_name]
+            synapse_info = cls.transform_ode_solutions(synapse, synapse_info)
+            synapse_info = cls.confirm_dependencies(synapse_info, chan_info, recs_info, conc_info, con_in_info)
+            synapse_info = cls.extract_infunction_declarations(synapse_info)
 
-        return syns_info
+            synapse_info = cls.transform_convolutions_analytic_solutions(synapse, synapse_info)
+            enriched_syns_info[synapse_name] = synapse_info
+
+        return enriched_syns_info
 
     @classmethod
     def add_propagators_to_internals(cls, neuron, mechs_info):

@@ -650,13 +650,14 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             underscore_pos = ret.find("_")
         return ret
 
-    def _get_neuron_model_namespace(self, neuron: ASTModel, paired_synapse: ASTModel) -> Dict:
+    def _get_neuron_model_namespace(self, neuron: ASTModel, paired_synapses: Optional[Sequence[ASTModel]] = None) -> Dict:
         """
         Returns a standard namespace for generating neuron code for NEST
         :param neuron: a single neuron instance
         :return: a context dictionary for rendering templates
         :rtype: dict
         """
+        paired_synapses = paired_synapses or []
 
         namespace = {}
 
@@ -814,16 +815,12 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["con_in_info"] = ContinuousInputProcessing.get_mechs_info(neuron)
         namespace["con_in_info"] = ConInInfoEnricher.enrich_with_additional_info(neuron, namespace["con_in_info"])
 
-        if paired_synapse:
-            namespace["syns_info"] = SynapseProcessing.get_syn_info(paired_synapse)
-            namespace["syns_info"] = SynsInfoEnricher.enrich_with_additional_info(paired_synapse,
-                                                                                  namespace["syns_info"],
-                                                                                  namespace["chan_info"],
-                                                                                  namespace["recs_info"],
-                                                                                  namespace["conc_info"],
-                                                                                  namespace["con_in_info"])
-        else:
-            namespace["syns_info"] = dict()
+        namespace["syns_info"] = SynsInfoEnricher.enrich_with_additional_info(paired_synapses,
+                                                                              SynapseProcessing.get_syn_info(),
+                                                                              namespace["chan_info"],
+                                                                              namespace["recs_info"],
+                                                                              namespace["conc_info"],
+                                                                              namespace["con_in_info"])
 
         namespace["global_info"] = GlobalProcessing.get_global_info(neuron)
         namespace["global_info"] = GlobalInfoEnricher.enrich_with_additional_info(neuron, namespace["global_info"])
@@ -832,7 +829,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         recs_info_string = MechanismProcessing.print_dictionary(namespace["recs_info"], 0)
         conc_info_string = MechanismProcessing.print_dictionary(namespace["conc_info"], 0)
         con_in_info_string = MechanismProcessing.print_dictionary(namespace["con_in_info"], 0)
-        if paired_synapse:
+        if paired_synapses:
             syns_info_string = MechanismProcessing.print_dictionary(namespace["syns_info"], 0)
         else:
             syns_info_string = ""
@@ -1002,10 +999,11 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         return odetoolbox_indict
 
-    def generate_compartmental_neuron_code(self, neuron: ASTModel, metadata: Dict[str, Dict[str, Any]], paired_synapse=None) -> None:
+    def generate_compartmental_neuron_code(self, neuron: ASTModel, metadata: Dict[str, Dict[str, Any]], paired_synapses=None) -> None:
+        paired_synapses = paired_synapses or []
         self.generate_model_code(neuron.get_name(),
                                  model_templates=self._model_templates["neuron"],
-                                 template_namespace=self._get_neuron_model_namespace(neuron, paired_synapse),
+                                 template_namespace=self._get_neuron_model_namespace(neuron, paired_synapses),
                                  metadata=metadata,
                                  model_name_escape_string="@NEURON_NAME@")
 
@@ -1018,20 +1016,11 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         from pynestml.frontend.frontend_configuration import FrontendConfiguration
         neuron_index = 0
         for neuron in neurons:
-            paired_syn_exists = False
-            for synapse in paired_synapses[neuron.get_name()]:
-                paired_syn_exists = True
-                self.generate_compartmental_neuron_code(neuron, metadata, synapse)
-                if not Logger.has_errors(neuron):
-                    code, message = Messages.get_code_generated(neuron.get_name(),
-                                                                FrontendConfiguration.get_target_path())
-                    Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
-            if not paired_syn_exists:
-                self.generate_compartmental_neuron_code(neuron, metadata)
-                if not Logger.has_errors(neuron):
-                    code, message = Messages.get_code_generated(neuron.get_name(),
-                                                                FrontendConfiguration.get_target_path())
-                    Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
+            self.generate_compartmental_neuron_code(neuron, metadata, paired_synapses[neuron.get_name()])
+            if not Logger.has_errors(neuron):
+                code, message = Messages.get_code_generated(neuron.get_name(),
+                                                            FrontendConfiguration.get_target_path())
+                Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
             neuron_index += 1
 
     def arrange_synapses_per_neuron(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
@@ -1041,9 +1030,11 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         neuron_synapse_pairs = self.get_option("neuron_synapse_pairs")
         for pair in neuron_synapse_pairs:
+            neuron_name = pair["neuron"] + FrontendConfiguration.suffix
             for synapse_name in pair["synapses"].keys():
+                synapse_name = synapse_name + FrontendConfiguration.suffix
                 for synapse in synapses:
-                    if synapse.get_name() == (synapse_name + "_nestml"):
-                        paired_synapses[pair["neuron"] + "_nestml"].append(synapse)
+                    if synapse.get_name() == synapse_name:
+                        paired_synapses[neuron_name].append(synapse)
 
         return paired_synapses

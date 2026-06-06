@@ -345,12 +345,11 @@ class SynapseProcessing:
         return odetoolbox_indict
 
     @classmethod
-    def get_syn_info(cls, synapse: ASTModel):
+    def get_syn_info(cls):
         """
         returns previously generated syn_info
         as a deep copy so it can't be changed externally
         via object references
-        :param synapse: a single synapse instance.
         """
         return copy.deepcopy(cls.syn_info)
 
@@ -380,7 +379,7 @@ class SynapseProcessing:
             # collect the onReceive function of pre- and post-spikes
             spiking_port_names, continuous_port_names = cls.get_port_names(syn_info)
             post_ports = cls.get_synapse_options(
-                synapse, FrontendConfiguration.get_codegen_opts()["neuron_synapse_pairs"]).get("post_ports", [])
+                synapse, neuron_synapse_pairs).get("post_ports", [])
             pre_ports = list(set(spiking_port_names) - set(cls.get_post_port_names(post_ports)))
             syn_info = info_collector.collect_on_receive_blocks(synapse, syn_info, pre_ports, post_ports)
 
