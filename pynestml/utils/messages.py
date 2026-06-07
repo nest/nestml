@@ -151,6 +151,8 @@ class MessageCode(Enum):
     CM_VAR_MULTIUSE = 122
     CM_INVALID_CONVOLUTION_BUFFER = 123
     UNKNOWN_NEURON_SYNAPSE_PAIR_MODEL = 124
+    CM_UNRESOLVED_FUNCTION_DEPENDENCY = 125
+    CM_UNRESOLVED_VARIABLE_DEPENDENCY = 126
     CONVOLVE_NEEDS_BUFFER_PARAMETER = 122
 
 
@@ -1197,3 +1199,15 @@ class Messages:
         message = "Unknown " + model_type + " model \"" + model_name + "\" in neuron_synapse_pairs."
 
         return MessageCode.UNKNOWN_NEURON_SYNAPSE_PAIR_MODEL, message
+
+    @classmethod
+    def get_cm_unresolved_function_dependency(cls, function_name: str, context: str) -> Tuple[MessageCode, str]:
+        message = "Could not resolve function dependency \"" + function_name + "\" while collecting " + context + "."
+
+        return MessageCode.CM_UNRESOLVED_FUNCTION_DEPENDENCY, message
+
+    @classmethod
+    def get_cm_unresolved_variable_dependency(cls, variable_name: str, context: str) -> Tuple[MessageCode, str]:
+        message = "Could not resolve variable dependency \"" + variable_name + "\" while collecting " + context + "."
+
+        return MessageCode.CM_UNRESOLVED_VARIABLE_DEPENDENCY, message
