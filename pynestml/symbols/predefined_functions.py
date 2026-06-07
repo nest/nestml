@@ -95,6 +95,7 @@ class PredefinedFunctions:
         cls.__register_random_normal_function()
         cls.__register_random_poisson_function()
         cls.__register_random_uniform_function()
+        cls.__register_heaviside_function()
         cls.__register_exp1_function()
         cls.__register_delta_function()
         cls.__register_clip_function()
@@ -118,7 +119,7 @@ class PredefinedFunctions:
     @classmethod
     def __register_heaviside_function(cls):
         """
-        Registers the heaviside function. This function returns 0 for negative input and otherwise 1.
+        Registers the SymPy-compatible Heaviside function: 0 for x < 0, 1/2 for x == 0, 1 for x > 0.
         """
         params = list()
         params.append(PredefinedTypes.get_real_type())

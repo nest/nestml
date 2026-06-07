@@ -103,8 +103,6 @@ class ASTGlobalInformationCollector(object):
     def collect_related_definitions(cls, neuron, global_info):
         """Collects all parts of the nestml code the root expressions previously collected depend on. search
         is cut at other mechanisms root expressions"""
-        from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
-        from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 
         variable_collector = ASTVariableCollectorVisitor()
         neuron.accept(variable_collector)
