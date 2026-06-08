@@ -227,6 +227,10 @@ class CppExpressionPrinter(ExpressionPrinter):
             return lhs + " * " + rhs
 
         if op.is_div_op:
+            if isinstance(node.get_rhs(), ASTSimpleExpression) and node.get_rhs().is_numeric_literal() and type(node.get_rhs().get_numeric_literal()) in [int, float]:
+                # make sure that division is always a floating point division, not C-style int division
+                return lhs + " / ((double)(" + rhs + "))"
+
             return lhs + " / " + rhs
 
         if op.is_modulo_op:

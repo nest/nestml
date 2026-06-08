@@ -21,6 +21,7 @@
 import copy
 
 import sympy
+from pynestml.cocos.co_co_plan import CoCoPlan
 from pynestml.cocos.co_cos_manager import CoCosManager
 
 from pynestml.symbol_table.symbol_table import SymbolTable
@@ -50,23 +51,26 @@ class SynsInfoEnricher:
     """
 
     @classmethod
-    def enrich_with_additional_info(cls, synapse: ASTModel, syns_info: dict, chan_info: dict, recs_info: dict,
-                                    conc_info: dict, con_in_info: dict):
-        specific_enricher_visitor = SynsInfoEnricherVisitor()
+    def enrich_with_additional_info(cls, synapses: list, syns_info: dict):
+        enriched_syns_info = dict()
 
-        cls.add_propagators_to_internals(synapse, syns_info)
-        synapse.accept(specific_enricher_visitor)
+        for synapse in synapses:
+            specific_enricher_visitor = SynsInfoEnricherVisitor()
+            synapse_name = synapse.get_name()
+            paired_syns_info = {synapse_name: syns_info[synapse_name]}
 
-        synapse_info = syns_info[synapse.get_name()]
-        synapse_info = cls.transform_ode_solutions(synapse, synapse_info)
-        synapse_info = cls.confirm_dependencies(synapse_info, chan_info, recs_info, conc_info, con_in_info)
-        synapse_info = cls.extract_infunction_declarations(synapse_info)
+            cls.add_propagators_to_internals(synapse, paired_syns_info)
+            synapse.accept(specific_enricher_visitor)
 
-        synapse_info = cls.transform_convolutions_analytic_solutions(synapse, synapse_info)
-        synapse_info = cls.create_non_vec_variables(synapse_info)
-        syns_info[synapse.get_name()] = synapse_info
+            synapse_info = paired_syns_info[synapse_name]
+            synapse_info = cls.transform_ode_solutions(synapse, synapse_info)
+            synapse_info = cls.extract_infunction_declarations(synapse_info)
 
-        return syns_info
+            synapse_info = cls.transform_convolutions_analytic_solutions(synapse, synapse_info)
+            synapse_info = cls.create_non_vec_variables(synapse_info)
+            enriched_syns_info[synapse_name] = synapse_info
+
+        return enriched_syns_info
 
     @classmethod
     def create_non_vec_variables(cls, synapse_info: dict):
@@ -98,7 +102,7 @@ class SynsInfoEnricher:
         SymbolTable.delete_model_scope(neuron.get_name())
         symbol_table_visitor = ASTSymbolTableVisitor()
         neuron.accept(symbol_table_visitor)
-        CoCosManager.check_cocos(neuron, after_ast_rewrite=True, syn_model=True)
+        CoCosManager.check_cocos(neuron, after_ast_rewrite=True, coco_plan=CoCoPlan())
         SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
 
     @classmethod
@@ -165,9 +169,9 @@ class SynsInfoEnricher:
 
                     for variable in expression_variable_collector.all_variables:
                         for internal_declaration in synapse_internal_declaration_collector.internal_declarations:
-                            if variable.get_name() == internal_declaration.get_variables()[0].get_name() \
-                                    and internal_declaration.get_expression().is_function_call() \
-                                    and internal_declaration.get_expression().get_function_call().callee_name == \
+                            if variable.get_name() == internal_declaration.get_variables()[0].get_name()\
+                                    and internal_declaration.get_expression().is_function_call()\
+                                    and internal_declaration.get_expression().get_function_call().callee_name ==\
                                     PredefinedFunctions.TIME_RESOLUTION:
                                 syns_info["time_resolution_var"] = variable
 
@@ -205,6 +209,19 @@ class SynsInfoEnricher:
         actual_dependencies["continuous"] = con_in_deps
         syns_info["Dependencies"] = actual_dependencies
         return syns_info
+
+    @classmethod
+    def confirm_dependencies_for_synapses(cls, synapses: list, syns_info: dict, chan_info: dict, recs_info: dict,
+                                          conc_info: dict, con_in_info: dict):
+        confirmed_syns_info = dict()
+
+        for synapse in synapses:
+            synapse_name = synapse.get_name()
+            synapse_info = syns_info[synapse_name]
+            confirmed_syns_info[synapse_name] = cls.confirm_dependencies(
+                synapse_info, chan_info, recs_info, conc_info, con_in_info)
+
+        return confirmed_syns_info
 
     @classmethod
     def extract_infunction_declarations(cls, syn_info):
@@ -265,7 +282,7 @@ class SynsInfoEnricher:
                     neuron.get_equations_blocks()[0].get_scope())
                 update_expr_ast.accept(ASTSymbolTableVisitor())
 
-                analytic_solution_transformed['kernel_states'][variable_name] = {
+                analytic_solution_transformed["kernel_states"][variable_name] = {
                     "ASTVariable": variable,
                     "init_expression": expression,
                     "update_expression": update_expr_ast,
@@ -290,18 +307,18 @@ class SynsInfoEnricher:
                 expression.update_scope(
                     neuron.get_equations_blocks()[0].get_scope())
                 expression.accept(ASTSymbolTableVisitor())
-                analytic_solution_transformed['propagators'][variable_name] = {
+                analytic_solution_transformed["propagators"][variable_name] = {
                     "ASTVariable": variable, "init_expression": expression, }
 
-            enriched_syns_info["convolutions"][convolution_name]["analytic_solution"] = \
+            enriched_syns_info["convolutions"][convolution_name]["analytic_solution"] =\
                 analytic_solution_transformed
 
         transformed_inlines = dict()
         for inline in enriched_syns_info["Inlines"]:
             transformed_inlines[inline.get_variable_name()] = dict()
-            transformed_inlines[inline.get_variable_name()]["inline_expression"] = \
+            transformed_inlines[inline.get_variable_name()]["inline_expression"] =\
                 SynsInfoEnricherVisitor.inline_name_to_transformed_inline[inline.get_variable_name()]
-            transformed_inlines[inline.get_variable_name()]["inline_expression_d"] = \
+            transformed_inlines[inline.get_variable_name()]["inline_expression_d"] =\
                 cls.compute_expression_derivative(
                     transformed_inlines[inline.get_variable_name()]["inline_expression"])
         enriched_syns_info["Inlines"] = transformed_inlines
@@ -507,7 +524,7 @@ class ASTDeclarationCollectorAndUniqueRenamerVisitor(ASTVisitor):
                 self.variable_names[variable.get_name()] += 1
             else:
                 self.variable_names[variable.get_name()] = 0
-            new_name = variable.get_name() + '_' + str(self.variable_names[variable.get_name()])
+            new_name = variable.get_name() + "_" + str(self.variable_names[variable.get_name()])
             name_replacer = ASTVariableNameReplacerVisitor(variable.get_name(), new_name)
             self.current_block.accept(name_replacer)
         node.accept(ASTSymbolTableVisitor())

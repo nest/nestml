@@ -49,8 +49,16 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdexcept>
 #include <algorithm>
 
+{%- if (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
+typedef Dictionary DictionaryDatum;
+typedef std::vector< Dictionary > ArrayDatum;
+{%- endif %}
+
 namespace nest
 {
+{%- if (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
+typedef std::string Name;
+{%- endif %}
 
 ///////////////////////////////////// channels
 
@@ -141,10 +149,10 @@ public:
     bool* self_spikes_p;
 
     // initialization channel
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-    void calibrate();
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
     void pre_run_hook();
+{%- else %}
+    void calibrate();
 {%- endif %}
 
     void append_recordables(std::map< Name, {{ cm_scalar_t }}* >* recordables, const long compartment_idx);
@@ -263,10 +271,10 @@ public:
     bool* self_spikes_p;
 
     // initialization concentration
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-    void calibrate();
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
     void pre_run_hook();
+{%- else %}
+    void calibrate();
 {%- endif %}
     void append_recordables(std::map< Name, {{ cm_scalar_t }}* >* recordables, const long compartment_idx);
 
@@ -508,7 +516,7 @@ private:
     {%- for pure_variable_name, variable_info in receptor_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-  std::vector<{{ render_variable_type(variable) }}> {{ variable.name }} = {};
+  std::vector<{{ render_variable_type(variable) }}> {{ variable.name }};
     {%- endfor %}
 
     // recordable inlines
@@ -628,10 +636,10 @@ public:
   void  postsynaptic_synaptic_processing();
 
   // calibration
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  void calibrate();
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
   void pre_run_hook();
+{%- else %}
+  void calibrate();
 {%- endif %}
   void append_recordables(std::map< Name, {{ cm_scalar_t }}* >* recordables, const long compartment_idx);
   void set_buffer_ptr( std::vector< RingBuffer >& syn_buffers )
@@ -769,10 +777,10 @@ public:
     void f_self_spike();
 
   // calibration
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  void calibrate();
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
   void pre_run_hook();
+{%- else %}
+  void calibrate();
 {%- endif %}
   void append_recordables(std::map< Name, {{ cm_scalar_t }}* >* recordables, const long compartment_idx);
   void set_buffer_ptr( std::vector< RingBuffer >& continuous_buffers )
@@ -926,32 +934,15 @@ public:
   {% endfor -%}
   }
 
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  void calibrate() {
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
   void pre_run_hook() {
+{%- else %}
+  void calibrate() {
 {%- endif %}
     if(!initialized){
     // initialization of ion channels
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-    {%- for ion_channel_name, channel_info in chan_info.items() %}
-    {{ion_channel_name}}{{channel_suffix}}.calibrate();
-    {% endfor -%}
-    {%- for concentration_name, concentration_info in conc_info.items() %}
-    {{concentration_name}}{{concentration_suffix}}.calibrate();
-    {% endfor -%}
-    {%- for receptor_name, receptor_info in recs_info.items() %}
-    {{receptor_name}}{{receptor_suffix}}.calibrate();
-    {% endfor -%}
-    {%- for receptor_name, receptor_info in recs_info.items() %}
-    {%- for synapse_name, synapse_info in syns_info.items() %}
-    {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}.calibrate();
-    {% endfor -%}
-    {% endfor -%}
-    {%- for continuous_name, continuous_info in con_in_info.items() %}
-    {{continuous_name}}{{continuous_suffix}}.calibrate();
-    {% endfor -%}
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
+
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     {{ion_channel_name}}{{channel_suffix}}.pre_run_hook();
     {% endfor -%}
@@ -968,6 +959,24 @@ public:
     {% endfor -%}
     {%- for continuous_name, continuous_info in con_in_info.items() %}
     {{continuous_name}}{{continuous_suffix}}.pre_run_hook();
+    {% endfor -%}
+{%- else %}
+    {%- for ion_channel_name, channel_info in chan_info.items() %}
+    {{ion_channel_name}}{{channel_suffix}}.calibrate();
+    {% endfor -%}
+    {%- for concentration_name, concentration_info in conc_info.items() %}
+    {{concentration_name}}{{concentration_suffix}}.calibrate();
+    {% endfor -%}
+    {%- for receptor_name, receptor_info in recs_info.items() %}
+    {{receptor_name}}{{receptor_suffix}}.calibrate();
+    {% endfor -%}
+    {%- for receptor_name, receptor_info in recs_info.items() %}
+    {%- for synapse_name, synapse_info in syns_info.items() %}
+    {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}.calibrate();
+    {% endfor -%}
+    {% endfor -%}
+    {%- for continuous_name, continuous_info in con_in_info.items() %}
+    {{continuous_name}}{{continuous_suffix}}.calibrate();
     {% endfor -%}
 {%- endif %}
     initialized = true;
@@ -1157,8 +1166,8 @@ public:
     {%- for receptor_name, receptor_info in recs_info.items() %}
     for( std::size_t syn_it = 0; syn_it != {{receptor_name}}{{receptor_suffix}}.neuron_{{receptor_name}}_receptor_count; syn_it++)
     {
-      DictionaryDatum dd = DictionaryDatum( new Dictionary );
-      {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::receptor_idx", "syn_it") }}
+      DictionaryDatum dd;
+      {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::receptor_idx", "static_cast< long >(syn_it)") }}
       {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::comp_idx", "compartment_index") }}
       {{ write_in_dictionary.WriteInDictionary("dd", "std::string", "names::receptor_type", "\"" + receptor_name + "\"") }}
       ad.push_back( dd );
@@ -1169,10 +1178,14 @@ public:
     {%- for synapse_name, synapse_info in syns_info.items() %}
     for( std::size_t syn_it = 0; syn_it != {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}.neuron_{{receptor_name}}_receptor_count; syn_it++)
     {
-      DictionaryDatum dd = DictionaryDatum( new Dictionary );
-      {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::receptor_idx", "syn_it") }}
-      {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::comp_idx", "compartment_index") }}
-      {{ write_in_dictionary.WriteInDictionary("dd", "std::string", "names::receptor_type", "\"" + receptor_name +"_"+synapse_name + "\"") }}
+{%- if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
+      DictionaryDatum dd;
+{%- else %}
+      Dictionary dd;
+{%- endif %}
+{{ write_in_dictionary.WriteInDictionary("dd", "long", "names::receptor_idx", "static_cast< long >(syn_it)") }}
+{{ write_in_dictionary.WriteInDictionary("dd", "long", "names::comp_idx", "compartment_index") }}
+{{ write_in_dictionary.WriteInDictionary("dd", "std::string", "names::receptor_type", "\"" + receptor_name +"_"+synapse_name + "\"") }}
       ad.push_back( dd );
     }
     {% endfor -%}
@@ -1181,8 +1194,12 @@ public:
 {%- for continuous_name, continuous_info in con_in_info.items() %}
     for( std::size_t con_it = 0; con_it != {{continuous_name}}{{continuous_suffix}}.neuron_{{continuous_name}}_continuous_input_count; con_it++)
     {
-      DictionaryDatum dd = DictionaryDatum( new Dictionary );
-{{ write_in_dictionary.WriteInDictionary("dd", "long", "names::receptor_idx", "con_it") }}
+{%- if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
+      DictionaryDatum dd;
+{%- else %}
+      Dictionary dd;
+{%- endif %}
+{{ write_in_dictionary.WriteInDictionary("dd", "long", "names::receptor_idx", "static_cast< long >(con_it)") }}
 {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::comp_idx", "compartment_index") }}
 {{ write_in_dictionary.WriteInDictionary("dd", "std::string", "names::receptor_type", "\"" + continuous_name + "\"") }}
       ad.push_back( dd );

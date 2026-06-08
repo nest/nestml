@@ -46,7 +46,7 @@ class RandomNumberGeneratorsTest(unittest.TestCase):
 
     def test_random_number_generators(self):
         model = ModelParser.parse_file(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
-                         'random_number_generators_test.nestml'))
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")),
+                         "random_number_generators_test.nestml"))
         self.assertEqual(len(
             Logger.get_messages(model.get_model_list()[0], LoggingLevel.ERROR)), 0)

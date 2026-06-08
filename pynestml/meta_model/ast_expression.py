@@ -37,16 +37,16 @@ class ASTExpression(ASTExpressionNode):
     ASTExpr, i.e., several subexpressions combined by one or more operators, e.g., 10mV + V_m - (V_reset * 2)/ms ....
     or a simple rhs, e.g. 10mV.
     Grammar:
-      rhs : leftParentheses='(' rhs rightParentheses=')'
-             | <assoc=right> base=rhs powOp='**' exponent=rhs
+      rhs : leftParentheses="(" rhs rightParentheses=")"
+             | <assoc=right> base=rhs powOp="**" exponent=rhs
              | unaryOperator term=rhs
-             | left=rhs (timesOp='*' | divOp='/' | moduloOp='%') right=rhs
-             | left=rhs (plusOp='+'  | minusOp='-') right=rhs
+             | left=rhs (timesOp="*" | divOp="/" | moduloOp="%") right=rhs
+             | left=rhs (plusOp="+"  | minusOp="-") right=rhs
              | left=rhs bitOperator right=rhs
              | left=rhs comparisonOperator right=rhs
-             | logicalNot='not' rhs
+             | logicalNot="not" rhs
              | left=rhs logicalOperator right=rhs
-             | condition=rhs '?' ifTrue=rhs ':' ifNot=rhs
+             | condition=rhs "?" ifTrue=rhs ":" ifNot=rhs
              | simpleExpression
              ;
     Attributes:

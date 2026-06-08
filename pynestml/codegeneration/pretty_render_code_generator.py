@@ -19,7 +19,14 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Sequence
+from typing import Any, Dict, Iterable
+
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
 
 import datetime
 import os
@@ -51,32 +58,37 @@ class PrettyRenderCodeGenerator(CodeGenerator):
         },
     }
 
-    def generate_code(self, models: Sequence[ASTModel]) -> None:
+    @override
+    def generate_code(self,
+                      models: Iterable[ASTModel],
+                      metadata: Dict[str, Dict[str, Any]]) -> None:
         neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
 
         # Load the custom lexer
-        lexer_fname = os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'extras', 'syntax-highlighting', 'pygments', 'pygments_nestml.py'))
-        self.lexer = load_lexer_from_file(lexer_fname, 'NESTMLLexer')
+        lexer_fname = os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "extras", "syntax-highlighting", "pygments", "pygments_nestml.py"))
+        self.lexer = load_lexer_from_file(lexer_fname, "NESTMLLexer")
 
         self.setup_template_env()
 
         for neuron in neurons:
             self.generate_model_code(neuron.get_name(),
                                      model_templates=self._model_templates["neuron"],
-                                     template_namespace=self._get_neuron_model_namespace(neuron))
+                                     template_namespace=self._get_neuron_model_namespace(neuron, metadata),
+                                     metadata=metadata)
 
         for synapse in synapses:
             self.generate_model_code(synapse.get_name(),
                                      model_templates=self._model_templates["synapse"],
-                                     template_namespace=self._get_synapse_model_namespace(synapse))
+                                     template_namespace=self._get_synapse_model_namespace(synapse, metadata),
+                                     metadata=metadata)
 
     def _get_model_namespace(self, model: ASTModel):
         # Read the source code file
-        with open(model.file_path, 'r') as f:
+        with open(model.file_path, "r") as f:
             code = f.read()
 
         # Create the HTML formatter
-        formatter = HtmlFormatter(full=True, style='colorful')
+        formatter = HtmlFormatter(full=True, style="colorful")
 
         # Highlight the code
         highlighted_code_html = highlight(code, self.lexer, formatter)
@@ -86,16 +98,20 @@ class PrettyRenderCodeGenerator(CodeGenerator):
 
         return namespace
 
-    def _get_neuron_model_namespace(self, neuron: ASTModel):
+    def _get_neuron_model_namespace(self,
+                                    neuron: ASTModel,
+                                    metadata: Dict[str, Dict[str, Any]]) -> Dict:
         namespace = self._get_model_namespace(neuron)
         namespace["model_type"] = "neuron"
         namespace["model_title"] = "Integrate-and-fire NESTML neuron model"
 
         return namespace
 
-    def _get_synapse_model_namespace(self, neuron: ASTModel):
-        namespace = self._get_model_namespace(neuron)
-        namespace["model_type"] = "neuron"
+    def _get_synapse_model_namespace(self,
+                                     synapse: ASTModel,
+                                     metadata: Dict[str, Dict[str, Any]]) -> Dict:
+        namespace = self._get_model_namespace(synapse)
+        namespace["model_type"] = "synapse"
         namespace["model_title"] = "STDP synapse NESTML model"
 
         return namespace

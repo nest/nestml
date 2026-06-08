@@ -53,7 +53,7 @@ class CoCoResolutionFuncLegallyUsedVisitor(ASTVisitor):
         :param node: a simple expression
         """
         assert isinstance(node, ASTSimpleExpression), \
-            '(PyNestML.Visitor.FunctionCallVisitor) No or wrong type of simple expression provided (%s)!' % tuple(node)
+            "(PyNestML.Visitor.FunctionCallVisitor) No or wrong type of simple expression provided (%s)!" % tuple(node)
         assert (node.get_scope() is not None), \
             "(PyNestML.Visitor.FunctionCallVisitor) No scope found, run symboltable creator!"
         if node.get_function_call() is None:

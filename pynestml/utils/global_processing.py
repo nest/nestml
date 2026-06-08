@@ -163,7 +163,7 @@ class GlobalProcessing:
             message += "\n"
             message += cls.print_dictionary(element, rec_step + 1)
         else:
-            if hasattr(element, 'name'):
+            if hasattr(element, "name"):
                 message += element.name
             elif isinstance(element, str):
                 message += element

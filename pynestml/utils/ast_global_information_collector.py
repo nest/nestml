@@ -21,7 +21,11 @@
 
 from collections import defaultdict
 
+from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_units import PredefinedUnits
+from pynestml.symbols.predefined_variables import PredefinedVariables
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
@@ -100,11 +104,43 @@ class ASTGlobalInformationCollector(object):
         return extended_list
 
     @classmethod
+    def log_unresolved_function_dependency(cls, neuron, function_call, context: str):
+        if PredefinedFunctions.get_function(function_call.callee_name):
+            return
+
+        code, message = Messages.get_cm_unresolved_function_dependency(function_call.callee_name, context)
+        Logger.log_message(node=neuron, code=code, message=message, error_position=function_call.get_source_position(),
+                           log_level=LoggingLevel.ERROR)
+
+    @classmethod
+    def log_unresolved_variable_dependency(cls, neuron, variable, context: str):
+        if variable.name in PredefinedUnits.get_units() or variable.name in PredefinedVariables.get_variables():
+            return
+
+        code, message = Messages.get_cm_unresolved_variable_dependency(variable.name, context)
+        Logger.log_message(node=neuron, code=code, message=message, error_position=variable.get_source_position(),
+                           log_level=LoggingLevel.ERROR)
+
+    @classmethod
+    def get_function_external_variables(cls, function):
+        local_variable_collector = ASTVariableCollectorVisitor()
+        function.accept(local_variable_collector)
+
+        local_declaration_collector = ASTLocalVariableDeclarationCollectorVisitor()
+        function.accept(local_declaration_collector)
+        local_names = {parameter.get_name() for parameter in function.get_parameters()}
+        local_names.update(local_declaration_collector.local_variable_names)
+
+        return [
+            variable
+            for variable in local_variable_collector.all_variables
+            if variable.get_name() not in local_names
+        ]
+
+    @classmethod
     def collect_related_definitions(cls, neuron, global_info):
         """Collects all parts of the nestml code the root expressions previously collected depend on. search
         is cut at other mechanisms root expressions"""
-        from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
-        from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 
         variable_collector = ASTVariableCollectorVisitor()
         neuron.accept(variable_collector)
@@ -128,9 +164,10 @@ class ASTGlobalInformationCollector(object):
         neuron.accept(kernel_collector)
         global_kernels = kernel_collector.all_kernels
 
-        continuous_input_collector = ASTContinuousInputDeclarationVisitor()
-        neuron.accept(continuous_input_collector)
-        global_continuous_inputs = continuous_input_collector.ports
+        input_port_collector = ASTInputPortDeclarationVisitor()
+        neuron.accept(input_port_collector)
+        global_continuous_inputs = input_port_collector.continuous_ports
+        global_input_ports = input_port_collector.all_ports
 
         mechanism_states = list()
         mechanism_parameters = list()
@@ -180,15 +217,15 @@ class ASTGlobalInformationCollector(object):
         while len(search_functions) > 0 or len(search_variables) > 0:
             if len(search_functions) > 0:
                 function_call = search_functions[0]
+                function_found = False
                 for function in global_functions:
                     if function.name == function_call.callee_name:
+                        function_found = True
                         mechanism_functions.append(function)
                         found_functions.append(function_call)
 
-                        local_variable_collector = ASTVariableCollectorVisitor()
-                        function.accept(local_variable_collector)
                         search_variables = cls.extend_variable_list_name_based_restricted(search_variables,
-                                                                                          local_variable_collector.all_variables,
+                                                                                          cls.get_function_external_variables(function),
                                                                                           search_variables + found_variables)
 
                         local_function_call_collector = ASTFunctionCallCollectorVisitor()
@@ -196,15 +233,19 @@ class ASTGlobalInformationCollector(object):
                         search_functions = cls.extend_function_call_list_name_based_restricted(search_functions,
                                                                                                local_function_call_collector.all_function_calls,
                                                                                                search_functions + found_functions)
-                        # IMPLEMENT CATCH NONDEFINED!!!
+                if not function_found:
+                    cls.log_unresolved_function_dependency(neuron, function_call, "compartmental global information")
                 search_functions.remove(function_call)
 
             elif len(search_variables) > 0:
                 variable = search_variables[0]
-                if not (variable.name == "v_comp" or variable.name in PredefinedUnits.get_units()):
+                variable_found = variable.name == "v_comp" or variable.name in PredefinedUnits.get_units() \
+                    or variable.name in PredefinedVariables.get_variables()
+                if not variable_found:
                     is_dependency = False
                     for inline in global_inlines:
                         if variable.name == inline.variable_name:
+                            variable_found = True
                             if isinstance(inline.get_decorators(), list):
                                 if "mechanism" in [e.namespace for e in inline.get_decorators()]:
                                     is_dependency = True
@@ -227,6 +268,7 @@ class ASTGlobalInformationCollector(object):
 
                     for ode in global_odes:
                         if variable.name == ode.lhs.name:
+                            variable_found = True
                             if isinstance(ode.get_decorators(), list):
                                 if "mechanism" in [e.namespace for e in ode.get_decorators()]:
                                     is_dependency = True
@@ -249,18 +291,22 @@ class ASTGlobalInformationCollector(object):
 
                     for state in global_states:
                         if variable.name == state.name and not is_dependency:
+                            variable_found = True
                             mechanism_states.append(state)
 
                     for parameter in global_parameters:
                         if variable.name == parameter.name:
+                            variable_found = True
                             mechanism_parameters.append(parameter)
 
                     for internal in global_internals:
                         if variable.name == internal.name:
+                            variable_found = True
                             mechanism_internals.append(internal)
 
                     for kernel in global_kernels:
                         if variable.name == kernel.get_variables()[0].name:
+                            variable_found = True
                             synapse_kernels.append(kernel)
 
                             local_variable_collector = ASTVariableCollectorVisitor()
@@ -277,7 +323,13 @@ class ASTGlobalInformationCollector(object):
 
                     for input in global_continuous_inputs:
                         if variable.name == input.name:
+                            variable_found = True
                             mechanism_continuous_inputs.append(input)
+                    for input in global_input_ports:
+                        if variable.name == input.name:
+                            variable_found = True
+                if not variable_found:
+                    cls.log_unresolved_variable_dependency(neuron, variable, "compartmental global information")
                 search_variables.remove(variable)
                 found_variables.append(variable)
 
@@ -499,21 +551,33 @@ class ASTKernelCollectorVisitor(ASTVisitor):
         self.inside_kernel = False
 
 
-class ASTContinuousInputDeclarationVisitor(ASTVisitor):
+class ASTInputPortDeclarationVisitor(ASTVisitor):
     def __init__(self):
-        super(ASTContinuousInputDeclarationVisitor, self).__init__()
+        super(ASTInputPortDeclarationVisitor, self).__init__()
         self.inside_port = False
         self.current_port = None
-        self.ports = list()
+        self.continuous_ports = list()
+        self.all_ports = list()
 
     def visit_input_port(self, node):
         self.inside_port = True
         self.current_port = node
+        self.all_ports.append(node.clone())
         if self.current_port.is_continuous():
-            self.ports.append(node.clone())
+            self.continuous_ports.append(node.clone())
 
     def endvisit_input_port(self, node):
         self.inside_port = False
+
+
+class ASTLocalVariableDeclarationCollectorVisitor(ASTVisitor):
+    def __init__(self):
+        super(ASTLocalVariableDeclarationCollectorVisitor, self).__init__()
+        self.local_variable_names = set()
+
+    def visit_declaration(self, node):
+        for variable in node.get_variables():
+            self.local_variable_names.add(variable.get_name())
 
 
 class ASTOnReceiveBlockCollectorVisitor(ASTVisitor):

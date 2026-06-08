@@ -113,9 +113,9 @@ class GlobalInfoEnricher:
 
                     for variable in expression_variable_collector.all_variables:
                         for internal_declaration in neuron_internal_declaration_collector.internal_declarations:
-                            if variable.get_name() == internal_declaration.get_variables()[0].get_name() \
-                                    and internal_declaration.get_expression().is_function_call() \
-                                    and internal_declaration.get_expression().get_function_call().callee_name == \
+                            if variable.get_name() == internal_declaration.get_variables()[0].get_name()\
+                                    and internal_declaration.get_expression().is_function_call()\
+                                    and internal_declaration.get_expression().get_function_call().callee_name ==\
                                     PredefinedFunctions.TIME_RESOLUTION:
                                 global_info["time_resolution_var"] = variable
 
@@ -236,7 +236,7 @@ class ASTDeclarationCollectorAndUniqueRenamerVisitor(ASTVisitor):
                 self.variable_names[variable.get_name()] += 1
             else:
                 self.variable_names[variable.get_name()] = 0
-            new_name = variable.get_name() + '_' + str(self.variable_names[variable.get_name()])
+            new_name = variable.get_name() + "_" + str(self.variable_names[variable.get_name()])
             name_replacer = ASTVariableNameReplacerVisitor(variable.get_name(), new_name)
             self.current_block.accept(name_replacer)
         node.accept(ASTSymbolTableVisitor())

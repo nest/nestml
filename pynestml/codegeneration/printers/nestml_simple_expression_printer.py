@@ -62,7 +62,7 @@ class NESTMLSimpleExpressionPrinter(SimpleExpressionPrinter):
         if node.is_numeric_literal():
             if node.variable is not None:
                 # numeric literal + physical unit
-                return str(node.numeric_literal) + self.print(node.variable)
+                return str(node.numeric_literal) + " " + self.print(node.variable)
 
             return str(node.numeric_literal)
 

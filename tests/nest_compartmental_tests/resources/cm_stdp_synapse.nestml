@@ -51,13 +51,6 @@ model stdp_synapse:
         pre_trace' = -pre_trace / tau_tr_pre
         post_trace' = -post_trace / tau_tr_post
 
-    input:
-        pre_spikes <- spike
-        post_spikes <- spike
-
-    output:
-        spike(weight real, delay ms)
-
     onReceive(post_spikes):
         post_trace += 1
 
@@ -67,10 +60,15 @@ model stdp_synapse:
 
     onReceive(pre_spikes):
         pre_trace += 1
-
         # depress synapse
         w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
         w = max(Wmin, w_)
-
         # deliver spike to postsynaptic partner
         emit_spike(w, d)
+
+    input:
+        pre_spikes <- spike
+        post_spikes <- spike
+
+    output:
+        spike

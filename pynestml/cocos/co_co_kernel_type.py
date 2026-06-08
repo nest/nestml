@@ -69,7 +69,7 @@ class KernelTypeVisitor(ASTVisitor):
                 or (var.get_differential_order() > 0
                     and not expr.type.is_castable_to(PredefinedTypes.get_type("ms")**-var.get_differential_order())):
                 actual_type_str = str(expr.type)
-                if 'unit' in dir(expr.type) \
+                if "unit" in dir(expr.type) \
                         and expr.type.unit is not None \
                         and expr.type.unit.unit is not None:
                     actual_type_str = str(expr.type.unit.unit)

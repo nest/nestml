@@ -20,18 +20,17 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.cocos.co_co import CoCo
-from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.messages import Messages
 from pynestml.utils.logger import Logger, LoggingLevel
 
 
-class CoCoVCompDefined(CoCo):
+class CoCoVCompExists(CoCo):
     """
     This class represents a constraint condition which ensures that variable v_comp has been
-    defined if we have compartmental model case.
-    When we start code generation with NEST_COMPARTMENTAL flag the following must exist:
+    defined for compartmental neuron models.
+    When this CoCo is enabled for a target, the following must exist:
         state:
             v_comp real = 0
     """
@@ -39,15 +38,10 @@ class CoCoVCompDefined(CoCo):
     @classmethod
     def check_co_co(cls, neuron: ASTModel):
         """
-        Checks if this coco applies for the handed over neuron.
-        Models which are supposed to be compartmental but do not contain
-        state variable called v_comp are not correct.
+        Checks that the handed over compartmental neuron defines a state variable called v_comp.
         :param neuron: a single neuron instance.
         """
         from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
-
-        if not FrontendConfiguration.get_target_platform().upper() == 'NEST_COMPARTMENTAL':
-            return
 
         if not isinstance(neuron, ASTModel):
             return

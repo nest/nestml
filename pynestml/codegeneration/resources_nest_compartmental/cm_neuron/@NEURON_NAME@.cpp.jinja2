@@ -1,5 +1,9 @@
 {%- set cm_scalar_t = "float" if fp_precision == "single" else "double" -%}
 {%- import 'directives_cpp/WriteInDictionary.jinja2' as write_in_dictionary with context %}
+{%- import 'directives_cpp/ReadFromDictionary.jinja2' as read_from_dictionary with context %}
+{%- import 'directives_cpp/ExistsInDictionary.jinja2' as exists_in_dictionary with context %}
+{%- import 'directives_cpp/GetValueFromDictionary.jinja2' as get_value_from_dict with context %}
+
 /*
  *  cm_default.cpp
  *
@@ -26,9 +30,7 @@
 
 namespace nest
 {
-
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
-        or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] >=3 and nest_version_dict["minor"] > 6) or nest_version_dict["major"] > 3) %}
 void
 register_{{ neuronSpecificFileNamesCmSyns["main"] }}( const std::string& name )
 {
@@ -93,7 +95,7 @@ void
   ArchivingNode::get_status( statusdict );
 
   // add all recordables to the status dictionary
-  ( *statusdict )[ names::recordables ] = recordablesMap_.get_list();
+  {{ write_in_dictionary.WriteInDictionary("statusdict", "ArrayDatum", "names::recordables", "recordablesMap_.get_list()") }}
 
   // We add a list of dicts with compartment information and
   // a list of dicts with receptor information to the status dictionary
@@ -101,7 +103,11 @@ void
   ArrayDatum receptor_ad;
   for ( long comp_idx_ = 0; comp_idx_ != c_tree_.get_size(); comp_idx_++ )
   {
+{%- if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
     DictionaryDatum dd = DictionaryDatum( new Dictionary );
+{%- else %}
+    Dictionary dd;
+{%- endif %}
     Compartment{{cm_unique_suffix}}* compartment = c_tree_.get_compartment( comp_idx_ );
 
     // add compartment info
@@ -120,96 +126,16 @@ void
 void
 nest::{{neuronSpecificFileNamesCmSyns["main"]}}::set_status( const DictionaryDatum& statusdict )
 {
-  updateValue< double >( statusdict, names::V_th, V_th_ );
+  {{ read_from_dictionary.ReadFromDictionary("statusdict", "double", "names::V_th", "V_th_", "", false) }};
   ArchivingNode::set_status( statusdict );
 
-  /**
-   * Add a compartment (or compartments) to the tree, so that the new compartment
-   * has the compartment specified by "parent_idx" as parent. The parent
-   * has to be in the tree, otherwise an error will be raised.  We add either a
-   * single compartment or multiple compartments, depending on wether the
-   * entry was a list of dicts or a single dict
-   */
-  if ( statusdict->known( names::compartments ) )
-  {
-    /**
-     * Until an operator to explicititly append compartments is added to the
-     * API, we disable this functionality
-     */
-    if ( c_tree_.get_size() > 0 )
-    {
-      throw BadProperty( "\'compartments\' is already defined for this model" );
-    }
+{%  filter indent(4) %}
+{%-     include "cm_directives_cpp/AddCompartmentsToTree.jinja2" %}
+{%- endfilter %}
 
-    Datum* dat = ( *statusdict )[ names::compartments ].datum();
-    ArrayDatum* ad = dynamic_cast< ArrayDatum* >( dat );
-    DictionaryDatum* dd = dynamic_cast< DictionaryDatum* >( dat );
-
-    if ( ad != nullptr )
-    {
-      // A list of compartments is provided, we add them all to the tree
-      for ( Token* tt = ( *ad ).begin(); tt != ( *ad ).end(); ++tt )
-      {
-        // cast the Datum pointer stored within token dynamically to a
-        // DictionaryDatum pointer
-        add_compartment_( *dynamic_cast< DictionaryDatum* >( tt->datum() ) );
-      }
-    }
-    else if ( dd != nullptr )
-    {
-      // A single compartment is provided, we add add it to the tree
-      add_compartment_( *dd );
-    }
-    else
-    {
-      throw BadProperty(
-        "\'compartments\' entry could not be identified, provide "
-        "list of parameter dicts for multiple compartments" );
-    }
-  }
-
-  /**
-   * Add a receptor (or receptors) to the tree, so that the new receptor
-   * targets the compartment specified by "comp_idx". The compartment
-   * has to be in the tree, otherwise an error will be raised.  We add either a
-   * single receptor or multiple receptors, depending on wether the
-   * entry was a list of dicts or a single dict
-   */
-  if ( statusdict->known( names::receptors ) )
-  {
-    /**
-     * Until an operator to explicititly append receptors is added to the
-     * API, we disable this functionality
-     */
-    if ( long( syn_buffers_.size() ) > 0 )
-    {
-      throw BadProperty( "\'receptors\' is already defined for this model" );
-    }
-
-    Datum* dat = ( *statusdict )[ names::receptors ].datum();
-    ArrayDatum* ad = dynamic_cast< ArrayDatum* >( dat );
-    DictionaryDatum* dd = dynamic_cast< DictionaryDatum* >( dat );
-
-    if ( ad != nullptr )
-    {
-      for ( Token* tt = ( *ad ).begin(); tt != ( *ad ).end(); ++tt )
-      {
-        // cast the Datum pointer stored within token dynamically to a
-        // DictionaryDatum pointer
-        add_receptor_( *dynamic_cast< DictionaryDatum* >( tt->datum() ) );
-      }
-    }
-    else if ( dd != nullptr )
-    {
-      add_receptor_( *dd );
-    }
-    else
-    {
-      throw BadProperty(
-        "\'receptors\' entry could not be identified, provide "
-        "list of parameter dicts for multiple receptors" );
-    }
-  }
+{%  filter indent(4) %}
+{%-     include "cm_directives_cpp/AddReceptorsToTree.jinja2" %}
+{%- endfilter %}
   /**
    * we need to initialize the recordables pointers to guarantee that the
    * recordables of the new compartments and/or receptors will be in the
@@ -224,30 +150,29 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::set_status( const DictionaryDat
    */
   std::map< Name, {{ cm_scalar_t }}* > recordables = c_tree_.get_recordables();
   for(auto recordable : recordables){
-      if(statusdict->known(recordable.first)){
-          *recordable.second = static_cast< {{ cm_scalar_t }} >( getValue< double >(statusdict, recordable.first) );
-          statusdict->remove(recordable.first);
+      if({{ exists_in_dictionary.ExistsInDictionary("statusdict", "recordable.first", false) }}){
+          *recordable.second = static_cast< {{ cm_scalar_t }} >({{ get_value_from_dict.GetValueFromDictionary("statusdict", "double", "recordable.first", false) }});
       }
   }
 }
 void
-nest::{{neuronSpecificFileNamesCmSyns["main"]}}::add_compartment_( DictionaryDatum& dd )
+nest::{{neuronSpecificFileNamesCmSyns["main"]}}::add_compartment_( const DictionaryDatum& dd )
 {
-  if ( dd->known( names::params ) )
+  if ( {{ exists_in_dictionary.ExistsInDictionary("dd", "names::params") }} )
   {
-    c_tree_.add_compartment(
-      getValue< long >( dd, names::parent_idx ), getValue< DictionaryDatum >( dd, names::params ) );
+    c_tree_.add_compartment({{ get_value_from_dict.GetValueFromDictionary("dd", "long", "names::parent_idx") }},
+        {{ get_value_from_dict.GetValueFromDictionary("dd", "DictionaryDatum", "names::params") }});
   }
   else
   {
-    c_tree_.add_compartment( getValue< long >( dd, names::parent_idx ) );
+    c_tree_.add_compartment({{ get_value_from_dict.GetValueFromDictionary("dd", "long", "names::parent_idx") }});
   }
 }
 void
-nest::{{neuronSpecificFileNamesCmSyns["main"]}}::add_receptor_( DictionaryDatum& dd )
+nest::{{neuronSpecificFileNamesCmSyns["main"]}}::add_receptor_( const DictionaryDatum& dd )
 {
-  const long compartment_idx = getValue< long >( dd, names::comp_idx );
-  const std::string receptor_type = getValue< std::string >( dd, names::receptor_type );
+  const long compartment_idx = {{ get_value_from_dict.GetValueFromDictionary("dd", "long", "names::comp_idx") }};
+  const std::string receptor_type = {{ get_value_from_dict.GetValueFromDictionary("dd", "std::string", "names::receptor_type") }};
 
   // create a ringbuffer to collect spikes for the receptor
   RingBuffer buffer;
@@ -257,10 +182,11 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::add_receptor_( DictionaryDatum&
   syn_buffers_.push_back( buffer );
 
   // add the receptor to the compartment
-  if ( dd->known( names::params ) )
+  if ( {{ exists_in_dictionary.ExistsInDictionary("dd", "names::params") }} )
   {
     c_tree_.neuron_currents.add_mechanism(
-      receptor_type, compartment_idx, getValue< DictionaryDatum >( dd, names::params ), syn_idx );
+      receptor_type, compartment_idx,
+      {{ get_value_from_dict.GetValueFromDictionary("dd", "DictionaryDatum", "names::params") }}, syn_idx );
   }
   else
   {
@@ -302,10 +228,10 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::init_recordables_pointers_()
 }
 
 void
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-nest::{{neuronSpecificFileNamesCmSyns["main"]}}::calibrate()
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
 nest::{{neuronSpecificFileNamesCmSyns["main"]}}::pre_run_hook()
+{%- else %}
+nest::{{neuronSpecificFileNamesCmSyns["main"]}}::calibrate()
 {%- endif %}
 {
   logger_.init();
@@ -317,10 +243,10 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::pre_run_hook()
   // initialize the recordables pointers
   init_recordables_pointers_();
 
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  c_tree_.calibrate();
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
   c_tree_.pre_run_hook();
+{%- else %}
+  c_tree_.calibrate();
 {%- endif %}
 }
 
@@ -398,252 +324,5 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::handle( DataLoggingRequest& e )
 {
   logger_.handle( e );
 }
-
-{%- if paired_synapse is defined %}
-// -------------------------------------------------------------------------
-//   Methods for neuron/synapse co-generation
-// -------------------------------------------------------------------------
-
-inline double
-{{neuronName}}::get_spiketime_ms() const
-{
-  return last_spike_;
-}
-
-void
-{{neuronName}}::register_stdp_connection( double t_first_read, double delay )
-{
-  // Mark all entries in the deque, which we will not read in future as read by
-  // this input input, so that we safely increment the incoming number of
-  // connections afterwards without leaving spikes in the history.
-  // For details see bug #218. MH 08-04-22
-
-  for ( std::deque< histentry__{{neuronName}} >::iterator runner = history_.begin();
-        runner != history_.end() and ( t_first_read - runner->t_ > -1.0 * nest::kernel().connection_manager.get_stdp_eps() );
-        ++runner )
-  {
-    ( runner->access_counter_ )++;
-  }
-
-  n_incoming_++;
-
-  max_delay_ = std::max( delay, max_delay_ );
-}
-
-
-void
-{{neuronName}}::get_history__( double t1,
-  double t2,
-  std::deque< histentry__{{neuronName}} >::iterator* start,
-  std::deque< histentry__{{neuronName}} >::iterator* finish )
-{
-  *finish = history_.end();
-  if ( history_.empty() )
-  {
-    *start = *finish;
-    return;
-  }
-  std::deque< histentry__{{neuronName}} >::reverse_iterator runner = history_.rbegin();
-  const double t2_lim = t2 + nest::kernel().connection_manager.get_stdp_eps();
-  const double t1_lim = t1 + nest::kernel().connection_manager.get_stdp_eps();
-  while ( runner != history_.rend() and runner->t_ >= t2_lim )
-  {
-    ++runner;
-  }
-  *finish = runner.base();
-  while ( runner != history_.rend() and runner->t_ >= t1_lim )
-  {
-    runner->access_counter_++;
-    ++runner;
-  }
-  *start = runner.base();
-}
-
-void
-{{neuronName}}::set_spiketime( nest::Time const& t_sp, double offset )
-{
-  {{neuron_parent_class}}::set_spiketime( t_sp, offset );
-
-  unsigned int num_transferred_variables = 0;
-{%-     for var in transferred_variables %}
-  ++num_transferred_variables; {# XXX: TODO: make this into a const member variable #}
-{%-     endfor %}
-
-  const double t_sp_ms = t_sp.get_ms() - offset;
-
-  if ( n_incoming_ )
-  {
-    // prune all spikes from history which are no longer needed
-    // only remove a spike if:
-    // - its access counter indicates it has been read out by all connected
-    //     STDP synapses, and
-    // - there is another, later spike, that is strictly more than
-    //     (min_global_delay + max_delay_ + eps) away from the new spike (at t_sp_ms)
-    while ( history_.size() > 1 )
-    {
-      const double next_t_sp = history_[ 1 ].t_;
-      // Note that ``access_counter`` now has an extra multiplicative factor equal (``n_incoming_``) to the number of trace values that exist, so that spikes are removed from the history only after they have been read out for the sake of computing each trace.
-      // see https://www.frontiersin.org/files/Articles/1382/fncom-04-00141-r1/image_m/fncom-04-00141-g003.jpg (Potjans et al. 2010)
-
-      if ( history_.front().access_counter_ >= n_incoming_ * num_transferred_variables
-           and t_sp_ms - next_t_sp > max_delay_ + nest::Time::delay_steps_to_ms(nest::kernel().connection_manager.get_min_delay()) + nest::kernel().connection_manager.get_stdp_eps() )
-      {
-        history_.pop_front();
-      }
-      else
-      {
-        break;
-      }
-    }
-
-    if (history_.size() > 0)
-    {
-      assert(history_.back().t_ == last_spike_);
-
-    /**
-      * print extra on-emit statements transferred from synapse
-    **/
-
-{%-     filter indent(4, True) %}
-{%-     for stmt in extra_on_emit_spike_stmts_from_synapse %}
-{%-         include "directives_cpp/Statement.jinja2" %}
-{%-     endfor %}
-{%-     endfilter %}
-
-    /**
-      * print updates due to convolutions
-    **/
-
-{%-     for _, spike_update in post_spike_updates.items() %}
-    {{ printer.print(utils.get_variable_by_name(astnode, spike_update.get_variable().get_complete_name())) }} += 1.;
-{%-     endfor %}
-
-    last_spike_ = t_sp_ms;
-    history_.push_back( histentry__{{neuronName}}( last_spike_, 0) );
-  }
-  else
-  {
-    last_spike_ = t_sp_ms;
-  }
-}
-
-
-void
-{{neuronName}}::clear_history()
-{
-  last_spike_ = -1.0;
-  history_.clear();
-}
-
-
-{#
-	generate getter functions for the transferred variables
-#}
-
-{%- for var in transferred_variables %}
-{%- with variable_symbol = transferred_variables_syms[var] %}
-
-{%- if not var == variable_symbol.get_symbol_name() %}
-{{ raise('Error in resolving variable to symbol') }}
-{%- endif %}
-
-double
-{{neuronName}}::get_{{var}}( double t, const bool before_increment )
-{
-#ifdef DEBUG
-  std::cout << "{{neuronName}}::get_{{var}}: getting value at t = " << t << std::endl;
-#endif
-
-  // case when the neuron has not yet spiked
-  if ( history_.empty() )
-  {
-#ifdef DEBUG
-    std::cout << "{{neuronName}}::get_{{var}}: \thistory empty, returning initial value = " << {{var}}__iv << std::endl;
-#endif
-    // return initial value
-    return {{var}}__iv;
-  }
-
-  // search for the latest post spike in the history buffer that came strictly before `t`
-  int i = history_.size() - 1;
-  double eps = 0.;
-  if ( before_increment )
-  {
-   eps = nest::kernel().connection_manager.get_stdp_eps();
-  }
-  while ( i >= 0 )
-  {
-    if ( t - history_[ i ].t_ >= eps )
-    {
-#ifdef DEBUG
-      std::cout<<"{{neuronName}}::get_{{var}}: \tspike occurred at history[i].t_ = " << history_[i].t_ << std::endl;
-#endif
-
-      /**
-       * update state variables transferred from synapse from `history[i].t_` to `t`
-       *
-       * variables that will be integrated: {{ purely_numeric_state_variables_moved + analytic_state_variables_moved }}
-      **/
-
-      if ( t - history_[ i ].t_ >= nest::kernel().connection_manager.get_stdp_eps() )
-      {
-        const double old___h = V_.__h;
-        V_.__h = t - history_[i].t_;
-        assert(V_.__h > 0);
-        recompute_internal_variables(true);
-
-        V_.__h = old___h;
-        recompute_internal_variables(true);
-      }
-
-#ifdef DEBUG
-      std::cout << "{{neuronName}}::get_{{var}}: \treturning " << {{ printer.print(utils.get_variable_by_name(astnode, var)) }} << std::endl;
-#endif
-      return {{ printer.print(utils.get_variable_by_name(astnode, var)) }};       // type: {{declarations.print_variable_type(variable_symbol)}}
-    }
-    --i;
-  }
-
-  // this case occurs when the trace was requested at a time precisely at that of the first spike in the history
-  if ( (!before_increment) and t == history_[ 0 ].t_)
-  {
-
-#ifdef DEBUG
-    std::cout << "{{neuronName}}::get_{{var}}: \ttrace requested at exact time of history entry 0, returning " << {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }} << std::endl;
-#endif
-    return {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }};
-  }
-
-  // this case occurs when the trace was requested at a time before the first spike in the history
-  // return initial value propagated in time
-#ifdef DEBUG
-  std::cout << "{{neuronName}}::get_{{var}}: \tfall-through, returning initial value = " << {{var}}__iv << std::endl;
-#endif
-
-  if (t == 0.)
-  {
-    return 0.;  // initial value for convolution is always 0
-  }
-
-  /**
-   * update state variables transferred from synapse from initial condition to `t`
-   *
-   * variables that will be integrated: {{ purely_numeric_state_variables_moved + analytic_state_variables_moved }}
-  **/
-
-  const double old___h = V_.__h;
-  V_.__h = t;   // from time 0 to the requested time
-  assert(V_.__h > 0);
-  recompute_internal_variables(true);
-
-  V_.__h = old___h;
-  recompute_internal_variables(true);
-
-  return {{ printer.print(utils.get_variable_by_name(astnode, var)) }};
-}
-{%- endwith -%}
-{%- endfor %}
-
-{%- endif %}
 
 } // namespace

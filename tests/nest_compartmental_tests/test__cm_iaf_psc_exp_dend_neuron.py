@@ -74,7 +74,7 @@ class TestCompartmentalIAF:
     def test_iaf(self):
         """We test the concentration mechanism by comparing the concentration value at a certain critical point in
         time to a previously achieved value at this point"""
-        cm = nest.Create('iaf_psc_exp_cm_dend_nestml')
+        cm = nest.Create("iaf_psc_exp_cm_dend_nestml")
 
         params = {"G_refr": 1000.}
 
@@ -86,31 +86,31 @@ class TestCompartmentalIAF:
             {"comp_idx": 0, "receptor_type": "syn_exc"}
         ]
 
-        sg1 = nest.Create('spike_generator', 1, {'spike_times': [1., 2., 3., 4.]})
+        sg1 = nest.Create("spike_generator", 1, {"spike_times": [1., 2., 3., 4.]})
 
-        nest.Connect(sg1, cm, syn_spec={'synapse_model': 'static_synapse', 'weight': 2000.0, 'delay': 0.5, 'receptor_type': 0})
+        nest.Connect(sg1, cm, syn_spec={"synapse_model": "static_synapse", "weight": 2000.0, "delay": 0.5, "receptor_type": 0})
 
-        mm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'leak0', 'refr0'], 'interval': .1})
+        mm = nest.Create("multimeter", 1, {"record_from": ["v_comp0", "leak0", "refr0"], "interval": .1})
 
         nest.Connect(mm, cm)
 
-        sr = nest.Create('spike_recorder')
+        sr = nest.Create("spike_recorder")
 
         nest.Connect(cm, sr)
 
         nest.Simulate(10.)
 
-        res = nest.GetStatus(mm, 'events')[0]
+        res = nest.GetStatus(mm, "events")[0]
 
         fig, axs = plt.subplots(3)
 
-        axs[0].plot(res['times'], res['v_comp0'], c='r', label='V_m_0')
-        axs[1].plot(res['times'], res['leak0'], c='y', label='leak0')
-        axs[2].plot(res['times'], res['refr0'], c='b', label='refr0')
+        axs[0].plot(res["times"], res["v_comp0"], c="r", label="V_m_0")
+        axs[1].plot(res["times"], res["leak0"], c="y", label="leak0")
+        axs[2].plot(res["times"], res["refr0"], c="b", label="refr0")
 
-        axs[0].set_title('V_m_0')
-        axs[1].set_title('leak0')
-        axs[2].set_title('refr0')
+        axs[0].set_title("V_m_0")
+        axs[1].set_title("leak0")
+        axs[2].set_title("refr0")
 
         axs[0].legend()
         axs[1].legend()
@@ -118,6 +118,6 @@ class TestCompartmentalIAF:
 
         plt.savefig("cm_iaf_test.png")
 
-        events_dist = nest.GetStatus(sr)[0]['events']
+        events_dist = nest.GetStatus(sr)[0]["events"]
 
         assert list(events_dist["times"]) == [1.5, 6.7], "Spike times are not as expected!"

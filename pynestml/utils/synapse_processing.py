@@ -36,9 +36,9 @@ from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.utils.ast_synapse_information_collector import ASTSynapseInformationCollector, \
-    ASTKernelInformationCollectorVisitor
+from pynestml.utils.ast_synapse_information_collector import ASTSynapseInformationCollector, ASTKernelInformationCollectorVisitor
 from pynestml.utils.ast_utils import ASTUtils
+from pynestml.utils.string_utils import removesuffix
 
 from odetoolbox import analysis
 
@@ -53,9 +53,6 @@ class SynapseProcessing:
     Synapse information processing.
     """
 
-    # used to keep track of whenever check_co_co was already called
-    # see inside check_co_co
-    first_time_run = defaultdict(lambda: True)
     # stores synapse from the first call of check_co_co
     syn_info = defaultdict()
 
@@ -154,13 +151,84 @@ class SynapseProcessing:
         return spiking_port_names, continuous_port_names
 
     @classmethod
-    def collect_kernels(cls, neuron, syn_info, neuron_synapse_pairs):
+    def get_synapse_options(cls, synapse: ASTModel, synapse_options):
+        synapse_name = removesuffix(synapse.get_name(), FrontendConfiguration.suffix)
+        if synapse_name in synapse_options.keys():
+            return synapse_options[synapse_name]
+
+        return {}
+
+    @classmethod
+    def normalize_synapse_post_port_options(cls, neuron_synapse_pairs):
+        """
+        Extract compartmental synapse-global post-spike ports from the pair-based
+        codegen options and reject conflicting definitions for the same synapse.
+        """
+        synapse_options = {}
+        post_ports_by_synapse = {}
+        for pair in neuron_synapse_pairs:
+            for synapse_name, options in pair["synapses"].items():
+                for post_port in options.get("post_ports", []):
+                    if not isinstance(post_port, str):
+                        Logger.log_message(
+                            code=None,
+                            message="Continuous post-port associations for synapse \""
+                            + synapse_name
+                            + "\" are not yet defined for the compartmental context. "
+                            + "Please refer to the appropriate NESTML co-generation documentation.",
+                            error_position=None,
+                            log_level=LoggingLevel.ERROR)
+
+                post_ports = [
+                    post_port
+                    for post_port in options.get("post_ports", [])
+                    if isinstance(post_port, str)
+                ]
+
+                if synapse_name in post_ports_by_synapse:
+                    if set(post_ports_by_synapse[synapse_name]) != set(post_ports):
+                        raise Exception(
+                            "Conflicting post_ports for synapse \""
+                            + synapse_name
+                            + "\": "
+                            + str(post_ports_by_synapse[synapse_name])
+                            + " vs "
+                            + str(post_ports))
+                    continue
+
+                post_ports_by_synapse[synapse_name] = post_ports
+                synapse_options[synapse_name] = {"post_ports": post_ports}
+
+        return synapse_options
+
+    @classmethod
+    def get_post_port_names(cls, post_ports):
+        post_port_names = []
+        for post_port in post_ports:
+            if type(post_port) is not str and len(post_port) > 0:
+                post_port = post_port[0]
+
+            post_port_names.append(post_port)
+
+        return post_port_names
+
+    @classmethod
+    def is_post_port(cls, spikes_name: str, post_ports) -> bool:
+        for post_port_name in cls.get_post_port_names(post_ports):
+            if spikes_name == post_port_name:
+                return True
+
+        return False
+
+    @classmethod
+    def collect_kernels(cls, synapse, syn_info, synapse_options):
         """
         Collect internals, kernels, inputs and convolutions associated with the synapse.
         """
         syn_info["convolutions"] = defaultdict()
         info_collector = ASTKernelInformationCollectorVisitor()
-        neuron.accept(info_collector)
+        synapse.accept(info_collector)
+        post_ports = cls.get_synapse_options(synapse, synapse_options).get("post_ports", [])
         for inline in syn_info["Inlines"]:
             synapse_inline = inline
             syn_info[
@@ -185,9 +253,7 @@ class SynapseProcessing:
                             "name": spikes_name,
                             "ASTInputPort": info_collector.get_input_port_by_name(spikes_name),
                         },
-                        "post_port": (len([dict for dict in neuron_synapse_pairs if
-                                           dict["synapse"] + "_nestml" == neuron.name and spikes_name in dict[
-                                               "post_ports"]]) > 0),
+                        "post_port": cls.is_post_port(spikes_name, post_ports),
                     }
         return syn_info
 
@@ -318,59 +384,59 @@ class SynapseProcessing:
         return odetoolbox_indict
 
     @classmethod
-    def get_syn_info(cls, synapse: ASTModel):
+    def get_syn_info(cls):
         """
         returns previously generated syn_info
         as a deep copy so it can't be changed externally
         via object references
-        :param synapse: a single synapse instance.
         """
         return copy.deepcopy(cls.syn_info)
 
     @classmethod
-    def process(cls, synapse: ASTModel, neuron_synapse_pairs):
+    def update_syn_info(cls, syns_info: dict):
+        for synapse_name, synapse_info in syns_info.items():
+            cls.syn_info[synapse_name] = synapse_info
+
+    @classmethod
+    def process(cls, synapse: ASTModel, synapse_options):
         """
         Checks if mechanism conditions apply for the handed over synapse.
         :param synapse: a single synapse instance.
         """
 
-        # make sure we only run this a single time
-        # subsequent calls will be after AST has been transformed
-        # and there would be no kernels or inlines any more
-        if cls.first_time_run[synapse]:
-            # collect root expressions and initialize collector
-            info_collector = ASTSynapseInformationCollector(synapse)
+        # collect root expressions and initialize collector
+        info_collector = ASTSynapseInformationCollector(synapse)
 
-            # collect and process all basic mechanism information
-            syn_info = defaultdict()
-            syn_info = info_collector.collect_definitions(synapse, syn_info)
-            syn_info = info_collector.extend_variables_with_initialisations(synapse, syn_info)
-            syn_info = cls.ode_toolbox_processing(synapse, syn_info)
+        # collect and process all basic mechanism information
+        syn_info = defaultdict()
+        syn_info = info_collector.collect_definitions(synapse, syn_info)
+        syn_info = info_collector.extend_variables_with_initialisations(synapse, syn_info)
+        syn_info = cls.ode_toolbox_processing(synapse, syn_info)
 
-            # collect all spiking ports
-            syn_info = info_collector.collect_ports(synapse, syn_info)
+        # collect all spiking ports
+        syn_info = info_collector.collect_ports(synapse, syn_info)
 
-            # collect the onReceive function of pre- and post-spikes
-            spiking_port_names, continuous_port_names = cls.get_port_names(syn_info)
-            post_ports = FrontendConfiguration.get_codegen_opts()["neuron_synapse_pairs"][0]["post_ports"]
-            pre_ports = list(set(spiking_port_names) - set(post_ports))
-            syn_info = info_collector.collect_on_receive_blocks(synapse, syn_info, pre_ports, post_ports)
+        # collect the onReceive function of pre- and post-spikes
+        spiking_port_names, continuous_port_names = cls.get_port_names(syn_info)
+        post_ports = cls.get_synapse_options(
+            synapse, synapse_options).get("post_ports", [])
+        pre_ports = list(set(spiking_port_names) - set(cls.get_post_port_names(post_ports)))
+        syn_info = info_collector.collect_on_receive_blocks(synapse, syn_info, pre_ports, post_ports)
 
-            # get corresponding delay variable
-            syn_info["DelayVariable"] = FrontendConfiguration.get_codegen_opts()["delay_variable"][synapse.get_name().removesuffix("_nestml")]
+        # get corresponding delay variable
+        syn_info["DelayVariable"] = FrontendConfiguration.get_codegen_opts()["delay_variable"][synapse.get_name().removesuffix("_nestml")]
 
-            # collect the update block
-            syn_info = info_collector.collect_update_block(synapse, syn_info)
+        # collect the update block
+        syn_info = info_collector.collect_update_block(synapse, syn_info)
 
-            # collect dependencies (defined mechanism in neuron and no LHS appearance in synapse)
-            syn_info = info_collector.collect_potential_dependencies(synapse, syn_info)
+        # collect dependencies (defined mechanism in neuron and no LHS appearance in synapse)
+        syn_info = info_collector.collect_potential_dependencies(synapse, syn_info)
 
-            syn_info = cls.collect_kernels(synapse, syn_info, neuron_synapse_pairs)
+        syn_info = cls.collect_kernels(synapse, syn_info, synapse_options)
 
-            syn_info = cls.convolution_ode_toolbox_processing(synapse, syn_info)
+        syn_info = cls.convolution_ode_toolbox_processing(synapse, syn_info)
 
-            cls.syn_info[synapse.get_name()] = syn_info
-            cls.first_time_run[synapse.get_name()] = False
+        cls.syn_info[synapse.get_name()] = syn_info
 
     @classmethod
     def print_element(cls, name, element, rec_step):
@@ -382,7 +448,7 @@ class SynapseProcessing:
             message += "\n"
             message += cls.print_dictionary(element, rec_step + 1)
         else:
-            if hasattr(element, 'name'):
+            if hasattr(element, "name"):
                 message += element.name
             elif isinstance(element, str):
                 message += element

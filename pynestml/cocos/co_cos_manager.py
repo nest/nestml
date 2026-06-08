@@ -31,6 +31,7 @@ from pynestml.cocos.co_co_convolve_cond_correctly_built import CoCoConvolveCondC
 from pynestml.cocos.co_co_correct_numerator_of_unit import CoCoCorrectNumeratorOfUnit
 from pynestml.cocos.co_co_correct_order_in_equation import CoCoCorrectOrderInEquation
 from pynestml.cocos.co_co_each_block_defined_at_most_once import CoCoEachBlockDefinedAtMostOnce
+from pynestml.cocos.co_co_emit_spike_function_arguments import CoCoEmitSpikeFunctionArguments
 from pynestml.cocos.co_co_equations_only_for_init_values import CoCoEquationsOnlyForInitValues
 from pynestml.cocos.co_co_function_argument_template_types_consistent import CoCoFunctionArgumentTemplateTypesConsistent
 from pynestml.cocos.co_co_function_calls_consistent import CoCoFunctionCallsConsistent
@@ -65,13 +66,13 @@ from pynestml.cocos.co_co_cm_concentration_model import CoCoCmConcentrationModel
 from pynestml.cocos.co_co_input_port_qualifier_unique import CoCoInputPortQualifierUnique
 from pynestml.cocos.co_co_timestep_function_legally_used import CoCoTimestepFuncLegallyUsed
 from pynestml.cocos.co_co_user_defined_function_correctly_defined import CoCoUserDefinedFunctionCorrectlyDefined
-from pynestml.cocos.co_co_v_comp_exists import CoCoVCompDefined
+from pynestml.cocos.co_co_v_comp_exists import CoCoVCompExists
 from pynestml.cocos.co_co_variable_once_per_scope import CoCoVariableOncePerScope
 from pynestml.cocos.co_co_vector_declaration_right_size import CoCoVectorDeclarationRightSize
 from pynestml.cocos.co_co_vector_input_port_correct_size_type import CoCoVectorInputPortsCorrectSizeType
 from pynestml.cocos.co_co_vector_parameter_declared_in_right_block import CoCoVectorParameterDeclaredInRightBlock
 from pynestml.cocos.co_co_vector_variable_in_non_vector_declaration import CoCoVectorVariableInNonVectorDeclaration
-from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.cocos.co_co_plan import CoCoPlan
 from pynestml.utils.global_processing import GlobalProcessing
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.logger import Logger
@@ -142,7 +143,7 @@ class CoCosManager:
         In compartmental case, checks if v_comp variable was defined
         :param neuron: a single neuron object
         """
-        CoCoVCompDefined.check_co_co(neuron)
+        CoCoVCompExists.check_co_co(neuron)
 
     @classmethod
     def check_compartmental_neuron_model(cls, neuron: ASTModel) -> None:
@@ -439,23 +440,30 @@ class CoCosManager:
         CoCoNestRandomFunctionsLegallyUsed.check_co_co(model)
 
     @classmethod
-    def check_cocos(cls, model: ASTModel, after_ast_rewrite: bool = False, syn_model: bool = False):
+    def check_co_co_emit_spike_function_arguments(cls, model: ASTModel):
+        """
+        Checks that all calls to the ``emit_spike()`` function contain zero or one parameter.
+        :param model: a single model object.
+        """
+        CoCoEmitSpikeFunctionArguments.check_co_co(model)
+
+    @classmethod
+    def check_cocos(cls, model: ASTModel, after_ast_rewrite: bool = False, coco_plan: CoCoPlan = CoCoPlan()):
         """
         Checks all context conditions.
         :param model: a single model object.
         """
         Logger.set_current_node(model)
 
+        cls.check_co_co_emit_spike_function_arguments(model)
         cls.check_each_block_defined_at_most_once(model)
         cls.check_function_defined(model)
         cls.check_variables_unique_in_scope(model)
         cls.check_inline_expression_not_assigned_to(model)
         cls.check_state_variables_initialized(model)
         cls.check_variables_defined_before_usage(model)
-        if FrontendConfiguration.get_target_platform().upper() == 'NEST_COMPARTMENTAL':
-            # XXX: TODO: refactor this out; define a ``cocos_from_target_name()`` in the frontend instead.
-            if not syn_model:
-                cls.check_compartmental_neuron_model(model)
+        if coco_plan.run_compartmental_neuron_cocos:
+            cls.check_compartmental_neuron_model(model)
         cls.check_inline_expressions_have_rhs(model)
         cls.check_inline_has_max_one_lhs(model)
         cls.check_input_ports_not_assigned_to(model)
@@ -479,7 +487,7 @@ class CoCosManager:
             cls.check_ode_functions_have_consistent_units(model)
             cls.check_correct_usage_of_kernels(model)
             cls.check_resolution_func_used(model)    # ``__h = resolution()`` is added after transformations; put this check inside the ``if`` to make sure it's not always triggered
-            if FrontendConfiguration.get_target_platform().upper() != 'NEST_COMPARTMENTAL':
+            if coco_plan.require_integrate_odes_call:
                 cls.check_integrate_odes_called_if_equations_defined(model)
         cls.check_invariant_type_correct(model)
         cls.check_vector_in_non_vector_declaration_detected(model)

@@ -11,11 +11,11 @@ model iaf_psc_alpha_neuron:
         V_m' = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
 
     parameters:
-        C_m     pF = 250 pF       # Capacitance of the membrane
-        tau_m   ms = 10 ms        # Membrane time constant
+        C_m pF = 250 pF           # Capacitance of the membrane
+        tau_m ms = 10 ms          # Membrane time constant
         tau_syn ms = 2 ms         # Time constant of synaptic current
         refr_T  ms = 2 ms         # Duration of refractory period
-        E_L     mV = -70 mV       # Resting potential
+        E_L mV = -70 mV           # Resting potential
         V_reset mV = -70 mV       # Reset potential of the membrane
         V_th    mV = -55 mV       # Spike threshold potential
         I_e     pA = 0 pA         # Constant external input current

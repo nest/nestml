@@ -41,7 +41,7 @@ class ASTFunction(ASTNode):
     @attribute primitiveType Primitive return type, e.g. int
     @attribute block Implementation of the function.
     Grammar:
-    function: 'function' NAME '(' (parameter (',' parameter)*)? ')' (returnType=datatype)?
+    function: "function" NAME "(" (parameter ("," parameter)*)? ")" (returnType=datatype)?
            BLOCK_OPEN
              block
            BLOCK_CLOSE;

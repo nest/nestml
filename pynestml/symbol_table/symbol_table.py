@@ -51,11 +51,11 @@ class SymbolTable:
         :rtype: Scope
         """
         assert isinstance(scope, Scope), \
-            '(PyNestML.SymbolTable.SymbolTable) No or wrong type of scope provided (%s)!' % type(scope)
+            "(PyNestML.SymbolTable.SymbolTable) No or wrong type of scope provided (%s)!" % type(scope)
         assert (scope.get_scope_type() == ScopeType.GLOBAL), \
-            '(PyNestML.SymbolTable.SymbolTable) Only global scopes can be added!'
+            "(PyNestML.SymbolTable.SymbolTable) Only global scopes can be added!"
         assert isinstance(name, str), \
-            '(PyNestML.SymbolTable.SymbolTable) No or wrong type of name provided (%s)!' % type(name)
+            "(PyNestML.SymbolTable.SymbolTable) No or wrong type of name provided (%s)!" % type(name)
         if name not in cls.name2model_scope.keys():
             cls.name2model_scope[name] = scope
         return
@@ -84,9 +84,9 @@ class SymbolTable:
         """
         Prints the content of this symbol table.
         """
-        ret = ''
+        ret = ""
         for _name in cls.name2model_scope.keys():
-            ret += '--------------------------------------------------\n'
-            ret += _name + ':\n'
+            ret += "--------------------------------------------------\n"
+            ret += _name + ":\n"
             ret += cls.name2model_scope[_name].print_scope()
         return ret
