@@ -730,13 +730,13 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             # Suffix decimal/scientific literals at final C++ rendering time only.
             # Keep integers untouched.
             float_lit_re = re.compile(
-                r'(?<![A-Za-z0-9_])'
-                r'('
-                r'(?:\d+\.\d*|\.\d+)(?:[eE][+-]?\d+)?'
-                r'|'
-                r'\d+[eE][+-]?\d+'
-                r')'
-                r'(?![A-Za-z0-9_])'
+                r"(?<![A-Za-z0-9_])"
+                r"("
+                r"(?:\d+\.\d*|\.\d+)(?:[eE][+-]?\d+)?"
+                r"|"
+                r"\d+[eE][+-]?\d+"
+                r")"
+                r"(?![A-Za-z0-9_])"
             )
             return float_lit_re.sub(lambda m: m.group(1) + "f", expr)
 

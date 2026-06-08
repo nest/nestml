@@ -64,7 +64,7 @@ model stdp_synapse:
         w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
         w = max(Wmin, w_)
         # deliver spike to postsynaptic partner
-        emit_spike(w, d)
+        emit_spike(w)
 
     input:
         pre_spikes <- spike
