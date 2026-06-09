@@ -688,12 +688,15 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 self.printer = ASTVectorParameterSetterAndPrinterFactory(neuron, printer)
                 self.std_vector_parameter = None
 
-            def print(self, expression, index="i"):
+            def set_std_vector_parameter(self, index):
                 self.std_vector_parameter = index
+
+            def print(self, expression, index="i"):
                 index_printer = self.printer.create_ast_vector_parameter_setter_and_printer(index)
                 return index_printer.print(expression)
 
         vector_printer = VectorPrinter(neuron, self._printer_no_origin)
+        vector_printer.set_std_vector_parameter("i")
 
         namespace["vector_printer"] = vector_printer
 
