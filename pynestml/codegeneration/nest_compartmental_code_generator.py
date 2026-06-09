@@ -315,9 +315,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
     def get_cm_syns_tree_file_prefix(self, neuron):
         return "cm_tree_" + neuron.get_name()
 
-    def get_stdp_synapse_main_file_prefix(self, synapse):
-        return synapse.get_name()
-
     def analyse_transform_neurons(self, neurons: List[ASTModel], metadata: Dict[str, Dict[str, Any]]) -> None:
         """
         Analyse and transform a list of neurons.
