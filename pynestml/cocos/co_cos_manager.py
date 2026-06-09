@@ -460,7 +460,16 @@ class CoCosManager:
         cls.check_state_variables_initialized(model)
         cls.check_variables_defined_before_usage(model)
         if FrontendConfiguration.get_target_platform().upper() == "NEST_COMPARTMENTAL":
-            cls.check_compartmental_neuron_model(model)
+            is_synapse_model = False
+            if "neuron_synapse_pairs" in FrontendConfiguration.get_codegen_opts():
+                is_synapse_model = any(
+                    model.name in [synapse_name, synapse_name + FrontendConfiguration.suffix]
+                    for pair in FrontendConfiguration.get_codegen_opts()["neuron_synapse_pairs"]
+                    for synapse_name in pair["synapses"].keys()
+                )
+
+            if not is_synapse_model:
+                cls.check_compartmental_neuron_model(model)
         cls.check_inline_expressions_have_rhs(model)
         cls.check_inline_has_max_one_lhs(model)
         cls.check_input_ports_not_assigned_to(model)

@@ -59,9 +59,9 @@ class ASTGlobalInformationCollector(object):
         neuron.accept(on_receive_collector_visitor)
         for function in on_receive_collector_visitor.all_on_receive_blocks:
             if "self_spikes_port" in FrontendConfiguration.get_codegen_opts().keys():
-                self_spikes_port_name  = FrontendConfiguration.get_codegen_opts()["self_spikes_port"]
+                self_spikes_port_name = FrontendConfiguration.get_codegen_opts()["self_spikes_port"]
             else:
-                self_spikes_port_name = NESTCompartmentalCodeGenerator._default_options ["self_spikes_port"]
+                self_spikes_port_name = NESTCompartmentalCodeGenerator._default_options["self_spikes_port"]
             if function.get_port_name() == self_spikes_port_name:
                 global_info["SelfSpikesFunction"] = function
 
