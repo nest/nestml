@@ -21,6 +21,7 @@
 
 from collections import defaultdict
 
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
@@ -53,11 +54,15 @@ class ASTGlobalInformationCollector(object):
 
     @classmethod
     def collect_self_spike_function(cls, neuron, global_info):
+        from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
         on_receive_collector_visitor = ASTOnReceiveBlockCollectorVisitor()
         neuron.accept(on_receive_collector_visitor)
-
         for function in on_receive_collector_visitor.all_on_receive_blocks:
-            if function.get_port_name() == "self_spikes":
+            if "self_spikes_port" in FrontendConfiguration.get_codegen_opts().keys():
+                self_spikes_port_name  = FrontendConfiguration.get_codegen_opts()["self_spikes_port"]
+            else:
+                self_spikes_port_name = NESTCompartmentalCodeGenerator._default_options ["self_spikes_port"]
+            if function.get_port_name() == self_spikes_port_name:
                 global_info["SelfSpikesFunction"] = function
 
         return global_info

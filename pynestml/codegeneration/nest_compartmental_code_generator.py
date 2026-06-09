@@ -136,6 +136,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             "module_templates": ["setup"]},
         "nest_version": "",
         "compartmental_variable_name": "v_comp",
+        "self_spikes_port": "self_spikes",
         "delay_variable": {},
         "weight_variable": {}
     }

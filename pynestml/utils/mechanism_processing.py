@@ -330,9 +330,14 @@ class MechanismProcessing:
 
     @classmethod
     def check_all_convolutions_with_self_spikes(cls, mechs_info):
+        from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
         for mechanism_name, mechanism_info in mechs_info.items():
             for convolution_name, convolution in mechanism_info["convolutions"].items():
-                if convolution["spikes"]["name"] != "self_spikes":
+                if "self_spikes_port" in FrontendConfiguration.get_codegen_opts().keys():
+                    self_spikes_port_name = FrontendConfiguration.get_codegen_opts()["self_spikes_port"]
+                else:
+                    self_spikes_port_name = NESTCompartmentalCodeGenerator._default_options["self_spikes_port"]
+                if convolution["spikes"]["name"] != self_spikes_port_name:
                     code, message = Messages.cm_non_self_spike_convolution_in_mech(mechanism_name, cls.mechType)
                     Logger.log_message(error_position=None,
                                        code=code, message=message,

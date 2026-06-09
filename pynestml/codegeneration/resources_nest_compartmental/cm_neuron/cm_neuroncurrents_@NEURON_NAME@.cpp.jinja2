@@ -1123,7 +1123,7 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}
       {%- for convolution, convolution_info in receptor_info["convolutions"].items() %}
       {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
       {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i") }};
-          {%- if convolution_info["spikes"]["name"] == "self_spikes" %}
+          {%- if convolution_info["spikes"]["name"] == self_spikes_name %}
       {{state_variable_name}}[i] += self_spikes[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
           {%- else %}
       {{state_variable_name}}[i] += s_val[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
@@ -1675,7 +1675,7 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}
       {%- for convolution, convolution_info in receptor_info["convolutions"].items() %}
       {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
       {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i") }};
-          {%- if convolution_info["spikes"]["name"] == "self_spikes" %}
+          {%- if convolution_info["spikes"]["name"] == self_spikes_name %}
       {{state_variable_name}}[i] += self_spikes[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
           {%- else %}
       {{state_variable_name}}[i] += s_val[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};

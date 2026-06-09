@@ -225,6 +225,7 @@ class SynapseProcessing:
         """
         Collect internals, kernels, inputs and convolutions associated with the synapse.
         """
+        from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
         syn_info["convolutions"] = defaultdict()
         info_collector = ASTKernelInformationCollectorVisitor()
         synapse.accept(info_collector)
@@ -241,7 +242,11 @@ class SynapseProcessing:
             for kernel_var, spikes_var in kernel_arg_pairs:
                 kernel_name = kernel_var.get_name()
                 spikes_name = spikes_var.get_name()
-                if spikes_name != "self_spikes":
+                if "self_spikes_port" in FrontendConfiguration.get_codegen_opts().keys():
+                    self_spikes_port_name = FrontendConfiguration.get_codegen_opts()["self_spikes_port"]
+                else:
+                    self_spikes_port_name = NESTCompartmentalCodeGenerator._default_options["self_spikes_port"]
+                if spikes_name != self_spikes_port_name:
                     convolution_name = info_collector.construct_kernel_X_spike_buf_name(
                         kernel_name, spikes_name, 0)
                     syn_info["convolutions"][convolution_name] = {
