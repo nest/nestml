@@ -165,15 +165,37 @@ Above examples of explicit interdependence inbetween concentration and channel m
 General compartment scripting
 -----------------------------
 
-Update block
-~~~~~~~~~~~~
+Script blocks
+~~~~~~~~~~~~~
 
-Even though the intended focus of the compartmental feature is the usage of the above mechanisms whose influence on the compartment and overall neurons is implicit, it is still possible to use the ``update`` block. The ``update`` block does not control the overall behaviour of the neuron but its computation may support the behaviour of mechanisms within a compartment. All states occuring inside of the ``update`` block or within the called functions and inlines etc. become part of a general computation block that is always executed once for each compartment. These states may be used by the mechanisms. The ODEs owned by the update block are still integrated automatically and ``integrate_odes()`` shall not be used in this context.
+Even though the intended focus of the compartmental feature is the usage of the above mechanisms whose influence on the compartment and overall neurons is implicit, it is still possible to use the ``update`` block. Statements in the ``update`` block are rearranged so they are associated with specific mechanisms. We also introduce a new special case of the ``onReceive`` block with an input port that is unique to the compartmental code generator, by default called ``self_spikes`` (this can be set in the code generator option ``self_spikes_input_port_name``), which contains statements that are executed if the neuron has emitted a (somatic) action potential in the last timestep. We deem ``onReceive()`` blocks for all other input ports not sensible as the ports the modeler defines in NESTML compartmental do not map one to one to an actual port that the neuron instance will have in the simulation (instead, they are ports of which there will be a multitude, depending on how many receptors and/or synapses associated with this NESTML port will be attached to the neuron).
 
-onReceive(self_spikes)
-~~~~~~~~~~~~~~~~~~~~~~
+Together, the ``update`` block and the ``onReceive(self_spikes)`` block are referred to as "script blocks".
 
-We also introduce a new special case of the ``onReceive`` block with an input port that is unique to the compartmental code generator, by default called ``self_spikes`` (this can be set in the code generator option ``self_spikes_input_port_name``), which contains statements that are executed if the neuron has emitted a (somatic) action potential in the last timestep.
+For example, say we have the following inline expressions in our ``equations`` block:
+
+.. code::
+
+   inline refr real = G_refr * is_refr * (V_reset - v_comp)    @mechanism::channel
+   inline adapt pA = -g_adapt * w    @mechanism::channel
+
+Given the following example ``onReceive()`` block, the toolchain will automatically detect that the first two statements are relevant for the ``refr`` mechanism, and generate code for them only inside this mechanism; and detect that the last statement is relevant only for the ``adapt`` mechanism, and generate code for it only inside this mechanism.
+
+.. code::
+
+   onReceive(self_spikes):
+       is_refr = 1
+       refr_t = refr_period
+       w += b
+
+Likewise, statements in the ``update`` block do not control the overall behaviour of the neuron, but its computation may support the behaviour of individual mechanisms. The use of ``integrate_odes()`` in the update block will be ignored and this function should not be called anywhere in the model; all ODEs are integrated automatically by the mechanisms that own them.
+
+Technical background
+~~~~~~~~~~~~~~~~~~~~
+
+As a core design principle of our compartmental feature, the modularity of mechanisms requires that we tailor our interpretation of the code the modeller formulates in the update and ``onReceive(self_spikes)`` blocks accordingly. Specifically, this means that the variables used in one mechanism must not be influenced by the original variables of another mechanism. We define an original variable as any variable that would be associated with a mechanism outside a script block, as we have collected variables for each mechanism so far. This original ownership has been and will remain exclusive. This does not mean, though, that no variables may be shared in the scripted behaviour of two mechanisms in the ``update`` block. For instance, two variables of two different mechanisms may have some value assigned to them under the same if-condition as long as the condition does not contain a variable which is original to or whose state has previously been influenced by an original variable of any mechanism. A variable that is not original to a mechanism but is assigned a value depending on an original or other owned variable is owned by a mechanism. A variable may not be owned by more than one mechanism, but may be used by multiple mechanisms.
+
+With this rule, we can guarantee that during code generation, we can extract separate, independent code blocks for each mechanism that contain only the relevant computation, without worrying about interactions. If the modeller wants interaction between two mechanisms, there are two options. In the case of slow coupling dynamics, the concentration mechanism should be used, and in the case of potentially fast dynamics or in this new case of scripted interactions, the two mechanisms should be implemented as one.
 
 Applications
 ~~~~~~~~~~~~
