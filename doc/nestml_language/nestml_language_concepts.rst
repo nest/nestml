@@ -462,6 +462,9 @@ The following functions are predefined in NESTML and can be used out of the box.
    * - ``clip``
      - x, y, z
      - Returns x if it is in [y, z], y if x < y and z if x > z. All parameter types should be the same and equal to the return type.
+   * - ``Heaviside``
+     - x
+     - Returns 0 for x < 0, 1/2 for x == 0, 1 for x > 0.
    * - ``exp``
      - x
      - Returns the exponential of x. The type of x and the return type are Real.

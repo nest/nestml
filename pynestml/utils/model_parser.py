@@ -85,7 +85,7 @@ class ModelParser:
         Parses a handed over model and returns the meta_model representation of it.
         :param file_path: the path to the file which shall be parsed.
         :type file_path: str
-        :return: a new ASTNESTMLCompilationUnit object.
+        :return: a new ASTCompilationUnit object.
         :rtype: ASTCompilationUnit
         """
         try:
