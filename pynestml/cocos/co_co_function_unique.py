@@ -46,7 +46,7 @@ class CoCoFunctionUnique(CoCo):
     def check_co_co(cls, node: ASTNode, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
         """
         Checks if each function is defined uniquely.
-        :param node: a single neuron
+        :param node: a single model instance
         """
         assert isinstance(node, ASTModel), "This coco can only be called on ASTModels!"
 

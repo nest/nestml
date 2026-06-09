@@ -56,9 +56,6 @@ class CoCoVCompExists(CoCo):
 
         from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
 
-        if not isinstance(node, ASTModel):
-            return
-
         enforced_variable_name = NESTCompartmentalCodeGenerator._default_options["compartmental_variable_name"]
 
         state_blocks = node.get_state_blocks()
