@@ -700,6 +700,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         namespace["vector_printer"] = vector_printer
 
+        namespace["self_spikes_name"] = self.get_option("self_spikes_port")
+
         # NESTML syntax keywords
         namespace["PyNestMLLexer"] = {}
         from pynestml.generated.PyNestMLLexer import PyNestMLLexer
