@@ -39,7 +39,6 @@ from odetoolbox import analysis
 from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
 
 import pynestml
-from pynestml.cocos.co_co_plan import CoCoPlan
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
@@ -353,12 +352,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         Analyse and transform a single synapse.
         :param synapse: a single synapse.
         """
-        """
-        equations_block = synapse.get_equations_blocks()[0]
-        ASTUtils.replace_convolve_calls_with_buffers_(synapse, equations_block)
-        ASTUtils.add_timestep_symbol(synapse)
-        self.update_symbol_table(synapse, coco_plan=CoCoPlan())
-        """
 
         code, message = Messages.get_start_processing_model(synapse.get_name())
         Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
@@ -390,10 +383,10 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             ASTUtils.create_initial_values_for_kernels(synapse, [analytic_solver, numeric_solver], kernels)
             ASTUtils.create_integrate_odes_combinations(synapse)
             ASTUtils.replace_variable_names_in_expressions(synapse, [analytic_solver, numeric_solver])
-            self.update_symbol_table(synapse, coco_plan=CoCoPlan())
+            self.update_symbol_table(synapse)
 
         else:
-            self.update_symbol_table(synapse, coco_plan=CoCoPlan())
+            self.update_symbol_table(synapse)
 
         synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"),
                                              FrontendConfiguration.suffix)
@@ -862,17 +855,14 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         return namespace
 
-    def update_symbol_table(self, neuron, coco_plan: Optional[CoCoPlan] = None):
+    def update_symbol_table(self, neuron):
         """
         Update symbol table and scope.
         """
-        if coco_plan is None:
-            coco_plan = CoCoPlan(run_compartmental_neuron_cocos=True, require_integrate_odes_call=False)
-
         SymbolTable.delete_model_scope(neuron.get_name())
         symbol_table_visitor = ASTSymbolTableVisitor()
         neuron.accept(symbol_table_visitor)
-        CoCosManager.check_cocos(neuron, after_ast_rewrite=True, coco_plan=coco_plan)
+        CoCosManager.check_cocos(neuron, after_ast_rewrite=True)
         SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
 
     def _get_ast_variable(self, neuron, var_name) -> Optional[ASTVariable]:
