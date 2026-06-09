@@ -24,7 +24,6 @@ from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 import os
 import sys
 
-from pynestml.cocos.co_co_plan import CoCoPlan
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.builder import Builder
 from pynestml.codegeneration.code_generator import CodeGenerator
@@ -49,20 +48,6 @@ def get_known_targets():
                "NEST_DESKTOP", "GeNN", "nest_gpu", "none"]
     targets = [s.upper() for s in targets]
     return targets
-
-
-def cocos_from_target_name(target_name: str) -> CoCoPlan:
-    r"""Static factory method that returns the CoCo validation plan for a target."""
-    assert target_name.upper() in get_known_targets(
-    ), "Unknown target platform requested: \"" + str(target_name) + "\""
-
-    if target_name.upper() == "NEST_COMPARTMENTAL":
-        return CoCoPlan(
-            run_compartmental_neuron_cocos=True,
-            require_integrate_odes_call=False,
-        )
-
-    return CoCoPlan()
 
 
 def transformers_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Tuple[Sequence[Transformer], Dict[str, Any]]:
