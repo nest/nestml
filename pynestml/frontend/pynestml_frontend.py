@@ -606,7 +606,6 @@ def process() -> bool:
     # initialise model transformers
     transformers, unused_opts_transformer = transformers_from_target_name(FrontendConfiguration.get_target_platform(),
                                                                           options=FrontendConfiguration.get_codegen_opts())
-    coco_plan = cocos_from_target_name(FrontendConfiguration.get_target_platform())
 
     # initialise code generator
     code_generator = code_generator_from_target_name(FrontendConfiguration.get_target_platform())
@@ -634,9 +633,8 @@ def process() -> bool:
                 for synapse_name in pair["synapses"].keys()
             )
 
-        model_coco_plan = coco_plan.for_model(is_synapse_model=is_synapse_model)
         if not Logger.has_errors(model):
-            CoCosManager.check_cocos(model, coco_plan=model_coco_plan)
+            CoCosManager.check_cocos(model)
 
         if Logger.has_errors(model):
             code, message = Messages.get_model_contains_errors(model.get_name())

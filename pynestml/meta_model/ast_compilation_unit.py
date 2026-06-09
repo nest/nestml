@@ -57,14 +57,14 @@ class ASTCompilationUnit(ASTNode):
         """
         model_list_dup = [neuron.clone() for neuron in self.model_list]
         dup = ASTCompilationUnit(artifact_name=self.artifact_name,
-                                       model_list=model_list_dup,
-                                       # ASTNode common attributes:
-                                       source_position=self.source_position,
-                                       scope=self.scope,
-                                       comment=self.comment,
-                                       pre_comments=[s for s in self.pre_comments],
-                                       in_comment=self.in_comment,
-                                       implicit_conversion_factor=self.implicit_conversion_factor)
+                                 model_list=model_list_dup,
+                                 # ASTNode common attributes:
+                                 source_position=self.source_position,
+                                 scope=self.scope,
+                                 comment=self.comment,
+                                 pre_comments=[s for s in self.pre_comments],
+                                 in_comment=self.in_comment,
+                                 implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 
