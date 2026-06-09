@@ -317,75 +317,9 @@ class SynapseProcessing:
                           parameters_block: ASTBlockWithVariables,
                           kernel_buffer):
         kernel_buffers = {tuple(kernel_buffer)}
-        odetoolbox_indict = cls.transform_ode_and_kernels_to_json(
-            neuron, parameters_block, kernel_buffers)
+        odetoolbox_indict = ASTUtils.transform_ode_and_kernels_to_json(neuron, [parameters_block], kernel_buffers, printer=cls._ode_toolbox_printer)
         odetoolbox_indict["options"] = {}
         odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
-        return odetoolbox_indict
-
-    @classmethod
-    def transform_ode_and_kernels_to_json(
-            cls,
-            neuron: ASTModel,
-            parameters_block,
-            kernel_buffers):
-        """
-        Converts AST node to a JSON representation suitable for passing to ode-toolbox.
-
-        Each kernel has to be generated for each spike buffer convolve in which it occurs, e.g. if the NESTML model code contains the statements
-
-            convolve(G, ex_spikes)
-            convolve(G, in_spikes)
-
-        then `kernel_buffers` will contain the pairs `(G, ex_spikes)` and `(G, in_spikes)`, from which two ODEs will be generated, with dynamical state (variable) names `G__X__ex_spikes` and `G__X__in_spikes`.
-
-        :param parameters_block: ASTBlockWithVariables
-        :return: Dict
-        """
-        odetoolbox_indict = {"dynamics": []}
-
-        equations_block = neuron.get_equations_blocks()[0]
-
-        for kernel, spike_input_port in kernel_buffers:
-            if ASTUtils.is_delta_kernel(kernel):
-                continue
-            # delta function -- skip passing this to ode-toolbox
-
-            for kernel_var in kernel.get_variables():
-                expr = ASTUtils.get_expr_from_kernel_var(
-                    kernel, kernel_var.get_complete_name())
-                kernel_order = kernel_var.get_differential_order()
-                kernel_X_spike_buf_name_ticks = ASTUtils.construct_kernel_X_spike_buf_name(
-                    kernel_var.get_name(), spike_input_port.get_name(), kernel_order, diff_order_symbol="'")
-
-                ASTUtils.replace_rhs_variables(expr, kernel_buffers)
-
-                entry = {"expression": kernel_X_spike_buf_name_ticks + " = " + str(expr), "initial_values": {}}
-
-                # initial values need to be declared for order 1 up to kernel
-                # order (e.g. none for kernel function f(t) = ...; 1 for kernel
-                # ODE f'(t) = ...; 2 for f''(t) = ... and so on)
-                for order in range(kernel_order):
-                    iv_sym_name_ode_toolbox = ASTUtils.construct_kernel_X_spike_buf_name(
-                        kernel_var.get_name(), spike_input_port, order, diff_order_symbol="'")
-                    symbol_name_ = kernel_var.get_name() + "'" * order
-                    symbol = equations_block.get_scope().resolve_to_symbol(
-                        symbol_name_, SymbolKind.VARIABLE)
-                    assert symbol is not None, "Could not find initial value for variable " + symbol_name_
-                    initial_value_expr = symbol.get_declaring_expression()
-                    assert initial_value_expr is not None, "No initial value found for variable name " + symbol_name_
-                    entry["initial_values"][iv_sym_name_ode_toolbox] = cls._ode_toolbox_printer.print(
-                        initial_value_expr)
-
-                odetoolbox_indict["dynamics"].append(entry)
-
-        odetoolbox_indict["parameters"] = {}
-        if parameters_block is not None:
-            for decl in parameters_block.get_declarations():
-                for var in decl.variables:
-                    odetoolbox_indict["parameters"][var.get_complete_name(
-                    )] = cls._ode_toolbox_printer.print(decl.get_expression())
-
         return odetoolbox_indict
 
     @classmethod

@@ -118,13 +118,10 @@ class GlobalProcessing:
     @classmethod
     def get_global_info(cls, neuron):
         """
-        returns previously generated global_info
-        as a deep copy so it can't be changed externally
-        via object references
+        Returns previously generated global_info directly so it can be changed externally.
         :param neuron: a single neuron instance.
         """
-        return cls.global_info[
-            neuron.get_name()]  # return direct refenrence with no copy due to intended external manipulation
+        return cls.global_info[neuron.get_name()]  # return direct reference with no copy due to intended external manipulation
 
     @classmethod
     def check_co_co(cls, neuron: ASTModel):
