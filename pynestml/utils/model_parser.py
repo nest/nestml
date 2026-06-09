@@ -51,7 +51,7 @@ from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
-from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
+from pynestml.meta_model.ast_compilation_unit import ASTCompilationUnit
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
@@ -86,7 +86,7 @@ class ModelParser:
         :param file_path: the path to the file which shall be parsed.
         :type file_path: str
         :return: a new ASTNESTMLCompilationUnit object.
-        :rtype: ASTNestMLCompilationUnit
+        :rtype: ASTCompilationUnit
         """
         try:
             input_file = FileStream(file_path, encoding="utf-8")
@@ -341,7 +341,7 @@ class ModelParser:
 
     @classmethod
     def parse_nestml_compilation_unit(cls, string):
-        # type: (str) -> ASTNestMLCompilationUnit
+        # type: (str) -> ASTCompilationUnit
         (builder, parser) = tokenize(string)
         ret = builder.visit(parser.nestMLCompilationUnit())
         ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))

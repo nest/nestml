@@ -1011,8 +1011,7 @@ class Messages:
     def get_v_comp_variable_value_missing(cls, neuron_name: str, missing_variable_name) -> Tuple[MessageCode, str]:
         message = "Missing state variable \"" + missing_variable_name
         message += "\" inside of neuron \"" + neuron_name + "\". "
-        message += "You have passed NEST_COMPARTMENTAL flag to the generator, thereby activating compartmental mode."
-        message += "In this mode, such variable must be declared in the state block.\n"
+        message += "When generating code for the NEST compartmental platform, such variable must be declared in the state block.\n"
         message += "This variable represents the dynamically calculated value of membrane potential "
         message += "and should be utilized in your equations for voltage activated ion channels."
         return MessageCode.CM_NO_V_COMP, message

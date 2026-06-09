@@ -83,7 +83,7 @@ class ASTUtils:
         For a list of compilation units, it returns a list containing all neurons defined in all compilation
         units.
         :param list_of_compilation_units: a list of compilation units.
-        :type list_of_compilation_units: list(ASTNestMLCompilationUnit)
+        :type list_of_compilation_units: list(ASTCompilationUnit)
         :return: a list of neurons
         :rtype: list(ASTModel)
         """
@@ -98,7 +98,7 @@ class ASTUtils:
         For a list of compilation units, it returns a list containing all nodes defined in all compilation
         units.
         :param list_of_compilation_units: a list of compilation units.
-        :type list_of_compilation_units: list(ASTNestMLCompilationUnit)
+        :type list_of_compilation_units: list(ASTCompilationUnit)
         :return: a list of nodes
         :rtype: list(ASTNode)
         """

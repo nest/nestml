@@ -76,14 +76,18 @@ class ReceptorProcessing(MechanismProcessing):
             cls,
             syns_info: dict):
         new_syns_info = copy.copy(syns_info)
-
+        from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
         # collect all buffers used
         for synapse_name, synapse_info in syns_info.items():
             new_syns_info[synapse_name]["buffers_used"] = set()
             for convolution_name, convolution_info in synapse_info["convolutions"].items(
             ):
                 input_name = convolution_info["spikes"]["name"]
-                if input_name != "self_spikes":
+                if "self_spikes_port" in FrontendConfiguration.get_codegen_opts().keys():
+                    self_spikes_port_name = FrontendConfiguration.get_codegen_opts()["self_spikes_port"]
+                else:
+                    self_spikes_port_name = NESTCompartmentalCodeGenerator._default_options["self_spikes_port"]
+                if input_name != self_spikes_port_name:
                     new_syns_info[synapse_name]["buffers_used"].add(input_name)
 
         # now make sure each synapse is using exactly one buffer except self_spikes

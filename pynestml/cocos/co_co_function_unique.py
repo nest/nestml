@@ -19,8 +19,18 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Any, Dict, Optional
+
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
+
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
@@ -32,13 +42,16 @@ class CoCoFunctionUnique(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, model: ASTModel):
+    @override
+    def check_co_co(cls, node: ASTNode, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
         """
         Checks if each function is defined uniquely.
         :param node: a single neuron
         """
+        assert isinstance(node, ASTModel), "This coco can only be called on ASTModels!"
+
         checked_funcs_names = list()
-        for func in model.get_functions():
+        for func in node.get_functions():
             if func.get_name() not in checked_funcs_names:
                 symbols = func.get_scope().resolve_to_all_symbols(func.get_name(), SymbolKind.FUNCTION)
                 if isinstance(symbols, list) and len(symbols) > 1:

@@ -19,31 +19,34 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from collections import defaultdict
+from typing import Any, Dict, Optional
 
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
+
+from collections import defaultdict
 import copy
 
-from pynestml.utils.logger import Logger, LoggingLevel
-
-from pynestml.utils.messages import Messages
-
-from pynestml.frontend.frontend_configuration import FrontendConfiguration
-
-from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
-
-from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
-
 from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
 from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
 from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
+from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.utils.ast_mechanism_information_collector import ASTMechanismInformationCollector
 from pynestml.utils.ast_utils import ASTUtils
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.messages import Messages
 
 from odetoolbox import analysis
 
@@ -286,11 +289,13 @@ class MechanismProcessing:
         return copy.deepcopy(cls.mechs_info[neuron][cls.mechType])
 
     @classmethod
-    def check_co_co(cls, neuron: ASTModel, global_info):
+    def check_co_co(cls, neuron: ASTModel, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
         """
         Checks if mechanism conditions apply for the handed over neuron.
         :param neuron: a single neuron instance.
         """
+        assert metadata, "This coco needs metadata for the neuron model!"
+        global_info = metadata[neuron.name]
 
         # make sure we only run this a single time
         # subsequent calls will be after AST has been transformed
@@ -330,9 +335,14 @@ class MechanismProcessing:
 
     @classmethod
     def check_all_convolutions_with_self_spikes(cls, mechs_info):
+        from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
         for mechanism_name, mechanism_info in mechs_info.items():
             for convolution_name, convolution in mechanism_info["convolutions"].items():
-                if convolution["spikes"]["name"] != "self_spikes":
+                if "self_spikes_port" in FrontendConfiguration.get_codegen_opts().keys():
+                    self_spikes_port_name = FrontendConfiguration.get_codegen_opts()["self_spikes_port"]
+                else:
+                    self_spikes_port_name = NESTCompartmentalCodeGenerator._default_options["self_spikes_port"]
+                if convolution["spikes"]["name"] != self_spikes_port_name:
                     code, message = Messages.cm_non_self_spike_convolution_in_mech(mechanism_name, cls.mechType)
                     Logger.log_message(error_position=None,
                                        code=code, message=message,

@@ -18,14 +18,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+from collections import defaultdict
 import copy
-
 import sympy
-from pynestml.cocos.co_co_plan import CoCoPlan
+
 from pynestml.cocos.co_cos_manager import CoCosManager
-
-from pynestml.symbol_table.symbol_table import SymbolTable
-
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_model import ASTModel
@@ -34,10 +32,9 @@ from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.utils.model_parser import ModelParser
+from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
-
-from collections import defaultdict
 
 
 class SynsInfoEnricher:
@@ -102,7 +99,7 @@ class SynsInfoEnricher:
         SymbolTable.delete_model_scope(neuron.get_name())
         symbol_table_visitor = ASTSymbolTableVisitor()
         neuron.accept(symbol_table_visitor)
-        CoCosManager.check_cocos(neuron, after_ast_rewrite=True, coco_plan=CoCoPlan())
+        CoCosManager.check_cocos(neuron, after_ast_rewrite=True)
         SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
 
     @classmethod

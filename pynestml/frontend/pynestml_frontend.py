@@ -24,7 +24,6 @@ from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 import os
 import sys
 
-from pynestml.cocos.co_co_plan import CoCoPlan
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.builder import Builder
 from pynestml.codegeneration.code_generator import CodeGenerator
@@ -49,20 +48,6 @@ def get_known_targets():
                "NEST_DESKTOP", "GeNN", "nest_gpu", "none"]
     targets = [s.upper() for s in targets]
     return targets
-
-
-def cocos_from_target_name(target_name: str) -> CoCoPlan:
-    r"""Static factory method that returns the CoCo validation plan for a target."""
-    assert target_name.upper() in get_known_targets(
-    ), "Unknown target platform requested: \"" + str(target_name) + "\""
-
-    if target_name.upper() == "NEST_COMPARTMENTAL":
-        return CoCoPlan(
-            run_compartmental_neuron_cocos=True,
-            require_integrate_odes_call=False,
-        )
-
-    return CoCoPlan()
 
 
 def transformers_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Tuple[Sequence[Transformer], Dict[str, Any]]:
@@ -627,12 +612,10 @@ def process() -> bool:
     # initialise model transformers
     transformers, unused_opts_transformer = transformers_from_target_name(FrontendConfiguration.get_target_platform(),
                                                                           options=FrontendConfiguration.get_codegen_opts())
-    coco_plan = cocos_from_target_name(FrontendConfiguration.get_target_platform())
 
     # initialise code generator
     code_generator = code_generator_from_target_name(FrontendConfiguration.get_target_platform())
     unused_opts_codegen = code_generator.set_options(FrontendConfiguration.get_codegen_opts())
-
     # initialise builder
     _builder, unused_opts_builder = builder_from_target_name(FrontendConfiguration.get_target_platform(),
                                                              options=FrontendConfiguration.get_codegen_opts())
@@ -655,9 +638,8 @@ def process() -> bool:
                 for synapse_name in pair["synapses"].keys()
             )
 
-        model_coco_plan = coco_plan.for_model(is_synapse_model=is_synapse_model)
         if not Logger.has_errors(model):
-            CoCosManager.check_cocos(model, coco_plan=model_coco_plan)
+            CoCosManager.check_cocos(model)
 
         if Logger.has_errors(model):
             code, message = Messages.get_model_contains_errors(model.get_name())
