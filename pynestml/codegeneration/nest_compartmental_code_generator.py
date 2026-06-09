@@ -596,6 +596,23 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["nestml_printer"] = NESTMLPrinter()
         namespace["type_symbol_printer"] = self._type_symbol_printer
 
+        class VectorPrinter():
+            def __init__(self, neuron, printer):
+                self.printer = ASTVectorParameterSetterAndPrinterFactory(neuron, printer)
+                self.std_vector_parameter = None
+
+            def set_std_vector_parameter(self, index):
+                self.std_vector_parameter = index
+
+            def print(self, expression, index="i"):
+                index_printer = self.printer.create_ast_vector_parameter_setter_and_printer(index)
+                return index_printer.print(expression)
+
+        vector_printer = VectorPrinter(neuron, self._printer_no_origin)
+        vector_printer.set_std_vector_parameter("i")
+
+        namespace["vector_printer"] = vector_printer
+
         # NESTML syntax keywords
         namespace["PyNestMLLexer"] = {}
         from pynestml.generated.PyNestMLLexer import PyNestMLLexer
