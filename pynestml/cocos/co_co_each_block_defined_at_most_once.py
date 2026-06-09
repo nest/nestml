@@ -55,7 +55,7 @@ class CoCoEachBlockDefinedAtMostOnce(CoCo):
     def check_co_co(cls, node: ASTNode, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
         """
         Checks whether each block is define at most once.
-        :param node: a single neuron or synapse.
+        :param node: a single model instance.
         """
         assert isinstance(node, ASTModel), "This coco can only be called on ASTModels!"
 

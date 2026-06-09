@@ -46,7 +46,7 @@ class CoCoResolutionOrStepsFuncUsed(CoCo):
     def check_co_co(cls, node: ASTNode, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
         """
         Checks the coco.
-        :param node: a single neuron
+        :param node: a single model instance
         """
         class CoCoResolutionOrStepsFuncUsedVisitor(ASTVisitor):
             def visit_simple_expression(self, node):

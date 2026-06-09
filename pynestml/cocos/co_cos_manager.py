@@ -97,19 +97,19 @@ class CoCosManager:
         CoCoInlineExpressionNotAssignedTo.check_co_co(model)
 
     @classmethod
-    def check_each_block_defined_at_most_once(cls, node: ASTModel):
+    def check_each_block_defined_at_most_once(cls, model: ASTModel):
         """
         Checks if in the handed over model, each block is defined at most once and mandatory blocks are defined.
-        :param node: a single model instance
+        :param model: a single model instance
         """
-        CoCoEachBlockDefinedAtMostOnce.check_co_co(node)
+        CoCoEachBlockDefinedAtMostOnce.check_co_co(model)
 
     @classmethod
     def check_function_declared_and_correctly_typed(cls, model: ASTModel):
         """
         Checks if in the handed over model all function calls use existing functions and the arguments are
         correctly typed.
-        :param node: a single model instance
+        :param model: a single model instance
         """
         CoCoFunctionCallsConsistent.check_co_co(model)
 
@@ -117,7 +117,7 @@ class CoCosManager:
     def check_variables_unique_in_scope(cls, model: ASTModel):
         """
         Checks that all variables have been declared at most once per scope.
-        :param node: a single model instance
+        :param model: a single model instance
         """
         CoCoVariableOncePerScope.check_co_co(model)
 
@@ -125,7 +125,7 @@ class CoCosManager:
     def check_state_variables_initialized(cls, model: ASTModel):
         """
         Checks if all the variables declared in state block are initialized with a value
-        :param node: a single model instance
+        :param model: a single model instance
         """
         CoCoStateVariablesInitialized.check_co_co(model)
 
@@ -133,7 +133,7 @@ class CoCosManager:
     def check_variables_defined_before_usage(cls, model: ASTModel) -> None:
         """
         Checks that all variables are defined before being used.
-        :param node: a single model.
+        :param model: a single model.
         """
         CoCoAllVariablesDefined.check_co_co(model)
 
@@ -159,7 +159,7 @@ class CoCosManager:
     def check_inline_expressions_have_rhs(cls, model: ASTModel):
         """
         Checks that all inline expressions have a right-hand side.
-        :param node: a single model object
+        :param model: a single model object
         """
         CoCoInlineExpressionsHaveRhs.check_co_co(model)
 
@@ -167,7 +167,7 @@ class CoCosManager:
     def check_inline_has_max_one_lhs(cls, model: ASTModel):
         """
         Checks that all inline expressions have exactly one left-hand side.
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoInlineMaxOneLhs.check_co_co(model)
 
@@ -175,7 +175,7 @@ class CoCosManager:
     def check_input_ports_not_assigned_to(cls, model: ASTModel):
         """
         Checks that no values are assigned to input ports.
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoInputPortNotAssignedTo.check_co_co(model)
 
@@ -183,7 +183,7 @@ class CoCosManager:
     def check_order_of_equations_correct(cls, model: ASTModel):
         """
         Checks that all equations specify the order of the variable.
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoCorrectOrderInEquation.check_co_co(model)
 
@@ -191,7 +191,7 @@ class CoCosManager:
     def check_numerator_of_unit_is_one_if_numeric(cls, model: ASTModel):
         """
         Checks that all units which have a numeric numerator use 1.
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoCorrectNumeratorOfUnit.check_co_co(model)
 
@@ -207,7 +207,7 @@ class CoCosManager:
     def check_no_nest_namespace_collisions(cls, model: ASTModel):
         """
         Checks that all units which have a numeric numerator use 1.
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoNoNestNameSpaceCollision.check_co_co(model)
 
@@ -215,7 +215,7 @@ class CoCosManager:
     def check_input_port_qualifier_unique(cls, model: ASTModel):
         """
         Checks that no spiking input ports are defined with redundant qualifiers.
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoInputPortQualifierUnique.check_co_co(model)
 
@@ -230,7 +230,7 @@ class CoCosManager:
     def check_parameters_not_assigned_outside_parameters_block(cls, model: ASTModel):
         """
         Checks that parameters are not assigned outside the parameters block.
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoParametersAssignedOnlyInParameterBlock.check_co_co(model)
 
@@ -238,7 +238,7 @@ class CoCosManager:
     def check_internals_not_assigned_outside_internals_block(cls, model: ASTModel):
         """
         Checks that internals are not assigned outside the internals block.
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoInternalsAssignedOnlyInInternalsBlock.check_co_co(model)
 
@@ -246,7 +246,7 @@ class CoCosManager:
     def check_output_port_defined_if_emit_call(cls, model: ASTModel):
         """
         Checks that if emit_spike() function is called, an spiking output port is defined.
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoOutputPortDefinedIfEmitCall.check_co_co(model)
 
@@ -254,7 +254,7 @@ class CoCosManager:
     def check_odes_have_consistent_units(cls, model: ASTModel):
         """
         Checks that all ODE lhs and rhs have consistent units.
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoOdesHaveConsistentUnits.check_co_co(model)
 
@@ -262,7 +262,7 @@ class CoCosManager:
     def check_ode_functions_have_consistent_units(cls, model: ASTModel):
         """
         Checks that all ODE function lhs and rhs have consistent units.
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoOdeFunctionsHaveConsistentUnits.check_co_co(model)
 
@@ -278,7 +278,7 @@ class CoCosManager:
         """
         Checks that all user defined functions are correctly constructed, i.e., have a return statement if declared
         and that the type corresponds to the declared one.
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoUserDefinedFunctionCorrectlyDefined.check_co_co(model)
 
@@ -286,7 +286,7 @@ class CoCosManager:
     def check_initial_ode_initial_values(cls, model: ASTModel):
         """
         Checks if variables of odes are declared in the state block.
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoEquationsOnlyForInitValues.check_co_co(model)
 
@@ -294,7 +294,7 @@ class CoCosManager:
     def check_convolve_cond_curr_is_correct(cls, model: ASTModel):
         """
         Checks if all convolve rhs are correctly provided with arguments.
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoConvolveCondCorrectlyBuilt.check_co_co(model)
 
@@ -302,7 +302,7 @@ class CoCosManager:
     def check_integrate_odes_params_correct(cls, model: ASTModel):
         """
         Checks if all integrate_odes() calls have correct parameters.
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoIntegrateODEsParamsCorrect.check_co_co(model)
 
@@ -310,7 +310,7 @@ class CoCosManager:
     def check_correct_usage_of_kernels(cls, model: ASTModel):
         """
         Checks if all kernels are only used in convolve.
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoNoKernelsExceptInConvolve.check_co_co(model)
 
@@ -337,7 +337,7 @@ class CoCosManager:
     def check_invariant_type_correct(cls, model: ASTModel):
         """
         Checks if all invariants are of type boolean.
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoInvariantIsBoolean.check_co_co(model)
 
@@ -345,7 +345,7 @@ class CoCosManager:
     def check_resolution_func_used(cls, model: ASTModel):
         """
         Checks if all invariants are of type boolean.
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoResolutionOrStepsFuncUsed.check_co_co(model)
 
@@ -353,7 +353,7 @@ class CoCosManager:
     def check_vector_in_non_vector_declaration_detected(cls, model: ASTModel):
         """
         Checks if no declaration a vector value is added to a non vector one.
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoVectorVariableInNonVectorDeclaration.check_co_co(model)
 
@@ -361,7 +361,7 @@ class CoCosManager:
     def check_convolve_has_correct_parameter(cls, model: ASTModel):
         """
         Checks that all convolve function calls have variables as arguments.
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoConvolveHasCorrectParameter.check_co_co(model)
 
@@ -369,7 +369,8 @@ class CoCosManager:
     def check_expression_correct(cls, model: ASTModel):
         """
         Checks that all rhs in the model are correctly constructed, e.g. type(lhs)==type(rhs).
-        :param node: a single model instance        """
+        :param model: a single model instance
+        """
         CoCoIllegalExpression.check_co_co(model)
 
     @classmethod
@@ -380,7 +381,7 @@ class CoCosManager:
     def check_function_argument_template_types_consistent(cls, model: ASTModel):
         """
         Checks if no declaration a vector value is added to a non vector one.
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoFunctionArgumentTemplateTypesConsistent.check_co_co(model)
 
@@ -388,7 +389,7 @@ class CoCosManager:
     def check_vector_parameter_declaration(cls, model: ASTModel):
         """
         Checks if the vector parameter is declared in the right block
-        :param node: a single model object
+        :param model: a single model object
         """
         CoCoVectorParameterDeclaredInRightBlock.check_co_co(model)
 
@@ -396,35 +397,35 @@ class CoCosManager:
     def check_vector_declaration_size(cls, model: ASTModel):
         """
         Checks if the vector is declared with a size greater than 0
-        :param node: a single model object
+        :param model: a single model object
         """
         CoCoVectorDeclarationRightSize.check_co_co(model)
 
     @classmethod
     def check_co_co_priorities_correctly_specified(cls, model: ASTModel):
         """
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoPrioritiesCorrectlySpecified.check_co_co(model)
 
     @classmethod
     def check_resolution_func_legally_used(cls, model: ASTModel):
         """
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoResolutionFuncLegallyUsed.check_co_co(model)
 
     @classmethod
     def check_timestep_func_legally_used(cls, model: ASTModel):
         """
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoTimestepFuncLegallyUsed.check_co_co(model)
 
     @classmethod
     def check_input_port_size_type(cls, model: ASTModel):
         """
-        :param node: a single model object
+        :param model: a single model object
         """
         CoCoVectorInputPortsCorrectSizeType.check_co_co(model)
 
@@ -432,7 +433,7 @@ class CoCosManager:
     def check_co_co_nest_random_functions_legally_used(cls, model: ASTModel):
         """
         Checks if the random number functions are used only in the update block.
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoNestRandomFunctionsLegallyUsed.check_co_co(model)
 
@@ -440,7 +441,7 @@ class CoCosManager:
     def check_co_co_emit_spike_function_arguments(cls, model: ASTModel):
         """
         Checks that all calls to the ``emit_spike()`` function contain zero or one parameter.
-        :param node: a single model object.
+        :param model: a single model object.
         """
         CoCoEmitSpikeFunctionArguments.check_co_co(model)
 
@@ -448,7 +449,7 @@ class CoCosManager:
     def check_cocos(cls, model: ASTModel, after_ast_rewrite: bool = False):
         """
         Checks all context conditions.
-        :param node: a single model object.
+        :param model: a single model object.
         """
         Logger.set_current_node(model)
 
