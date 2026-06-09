@@ -22,7 +22,7 @@ Defining the membrane potential variable
 One variable in the model represents the local membrane potential in a compartment. By default, it is called ``v_comp``. (This name is defined in the compartmental code generator options as the ``compartmental_variable_name`` option.) This variable needs to be defined as a state in any compartmental model to be referenced in the equations describing channels and receptors.
 
 .. code-block:: nestml
-    
+
    model <neuron_name>:
        state:
            v_comp real = 0   # rhs value is irrelevant
@@ -34,7 +34,7 @@ Channel description
 Next, define one or more channels. An ion-channel is described in the following way:
 
 .. code-block:: nestml
-    
+
    model <neuron_name>:
         equations:
             inline <current_equation_name> real = \
@@ -48,7 +48,7 @@ The explicit ``@mechanism::<type>`` descriptor has been added which we thought e
 As an example for a HH-type channel:
 
 .. code-block:: nestml
-    
+
    model <neuron_name>:
        parameters:
           gbar_Ca_HVA real = 0.00
@@ -88,7 +88,7 @@ Concentration description
 The concentration-model description looks very similar:
 
 .. code-block:: nestml
-    
+
    model <neuron_name>:
        equations:
            <some_state_variable>' = <ODE right-hand-side for some_state_variable> @mechanism::concentration
@@ -114,7 +114,7 @@ The only difference here is that the equation that is marked with the ``@mechani
 For a complete example, please see `concmech.nestml <https://github.com/nest/nestml/blob/main/tests/nest_compartmental_tests/resources/concmech.nestml>`_ and its associated unit test, `test__concmech_model.py <https://github.com/nest/nestml/blob/main/tests/nest_compartmental_tests/test__concmech_model.py>`_.
 
 Receptor description
--------------------
+--------------------
 
 Here receptor models are based on convolutions over a buffer of incoming spikes. This means that the equation for the
 current-contribution must contain a convolve() call and a description of the kernel used for that convolution is needed.
@@ -164,25 +164,31 @@ Above examples of explicit interdependence inbetween concentration and channel m
 
 General compartment scripting
 -----------------------------
+
 Update block
-~~~~~~~~~~~~~
+~~~~~~~~~~~~
+
 Even though the intended focus of the compartmental feature is the usage of the above mechanisms whose influence on the compartment and overall neurons is implicit, it is still possible to use the ``update`` block. The ``update`` block does not control the overall behaviour of the neuron but its computation may support the behaviour of mechanisms within a compartment. All states occuring inside of the ``update`` block or within the called functions and inlines etc. become part of a general computation block that is always executed once for each compartment. These states may be used by the mechanisms. The ODEs owned by the update block are still integrated automatically and ``integrate_odes()`` shall not be used in this context.
 
 onReceive(self_spikes)
-~~~~~~~~~~~~~~~~~~~~~~~
-We also introduce a new special case of the ``onReceive`` block with the compartmental feature-specific variable ``self_spikes``, which is just a boolean that is true if and only if the neuron has spiked in the last timestep. The code within this block is only executed if the neuron spikes (somatic). Otherwise, the same rules as for the ``update`` block apply.
+~~~~~~~~~~~~~~~~~~~~~~
 
-Application
+We also introduce a new special case of the ``onReceive`` block with an input port that is unique to the compartmental code generator, by default called ``self_spikes`` (this can be set in the code generator option ``self_spikes_input_port_name``), which contains statements that are executed if the neuron has emitted a (somatic) action potential in the last timestep.
+
+Applications
 ~~~~~~~~~~~~
-This feature has been implemented with the implementation of IAF behaviour or backpropagation in mind. For examples see these model files:
-`cm_iaf_psc_exp_dend_neuron.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/cm_iaf_psc_exp_dend_neuron.nestml>`_
+
+This feature has been implemented with the implementation of IAF behaviour or backpropagation in mind. For an example, see this model file: `cm_iaf_psc_exp_dend_neuron.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/cm_iaf_psc_exp_dend_neuron.nestml>`_
 
 Synapses
 --------
-We have also changed the way synapses may interact with the neuron. The background to this is that NESTML STDP-synapse models are always co-generated with the postsynaptic neuron model to communicate certain variables, such as the postsynaptic spike trace. We found this to be insufficient; instead, the synapse models are fully integrated with the receptor mechanisms of the neuron. This enables the user to access any receptor variables and other mechanism values within the synapse model by simply declaring them as states in the synapse model, without requiring further assignments. Another result of this merge is that all ODE equations in the synapse model are implicitly continuously integrated at each timestep, making unnecessary the calls to integrate_odes().
 
-An example of such a model is implemented here:
-`third_factor_stdp_synapse.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/third_factor_stdp_synapse.nestml>`_
+We have also changed the way synapses may interact with the neuron. The background to this is that NESTML STDP-synapse models are always co-generated with the postsynaptic neuron model to communicate certain variables, such as the postsynaptic spike trace. We found this to be insufficient; instead, the synapse models are fully integrated with the receptor mechanisms of the neuron. This enables the user to access any receptor variables and other mechanism values within the synapse model by simply declaring them as states in the synapse model, without requiring further assignments.
+
+Another consequence of this merge is that all ODE equations in the synapse model are implicitly continuously integrated at each timestep, making calls to ``integrate_odes()`` unnecessary.
+
+An example of such a model is implemented here: `third_factor_stdp_synapse.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/third_factor_stdp_synapse.nestml>`_
+
 Technical Notes
 ---------------
 
@@ -193,12 +199,10 @@ Let's say you have an AVX2 SIMD instruction set available, which can fit 4 doubl
 Here is a small benchmark example that shows the performance ratio (y-axis) as the number of compartments per neuron (x-axis) increases.
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/fig/performance_ratio_nonVec_vs_vec_compartmental.png
-   :width: 326px
-   :height: 203px
-   :align: left
-   :target: #
+   :width: 380px
+   :height: 170px
 
-Be aware that we are using the -ffast-math flag when compiling the model by default. This can potentially lead to precision problems and inconsistencies across different systems. If you encounter unexpected results or want to be on the safe side, you can disable this by removing the flag from the CMakeLists.txt, which is part of the generated code. Note, however, that this may inhibit the compiler's ability to vectorize parts of the code in some cases.
+Be aware that we are using the ``-ffast-math`` flag when compiling the model by default. This can potentially lead to precision problems and inconsistencies across different systems. If you encounter unexpected results or want to be on the safe side, you can disable this by removing the flag from the ``CMakeLists.txt``, which is part of the generated code. Note, however, that this may inhibit the compiler's ability to vectorize parts of the code in some cases.
 
 See also
 --------
