@@ -102,7 +102,7 @@ class MechsInfoEnricher:
         neuron.accept(SynsInfoEnricherVisitor())
 
         mechs_info = cls.transform_ode_solutions(neuron, mechs_info)
-        mechs_info = cls.transform_convolutions_analytic_solutions_generall(neuron, mechs_info)
+        mechs_info = cls.transform_convolutions_analytic_solutions_general(neuron, mechs_info)
         mechs_info = cls.enrich_mechanism_specific(neuron, mechs_info)
         return mechs_info
 
@@ -270,7 +270,7 @@ class MechsInfoEnricher:
         return mechs_info
 
     @classmethod
-    def transform_convolutions_analytic_solutions_generall(cls, neuron: ASTModel, cm_mechs_info: dict):
+    def transform_convolutions_analytic_solutions_general(cls, neuron: ASTModel, cm_mechs_info: dict):
         enriched_syns_info = copy.copy(cm_mechs_info)
         for mechanism_name, mechanism_info in cm_mechs_info.items():
             for convolution_name in mechanism_info["convolutions"].keys():

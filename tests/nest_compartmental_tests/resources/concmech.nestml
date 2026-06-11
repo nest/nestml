@@ -1,7 +1,9 @@
-# concmech.nestml - Compartmental active ion-channel implementation with concentration mechanism linking.
+# concmech.nestml - Compartmental active ion-channel implementation with concentration mechanism linking
+# ######################################################################################################
 #
 # Description
 # +++++++++++
+#
 # Example compartmental model featuring receptors, ion-channels and slow-dynamic concentration mechanism linking.
 #
 # Copyright statement

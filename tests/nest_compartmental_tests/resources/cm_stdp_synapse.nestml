@@ -1,5 +1,5 @@
-# cm_stdp_synapse.nestml - CM version Synapse model for spike-timing dependent plasticity
-# #########################################################
+# cm_stdp_synapse - CM version synapse model for spike-timing dependent plasticity
+# ################################################################################
 #
 # Description
 # +++++++++++
@@ -28,8 +28,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
-#
-
 model stdp_synapse:
     state:
         w real = 1.             # Synaptic weight
