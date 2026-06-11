@@ -199,7 +199,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        nest_branch: ["v3.9", "v3.10_rc3", "main"]    # XXX: make "v3.10_rc3" -> "v3.10"
+        nest_branch: ["v3.10", "main"]
       fail-fast: false
     steps:
       - name: Checkout repository contents
