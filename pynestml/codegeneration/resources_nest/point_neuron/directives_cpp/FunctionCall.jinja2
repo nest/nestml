@@ -7,6 +7,8 @@
 {%-     include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
 {%- elif ast.get_name() == PredefinedFunctions.EMIT_SPIKE %}
 {%-     include "directives_cpp/PredefinedFunction_emit_spike.jinja2" %}
+{%- elif ast.get_name() == PredefinedFunctions.SIFT %}
+{%-     include "directives_cpp/PredefinedFunction_sift.jinja2" %}
 {%- else %}
 {#      call to a non-predefined function #}
 {{ printer.print(ast) }};

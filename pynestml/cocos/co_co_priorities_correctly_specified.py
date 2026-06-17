@@ -42,7 +42,7 @@ class CoCoPrioritiesCorrectlySpecified(CoCo):
         priorities = {}   # type: Dict[str, int]
         for on_receive_block in node.get_on_receive_blocks():
             if "priority" in on_receive_block.get_const_parameters():
-                priorities[on_receive_block.get_port_name()] = int(on_receive_block.get_const_parameters()["priority"])
+                priorities[on_receive_block.get_input_port_variable().get_name()] = int(on_receive_block.get_const_parameters()["priority"])
 
         if len(priorities) == 1:
             on_receive_block_name = list(priorities.keys())[0]

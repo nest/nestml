@@ -50,7 +50,6 @@ from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
-from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_model import ASTModel
@@ -348,22 +347,13 @@ class NESTMLPrinter(ModelPrinter):
         if node.has_size_parameter():
             ret += "[" + self.print(node.get_size_parameter()) + "]"
         ret += " <- "
-        if node.has_input_qualifiers():
-            for qual in node.get_input_qualifiers():
-                ret += self.print(qual) + " "
         if node.is_spike():
             ret += "spike"
         else:
+            assert node.is_continuous()
             ret += "continuous"
         ret += print_sl_comment(node.in_comment) + "\n"
         return ret
-
-    def print_input_qualifier(self, node: ASTInputQualifier) -> str:
-        if node.is_inhibitory:
-            return "inhibitory"
-        if node.is_excitatory:
-            return "excitatory"
-        return ""
 
     def print_compilation_unit(self, node: ASTNestMLCompilationUnit) -> str:
         ret = ""
@@ -408,14 +398,6 @@ class NESTMLPrinter(ModelPrinter):
         ret += print_n_spaces(self.indent) + "output:\n"
         ret += print_n_spaces(self.indent + 4)
         ret += "spike" if node.is_spike() else "continuous"
-        if node.get_attributes():
-            ret += "("
-            for i, attr in enumerate(node.get_attributes()):
-                ret += self.print(attr)
-                if i < len(node.get_attributes()) - 1:
-                    ret += ", "
-
-            ret += ")"
         ret += print_sl_comment(node.in_comment)
         ret += "\n"
         return ret
@@ -477,7 +459,7 @@ class NESTMLPrinter(ModelPrinter):
 
     def print_on_receive_block(self, node: ASTOnReceiveBlock) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
-        ret += print_n_spaces(self.indent) + "onReceive(" + node.port_name + "):" + print_sl_comment(node.in_comment) + "\n"
+        ret += print_n_spaces(self.indent) + "onReceive(" + self.print(node.get_input_port_variable()) + "):" + print_sl_comment(node.in_comment) + "\n"
         self.inc_indent()
         ret += self.print(node.get_stmts_body())
         self.dec_indent()

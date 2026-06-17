@@ -87,8 +87,8 @@ model iaf_psc_alpha_neuron:
         unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
 
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:

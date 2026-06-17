@@ -32,7 +32,7 @@ class ASTInputBlock(ASTNode):
     .. code-block:: nestml
 
        input:
-           spike_in <- excitatory spike
+           spike_in <- spike
            current_in pA <- continuous
 
     Attributes:
@@ -77,11 +77,10 @@ class ASTInputBlock(ASTNode):
 
         return dup
 
-    def get_input_ports(self):
+    def get_input_ports(self) -> List[ASTInputPort]:
         """
         Returns the list of input ports.
         :return: a list of input ports
-        :rtype: list(ASTInputPort)
         """
         return self.input_definitions
 

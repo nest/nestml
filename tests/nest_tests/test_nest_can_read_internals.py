@@ -32,7 +32,7 @@ class TestNESTCanReadInternals:
     """Test that NEST can read internal parameters of the neuron and that internals are properly updated when parameters are changed."""
 
     def test_nest_can_read_internals(self):
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "models", "neurons", "aeif_cond_alpha_neuron.nestml")))
+        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "models", "neurons", "iaf_chxk_2008_neuron.nestml")))
         target_path = "target"
         logging_level = "DEBUG"
         module_name = "nestmlmodule"
@@ -47,12 +47,14 @@ class TestNESTCanReadInternals:
         nest.ResetKernel()
         nest.Install("nestmlmodule")
 
-        nrn = nest.Create("aeif_cond_alpha_neuron_nestml")
+        nrn = nest.Create("iaf_chxk_2008_neuron_nestml")
 
-        nrn.tau_syn_exc = 42.
+        nrn.G_ahp = 3.14159
+        nrn.tau_ahp = 42.
         nest.Simulate(100.)
-        np.testing.assert_allclose(nrn.get("PSConInit_E"), np.e / 42.)
+        np.testing.assert_allclose(nrn.get("PSConInit_AHP"), 3.14159 * np.e / 42.)
 
-        nrn.tau_syn_exc = 123.
+        nrn.G_ahp = 2.71828
+        nrn.tau_ahp = 123.
         nest.Simulate(100.)
-        np.testing.assert_allclose(nrn.get("PSConInit_E"), np.e / 123.)
+        np.testing.assert_allclose(nrn.get("PSConInit_AHP"), 2.71828 * np.e / 123.)
