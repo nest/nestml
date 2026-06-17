@@ -1,0 +1,104 @@
+#ifndef _SYNAPSE_ROW_H_
+#define _SYNAPSE_ROW_H_
+
+#include "common/neuron-typedefs.h"
+#include "param_defs.h"
+
+#ifndef SYNAPSE_WEIGHT_BITS
+#define SYNAPSE_WEIGHT_BITS 4
+#endif
+
+#ifndef SYNAPSE_DELAY_BITS
+#define SYNAPSE_DELAY_BITS 3
+
+#endif
+
+#ifndef SYNAPSE_TYPE_BITS
+#define SYNAPSE_TYPE_BITS 1
+#endif
+
+#ifndef SYNAPSE_TYPE_COUNT
+#define SYNAPSE_TYPE_COUNT 2
+#endif
+
+#ifndef SYNAPSE_INDEX_BITS
+#define SYNAPSE_INDEX_BITS 8
+#endif
+
+#define SYNAPSE_TYPE_INDEX_BITS (SYNAPSE_TYPE_BITS + SYNAPSE_INDEX_BITS)
+
+#define SYNAPSE_DELAY_MASK      ((1 << SYNAPSE_DELAY_BITS) - 1)
+#define SYNAPSE_TYPE_MASK       ((1 << SYNAPSE_TYPE_BITS) - 1)
+#define SYNAPSE_INDEX_MASK      ((1 << SYNAPSE_INDEX_BITS) - 1)
+#define SYNAPSE_TYPE_INDEX_MASK ((1 << SYNAPSE_TYPE_INDEX_BITS) - 1)
+
+#ifdef SYNAPSE_WEIGHTS_SIGNED
+typedef __int_t(SYNAPSE_WEIGHT_BITS) weight_t;
+#else
+#ifdef SYNAPSE_WEIGHTS_REAL
+typedef REAL weight_t;
+
+#else
+#ifdef SYNAPSE_WEIGHTS_UINT
+typedef uint32_t weight_t;
+
+#else
+typedef __uint_t(SYNAPSE_WEIGHT_BITS) weight_t;
+#endif
+#endif
+
+#endif
+
+typedef uint16_t control_t;
+
+#define N_SYNAPSE_ROW_HEADER_WORDS 3
+
+static inline size_t synapse_row_plastic_size(address_t row) {
+    return (size_t) row[0];
+}
+
+static inline address_t synapse_row_plastic_region(address_t row) {
+    return ((address_t) (&(row[1])));
+}
+
+static inline address_t synapse_row_fixed_region(address_t row) {
+    return ((address_t) (&(row[synapse_row_plastic_size(row) + 1])));
+}
+
+static inline size_t synapse_row_num_fixed_synapses(address_t fixed) {
+    return ((size_t) (fixed[0]));
+}
+
+static inline size_t synapse_row_num_plastic_controls(address_t fixed) {
+    return ((size_t) (fixed[1]));
+}
+
+static inline control_t* synapse_row_plastic_controls(address_t fixed) {
+    return ((control_t*) (&(fixed[2 + synapse_row_num_fixed_synapses(fixed)])));
+}
+
+static inline uint32_t *synapse_row_fixed_weight_controls(address_t fixed) {
+    return (&(fixed[2]));
+}
+
+static inline index_t synapse_row_sparse_index(uint32_t x) {
+    return (x & SYNAPSE_INDEX_MASK);
+}
+
+static inline index_t synapse_row_sparse_type(uint32_t x) {
+    return ((x >> SYNAPSE_INDEX_BITS) & SYNAPSE_TYPE_MASK);
+}
+
+static inline index_t synapse_row_sparse_type_index(uint32_t x) {
+    return (x & SYNAPSE_TYPE_INDEX_MASK);
+}
+
+static inline index_t synapse_row_sparse_delay(uint32_t x) {
+    return ((x >> SYNAPSE_TYPE_INDEX_BITS) & SYNAPSE_DELAY_MASK);
+}
+
+static inline weight_t synapse_row_sparse_weight(uint32_t x) {
+    return ((weight_t)((uint32_t)(x >> (SYNAPSE_TYPE_INDEX_BITS+SYNAPSE_DELAY_BITS))));
+}
+
+#endif  // SYNAPSE_ROW_H

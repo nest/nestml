@@ -1,0 +1,581 @@
+#
+#  {{neuronName}}.py
+#
+#  This file is part of NEST.
+#
+#  Copyright (C) 2004 The NEST Initiative
+#
+#  NEST is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 2 of the License, or
+#  (at your option) any later version.
+#
+#  NEST is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#  Generated from NESTML {{ nestml_version }} at time: {{ now }}
+
+import numpy as np
+import math
+import re
+from enum import Enum
+
+from spinnaker2.neuron_models.application import BaseApplication
+from spinnaker2.coordinates import ByteAddr, align_addr_to_next_multiple_of_other
+from spinnaker2.configuration import MemoryRegion, PEConfig, MemoryHandler
+from spinnaker2.coordinates import ByteAddr
+from spinnaker2.mapper import SynapseWordSize, SynapseWordSpec
+from spinnaker2.neuron_models.application import BaseApplication
+from spinnaker2.neuron_models.common import (
+    N_WORDS_MPT_ENTRY,
+    format_routing_info,
+)
+
+
+
+
+
+class {{neuronName}}Application(BaseApplication):
+    app_name =  "{{ neuronName }}"
+    sw_spec = SynapseWordSpec(
+        word_size=SynapseWordSize.SIZE_16,
+        weight=4,
+        delay=3,
+        synapse_type=1,
+        target=8,
+    )
+    profiling = False
+
+    # here the default parameters from .nestml
+    # and the internal parameters(if an analytical solver is used) have to be printed
+    default_parameters = {
+        {%- for  parameter in neuron.get_parameter_symbols()  | sort(attribute='name') %}
+        "{{  parameter.name }}":{{ printer_no_origin.print(parameter.declaring_expression) }},
+        {%- endfor %}
+
+        "calculation_timestep": 10.0,
+        "weight_scaling_factor_exc": 0.0,
+        "weight_scaling_factor_inh": 0.0,
+    }
+
+    propagators = {
+        {%- if uses_analytic_solver and not uses_numeric_solver %}
+        {%- for propagator in neuron.get_internal_symbols() | sort(attribute='name') %}
+            {%- if propagator.name != '__h' %}
+            "{{ propagator.name }}": "{{ printer.print(propagator.declaring_expression) }}",
+            {%- endif  %}
+        {%- endfor %}
+        {%- endif %}
+    }
+
+
+    max_atoms_per_core = 128
+    splittable = True
+    recordables = ["spikes", "v", "v_last", "time_done"]
+
+    # fixed addresses
+    # Lowest available address for the application: needs to be hand-tuned
+    # This needs to be aligned with the C code
+    # Error log is used before the data region is initialised
+    error_log_address = 0xE800
+    # Data region starts after the error log
+    first_address = 0xE900
+    # Start of the log memory region. This can be None to maximize memory usage
+    # Size of the log memory region. This can be None if log_address is None
+    log_size = 100
+
+    # Size of the error log memory region. Need to match the C code !!
+    error_log_size = (first_address - error_log_address) // 4
+
+
+    # memory regions
+    # /!\ must be in the same order as on the hardware side (data_specification.h)
+
+    regions = Enum(
+        "regions",
+        [
+            "ROUTING_TABLE",
+            "TIMER_CONFIG",
+            "GLOBAL_PARAMS",
+            "MPT_INFO",
+            "MPT",
+            "SYN_ROW",
+            "NEURONS_PARAMS",
+            "SPIKE_RECORD",
+            "VOLTAGE_RECORD",
+            "TIME_DONE_RECORD",
+            "LOG",
+        ],
+    )
+
+    def __init__(self):
+        super().__init__(self.app_name)
+
+    def calculate_propagator_expressions(self, default_parameters, propagators, user_params):
+        """
+        Calculate propagator expressions with support for both single values and lists of values.
+
+        Args:
+            default_parameters: Dictionary of default parameter values
+            propagators: Dictionary of propagator expressions
+            pop_slice: Population slice with params attribute
+
+        Returns:
+            Dictionary of propagator expressions with parameters substituted
+        """
+        # Get user parameters
+        user_parameters = user_params
+        user_parameters_has_lists = any(isinstance(value, list) for value in user_parameters.values())
+        # Create updated parameters dictionary
+        updated_parameters = {}
+        for key in default_parameters:
+            if key in user_parameters:
+                if isinstance(user_parameters[key], list):
+                    updated_parameters[key] = list(map(str, user_parameters[key]))
+                else:
+
+                    updated_parameters[key] = str(user_parameters[key])
+            else:
+                updated_parameters[key] = str(default_parameters[key])
+
+        if not user_parameters_has_lists:
+            propagators_as_math_expressions = {}
+            for propagator_name in propagators:
+                expression = propagators[propagator_name]
+                for symbol, value in updated_parameters.items():
+                    expression = expression.replace(symbol, str(value))
+                propagators_as_math_expressions[propagator_name] = expression
+            return updated_parameters|propagators_as_math_expressions
+        else:
+            # Handle lists of parameters
+            list_lengths = [len(value) for value in updated_parameters.values()
+                            if isinstance(value, list)]
+
+            if not list_lengths:
+                return self.calculate_propagator_expressions(default_parameters, propagators, user_params)
+
+            if len(set(list_lengths)) > 1:
+                raise ValueError("All parameter lists must have the same length")
+
+            list_length = list_lengths[0]
+
+            # Create list of parameter sets
+            parameter_sets = []
+            for i in range(list_length):
+                param_set = {}
+                for key, value in updated_parameters.items():
+                    if isinstance(value, list):
+                        param_set[key] = value[i]
+                    else:
+                        param_set[key] = value
+                parameter_sets.append(param_set)
+
+            # Calculate expressions for each parameter set
+            all_expressions = []
+            for param_set in parameter_sets:
+                expressions = {}
+                for propagator_name in propagators:
+                    expression = propagators[propagator_name]
+                    for symbol, value in param_set.items():
+                        expression = expression.replace(symbol, str(value))
+                    expressions[propagator_name] = expression
+                all_expressions.append(expressions)
+
+            return [{**d1, **d2} for d1, d2 in zip(parameter_sets, all_expressions)]
+
+    def evaluate_propagator_expressions(self, propagators_as_math_expressions):
+        """
+        Evaluate propagator expressions with support for both single expressions and lists of expressions.
+
+        Args:
+            propagators_as_math_expressions: Dictionary of expressions or list of dictionaries
+
+        Returns:
+            Dictionary of evaluated expressions or list of dictionaries
+        """
+        # Define supported math functions and constants
+        safe_dict = {
+            # Basic math functions
+            'exp': math.exp,
+            'ln': math.log,
+            'log10': math.log10,
+            'pow': math.pow,
+            'sqrt': math.sqrt,
+            # Trigonometric functions
+            'sin': math.sin,
+            'cos': math.cos,
+            'tan': math.tan,
+            'asin': math.asin,
+            'acos': math.acos,
+            'atan': math.atan,
+            'atan2': math.atan2,
+            # Hyperbolic functions
+            'sinh': math.sinh,
+            'cosh': math.cosh,
+            'tanh': math.tanh,
+            # Math functions
+            'abs': abs,
+            'ceil': math.ceil,
+            'floor': math.floor,
+            'round': round,
+            'erf': math.erf,
+            'erfc': math.erfc,
+            # Constants
+            'e': math.e,
+            'pi': math.pi,
+            'inf': float('inf'),
+        }
+
+        if isinstance(propagators_as_math_expressions, list):
+            all_results = []
+            for expressions_dict in propagators_as_math_expressions:
+                results = {}
+                for key, expression in expressions_dict.items():
+                    results[key] = self._evaluate_single_expression(expression, safe_dict)
+                all_results.append(results)
+            return all_results
+        else:
+            name_value_dict = {}
+            for key, expression in propagators_as_math_expressions.items():
+                name_value_dict[key] = self._evaluate_single_expression(expression, safe_dict)
+            return name_value_dict
+
+    def _evaluate_single_expression(self, expression, safe_dict):
+        """
+        Helper method to evaluate a single expression safely.
+
+        Args:
+            expression: Math expression as string
+            safe_dict: Dictionary of allowed functions and constants
+
+        Returns:
+            Evaluated result
+        """
+        # Check if the expression contains only allowed characters and function names
+        allowed_pattern = r'^[\s\d\.\+\-\*\/\(\)\,\^\%]+$'
+        cleaned_expr = expression
+
+        # Remove all function names from the expression before checking the pattern
+        for func_name in safe_dict.keys():
+            cleaned_expr = cleaned_expr.replace(func_name, '')
+
+        if not re.match(allowed_pattern, cleaned_expr):
+            raise ValueError(f"Expression '{expression}' contains disallowed characters or functions")
+
+        try:
+            result = eval(expression, {"__builtins__": {}}, safe_dict)
+            return result
+        except Exception as e:
+            raise ValueError(f"Error evaluating expression '{expression}': {str(e)}")
+
+    def convert_calculated_propagators_to_raw_data(self, name_value_dict, pop_slice=None):
+        """
+        Covert calculated propagator values to 32bit data, which can be sent over to SpiNNaker2
+
+        Args:
+            name_value_dict: Dictionary of propagator name and attached value
+
+        Returns:
+            List of 32bit values representing bits of attached propagator values
+        """
+        if isinstance(name_value_dict, list):
+            all_raw_data = []
+            for single_dict in name_value_dict:
+                del single_dict["calculation_timestep"]
+                del single_dict["weight_scaling_factor_exc"]
+                del single_dict["weight_scaling_factor_inh"]
+                values = list(single_dict.values())
+                float32_array = np.array(values, dtype=np.float32)
+                raw_data = np.frombuffer(float32_array.data, dtype=np.uint32)
+                all_raw_data.append(raw_data.tolist())
+            return [item for sublist in all_raw_data for item in sublist]
+        else:
+            n_neurons = pop_slice.size()
+            del name_value_dict["calculation_timestep"]
+            del name_value_dict["weight_scaling_factor_exc"]
+            del name_value_dict["weight_scaling_factor_inh"]
+            values = list(name_value_dict.values())
+            copy = values.copy()
+            values.extend(copy * (n_neurons - 1))
+            float32_array = np.array(values, dtype=np.float32)
+            raw_data = np.frombuffer(float32_array.data, dtype=np.uint32)
+            return raw_data.tolist()
+
+
+    def pe_config(self, pe, mapper, sim_cfg, debug=1):
+        """
+        return PE configuration for a given PE
+        """
+
+        config = PEConfig(pe, self.name, self.mem_file)
+        memory_handler = MemoryHandler(self.name, self.first_address)
+        pop_slice = mapper.mapping.get_population_slice(pe)
+
+        assert (
+            ByteAddr(self.error_log_address) + self.error_log_size * 4
+        ) <= self.first_address, "Error logs overlap with data specification address"
+
+        # Add error log memory region
+        config.add_mem_region_to_read(
+            "error_log", MemoryRegion(ByteAddr(self.error_log_address).to_WordAddr(), self.error_log_size)
+        )
+
+        neuron_params = pop_slice.pop.params
+
+        weight_scaling_factor_exc = neuron_params.get(
+            "weight_scaling_factor_exc",
+            self.default_parameters["weight_scaling_factor_exc"],
+        )
+        weight_scaling_factor_inh = neuron_params.get(
+            "weight_scaling_factor_inh",
+            self.default_parameters["weight_scaling_factor_inh"],
+        )
+        calculation_timestep = neuron_params.get(
+            "calculation_timestep",
+            self.default_parameters["calculation_timestep"],
+        )
+        for propagator_expr in self.propagators:
+            if "__h" in self.propagators[propagator_expr]:
+                self.propagators[propagator_expr] = self.propagators[
+                    propagator_expr
+                ].replace("__h", "calculation_timestep")
+
+        #####################
+        # neuron parameters #
+        #####################
+
+        propagator_expressions = self.calculate_propagator_expressions(default_parameters=self.default_parameters, propagators=self.propagators, user_params=neuron_params)
+        evaluated_expression = self.evaluate_propagator_expressions(propagator_expressions)
+        neuron_params_raw = self.convert_calculated_propagators_to_raw_data(evaluated_expression, pop_slice)
+        memory_handler.add_mem_region(
+            name=self.regions.NEURONS_PARAMS.name,
+            index=self.regions.NEURONS_PARAMS.value,
+            data=neuron_params_raw,
+            size=len(neuron_params_raw),
+            send=True,
+            read=False,
+        )
+        timesteps_to_record = sim_cfg["n_simulation_ticks"]
+
+
+
+        ################
+        # routing info #
+        ################
+        n_targets, routing_targets_raw = format_routing_info(mapper, pe)
+        key_offset = mapper.key_offsets[pe]
+
+        # Data and size is set later, but we need the start address now
+        memory_handler.add_mem_region(
+            name=self.regions.ROUTING_TABLE.name,
+            index=self.regions.ROUTING_TABLE.value,
+            size=None,
+            data=None,
+            send=True,
+            read=False,
+        )
+
+        routing_targets_addr = ByteAddr(
+            memory_handler.get_start_address(self.regions.ROUTING_TABLE.name) + 3 * 4
+        )  # start address of routing table
+        rt_data = [
+            key_offset,
+            n_targets,
+            routing_targets_addr,
+        ] + routing_targets_raw
+        memory_handler.set_data(self.regions.ROUTING_TABLE.name, rt_data)
+        memory_handler.set_size(self.regions.ROUTING_TABLE.name, len(rt_data))
+
+
+        ################
+        # timer config #
+        ################
+        sim_config = [sim_cfg["timer_period"], sim_cfg["n_simulation_ticks"]]
+
+        memory_handler.add_mem_region(
+            name=self.regions.TIMER_CONFIG.name,
+            index=self.regions.TIMER_CONFIG.value,
+            data=sim_config,
+            size=len(sim_config),
+            send=True,
+            read=False,
+        )
+
+
+        #################
+        # global params #
+        #################
+        if calculation_timestep is not None:
+            calc_step_list = list([calculation_timestep])
+            calc_step_array = np.array(calc_step_list, dtype=np.float32)
+            calc_step_raw = np.frombuffer(
+                calc_step_array.data, dtype=np.uint32
+            ).tolist()
+            weight_scaling_factor_exc_list = list([weight_scaling_factor_exc])
+            weight_scaling_factor_exc_array = np.array(
+                weight_scaling_factor_exc_list, dtype=np.float32
+            )
+            weight_scaling_factor_exc_raw = np.frombuffer(
+                weight_scaling_factor_exc_array.data, dtype=np.uint32
+            ).tolist()
+            weight_scaling_factor_inh_list = list([weight_scaling_factor_inh])
+            weight_scaling_factor_inh_array = np.array(
+                weight_scaling_factor_inh_list, dtype=np.float32
+            )
+            weight_scaling_factor_inh_raw = np.frombuffer(
+                weight_scaling_factor_inh_array.data, dtype=np.uint32
+            ).tolist()
+            n_neurons = pop_slice.size()
+            record_spikes = "spikes" in pop_slice.pop.record
+            record_v_all = "v" in pop_slice.pop.record
+            record_v_last = "v_last" in pop_slice.pop.record
+            record_v = 1 if record_v_all else 2 if record_v_last else 0
+            time_done_flag = "time_done" in pop_slice.pop.record
+            log_size_list = list([self.log_size])
+            # log_size_array = np.array(log_size_list, dtype=np.float32)
+            # log_size_raw = np.frombuffer(log_size_array.data, dtype=np.uint32).tolist()
+            global_params_raw = [
+                n_neurons,
+                int(record_spikes),
+                int(record_v),
+                int(self.profiling),
+                int(time_done_flag),
+                calc_step_raw[0],
+                weight_scaling_factor_exc_raw[0],
+                weight_scaling_factor_inh_raw[0],
+                int(debug),
+                int(self.log_size),
+            ]
+
+        else:
+            raise ValueError("Calculation(Integration) timestep has to be set!")
+
+        memory_handler.add_mem_region(
+            name=self.regions.GLOBAL_PARAMS.name,
+            index=self.regions.GLOBAL_PARAMS.value,
+            data=global_params_raw,
+            size=len(global_params_raw),
+            send=True,
+            read=False,
+        )
+
+
+        ############################################
+        # master population table and synapse rows #
+        ############################################
+        mpt_info_len = 2
+        # Data is set later, but we need the start address now
+        memory_handler.add_mem_region(
+            name=self.regions.MPT_INFO.name,
+            index=self.regions.MPT_INFO.value,
+            data=None,
+            size=mpt_info_len,
+            send=True,
+            read=False,
+        )
+
+
+
+        # Estimate size of MPT
+        mpt_length = mapper.estimate_master_pop_table_length(pe)
+        mpt_n_bytes = mpt_length * N_WORDS_MPT_ENTRY * 4
+
+        memory_handler.add_mem_region(
+            name=self.regions.MPT.name, index=self.regions.MPT.value, data=None, size=mpt_n_bytes, send=True, read=False
+        )
+
+        # Master population table info
+        mpt_info_raw = [memory_handler.get_start_address(self.regions.MPT.name), mpt_length]
+        assert len(mpt_info_raw) == mpt_info_len  # make sure that the addresses don't overlap
+        memory_handler.set_data(self.regions.MPT_INFO.name, mpt_info_raw)
+
+        # Data and size are set later, but we need the start address now
+        memory_handler.add_mem_region(
+            name=self.regions.SYN_ROW.name,
+            index=self.regions.SYN_ROW.value,
+            data=None,
+            size=None,
+            send=True,
+            read=False,
+        )
+
+        all_syn_rows_raw, pop_table_raw = mapper.synapse_rows_and_master_pop_table(
+            pe=pe, sw_spec=self.sw_spec, syn_rows_start=memory_handler.get_start_address(self.regions.SYN_ROW.name)
+        )
+
+        memory_handler.set_data(self.regions.MPT.name, pop_table_raw)
+        memory_handler.set_data(self.regions.SYN_ROW.name, all_syn_rows_raw)
+        memory_handler.set_size(self.regions.SYN_ROW.name, len(all_syn_rows_raw))
+
+
+        ###################
+        # spike recording #
+        ###################
+        # Note that this takes the actual number of neurons, not the maximum number of atoms per core
+        SPIKE_RECORD_LENGTH = (n_neurons + 31) // 32 + 2
+        spike_recording_total_words = SPIKE_RECORD_LENGTH * timesteps_to_record
+        memory_handler.add_mem_region(
+            name=self.regions.SPIKE_RECORD.name,
+            index=self.regions.SPIKE_RECORD.value,
+            data=None,
+            size=spike_recording_total_words if record_spikes else 0,
+            send=False,
+            read=record_spikes,
+        )
+
+
+        #####################
+        # voltage recording #
+        #####################
+        voltage_recording_total_words = (1 + n_neurons) * (timesteps_to_record if record_v_all else 1)
+        memory_handler.add_mem_region(
+            name=self.regions.VOLTAGE_RECORD.name,
+            index=self.regions.VOLTAGE_RECORD.value,
+            data=None,
+            size=voltage_recording_total_words if record_v else 0,
+            send=False,
+            read=record_v,
+        )
+
+
+        #######################
+        # time done recording #
+        #######################
+        memory_handler.add_mem_region(
+            name=self.regions.TIME_DONE_RECORD.name,
+            index=self.regions.TIME_DONE_RECORD.value,
+            data=None,
+            size=timesteps_to_record if time_done_flag else 0,
+            send=False,
+            read=time_done_flag,
+        )
+
+
+        #######################
+        # Logs #
+        #######################
+        memory_handler.add_mem_region(
+            name=self.regions.LOG.name,
+            index=self.regions.LOG.value,
+            data=None,
+            size=self.log_size if debug else 0,
+            send=False,
+            read=debug,
+        )
+
+
+        ################################
+        # data specification           #
+        # Define data to send and read #
+        ################################
+        memory_handler.freeze()
+        memory_handler.add_regions_to_config(config)
+
+        pop_slice.memory_layout = memory_handler
+
+        return config

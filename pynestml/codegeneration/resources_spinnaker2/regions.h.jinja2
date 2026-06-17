@@ -1,0 +1,38 @@
+/*
+ * Copyright (c) 2017-2019 The University of Manchester
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//! \file
+//! \brief Standard layout of DSG regions in neuron code.
+//!
+//! Note that not all models use all of these regions, but they all use the same
+//! region identifier mapping.
+#pragma once
+
+//! DSG region identifiers
+typedef enum neuron_regions_e {
+    ROUTING_TABLE_REGION,           // 0 routing table
+    SIMULATION_REGION,              // 1 (TIMER_CONFIG in Python)
+    GLOBAL_PARAMS_REGION,           // 2 global parameters
+    POPULATION_TABLE_REGION,        // 3 (MPT_INFO in Python for base address, MPT itself is separate)
+    POPULATION_TABLE_REGION_UNUSED, // Unused, but keeps numbering consistent for following
+    SYNAPSE_ROWS_REGION,            // 5 (SYN_ROW in Python)
+    NEURON_PARAMS_REGION,           // 6
+    SPIKE_RECORDING_REGION,         // 7 (SPIKE_RECORD in Python)
+    VOLTAGE_RECORDING_REGION,       // 8 (VOLTAGE_RECORD in Python)
+    TIME_DONE_RECORDING_REGION,     // 9 time done recording
+    LOG_INFO_REGION                 // 10 (LOG in Python)
+} regions_e;

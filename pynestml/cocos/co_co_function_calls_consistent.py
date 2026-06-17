@@ -28,7 +28,6 @@ from pynestml.symbols.variadic_type_symbol import VariadicTypeSymbol
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
-from pynestml.utils.type_caster import TypeCaster
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
@@ -109,5 +108,5 @@ class FunctionCallConsistencyVisitor(ASTVisitor):
                 # variadic type symbol accepts anything
                 return
 
-            if not actual_type.equals(expected_type) and not isinstance(expected_type, TemplateTypeSymbol):
-                TypeCaster.try_to_recover_or_error(expected_type, actual_type, actual_arg)
+            # if not actual_type.equals(expected_type) and not isinstance(expected_type, TemplateTypeSymbol):
+            #     TypeCaster.try_to_recover_or_error(expected_type, actual_type, actual_arg)

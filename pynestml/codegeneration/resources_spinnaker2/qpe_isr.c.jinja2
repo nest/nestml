@@ -1,0 +1,24 @@
+#include {{ '<' }}s2app.h{{ '>' }}
+#include "spinn2.h"
+#include "param_defs.h"
+
+extern void timer_callback();
+extern void timer_start();
+extern void reset_all();
+
+void Timer_Int1_Handler  (void) {
+    timer[TIMER1_INT_CLR] = 0xFFFFFFFF;
+    timer_callback();
+}
+
+void FT_INT_0_Handler(void)
+{
+    NVIC_ClearPendingIRQ (FT_INT_0_IRQn);
+    timer_start();
+}
+
+void FT_INT_1_Handler(void)
+{
+    NVIC_ClearPendingIRQ (FT_INT_1_IRQn);
+    reset_all();
+}

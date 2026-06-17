@@ -1,0 +1,66 @@
+model non_dimensionalisation_transformer_test_neuron:
+
+    state:
+        I_foo A = 42 mA
+        I_m A = 10 mA
+        V_3 mV = I_foo / 5 nS
+        V_m mV = E_L
+        U_m real = b * V_m_init   # Membrane potential recovery variable
+        V_exp mV = 2500 uV + V_m_init * exp(alpha_exp * 10 V)
+        refr_t ms = 2 ms    # Refractory period timer
+        I_eq A = 30 mA
+
+    equations:
+        # V_m'  = I_eq / C_m
+        V_m' = I_eq / C_m
+        refr_t' s = -1 / s
+        inline I_spike_test A = 30.0 nS * (-V_m_init / 130e3) * exp(((-80 mV) - (-20 mV)) / 3000 uV)
+        # V_exp_der' = (I_foo - 200uA) / (C_exp_0 * (1+exp(alpha_exp * V_m_init)))
+        V_exp_der' = (I_foo - 200uA) / (C_exp_0 * (1+exp(alpha_exp * V_m_init)))
+
+    parameters:
+        E_L mV = -70 mV       # Resting potential
+        C_m F = 250 pF * 1.0001  # Test if factor works
+        V_m_init mV = -65 mV     # Initial membrane potential
+        C_exp_0 F = 150pF
+        alpha_exp = 2 /3 MV  # this could be a factor for a voltage inside of en exp(), e.g. exp(alpha_exp * V_test)
+        b real = 0.2         # sensitivity of recovery variable
+
+        para_giga Ohm = 0.5 GOhm
+        para_mega Hz = 1.1 * 3MHz
+        para_kilo W = 2 kW
+        para_hecto Pa = 1024 hPa
+        para_deca m = 23 dam  # this might cause problems, but also deca- is not used particularly frequently
+        para_deci mol = 8 dmol
+        para_centi m = 67 cm
+        para_milli V = 4 mV
+        para_micro S = 2 uS
+        para_nano F = 11 nF
+        para_pico H = 3 pH
+        # para_femto A/m = 77 fA/m
+        para_atto s = 40 as
+
+
+    internals:
+        alpha_m_init real = ( 0.1 * ( V_m_init / mV + 40. ) ) / ( 1. - exp( -( V_m_init / mV + 40. ) / 10. ) )
+
+    update:
+        if refr_t > 2 ms:
+        # this has to do nothing as equations are not a real ODE system
+        integrate_odes(refr_t)
+
+    onCondition(refr_t > 2 ms):
+        #this should never be reached
+        refr_t = refr_t
+
+
+
+
+# V = 10 nA * 50 Ohm   -> convert nA to mA --- 1E-6
+#  = 500 nV
+# ---> V = 10 * 1E-6 * 50 = 500E-6
+
+# V = 10 * 0.00001 * mA * 50 Ohm  -> convert mA to mA --- 1
+# ---> V = 10 * 0.00001 * 50 = 500E-6
+
+

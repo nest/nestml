@@ -18,7 +18,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 try:
@@ -315,6 +314,10 @@ class NESTCodeGenerator(CodeGenerator):
         for neuron in neurons:
             code, message = Messages.get_start_code_generation(neuron.get_name())
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
+            # neuron.analytic_solver = analytic_solver
+            # neuron.analytic_solver = analytic_solver
+            # neuron.parameter_value_dict = parameter_value_dict
+            # neuron.updated_state_dict = updated_state_dict
 
             if not neuron.name in metadata.keys():
                 metadata[neuron.name] = {}
@@ -362,6 +365,15 @@ class NESTCodeGenerator(CodeGenerator):
 
         analytic_solver = metadata[neuron.name]["analytic_solver"]
         numeric_solver = metadata[neuron.name]["numeric_solver"]
+        # Collect all parameters and their attached values
+        # parameter_block = neuron.get_parameters_blocks()[0]
+        # parameter_value_dict = ASTUtils.generate_parameter_value_dict(neuron, parameter_block)
+        # state_block = neuron.get_state_blocks()[0]
+        # updated_state_dict = ASTUtils.generate_updated_state_dict(neuron, state_block, parameter_value_dict)
+
+
+
+
 
         self.non_equations_state_variables[neuron.get_name()] = []
         for block in neuron.get_state_blocks():
@@ -890,6 +902,12 @@ class NESTCodeGenerator(CodeGenerator):
 
         return namespace
 
+        # solver_result = odetoolbox.analysis(odetoolbox_indict,
+        #                                     disable_stiffness_check=True,
+        #                                     disable_analytic_solver=disable_analytic_solver,
+        #                                     preserve_expressions=self.get_option("preserve_expressions"),
+        #                                     simplify_expression=self.get_option("simplify_expression"),
+        #                                     log_level=FrontendConfiguration.logging_level)
     def update_symbol_table(self, model) -> None:
         """
         Update symbol table and scope.

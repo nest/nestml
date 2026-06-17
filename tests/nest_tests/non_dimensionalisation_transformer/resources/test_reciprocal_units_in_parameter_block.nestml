@@ -1,0 +1,4 @@
+model test_reciprocal_units_in_parameter_block_transformation_neuron:
+    parameters:
+        alpha_exp 1/V = 2 /3 MV  # this could be a factor for a voltage inside of en exp(), e.g. exp(alpha_exp * V_test)
+

@@ -25,6 +25,8 @@ import copy
 import re
 import sympy
 
+from astropy import units as u
+
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
@@ -613,6 +615,30 @@ class ASTUtils:
 
         remove_state_var_from_integrate_odes_calls_visitor = RemoveStateVarFromIntegrateODEsCallsVisitor()
         model.accept(remove_state_var_from_integrate_odes_calls_visitor)
+
+    @classmethod
+    def collect_integrate_odes(cls, model: ASTModel):
+
+        class CollectIntegrateOdesVisitor(ASTVisitor):
+            node_list = []
+
+            def visit_function_call(self, node):
+                if node.get_name() == PredefinedFunctions.INTEGRATE_ODES:
+                    self.node_list.append(node)
+
+
+        collect_integrate_odes_visitor = CollectIntegrateOdesVisitor()
+        model.accept(collect_integrate_odes_visitor)
+        return collect_integrate_odes_visitor.node_list
+
+    @classmethod
+    def replace_statevars_with_yIndex(cls, expression_str:str, variables:list[str]) -> str:
+        return re.sub(
+            r"neuron->state\.(\w+)",
+            lambda m: f"y[{variables.index(m.group(1))}]" if m.group(1) in variables else m.group(0),
+            expression_str
+        )
+
 
     @classmethod
     def resolve_variables_to_expressions(cls, astnode, analytic_state_variables_moved):
@@ -1568,6 +1594,111 @@ class ASTUtils:
                         return var
         return None
 
+    @staticmethod
+    def _to_base_value_from_string(quantity_str):
+        local_dict = {'u': u}
+        quantity = eval(quantity_str, {"__builtins__": {}}, local_dict)
+        canonical_unit = u.get_physical_type(quantity.unit)._unit
+        # Return the SI base value and unit name
+        return quantity.si.value, str(canonical_unit)
+
+
+    # @classmethod
+    # def generate_updated_state_dict(cls, neuron: ASTModel, parameter_value_dict: dict) -> dict:
+    #     state_block = neuron.get_state_blocks()[0]
+    #     updated_state_dict = {}
+    #     for declarations in state_block.get_declarations():
+    #         if isinstance(declarations.expression, ASTSimpleExpression) and declarations.expression.numeric_literal == None:
+    #             if declarations.expression.variable.name in parameter_value_dict:
+    #                 updated_state_dict[declarations.variables[0]] = parameter_value_dict[declarations.expression.variable.name]
+    #             pass
+    #         if isinstance(declarations.expression, ASTSimpleExpression) and declarations.expression.numeric_literal != None:
+    #             expr = str(declarations.expression.numeric_literal) + '* u.' + declarations.expression.variable.name
+    #             float_value_in_si, unit_in_si = cls._to_base_value_from_string(cls, expr)
+    #             declarations.expression.numeric_literal = float_value_in_si
+    #             updated_state_dict[declarations.variables[0]] = float_value_in_si
+    #
+    #     return updated_state_dict
+
+    @classmethod
+    def alternative_approach(cls, model):
+        from pynestml.transformers.transformer import Transformer
+        from pynestml.visitors.ast_visitor import ASTVisitor
+
+        cloned_model = model.clone()
+
+        alternative_approach_visitor = AlternativeApproachVisitor()
+
+        pass
+
+
+    @classmethod
+    def generate_updated_state_dict(cls, initial_values: dict, parameter_value_dict: dict) -> dict:
+        updated_state_dict = {}
+        for parameter_name, parameter_value in parameter_value_dict.items():
+            for initial_value_key, initial_value_value in initial_values.items():
+                if parameter_name.name in initial_value_value:
+                    updated_state_dict[initial_value_key] = parameter_value
+                else:
+                    updated_state_dict[initial_value_key] = initial_value_value
+                    pass
+        # for key, value in initial_values.items():
+        #     if value in parameter_value_dict:
+        #         updated_state_dict[key] = float(parameter_value_dict[value])
+        #     else:
+        #         updated_state_dict[key] = float(value)
+        return updated_state_dict
+
+    # @classmethod
+    # def get_propagators_as_math_expressions(cls, neuron: ASTNode, parameters: dict) -> dict:
+    #     propagators_as_math_expressions = {}
+    #     propagator_expressions = neuron.analytic_solver["propagators"]
+    #     for propagator_expression in propagator_expressions:
+    #         # propagator_expressions[propagator_expression] = propagator_expressions[propagator_expression].replace(
+    #         #     '__h', str(1))
+    #         # for symbol, value in parameters.items():
+    #         #     propagator_expressions[propagator_expression] = propagator_expressions[propagator_expression].replace(symbol, str(value))
+    #         #     propagators_as_math_expressions.update({propagator_expression: propagator_expressions[propagator_expression]})
+    #         propagators_as_math_expressions[propagator_expression] = propagator_expressions[propagator_expression]
+    #     return propagators_as_math_expressions
+    #
+    # # @classmethod
+
+    # @classmethod
+    # def check_if_statevar_depends_on_spikes(cls, varname:str, neuron:ASTModel) -> str:
+    #     """
+    #     The helper method checks if the variable name, meant to be used with state variables, depends on a spike through an onReceive block
+    #     :param varname: string (state) variable name, e.g. I_syn_exc
+    #     :param neuron: the full neuron model AST
+    #     :return: string - returns the port name the state variable depends on, e.g. "exc_spikes"/ "inh_spikes" otherwise "no_dep" is returned
+    #     """
+    #     result_str=""
+    #     onRecieveBlocks = neuron.get_on_receive_blocks()
+    #     for onRecieveBlock in onRecieveBlocks:
+    #         if varname == onRecieveBlock.stmts_body.stmts[0].small_stmt.assignment.lhs.name:
+    #             return onRecieveBlock.port_name
+    #         else:
+    #             result_str = "no_dep"
+    #     return result_str
+    # pass
+
+    @classmethod
+    def check_if_statevar_depends_on_spikes(cls, varname:str, neuron:ASTModel) -> str:
+        """
+        The helper method checks if the variable name, meant to be used with state variables, depends on a spike through an onReceive block
+        :param varname: string (state) variable name, e.g. I_syn_exc
+        :param neuron: the full neuron model AST
+        :return: string - returns the port name the state variable depends on, e.g. "exc_spikes"/ "inh_spikes" otherwise "no_dep" is returned
+        """
+        result=[]
+        onRecieveBlocks = neuron.get_on_receive_blocks()
+        for onRecieveBlock in onRecieveBlocks:
+            if varname == onRecieveBlock.stmts_body.stmts[0].small_stmt.assignment.lhs.name:
+                result.append(onRecieveBlock.port_name)
+
+        return sorted(result)
+    pass
+
     @classmethod
     def get_internal_decl_by_name(cls, node: ASTModel, var_name: str) -> ASTDeclaration:
         """
@@ -2208,6 +2339,18 @@ class ASTUtils:
                 equations_block.get_declarations().remove(decl)
 
         return all_removed_decls
+
+    @classmethod
+    def add_timestep_symbol(cls, model: ASTModel) -> None:
+        """
+        Add timestep variable to the internals block
+        """
+        from pynestml.utils.model_parser import ModelParser
+        assert model.get_initial_value(
+            "__h") is None, "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
+        assert not "__h" in [sym.name for sym in model.get_internal_symbols(
+        )], "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
+        model.add_to_internals_block(ModelParser.parse_declaration('__h ms = resolution()'), index=0)
 
     @classmethod
     def replace_convolution_aliasing_inlines(cls, neuron: ASTModel) -> None:

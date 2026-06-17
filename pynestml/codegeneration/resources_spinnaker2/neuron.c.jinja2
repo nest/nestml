@@ -1,0 +1,237 @@
+#include "neuron.h"
+#include "global_params.h"
+#include "simulation.h"
+#include {{ "<" }}spike_comms_common.h{{ ">" }}
+{%- if uses_numeric_solver %}
+    {%- if "rk4" in numeric_solver %}
+#include "rk4.h"
+    {%-elif "forward-Euler" in numeric_solver %}
+#include "forward_euler.h"
+    {%- endif %}
+{%- endif %}
+
+
+
+
+
+uint32_t n_neurons;
+input_t input_buffers[INPUT_BUFFER_SIZE];
+neuron_impl_t neuron_array[N_NEURONS];
+
+// neurons params are initialized in main file
+extern neuron_params_t *neuron_params_array;
+global_neuron_params_t global_neuron_params;
+
+// spike records for current timestep
+uint32_t spike_records[SPIKE_RECORD_LENGTH] __attribute__((aligned(0x10)));
+uint32_t spike_records_count[SPIKE_RECORD_COUNTER_LENGTH];
+
+// spike records for all timesteps
+extern uint32_t *spike_records_all_timesteps;
+// voltage records for all timesteps
+extern uint32_t *voltage_records_all_timesteps;
+
+extern uint32_t systicks;
+extern uint32_t pe_id;
+extern uint32_t qpe_x;
+extern uint32_t qpe_y;
+extern volatile routing_info* routing_info_ptr;
+extern volatile struct global_params* global_params_ptr;
+extern simulation_config sim_config;
+
+uint32_t spike_record_length;
+uint32_t spike_record_counter_length;
+
+
+bool neuron_initialise()
+{
+    n_neurons = global_params_ptr->n_used_neurons;
+
+    spike_record_length = (n_neurons + 31) / 32 + 2;
+    spike_record_counter_length = (n_neurons + 31) / 32;
+
+    clear_spike_record();
+    // neuron states
+    for (index_t neuron_index = 0; neuron_index < n_neurons; neuron_index++) {
+
+        neuron_impl_t *neuron = &neuron_array[neuron_index];
+        neuron->neuron_params = &neuron_params_array[neuron_index];
+
+        {%- for declaration in neuron.get_state_declarations() | sort(attribute='name') %} {#add state declarations#}
+            {{ printer.print(declaration.get_variables()[0]) }} = {{ printer.print(declaration.get_expression()) }};
+        {%- endfor %}
+    }
+{#        {% set updated_state_dict = utils.generate_updated_state_dict(initial_values, neuron.get_parameter_value_dict()) %}#}
+{#        {%- for name, value in updated_state_dict | dictsort %}#}
+{#            state->{{ name }} = {{ value }};#}
+{#        {%- endfor %}#}
+{#    }#}
+
+    return true;
+}
+
+void print_neuron_params() {
+    if (global_params_ptr->debug) {
+        log_info("Neuron params:\n");
+    }
+    uint32_t n_used_neurons = global_params_ptr->n_used_neurons;
+    for (index_t neuron_index = 0; neuron_index < n_used_neurons; neuron_index++) {
+        neuron_impl_t *neuron = &neuron_array[neuron_index];
+
+    {%- for  parameter in neuron.get_parameter_symbols()  | sort(attribute='name') %}
+            log_info("%u:  {{ parameter.name }}=%f\n",
+            neuron_index,f2ui(neuron->neuron_params->{{  parameter.name }}));
+        {%- endfor %}
+{%- if uses_analytic_solver == True %}
+        {%- for propagator in neuron.get_internal_symbols() |sort(attribute='name') %}
+            {%- if propagator.name != '__h' %}
+            log_info("%u:  {{ propagator.name }}=%f\n",
+            neuron_index,f2ui(neuron->neuron_params->{{  propagator.name }}));
+            {%- endif  %}
+        {%- endfor %}
+{%- endif  %}
+    }
+}
+
+{%- if uses_numeric_solver == True %}
+{% set integrate_odes_call_list = utils.collect_integrate_odes(neuron) %}
+{%- for call in  integrate_odes_call_list %}
+void {{ neuronName }}{% if call.get_args() | length > 0 %}_{{ utils.integrate_odes_args_str_from_function_call(call) }}_{% endif %}rhs(REAL t, const REAL *y, REAL *dydt, uint8_t dim, const void *pp)
+{
+neuron_impl_t *neuron = (neuron_impl_t *)pp;
+(void) t;
+(void) dim;
+
+{%      set numeric_state_variables_to_be_integrated = numeric_state_variables + purely_numeric_state_variables_moved %}
+{%-     if call.get_args() | length > 0 %}
+{%-         set numeric_state_variables_to_be_integrated = utils.filter_variables_list(numeric_state_variables_to_be_integrated, call.get_args()) %}
+{%-     endif %}
+
+{%- for state_variable in numeric_state_variables_to_be_integrated %}
+dydt[{{ loop.index0 }}] = {{ utils.replace_statevars_with_yIndex(printer.print(numeric_update_expressions[state_variable]), numeric_state_variables_to_be_integrated) }};
+{%- endfor %}
+}
+{%- endfor %}
+{%- endif  %}
+
+void record_voltages() {
+    if (global_params_ptr->record_v == 1) { // record all voltages
+        *voltage_records_all_timesteps = systicks;
+        voltage_records_all_timesteps++;
+        // neuron states
+        for (index_t neuron_index = 0; neuron_index < n_neurons; neuron_index++) {
+            *voltage_records_all_timesteps = f2ui(neuron_array[neuron_index].state.V_m);
+            voltage_records_all_timesteps++;
+        }
+    }
+    else if (global_params_ptr->record_v == 2) { // record last voltage only
+        if (systicks == sim_config.n_simulation_ticks - 1) {
+            log_info("Recording voltages at last time step %i", systicks);
+            *voltage_records_all_timesteps = systicks;
+            voltage_records_all_timesteps++;
+
+            uint32_t n_used_neurons = global_params_ptr->n_used_neurons;
+            // neuron states
+            for (index_t neuron_index = 0; neuron_index < n_used_neurons; neuron_index++) {
+                *voltage_records_all_timesteps = f2ui(neuron_array[neuron_index].state.V_m);
+                voltage_records_all_timesteps++;
+            }
+        }
+    }
+}
+
+void neuron_do_timestep_update() {
+    clear_spike_record();
+    uint32_t n_used_neurons = global_params_ptr->n_used_neurons;
+    for (index_t neuron_index = 0; neuron_index < n_used_neurons; neuron_index++) {
+
+        neuron_impl_t *neuron = &neuron_array[neuron_index];
+
+        {%- if neuron.get_update_blocks() %}
+        {%-   filter indent(8) %}
+        {%-     for block in neuron.get_update_blocks() %}
+        {%-       set ast = block.get_stmts_body() %}
+        {%-       if ast.print_comment('*')|length > 1 %}
+        /*
+         {{ast.print_comment('*')}}
+         */
+        {%-       endif %}
+        {%-       include "directives_cpp/StmtsBody.jinja2" %}
+        {%-     endfor %}
+        {%-   endfilter %}
+        {%- endif %}
+
+        // clear input buffers
+		input_buffers[_ex_offset(neuron_index)] = 0;
+		input_buffers[_in_offset(neuron_index)] = 0;
+
+    neuron_check_and_spike(neuron, neuron_index);
+    }
+    // only record spikes if record_spikes is 1
+    if (global_params_ptr->record_spikes == 1) {
+        send_spike_record();
+    }
+    record_voltages();
+}
+
+void neuron_check_and_spike(neuron_impl_t *neuron, index_t neuron_index) {  // onCondition block processing
+    {%- if neuron.get_on_condition_blocks() %}
+    {%-   filter indent(8) %}
+    {%-     for block in neuron.get_on_condition_blocks() %}
+if ({{ printer.print(block.get_cond_expr()) }}){
+    {%-       set ast = block.get_stmts_body() %}
+    {%-       if ast.print_comment('*')|length > 1 %}
+    /*
+     {{ast.print_comment('*')}}
+     */
+    {%-       endif %}
+    {%-       include "directives_cpp/StmtsBody.jinja2" %}
+    {%-     endfor %}
+    {%-   endfilter %}
+    {%- endif %}
+//    record_spike(neuron_index);
+    if (global_params_ptr->debug){
+        log_info("Neuron %u spiked at time %u\n", neuron_index, systicks);
+    }
+    }
+}
+
+void record_spike(uint32_t neuron_id){
+	spike_records[neuron_id/32+2] |= 1 << ( neuron_id - neuron_id/32*32);
+	spike_records_count[neuron_id/32]++;
+}
+
+
+void neuron_reset(){
+	clear_spike_record();
+}
+
+// dynamic spike record length
+void send_spike_record(){
+    if (global_params_ptr->record_spikes) {
+        spike_records[0]=pe_id;
+        spike_records[1]=systicks;
+        for(uint32_t i = 0; i < spike_record_length; i++){
+            *spike_records_all_timesteps = spike_records[i];
+            spike_records_all_timesteps++;
+        }
+    }
+}
+
+// dynamic spike record length
+void clear_spike_record(){
+	for (uint32_t i = 0; i < spike_record_length ; i++){
+    spike_records[i]=0;
+	}
+	for (uint32_t i = 0 ; i < spike_record_counter_length ; i++){
+		spike_records_count[i]=0;
+	}
+}
+
+bool input_buffer_initialise() {
+    for (uint32_t i = 0; i < INPUT_BUFFER_SIZE; i++) {
+        input_buffers[i] = 0;
+    }
+    return true;
+}
+

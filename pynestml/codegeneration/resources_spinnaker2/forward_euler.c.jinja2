@@ -1,0 +1,17 @@
+#include "forward_euler.h"
+
+void forward_euler_step(
+    ode_rhs_f f,
+    REAL t,
+    const REAL *y,
+    REAL h,
+    uint8_t dim,
+    const void *neuron_params,
+    REAL *y_out)
+{
+    REAL dydt[dim];
+    f(t, y, dydt, dim, neuron_params);
+
+    for (uint8_t i = 0; i < dim; ++i)
+        y_out[i] = y[i] + h * dydt[i];
+}

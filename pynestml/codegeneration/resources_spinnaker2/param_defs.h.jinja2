@@ -1,0 +1,17 @@
+#ifndef PARAM_DEFS
+#define PARAM_DEFS
+
+#include "s2app.h"
+
+#define SYNAPSE_WEIGHTS_REAL // changed to REAL such that shifted weight value can be multiplied with scaling factor
+
+#define N_NEURONS 128
+#define INPUT_BUFFER_SIZE (1 << (SYNAPSE_TYPE_BITS + SYNAPSE_INDEX_BITS))
+#define RING_BUFFER_SIZE (1 << (SYNAPSE_DELAY_BITS + SYNAPSE_TYPE_BITS\
+                                + SYNAPSE_INDEX_BITS))
+#define SPIKE_RECORD_LENGTH (N_NEURONS+31)/32 + 2
+#define SPIKE_RECORD_COUNTER_LENGTH (N_NEURONS+31)/32
+
+static volatile uint32_t* const timer = (uint32_t *) TIMER1_BASE;
+
+#endif

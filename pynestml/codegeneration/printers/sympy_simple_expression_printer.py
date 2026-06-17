@@ -19,7 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.simple_expression_printer import SimpleExpressionPrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
@@ -45,7 +44,7 @@ class SympySimpleExpressionPrinter(CppSimpleExpressionPrinter):
                 node.variable.get_complete_name(), SymbolKind.VARIABLE) is not None
             if not node_is_variable_symbol and PredefinedUnits.is_unit(node.variable.get_complete_name()):
                 # case for a literal unit, e.g. "ms"
-                return str(NESTUnitConverter.get_factor(PredefinedUnits.get_unit(node.variable.get_complete_name()).get_unit()))
+                return str(PredefinedUnits.get_unit(node.variable.get_complete_name()).get_unit())
 
         if node.has_unit():
             if self._variable_printer.print(node.get_variable()) in ["1", "1.", "1.0"]:
@@ -87,7 +86,4 @@ class SympySimpleExpressionPrinter(CppSimpleExpressionPrinter):
         return self.print_simple_expression(node)
 
     def print(self, node: ASTNode) -> str:
-        if node.get_implicit_conversion_factor() and not node.get_implicit_conversion_factor() == 1:
-            return "(" + str(node.get_implicit_conversion_factor()) + " * (" + self._print(node) + "))"
-
         return self._print(node)

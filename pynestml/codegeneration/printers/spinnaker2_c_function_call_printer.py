@@ -1,0 +1,171 @@
+# -*- coding: utf-8 -*-
+#
+# spinnaker_c_function_call_printer.py
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+from typing import Tuple
+from pynestml.codegeneration.printers.function_call_printer import FunctionCallPrinter
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.utils.ast_utils import ASTUtils
+
+
+class Spinnaker2CFunctionCallPrinter(FunctionCallPrinter):
+    r"""
+    Printer for ASTFunctionCall in C SpiNNaker2 API  syntax.
+    """
+
+    def print_function_call(self, node: ASTFunctionCall) -> str:
+        r"""
+        Converts a single handed over function call to C Spinnaker API syntax.
+
+        Parameters
+        ----------
+        function_call
+            The function call node to convert.
+
+        Returns
+        -------
+        s
+            The function call string in C syntax.
+        """
+        function_name = node.get_name()
+
+        if function_name in [PredefinedFunctions.TIME_RESOLUTION, PredefinedFunctions.TIME_TIMESTEP]:
+            # context dependent; we assume the template contains the necessary definitions
+            return 'global_params->calc_step_raw'
+
+        if function_name == PredefinedFunctions.TIME_STEPS:
+            raise Exception("time_steps() function not yet implemented")
+
+        if function_name == PredefinedFunctions.RANDOM_NORMAL:
+            raise Exception("rng functions not yet implemented")
+
+        if function_name == PredefinedFunctions.RANDOM_UNIFORM:
+            raise Exception("rng functions not yet implemented")
+
+        if function_name == PredefinedFunctions.EMIT_SPIKE:
+            return 'record_spike(neuron_index);\n' \
+                   'send_spikes_to_all_targets(routing_info_ptr->key_offset + neuron_index)'
+
+
+        if ASTUtils.needs_arguments(node):
+            function_name = self._print_function_call_format_string(node)
+
+            return function_name.format(*self._print_function_call_argument_list(node))
+
+        return function_name
+
+    def _print_function_call_format_string(self, function_call: ASTFunctionCall) -> str:
+        r"""
+        Converts a single handed over function call to C Spinnaker API syntax.
+
+        Parameters
+        ----------
+        function_call
+            The function call node to convert.
+
+        Returns
+        -------
+        s
+            The function call string in C syntax.
+        """
+        function_name = function_call.get_name()
+
+        if function_name == PredefinedFunctions.CLIP:
+            # the arguments of this function must be swapped and are therefore [v_max, v_min, v]
+            # return 'MIN({2!s}, MAX({1!s}, {0!s}))'
+            raise Exception("Unsupported for now")
+
+
+        if function_name == PredefinedFunctions.MAX:
+            return 'MAX({!s}, {!s})'
+
+        if function_name == PredefinedFunctions.MIN:
+            return 'MIN({!s}, {!s})'
+
+        if function_name == PredefinedFunctions.EXP:
+            return 'EXP({!s})'
+
+        if function_name == PredefinedFunctions.LN:
+            return 'LN({!s})'
+
+        if function_name == PredefinedFunctions.POW:
+            return 'POW({0!s}, {1!s})'
+
+        if function_name == PredefinedFunctions.LOG10:
+            # return '(kdivk(logk({!s}), REAL_CONST(2.303)))'
+            raise Exception("Unsupported for now")
+
+        if function_name == PredefinedFunctions.COS:
+            # return 'cos({!s})'
+            raise Exception("Unsupported for now")
+
+        if function_name == PredefinedFunctions.SIN:
+            # return 'sin({!s})'
+            raise Exception("Unsupported for now")
+
+        if function_name == PredefinedFunctions.TAN:
+            # return 'tan({!s})'
+            raise Exception("Unsupported for now")
+
+        if function_name == PredefinedFunctions.COSH:
+            # return '(HALF * (expk({!s}) + expk(-{!s})))'
+            raise Exception("Unsupported for now")
+
+        if function_name == PredefinedFunctions.SINH:
+            # return '(HALF * (expk({!s}) - expk(-{!s})))'
+            raise Exception("Unsupported for now")
+
+        if function_name == PredefinedFunctions.TANH:
+            # return 'kdik((expk({!s}) - expk(-{!s})), (expk({!s}) + expk(-{!s})))'
+            raise Exception("Unsupported for now")
+
+        if function_name == PredefinedFunctions.ERF:
+            # raise Exception("Erf not defined for spinnaker")
+            raise Exception("Unsupported for now")
+
+        if function_name == PredefinedFunctions.ERFC:
+            # raise Exception("Erfc not defined for spinnaker")
+            raise Exception("Unsupported for now")
+
+        if function_name == PredefinedFunctions.EXPM1:
+            # raise Exception("Expm1 not defined for spinnaker")
+            raise Exception("Unsupported for now")
+
+        if function_name == PredefinedFunctions.PRINT:
+            return 'log_info("%s", {!s})'
+
+        if function_name == PredefinedFunctions.PRINTLN:
+            # raise Exception("PRINTLN not defined for spinnaker2")
+            raise Exception("Unsupported for now")
+
+        if ASTUtils.needs_arguments(function_call):
+            n_args = len(function_call.get_args())
+            return function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
+
+        return function_name + '()'
+
+    def _print_function_call_argument_list(self, function_call: ASTFunctionCall) -> Tuple[str, ...]:
+        ret = []
+
+        for arg in function_call.get_args():
+            ret.append(self._expression_printer.print(arg))
+
+        return tuple(ret)
