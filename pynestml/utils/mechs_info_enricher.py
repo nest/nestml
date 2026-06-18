@@ -18,31 +18,26 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 import copy
 from collections import defaultdict
 
+from sympy.printing.str import StrPrinter
+
 from odetoolbox import analysis
+
 from pynestml.cocos.co_cos_manager import CoCosManager
-
-from pynestml.symbol_table.symbol_table import SymbolTable
-
 from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
-from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
-
-from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
-
 from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
-
 from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
-
 from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
-
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
-
 from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
-
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
+from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
@@ -50,8 +45,6 @@ from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.model_parser import ModelParser
 from pynestml.visitors.ast_visitor import ASTVisitor
-
-from sympy.printing.str import StrPrinter
 
 
 class LowerMinMaxPrinter(StrPrinter):

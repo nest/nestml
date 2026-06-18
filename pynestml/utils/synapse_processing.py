@@ -363,7 +363,7 @@ class SynapseProcessing:
         syn_info = info_collector.collect_on_receive_blocks(synapse, syn_info, pre_ports, post_ports)
 
         # get corresponding delay variable
-        syn_info["DelayVariable"] = FrontendConfiguration.get_codegen_opts()["delay_variable"][synapse.get_name().removesuffix("_nestml")]
+        syn_info["DelayVariable"] = FrontendConfiguration.get_codegen_opts()["delay_variable"][synapse.get_name().removesuffix("_nestml")] if "delay_variable" in FrontendConfiguration.get_codegen_opts().keys() and synapse.get_name().removesuffix("_nestml") in FrontendConfiguration.get_codegen_opts()["delay_variable"].keys() else "delay"
 
         # collect the update block
         syn_info = info_collector.collect_update_block(synapse, syn_info)

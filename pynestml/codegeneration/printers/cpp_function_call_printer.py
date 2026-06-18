@@ -83,7 +83,7 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         """
         function_name = function_call.get_name()
 
-        if function_name == PredefinedFunctions.HEAVISIDE:
+        if function_name == "Heaviside":    # Heaviside function is sometimes returned from sympy -- but is not a NESTML function
             return "(({0!s} < 0) ? 0.0 : (({0!s} == 0) ? 0.5 : 1.0))"
 
         if function_name == PredefinedFunctions.CLIP:

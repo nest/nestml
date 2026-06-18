@@ -49,8 +49,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
         )
         synapse_input_path = os.path.join(
             tests_path,
-            "resources",
-            "cm_stdp_synapse.nestml"
+            "..", "..", "models", "synapses", "stdp_synapse.nestml"
         )
         target_path = os.path.join(
             tests_path,
@@ -78,7 +77,6 @@ class TestCompartmentalConcmech(unittest.TestCase):
                                                     "synapses": {
                                                         "stdp_synapse": {"post_ports": ["post_spikes"]},
                                                     }}],
-                          "delay_variable": {"stdp_synapse": "d"},
                           "weight_variable": {"stdp_synapse": "w"}
                           }
         )
@@ -134,7 +132,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
 
         if model_case == "nestml":
             post_neuron.receptors = [
-                {"comp_idx": 0, "receptor_type": "AMPA_stdp_synapse_nestml", "params": {"w": 10.0, "d": 0.1, "e_AMPA": -70.0}}
+                {"comp_idx": 0, "receptor_type": "AMPA_stdp_synapse_nestml", "params": {"w": 10.0, "delay": 0.1, "e_AMPA": -70.0}}
             ]
             mm = nest.Create("multimeter", 1, {
                 "record_from": ["v_comp0", "w0", "AMPA_stdp_synapse_nestml0", "pre_trace0", "post_trace0"], "interval": .1})
