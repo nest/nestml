@@ -2103,7 +2103,7 @@ class ASTUtils:
 
     @classmethod
     def transform_ode_and_kernels_to_json(cls, model: ASTModel, parameters_blocks: Sequence[ASTBlockWithVariables],
-                                          kernel_buffers: Mapping[ASTKernel, ASTInputPort], printer: ASTPrinter) -> Dict:
+                                          kernel_buffers: Mapping[ASTKernel, ASTInputPort], printer: ASTPrinter, include_ODEs: bool = True) -> Dict:
         """
         Converts AST node to a JSON representation suitable for passing to ode-toolbox.
 
@@ -2115,29 +2115,36 @@ class ASTUtils:
            convolve(G, inh_spikes)
 
         then `kernel_buffers` will contain the pairs `(G, exc_spikes)` and `(G, inh_spikes)`, from which two ODEs will be generated, with dynamical state (variable) names `G__X__exc_spikes` and `G__X__inh_spikes`.
+
+        Parameters
+        ----------
+
+        include_ODEs
+            When set to True, include the ODEs in the equations block.
         """
         odetoolbox_indict = {}
 
         odetoolbox_indict["dynamics"] = []
-        for equations_block in model.get_equations_blocks():
-            for equation in equations_block.get_ode_equations():
-                # n.b. includes single quotation marks to indicate differential order
-                lhs = cls.to_ode_toolbox_name(equation.get_lhs().get_complete_name())
-                rhs = printer.print(equation.get_rhs())
-                entry = {"expression": lhs + " = " + rhs}
-                symbol_name = equation.get_lhs().get_name()
-                symbol = equations_block.get_scope().resolve_to_symbol(symbol_name, SymbolKind.VARIABLE)
+        if include_ODEs:
+            for equations_block in model.get_equations_blocks():
+                for equation in equations_block.get_ode_equations():
+                    # n.b. includes single quotation marks to indicate differential order
+                    lhs = cls.to_ode_toolbox_name(equation.get_lhs().get_complete_name())
+                    rhs = printer.print(equation.get_rhs())
+                    entry = {"expression": lhs + " = " + rhs}
+                    symbol_name = equation.get_lhs().get_name()
+                    symbol = equations_block.get_scope().resolve_to_symbol(symbol_name, SymbolKind.VARIABLE)
 
-                entry["initial_values"] = {}
-                symbol_order = equation.get_lhs().get_differential_order()
-                for order in range(symbol_order):
-                    iv_symbol_name = symbol_name + "'" * order
-                    initial_value_expr = model.get_initial_value(iv_symbol_name)
-                    if initial_value_expr:
-                        expr = printer.print(initial_value_expr)
-                        entry["initial_values"][cls.to_ode_toolbox_name(iv_symbol_name)] = expr
+                    entry["initial_values"] = {}
+                    symbol_order = equation.get_lhs().get_differential_order()
+                    for order in range(symbol_order):
+                        iv_symbol_name = symbol_name + "'" * order
+                        initial_value_expr = model.get_initial_value(iv_symbol_name)
+                        if initial_value_expr:
+                            expr = printer.print(initial_value_expr)
+                            entry["initial_values"][cls.to_ode_toolbox_name(iv_symbol_name)] = expr
 
-                odetoolbox_indict["dynamics"].append(entry)
+                    odetoolbox_indict["dynamics"].append(entry)
 
         # write a copy for each (kernel, spike buffer) combination
         for kernel, spike_input_port in kernel_buffers:

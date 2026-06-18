@@ -193,7 +193,7 @@ class MechanismProcessing:
                           kernel_buffer):
         kernel_buffers = {tuple(kernel_buffer)}
         odetoolbox_indict = ASTUtils.transform_ode_and_kernels_to_json(
-            neuron, [parameters_block], kernel_buffers, printer=cls._ode_toolbox_printer)
+            neuron, [parameters_block], kernel_buffers, printer=cls._ode_toolbox_printer, include_ODEs=False)
         odetoolbox_indict["options"] = {}
         odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
         return odetoolbox_indict

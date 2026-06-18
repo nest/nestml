@@ -1,4 +1,4 @@
-            # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 #
 # test__self_spike_convolutions.py
 #
