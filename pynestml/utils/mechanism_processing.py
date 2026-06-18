@@ -19,31 +19,46 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from collections import defaultdict
+from typing import Any, Dict, Optional
 
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
+
+from collections import defaultdict
 import copy
 
 from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
-
-from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
 from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
 from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
+from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.utils.ast_mechanism_information_collector import ASTMechanismInformationCollector
 from pynestml.utils.ast_utils import ASTUtils
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.messages import Messages
 
 from odetoolbox import analysis
 
 
 class MechanismProcessing:
-    """Manages the collection of basic information necesary for all types of mechanisms and uses the
+    """
+    This file is part of the compartmental code generation process.
+
+    Manages the collection of basic information necesary for all types of mechanisms and uses the
     collect_information_for_specific_mech_types interface that needs to be implemented by the specific mechanism type
-    processing classes"""
+    processing classes
+    """
 
     # used to keep track of whenever check_co_co was already called
     # see inside check_co_co
@@ -139,6 +154,65 @@ class MechanismProcessing:
         return mechs_info
 
     @classmethod
+    def convolution_ode_toolbox_processing(cls, neuron, mechs_info):
+        for mechanism_name, mechanism_info in mechs_info.items():
+            parameters_block = None
+            if neuron.get_parameters_blocks():
+                parameters_block = neuron.get_parameters_blocks()[0]
+            for convolution_name, convolution_info in mechanism_info["convolutions"].items():
+                kernel_buffer = (convolution_info["kernel"]["ASTKernel"], convolution_info["spikes"]["ASTInputPort"])
+                convolution_solution = cls.ode_solve_convolution(neuron, parameters_block, kernel_buffer)
+                mechanism_info["convolutions"][convolution_name]["analytic_solution"] = convolution_solution
+        return mechs_info
+
+    @classmethod
+    def ode_solve_convolution(cls,
+                              neuron: ASTModel,
+                              parameters_block: ASTBlockWithVariables,
+                              kernel_buffer):
+        odetoolbox_indict = cls.create_ode_indict(
+            neuron, parameters_block, kernel_buffer)
+        full_solver_result = analysis(
+            odetoolbox_indict,
+            disable_stiffness_check=True,
+            log_level=FrontendConfiguration.logging_level)
+        analytic_solver = None
+        analytic_solvers = [
+            x for x in full_solver_result if x["solver"] == "analytical"]
+        assert len(
+            analytic_solvers) <= 1, "More than one analytic solver not presently supported"
+        if len(analytic_solvers) > 0:
+            analytic_solver = analytic_solvers[0]
+
+        return analytic_solver
+
+    @classmethod
+    def create_ode_indict(cls,
+                          neuron: ASTModel,
+                          parameters_block: ASTBlockWithVariables,
+                          kernel_buffer):
+        kernel_buffers = {tuple(kernel_buffer)}
+        odetoolbox_indict = ASTUtils.transform_ode_and_kernels_to_json(
+            neuron, [parameters_block], kernel_buffers, printer=cls._ode_toolbox_printer, include_ODEs=False)
+        odetoolbox_indict["options"] = {}
+        odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
+        return odetoolbox_indict
+
+    @classmethod
+    def extract_mech_blocks(cls, info_collector, mechs_info, global_info):
+        block_list = list()
+        if "UpdateBlock" in global_info and global_info["UpdateBlock"] is not None:
+            block_list.append(global_info["UpdateBlock"].get_stmts_body())
+        if "SelfSpikesFunction" in global_info and global_info["SelfSpikesFunction"] is not None:
+            block_list.append(global_info["SelfSpikesFunction"].get_stmts_body())
+        if len(block_list) > 0:
+            info_collector.collect_block_dependencies_and_owned(mechs_info, block_list, "UpdateBlock")
+            if "UpdateBlock" in global_info and global_info["UpdateBlock"] is not None:
+                info_collector.block_reduction(mechs_info, global_info["UpdateBlock"], "UpdateBlock")
+            if "SelfSpikesFunction" in global_info and global_info["SelfSpikesFunction"] is not None:
+                info_collector.block_reduction(mechs_info, global_info["SelfSpikesFunction"], "SelfSpikesFunction")
+
+    @classmethod
     def get_mechs_info(cls, neuron: ASTModel):
         """
         returns previously generated mechs_info
@@ -150,11 +224,13 @@ class MechanismProcessing:
         return copy.deepcopy(cls.mechs_info[neuron][cls.mechType])
 
     @classmethod
-    def check_co_co(cls, neuron: ASTModel):
+    def check_co_co(cls, neuron: ASTModel, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
         """
         Checks if mechanism conditions apply for the handed over neuron.
         :param neuron: a single neuron instance.
         """
+        assert metadata, "This coco needs metadata for the neuron model!"
+        global_info = metadata[neuron.name]
 
         # make sure we only run this a single time
         # subsequent calls will be after AST has been transformed
@@ -165,15 +241,47 @@ class MechanismProcessing:
             mechs_info = info_collector.detect_mechs(cls.mechType)
 
             # collect and process all basic mechanism information
-            mechs_info = info_collector.collect_mechanism_related_definitions(neuron, mechs_info)
+            mechs_info = info_collector.collect_mechanism_related_definitions(neuron, mechs_info, global_info, cls.mechType)
+            cls.extract_mech_blocks(info_collector, mechs_info, global_info)
             mechs_info = info_collector.extend_variables_with_initialisations(neuron, mechs_info)
-            mechs_info = cls.ode_toolbox_processing(neuron, mechs_info)
+
+            mechs_info = info_collector.collect_kernels(neuron, mechs_info)
+            mechs_info = cls.convolution_ode_toolbox_processing(neuron, mechs_info)
 
             # collect and process all mechanism type specific information
             mechs_info = cls.collect_information_for_specific_mech_types(neuron, mechs_info)
 
             cls.mechs_info[neuron][cls.mechType] = mechs_info
             cls.first_time_run[neuron][cls.mechType] = False
+
+    @classmethod
+    def get_transformed_ode_equations(cls, mechs_info: dict):
+        from pynestml.utils.mechs_info_enricher import SynsInfoEnricherVisitor
+        enriched_mechs_info = copy.copy(mechs_info)
+        for mechanism_name, mechanism_info in mechs_info.items():
+            transformed_odes = list()
+            for ode in mechs_info[mechanism_name]["ODEs"]:
+                ode_name = ode.lhs.name
+                transformed_odes.append(
+                    SynsInfoEnricherVisitor.ode_name_to_transformed_ode[ode_name])
+            enriched_mechs_info[mechanism_name]["ODEs"] = transformed_odes
+
+        return enriched_mechs_info
+
+    @classmethod
+    def check_all_convolutions_with_self_spikes(cls, mechs_info):
+        from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
+        for mechanism_name, mechanism_info in mechs_info.items():
+            for convolution_name, convolution in mechanism_info["convolutions"].items():
+                if "self_spikes_port" in FrontendConfiguration.get_codegen_opts().keys():
+                    self_spikes_port_name = FrontendConfiguration.get_codegen_opts()["self_spikes_port"]
+                else:
+                    self_spikes_port_name = NESTCompartmentalCodeGenerator._default_options["self_spikes_port"]
+                if convolution["spikes"]["name"] != self_spikes_port_name:
+                    code, message = Messages.cm_non_self_spike_convolution_in_mech(mechanism_name, cls.mechType)
+                    Logger.log_message(error_position=None,
+                                       code=code, message=message,
+                                       log_level=LoggingLevel.ERROR)
 
     @classmethod
     def print_element(cls, name, element, rec_step):
@@ -189,6 +297,8 @@ class MechanismProcessing:
                 message += element.name
             elif isinstance(element, str):
                 message += element
+            elif isinstance(element, bool):
+                message += str(element)
             elif isinstance(element, dict):
                 message += "\n"
                 message += cls.print_dictionary(element, rec_step + 1)
@@ -198,6 +308,8 @@ class MechanismProcessing:
                     message += cls.print_element(str(index), element[index], rec_step + 1)
             elif isinstance(element, ASTExpression) or isinstance(element, ASTSimpleExpression):
                 message += cls._ode_toolbox_printer.print(element)
+            elif isinstance(element, ASTInlineExpression):
+                message += cls._ode_toolbox_printer.print(element.get_expression())
 
             message += "(" + type(element).__name__ + ")"
         return message

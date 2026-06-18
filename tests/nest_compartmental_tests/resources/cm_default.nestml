@@ -1,5 +1,5 @@
-# cm_default.nestml
-# #################
+# cm_default
+# ##########
 #
 # Description
 # +++++++++++
@@ -30,10 +30,6 @@ model cm_default:
 
     state:
 
-        # compartmental voltage variable,
-        # rhs value is irrelevant but the state must exist so that the nestml parser doesn't complain
-        v_comp real = 0
-
         ### ion channels ###
         # initial values state variables sodium channel
         m_Na real = 0.01696863
@@ -41,6 +37,10 @@ model cm_default:
 
         # initial values state variables potassium channel
         n_K real = 0.00014943
+
+        # compartmental voltage variable,
+        # rhs value is irrelevant but the state must exist so that the nestml parser doesn't complain
+        v_comp real = 0
 
 
     parameters:
@@ -125,6 +125,11 @@ model cm_default:
         inline AMPA_NMDA real = convolve(g_AN_AMPA, spikes_AN) * (e_AN_AMPA - v_comp) + NMDA_ratio * \
                                 convolve(g_AN_NMDA, spikes_AN) * (e_AN_NMDA - v_comp) / (1. + 0.3 * exp(-.1 * v_comp)) @mechanism::receptor
 
+        # external input current
+        inline inp pA = i_stim     @mechanism::continuous_input
+
+
+
     # functions K
     function n_inf_K (v_comp real) real:
         return 0.02*(1.0 - exp(0.111111111111111*(25.0 - v_comp)))**(-1)*(-0.002*(-25.0 + v_comp)*(1.0 - exp(0.111111111111111*(-25.0 + v_comp)))**(-1) + 0.02*(-25.0 + v_comp)*(1.0 - exp(0.111111111111111*(25.0 - v_comp)))**(-1))**(-1)*(-25.0 + v_comp)
@@ -168,6 +173,9 @@ model cm_default:
         spikes_GABA <- spike
         spikes_NMDA <- spike
         spikes_AN <- spike
+
+        # input current
+        i_stim pA <- continuous
 
     output:
         spike

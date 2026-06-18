@@ -46,7 +46,7 @@ from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
-from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
+from pynestml.meta_model.ast_compilation_unit import ASTCompilationUnit
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
@@ -269,8 +269,8 @@ class ASTNodeFactory:
         return ASTLogicalOperator(is_logical_and, is_logical_or, source_position=source_position)
 
     @classmethod
-    def create_ast_nestml_compilation_unit(cls, list_of_models, source_position: ASTSourceLocation, artifact_name: str) -> ASTNestMLCompilationUnit:
-        instance = ASTNestMLCompilationUnit(artifact_name=artifact_name, source_position=source_position)
+    def create_ast_compilation_unit(cls, list_of_models, source_position: ASTSourceLocation, artifact_name: str) -> ASTCompilationUnit:
+        instance = ASTCompilationUnit(artifact_name=artifact_name, source_position=source_position)
         for i in list_of_models:
             instance.add_model(i)
         return instance

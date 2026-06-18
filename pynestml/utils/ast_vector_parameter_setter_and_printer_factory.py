@@ -29,7 +29,11 @@ from pynestml.symbols.variable_symbol import VariableSymbol
 
 
 class ASTVectorParameterSetterAndPrinterFactory:
+    """
+    This file is part of the compartmental code generation process.
 
+    Part of vectorized printing.
+    """
     def __init__(self, model, printer):
         self.printer = printer
         self.model = model

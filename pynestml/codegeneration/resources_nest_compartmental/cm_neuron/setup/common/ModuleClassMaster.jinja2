@@ -51,6 +51,9 @@
 {% for neuron in neurons %}
 #include "{{perNeuronFileNamesCm[neuron.get_name()]["main"]}}.h"
 {% endfor %}
+{% for synapse in synapses %}
+#include "{{perSynapseFileNamesCm[synapse.get_name()]["main"]}}.h"
+{% endfor %}
 
 class {{moduleName}} : public nest::NESTExtensionInterface
 {
@@ -67,5 +70,8 @@ void {{moduleName}}::initialize()
 {
 {%- for neuron in neurons %}
     nest::register_{{perNeuronFileNamesCm[neuron.get_name()]["main"]}}("{{perNeuronFileNamesCm[neuron.get_name()]["main"]}}");
+{%- endfor %}
+{%- for synapse in synapses %}
+    nest::register_{{perSynapseFileNamesCm[synapse.get_name()]["main"]}}("{{perSynapseFileNamesCm[synapse.get_name()]["main"]}}");
 {%- endfor %}
 }

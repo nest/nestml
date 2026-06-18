@@ -221,7 +221,7 @@ parser grammar PyNestMLParser;
   // -------------------------------------------------------------------------
 
   /**
-   * ASTNestMLCompilationUnit represents a collection of models.
+   * ASTCompilationUnit represents a collection of models.
    * @attribute model: A list of processed models.
   **/
   nestMLCompilationUnit : ( model | NEWLINE )+ EOF;

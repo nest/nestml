@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Any, Dict, Optional
+
 from abc import ABCMeta, abstractmethod
 
 from pynestml.meta_model.ast_node import ASTNode
@@ -35,7 +37,7 @@ class CoCo:
 
     @classmethod
     @abstractmethod
-    def check_co_co(cls, node: ASTNode):
+    def check_co_co(cls, node: ASTNode, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
         """
         Check the coco.
 

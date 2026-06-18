@@ -41,8 +41,6 @@ from pynestml.transformers.transformer import Transformer
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
-from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
-from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 
 def get_known_targets():
@@ -627,10 +625,10 @@ def process() -> bool:
     # validation -- check cocos for models that do not have errors already
     excluded_models = []
     for model in models:
-        if not Logger.has_errors(model.name):
+        if not Logger.has_errors(model):
             CoCosManager.check_cocos(model)
 
-        if Logger.has_errors(model.name):
+        if Logger.has_errors(model):
             code, message = Messages.get_model_contains_errors(model.get_name())
             Logger.log_message(node=model, code=code, message=message,
                                error_position=model.get_source_position(),

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# ast_nestml_compilation_unit.py
+# ast_compilation_unit.py
 #
 # This file is part of NEST.
 #
@@ -25,12 +25,12 @@ from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node import ASTNode
 
 
-class ASTNestMLCompilationUnit(ASTNode):
+class ASTCompilationUnit(ASTNode):
     """
     Store a collection of processed ASTModels.
     """
 
-    def __init__(self, model_list: List[ASTModel] = None, artifact_name=None, *args, **kwargs):
+    def __init__(self, model_list: Optional[List[ASTModel]] = None, artifact_name=None, *args, **kwargs):
         """
         Standard constructor.
 
@@ -39,9 +39,8 @@ class ASTNestMLCompilationUnit(ASTNode):
         :param model_list: list of contained neurons
         :param artifact_name: the name of the file where ths model is contained in
         """
-        super(ASTNestMLCompilationUnit, self).__init__(*args, **kwargs)
-        assert (artifact_name is not None and isinstance(artifact_name, str)), \
-            "(PyNestML.AST.NestMLCompilationUnit) No or wrong type of artifact name provided (%s)!" % type(artifact_name)
+        super(ASTCompilationUnit, self).__init__(*args, **kwargs)
+        assert (artifact_name is not None and isinstance(artifact_name, str)), "No or wrong type of artifact name provided (%s)!" % type(artifact_name)
         self.model_list = []
         if model_list is not None:
             assert type(model_list) is list
@@ -53,18 +52,18 @@ class ASTNestMLCompilationUnit(ASTNode):
         Return a clone ("deep copy") of this node.
 
         :return: new AST node instance
-        :rtype: ASTNestMLCompilationUnit
+        :rtype: ASTCompilationUnit
         """
         model_list_dup = [neuron.clone() for neuron in self.model_list]
-        dup = ASTNestMLCompilationUnit(artifact_name=self.artifact_name,
-                                       model_list=model_list_dup,
-                                       # ASTNode common attributes:
-                                       source_position=self.source_position,
-                                       scope=self.scope,
-                                       comment=self.comment,
-                                       pre_comments=[s for s in self.pre_comments],
-                                       in_comment=self.in_comment,
-                                       implicit_conversion_factor=self.implicit_conversion_factor)
+        dup = ASTCompilationUnit(artifact_name=self.artifact_name,
+                                 model_list=model_list_dup,
+                                 # ASTNode common attributes:
+                                 source_position=self.source_position,
+                                 scope=self.scope,
+                                 comment=self.comment,
+                                 pre_comments=[s for s in self.pre_comments],
+                                 in_comment=self.in_comment,
+                                 implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 
@@ -113,7 +112,7 @@ class ASTNestMLCompilationUnit(ASTNode):
         r"""
         The equality method.
         """
-        if not isinstance(other, ASTNestMLCompilationUnit):
+        if not isinstance(other, ASTCompilationUnit):
             return False
         if len(self.get_model_list()) != len(other.get_model_list()):
             return False
