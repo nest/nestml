@@ -8,4 +8,5 @@ Jinja2 >= 2.10
 typing;python_version<"3.5"
 astropy
 semver
-#odetoolbox >= 3.0.0  # XXX: UNCOMMENT THIS!
+# odetoolbox >= 3.0.0  # XXX: UNCOMMENT THIS!
+git+https://github.com/nest/ode-toolbox@main
