@@ -97,7 +97,6 @@ class NESTCodeGenerator(CodeGenerator):
     - **neuron_parent_class_include**: The C++ header filename to include that contains **neuron_parent_class**. Default: ``"archiving_node.h"``.
     - **neuron_synapse_pairs**: List of pairs of (neuron, synapse) model names.
     - **synapse_models**: List of synapse model names. Instructs the code generator that models with these names are synapse models.
-    - **disable_singularity_detection**: Set to True to disable detection of conditions under which numerical singularities (division by zero) could occur in the generated analytic solver. This can be useful for analytic solvers containing a large amount of conditions, which could take a long time to compute. If True, at most one analytic solver will be returned, in which numerical singularities could occur. (This parameter is directly passed to ODE-toolbox.)
     - **use_alternative_expM**: If :python:`False`, use the sympy function ``sympy.exp`` to compute the matrix exponential. If :python:`True`, use an alternative function (see :py:func:`odetoolbox.sympy_helpers.expMt` for details). This can be useful as calls to ``sympy.exp`` can sometimes take a very large amount of time. (This parameter is directly passed to ODE-toolbox.)
     - **gap_junctions**:
         - **membrane_potential_variable**
@@ -124,7 +123,6 @@ class NESTCodeGenerator(CodeGenerator):
         "neuron_parent_class_include": "archiving_node.h",
         "neuron_synapse_pairs": [],
         "synapse_models": [],
-        "disable_singularity_detection": False,
         "use_alternative_expM": False,
         "gap_junctions": {
             "enable": False,

@@ -77,13 +77,15 @@ class ODEToolboxTransformer(Transformer):
     - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
     - **solver**: A string identifying the preferred ODE solver. ``"analytic"`` for propagator solver preferred; fallback to numeric solver in case ODEs are not analytically solvable. Use ``"numeric"`` to disable analytic solver.
     - **ode_toolbox_json_options**: An optional extra dictionary; key-value pairs are passed to ODE-toolbox indict "options" key.
+    - **disable_singularity_detection**: Set to True to disable detection of conditions under which numerical singularities (division by zero) could occur in the generated analytic solver. This can be useful for analytic solvers containing a large amount of conditions, which could take a long time to compute. (This parameter is directly passed to ODE-toolbox.)
     """
 
     _default_options = {
         "preserve_expressions": True,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "solver": "analytic",
-        "ode_toolbox_json_options": None
+        "ode_toolbox_json_options": None,
+        "disable_singularity_detection": False
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
@@ -133,6 +135,8 @@ class ODEToolboxTransformer(Transformer):
         solver_result = odetoolbox.analysis(odetoolbox_indict,
                                             disable_stiffness_check=True,
                                             disable_analytic_solver=disable_analytic_solver,
+                                            disable_singularity_detection=self.get_option("disable_singularity_detection"),
+                                            disable_singularity_mitigation=True,    # multiple conditional solvers returned from ODE-toolbox not yet supported by NESTML
                                             preserve_expressions=self.get_option("preserve_expressions"),
                                             log_level=FrontendConfiguration.logging_level)
         analytic_solver = None
@@ -150,6 +154,8 @@ class ODEToolboxTransformer(Transformer):
                 solver_result = odetoolbox.analysis(odetoolbox_indict,
                                                     disable_stiffness_check=True,
                                                     disable_analytic_solver=True,
+                                                    disable_singularity_detection=True,
+                                                    disable_singularity_mitigation=True,    # multiple conditional solvers returned from ODE-toolbox not yet supported by NESTML
                                                     preserve_expressions=self.get_option("preserve_expressions"),
                                                     log_level=FrontendConfiguration.logging_level)
             numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
