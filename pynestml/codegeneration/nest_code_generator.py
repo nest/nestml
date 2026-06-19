@@ -184,7 +184,7 @@ class NESTCodeGenerator(CodeGenerator):
 
                 if self.get_option("delay_variable"):
                     delay_variable = self.get_option("delay_variable")[synapse_name_stripped]
-                    CoCoNESTSynapseDelayNotAssignedTo.check_co_co(delay_variable, model)
+                    CoCoNESTSynapseDelayNotAssignedTo.check_co_co(model, {model.name: {"delay_variable": delay_variable}})
 
                 if Logger.has_errors(model.name):
                     raise Exception("Error(s) occurred during code generation")
