@@ -23,6 +23,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, Iterable, Mapping, Optional, Set, Tuple
 
+import inspect
+
 import odetoolbox
 
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
@@ -132,13 +134,24 @@ class ODEToolboxTransformer(Transformer):
         odetoolbox_indict = self.create_ode_toolbox_indict(model, kernel_buffers)
 
         disable_analytic_solver = self.get_option("solver") != "analytic"
-        solver_result = odetoolbox.analysis(odetoolbox_indict,
-                                            disable_stiffness_check=True,
-                                            disable_analytic_solver=disable_analytic_solver,
-                                            disable_singularity_detection=self.get_option("disable_singularity_detection"),
-                                            disable_singularity_mitigation=True,    # multiple conditional solvers returned from ODE-toolbox not yet supported by NESTML
-                                            preserve_expressions=self.get_option("preserve_expressions"),
-                                            log_level=FrontendConfiguration.logging_level)
+
+        if "use_alternative_expM" in inspect.signature(odetoolbox.analysis).parameters.keys():
+            Logger.log_message(None, None, "Old version of ODE-toolbox used; consider upgrading. ``disable_singularity_detection`` and ``use_alternative_expM`` flags will be ignored.", None, LoggingLevel.WARNING)
+            solver_result = odetoolbox.analysis(odetoolbox_indict,
+                                                disable_stiffness_check=True,
+                                                disable_analytic_solver=disable_analytic_solver,
+                                                disable_singularity_detection=self.get_option("disable_singularity_detection"),
+                                                disable_singularity_mitigation=True,    # multiple conditional solvers returned from ODE-toolbox not yet supported by NESTML
+                                                use_alternative_expM=self.get_option("use_alternative_expM"),
+                                                preserve_expressions=self.get_option("preserve_expressions"),
+                                                log_level=FrontendConfiguration.logging_level)
+        else:
+            solver_result = odetoolbox.analysis(odetoolbox_indict,
+                                                disable_stiffness_check=True,
+                                                disable_analytic_solver=disable_analytic_solver,
+                                                disable_singularity_detection=self.get_option("disable_singularity_detection"),
+                                                preserve_expressions=self.get_option("preserve_expressions"),
+                                                log_level=FrontendConfiguration.logging_level)
         analytic_solver = None
         analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
         assert len(analytic_solvers) <= 1, "More than one analytic solver not presently supported"
@@ -151,13 +164,22 @@ class ODEToolboxTransformer(Transformer):
         if numeric_solvers:
             if analytic_solver:
                 # previous solver_result contains both analytic and numeric solver; re-run ODE-toolbox generating only numeric solver
-                solver_result = odetoolbox.analysis(odetoolbox_indict,
-                                                    disable_stiffness_check=True,
-                                                    disable_analytic_solver=True,
-                                                    disable_singularity_detection=True,
-                                                    disable_singularity_mitigation=True,    # multiple conditional solvers returned from ODE-toolbox not yet supported by NESTML
-                                                    preserve_expressions=self.get_option("preserve_expressions"),
-                                                    log_level=FrontendConfiguration.logging_level)
+                if "use_alternative_expM" in inspect.signature(odetoolbox.analysis).parameters.keys():
+                    solver_result = odetoolbox.analysis(odetoolbox_indict,
+                                                        disable_stiffness_check=True,
+                                                        disable_analytic_solver=True,
+                                                        disable_singularity_detection=True,
+                                                        disable_singularity_mitigation=True,    # multiple conditional solvers returned from ODE-toolbox not yet supported by NESTML
+                                                        use_alternative_expM=self.get_option("use_alternative_expM"),
+                                                        preserve_expressions=self.get_option("preserve_expressions"),
+                                                        log_level=FrontendConfiguration.logging_level)
+                else:
+                    solver_result = odetoolbox.analysis(odetoolbox_indict,
+                                                        disable_stiffness_check=True,
+                                                        disable_analytic_solver=True,
+                                                        disable_singularity_detection=True,
+                                                        preserve_expressions=self.get_option("preserve_expressions"),
+                                                        log_level=FrontendConfiguration.logging_level)
             numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
             assert len(numeric_solvers) <= 1, "More than one numeric solver not presently supported"
             if len(numeric_solvers) > 0:

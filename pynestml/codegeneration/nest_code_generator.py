@@ -29,7 +29,6 @@ except ImportError:
     from typing_extensions import override
 
 import datetime
-import inspect
 import re
 
 import pynestml
