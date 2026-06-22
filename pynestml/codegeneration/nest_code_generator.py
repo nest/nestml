@@ -96,7 +96,6 @@ class NESTCodeGenerator(CodeGenerator):
     - **neuron_parent_class_include**: The C++ header filename to include that contains **neuron_parent_class**. Default: ``"archiving_node.h"``.
     - **neuron_synapse_pairs**: List of pairs of (neuron, synapse) model names.
     - **synapse_models**: List of synapse model names. Instructs the code generator that models with these names are synapse models.
-    - **use_alternative_expM**: If :python:`False`, use the sympy function ``sympy.exp`` to compute the matrix exponential. If :python:`True`, use an alternative function (see :py:func:`odetoolbox.sympy_helpers.expMt` for details). This can be useful as calls to ``sympy.exp`` can sometimes take a very large amount of time. (This parameter is directly passed to ODE-toolbox.)
     - **gap_junctions**:
         - **membrane_potential_variable**
         - **gap_current_port**
@@ -122,7 +121,6 @@ class NESTCodeGenerator(CodeGenerator):
         "neuron_parent_class_include": "archiving_node.h",
         "neuron_synapse_pairs": [],
         "synapse_models": [],
-        "use_alternative_expM": False,
         "gap_junctions": {
             "enable": False,
             "membrane_potential_variable": "V_m",
