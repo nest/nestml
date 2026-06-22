@@ -138,7 +138,6 @@ class ODEToolboxTransformer(Transformer):
         disable_analytic_solver = self.get_option("solver") != "analytic"
 
         if "use_alternative_expM" in inspect.signature(odetoolbox.analysis).parameters.keys():
-            Logger.log_message(None, None, "Old version of ODE-toolbox used; consider upgrading. ``disable_singularity_detection`` and ``use_alternative_expM`` flags will be ignored.", None, LoggingLevel.WARNING)
             solver_result = odetoolbox.analysis(odetoolbox_indict,
                                                 disable_stiffness_check=True,
                                                 disable_analytic_solver=disable_analytic_solver,
@@ -148,6 +147,7 @@ class ODEToolboxTransformer(Transformer):
                                                 preserve_expressions=self.get_option("preserve_expressions"),
                                                 log_level=FrontendConfiguration.logging_level)
         else:
+            Logger.log_message(None, None, "Old version of ODE-toolbox used; consider upgrading. ``disable_singularity_detection`` and ``use_alternative_expM`` flags will be ignored.", None, LoggingLevel.WARNING)
             solver_result = odetoolbox.analysis(odetoolbox_indict,
                                                 disable_stiffness_check=True,
                                                 disable_analytic_solver=disable_analytic_solver,
