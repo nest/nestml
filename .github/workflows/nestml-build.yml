@@ -106,7 +106,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip pytest jupyterlab matplotlib pycodestyle scipy
           python -m pip install -r requirements.txt
-          python -m pip install --upgrade git+https://github.com/nest/ode-toolbox
+          python -m pip install --upgrade git+https://github.com/clinssen/ode-toolbox@fewer_debug_messages
 
       - name: Install NESTML
         run: |
@@ -141,7 +141,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip pytest jupyterlab matplotlib pycodestyle scipy
           python -m pip install -r requirements.txt
-          python -m pip install --upgrade git+https://github.com/nest/ode-toolbox
+          python -m pip install --upgrade git+https://github.com/clinssen/ode-toolbox@fewer_debug_messages
 
       - name: Install NESTML
         run: |
@@ -180,7 +180,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip pytest jupyterlab matplotlib pycodestyle scipy
           python -m pip install -r requirements.txt
-          python -m pip install --upgrade git+https://github.com/nest/ode-toolbox
+          python -m pip install --upgrade git+https://github.com/clinssen/ode-toolbox@fewer_debug_messages
 
       - name: Install NESTML
         run: |
@@ -223,7 +223,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip pytest jupyterlab matplotlib pycodestyle scipy pandas
           python -m pip install -r requirements.txt
-          python -m pip install --upgrade git+https://github.com/nest/ode-toolbox
+          python -m pip install --upgrade git+https://github.com/clinssen/ode-toolbox@fewer_debug_messages
 
       - name: Install NEST simulator
         run: |
@@ -321,7 +321,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip pytest jupyterlab matplotlib pycodestyle scipy pandas
           python -m pip install -r requirements.txt
-          python -m pip install --upgrade git+https://github.com/nest/ode-toolbox
+          python -m pip install --upgrade git+https://github.com/clinssen/ode-toolbox@fewer_debug_messages
 
       - name: Install NEST simulator
         run: |
@@ -380,7 +380,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip pytest matplotlib scipy pybind11 psutil pkgconfig
           python -m pip install -r requirements.txt
-          python -m pip install --upgrade git+https://github.com/nest/ode-toolbox
+          python -m pip install --upgrade git+https://github.com/clinssen/ode-toolbox@fewer_debug_messages
 
       - name: Install GeNN
         run: |
