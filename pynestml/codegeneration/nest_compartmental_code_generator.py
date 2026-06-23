@@ -46,6 +46,7 @@ from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
 from pynestml.codegeneration.printers.cpp_printer import CppPrinter
@@ -304,6 +305,17 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             FrontendConfiguration.get_target_path())
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
 
+    def _get_nest_version_namespace(self) -> Dict:
+        if not self.option_exists("nest_version") or not self.get_option("nest_version"):
+            nest_version = NESTTools.detect_nest_version()
+            self.set_options({"nest_version": nest_version})
+
+        nest_version = self.get_option("nest_version")
+        return {
+            "nest_version": nest_version,
+            "nest_version_dict": NESTTools.get_version_dict_from_version_string(nest_version)
+        }
+
     def _get_module_namespace(self, neurons: List[ASTModel]) -> Dict:
         """
         Creates a namespace for generating NEST extension module code
@@ -311,18 +323,12 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         :return: a context dictionary for rendering templates
         """
         namespace = {"neurons": neurons,
-                     "nest_version": self.get_option("nest_version"),
                      "moduleName": FrontendConfiguration.get_module_name(),
                      "fp_precision": self.get_option("fp_precision"),
                      "use_fastexp": self.get_option("use_fastexp"),
                      "nestml_version": pynestml.__version__,
                      "now": datetime.datetime.utcnow()}
-
-        # auto-detect NEST Simulator installed version
-        if not self.option_exists("nest_version") or not self.get_option("nest_version"):
-            from pynestml.codegeneration.nest_tools import NESTTools
-            nest_version = NESTTools.detect_nest_version()
-            self.set_options({"nest_version": nest_version})
+        namespace.update(self._get_nest_version_namespace())
 
         # neuron specific file names in compartmental case
         neuron_name_to_filename = dict()
@@ -778,7 +784,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             if kw.isupper():
                 namespace["PyNestMLLexer"][kw] = eval("PyNestMLLexer." + kw)
 
-        namespace["nest_version"] = self.get_option("nest_version")
+        namespace.update(self._get_nest_version_namespace())
         namespace["fp_precision"] = self.get_option("fp_precision")
         namespace["use_fastexp"] = self.get_option("use_fastexp")
 

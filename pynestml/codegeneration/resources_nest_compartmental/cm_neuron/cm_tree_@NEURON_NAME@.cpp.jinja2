@@ -273,17 +273,19 @@ void
 nest::CompTree{{cm_unique_suffix}}::add_compartment( const long parent_index, const DictionaryDatum& compartment_params )
 {
   //Check whether all passed parameters exist within the used neuron model:
-{%- if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
-  Dictionary* comp_param_copy = new Dictionary(*compartment_params);
-{%- else %}
-  Dictionary comp_param_copy = compartment_params;
-{%- endif %}
   std::set< std::string > available_vars = get_all_available_vars();
   std::set< std::string > invalid_params;
+{%- if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
+  for ( const auto& [key, value] : *compartment_params )
+  {
+    const std::string param_name = key.toString();
+{%- else %}
   for ( const auto& [key, value] : compartment_params )
   {
-    if(!available_vars.contains(key)){
-      invalid_params.insert(key);
+    const std::string& param_name = key;
+{%- endif %}
+    if(available_vars.find(param_name) == available_vars.end()){
+      invalid_params.insert(param_name);
     }
   }
 

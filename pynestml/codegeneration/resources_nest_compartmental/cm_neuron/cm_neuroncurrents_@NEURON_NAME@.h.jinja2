@@ -413,10 +413,10 @@ public:
     void f_self_spike();
 
   // calibration
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  void calibrate();
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
   void pre_run_hook();
+{%- else %}
+  void calibrate();
 {%- endif %}
   void append_recordables(std::map< Name, {{ cm_scalar_t }}* >* recordables, const long compartment_idx);
   void set_buffer_ptr( std::vector< RingBuffer >& rec_buffers )
@@ -1164,7 +1164,11 @@ public:
     {%- for receptor_name, receptor_info in recs_info.items() %}
     for( std::size_t syn_it = 0; syn_it != {{receptor_name}}{{receptor_suffix}}.neuron_{{receptor_name}}_receptor_count; syn_it++)
     {
-      DictionaryDatum dd;
+{%- if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
+      DictionaryDatum dd = DictionaryDatum( new Dictionary );
+{%- else %}
+      Dictionary dd;
+{%- endif %}
       {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::receptor_idx", "static_cast< long >(syn_it)") }}
       {{ write_in_dictionary.WriteInDictionary("dd", "long", "names::comp_idx", "compartment_index") }}
       {{ write_in_dictionary.WriteInDictionary("dd", "std::string", "names::receptor_type", "\"" + receptor_name + "\"") }}

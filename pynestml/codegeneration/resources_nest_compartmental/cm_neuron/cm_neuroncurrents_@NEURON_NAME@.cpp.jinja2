@@ -431,10 +431,10 @@ nest::{{ion_channel_name}}{{cm_unique_suffix}}::append_recordables(std::map< Nam
 }
 
     // initialization channel
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-void calibrate() {
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
 void nest::{{ion_channel_name}}{{cm_unique_suffix}}::pre_run_hook() {
+{%- else %}
+void nest::{{ion_channel_name}}{{cm_unique_suffix}}::calibrate() {
 {%- endif %}
     {% if "time_resolution_var" in channel_info %}
     {{ cm_scalar_t }} {{ printer_no_origin.print(channel_info["time_resolution_var"]) }} = Time::get_resolution().get_ms();
@@ -925,10 +925,10 @@ nest::{{ concentration_name }}{{cm_unique_suffix}}::append_recordables(std::map<
 }
 
     // initialization concentration
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-void nest::{{ concentration_name }}{{cm_unique_suffix}}::calibrate() {
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
 void nest::{{ concentration_name }}{{cm_unique_suffix}}::pre_run_hook() {
+{%- else %}
+void nest::{{ concentration_name }}{{cm_unique_suffix}}::calibrate() {
 {%- endif %}
     {% if "time_resolution_var" in concentration_info %}
     {{ cm_scalar_t }} {{ printer_no_origin.print(concentration_info["time_resolution_var"]) }} = Time::get_resolution().get_ms();
@@ -1286,10 +1286,10 @@ nest::{{receptor_name}}{{cm_unique_suffix}}::append_recordables(std::map< Name, 
     }
 }
 
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-void nest::{{receptor_name}}{{cm_unique_suffix}}::calibrate()
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
 void nest::{{receptor_name}}{{cm_unique_suffix}}::pre_run_hook()
+{%- else %}
+void nest::{{receptor_name}}{{cm_unique_suffix}}::calibrate()
 {%- endif %}
 {
 
