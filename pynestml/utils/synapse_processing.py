@@ -42,7 +42,6 @@ from pynestml.utils.string_utils import removesuffix
 import odetoolbox
 
 
-
 class SynapseProcessing:
     """
     This file is part of the compartmental code generation process.
