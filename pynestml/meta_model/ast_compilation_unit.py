@@ -40,8 +40,7 @@ class ASTCompilationUnit(ASTNode):
         :param artifact_name: the name of the file where ths model is contained in
         """
         super(ASTCompilationUnit, self).__init__(*args, **kwargs)
-        assert (artifact_name is not None and isinstance(artifact_name, str)), \
-            "(PyNestML.AST.NestMLCompilationUnit) No or wrong type of artifact name provided (%s)!" % type(artifact_name)
+        assert (artifact_name is not None and isinstance(artifact_name, str)), "No or wrong type of artifact name provided (%s)!" % type(artifact_name)
         self.model_list = []
         if model_list is not None:
             assert type(model_list) is list

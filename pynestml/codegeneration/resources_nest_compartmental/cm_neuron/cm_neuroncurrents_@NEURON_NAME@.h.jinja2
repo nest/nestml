@@ -663,11 +663,9 @@ public:
     void distribute_shared_vector(std::vector< {{ cm_scalar_t }} >& shared_vector, std::vector< {{ cm_scalar_t }} >& distributed_vector);
 
     void get_history__( double t1,
-    double t2,
-    std::deque< histentry >::iterator* start,
-    std::deque< histentry >::iterator* finish );
-
-
+                        double t2,
+                        std::deque< histentry >::iterator* start,
+                        std::deque< histentry >::iterator* finish );
 };
 
 {% endfor -%}
@@ -1496,4 +1494,4 @@ public:
 
 } // namespace
 
-#endif /* #ifndef receptorS_NEAT_H_{{cm_unique_suffix | upper }} */
+#endif /* #ifndef RECEPTORS_NEAT_H_{{cm_unique_suffix | upper }} */

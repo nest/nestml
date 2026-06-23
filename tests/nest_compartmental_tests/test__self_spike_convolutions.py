@@ -29,10 +29,10 @@ from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_compartmental_target
 
 # set to `True` to plot simulation traces
-TEST_PLOTS = True
 try:
     import matplotlib
     import matplotlib.pyplot as plt
+    TEST_PLOTS = True
 except BaseException as e:
     # always set TEST_PLOTS to False if matplotlib can not be imported
     TEST_PLOTS = False

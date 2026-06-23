@@ -41,7 +41,7 @@ class CoCoCmContinuousInputModel(CoCo):
         """
         Checks if this compartmental condition applies to the handed over neuron.
         If yes, it checks the presence of expected functions and declarations.
-        :param neuron: a single neuron instance.
+        :param node: a single model instance.
         """
         assert isinstance(node, ASTModel), "This coco can only be called on ASTModels!"
 

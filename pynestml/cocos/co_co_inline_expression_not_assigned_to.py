@@ -47,7 +47,7 @@ class CoCoInlineExpressionNotAssignedTo(CoCo):
     def check_co_co(cls, node: ASTNode, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
         """
         Ensures the coco for the handed over neuron.
-        :param node: a single neuron instance.
+        :param node: a single model instance.
         """
         assert isinstance(node, ASTModel), "This coco can only be called on ASTModels!"
 

@@ -268,7 +268,7 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
       {%- for variable_info in channel_info["SecondaryInlineExpressions"] %}
         {%- if variable_info.is_recordable %}
         {%- set variable = variable_info.variable_name %}
-      {{ variable }}.push_back(0);
+        {{ variable }}.push_back(0);
         {%- endif %}
       {%- endfor %}
     }
@@ -1345,7 +1345,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::f_numstep(const std::vector< {
 
   for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
       // get spikes
-      s_val[i] = {{receptor_info["buffer_name"]}}_[i]->get_value( lag ); //  * g_norm_;
+      s_val[i] = {{receptor_info["buffer_name"]}}_[i]->get_value( lag );
   }
 
     {%- for function in receptor_info["Functions"] %}
@@ -1939,7 +1939,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep
 
     for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
       // get spikes
-      s_val[i] = {{receptor_info["buffer_name"]}}_[i]->get_value( lag ); //  * g_norm_;
+      s_val[i] = {{receptor_info["buffer_name"]}}_[i]->get_value( lag );
     }
         //synaptic processing:
         //presynaptic spike processing
@@ -2283,8 +2283,10 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::si
       {%- endfor %}
 }
 
+/**
+ * update {{continuous_name}} continuous input parameters and states
+**/
 void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::size_t comp_ass, const long con_in_index, const DictionaryDatum& con_in_params)
-/* update {{continuous_name}} continuous input parameters and states */
 {
     neuron_{{ continuous_name }}_continuous_input_count++;
     compartment_association.push_back(comp_ass);

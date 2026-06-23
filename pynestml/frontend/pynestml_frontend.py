@@ -616,6 +616,7 @@ def process() -> bool:
     # initialise code generator
     code_generator = code_generator_from_target_name(FrontendConfiguration.get_target_platform())
     unused_opts_codegen = code_generator.set_options(FrontendConfiguration.get_codegen_opts())
+
     # initialise builder
     _builder, unused_opts_builder = builder_from_target_name(FrontendConfiguration.get_target_platform(),
                                                              options=FrontendConfiguration.get_codegen_opts())
@@ -630,14 +631,6 @@ def process() -> bool:
     # validation -- check cocos for models that do not have errors already
     excluded_models = []
     for model in models:
-        is_synapse_model = False
-        if "neuron_synapse_pairs" in FrontendConfiguration.get_codegen_opts():
-            is_synapse_model = any(
-                model.name in [synapse_name, synapse_name + FrontendConfiguration.suffix]
-                for pair in FrontendConfiguration.get_codegen_opts()["neuron_synapse_pairs"]
-                for synapse_name in pair["synapses"].keys()
-            )
-
         if not Logger.has_errors(model):
             CoCosManager.check_cocos(model)
 

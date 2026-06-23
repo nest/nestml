@@ -111,7 +111,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         - **model_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to the neuron model(s).
         - **module_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to generating the NEST module.
     - **nest_version**: A string identifying the version of NEST Simulator to generate code for. The string corresponds to the NEST Simulator git repository tag or git branch name, for instance, ``"v2.20.2"`` or ``"main"``. The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
-    - **delay_variable**: A mapping identifying, for each synapse (the name of which is given as a key), the variable or parameter in the model that corresponds with the NEST ``Connection`` class delay property.
+    - **delay_variable**: A mapping identifying, for each synapse (the name of which is given as a key), the variable or parameter in the model that corresponds with the NEST ``Connection`` class delay property. (Optional.)
     - **weight_variable**: Like ``delay_variable``, but for synaptic weight.
     """
 
@@ -430,13 +430,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         else:
             self.update_symbol_table(synapse)
 
-        synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"),
-                                             FrontendConfiguration.suffix)
-        # special case for NEST delay variable (state or parameter)
-
         ASTUtils.update_blocktype_for_common_parameters(synapse)
-        assert synapse_name_stripped in self.get_option("delay_variable").keys(), "Please specify a delay variable for synapse '" + synapse_name_stripped + "' in the code generator options"
-        assert ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped]), "Delay variable '" + self.get_option("delay_variable")[synapse_name_stripped] + "' not found in synapse '" + synapse_name_stripped + "'"
 
         return spike_updates
 
@@ -760,18 +754,22 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 self.printer_factory = ASTVectorParameterSetterAndPrinterFactory(neuron, printer)
                 self.std_vector_parameter = None
 
-            def print(self, expression, index="i", black_list=[]):
+            def set_std_vector_parameter(self, index):
                 self.std_vector_parameter = index
+
+            def print(self, expression, index="i", black_list=[]):
                 index_printer = self.printer_factory.create_ast_vector_parameter_setter_and_printer(index, black_list)
                 return index_printer.print(expression)
 
             def printer(self, index="i", black_list=[]):
-                self.std_vector_parameter = index
                 return self.printer_factory.create_ast_vector_parameter_setter_and_printer(index, black_list)
 
-        vector_printer = VectorPrinter(neuron, render_printer_no_origin)
+        vector_printer = VectorPrinter(neuron, self._printer_no_origin)
+        vector_printer.set_std_vector_parameter("i")
 
         namespace["vector_printer"] = vector_printer
+
+        namespace["self_spikes_name"] = self.get_option("self_spikes_port")
 
         # NESTML syntax keywords
         namespace["PyNestMLLexer"] = {}

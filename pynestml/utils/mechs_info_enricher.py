@@ -18,10 +18,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 import copy
 from collections import defaultdict
 
+from sympy.printing.str import StrPrinter
+
 from odetoolbox import analysis
+
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_node import ASTNode
@@ -30,22 +34,16 @@ from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.symbol_table.symbol_table import SymbolTable
 
 from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
-from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
-
-from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
-
 from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
-
 from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
-
 from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
-
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
-
 from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
-
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
+from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
@@ -111,7 +109,7 @@ class MechsInfoEnricher:
         neuron.accept(SynsInfoEnricherVisitor())
 
         mechs_info = cls.transform_ode_solutions(neuron, mechs_info)
-        mechs_info = cls.transform_convolutions_analytic_solutions_generall(neuron, mechs_info)
+        mechs_info = cls.transform_convolutions_analytic_solutions_general(neuron, mechs_info)
         mechs_info = cls.enrich_mechanism_specific(neuron, mechs_info)
         mechs_info = cls.create_non_vec_variables(mechs_info)
         mechs_info = cls.global_common_subexpression_elimination(neuron, mechs_info)
@@ -534,7 +532,7 @@ class MechsInfoEnricher:
         return mechs_info
 
     @classmethod
-    def transform_convolutions_analytic_solutions_generall(cls, neuron: ASTModel, cm_mechs_info: dict):
+    def transform_convolutions_analytic_solutions_general(cls, neuron: ASTModel, cm_mechs_info: dict):
         enriched_syns_info = copy.copy(cm_mechs_info)
         for mechanism_name, mechanism_info in cm_mechs_info.items():
             for convolution_name in mechanism_info["convolutions"].keys():

@@ -1,12 +1,11 @@
-# iaf_psc_exp_dend.nestml - Leaky integrate-and-fire neuron model with exponential PSCs
-# #########################################################################
+# iaf_psc_exp_dend - Leaky integrate-and-fire neuron model with exponential PSCs
+# ##############################################################################
 #
 # Description
 # +++++++++++
 #
-# compartmental version of a iaf_psc_exp type model. For further details see:
+# Compartmental version of a iaf_psc_exp type model. For further details see:
 # iaf_psc_exp.nestml
-#
 #
 # Copyright statement
 # +++++++++++++++++++
@@ -28,8 +27,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
-#
-
 model iaf_psc_exp_cm_dend:
 
     state:
@@ -37,7 +34,7 @@ model iaf_psc_exp_cm_dend:
         refr_t ms = 0 ms          # Refractory period timer
 
         is_refr real = 0.0
-    
+
 
     equations:
         kernel I_kernel_inh = exp(-t/tau_syn_inh)

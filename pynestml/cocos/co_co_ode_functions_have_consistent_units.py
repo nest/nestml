@@ -45,7 +45,7 @@ class CoCoOdeFunctionsHaveConsistentUnits(CoCo):
     def check_co_co(cls, node: ASTNode, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
         """
         Ensures the coco for the handed over neuron.
-        :param node: a single neuron instance.
+        :param node: a single model instance.
         """
         node.accept(OdeFunctionConsistentUnitsVisitor())
 

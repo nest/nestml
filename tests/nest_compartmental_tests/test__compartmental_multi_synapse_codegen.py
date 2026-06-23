@@ -68,8 +68,8 @@ class TestCompartmentalMultiSynapseCodegen(unittest.TestCase):
             input_path=[
                 os.path.join(resources_path, "concmech.nestml"),
                 os.path.join(resources_path, "cm_default.nestml"),
-                os.path.join(resources_path, "cm_stdp_synapse.nestml"),
-                os.path.join(resources_path, "cm_stdp_nn_symm_synapse.nestml"),
+                os.path.join(resources_path, "..", "..", "..", "models", "synapses", "stdp_synapse.nestml"),
+                os.path.join(resources_path, "..", "..", "..", "models", "synapses", "stdp_nn_symm_synapse.nestml"),
             ],
             target_path=target_path,
             module_name=self.MODULE_NAME,
@@ -92,10 +92,6 @@ class TestCompartmentalMultiSynapseCodegen(unittest.TestCase):
                         },
                     },
                 ],
-                "delay_variable": {
-                    "stdp_synapse": "d",
-                    "stdp_nn_symm_synapse": "d",
-                },
                 "weight_variable": {
                     "stdp_synapse": "w",
                     "stdp_nn_symm_synapse": "w",
@@ -107,7 +103,7 @@ class TestCompartmentalMultiSynapseCodegen(unittest.TestCase):
 
     def test_create_two_neurons_with_two_synapse_receptor_variants(self):
         compartment_params = {"C_m": 10.0, "g_C": 0.0, "g_L": 1.5, "e_L": -70.0}
-        receptor_params = {"w": 1.0, "d": 0.1, "e_AMPA": -70.0}
+        receptor_params = {"w": 1.0, "delay": 0.1, "e_AMPA": -70.0}
 
         multichannel_neuron = nest.Create("multichannel_test_model_nestml")
         multichannel_neuron.compartments = [{"parent_idx": -1, "params": compartment_params}]
@@ -145,7 +141,7 @@ class TestCompartmentalMultiSynapseCodegen(unittest.TestCase):
                 {
                     "comp_idx": 0,
                     "receptor_type": synapse_case["nestml_receptor"],
-                    "params": {"w": 10.0, "d": 0.1, "e_AMPA": -70.0},
+                    "params": {"w": 10.0, "delay": 0.1, "e_AMPA": -70.0},
                 }
             ]
             mm = nest.Create("multimeter", 1, {

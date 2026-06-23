@@ -201,10 +201,7 @@ class TestBasicIntegration:
         print(f"------- n_comp = {len(compartments)} -------")
         print("v_neuron:", v_neuron)
         print("v_expected:", v_expected)
-        try:
-            assert np.allclose(v_neuron, v_expected)
-        except AssertionError:
-            raise AssertionError(f"Neuron voltages {v_neuron} do not match expected values {v_expected}.")
+        np.testing.assert_allclose(v_neuron, v_expected, err_msg=f"Neuron voltages {v_neuron} do not match expected values {v_expected}.")
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")

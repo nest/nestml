@@ -30,7 +30,6 @@ class PredefinedFunctions:
     This class is used to represent all predefined functions of NESTML.
     """
 
-    HEAVISIDE = "Heaviside"
     TIME_RESOLUTION = "resolution"
     TIME_TIMESTEP = "timestep"
     TIME_STEPS = "steps"
@@ -95,7 +94,6 @@ class PredefinedFunctions:
         cls.__register_random_normal_function()
         cls.__register_random_poisson_function()
         cls.__register_random_uniform_function()
-        cls.__register_heaviside_function()
         cls.__register_exp1_function()
         cls.__register_delta_function()
         cls.__register_clip_function()
@@ -115,18 +113,6 @@ class PredefinedFunctions:
                                 return_type=return_type,
                                 element_reference=element_reference, is_predefined=True)
         cls.name2function[name] = symbol
-
-    @classmethod
-    def __register_heaviside_function(cls):
-        """
-        Registers the SymPy-compatible Heaviside function: 0 for x < 0, 1/2 for x == 0, 1 for x > 0.
-        """
-        params = list()
-        params.append(PredefinedTypes.get_real_type())
-        symbol = FunctionSymbol(name=cls.HEAVISIDE, param_types=params,
-                                return_type=PredefinedTypes.get_real_type(),
-                                element_reference=None, is_predefined=True)
-        cls.name2function[cls.HEAVISIDE] = symbol
 
     @classmethod
     def __register_time_steps_function(cls):
