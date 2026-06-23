@@ -200,8 +200,8 @@ class TestCompartmentalConcmech(unittest.TestCase):
         rec_nest_runs = list()
         rec_nestml_runs = list()
 
-        sim_time = 15
-        resolution = 10
+        sim_time = 30
+        resolution = 20
         sim_time = int(sim_time / resolution) * resolution
 
         sp_td = []
