@@ -1105,6 +1105,7 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::distribute_shared_vector(
 {%- for receptor_name, receptor_info in recs_info.items() %}
 // {{receptor_name}} receptor ////////////////////////////////////////////////////////////////
     {%- set non_vec_vars = receptor_info["non_vec_vars"] %}
+    // {{ non_vec_vars }}
 
 void nest::{{receptor_name}}{{cm_unique_suffix}}::new_receptor(std::size_t comp_ass, const long rec_index)
 {
@@ -1441,7 +1442,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::f_numstep(const std::vector< {
       {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
       {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i", non_vec_vars) }};
           {%- if convolution_info["spikes"]["name"] == self_spikes_name %}
-      {{state_variable_name}}[i] += self_spikes[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i", non_vec_vars) }};
+      {{state_variable_name}}[i] += self_spikes * {{ vector_printer.print(state_variable_info["init_expression"], "i", non_vec_vars) }};
           {%- else %}
       {{state_variable_name}}[i] += s_val[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i", non_vec_vars) }};
           {%- endif %}
