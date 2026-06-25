@@ -25,12 +25,9 @@ import re
 import tempfile
 import uuid
 
-from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
-from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.symbols.variable_symbol import VariableSymbol
-from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.utils.logger import Logger
 
 
@@ -127,9 +124,8 @@ class NESTCodeGeneratorUtils:
 
             input_fns += [synapse_fn]
             _codegen_opts["neuron_synapse_pairs"] = [{"neuron": neuron_model_name,
-                                                      "synapse": synapse_model_name,
-                                                      "post_ports": post_ports,
-                                                      "vt_ports": mod_ports}]
+                                                      "synapses": {synapse_model_name: {"post_ports": post_ports,
+                                                                                        "vt_ports": mod_ports}}}]
             mangled_neuron_name = neuron_model_name + "_nestml__with_" + synapse_model_name + "_nestml"
             mangled_synapse_name = synapse_model_name + "_nestml__with_" + neuron_model_name + "_nestml"
 

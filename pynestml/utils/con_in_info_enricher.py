@@ -27,9 +27,13 @@ import sympy
 
 
 class ConInInfoEnricher(MechsInfoEnricher):
-    """Class extends MechsInfoEnricher by the computation of the inline derivative. This hasn't been done in the
+    """
+    This file is part of the compartmental code generation process.
+
+    Class extends MechsInfoEnricher by the computation of the inline derivative. This hasn't been done in the
     channel processing because it would cause a circular dependency through the coco checks used by the ModelParser
-    which we need to use."""
+    which we need to use.
+    """
     def __init__(self, params):
         super(MechsInfoEnricher, self).__init__(params)
 
@@ -46,7 +50,7 @@ class ConInInfoEnricher(MechsInfoEnricher):
             sympy_expr = sympy.parsing.sympy_parser.parse_expr(expr_str)
             sympy_expr = sympy.diff(sympy_expr, "v_comp")
 
-            ast_expression_d = ModelParser.parse_expression(str(sympy_expr))
+            ast_expression_d = ModelParser.parse_expression(cls.sympy_compatible_print(sympy_expr))
             # copy scope of the original inline_expression into the the derivative
             ast_expression_d.update_scope(inline_expression.get_scope())
             ast_expression_d.accept(ASTSymbolTableVisitor())

@@ -50,11 +50,9 @@ class TestRandomFunctionsWithNeuromodSpikes:
                              codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                            "neuron_parent_class_include": "structural_plasticity_node.h",
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                                     "synapse": "random_functions_neuromod_synapse",
-                                                                     "post_ports": ["post_spikes"],
-                                                                     "vt_ports": ["mod_spikes"]}],
-                                           "weight_variable": {
-                                               "random_functions_neuromod_synapse": "w"},
+                                                                     "synapses": {"random_functions_neuromod_synapse": {"post_ports": ["post_spikes"],
+                                                                                                                        "vt_ports": ["mod_spikes"]}}}],
+                                           "weight_variable": {"random_functions_neuromod_synapse": "w"},
                                            "strictly_synaptic_vars": {"random_functions_neuromod_synapse": ["x", "y"]}})
 
     def test_random_functions_neuromod_synapse(self):

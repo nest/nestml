@@ -18,7 +18,18 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+from typing import Any, Dict, Optional
+
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
+
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.cocos.co_co import CoCo
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import Logger, LoggingLevel
@@ -35,16 +46,15 @@ class CoCoVectorVariableInNonVectorDeclaration(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node):
+    @override
+    def check_co_co(cls, node: ASTNode, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
         """
-        Ensures the coco for the handed over node.
-        :param node: a single node instance.
-        :type node: ASTModel
+        Ensures the coco for the handed over model.
+        :param node: a single model instance.
         """
-        assert node is not None and (isinstance(node, ASTModel)), \
-            "(PyNestML.CoCo.BufferNotAssigned) No or wrong type provided (%s): expecting neuron or synapse!" % type(node)
+        assert isinstance(node, ASTModel), "This coco can only be called on ASTModels!"
+
         node.accept(VectorInDeclarationVisitor())
-        return
 
 
 class VectorInDeclarationVisitor(ASTVisitor):

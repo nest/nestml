@@ -19,8 +19,18 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
+
+from typing import Any, Dict, Optional
+
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
@@ -53,11 +63,14 @@ class CoCoEquationsOnlyForInitValues(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node: ASTModel):
+    @override
+    def check_co_co(cls, node: ASTNode, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
         """
         Ensures the coco for the handed over neuron.
-        :param node: a single neuron instance.
+        :param node: a single model instance.
         """
+        assert isinstance(node, ASTModel), "This coco can only be called on ASTModels!"
+
         node.accept(EquationsOnlyForInitValues())
 
 

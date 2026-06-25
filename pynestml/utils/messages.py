@@ -148,6 +148,12 @@ class MessageCode(Enum):
     WEIGHT_VARIABLE_NOT_SPECIFIED = 119
     DELAY_VARIABLE_NOT_FOUND = 120
     WEIGHT_VARIABLE_NOT_FOUND = 121
+    CM_VAR_MULTIUSE = 122
+    CM_INVALID_CONVOLUTION_BUFFER = 123
+    UNKNOWN_NEURON_SYNAPSE_PAIR_MODEL = 124
+    CM_UNRESOLVED_FUNCTION_DEPENDENCY = 125
+    CM_UNRESOLVED_VARIABLE_DEPENDENCY = 126
+    CONVOLVE_NEEDS_BUFFER_PARAMETER = 122
 
 
 class Messages:
@@ -1005,8 +1011,7 @@ class Messages:
     def get_v_comp_variable_value_missing(cls, neuron_name: str, missing_variable_name) -> Tuple[MessageCode, str]:
         message = "Missing state variable \"" + missing_variable_name
         message += "\" inside of neuron \"" + neuron_name + "\". "
-        message += "You have passed NEST_COMPARTMENTAL flag to the generator, thereby activating compartmental mode."
-        message += "In this mode, such variable must be declared in the state block.\n"
+        message += "When generating code for the NEST compartmental platform, such variable must be declared in the state block.\n"
         message += "This variable represents the dynamically calculated value of membrane potential "
         message += "and should be utilized in your equations for voltage activated ion channels."
         return MessageCode.CM_NO_V_COMP, message
@@ -1015,7 +1020,7 @@ class Messages:
     def get_syns_bad_buffer_count(cls, buffers: set, synapse_name: str) -> Tuple[MessageCode, str]:
         message = "Synapse `\"%s\" uses the following input buffers: %s" % (
             synapse_name, buffers)
-        message += " However exaxtly one spike input buffer per synapse is allowed."
+        message += " However exactly one spike input buffer aside the self_spikes buffer is allowed per synapse."
         return MessageCode.SYNS_BAD_BUFFER_COUNT, message
 
     @classmethod
@@ -1059,14 +1064,34 @@ class Messages:
         return MessageCode.INTEGRATE_ODES_ARG_HIGHER_ORDER, message
 
     @classmethod
-    def get_mechs_dictionary_info(cls, chan_info, syns_info, conc_info, con_in_info) -> Tuple[MessageCode, str]:
+    def get_mechs_dictionary_info(cls, chan_info, recs_info, conc_info, con_in_info, syns_info, global_info) -> Tuple[MessageCode, str]:
         message = ""
         message += "chan_info:\n" + chan_info + "\n"
-        message += "syns_info:\n" + syns_info + "\n"
+        message += "recs_info:\n" + recs_info + "\n"
         message += "conc_info:\n" + conc_info + "\n"
         message += "con_in_info:\n" + con_in_info + "\n"
+        message += "syns_info:\n" + syns_info + "\n"
+        message += "global_info:\n" + global_info + "\n"
 
         return MessageCode.MECHS_DICTIONARY_INFO, message
+
+    @classmethod
+    def cm_shared_variables_not_allowed(cls, varname: str, mech_names: list):
+        message = "Multiple mechanisms ("
+        it = iter(mech_names)
+        for mech_name in mech_names:
+            message += mech_name
+            if mech_name == next(it, None):
+                message += ", "
+        message += ") are referencing the same variable: '" + varname + "'"
+
+        return MessageCode.CM_VAR_MULTIUSE, message
+
+    @classmethod
+    def cm_non_self_spike_convolution_in_mech(cls, mech_name: str, mech_type: str):
+        message = ("Only convolutions with buffer self_spikes are allowed in mechanisms of type '" + mech_type + "' but are contained in '" + mech_name + "'.")
+
+        return MessageCode.CM_INVALID_CONVOLUTION_BUFFER, message
 
     @classmethod
     def get_fixed_timestep_func_used(cls) -> Tuple[MessageCode, str]:
@@ -1167,3 +1192,21 @@ class Messages:
         message = "Weight variable \"" + variable_name + "\" not found in synapse. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
 
         return MessageCode.WEIGHT_VARIABLE_NOT_FOUND, message
+
+    @classmethod
+    def get_unknown_neuron_synapse_pair_model(cls, model_type: str, model_name: str) -> Tuple[MessageCode, str]:
+        message = "Unknown " + model_type + " model \"" + model_name + "\" in neuron_synapse_pairs."
+
+        return MessageCode.UNKNOWN_NEURON_SYNAPSE_PAIR_MODEL, message
+
+    @classmethod
+    def get_cm_unresolved_function_dependency(cls, function_name: str, context: str) -> Tuple[MessageCode, str]:
+        message = "Could not resolve function dependency \"" + function_name + "\" while collecting " + context + "."
+
+        return MessageCode.CM_UNRESOLVED_FUNCTION_DEPENDENCY, message
+
+    @classmethod
+    def get_cm_unresolved_variable_dependency(cls, variable_name: str, context: str) -> Tuple[MessageCode, str]:
+        message = "Could not resolve variable dependency \"" + variable_name + "\" while collecting " + context + "."
+
+        return MessageCode.CM_UNRESOLVED_VARIABLE_DEPENDENCY, message
