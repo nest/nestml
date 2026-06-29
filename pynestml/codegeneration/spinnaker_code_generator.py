@@ -180,9 +180,9 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
 
     def _get_neuron_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
         namespace = super()._get_neuron_model_namespace(astnode, metadata)
-        namespace["spinnaker_paired_synapse"] = self.option_exists("neuron_synapse_pairs")   # set this to a value to trigger the right code path in the makefile
-        if self.option_exists("neuron_synapse_pairs"):
+        if self.option_exists("neuron_synapse_pairs") and len(self.get_option("neuron_synapse_pairs")) > 0:
             assert len(self.get_option("neuron_synapse_pairs")) == 1, "only one neuron/synapse pair supported for now"
+            namespace["spinnaker_paired_synapse"] = True # self.option_exists("neuron_synapse_pairs") and len(self.get_option("neuron_synapse_pairs")) > 0   # set this to a value to trigger the right code path in the makefile
             namespace["paired_synapse_original_model_name"] = self.get_option("neuron_synapse_pairs")[0]["synapse"] + FrontendConfiguration.suffix
 
         for k, v in metadata.items():

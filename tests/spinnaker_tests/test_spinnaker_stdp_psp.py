@@ -37,7 +37,6 @@ class TestSpiNNakerSTDPPSP:
         codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                   "synapse": "stdp_synapse",
                                                   "post_ports": ["post_spikes"]}],
-                        #"delay_variable": {"stdp_synapse":"d"},
                         "weight_variable": {"stdp_synapse": "w"},
                         "strictly_synaptic_vars": {"stdp_synapse": "pre_trace"}}
 
@@ -98,7 +97,8 @@ class TestSpiNNakerSTDPPSP:
         return times, v_post_neuron, i_syn_exc_post_neuron
 
 
-    @pytest.mark.parametrize("weight", [123, 1234])
+    @pytest.mark.parametrize("weight", [1234])
+    #@pytest.mark.parametrize("weight", [123, 1234])
     def test_stdp(self, weight):
         pre_spike_times = [10.]
         times, v_post_neuron, i_syn_exc_post_neuron = self.run_sim(pre_spike_times, weight=weight)

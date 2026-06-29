@@ -484,25 +484,15 @@ log_info("[NESTML synapse] print_low_level_synaptic_row_data()\n");
         const uint32_t delay = synapse_row_sparse_delay(control_word, synapse_type_index_bits, synapse_delay_mask);
         const uint32_t post_neuron_id = synapse_row_sparse_index(control_word, synapse_index_mask);
 
-      log_info("[NESTML synapse] synapse_index_mask === %x\n", synapse_index_mask);
-        log_info("[NESTML synapse] \t\tidx = %d; control word = 0x%x; data word = 0x%x; synapse_type = %u; d = 0x%x, post neuron id = %u, mask = %x",
-                   i,
+        log_info("[NESTML synapse] \t\tidx = %d\n", i);
+        log_info("[NESTML synapse] \t\t  synapse_index_mask = %x\n", synapse_index_mask);
+        log_info("[NESTML synapse] \t\t  control word = 0x%x; data word = 0x%x; synapse_type = %x; d = 0x%x, post neuron id = %u, mask = %x",
                    control_word,
                    data_word,
                    synapse_type,
                    delay,
                    post_neuron_id,
                    synapse_index_mask);
-/*        io_printf(IO_BUF, "[NESTML synapse] \t\tidx = %d; control word = 0x%x; data word = 0x%x; synapse_type = %u; d = 0x%x, post neuron id = %u, mask = %x",
-                   i,
-                   control_word,
-                   data_word,
-                   synapse_type,
-                   delay,
-                   post_neuron_id,
-                   synapse_index_mask);
-*/
-      log_info("[NESTML synapse] synapse_index_mask === %x\n", synapse_index_mask);
     }
 #endif
 }

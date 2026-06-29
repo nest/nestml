@@ -739,7 +739,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace = self._get_model_namespace(neuron, metadata)
         if metadata is not None and neuron.name in metadata.keys() and "paired_synapses" in metadata[neuron.name].keys() and metadata[neuron.name]["paired_synapses"]:
 
-        codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
+        # codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
 
         # if "neuron_synapse_pairs" in codegen_and_builder_opts.keys():
         #     for neuron_synapse_pair in codegen_and_builder_opts["neuron_synapse_pairs"]:
