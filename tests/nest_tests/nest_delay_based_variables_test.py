@@ -25,10 +25,11 @@ import numpy as np
 import os
 import pytest
 
+# try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
-    import matplotlib
+    import matplotlib as mpl
+    mpl.use("agg")
     import matplotlib.pyplot as plt
-
     TEST_PLOTS = True
 except BaseException:
     TEST_PLOTS = False
@@ -52,9 +53,9 @@ def plot_fig(times, recordable_events_delay: dict, recordable_events: dict, file
 
 
 def run_simulation(neuron_model_name: str, module_name: str, recordables: List[str], delay: float):
-    nest.set_verbosity("M_ALL")
     nest.ResetKernel()
     nest.Install(module_name)
+    NESTTools.set_nest_verbosity("ALL")
 
     neuron = nest.Create(neuron_model_name)
     neuron.set({"delay": delay})

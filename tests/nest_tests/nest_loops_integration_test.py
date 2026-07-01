@@ -47,10 +47,9 @@ class NestLoopsIntegrationTest(unittest.TestCase):
                              logging_level=logging_level,
                              module_name=module_name,
                              suffix=suffix)
-        nest.set_verbosity("M_ALL")
-
         nest.ResetKernel()
         nest.Install(module_name)
+        NESTTools.set_nest_verbosity("ALL")
 
         nrn = nest.Create("for_loop_nestml")
         mm = nest.Create("multimeter")
@@ -76,8 +75,8 @@ class NestLoopsIntegrationTest(unittest.TestCase):
                              logging_level=logging_level,
                              module_name=module_name,
                              suffix=suffix)
-        nest.set_verbosity("M_ALL")
         nest.ResetKernel()
+        NESTTools.set_nest_verbosity("ALL")
         try:
             nest.Install(module_name)
         except Exception:

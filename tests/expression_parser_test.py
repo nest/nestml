@@ -25,7 +25,7 @@ import unittest
 
 from antlr4 import *
 
-from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
+from pynestml.meta_model.ast_compilation_unit import ASTCompilationUnit
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.generated.PyNestMLParser import PyNestMLParser
@@ -53,8 +53,8 @@ class ExpressionParsingTest(unittest.TestCase):
 
     def test(self):
         input_file = FileStream(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
-                         'ExpressionCollection.nestml'))
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")),
+                         "ExpressionCollection.nestml"))
         lexer = PyNestMLLexer(input_file)
         lexer._errHandler = BailErrorStrategy()
         lexer._errHandler.reset(lexer)
@@ -72,8 +72,8 @@ class ExpressionParsingTest(unittest.TestCase):
 
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
         ast = ast_builder_visitor.visit(compilation_unit)
-        self.assertTrue(isinstance(ast, ASTNestMLCompilationUnit))
+        self.assertTrue(isinstance(ast, ASTCompilationUnit))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

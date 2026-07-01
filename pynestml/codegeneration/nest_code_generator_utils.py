@@ -25,12 +25,9 @@ import re
 import tempfile
 import uuid
 
-from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
-from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.symbols.variable_symbol import VariableSymbol
-from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.utils.logger import Logger
 
 
@@ -58,9 +55,6 @@ class NESTCodeGeneratorUtils:
         if variable_symbol.block_type == BlockType.INTERNALS:
             return "V_.%s"
 
-        if variable_symbol.block_type == BlockType.INPUT:
-            return "B_.%s"
-
         return ""
 
     @classmethod
@@ -76,6 +70,8 @@ class NESTCodeGeneratorUtils:
         """Generate code for a given neuron and synapse model, passed as a string.
 
         The neuron and synapse models can be passed directly as strings in NESTML syntax, or as filenames, in which case the NESTML model is loaded from the given filename.
+
+        This function will create temporary paths for the generated code. This is especially useful in a Jupyter notebook, where the same cell (that invokes the code generation) may be run over and over again. For more control over where the code is generated, please use the function :python:`pynestml.frontend.pynestml_frontend.generate_nest_target()`.
 
         Returns
         -------
@@ -128,13 +124,14 @@ class NESTCodeGeneratorUtils:
 
             input_fns += [synapse_fn]
             _codegen_opts["neuron_synapse_pairs"] = [{"neuron": neuron_model_name,
-                                                      "synapse": synapse_model_name,
-                                                      "post_ports": post_ports,
-                                                      "vt_ports": mod_ports}]
+                                                      "synapses": {synapse_model_name: {"post_ports": post_ports,
+                                                                                        "vt_ports": mod_ports}}}]
             mangled_neuron_name = neuron_model_name + "_nestml__with_" + synapse_model_name + "_nestml"
             mangled_synapse_name = synapse_model_name + "_nestml__with_" + neuron_model_name + "_nestml"
 
         if codegen_opts:
+            if "neuron_synapse_pairs" in codegen_opts.keys():
+                raise Exception("Neuron and synapse pairs are specified in both ``codegen_opts`` and as parameters to the function ``generate_code_for()``. This could result in inconsistencies. Consider using the function ``pynestml.frontend.pynestml_frontend.generate_nest_target()`` instead.")
             _codegen_opts.update(codegen_opts)
 
         if logging_level.upper() != "DEBUG":

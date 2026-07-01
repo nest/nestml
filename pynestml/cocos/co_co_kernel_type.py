@@ -19,11 +19,19 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
+from typing import Any, Dict, Optional
+
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
 
 from pynestml.cocos.co_co import CoCo
 from pynestml.codegeneration.printers.cpp_type_symbol_printer import CppTypeSymbolPrinter
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.predefined_types import PredefinedTypes
@@ -39,11 +47,14 @@ class CoCoKernelType(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node: ASTModel):
+    @override
+    def check_co_co(cls, node: ASTNode, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
         """
         Ensures the coco for the handed over neuron.
-        :param node: a single neuron instance.
+        :param node: a single model instance.
         """
+        assert isinstance(node, ASTModel), "This coco can only be called on ASTModels!"
+
         kernel_type_visitor = KernelTypeVisitor()
         kernel_type_visitor._neuron = node
         node.accept(kernel_type_visitor)
@@ -69,7 +80,7 @@ class KernelTypeVisitor(ASTVisitor):
                 or (var.get_differential_order() > 0
                     and not expr.type.is_castable_to(PredefinedTypes.get_type("ms")**-var.get_differential_order())):
                 actual_type_str = str(expr.type)
-                if 'unit' in dir(expr.type) \
+                if "unit" in dir(expr.type) \
                         and expr.type.unit is not None \
                         and expr.type.unit.unit is not None:
                     actual_type_str = str(expr.type.unit.unit)

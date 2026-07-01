@@ -34,19 +34,14 @@ Then update the index and install the necessary packages:
 
    sudo apt update
    sudo apt install nest python3-nestml
-   python3 -m pip install --upgrade odetoolbox pygsl antlr4-python3-runtime==4.10
-
-Before running NEST or NESTML, make sure the correct environment variables are set by running the following command:
-
-.. code-block:: bash
-
-   source /usr/bin/nest_vars.sh
+   wget https://raw.githubusercontent.com/nest/nestml/refs/heads/main/requirements.txt
+   python3 -m pip install -r requirements.txt
 
 
 Installing the latest development version from GitHub
 -----------------------------------------------------
 
-To obtain the latest development version, clone directly from the master branch of the GitHub repository:
+To obtain the latest development version, clone directly from the main branch of the GitHub repository:
 
 .. code-block:: bash
 
@@ -101,7 +96,7 @@ Please make sure to have the latest conda version installed and to create a new 
 Alternatively, NEST can also be installed from source in a conda environment. The instructions can be found `here <https://nest-simulator.readthedocs.io/en/stable/installation/condaenv_install.html#condaenv>`_.
 
 After installing NESTML, the neuron and synapse models can be found in the path ``$HOME/miniforge3/envs/<env_name>/models`` and the tutorial notebooks can be found under ``$HOME/miniforge3/envs/<env_name>/doc/tutorials``.
-For more information on how to run NESTML, please refer to `Running NESTML <https://nestml.readthedocs.io/en/latest/running/index.html>`_.
+For more information on how to run NESTML, please refer to :ref:`Running NESTML`.
 
 
 Docker installation

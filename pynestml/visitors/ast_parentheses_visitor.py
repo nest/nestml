@@ -20,7 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-rhs : leftParentheses='(' term=rhs rightParentheses=')'
+rhs : leftParentheses="(" term=rhs rightParentheses=")"
 """
 from pynestml.visitors.ast_visitor import ASTVisitor
 

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef CM_DEFAULT_H
-#define CM_DEFAULT_H
+#ifndef CM_{{neuronSpecificFileNamesCmSyns["main"].upper()}}
+#define CM_{{neuronSpecificFileNamesCmSyns["main"].upper()}}
 
 // Includes from nestkernel:
 #include "archiving_node.h"
@@ -31,6 +31,10 @@
 
 #include "{{neuronSpecificFileNamesCmSyns["neuroncurrents"]}}.h"
 #include "{{neuronSpecificFileNamesCmSyns["tree"]}}.h"
+
+{%- if (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
+typedef std::string Name;
+{%- endif %}
 
 namespace nest
 {
@@ -226,14 +230,12 @@ EndUserDocs
 */
 
 // Register the neuron model
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
-        or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] >=3 and nest_version_dict["minor"] > 6) or nest_version_dict["major"] > 3) %}
 void register_{{ neuronSpecificFileNamesCmSyns["main"] }}( const std::string& name );
 {%- endif %}
 
 class {{neuronSpecificFileNamesCmSyns["main"]}} : public ArchivingNode
 {
-
 public:
   {{neuronSpecificFileNamesCmSyns["main"]}}();
   {{neuronSpecificFileNamesCmSyns["main"]}}( const {{neuronSpecificFileNamesCmSyns["main"]}}& );
@@ -255,14 +257,14 @@ public:
   void set_status( const DictionaryDatum& );
 
 private:
-  void add_compartment_( DictionaryDatum& dd );
-  void add_receptor_( DictionaryDatum& dd );
+  void add_compartment_( const DictionaryDatum& dd );
+  void add_receptor_( const DictionaryDatum& dd );
 
   void init_recordables_pointers_();
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  void calibrate();
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
   void pre_run_hook();
+{%- else %}
+  void calibrate();
 {%- endif %}
 
   void update( Time const&, const long, const long );
@@ -296,6 +298,7 @@ private:
   DynamicUniversalDataLogger< {{neuronSpecificFileNamesCmSyns["main"]}} > logger_;
 
   double V_th_;
+  bool prev_sub_th = true;
 };
 
 
@@ -323,12 +326,11 @@ inline size_t
 inline size_t
 {{neuronSpecificFileNamesCmSyns["main"]}}::handles_test_event( CurrentEvent&, size_t receptor_type )
 {
-  // if get_compartment returns nullptr, raise the error
-  if ( not c_tree_.get_compartment( long( receptor_type ), c_tree_.get_root(), 0 ) )
+  if ( ( receptor_type < 0 ) or ( receptor_type >= static_cast< size_t >( syn_buffers_.size() ) ) )
   {
     std::ostringstream msg;
-    msg << "Valid current receptor ports for " << get_name() << " are in ";
-    msg << "[" << 0 << ", " << c_tree_.get_size() << "[";
+    msg << "Valid spike receptor ports for " << get_name() << " are in ";
+    msg << "[" << 0 << ", " << syn_buffers_.size() << "[";
     throw UnknownPort( receptor_type, msg.str() );
   }
   return receptor_type;

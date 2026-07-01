@@ -68,7 +68,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params.append("xyzzymodule")
         FrontendConfiguration.parse_config(params)
 
-        assert FrontendConfiguration.module_name == 'xyzzymodule'
+        assert FrontendConfiguration.module_name == "xyzzymodule"
 
     def test_module_name_parsing_wrong_module_name_specified(self):
         with pytest.raises(Exception):

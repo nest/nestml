@@ -1,19 +1,19 @@
 The NESTML modeling language
 ============================
 
-.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/neuron_illustration.svg
+.. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/fig/neuron_illustration.svg
    :width: 324px
    :height: 307px
    :align: right
    :target: nestml_language/neurons_in_nestml.html
 
-.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/synapse_illustration.svg
+.. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/fig/synapse_illustration.svg
    :width: 326px
    :height: 203px
    :align: right
    :target: nestml_language/synapses_in_nestml.html
 
-NESTML is a domain-specific language for neuron and synapse models. These dynamical models can be used in simulations of brain activity on several platforms, in particular the `NEST Simulator <https://nest-simulator.readthedocs.org/>`_.
+NESTML is a domain-specific language for hybrid dynamical systems, in particular neuron and synapse models. The toolchain automatically generates code for these models, allowing them to be used in brain simulations on several platforms (see :ref:`Running NESTML`).
 
 NESTML combines:
 
@@ -21,7 +21,7 @@ NESTML combines:
 - a flexible processing toolchain, written in Python;
 - good simulation performance by means of code generation (C++ for NEST Simulator).
 
-To see what NESTML looks like, please see the :doc:`models library <models_library/index>`. The library contains a variety of models from standard integrate-and-fire to a family of biophysical, Hodgkin-Huxley type neurons, as well as several synaptic plasticity models such as spike-timing dependent plasticity (STDP) variants and third-factor plasticity rules.
+To see what the NESTML language looks like, please see the :doc:`models library <models_library/index>`. The library contains a variety of models from standard integrate-and-fire to a family of biophysical, Hodgkin-Huxley-type neurons, as well as several synaptic plasticity models such as spike-timing-dependent plasticity (STDP) variants and third-factor plasticity rules.
 
 :doc:`PyNESTML <pynestml_toolchain/index>` is the Python-based toolchain for the NESTML language: it parses the model and performs code generation. Modify PyNESTML to add language elements such as new predefined functions, or to add new target platforms in the form of `Jinja <https://jinja.palletsprojects.com>`_ templates.
 
@@ -42,6 +42,8 @@ Internally, differential equations are analyzed by the associated `ODE-toolbox <
    getting_help
    citing
    license
+   Impressum <https://nest-initiative.org/impressum/>
+   Data protection <https://www.nest-initiative.org/data-protection/>
 
 .. .. figure:: nestml-logo/nestml-logo.png
       :scale: 30 %

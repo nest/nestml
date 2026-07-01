@@ -30,9 +30,9 @@ class PredefinedVariables:
     This class is used to store all predefined variables as generally available.
     """
     name2variable: Mapping[str, VariableSymbol] = {}
-    E_CONSTANT: str = 'e'
-    PI_CONSTANT: str = 'pi'
-    TIME_CONSTANT: str = 't'
+    E_CONSTANT: str = "e"
+    PI_CONSTANT: str = "pi"
+    TIME_CONSTANT: str = "t"
 
     @classmethod
     def register_variables(cls):
@@ -61,7 +61,7 @@ class PredefinedVariables:
         """
         Adds the euler constant e.
         """
-        symbol = VariableSymbol(name='e', block_type=BlockType.STATE,
+        symbol = VariableSymbol(name="e", block_type=BlockType.STATE,
                                 is_predefined=True, type_symbol=PredefinedTypes.get_real_type(),
                                 variable_type=VariableType.VARIABLE)
         cls.name2variable[cls.E_CONSTANT] = symbol
@@ -71,7 +71,7 @@ class PredefinedVariables:
         """
         Adds the pi constant.
         """
-        symbol = VariableSymbol(name='pi', block_type=BlockType.STATE,
+        symbol = VariableSymbol(name="pi", block_type=BlockType.STATE,
                                 is_predefined=True, type_symbol=PredefinedTypes.get_real_type(),
                                 variable_type=VariableType.VARIABLE)
         cls.name2variable[cls.PI_CONSTANT] = symbol
@@ -81,8 +81,8 @@ class PredefinedVariables:
         """
         Adds the time constant t.
         """
-        symbol = VariableSymbol(name='t', block_type=BlockType.STATE,
-                                is_predefined=True, type_symbol=PredefinedTypes.get_type('ms'),
+        symbol = VariableSymbol(name="t", block_type=BlockType.STATE,
+                                is_predefined=True, type_symbol=PredefinedTypes.get_type("ms"),
                                 variable_type=VariableType.VARIABLE)
         cls.name2variable[cls.TIME_CONSTANT] = symbol
 

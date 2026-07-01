@@ -52,6 +52,5 @@ class TestNestRandomFunctions:
                              logging_level="INFO",
                              suffix="_nestml",
                              codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                                     "synapse": "random_functions_illegal_synapse",
-                                                                     "post_ports": ["post_spikes"]}],
+                                                                     "synapses": {"random_functions_illegal_synapse": {"post_ports": ["post_spikes"]}}}],
                                            "weight_variable": {"stdp_synapse": "w"}})

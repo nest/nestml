@@ -27,8 +27,12 @@ import re
 
 
 class ConcentrationProcessing(MechanismProcessing):
-    """The default Processing ignores the root expression when solving the odes which in case of the concentration
-    mechanism is a ode that needs to be solved. This is added here."""
+    """
+    This file is part of the compartmental code generation process.
+
+    The default Processing ignores the root expression when solving the odes which in case of the concentration
+    mechanism is a ode that needs to be solved. This is added here.
+    """
     mechType = "concentration"
 
     def __init__(self, params):
@@ -36,8 +40,8 @@ class ConcentrationProcessing(MechanismProcessing):
 
     @classmethod
     def collect_information_for_specific_mech_types(cls, neuron, mechs_info):
-        mechs_info = cls.ode_toolbox_processing_for_root_expression(neuron, mechs_info)
         mechs_info = cls.write_key_zero_parameters_for_root_odes(mechs_info)
+        cls.check_all_convolutions_with_self_spikes(mechs_info)
 
         return mechs_info
 
