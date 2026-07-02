@@ -71,7 +71,7 @@ class TestNestMultiSynapse:
         nest.Connect(sg, neuron, syn_spec={"receptor_type": receptor_types["SPIKES1"], "weight": 1000., "delay": 0.1})
 
         sg2 = nest.Create("spike_generator", params={"spike_times": [40., 60.]})
-        nest.Connect(sg2, neuron, syn_spec={"receptor_type": receptor_types["SPIKES2"], "weight": 1000., "delay": 0.1})
+        nest.Connect(sg2, neuron, syn_spec={"receptor_type": receptor_types["SPIKES2"], "weight": -1000., "delay": 0.1})
 
         sg3 = nest.Create("spike_generator", params={"spike_times": [30., 70.]})
         nest.Connect(sg3, neuron, syn_spec={"receptor_type": receptor_types["SPIKES3"], "weight": 500., "delay": 0.1})
@@ -152,7 +152,7 @@ class TestNestMultiSynapse:
         nest.Connect(sg, neuron, syn_spec={"receptor_type": receptor_types["SPIKES_0"], "weight": 1000., "delay": 0.1})
 
         sg2 = nest.Create("spike_generator", params={"spike_times": [40., 60.]})
-        nest.Connect(sg2, neuron, syn_spec={"receptor_type": receptor_types["SPIKES_1"], "weight": 1000., "delay": 0.1})
+        nest.Connect(sg2, neuron, syn_spec={"receptor_type": receptor_types["SPIKES_1"], "weight": -1000., "delay": 0.1})
 
         sg3 = nest.Create("spike_generator", params={"spike_times": [30., 70.]})
         nest.Connect(sg3, neuron, syn_spec={"receptor_type": receptor_types["SPIKES_2"], "weight": 500., "delay": 0.1})
