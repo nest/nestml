@@ -200,8 +200,6 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
 
     @overrides(AbstractPlasticSynapseDynamics.merge)
     def merge(self, synapse_dynamics: AbstractSynapseDynamics) -> AbstractSynapseDynamics:
-        assert False
-
         if isinstance(synapse_dynamics, SynapseDynamicsNeuromodulation):
             raise NotImplementedError("Neuromodulation not supported!")
 
@@ -325,10 +323,9 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
             global_weight_scale: float,
             synapse_weight_scales: NDArray[floating]) -> None:
 
-
         i = 0
 
-        spec.comment("Writing Plastic Parameters")
+        spec.comment("Writing plastic parameters")
 
         # Switch focus to the region:
         spec.switch_write_focus(region)
@@ -461,8 +458,6 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         pp_data = self.get_words(plastic_plastic_rows)
 
         print("[NESTML synapse] \treturning fp_data = " + str(fp_data) + ", pp_data = " + str(pp_data) + ", fp_size = " + str(fp_size) + ", pp_size = " + str(pp_size))
-
-        import pdb;pdb.set_trace()
 
         return fp_data, pp_data, fp_size, pp_size
 

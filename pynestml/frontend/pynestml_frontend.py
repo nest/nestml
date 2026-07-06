@@ -112,6 +112,7 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         transformer = SynapsePostNeuronTransformer()
         options = transformer.set_options(options)
         transformers.append(transformer)
+
     if target_name.upper() in ["SPINNAKER"]:
         from pynestml.transformers.synapse_pre_neuron_transformer import SynapsePreNeuronTransformer
 

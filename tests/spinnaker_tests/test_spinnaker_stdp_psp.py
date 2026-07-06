@@ -35,10 +35,8 @@ class TestSpiNNakerSTDPPSP:
                     scope="module")
     def generate_code(self):
         codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                  "synapse": "stdp_synapse",
-                                                  "post_ports": ["post_spikes"]}],
-                        "weight_variable": {"stdp_synapse": "w"},
-                        "strictly_synaptic_vars": {"stdp_synapse": "pre_trace"}}
+                                                  "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}}],
+                        "weight_variable": {"stdp_synapse": "w"}}
 
         files = [
             os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),

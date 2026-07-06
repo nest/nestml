@@ -66,11 +66,9 @@ class TestSpiNNakerSTDPDistribution:
     @pytest.fixture(autouse=True,
                     scope="module")
     def generate_code(self):
-        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_delta_neuron", #"iaf_psc_exp",
-                                                  "synapse": "stdp_synapse",
-                                                  "post_ports": ["post_spikes"]}],
-                        "delay_variable":{"stdp_synapse":"d"},
-                        "weight_variable":{"stdp_synapse":"w"}}
+        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
+                                                  "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}}],
+                        "weight_variable":{"stdp_synapse": "w"}}
 
         files = [
 #            os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),

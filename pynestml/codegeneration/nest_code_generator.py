@@ -623,7 +623,14 @@ class NESTCodeGenerator(CodeGenerator):
                                         #   - set(namespace["post_ports"]) - set(namespace["vt_ports"]))
         else:
             # separate (not neuron+synapse co-generated)
-            namespace["post_ports"] = ["post_spikes"]   # XXX: TODO: this value is hard-coded; derive this from the synapse model itself; change "neuron_synapse_pairs" because synapse is not paired with neuron!
+            # XXX: following three lines added for the sake of spinnaker when SynapsePreNeuronTransformer does not run
+            assert len(self._options["neuron_synapse_pairs"]) == 1
+            #namespace["spiking_post_ports"] = self._options["neuron_synapse_pairs"][0]["post_ports"]
+            orig_synapse_name = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
+            assert list(self._options["neuron_synapse_pairs"][0]["synapses"].keys())[0] == orig_synapse_name
+
+            namespace["post_ports"] = self._options["neuron_synapse_pairs"][0]["synapses"][orig_synapse_name]["post_ports"]
+            namespace["spiking_post_ports"] = self._options["neuron_synapse_pairs"][0]["synapses"][orig_synapse_name]["post_ports"]
             namespace["pre_ports"] = list(set(all_input_port_names) - set(namespace["post_ports"]))
 
         assert len(namespace["pre_ports"]) <= 1, "Synapses only support one spiking input port"

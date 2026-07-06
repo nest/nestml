@@ -17,8 +17,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-#}
-
+-#}
 /**
  *  {{ synapseName }}.h
  *
@@ -45,14 +44,14 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "{{ synapseName }}_impl.h"
 
 // uncomment the next line to enable printing of detailed debug information
-// #define DEBUG
+//#define DEBUG
 
 // uncomment the next line to enable printing of very detailed debug information (could overflow ITCM)
 //#define PLOT_DETAILED_STATE
 #define PLOT_DETAILED_STATE2
 
 
-//! Global plasticity parameter data (in DTCM)
+// global plasticity parameter data (in DTCM)
 plasticity_weight_region_data_t *plasticity_weight_region_data;
 
 
@@ -60,6 +59,8 @@ extern uint32_t skipped_synapses;
 
 
 
+// plasticity multiply shift array, in DTCM
+uint32_t *weight_shift;
 
 
 
@@ -131,8 +132,22 @@ bool synapse_dynamics_initialise(
 
     log_info("[NESTML synapse] In synapse_dynamics_initialise(n_neurons = %d, n_synapse_types = %d)", n_neurons, n_synapse_types);
 
-    // Load parameters
-    plasticity_weight_region_data_t *config = (plasticity_weight_region_data_t *) address;
+    // Weight shift between synapse-state-internal weight representation (S1615) and the representation in the way it needs to be written into the ring buffer. Number of bits to shift by is determined using heuristics at runtime by SpiNNaker software stack; this needs to be stored for each individual synapse type
+    weight_shift = spin1_malloc(sizeof(uint32_t) * n_synapse_types);
+    if (weight_shift == NULL) {
+        log_error("Could not initialise weight region data");
+        return NULL;
+    }
+
+    for (uint32_t s = 0; s < n_synapse_types; ++s) {
+        weight_shift[s] = ring_buffer_to_input_buffer_left_shifts[s];
+//#ifdef DEBUG
+        log_info("\t[NESTML synapse] \tSynapse type %u: weight shift = %d\n", s, weight_shift[s]);
+//#endif
+    }
+
+    // load parameters
+    plasticity_weight_region_data_t *config = (plasticity_weight_region_data_t*)address;
     plasticity_weight_region_data = spin1_malloc(sizeof(plasticity_weight_region_data_t) * n_synapse_types);
 
     if (plasticity_weight_region_data == NULL) {
@@ -247,13 +262,13 @@ static void update_internal_state_(synapse_state_t *state, uint32_t t_start, uin
 
 static void process_post_spike(synapse_state_t *state, uint32_t time, synapse_row_plastic_data_t *plastic_region_address) {
 {%- filter indent(8, True) %}
-{%- if post_ports is defined %}
+{%- if spiking_post_ports is defined %}
 {%-     for post_port in spiking_post_ports %}
 /**
  *  NESTML generated onReceive code block for postsynaptic port "{{ post_port }}" begins here!
 **/
 
-log_info("[NESTML synapse] process_post_spike(time = %d = %k)\n", time, time);
+log_info("[NESTML synapse] process_post_spike(time = %d)\n", time);
 //log_info("[NESTML synapse] \tstate->w = %k (raw: 0x%x)\n", state->w, state->w);
 //log_info("[NESTML synapse] \tplastic_region_address->history.pre_trace__for_stdp_synapse_nestml = %k (raw: 0x%x)\n", plastic_region_address->history.pre_trace__for_stdp_synapse_nestml, plastic_region_address->history.pre_trace__for_stdp_synapse_nestml);
 
@@ -264,7 +279,7 @@ log_info("[NESTML synapse] process_post_spike(time = %d = %k)\n", time, time);
 {%-             endwith %}
 {%-         endif %}
 
-//log_info("[NESTML synapse] \tafter state->w = %k (raw: 0x%x)\n", state->w, state->w);
+log_info("[NESTML synapse] \tafter state->w = %k (raw: 0x%x)\n", state->w, state->w);
 
 
 {%-     endfor %}
@@ -353,7 +368,7 @@ static void process_plastic_synapse(synapse_row_plastic_data_t *plastic_region_a
 
     post_event_window_t post_window = post_events_get_window_delayed(post_event_history, window_begin_time, window_end_time);
 
-//    log_info("[NESTML synapse] \t  Fetching post window from %u to %u\n", window_begin_time, window_end_time);
+    log_info("[NESTML synapse] \t  Fetching post window from %u to %u\n", window_begin_time, window_end_time);
 
     // Process events in post-synaptic window
     while (post_window.num_events > 0) {
@@ -426,9 +441,10 @@ static void process_plastic_synapse(synapse_row_plastic_data_t *plastic_region_a
 
 	if (s.delay_axonal + s.delay_dendritic > colour_delay) {
 	    int32_t weight = TYPECAST_TO_UINT32_T(state.w);   // XXX: the variable name ``w`` is hard-coded here
-	    synapse_dynamics_stdp_update_ring_buffers(ring_buffers, s, weight >> 15);  // weights in sPyNNaker are represented as 16 bit integers; see section 3.2.2 in Rhodes et al. Front Neurosci 2018
-        log_info("[NESTML synapse] \thard-coding weight, weight = 0x%x", weight);
-    } else {
+	    synapse_dynamics_stdp_update_ring_buffers(ring_buffers, s, weight >> weight_shift[s.type]);
+        log_info("[NESTML synapse] \tadding weight to ring-buffer entry; weight = 0x%x", weight);
+    }
+    else {
         skipped_synapses++;
         log_info("[NESTML synapse] \tskipping synapse");
     }
@@ -510,9 +526,10 @@ log_info("[NESTML synapse] print_low_level_synaptic_row_data()\n");
 bool synapse_dynamics_process_plastic_synapses(
         synapse_row_plastic_data_t *plastic_region_address,
         synapse_row_fixed_part_t *fixed_region,
-        weight_t *ring_buffers, uint32_t time, uint32_t colour_delay,
+        weight_t *ring_buffers,
+        uint32_t time,
+        uint32_t colour_delay,
         bool *write_back) {
-
 
     // Extract separate arrays of plastic synapses (from plastic region),
     // Control words (from fixed region) and number of plastic synapses
@@ -546,8 +563,8 @@ bool synapse_dynamics_process_plastic_synapses(
 {%-         endif %}
 {%-     endfor %}
 
-    // first, update their state from the time of the last pre spike to the current time
-
+    // update the state of "header" variables from the time of the last pre spike to the current time
+//log_info("[NESTML synapse] plastic_region_address->history.pre_trace__for__stdp_synapse_nestml = %x = %k\n", plastic_region_address->history.pre_trace__for__stdp_synapse_nestml, plastic_region_address->history.pre_trace__for__stdp_synapse_nestml);
 {%-     for variable_name in paired_neuron.get_state_variables() | map(attribute='name') %}
 {# {%-         set update_expr = utils.expr_to_ast_expr(astnode, metadata[metadata[synapse.name]["paired_neuron"].name]["analytic_solver"]["update_expressions"][variable_name]) %} #}
 {%-         set update_expr = update_expressions[variable_name] %}
@@ -561,13 +578,22 @@ bool synapse_dynamics_process_plastic_synapses(
     plastic_region_address->history.{{ printer_no_origin.print(utils.get_state_variable_by_name(paired_neuron, variable_symbol.get_symbol_name())) }} = {{ variable_name }}__tmp;
 {%-     endfor %}
 
-    // second, perform increments if needed from the onReceive spike handler
-{%-     filter indent(4) %}
-{%-         for stmt in paired_neuron.extra_on_emit_spike_stmts_from_synapse %}
-{%-             include "directives_cpp/Statement.jinja2" %}
-{%-         endfor %}
-{%-     endfilter %}
+/*log_info("[NESTML synapse] __P__pre_trace__for__stdp_synapse_nestml__pre_trace__for__stdp_synapse_nestml = %k = %d\n", __P__pre_trace__for__stdp_synapse_nestml__pre_trace__for__stdp_synapse_nestml, __P__pre_trace__for__stdp_synapse_nestml__pre_trace__for__stdp_synapse_nestml);
+log_info("[NESTML synapse] __h = %k = %d\n", __h, __h);
+log_info("[NESTML synapse] plastic_region_address->history.pre_trace__for__stdp_synapse_nestml = %x = %k\n", plastic_region_address->history.pre_trace__for__stdp_synapse_nestml, plastic_region_address->history.pre_trace__for__stdp_synapse_nestml);
+*/
+{%-     if paired_neuron.get_on_receive_block("spikes") %}
+    // update the state of "header" variables due to statements triggered by spike emission
+{%-         set dynamics = paired_neuron.get_on_receive_block("spikes") %}
+{%-         with ast = dynamics.get_stmts_body() %}
+{%-             filter indent(4) %}
+{%-                 include "directives_cpp/StmtsBody.jinja2" %}
+{%-             endfilter %}
+{%-         endwith %}
+{%-     endif %}
+
 {%- endif %}
+//log_info("[NESTML synapse] plastic_region_address->history.pre_trace__for__stdp_synapse_nestml = %x = %k\n", plastic_region_address->history.pre_trace__for__stdp_synapse_nestml, plastic_region_address->history.pre_trace__for__stdp_synapse_nestml);
 
     control_words = synapse_row_plastic_controls(fixed_region);
     plastic_words = plastic_region_address->synapses;

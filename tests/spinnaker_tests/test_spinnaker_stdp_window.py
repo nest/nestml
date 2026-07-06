@@ -70,10 +70,8 @@ class TestSpiNNakerSTDPWindow:
                     scope="module")
     def generate_code(self):
         codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                  "synapse": "stdp_synapse",
-                                                  "post_ports": ["post_spikes"]}],
-                        #"delay_variable":{"stdp_synapse":"d"},
-                        "weight_variable":{"stdp_synapse":"w"}}
+                                                  "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}}],
+                        "weight_variable": {"stdp_synapse": "w"}}
 
         files = [
             os.path.join("models", "neurons", "iaf_psc_exp_with_ignore_neuron.nestml"),
@@ -162,8 +160,8 @@ class TestSpiNNakerSTDPWindow:
         p.Projection(post_input, post_spiking, p.OneToOneConnector(), receptor_type=exc_input, synapse_type=p.StaticSynapse(weight=weight_post))
 
         stdp_model = stdp_synapse_nestml(weight=initial_weight)
-        stdp_model._nestml_model_variables["tau_tr_pre"] = 20.
-        stdp_model._nestml_model_variables["tau_tr_post"] = 20.
+        #stdp_model._nestml_model_variables["tau_tr_pre"] = 20.
+        #stdp_model._nestml_model_variables["tau_tr_post"] = 20.
         stdp_projection = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type="ignore_spikes")   # connect to a port where incoming spikes are ignored, so the STDP synapse itself does not change the postsynaptic spike timing
         print("[NESTML synapse] Synapse parameters: " + str(stdp_model._nestml_model_variables))
             #for k, v in syn_opts.items():
@@ -208,29 +206,16 @@ class TestSpiNNakerSTDPWindow:
 
         pre_spike_times = [250, 1000]
 
+        for t_post in np.linspace(200, 300, 7):
 #        for t_post in np.linspace(200, 300, 19):
-        for t_post in np.linspace(111, 333., 2) - 4: #[260., 270., 280.]: #np.linspace(240, 260, 2):  # XXX Should be 19
                 dw, actual_pre_spike_times, actual_post_spike_times = self.run_sim(pre_spike_times, [t_post])
                 sim_weights.append(dw)
 
-                dw_ref = np.empty((3))
-                for i in range(3):
-                    if i == 0:
-                        syn_opts["tau_pre_trace"] = 10.
-                        syn_opts["tau_post_trace"] = 10.
-                    elif i == 1:
-                        syn_opts["tau_pre_trace"] = 20.
-                        syn_opts["tau_post_trace"] = 20.
-                    elif i == 2:
-                        syn_opts["tau_pre_trace"] = 40.
-                        syn_opts["tau_post_trace"] = 40.
-                    syn_opts["tau_pre_trace"] = 20. # XXX
-                    syn_opts["tau_post_trace"] = 20. # XXX
-                    dw_ref[i] = self.run_reference_simulation(
-                                 syn_opts,
+                dw_ref = self.run_reference_simulation(
+                             syn_opts,
                                  times_spikes_pre=np.array(actual_pre_spike_times)[0],
                                  times_spikes_post_syn_persp=np.array(actual_post_spike_times)[0] + syn_opts["delay"],
-                                 initial_weight=1.)
+                                 initial_weight=initial_weight)
                 ref_weights.append(dw_ref)
 
                 spike_time_axis.append(float(actual_post_spike_times[0][0]) - float(actual_pre_spike_times[0][0]))
