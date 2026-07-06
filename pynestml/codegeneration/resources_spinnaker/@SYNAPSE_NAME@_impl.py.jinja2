@@ -146,7 +146,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
     Model docstring:
 
 {% filter indent(4) %}
-    {{ synapse.print_comment() }}
+{{ synapse.print_comment() }}
 {%- endfilter %}
     """
 
@@ -200,36 +200,15 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
 
     @overrides(AbstractPlasticSynapseDynamics.merge)
     def merge(self, synapse_dynamics: AbstractSynapseDynamics) -> AbstractSynapseDynamics:
+        print("[NESTML synapse] trying to merge with: " + str(type(synapse_dynamics)))
+
         if isinstance(synapse_dynamics, SynapseDynamicsNeuromodulation):
             raise NotImplementedError("Neuromodulation not supported!")
 
-        print("[NESTML synapse] trying to merge with: " + str(type(synapse_dynamics)))
+        if isinstance(synapse_dynamics, {{ synapseName }}Dynamics) and not self.is_same_as(synapse_dynamics):
+            raise SynapticConfigurationException("Synapse dynamics and parameter values must match exactly when using multiple STDP connections to the same population!")
 
-        """# If dynamics is STDP, test if same as
-        if isinstance(synapse_dynamics, SynapseDynamicsSTDP):
-            if not self.is_same_as(synapse_dynamics):
-                raise SynapticConfigurationException(
-                    "Synapse dynamics must match exactly when using multiple"
-                    " edges to the same population")
-
-            if self.__neuromodulation is not None:
-                # pylint: disable=protected-access
-                synapse_dynamics._merge_neuromodulation(self.__neuromodulation)
-
-            # If STDP part matches, return the other, as it might also be
-            # structural
-            return synapse_dynamics
-
-        # If dynamics is structural but not STDP (as here), merge
-        # NOTE: Import here as otherwise we get a circular dependency
-        # pylint: disable=import-outside-toplevel
-        from .synapse_dynamics_structural_stdp import (
-            SynapseDynamicsStructuralSTDP)
-        if isinstance(synapse_dynamics, AbstractSynapseDynamicsStructural):
-            assert False, "Not supported yet"
-        """
-
-        #return synapse_dynamics
+        # N.B. merge() should return the type of synapse that's the most general, for example, when merging static and STDP synapse, return STDP synapse
         return self
 
     @overrides(AbstractPlasticSynapseDynamics.get_value)
@@ -285,12 +264,25 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
 
     @overrides(AbstractPlasticSynapseDynamics.is_same_as)
     def is_same_as(self, synapse_dynamics: AbstractSynapseDynamics) -> bool:
-        raise NotImplementedError()
-
         if not isinstance(synapse_dynamics, {{ synapseName }}Dynamics):
             return False
 
-        return self.__dendritic_delay_fraction == synapse_dynamics.dendritic_delay_fraction
+        if self.__dendritic_delay_fraction != synapse_dynamics.dendritic_delay_fraction:
+            return False
+
+{%- for sym in synapse.get_parameter_symbols() + synapse.get_internal_symbols() %}
+        if self._nestml_model_variables["{{ sym.get_symbol_name() }}"] != synapse_dynamics._nestml_model_variables["{{ sym.get_symbol_name() }}"]:
+            return False
+{%- endfor %}
+
+{%- if "paired_neuron" in metadata[astnode.name].keys() and metadata[astnode.name]["paired_neuron"] is not none %}
+{%-     for sym in metadata[astnode.name]["paired_neuron"].get_parameter_symbols() %}
+        if self._nestml_model_variables["{{ sym.get_symbol_name() }}"] != synapse_dynamics._nestml_model_variables["{{ sym.get_symbol_name() }}"]:
+            return False
+{%-     endfor %}
+{%- endif %}
+
+        return True
 
     def get_vertex_executable_suffix(self) -> str:
         """
@@ -323,8 +315,6 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
             global_weight_scale: float,
             synapse_weight_scales: NDArray[floating]) -> None:
 
-        i = 0
-
         spec.comment("Writing plastic parameters")
 
         # Switch focus to the region:
@@ -334,9 +324,8 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         # write value for parameter "{{ sym.get_symbol_name() }}"
         print("[NESTML synapse] writing value for parameter {{ sym.get_symbol_name() }}: " + str(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]) + " ==== encoded --> " + str(hex(float_to_s16_15(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]))))
         spec.write_value(
-                data=float_to_s16_15(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]), # int(i),  # XXX should be actual data; use int(i) for testing
+                data=float_to_s16_15(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]),
                 data_type=DataType.INT32)
-        i += 1
 {%- endfor %}
 
     @overrides(AbstractPlasticSynapseDynamics.get_n_words_for_plastic_connections)

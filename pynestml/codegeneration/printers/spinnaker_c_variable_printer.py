@@ -55,8 +55,19 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
         self.with_origin = with_origin
         self.with_vector_parameter = with_vector_parameter
         self._state_symbols = []
-
+        self.header_struct_str = "plastic_region_address->history."
+        self.header_struct_post_str = ""
         self.variables_special_cases = variables_special_cases
+
+    def set_header_struct_str(self, header_struct_str: str) -> str:
+        r"""For calling from the template, hence return the empty string"""
+        self.header_struct_str = header_struct_str
+        return ""
+
+    def set_header_struct_post_str(self, header_struct_post_str: str) -> str:
+        r"""For calling from the template, hence return the empty string"""
+        self.header_struct_post_str = header_struct_post_str
+        return ""
 
     @override
     def print_variable(self, node: ASTVariable) -> str:
@@ -69,7 +80,7 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
 
         if isinstance(node, ASTExternalVariable):
             # this node is part of the header in the synapse
-            return "plastic_region_address->history." + node.name
+            return self.header_struct_str + node.name + self.header_struct_post_str
 
         if node.get_name() == PredefinedVariables.E_CONSTANT:
             return "REAL_CONST(2.718282)"
@@ -166,7 +177,7 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
             return variable_name   # no origin, propagators are local variables
 
         if with_origin == "header" and variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
-            return "plastic_region_address->history." + variable_name
+            return self.header_struct_str + variable_name + self.header_struct_post_str
 
         if with_origin:
             return SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols) % variable_name
