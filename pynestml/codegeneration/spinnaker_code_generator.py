@@ -168,15 +168,10 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
     def _get_synapse_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
         namespace = super()._get_synapse_model_namespace(astnode, metadata)
         namespace["header_printer"] = self._header_printer
-        return namespace
+        namespace["pre_header"] = metadata[astnode.name]["pre_header"]
+        namespace["post_header"] = metadata[astnode.name]["post_header"]
 
-    """def _get_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
-        namespace = super()._get_model_namespace(astnode, metadata)
-        namespace["spinnaker_paired_synapse"] = True   # set this to a value to trigger the right code path in the makefile
-        namespace["paired_synapse_original_model"] = "stqwef"
-        if there is a key in metadata that's "
-        # metadata["iaf_psc_exp_neuron_nestml__header_for__stdp_synapse_nestml"]["paired_synapse_original_model"]
-        return namespace"""
+        return namespace
 
     def _get_neuron_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
         namespace = super()._get_neuron_model_namespace(astnode, metadata)
@@ -186,7 +181,7 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
             namespace["paired_synapse_original_model_name"] = list(self.get_option("neuron_synapse_pairs")[0]["synapses"].keys())[0] + FrontendConfiguration.suffix
 
         for k, v in metadata.items():
-            if k.startswith(astnode.name + "__header_for__"):
+            if k.startswith(astnode.name) and "header_for__" in k:
                 namespace["paired_synapse"] = v["paired_synapse"]
                 namespace["paired_synapse_original_model"] = v["paired_synapse_original_model"]
                 namespace["paired_synapse_original_model_name"] = v["paired_synapse_original_model"].get_name() + FrontendConfiguration.suffix
@@ -345,10 +340,8 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
 
         for model in models:
-            print("SpiNNakerCodeGenerator::generate_code(): model = " + str(model.name))
-            if "__header_for__" in model.name:
-                # XXX this is synapse header; do not gen code
-                # but run ODE toolbox transformer
+            if "header_for__" in model.name:
+                # This is synapse header; do not gen code, but run ODE toolbox transformer
                 from pynestml.transformers.add_timestep_to_internals_transformer import AddTimestepToInternalsTransformer
                 add_timestep_to_internals_transformer = AddTimestepToInternalsTransformer()
                 add_timestep_to_internals_transformer.transform([model], metadata)
@@ -362,21 +355,23 @@ class SpiNNakerCodeGenerator(CodeGenerator):
                 model.accept(symbol_table_visitor)
                 SymbolTable.add_model_scope(model.get_name(), model.get_scope())
 
-
                 if metadata[model.name]["analytic_solver"] is not None:
                     ASTUtils.add_declarations_to_internals(model, metadata[model.name]["analytic_solver"]["propagators"])
 
+                    for var_name, update_expr_ast in metadata[model.name]["analytic_solver"]["update_expressions_ast"].items():
+                        update_expr_ast.update_scope(model.get_scope())
+                        update_expr_ast.accept(ASTSymbolTableVisitor())
+
+                if metadata[model.name]["numeric_solver"] is not None:
+                    for var_name, update_expr_ast in metadata[model.name]["numeric_solver"]["update_expressions_ast"].items():
+                        update_expr_ast.update_scope(model.get_scope())
+                        update_expr_ast.accept(ASTSymbolTableVisitor())
+
                 model.accept(symbol_table_visitor)
 
-                break
-
-
         for model in models:
-
             print("SpiNNakerCodeGenerator::generate_code(): model = " + str(model.name))
-
-            if "__header_for__" in model.name:
-                # XXX this is synapse header; do not gen code
+            if "header_for__" in model.name:
                 continue
 
             cloned_model = model.clone()

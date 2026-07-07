@@ -48,7 +48,6 @@ class SymbolTable:
         """
         Adds a single model scope to the set of stored scopes.
         :return: a single scope element.
-        :rtype: Scope
         """
         assert isinstance(scope, Scope), \
             "(PyNestML.SymbolTable.SymbolTable) No or wrong type of scope provided (%s)!" % type(scope)
@@ -58,7 +57,6 @@ class SymbolTable:
             "(PyNestML.SymbolTable.SymbolTable) No or wrong type of name provided (%s)!" % type(name)
         if name not in cls.name2model_scope.keys():
             cls.name2model_scope[name] = scope
-        return
 
     @classmethod
     def delete_model_scope(cls, name):

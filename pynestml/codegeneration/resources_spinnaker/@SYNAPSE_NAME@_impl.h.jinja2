@@ -136,8 +136,12 @@ typedef struct {
     uint32_t count_minus_one;
     //! Event times
     uint32_t times[MAX_POST_SYNAPTIC_EVENTS];
+{%- if post_header is defined %}
     //! Event traces
-    //post_trace_t traces[MAX_POST_SYNAPTIC_EVENTS];
+{%-     for var in post_header.get_state_variables() %}
+		    accum {{ var.name }}[MAX_POST_SYNAPTIC_EVENTS];
+{%-     endfor %}
+{%- endif %}
 } post_event_history_t;
 
 //! Post event window description
@@ -255,8 +259,8 @@ typedef struct {
     uint32_t prev_time;
 
     //! The header for this synaptic row
-{%- if paired_neuron is defined %}
-{%-     for var in metadata[astnode.name]["paired_neuron"].get_state_variables() %}
+{%- if pre_header is defined %}
+{%-     for var in metadata[astnode.name]["pre_header"].get_state_variables() %}
     accum {{ var.name }};
 {%-     endfor %}
 {%- endif %}

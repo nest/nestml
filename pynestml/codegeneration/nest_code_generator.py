@@ -162,7 +162,7 @@ class NESTCodeGenerator(CodeGenerator):
 
     def run_nest_target_specific_cocos(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
         for model in neurons + synapses:
-            if "__header_for__" in model.name:
+            if "header_for__" in model.name:
                 continue
 
             # Check if the random number functions are used in the right blocks
@@ -173,7 +173,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         if self.get_option("neuron_synapse_pairs"):
             for model in synapses:
-                if "__header_for__" in model.name:
+                if "header_for__" in model.name:
                     continue
                 synapse_name_stripped = removesuffix(removesuffix(model.name.split("_with_")[0], "_"),
                                                      FrontendConfiguration.suffix)
@@ -270,12 +270,16 @@ class NESTCodeGenerator(CodeGenerator):
                       metadata: Dict[str, Dict[str, Any]]) -> None:
         neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
 
+        synapses_to_generate_code_for = []
         for synapse in synapses:
-            if "__header_for__" in synapse.name:
+            if "header_for__" in synapse.name:
                 # XXX this is synapse header; treat as a neuron
                 neurons.append(synapse)
                 synapses.pop(synapses.index(synapse))
-                break
+            else:
+                synapses_to_generate_code_for.append(synapse)
+
+        synapses = synapses_to_generate_code_for
 
         self.run_nest_target_specific_cocos(neurons, synapses)
         self.analyse_transform_neurons(neurons, metadata)
@@ -287,23 +291,6 @@ class NESTCodeGenerator(CodeGenerator):
                 metadata[synapse.name]["continuous_post_ports"] = [v for v in post_ports if isinstance(v, tuple) or isinstance(v, list)]
                 paired_neuron = metadata[synapse.name]["paired_neuron"]
                 metadata[paired_neuron.name]["continuous_post_ports"] = metadata[synapse.name]["continuous_post_ports"]
-
-        for neuron in neurons:
-            if "__header_for__" in neuron.name:
-                # XXX this is synapse header; do not gen code
-
-
-                # but run ODE toolbox transformer
-                from pynestml.transformers.ode_toolbox_transformer import ODEToolboxTransformer
-                transformer = ODEToolboxTransformer()
-                options = transformer.set_options(options)
-                transformer.transform([neuron], metadata)
-
-                # [x.name for x in variable.scope.declared_elements if "Symbol" in str(x)]
-
-                neurons.pop(neurons.index(neuron))
-
-                break
 
         self.generate_neurons(neurons, metadata)
         self.generate_synapses(synapses, metadata)
@@ -457,7 +444,7 @@ class NESTCodeGenerator(CodeGenerator):
             self.update_symbol_table(synapse)
             spike_updates, _ = self.get_spike_update_expressions(synapse, metadata[synapse.name]["kernel_buffers"], [analytic_solver, numeric_solver], metadata[synapse.name]["delta_factors"], metadata)
 
-            if not metadata[synapse.get_name()]["analytic_solver"] is None:
+            if metadata[synapse.get_name()]["analytic_solver"] is not None:
                 ASTUtils.add_declarations_to_internals(synapse, metadata[synapse.get_name()]["analytic_solver"]["propagators"])
 
         self.update_symbol_table(synapse)
@@ -572,10 +559,6 @@ class NESTCodeGenerator(CodeGenerator):
         :return: a map from name to functionality.
         """
         namespace = self._get_model_namespace(synapse, metadata)
-
-        if self.option_exists("nest_version"):
-            namespace["nest_version"] = self.get_option("nest_version")
-            namespace["nest_version_dict"] = NESTTools.get_version_dict_from_version_string(self.get_option("nest_version"))
 
         all_input_port_names = []
         for input_block in synapse.get_input_blocks():
@@ -745,22 +728,6 @@ class NESTCodeGenerator(CodeGenerator):
         """
         namespace = self._get_model_namespace(neuron, metadata)
         if metadata is not None and neuron.name in metadata.keys() and "paired_synapses" in metadata[neuron.name].keys() and metadata[neuron.name]["paired_synapses"]:
-
-        # codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
-
-        # if "neuron_synapse_pairs" in codegen_and_builder_opts.keys():
-        #     for neuron_synapse_pair in codegen_and_builder_opts["neuron_synapse_pairs"]:
-        #         if neuron_synapse_pair["neuron"] + FrontendConfiguration.suffix == neuron.name:
-        #             # override "paired_synapse" in case NESTCodeGenerator is run without the SynapsePostNeuronTransformer having been run (for instance, when NESTCodeGenerator is wrapped inside SynapsePostNeuronTransformer)
-        #             namespace["paired_synapse"] = neuron_synapse_pair["synapse"]
-        #             class NameReturner:
-        #                 def __init__(self, name: str):
-        #                     self.name_ = name
-        #                 def get_name(self):
-        #                     return self.name_
-        #             namespace["paired_synapse_original_model"] = NameReturner(neuron_synapse_pair["synapse"])
-        #             break
-
             if "state_vars_that_need_continuous_buffering" in metadata[neuron.name].keys():
                 assert self.get_option("continuous_state_buffering_method") in ["continuous_time_buffer", "post_spike_based"]
                 namespace["neuron_state_vars_that_need_continuous_buffering"] = metadata[neuron.name]["state_vars_that_need_continuous_buffering"]

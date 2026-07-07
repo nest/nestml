@@ -32,6 +32,8 @@ from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToo
 from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_kernel import ASTKernel
+from pynestml.utils.model_parser import ModelParser
+from pynestml.utils.ode_toolbox_utils import ODEToolboxUtils
 
 try:
     # Available in the standard library starting with Python 3.12
@@ -40,28 +42,11 @@ except ImportError:
     # Fallback for Python 3.8 - 3.11
     from typing_extensions import override
 
-from pynestml.cocos.co_cos_manager import CoCosManager
-from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
-from pynestml.meta_model.ast_assignment import ASTAssignment
-from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
-from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_model import ASTModel
-from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
-from pynestml.meta_model.ast_variable import ASTVariable
-from pynestml.symbols.predefined_variables import PredefinedVariables
-from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.variable_symbol import BlockType
 from pynestml.transformers.transformer import Transformer
 from pynestml.utils.ast_utils import ASTUtils
-from pynestml.utils.logger import Logger
-from pynestml.utils.logger import LoggingLevel
-from pynestml.utils.string_utils import removesuffix
-from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
-from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class ODEToolboxTransformer(Transformer):
@@ -142,6 +127,16 @@ class ODEToolboxTransformer(Transformer):
         if len(analytic_solvers) > 0:
             analytic_solver = analytic_solvers[0]
 
+            # parse update expressions into an AST
+            analytic_solver["update_expressions_ast"] = {}
+            for state_variable_name in analytic_solver["state_variables"]:
+                expr_str = analytic_solver["update_expressions"][state_variable_name]
+                expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr_str)
+                expr_ast = ModelParser.parse_expression(expr_str)
+                expr_ast.update_scope(model.get_scope())
+                expr_ast.accept(ASTSymbolTableVisitor())
+                analytic_solver["update_expressions_ast"][state_variable_name] = expr_ast
+
         # if numeric solver is required, generate a stepping function that includes each state variable, including the analytic ones
         numeric_solver = None
         numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
@@ -157,6 +152,17 @@ class ODEToolboxTransformer(Transformer):
             assert len(numeric_solvers) <= 1, "More than one numeric solver not presently supported"
             if len(numeric_solvers) > 0:
                 numeric_solver = numeric_solvers[0]
+
+                # parse update expressions into an AST
+                numeric_solver["update_expressions_ast"] = {}
+                for state_variable_name in numeric_solver["state_variables"]:
+                    expr_str = numeric_solver["update_expressions"][state_variable_name]
+                    expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr_str)
+                    expr_ast = ModelParser.parse_expression(expr_str)
+                    expr_ast.update_scope(model.get_scope())
+                    expr_ast.accept(ASTSymbolTableVisitor())
+                    numeric_solver["update_expressions_ast"][state_variable_name] = expr_ast
+
 
         #
         #   save the results to metadata

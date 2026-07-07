@@ -703,6 +703,7 @@ class Messages:
         :param name: the name which could not be resolved
         :return: a message
         """
+        import pdb;pdb.set_trace()
         message = "Could not resolve symbol \"%s\"!" % name
         return MessageCode.SYMBOL_NOT_RESOLVED, message
 
