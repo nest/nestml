@@ -82,6 +82,9 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
 
             if node.get_where() == "pre":
                 # the value for this node is stored in the presynaptic neuron
+                if self.with_origin == "process_post_spike":
+                    return node.get_name() + "__tmp"
+
                 return "plastic_region_address->history." + node.get_name()
 
             raise Exception("Tried to print an ASTExternalVariable with unknown provenance")
@@ -177,20 +180,22 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
         if variable.is_delay_variable():
             return self._print_delay_variable(variable)
 
-        if variable.name == "__h":
-            return variable.name
+        #if variable.name == "__h":
+        #    return variable.name
 
-        try:
+        """try:
             from pynestml.meta_model.ast_model import ASTModel
             model = ASTUtils.find_parent_node_by_type(variable, ASTModel)
+            import pdb;pdb.set_trace()
             assert isinstance(model, ASTModel)
             if variable.name in [var.name for var in model.get_parameter_variables()]:
                 # this is a parameter
-                return SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols, for_synapse=True) % variable_name.split("__for_")[0]
+                print("Printing parameter for neuron " + str(variable))
+                return SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols, for_synapse=False) % variable_name.split("__for_")[0]
         except:
-            pass
+            pass"""
 
-        if with_origin == True and SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols):
+        if with_origin and SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols):
             return SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols) % variable_name
 
         return variable_name

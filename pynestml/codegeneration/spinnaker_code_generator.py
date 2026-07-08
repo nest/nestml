@@ -54,6 +54,7 @@ from pynestml.codegeneration.printers.spinnaker_python_variable_printer import S
 from pynestml.codegeneration.printers.spinnaker_c_function_call_printer import SpinnakerCFunctionCallPrinter
 from pynestml.codegeneration.printers.spinnaker_c_type_symbol_printer import SpinnakerCTypeSymbolPrinter
 from pynestml.codegeneration.printers.spinnaker_c_variable_printer import SpinnakerCVariablePrinter
+from pynestml.codegeneration.printers.spinnaker_synapse_c_variable_printer import SpinnakerSynapseCVariablePrinter
 from pynestml.codegeneration.printers.spinnaker_gsl_function_call_printer import SpinnakerGSLFunctionCallPrinter
 from pynestml.codegeneration.printers.spinnaker_python_function_call_printer import SpinnakerPythonFunctionCallPrinter
 from pynestml.codegeneration.printers.spinnaker_python_simple_expression_printer import SpinnakerPythonSimpleExpressionPrinter
@@ -79,7 +80,7 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
                                                                     with_vector_parameter=True)
         else:
             # for synapse
-            self._nest_variable_printer = SpinnakerCVariablePrinter(expression_printer=None, with_origin=True,
+            self._nest_variable_printer = SpinnakerSynapseCVariablePrinter(expression_printer=None, with_origin=True,
                                                                     with_vector_parameter=True)
         self._nest_function_call_printer = SpinnakerCFunctionCallPrinter(None)
         self._nest_function_call_printer_no_origin = SpinnakerCFunctionCallPrinter(None)
@@ -162,7 +163,8 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         # namespace["header_printer"] = self._header_printer
         # namespace["history_printer"] = self._history_printer
         namespace["pre_header"] = metadata[astnode.name]["pre_header"]
-        namespace["post_header"] = metadata[astnode.name]["post_header"]
+        if "post_header" in metadata[astnode.name].keys():
+            namespace["post_header"] = metadata[astnode.name]["post_header"]
 
         return namespace
 

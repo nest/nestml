@@ -326,6 +326,8 @@ class SynapsePreNeuronTransformer(Transformer):
         #print("XXX: skipping synapse_pre_neuron_transformer!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         #return models
 
+        compute_post_header = False
+
         models = set(models)
 
         for neuron_synapse_pair in self.get_option("neuron_synapse_pairs"):
@@ -341,23 +343,27 @@ class SynapsePreNeuronTransformer(Transformer):
                 raise Exception("Synapse used in pair (\"" + synapse_name + "\") not found")  # XXX: log error
 
             pre_header_for_synapse, new_synapse = self._transform_synapse(neuron, synapse, metadata, construct_for="pre")
-            post_header_for_synapse, new_synapse = self._transform_synapse(neuron, new_synapse, metadata, construct_for="post")
+            if compute_post_header:
+                post_header_for_synapse, new_synapse = self._transform_synapse(neuron, new_synapse, metadata, construct_for="post")
 
             # # replace variables in...
-            for var_name in [var.name for var in post_header_for_synapse.get_state_variables()]:
-                ASTUtils.replace_with_external_variable(var_name, new_synapse, where="post")
+            if compute_post_header:
+                for var_name in [var.name for var in post_header_for_synapse.get_state_variables()]:
+                    ASTUtils.replace_with_external_variable(var_name, new_synapse, where="post")
 
             for var_name in [var.name for var in pre_header_for_synapse.get_state_variables()]:
                 ASTUtils.replace_with_external_variable(var_name, new_synapse, where="pre")
 
             metadata[new_synapse.name]["pre_header"] = pre_header_for_synapse
-            metadata[new_synapse.name]["post_header"] = post_header_for_synapse
 
             print("Adding new_synapse = " + str(new_synapse))
+            if compute_post_header:
+                metadata[new_synapse.name]["post_header"] = post_header_for_synapse
+                print("Adding post header_for_synapse = " + str(post_header_for_synapse))
+                models.add(post_header_for_synapse)
+
             print("Adding pre header_for_synapse = " + str(pre_header_for_synapse))
-            print("Adding post header_for_synapse = " + str(post_header_for_synapse))
             models.add(pre_header_for_synapse)
-            models.add(post_header_for_synapse)
             models.discard(synapse)
             models.add(new_synapse)
 

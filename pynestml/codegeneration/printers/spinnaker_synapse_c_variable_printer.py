@@ -43,6 +43,40 @@ class SpinnakerSynapseCVariablePrinter(SpinnakerCVariablePrinter):
     Variable printer for C syntax and the Spinnaker API -- for synapses
     """
 
+
+    def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:
+        assert all([isinstance(s, str) for s in self._state_symbols])
+
+        variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
+        # variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+
+        if symbol.is_local():
+            return variable_name
+
+        if variable.is_delay_variable():
+            return self._print_delay_variable(variable)
+
+        if variable.name == "__h":
+            return variable.name
+
+        try:
+            from pynestml.meta_model.ast_model import ASTModel
+            model = ASTUtils.find_parent_node_by_type(variable, ASTModel)
+            assert isinstance(model, ASTModel)
+            if variable.name in [var.name for var in model.get_parameter_variables()]:
+                # this is a parameter
+                print("Printing parameter for synapse " + str(variable))
+                return SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols, for_synapse=True) % variable_name.split("__for_")[0]
+        except:
+            pass
+
+        if with_origin and SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols):
+            return SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols, for_synapse=True) % variable_name
+
+        return variable_name
+
+
+
     # def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:
     #     assert all([isinstance(s, str) for s in self._state_symbols])
 

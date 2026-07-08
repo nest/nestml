@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 -#}
 /**
- *  {{ synapseName }}.h
+ *  {{ synapseName }}_impl.c
  *
  *  This file is part of NEST.
  *
@@ -255,7 +255,6 @@ static void update_internal_state_(synapse_state_t *state, uint32_t t_start, uin
 static void process_post_spike(synapse_state_t *state, uint32_t time, synapse_row_plastic_data_t *plastic_region_address) {
     log_info("[NESTML synapse] process_post_spike(time = %d)\n", time);
 
-{#
 {%- if post_header is not defined %}
     // update the state of "header" variables common to all synapses from the time of the last pre spike to the current time
 
@@ -268,16 +267,19 @@ static void process_post_spike(synapse_state_t *state, uint32_t time, synapse_ro
 {%-     endfor %}
 
 {%-     for variable_name in paired_neuron.get_state_variables() | map(attribute='name') %}
-{%-         set update_expr = update_expressions[variable_name] %}
+{%-         set update_expr = metadata[pre_header.name]["analytic_solver"]["update_expressions_ast"][variable_name] %}
 {%-         set var_ast = utils.get_variable_by_name(metadata[synapse.name]["paired_neuron"], variable_name)%}
 {%-         set var_symbol = var_ast.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)%}
-    const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp = {{ header_printer.print(update_expr) }};
+    const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp = {{ printer.print(update_expr) }};
 {%-     endfor %}
 
 {%- endif %}
-#}
+
 {%- filter indent(8, True) %}
 {%- if spiking_post_ports is defined %}
+
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_with_origin("process_post_spike") }}
+
 {%-     for post_port in spiking_post_ports %}
 /**
  *  NESTML generated onReceive code block for postsynaptic port "{{ post_port }}" begins here!
