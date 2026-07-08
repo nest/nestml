@@ -242,6 +242,13 @@ class CustomPythonStandaloneCodeGenerator(PythonStandaloneCodeGenerator):
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
         self._gsl_variable_printer._expression_printer = self._gsl_printer
 
+    def _get_synapse_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
+        namespace = super()._get_synapse_model_namespace(astnode, metadata)
+        namespace["pre_header"] = metadata[astnode.name]["pre_header"]
+        if "post_header" in metadata[astnode.name].keys():
+            namespace["post_header"] = metadata[astnode.name]["post_header"]
+
+        return namespace
 
 class SpiNNakerCodeGenerator(CodeGenerator):
     r"""
