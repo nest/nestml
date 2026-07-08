@@ -26,18 +26,20 @@ from pynestml.meta_model.ast_variable import ASTVariable
 
 class ASTExternalVariable(ASTVariable):
     r"""
-    This class is used to store a single "external" variable: a variable the value of which is obtained during runtime from a neuron's postsynaptic partner.
+    This class is used to store a single "external" variable: a variable the value of which is obtained during runtime from somewhere outside of the model, for example, from a synapse's postsynaptic partner or from a history buffer.
     """
     _altscope = None
     _altname = None
+    _where: Optional[str] = None
 
-    def __init__(self, name, altname=None, altscope=None, *args, **kwargs):
+    def __init__(self, name, altname=None, altscope=None, where=None, *args, **kwargs):
         r"""
         Standard constructor.
         """
         super(ASTExternalVariable, self).__init__(name, *args, **kwargs)
         self._altname = altname
         self._altscope = altscope
+        self._where = where
 
     def clone(self):
         r"""
@@ -45,6 +47,7 @@ class ASTExternalVariable(ASTVariable):
         """
         return ASTExternalVariable(altname=self._altname,
                                    altscope=self._altscope,
+                                   where=self._where,
                                    # ASTVariable attributes:
                                    name=self.name,
                                    differential_order=self.differential_order,
@@ -60,6 +63,12 @@ class ASTExternalVariable(ASTVariable):
 
     def update_alt_scope(self, scope):
         self._altscope = scope
+
+    def set_where(self, where: Optional[str]) -> None:
+        self._where = where
+
+    def get_where(self) -> Optional[str]:
+        return self._where
 
     def set_alternate_name(self, alternate_name: Optional[str]):
         self._altname = alternate_name

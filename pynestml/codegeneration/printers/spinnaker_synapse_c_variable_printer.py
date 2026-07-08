@@ -43,23 +43,23 @@ class SpinnakerSynapseCVariablePrinter(SpinnakerCVariablePrinter):
     Variable printer for C syntax and the Spinnaker API -- for synapses
     """
 
-    def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:
-        assert all([isinstance(s, str) for s in self._state_symbols])
+    # def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:
+    #     assert all([isinstance(s, str) for s in self._state_symbols])
 
-        variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
+    #     variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
 
-        if symbol.is_local():
-            return variable_name
+    #     if symbol.is_local():
+    #         return variable_name
 
-        if variable.is_delay_variable():
-            return self._print_delay_variable(variable)
+    #     if variable.is_delay_variable():
+    #         return self._print_delay_variable(variable)
 
-        if with_origin:
+    #     if with_origin:
 
-            if "__for_" in symbol.name:
-                # XXX this is a terrible hack, remove!!
-                # make sure parameters in the synapse header are printed without suffix
-                return SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols, for_synapse=True) % variable_name.split("__for_")[0]
-            return SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols, for_synapse=True) % variable_name
+    #         if "__for_" in symbol.name:
+    #             # XXX this is a terrible hack, remove!!
+    #             # make sure parameters in the synapse header are printed without suffix
+    #             return SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols, for_synapse=True) % variable_name.split("__for_")[0]
+    #         return SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols, for_synapse=True) % variable_name
 
-        return variable_name
+    #     return variable_name

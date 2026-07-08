@@ -139,19 +139,15 @@ typedef struct {
 {%- if post_header is defined %}
     //! Event traces
 {%-     for var in post_header.get_state_variables() %}
-		    accum {{ var.name }}[MAX_POST_SYNAPTIC_EVENTS];
+    accum {{ var.name }}[MAX_POST_SYNAPTIC_EVENTS];
 {%-     endfor %}
 {%- endif %}
 } post_event_history_t;
 
 //! Post event window description
 typedef struct {
-    //! The previous post-synaptic event trace
-//    post_trace_t prev_trace;
     //! The previous post-synaptic event time
     uint32_t prev_time;
-    //! The next post-synaptic event trace
-  //  const post_trace_t *next_trace;
     //! The next post-synaptic event time
     const uint32_t *next_time;
     //! The number of events
@@ -482,8 +478,12 @@ static inline post_event_history_t *post_events_init_buffers(
     for (uint32_t n = 0; n < n_neurons; n++) {
         // Add initial placeholder entry to buffer
         post_event_history[n].times[0] = 0;
-        //post_event_history[n].traces[0] = (post_trace_t){.post_tr=0, .last_spike_time = 0};// timing_get_initial_post_trace();
         post_event_history[n].count_minus_one = 0;
+{%- if post_header is defined %}
+{%-     for var in post_header.get_state_variables() %}
+        post_event_history[n].{{ var.name }}[0] = 0;
+{%-     endfor %}
+{%- endif %}
     }
 
     return post_event_history;
