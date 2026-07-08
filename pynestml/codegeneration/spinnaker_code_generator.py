@@ -54,7 +54,6 @@ from pynestml.codegeneration.printers.spinnaker_python_variable_printer import S
 from pynestml.codegeneration.printers.spinnaker_c_function_call_printer import SpinnakerCFunctionCallPrinter
 from pynestml.codegeneration.printers.spinnaker_c_type_symbol_printer import SpinnakerCTypeSymbolPrinter
 from pynestml.codegeneration.printers.spinnaker_c_variable_printer import SpinnakerCVariablePrinter
-from pynestml.codegeneration.printers.spinnaker_synapse_c_variable_printer import SpinnakerSynapseCVariablePrinter
 from pynestml.codegeneration.printers.spinnaker_gsl_function_call_printer import SpinnakerGSLFunctionCallPrinter
 from pynestml.codegeneration.printers.spinnaker_python_function_call_printer import SpinnakerPythonFunctionCallPrinter
 from pynestml.codegeneration.printers.spinnaker_python_simple_expression_printer import SpinnakerPythonSimpleExpressionPrinter
@@ -80,7 +79,7 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
                                                                     with_vector_parameter=True)
         else:
             # for synapse
-            self._nest_variable_printer = SpinnakerSynapseCVariablePrinter(expression_printer=None, with_origin=True,
+            self._nest_variable_printer = SpinnakerCVariablePrinter(expression_printer=None, with_origin=True,
                                                                     with_vector_parameter=True)
         self._nest_function_call_printer = SpinnakerCFunctionCallPrinter(None)
         self._nest_function_call_printer_no_origin = SpinnakerCFunctionCallPrinter(None)
@@ -95,13 +94,6 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
             simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
                                                                constant_printer=self._constant_printer,
                                                                function_call_printer=self._nest_function_call_printer))
-
-            self._header_variable_printer = SpinnakerCVariablePrinter(expression_printer=None, with_origin="header",
-                                                                      with_vector_parameter=True)
-            self._header_printer = SpiNNakerCppExpressionPrinter(simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._header_variable_printer,
-                                                                                                                    constant_printer=self._constant_printer,
-                                                                                                                    function_call_printer=self._nest_function_call_printer))
-            self._header_variable_printer._expression_printer = self._header_printer
 
         self._nest_variable_printer._expression_printer = self._printer
         self._nest_function_call_printer._expression_printer = self._printer
@@ -167,16 +159,12 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
 
     def _get_synapse_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
         namespace = super()._get_synapse_model_namespace(astnode, metadata)
-        namespace["header_printer"] = self._header_printer
-        return namespace
+        # namespace["header_printer"] = self._header_printer
+        # namespace["history_printer"] = self._history_printer
+        namespace["pre_header"] = metadata[astnode.name]["pre_header"]
+        namespace["post_header"] = metadata[astnode.name]["post_header"]
 
-    """def _get_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
-        namespace = super()._get_model_namespace(astnode, metadata)
-        namespace["spinnaker_paired_synapse"] = True   # set this to a value to trigger the right code path in the makefile
-        namespace["paired_synapse_original_model"] = "stqwef"
-        if there is a key in metadata that's "
-        # metadata["iaf_psc_exp_neuron_nestml__header_for__stdp_synapse_nestml"]["paired_synapse_original_model"]
-        return namespace"""
+        return namespace
 
     def _get_neuron_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
         namespace = super()._get_neuron_model_namespace(astnode, metadata)
@@ -186,7 +174,7 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
             namespace["paired_synapse_original_model_name"] = list(self.get_option("neuron_synapse_pairs")[0]["synapses"].keys())[0] + FrontendConfiguration.suffix
 
         for k, v in metadata.items():
-            if k.startswith(astnode.name + "__header_for__"):
+            if k.startswith(astnode.name) and "header_for__" in k:
                 namespace["paired_synapse"] = v["paired_synapse"]
                 namespace["paired_synapse_original_model"] = v["paired_synapse_original_model"]
                 namespace["paired_synapse_original_model_name"] = v["paired_synapse_original_model"].get_name() + FrontendConfiguration.suffix
@@ -345,10 +333,8 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
 
         for model in models:
-            print("SpiNNakerCodeGenerator::generate_code(): model = " + str(model.name))
-            if "__header_for__" in model.name:
-                # XXX this is synapse header; do not gen code
-                # but run ODE toolbox transformer
+            if "header_for__" in model.name:
+                # This is synapse header; do not gen code, but run ODE toolbox transformer
                 from pynestml.transformers.add_timestep_to_internals_transformer import AddTimestepToInternalsTransformer
                 add_timestep_to_internals_transformer = AddTimestepToInternalsTransformer()
                 add_timestep_to_internals_transformer.transform([model], metadata)
@@ -362,21 +348,35 @@ class SpiNNakerCodeGenerator(CodeGenerator):
                 model.accept(symbol_table_visitor)
                 SymbolTable.add_model_scope(model.get_name(), model.get_scope())
 
-
                 if metadata[model.name]["analytic_solver"] is not None:
                     ASTUtils.add_declarations_to_internals(model, metadata[model.name]["analytic_solver"]["propagators"])
 
+                    for var_name, update_expr_ast in metadata[model.name]["analytic_solver"]["update_expressions_ast"].items():
+                        print("XXXXXXX update expr = " + str(update_expr_ast))
+                        update_expr_ast.update_scope(model.get_scope())
+                        update_expr_ast.accept(ASTSymbolTableVisitor())
+
+                        if "post" in model.name:
+                            # this is the post header
+                            for var_name in [var.name for var in model.get_state_variables()]:
+                                ASTUtils.replace_with_external_variable(var_name, update_expr_ast, where="post")
+
+                        if "pre" in model.name:
+                            # this is the pre header
+                            for var_name in [var.name for var in model.get_state_variables()]:
+                                ASTUtils.replace_with_external_variable(var_name, update_expr_ast, where="pre")
+                                # ASTUtils.replace_with_external_variable(var_name, model.get_on_receive_block("spikes"), where="pre")
+
+                if metadata[model.name]["numeric_solver"] is not None:
+                    for var_name, update_expr_ast in metadata[model.name]["numeric_solver"]["update_expressions_ast"].items():
+                        update_expr_ast.update_scope(model.get_scope())
+                        update_expr_ast.accept(ASTSymbolTableVisitor())
+
                 model.accept(symbol_table_visitor)
 
-                break
-
-
         for model in models:
-
             print("SpiNNakerCodeGenerator::generate_code(): model = " + str(model.name))
-
-            if "__header_for__" in model.name:
-                # XXX this is synapse header; do not gen code
+            if "header_for__" in model.name:
                 continue
 
             cloned_model = model.clone()

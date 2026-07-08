@@ -60,7 +60,10 @@ class CodeGeneratorUtils:
         Check if a port by the given name is specified as connecting to the postsynaptic neuron. Only makes sense
         for synapses.
         """
-        assert special_type in ["post", "vt"]
+        assert special_type in ["pre", "post", "vt"]
+
+        if special_type == "pre":
+            return not (CodeGeneratorUtils.is_post_port(port_name, neuron_name, synapse_name, neuron_synapse_pairs) or CodeGeneratorUtils.is_vt_port(port_name, neuron_name, synapse_name, neuron_synapse_pairs))
 
         for neuron_synapse_pair in neuron_synapse_pairs:
             for paired_synapse_name in neuron_synapse_pair["synapses"]:
@@ -105,7 +108,7 @@ class CodeGeneratorUtils:
 
     @classmethod
     def is_pre_port(cls, port_name: str, neuron_name: str, synapse_name: str, neuron_synapse_pairs) -> bool:
-        return not (CodeGeneratorUtils.is_post_port(port_name, neuron_name, synapse_name, neuron_synapse_pairs) or CodeGeneratorUtils.is_vt_port(port_name, neuron_name, synapse_name, neuron_synapse_pairs))
+        return CodeGeneratorUtils.is_special_port("pre", port_name, neuron_name, synapse_name, neuron_synapse_pairs=neuron_synapse_pairs)
 
     @classmethod
     def is_vt_port(cls, port_name: str, neuron_name: str, synapse_name: str, neuron_synapse_pairs) -> bool:

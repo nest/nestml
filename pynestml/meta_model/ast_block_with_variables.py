@@ -21,6 +21,7 @@
 
 from typing import List
 
+from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_node import ASTNode
 
 
@@ -70,7 +71,10 @@ class ASTBlockWithVariables(ASTNode):
             "(PyNestML.AST.BlockWithVariables) Type of block ambiguous!"
         assert (declarations is None or isinstance(declarations, list)), \
             "(PyNESTML.AST.BlockWithVariables) Wrong type of declaration provided (%s)!" % type(declarations)
-        self.declarations = declarations
+        if declarations is None:
+            self.declarations = []
+        else:
+            self.declarations = declarations
         self.is_internals = is_internals
         self.is_parameters = is_parameters
         self.is_state = is_state
@@ -99,11 +103,10 @@ class ASTBlockWithVariables(ASTNode):
 
         return dup
 
-    def get_declarations(self):
+    def get_declarations(self) -> List[ASTDeclaration]:
         """
         Returns the set of stored declarations.
         :return: set of declarations
-        :rtype: set(ASTDeclaration)
         """
         return self.declarations
 

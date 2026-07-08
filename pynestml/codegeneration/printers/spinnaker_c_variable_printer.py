@@ -55,18 +55,10 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
         self.with_origin = with_origin
         self.with_vector_parameter = with_vector_parameter
         self._state_symbols = []
-        self.header_struct_str = "plastic_region_address->history."
-        self.header_struct_post_str = ""
         self.variables_special_cases = variables_special_cases
 
-    def set_header_struct_str(self, header_struct_str: str) -> str:
-        r"""For calling from the template, hence return the empty string"""
-        self.header_struct_str = header_struct_str
-        return ""
-
-    def set_header_struct_post_str(self, header_struct_post_str: str) -> str:
-        r"""For calling from the template, hence return the empty string"""
-        self.header_struct_post_str = header_struct_post_str
+    def set_with_origin(self, with_origin):
+        self.with_origin = with_origin
         return ""
 
     @override
@@ -76,11 +68,25 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
         :param node: a single node.
         :return: a Spinnaker processable format.
         """
+        print("PPPPPPPPPPPPPP PRINTING " + str(node))
         assert isinstance(node, ASTVariable)
+        # if node.name.startswith("__P"):
+            # import pdb;pdb.set_trace()
 
         if isinstance(node, ASTExternalVariable):
-            # this node is part of the header in the synapse
-            return self.header_struct_str + node.name + self.header_struct_post_str
+            if node.get_where() == "post":
+                if self.with_origin == "synapse_dynamics_process_post_synaptic_event":
+                    # we're in the context of ``synapse_dynamics_process_post_synaptic_event()``
+                    return "history->" + node.get_name() + "[history->count_minus_one]"
+
+                return node.get_name() + "__tmp"
+
+            if node.get_where() == "pre":
+                # the value for this node is stored in the presynaptic neuron
+                return "plastic_region_address->history." + node.get_name()
+
+            #raise Exception("Tried to print an ASTExternalVariable with unknown provenance")
+            return "XXXXX" + node.get_name()
 
         if node.get_name() == PredefinedVariables.E_CONSTANT:
             return "REAL_CONST(2.718282)"
@@ -162,10 +168,13 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
         return variable_symbol.get_symbol_name() + "_grid_sum_"
 
     def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:
+        print("   RRRRRRRRRRR variable_name = " + str(variable.name))
         assert all([isinstance(s, str) for s in self._state_symbols])
 
         variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
-        variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+        # variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+
+        print("   ZZZZZZZZZZ variable_name = " + str(variable_name))
 
         if symbol.is_local():
             return variable_name
@@ -173,13 +182,35 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
         if variable.is_delay_variable():
             return self._print_delay_variable(variable)
 
-        if with_origin == "header" and variable_symbol.name.startswith("__P"):
-            return variable_name   # no origin, propagators are local variables
+        # if isinstance(variable, ASTExternalVariable):
+        #     import pdb;pdb.set_trace()
 
-        if with_origin == "header" and variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
-            return self.header_struct_str + variable_name + self.header_struct_post_str
+        # if with_origin == "header" and variable_symbol.name.startswith("__P"):
+        #     return variable_name   # no origin, propagators are local variables
 
-        if with_origin:
+        # if with_origin == "header" and variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
+        #     return variable_name
+
+        # if with_origin == "history" and variable_symbol.name.startswith("__P"):
+        #     return variable_name   # no origin, propagators are local variables
+
+        # if with_origin == "history" and variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
+        #     return "history->" + variable_name + "[history->count_minus_one]"
+
+        if variable.name == "__h":
+            return variable.name
+
+        try:
+            from pynestml.meta_model.ast_model import ASTModel
+            model = ASTUtils.find_parent_node_by_type(variable, ASTModel)
+            assert isinstance(model, ASTModel)
+            if variable.name in [var.name for var in model.get_parameter_variables()]:
+                # this is a parameter
+                return SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols, for_synapse=True) % variable_name.split("__for_")[0]
+        except:
+            pass
+
+        if with_origin == True and SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols):
             return SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols) % variable_name
 
         return variable_name
