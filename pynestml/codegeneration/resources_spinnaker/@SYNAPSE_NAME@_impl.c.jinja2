@@ -253,14 +253,10 @@ static void update_internal_state_(synapse_state_t *state, uint32_t t_start, uin
 
 
 static void process_post_spike(synapse_state_t *state, uint32_t time, synapse_row_plastic_data_t *plastic_region_address) {
-
     log_info("[NESTML synapse] process_post_spike(time = %d)\n", time);
-//log_info("[NESTML synapse] \tstate->w = %k (raw: 0x%x)\n", state->w, state->w);
-//log_info("[NESTML synapse] \tplastic_region_address->history.pre_trace__for_stdp_synapse_nestml = %k (raw: 0x%x)\n", plastic_region_address->history.pre_trace__for_stdp_synapse_nestml, plastic_region_address->history.pre_trace__for_stdp_synapse_nestml);
 
-
-
-{%- if paired_neuron is defined %}
+{#
+{%- if post_header is not defined %}
     // update the state of "header" variables common to all synapses from the time of the last pre spike to the current time
 
     const accum __h = time - plastic_region_address->history.prev_time;   // XXX: time constants are in ms, so __h should be as well! convert uint32_t to accum type
@@ -278,11 +274,8 @@ static void process_post_spike(synapse_state_t *state, uint32_t time, synapse_ro
     const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp = {{ header_printer.print(update_expr) }};
 {%-     endfor %}
 
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_header_struct_str("") }}
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_header_struct_post_str("__tmp") }}
-
 {%- endif %}
-
+#}
 {%- filter indent(8, True) %}
 {%- if spiking_post_ports is defined %}
 {%-     for post_port in spiking_post_ports %}
@@ -299,25 +292,6 @@ static void process_post_spike(synapse_state_t *state, uint32_t time, synapse_ro
 {%-     endfor %}
 {%- endif %}
 {%- endfilter %}
-
-{%- if paired_neuron is defined %}
-
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_header_struct_str("plastic_region_address->history.") }}
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_header_struct_post_str("") }}
-
-{%- endif %}
-
-log_info("[NESTML synapse] __h = %k = 0x%x\n", __h, __h);
-log_info("[NESTML synapse] __P__pre_trace__for__stdp_synapse_nestml__pre_trace__for__stdp_synapse_nestml = %k = 0x%x\n", __P__pre_trace__for__stdp_synapse_nestml__pre_trace__for__stdp_synapse_nestml, __P__pre_trace__for__stdp_synapse_nestml__pre_trace__for__stdp_synapse_nestml);
-log_info("[NESTML synapse] pre_trace__for__stdp_synapse_nestml__tmp = %k = 0x%x\n", pre_trace__for__stdp_synapse_nestml__tmp, pre_trace__for__stdp_synapse_nestml__tmp);
-log_info("[NESTML synapse] plastic_region_address->history.prev_time = %k = 0x%x\n", plastic_region_address->history.prev_time, plastic_region_address->history.prev_time);
-
-log_info("[NESTML synapse] \tafter state->w = %k (raw: 0x%x)\n", state->w, state->w);
-
-
-
-
-//    log_info("[NESTML synapse] state->w = %k (raw: 0x%x), plasticity_weight_region_data->Wmax = %k (raw: 0x%x)\n", state->w, state->w, plasticity_weight_region_data->Wmax, plasticity_weight_region_data->Wmax);
 }
 
 

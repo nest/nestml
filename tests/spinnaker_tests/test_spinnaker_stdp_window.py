@@ -137,7 +137,6 @@ class TestSpiNNakerSTDPWindow:
 
     def run_sim(self, pre_spike_times, post_spike_times, simtime=1100, initial_weight=1.):
         import pyNN.spiNNaker as p
-        from pyNN.utility.plotting import Figure, Panel
 
         from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml as iaf_psc_exp_neuron_nestml
         from python_models8.neuron.implementations.stdp_synapse_nestml_impl import stdp_synapse_nestmlDynamics as stdp_synapse_nestml

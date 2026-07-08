@@ -68,7 +68,6 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
         :param node: a single node.
         :return: a Spinnaker processable format.
         """
-        print("PPPPPPPPPPPPPP PRINTING " + str(node))
         assert isinstance(node, ASTVariable)
         # if node.name.startswith("__P"):
             # import pdb;pdb.set_trace()
@@ -85,8 +84,7 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
                 # the value for this node is stored in the presynaptic neuron
                 return "plastic_region_address->history." + node.get_name()
 
-            #raise Exception("Tried to print an ASTExternalVariable with unknown provenance")
-            return "XXXXX" + node.get_name()
+            raise Exception("Tried to print an ASTExternalVariable with unknown provenance")
 
         if node.get_name() == PredefinedVariables.E_CONSTANT:
             return "REAL_CONST(2.718282)"
@@ -168,34 +166,16 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
         return variable_symbol.get_symbol_name() + "_grid_sum_"
 
     def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:
-        print("   RRRRRRRRRRR variable_name = " + str(variable.name))
         assert all([isinstance(s, str) for s in self._state_symbols])
 
         variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
         # variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
-
-        print("   ZZZZZZZZZZ variable_name = " + str(variable_name))
 
         if symbol.is_local():
             return variable_name
 
         if variable.is_delay_variable():
             return self._print_delay_variable(variable)
-
-        # if isinstance(variable, ASTExternalVariable):
-        #     import pdb;pdb.set_trace()
-
-        # if with_origin == "header" and variable_symbol.name.startswith("__P"):
-        #     return variable_name   # no origin, propagators are local variables
-
-        # if with_origin == "header" and variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
-        #     return variable_name
-
-        # if with_origin == "history" and variable_symbol.name.startswith("__P"):
-        #     return variable_name   # no origin, propagators are local variables
-
-        # if with_origin == "history" and variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
-        #     return "history->" + variable_name + "[history->count_minus_one]"
 
         if variable.name == "__h":
             return variable.name
