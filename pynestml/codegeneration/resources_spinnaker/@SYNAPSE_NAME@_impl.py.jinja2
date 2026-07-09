@@ -41,6 +41,7 @@ from typing import Any, Iterable, List, Optional, Tuple, TYPE_CHECKING
 import math
 
 from math import exp # XXX support all NESTML functions that can be used in the initiialisation of parameters and internals
+from collections.abc import Iterable
 
 import numpy
 import numpy as np
@@ -94,6 +95,10 @@ def s16_15_to_float(fixp_x: int) -> float:
     Bits 15-30: Integer part
     Bits 0-14: Fractional part (denominator of 2^15)
     """
+    # Check if the input is iterable (but ignore strings/bytes)
+    if isinstance(fixp_x, Iterable):
+        return [s16_15_to_float(x) for x in fixp_x]
+
     # 1. Extract the sign: bit 31
     # We shift right by 31 to get the lone bit
     sign = (fixp_x >> 31) & 0x1
@@ -528,6 +533,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         connections["target"] = data_fixed & neuron_id_mask
         connections["weight"] = s16_15_to_float(numpy.concatenate([pp[:size * 4 * n_state_variables].view(uint32)[::n_state_variables] for pp, size in zip(pp_without_headers, fp_size)]).astype(uint32))
         connections["delay"] = data_fixed >> (n_neuron_id_bits + n_synapse_type_bits)
+        import pdb;pdb.set_trace()
 
         print("[NESTML synapse] Returning connections: " + str(connections))
 
