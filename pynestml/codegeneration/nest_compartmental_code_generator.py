@@ -120,7 +120,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         "neuron_synapse_pairs": [],
         "neuron_models": [],
         "synapse_models": [],
-        "fp_precision": "double",
         "use_fastexp": False,
         "neuron_parent_class": "ArchivingNode",
         "neuron_parent_class_include": "archiving_node.h",
@@ -145,6 +144,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         "weight_variable": {}
     }
 
+    _fp_precision = "double"
     _variable_matching_template = r"(\b)({})(\b)"
     _model_templates = dict()
     _module_templates = list()
@@ -176,11 +176,9 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
     def setup_printers(self):
         self._constant_printer = ConstantPrinter()
         exp_function = "std::exp"
-        if self.get_option("fp_precision") == "single":
-            exp_function = "std::expf"
         if self.get_option("use_fastexp"):
             propagator_exp_function = "cm_fast_propagator_exp"
-        elif self.get_option("fp_precision") == "single":
+        elif self._fp_precision == "single":
             propagator_exp_function = "bounded_propagator_expf"
         else:
             propagator_exp_function = exp_function
@@ -253,8 +251,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
         if not options:
             return {}
-        if "fp_precision" in options and options["fp_precision"] not in ["single", "double"]:
-            raise ValueError("`fp_precision` must be either 'single' or 'double'.")
         if "use_fastexp" in options and not isinstance(options["use_fastexp"], bool):
             raise ValueError("`use_fastexp` must be a bool.")
         self._nest_code_generator.set_options(options)
@@ -324,7 +320,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         """
         namespace = {"neurons": neurons,
                      "moduleName": FrontendConfiguration.get_module_name(),
-                     "fp_precision": self.get_option("fp_precision"),
+                     "fp_precision": self._fp_precision,
                      "use_fastexp": self.get_option("use_fastexp"),
                      "nestml_version": pynestml.__version__,
                      "now": datetime.datetime.utcnow()}
@@ -719,7 +715,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["norm_rng"] = rng_visitor._norm_rng_is_used
 
         def _suffix_float_literals(expr: str) -> str:
-            if self.get_option("fp_precision") != "single":
+            if self._fp_precision != "single":
                 return expr
             # Suffix decimal/scientific literals at final C++ rendering time only.
             # Keep integers untouched.
@@ -785,7 +781,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 namespace["PyNestMLLexer"][kw] = eval("PyNestMLLexer." + kw)
 
         namespace.update(self._get_nest_version_namespace())
-        namespace["fp_precision"] = self.get_option("fp_precision")
+        namespace["fp_precision"] = self._fp_precision
         namespace["use_fastexp"] = self.get_option("use_fastexp")
 
         namespace["neuronName"] = neuron.get_name()

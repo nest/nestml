@@ -33,12 +33,12 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #define NEAR_ZERO 1e-9
 {%- if fp_precision == "single" and not use_fastexp %}
 // Required for numerical stability in single precision: keep propagator
-// exponents in a bounded interval so expf cannot overflow.
+// exponents in a bounded interval so exp cannot overflow.
 __attribute__((always_inline)) inline float
 bounded_propagator_expf(const float x)
 {
     const float xc = (x < -10.0f) ? -10.0f : ((x > 0.0f) ? 0.0f : x);
-    return std::expf(xc);
+    return std::exp(xc);
 }
 {%- endif %}
 
