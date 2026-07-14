@@ -23,6 +23,8 @@ import numpy as np
 import os
 import pytest
 
+from tests.test_utils import get_trace_at
+
 # try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
     import matplotlib as mpl
@@ -55,41 +57,6 @@ def nestml_generate_target():
                                        "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_fixed_timestep_neuron",
                                                                  "synapses": {"stdp_triplet_synapse": {"post_ports": ["post_spikes"]}}}],
                                        "weight_variable": {"stdp_triplet_synapse": "w"}})
-
-
-def get_trace_at(t, t_spikes, tau, initial=0., increment=1., before_increment=False, extra_debug=False):
-    if extra_debug:
-        print("\t-- obtaining trace at t = " + str(t))
-    if len(t_spikes) == 0:
-        return initial
-    tr = initial
-    t_sp_prev = 0.
-    for t_sp in t_spikes:
-        if t_sp > t:
-            break
-        if extra_debug:
-            _tr_prev = tr
-        tr *= np.exp(-(t_sp - t_sp_prev) / tau)
-        if t_sp == t:  # exact floating point match!
-            if before_increment:
-                if extra_debug:
-                    print("\t   [%] exact (before_increment = T), prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev)
-                          + ", decayed by dt = " + str(t - t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr))
-                return tr
-            else:
-                if extra_debug:
-                    print("\t   [%] exact (before_increment = F), prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev) + ", decayed by dt = " + str(
-                        t - t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr + increment))
-                return tr + increment
-        tr += increment
-        t_sp_prev = t_sp
-    if extra_debug:
-        _tr_prev = tr
-    tr *= np.exp(-(t - t_sp_prev) / tau)
-    if extra_debug:
-        print("\t   [&] prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev) + ", decayed by dt = "
-              + str(t - t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr))
-    return tr
 
 
 def run_reference_simulation(syn_opts,
