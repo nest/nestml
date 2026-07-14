@@ -36,7 +36,7 @@ from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.utils.ast_global_information_collector import ASTGlobalInformationCollector
 from pynestml.utils.ast_utils import ASTUtils
 
-from odetoolbox import analysis
+import odetoolbox
 
 
 class GlobalProcessing:
@@ -104,7 +104,7 @@ class GlobalProcessing:
     def collect_raw_odetoolbox_output(cls, syn_info):
         """calls ode-toolbox for each ode individually and collects the raw output"""
         for ode_variable_name, ode_info in syn_info["ODEs"].items():
-            solver_result = analysis(ode_info["ode_toolbox_input"], disable_stiffness_check=True)
+            solver_result = odetoolbox.analysis(ode_info["ode_toolbox_input"], disable_stiffness_check=True, disable_singularity_detection=True)
             syn_info["ODEs"][ode_variable_name]["ode_toolbox_output"] = solver_result
 
         return syn_info
