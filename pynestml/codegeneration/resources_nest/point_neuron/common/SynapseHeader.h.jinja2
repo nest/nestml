@@ -1035,10 +1035,13 @@ void
   const double __{{ syn_port_name }} = ((post_neuron_t*)(__target))->get_{{ post_neuron_var_name }}();
 {%-     endfor %}
 {%- endif %}
+  double __vt_port_multiplicity;
+
   auto get_thread = [tid]()
   {
     return tid;
   };
+
   // process dopa spikes in (t0, t1]
   // propagate weight from t0 to t1
   if ( ( vt_spikes.size() > vt_spikes_idx_ + 1 )
@@ -1053,6 +1056,9 @@ void
      *  NESTML generated onReceive code block for volume transmitter synaptic port "{{vt_port}}" begins here!
     **/
 
+    __vt_port_multiplicity = vt_spikes[ vt_spikes_idx_ ].multiplicity_;
+
+  {{ printer._expression_printer._simple_expression_printer._variable_printer.set_is_vt_port_in_synapse(True) }}
 {%- filter indent(4, True) %}
 {%-     set dynamics = synapse.get_on_receive_block(vt_port) %}
 {%-     if dynamics is not none %}
@@ -1061,6 +1067,9 @@ void
 {%-         endwith %}
 {%-     endif %}
 {%- endfilter %}
+{# {{ printer._expression_printer._simple_expression_printer._variable_printer.set_getter_string("((post_neuron_t*)(__target))->get_%s(_tr_t)") }} #}
+  {{ printer._expression_printer._simple_expression_printer._variable_printer.set_is_vt_port_in_synapse(False) }}
+
     // process remaining dopa spikes in (t0, t1]
     double cd;
     while ( ( vt_spikes.size() > vt_spikes_idx_ + 1 )
@@ -1072,9 +1081,12 @@ void
                              cp );
       ++vt_spikes_idx_;
 
+      __vt_port_multiplicity = vt_spikes[ vt_spikes_idx_ ].multiplicity_;
+
       /**
        *  Begin NESTML generated onReceive code block for volume transmitter synaptic port "{{vt_port}}"
       **/
+  {{ printer._expression_printer._simple_expression_printer._variable_printer.set_is_vt_port_in_synapse(True) }}
 {%- filter indent(6, True) %}
 {%-     set dynamics = synapse.get_on_receive_block(vt_port) %}
 {%-     if dynamics is not none %}
@@ -1083,6 +1095,7 @@ void
 {%-         endwith %}
 {%-     endif %}
 {%- endfilter %}
+  {{ printer._expression_printer._simple_expression_printer._variable_printer.set_is_vt_port_in_synapse(False) }}
 
       /**
        *  End NESTML generated onReceive code block for volume transmitter synaptic port "{{vt_port}}"
