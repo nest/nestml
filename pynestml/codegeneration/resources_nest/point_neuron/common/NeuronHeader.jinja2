@@ -260,10 +260,9 @@ public:
 
 {%-     for var in (purely_numeric_state_variables_moved + analytic_state_variables_moved) | sort %}
   double {{ var }}_;
-
 {%-         for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
 {%-             set is_inline_getter = false %}
-{%-             set inline = utils.get_inline_expression_by_constructed_rhs_name(paired_synapse_original_model, var) %}
+{%-             set inline = utils.get_inline_expression_by_name(paired_synapse_original_model, var) %}
 {%-             if inline %}
   double get_{{ inline.get_variable_name() + "__for_" + paired_synapse_original_model.get_name() }}() const     // getter for an inline expression
   {
