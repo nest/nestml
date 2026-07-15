@@ -572,6 +572,26 @@ nest::CompTree{{cm_unique_suffix}}::get_compartment_voltage( const long compartm
 {
   return *(compartments_[ compartment_index ]->v_comp);
 }
+{%- if gap_junction.enable %}
+
+/**
+ * Add the lagged semi-implicit gap-junction contribution of one timestep to a
+ * compartment's matrix row. The gap term for compartment i advancing from step
+ * n to n+1 is  sum_j g_ij ( V_j[n] - V_i[n+1] ). The implicit local part
+ * -sum_j g_ij V_i[n+1] enters the diagonal (gg, same slot as the passive
+ * conductance ca/dt + gl), and the lagged remote part sum_j g_ij V_j[n] enters
+ * the right-hand side (ff, same slot as (ca/dt) V + gl el, i.e. a current).
+ * The connection weight is the gap conductance g_ij in the compartment's
+ * conductance unit and V is in the compartment's voltage unit, so both terms
+ * add directly with no further conversion.
+ */
+void
+nest::CompTree{{cm_unique_suffix}}::add_gap_contribution( const long compartment_index, {{ cm_scalar_t }} sum_g, {{ cm_scalar_t }} weighted_remote )
+{
+  *(compartments_[ compartment_index ]->gg) += sum_g;
+  *(compartments_[ compartment_index ]->ff) += weighted_remote;
+}
+{%- endif %}
 
 /**
  * Construct the matrix equation to be solved to advance the model one timestep

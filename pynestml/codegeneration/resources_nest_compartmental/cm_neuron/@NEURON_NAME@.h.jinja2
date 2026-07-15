@@ -265,6 +265,12 @@ public:
   // participate in NEST's waveform-relaxation loop (see constructor).
   void sends_secondary_event( GapJunctionEvent& ) override {}
   void sends_secondary_event( GapJunctionEvent&, const size_t source_port ) override;
+
+  // Target-side gap-junction support: accumulate the incoming remote voltages
+  // and their conductances per target compartment; update() inserts them into
+  // that step's Hines matrix (see add_gap_contribution).
+  void handle( GapJunctionEvent& ) override;
+  size_t handles_test_event( GapJunctionEvent&, size_t ) override;
 {%- endif %}
 
   void get_status( DictionaryDatum& );
@@ -295,6 +301,15 @@ private:
   //! compartment index, for receptors that are instances of the designated
   //! gap mechanism ("{{ gap_junction.mechanism_name }}"). Built in add_receptor_.
   std::map< size_t, long > gap_port_comp_;
+
+  //! Per-compartment gap accumulators for the current communication interval,
+  //! filled by handle(GapJunctionEvent&) and consumed once per step in update().
+  //! gap_sum_g_[c] = sum_j g_cj (conductances are constant over the interval);
+  //! gap_weighted_remote_[c][k] = sum_j g_cj V_j at coefficient-buffer slot k
+  //! (only the per-step constant coefficient is populated). Sized in
+  //! pre_run_hook once the compartment count and coefficient length are known.
+  std::vector< double > gap_sum_g_;
+  std::vector< std::vector< double > > gap_weighted_remote_;
 {%- endif %}
 
   // To record variables with DataAccessFunctor
@@ -378,6 +393,23 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::sends_secondary_event( GapJunct
   {
     throw UnknownSourcePort( source_port );
   }
+}
+
+inline size_t
+nest::{{neuronSpecificFileNamesCmSyns["main"]}}::handles_test_event( GapJunctionEvent&, size_t receptor_type )
+{
+  // A valid gap target port exists in the receptor list and is an instance of
+  // the designated gap mechanism ("{{ gap_junction.mechanism_name }}"). The
+  // returned receptor_type becomes the event's rport and selects the target
+  // compartment in handle(GapJunctionEvent&).
+  if ( gap_port_comp_.find( receptor_type ) == gap_port_comp_.end() )
+  {
+    std::ostringstream msg;
+    msg << "Valid gap-junction receptor ports for " << get_name() << " are the "
+        << "receptors that are instances of the '{{ gap_junction.mechanism_name }}' mechanism.";
+    throw UnknownPort( receptor_type, msg.str() );
+  }
+  return receptor_type;
 }
 {%- endif %}
 

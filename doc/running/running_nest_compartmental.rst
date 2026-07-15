@@ -211,6 +211,168 @@ Another consequence of this merge is that all ODE equations in the synapse model
 
 An example of such a model is implemented here: `third_factor_stdp_synapse.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/third_factor_stdp_synapse.nestml>`_
 
+Gap junctions
+-------------
+
+A compartmental model can expose electrical (gap-junction) ports, so that a
+junction couples an arbitrary compartment of one neuron to an arbitrary
+compartment of another. Unlike NEST's point-neuron gap models, compartmental
+gap junctions do **not** use waveform relaxation (WFR); they use a
+one-timestep-lagged, semi-implicit approximation (see `Numerical scheme`_
+below).
+
+Declaring the gap-junction current port
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The gap current is a designated ``continuous_input`` mechanism. Declare a
+continuous input port with current-compatible units and attach it through an
+``inline`` current equation:
+
+.. code-block:: nestml
+
+   model <neuron_name>:
+       equations:
+           # designated gap-junction current port
+           inline gap_current pA = i_gap @mechanism::continuous_input
+
+           # an ordinary continuous input current is unaffected
+           inline stim_current pA = i_stim @mechanism::continuous_input
+
+       input:
+           i_gap  pA <- continuous
+           i_stim pA <- continuous
+
+Enable gap support through the code-generation options. Gap support is
+**disabled by default**; when disabled, the generated code and its numerical
+behavior are unchanged.
+
+.. code-block:: python
+
+   codegen_opts = {
+       "gap_junctions": {
+           "enable": True,
+           "gap_current_port": "i_gap",               # a continuous input port
+           "coupling_scheme": "lagged_semi_implicit",  # the only supported value
+       }
+   }
+
+At code-generation time NESTML validates that ``gap_current_port`` names a
+continuous input port, that its units are current-compatible, and that exactly
+one continuous-input mechanism represents it.
+
+Source and target ports
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The entries of ``cm.receptors`` determine the port numbers. Each receptor's
+zero-based index in the list is its numeric port. A port is a valid electrical
+endpoint (source *or* target) exactly when its receptor is an instance of the
+designated gap mechanism (``gap_current`` above); chemical receptors and
+ordinary continuous-current receptors may be interleaved but are not valid gap
+endpoints.
+
+.. code-block:: python
+
+   neuron.receptors = [
+       {"comp_idx": 0, "receptor_type": "gap_current"},   # port 0 -> compartment 0
+       {"comp_idx": 0, "receptor_type": "AMPA"},          # port 1 (not a gap port)
+       {"comp_idx": 7, "receptor_type": "gap_current"},   # port 2 -> compartment 7
+   ]
+
+One gap port refers to exactly one compartment; several gap ports may refer to
+the same compartment.
+
+Connecting
+~~~~~~~~~~~
+
+Use the ``gap_junction`` synapse model. The sending endpoint is selected by
+``source_port`` and the receiving endpoint by ``receptor_type``; both are port
+numbers (indices into ``cm.receptors``). Gap junctions are symmetric, so the
+connection must be created with ``make_symmetric=True``, which builds the
+reverse connection with ``source_port`` and ``receptor_type`` swapped. The
+endpoint indices need not be equal:
+
+.. code-block:: python
+
+   a.receptors = [
+       {"comp_idx": 0, "receptor_type": "gap_current"},
+       {"comp_idx": 5, "receptor_type": "gap_current"},
+   ]
+   b.receptors = [
+       {"comp_idx": 2, "receptor_type": "gap_current"},
+       {"comp_idx": 9, "receptor_type": "gap_current"},
+   ]
+
+   nest.Connect(
+       a, b,
+       {"rule": "one_to_one", "make_symmetric": True},
+       {"synapse_model": "gap_junction", "source_port": 1,
+        "receptor_type": 0, "weight": 0.5},
+   )
+   # forward: a[source_port=1] (comp 5)  ->  b[receptor_type=0] (comp 2)
+   # reverse: b[source_port=0] (comp 2)  ->  a[receptor_type=1] (comp 5)
+
+The connection ``weight`` is the gap conductance ``g_ij``, in the same
+conductance unit as the compartmental ``g_L``/``g_C``. Multiple junctions
+terminating on one compartment add linearly.
+
+Mandatory per-step communication
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The one-step lag requires that secondary events are exchanged every resolution
+step. Either set ``use_wfr=False`` (which sets the communication interval to the
+resolution), or, if WFR remains enabled for other node types, set
+``wfr_comm_interval`` equal to the resolution. A coarser interval is rejected
+before the simulation starts.
+
+.. code-block:: python
+
+   nest.SetKernelStatus({"resolution": dt, "use_wfr": False})
+
+Numerical scheme
+~~~~~~~~~~~~~~~~~
+
+Compartmental gap coupling is **lagged semi-implicit**, not WFR. For compartment
+``i`` advancing from step ``n`` to ``n+1``:
+
+.. math::
+
+   C_i \frac{V_i[n+1] - V_i[n]}{\Delta t}
+       = F_i + \sum_j g_{ij}\,(V_j[n] - V_i[n+1]).
+
+The local conductance term ``-sum_j g_ij V_i[n+1]`` is implicit (added to the
+matrix diagonal), while the remote voltage ``V_j[n]`` is delayed by exactly one
+timestep (added to the right-hand side). Consequently:
+
+* The stationary solution is correct, because the one-step lag vanishes at a
+  fixed point; equal endpoint voltages produce zero stationary gap current.
+* Fast transients and spike times carry a timestep-dependent error that
+  decreases as the resolution is reduced.
+* Each neuron performs exactly one committing integration per step and never
+  enters the WFR loop.
+
+For two identical passive compartments coupled only by a gap junction, the
+difference mode decays by the exact per-step factor
+``(C/dt - g) / (C/dt + g)``.
+
+The relevant dimensionless parameter is the coupling number
+
+.. math::
+
+   \kappa_i = \frac{\Delta t \, \sum_j g_{ij}}{C_i}.
+
+The approximation is accurate for small ``kappa_i``; keep it well below 1. If a
+configuration produces a large ``kappa_i``, reduce the simulation resolution to
+improve the approximation.
+
+Limitations
+~~~~~~~~~~~
+
+* The approximate compartmental scheme should not be mixed with WFR-based
+  point-neuron gap models in a way that requires a communication interval
+  larger than the resolution.
+* The remote voltage is always delayed by one step; there is no convergence
+  loop within a step.
+
 Technical Notes
 ---------------
 

@@ -28,8 +28,10 @@
 #include "{{neuronSpecificFileNamesCmSyns["main"]}}.h"
 #include "nest_impl.h"
 {%- if gap_junction.enable %}
+#include <algorithm>
 #include <limits>
 #include <map>
+#include <vector>
 {%- endif %}
 
 namespace nest
@@ -286,6 +288,16 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::calibrate()
 {%- else %}
   c_tree_.calibrate();
 {%- endif %}
+{%- if gap_junction.enable %}
+  // Size the per-compartment gap accumulators to the compartment count and the
+  // GapJunctionEvent coefficient-buffer length, and initialize them to zero.
+  // Zero-initialized accumulators give the first timestep no gap contribution;
+  // the first delivered events populate them for the second step onward.
+  const size_t gap_coeff_length = kernel().connection_manager.get_min_delay()
+    * ( kernel().simulation_manager.get_wfr_interpolation_order() + 1 );
+  gap_sum_g_.assign( c_tree_.get_size(), 0.0 );
+  gap_weighted_remote_.assign( c_tree_.get_size(), std::vector< double >( gap_coeff_length, 0.0 ) );
+{%- endif %}
 }
 
 /**
@@ -314,6 +326,20 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::update( Time const& origin, con
   for ( long lag = from; lag < to; ++lag )
   {
     c_tree_.construct_matrix( lag );
+{%- if gap_junction.enable %}
+    // Insert this step's lagged semi-implicit gap terms into the Hines matrix
+    // before solving: the summed conductance on the implicit diagonal and the
+    // conductance-weighted remote voltage (from the preceding step) on the rhs.
+    // The remote value is the constant coefficient at this lag's buffer slot.
+    // The accumulators are already summed per compartment across all incoming
+    // junctions, so each compartment is inserted exactly once; a compartment
+    // with no gap target contributes zero and is a harmless no-op.
+    for ( long comp = 0; comp < c_tree_.get_size(); ++comp )
+    {
+      c_tree_.add_gap_contribution(
+        comp, gap_sum_g_[ comp ], gap_weighted_remote_[ comp ][ lag * gap_coeff_stride ] );
+    }
+{%- endif %}
     c_tree_.solve_matrix();
 {%- if gap_junction.enable %}
     // Read the freshly committed compartment voltage for every gap source port
@@ -358,6 +384,14 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::update( Time const& origin, con
     ge.set_coeffarray( gap_coeffs[ port_comp.first ] );
     kernel().event_delivery_manager.send_secondary( *this, ge, port_comp.first );
   }
+
+  // Reset the gap accumulators; the next communication interval's delivered
+  // events (handle) repopulate them before the next update consumes them.
+  std::fill( gap_sum_g_.begin(), gap_sum_g_.end(), 0.0 );
+  for ( auto& comp_coeffs : gap_weighted_remote_ )
+  {
+    std::fill( comp_coeffs.begin(), comp_coeffs.end(), 0.0 );
+  }
 {%- endif %}
 }
 
@@ -401,6 +435,33 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::handle( CurrentEvent& e )
   syn_buffers_[ e.get_rport() ].add_value(
     e.get_rel_delivery_steps( kernel().simulation_manager.get_slice_origin() ), c*w );
 }
+{%- if gap_junction.enable %}
+
+void
+nest::{{neuronSpecificFileNamesCmSyns["main"]}}::handle( GapJunctionEvent& e )
+{
+  // The event's rport is the target gap receptor port; map it to its target
+  // compartment. The connection weight is the gap conductance g_ij and each
+  // coefficient value is a remote compartment voltage. Accumulate, per target
+  // compartment, sum_j g_ij on the diagonal accumulator and sum_j g_ij V_j on
+  // the right-hand-side accumulator. Contributions from multiple junctions on
+  // one compartment add linearly. update() consumes these once per step and
+  // then resets them.
+  const long comp = gap_port_comp_[ e.get_rport() ];
+  const double weight = e.get_weight();
+
+  gap_sum_g_[ comp ] += weight;
+
+  size_t i = 0;
+  std::vector< unsigned int >::iterator it = e.begin();
+  // get_coeffvalue( it ) also advances the iterator it
+  while ( it != e.end() )
+  {
+    gap_weighted_remote_[ comp ][ i ] += weight * e.get_coeffvalue( it );
+    ++i;
+  }
+}
+{%- endif %}
 
 void
 nest::{{neuronSpecificFileNamesCmSyns["main"]}}::handle( DataLoggingRequest& e )

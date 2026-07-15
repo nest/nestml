@@ -274,6 +274,13 @@ public:
 
   // construct the numerical integration matrix and vector
   void construct_matrix( const long lag );
+{%- if gap_junction.enable %}
+  // Add one timestep's lagged semi-implicit gap-junction contribution to a
+  // compartment's matrix row: the summed conductance to the implicit diagonal
+  // and the conductance-weighted remote voltage to the right-hand side. Must be
+  // called after construct_matrix() and before solve_matrix().
+  void add_gap_contribution( const long compartment_index, {{ cm_scalar_t }} sum_g, {{ cm_scalar_t }} weighted_remote );
+{%- endif %}
   // solve the matrix equation for next timestep voltage
   void solve_matrix();
 
