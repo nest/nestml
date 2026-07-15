@@ -32,6 +32,7 @@ except ImportError:
 
 import datetime
 import os
+import re
 
 from jinja2 import TemplateRuntimeError
 
@@ -45,6 +46,7 @@ from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
 from pynestml.codegeneration.printers.cpp_printer import CppPrinter
@@ -118,6 +120,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         "neuron_synapse_pairs": [],
         "neuron_models": [],
         "synapse_models": [],
+        "use_fastexp": False,
         "neuron_parent_class": "ArchivingNode",
         "neuron_parent_class_include": "archiving_node.h",
         "preserve_expressions": True,
@@ -128,6 +131,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 "neuron": [
                     "cm_neuroncurrents_@NEURON_NAME@.cpp.jinja2",
                     "cm_neuroncurrents_@NEURON_NAME@.h.jinja2",
+                    "fastexp_v4_@NEURON_NAME@.h.jinja2",
                     "@NEURON_NAME@.cpp.jinja2",
                     "@NEURON_NAME@.h.jinja2",
                     "cm_tree_@NEURON_NAME@.cpp.jinja2",
@@ -140,6 +144,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         "weight_variable": {}
     }
 
+    _fp_precision = "double"
     _variable_matching_template = r"(\b)({})(\b)"
     _model_templates = dict()
     _module_templates = list()
@@ -170,13 +175,20 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
     def setup_printers(self):
         self._constant_printer = ConstantPrinter()
+        exp_function = "std::exp"
+        if self.get_option("use_fastexp"):
+            propagator_exp_function = "cm_fast_propagator_exp"
+        elif self._fp_precision == "single":
+            propagator_exp_function = "bounded_propagator_expf"
+        else:
+            propagator_exp_function = exp_function
 
         # C++/NEST API printers
         self._type_symbol_printer = NESTCppTypeSymbolPrinter()
         self._nest_variable_printer = NESTVariablePrinter(expression_printer=None, with_origin=True,
                                                           with_vector_parameter=True)
-        self._nest_function_call_printer = NESTCppFunctionCallPrinter(None)
-        self._nest_function_call_printer_no_origin = NESTCppFunctionCallPrinter(None)
+        self._nest_function_call_printer = NESTCppFunctionCallPrinter(None, exp_function=exp_function)
+        self._nest_function_call_printer_no_origin = NESTCppFunctionCallPrinter(None, exp_function=exp_function)
 
         self._printer = CppExpressionPrinter(
             simple_expression_printer=CppSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
@@ -195,6 +207,22 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                                                                  function_call_printer=self._nest_function_call_printer_no_origin))
         self._nest_variable_printer_no_origin._expression_printer = self._printer_no_origin
         self._nest_function_call_printer_no_origin._expression_printer = self._printer_no_origin
+
+        self._nest_variable_printer_no_origin_propagator = NESTVariablePrinter(
+            None,
+            with_origin=False,
+            with_vector_parameter=True,
+            enforce_getter=False)
+        self._nest_function_call_printer_no_origin_propagator = NESTCppFunctionCallPrinter(
+            None,
+            exp_function=propagator_exp_function)
+        self._printer_no_origin_propagator = CppExpressionPrinter(
+            simple_expression_printer=CppSimpleExpressionPrinter(
+                variable_printer=self._nest_variable_printer_no_origin_propagator,
+                constant_printer=self._constant_printer,
+                function_call_printer=self._nest_function_call_printer_no_origin_propagator))
+        self._nest_variable_printer_no_origin_propagator._expression_printer = self._printer_no_origin_propagator
+        self._nest_function_call_printer_no_origin_propagator._expression_printer = self._printer_no_origin_propagator
 
         # GSL printers
         self._gsl_variable_printer = GSLVariablePrinter(None)
@@ -221,9 +249,14 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         raise TemplateRuntimeError(msg)
 
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
+        if not options:
+            return {}
+        if "use_fastexp" in options and not isinstance(options["use_fastexp"], bool):
+            raise ValueError("`use_fastexp` must be a bool.")
         self._nest_code_generator.set_options(options)
         ret = super().set_options(options)
         self.setup_template_env()
+        self.setup_printers()
 
         return ret
 
@@ -268,6 +301,17 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             FrontendConfiguration.get_target_path())
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
 
+    def _get_nest_version_namespace(self) -> Dict:
+        if not self.option_exists("nest_version") or not self.get_option("nest_version"):
+            nest_version = NESTTools.detect_nest_version()
+            self.set_options({"nest_version": nest_version})
+
+        nest_version = self.get_option("nest_version")
+        return {
+            "nest_version": nest_version,
+            "nest_version_dict": NESTTools.get_version_dict_from_version_string(nest_version)
+        }
+
     def _get_module_namespace(self, neurons: List[ASTModel]) -> Dict:
         """
         Creates a namespace for generating NEST extension module code
@@ -275,16 +319,12 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         :return: a context dictionary for rendering templates
         """
         namespace = {"neurons": neurons,
-                     "nest_version": self.get_option("nest_version"),
                      "moduleName": FrontendConfiguration.get_module_name(),
+                     "fp_precision": self._fp_precision,
+                     "use_fastexp": self.get_option("use_fastexp"),
                      "nestml_version": pynestml.__version__,
                      "now": datetime.datetime.utcnow()}
-
-        # auto-detect NEST Simulator installed version
-        if not self.option_exists("nest_version") or not self.get_option("nest_version"):
-            from pynestml.codegeneration.nest_tools import NESTTools
-            nest_version = NESTTools.detect_nest_version()
-            self.set_options({"nest_version": nest_version})
+        namespace.update(self._get_nest_version_namespace())
 
         # neuron specific file names in compartmental case
         neuron_name_to_filename = dict()
@@ -292,7 +332,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             neuron_name_to_filename[neuron.get_name()] = {
                 "neuroncurrents": self.get_cm_syns_neuroncurrents_file_prefix(neuron),
                 "main": self.get_cm_syns_main_file_prefix(neuron),
-                "tree": self.get_cm_syns_tree_file_prefix(neuron)
+                "tree": self.get_cm_syns_tree_file_prefix(neuron),
+                "fastexp": self.get_cm_syns_fastexp_file_prefix(neuron)
             }
         namespace["perNeuronFileNamesCm"] = neuron_name_to_filename
 
@@ -314,6 +355,12 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
     def get_cm_syns_tree_file_prefix(self, neuron):
         return "cm_tree_" + neuron.get_name()
+
+    def get_cm_syns_fastexp_file_prefix(self, neuron):
+        return "fastexp_v4_" + neuron.get_name()
+
+    def get_stdp_synapse_main_file_prefix(self, synapse):
+        return synapse.get_name()
 
     def analyse_transform_neurons(self, neurons: List[ASTModel], metadata: Dict[str, Dict[str, Any]]) -> None:
         """
@@ -610,6 +657,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             "NeuronCurrents": self.get_cm_syns_neuroncurrents_file_prefix,
             "Tree": self.get_cm_syns_tree_file_prefix,
             "Main": self.get_cm_syns_main_file_prefix,
+            "fastexp": self.get_cm_syns_fastexp_file_prefix,
         }
 
         def compute_prefix(file_name):
@@ -666,25 +714,57 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         neuron.accept(rng_visitor)
         namespace["norm_rng"] = rng_visitor._norm_rng_is_used
 
+        def _suffix_float_literals(expr: str) -> str:
+            if self._fp_precision != "single":
+                return expr
+            # Suffix decimal/scientific literals at final C++ rendering time only.
+            # Keep integers untouched.
+            float_lit_re = re.compile(
+                r"(?<![A-Za-z0-9_])"
+                r"("
+                r"(?:\d+\.\d*|\.\d+)(?:[eE][+-]?\d+)?"
+                r"|"
+                r"\d+[eE][+-]?\d+"
+                r")"
+                r"(?![A-Za-z0-9_])"
+            )
+            return float_lit_re.sub(lambda m: m.group(1) + "f", expr)
+
+        class FinalFloatSuffixPrinter:
+            def __init__(self, base_printer):
+                self._base_printer = base_printer
+
+            def print(self, node):
+                return _suffix_float_literals(self._base_printer.print(node))
+
+            def __getattr__(self, attr):
+                return getattr(self._base_printer, attr)
+
+        render_printer = FinalFloatSuffixPrinter(self._nest_printer)
+        render_printer_no_origin = FinalFloatSuffixPrinter(self._printer_no_origin)
+
         # printers
-        namespace["printer"] = self._nest_printer
-        namespace["printer_no_origin"] = self._printer_no_origin
+        namespace["printer"] = render_printer
+        namespace["printer_no_origin"] = render_printer_no_origin
         namespace["gsl_printer"] = self._gsl_printer
-        namespace["nest_printer"] = self._nest_printer
+        namespace["nest_printer"] = render_printer
         namespace["nestml_printer"] = NESTMLPrinter()
         namespace["type_symbol_printer"] = self._type_symbol_printer
 
         class VectorPrinter():
             def __init__(self, neuron, printer):
-                self.printer = ASTVectorParameterSetterAndPrinterFactory(neuron, printer)
+                self.printer_factory = ASTVectorParameterSetterAndPrinterFactory(neuron, printer)
                 self.std_vector_parameter = None
 
             def set_std_vector_parameter(self, index):
                 self.std_vector_parameter = index
 
-            def print(self, expression, index="i"):
-                index_printer = self.printer.create_ast_vector_parameter_setter_and_printer(index)
+            def print(self, expression, index="i", black_list=[]):
+                index_printer = self.printer_factory.create_ast_vector_parameter_setter_and_printer(index, black_list)
                 return index_printer.print(expression)
+
+            def printer(self, index="i", black_list=[]):
+                return self.printer_factory.create_ast_vector_parameter_setter_and_printer(index, black_list)
 
         vector_printer = VectorPrinter(neuron, self._printer_no_origin)
         vector_printer.set_std_vector_parameter("i")
@@ -700,7 +780,9 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             if kw.isupper():
                 namespace["PyNestMLLexer"][kw] = eval("PyNestMLLexer." + kw)
 
-        namespace["nest_version"] = self.get_option("nest_version")
+        namespace.update(self._get_nest_version_namespace())
+        namespace["fp_precision"] = self._fp_precision
+        namespace["use_fastexp"] = self.get_option("use_fastexp")
 
         namespace["neuronName"] = neuron.get_name()
         namespace["neuron"] = neuron
@@ -836,7 +918,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         neuron_specific_filenames = {
             "neuroncurrents": self.get_cm_syns_neuroncurrents_file_prefix(neuron),
             "main": self.get_cm_syns_main_file_prefix(neuron),
-            "tree": self.get_cm_syns_tree_file_prefix(neuron)}
+            "tree": self.get_cm_syns_tree_file_prefix(neuron),
+            "fastexp": self.get_cm_syns_fastexp_file_prefix(neuron)}
 
         namespace["neuronSpecificFileNamesCmSyns"] = neuron_specific_filenames
 

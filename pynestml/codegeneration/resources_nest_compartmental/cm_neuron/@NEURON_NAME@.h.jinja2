@@ -1,3 +1,4 @@
+{%- set cm_scalar_t = "float" if fp_precision == "single" else "double" -%}
 /*
  *  {{neuronSpecificFileNamesCmSyns["main"]}}.h
  *
@@ -257,6 +258,11 @@ public:
   void set_status( const DictionaryDatum& );
 
 private:
+  std::unique_ptr< bool > self_spikes;
+  std::unique_ptr< std::vector< {{ cm_scalar_t }} > > g_vals;
+  std::unique_ptr< std::vector< {{ cm_scalar_t }} > > i_vals;
+  bool thr_mem = true;
+
   void add_compartment_( const DictionaryDatum& dd );
   void add_receptor_( const DictionaryDatum& dd );
 
@@ -276,7 +282,11 @@ private:
   double
   get_state_element( size_t elem )
   {
+{%- if fp_precision == "single" %}
+    return static_cast< double >( *recordables_values[ elem ] );
+{%- else %}
     return *recordables_values[ elem ];
+{%- endif %}
   };
 
   // The next classes need to be friends to access the State_ class/member
@@ -290,14 +300,14 @@ private:
   present in the model
   */
   std::vector< Name > recordables_names;
-  std::vector< double* > recordables_values;
+  std::vector< {{ cm_scalar_t }}* > recordables_values;
 
   //! Mapping of recordables names to access functions
   DynamicRecordablesMap< {{neuronSpecificFileNamesCmSyns["main"]}} > recordablesMap_;
   //! Logger for all analog data
   DynamicUniversalDataLogger< {{neuronSpecificFileNamesCmSyns["main"]}} > logger_;
 
-  double V_th_;
+  {{ cm_scalar_t }} V_th_;
   bool prev_sub_th = true;
 };
 
