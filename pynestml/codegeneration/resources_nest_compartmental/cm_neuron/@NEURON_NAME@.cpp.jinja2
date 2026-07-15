@@ -27,6 +27,10 @@
  */
 #include "{{neuronSpecificFileNamesCmSyns["main"]}}.h"
 #include "nest_impl.h"
+{%- if gap_junction.enable %}
+#include <limits>
+#include <map>
+{%- endif %}
 
 namespace nest
 {
@@ -67,6 +71,11 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::{{neuronSpecificFileNamesCmSyns
   *self_spikes = false;
   recordablesMap_.create( *this );
   recordables_values.resize( 0 );
+{%- if gap_junction.enable %}
+  // Compartmental gap coupling uses a one-step-lagged semi-implicit scheme and
+  // never participates in NEST's waveform-relaxation iteration.
+  set_node_uses_wfr( false );
+{%- endif %}
 }
 
 nest::{{neuronSpecificFileNamesCmSyns["main"]}}::{{neuronSpecificFileNamesCmSyns["main"]}}( const {{neuronSpecificFileNamesCmSyns["main"]}}& n )
@@ -81,6 +90,10 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::{{neuronSpecificFileNamesCmSyns
 {
   c_tree_.init_pointers(self_spikes.get(), g_vals.get(), i_vals.get());
   recordables_values.resize( 0 );
+{%- if gap_junction.enable %}
+  gap_port_comp_ = n.gap_port_comp_;
+  set_node_uses_wfr( false );
+{%- endif %}
 }
 
 /* ----------------------------------------------------------------
@@ -180,6 +193,15 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::add_receptor_( const Dictionary
   // add the ringbuffer to the global receptor vector
   const size_t syn_idx = syn_buffers_.size();
   syn_buffers_.push_back( buffer );
+{%- if gap_junction.enable %}
+  // The receptor index (position in cm.receptors) is the numeric port. Record
+  // the compartment for ports that are instances of the designated gap
+  // mechanism so they can act as electrical source/target endpoints.
+  if ( receptor_type == "{{ gap_junction.mechanism_name }}" )
+  {
+    gap_port_comp_[ syn_idx ] = compartment_idx;
+  }
+{%- endif %}
 
   // add the receptor to the compartment
   if ( {{ exists_in_dictionary.ExistsInDictionary("dd", "names::params") }} )
@@ -235,6 +257,22 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::calibrate()
 {%- endif %}
 {
   logger_.init();
+{%- if gap_junction.enable %}
+  // The lagged semi-implicit gap scheme requires secondary-event exchange every
+  // resolution step; a longer communication interval would turn the intended
+  // one-step lag into a larger, poorly controlled delay. This holds when
+  // use_wfr=false (which sets wfr_comm_interval to the resolution) or when WFR
+  // stays enabled for other node types but wfr_comm_interval equals the
+  // resolution.
+  if ( kernel().simulation_manager.get_wfr_comm_interval()
+    > Time::get_resolution().get_ms() + std::numeric_limits< double >::epsilon() )
+  {
+    throw BadProperty(
+      "Compartmental gap junctions require secondary-event exchange every "
+      "resolution step. Set use_wfr=false, or set wfr_comm_interval equal to "
+      "the simulation resolution." );
+  }
+{%- endif %}
 
   // initialize the pointers within the compartment tree
   c_tree_.init_pointers(self_spikes.get(), g_vals.get(), i_vals.get());
@@ -258,11 +296,34 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::update( Time const& origin, con
 {
   assert( to >= 0 && from < kernel().connection_manager.get_min_delay() );
   assert( from < to );
+{%- if gap_junction.enable %}
+  // One coefficient buffer per active gap source port. The GapJunctionEvent
+  // coeff length is min_delay * (wfr_interpolation_order + 1); we only fill the
+  // constant coefficient of each communicated step and leave higher-order
+  // interpolation coefficients at zero, matching the one-scalar-per-step
+  // lagged scheme.
+  const size_t gap_coeff_stride = kernel().simulation_manager.get_wfr_interpolation_order() + 1;
+  const size_t gap_coeff_length = kernel().connection_manager.get_min_delay() * gap_coeff_stride;
+  std::map< size_t, std::vector< double > > gap_coeffs;
+  for ( auto& port_comp : gap_port_comp_ )
+  {
+    gap_coeffs[ port_comp.first ] = std::vector< double >( gap_coeff_length, 0.0 );
+  }
+{%- endif %}
 
   for ( long lag = from; lag < to; ++lag )
   {
     c_tree_.construct_matrix( lag );
     c_tree_.solve_matrix();
+{%- if gap_junction.enable %}
+    // Read the freshly committed compartment voltage for every gap source port
+    // and store it as the constant coefficient of this step's sample.
+    for ( auto& port_comp : gap_port_comp_ )
+    {
+      gap_coeffs[ port_comp.first ][ lag * gap_coeff_stride ] =
+        c_tree_.get_compartment_voltage( port_comp.second );
+    }
+{%- endif %}
 
     *self_spikes = false;
 
@@ -287,6 +348,17 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::update( Time const& origin, con
 
     logger_.record_data( origin.get_steps() + lag );
   }
+{%- if gap_junction.enable %}
+  // Send one compartment-voltage waveform per configured gap source port. The
+  // routing key (node, synapse model, source_port) delivers each waveform only
+  // to the connections that selected this port; unconnected ports are no-ops.
+  for ( auto& port_comp : gap_port_comp_ )
+  {
+    GapJunctionEvent ge;
+    ge.set_coeffarray( gap_coeffs[ port_comp.first ] );
+    kernel().event_delivery_manager.send_secondary( *this, ge, port_comp.first );
+  }
+{%- endif %}
 }
 
 void
@@ -314,6 +386,17 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::handle( CurrentEvent& e )
 
   assert( e.get_delay_steps() > 0 );
   assert( ( e.get_rport() >= 0 ) && ( ( size_t ) e.get_rport() < syn_buffers_.size() ) );
+{%- if gap_junction.enable %}
+  // The designated gap mechanism is an electrical attachment point; it does not
+  // consume CurrentEvent ring-buffer values. Reject a continuous current
+  // addressed to a gap-only receptor with a clear error.
+  if ( gap_port_comp_.find( e.get_rport() ) != gap_port_comp_.end() )
+  {
+    throw IllegalConnection(
+      "Receptor is a gap-junction (electrical) port and does not accept "
+      "continuous-current input." );
+  }
+{%- endif %}
 
   syn_buffers_[ e.get_rport() ].add_value(
     e.get_rel_delivery_steps( kernel().simulation_manager.get_slice_origin() ), c*w );

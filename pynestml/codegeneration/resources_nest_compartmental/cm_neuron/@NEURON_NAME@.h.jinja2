@@ -29,6 +29,9 @@
 #include "event.h"
 #include "nest_types.h"
 #include "universal_data_logger.h"
+{%- if gap_junction.enable %}
+#include <map>
+{%- endif %}
 
 #include "{{neuronSpecificFileNamesCmSyns["neuroncurrents"]}}.h"
 #include "{{neuronSpecificFileNamesCmSyns["tree"]}}.h"
@@ -243,6 +246,9 @@ public:
 
   using Node::handle;
   using Node::handles_test_event;
+{%- if gap_junction.enable %}
+  using Node::sends_secondary_event;
+{%- endif %}
 
   size_t send_test_event( Node&, size_t, synindex, bool );
 
@@ -253,6 +259,13 @@ public:
   size_t handles_test_event( SpikeEvent&, size_t );
   size_t handles_test_event( CurrentEvent&, size_t );
   size_t handles_test_event( DataLoggingRequest&, size_t );
+{%- if gap_junction.enable %}
+  // Source-side gap-junction support: this node emits one compartment-voltage
+  // sample per electrical source port after each ordinary update. It does not
+  // participate in NEST's waveform-relaxation loop (see constructor).
+  void sends_secondary_event( GapJunctionEvent& ) override {}
+  void sends_secondary_event( GapJunctionEvent&, const size_t source_port ) override;
+{%- endif %}
 
   void get_status( DictionaryDatum& );
   void set_status( const DictionaryDatum& );
@@ -277,6 +290,12 @@ private:
 
   CompTree{{cm_unique_suffix}} c_tree_;
   std::vector< RingBuffer > syn_buffers_;
+{%- if gap_junction.enable %}
+  //! Electrical port map: numeric source port (index into cm.receptors) ->
+  //! compartment index, for receptors that are instances of the designated
+  //! gap mechanism ("{{ gap_junction.mechanism_name }}"). Built in add_receptor_.
+  std::map< size_t, long > gap_port_comp_;
+{%- endif %}
 
   // To record variables with DataAccessFunctor
   double
@@ -345,6 +364,22 @@ inline size_t
   }
   return receptor_type;
 }
+
+{%- if gap_junction.enable %}
+inline void
+nest::{{neuronSpecificFileNamesCmSyns["main"]}}::sends_secondary_event( GapJunctionEvent&, const size_t source_port )
+{
+  // A valid electrical source port exists in the receptor list and is an
+  // instance of the designated gap mechanism. On a fully configured node the
+  // receptor list is populated; on an unconfigured prototype (as seen on proxy
+  // ranks/threads) it is empty and per-instance validity cannot be checked, so
+  // the check is deferred to the owning node.
+  if ( syn_buffers_.size() > 0 and gap_port_comp_.find( source_port ) == gap_port_comp_.end() )
+  {
+    throw UnknownSourcePort( source_port );
+  }
+}
+{%- endif %}
 
 inline size_t
 {{neuronSpecificFileNamesCmSyns["main"]}}::handles_test_event( DataLoggingRequest& dlr, size_t receptor_type )

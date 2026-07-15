@@ -141,7 +141,12 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         "compartmental_variable_name": "v_comp",
         "self_spikes_port": "self_spikes",
         "delay_variable": {},
-        "weight_variable": {}
+        "weight_variable": {},
+        "gap_junctions": {
+            "enable": False,
+            "gap_current_port": "",
+            "coupling_scheme": "lagged_semi_implicit",
+        }
     }
 
     _fp_precision = "double"
@@ -687,6 +692,91 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             underscore_pos = ret.find("_")
         return ret
 
+    def _get_gap_junction_namespace(self, neuron: ASTModel, con_in_info: Mapping[str, Any]) -> Dict[str, Any]:
+        r"""
+        Validate the ``gap_junctions`` code-generation option and build the
+        template namespace entry that drives the source-side gap-junction code.
+
+        Gap support is disabled by default. When disabled, the returned entry
+        has ``enable == False`` and the templates emit the existing API and
+        numerical behavior unchanged.
+
+        When enabled, the designated gap mechanism is the single
+        ``continuous_input`` mechanism whose continuous input port is
+        ``gap_current_port``. That port must exist, be current-compatible, and
+        be represented by exactly one continuous-input mechanism.
+        """
+        gap_ns = {"enable": False, "mechanism_name": "", "port_name": "",
+                  "coupling_scheme": ""}
+
+        options = self.get_option("gap_junctions") or {}
+        if not options.get("enable", False):
+            return gap_ns
+
+        port_name = options.get("gap_current_port", "")
+        coupling_scheme = options.get("coupling_scheme", "lagged_semi_implicit")
+
+        if coupling_scheme != "lagged_semi_implicit":
+            raise Exception(
+                f"Gap junctions: unsupported coupling_scheme '{coupling_scheme}'; "
+                f"the only supported value is 'lagged_semi_implicit'.")
+
+        if not port_name:
+            raise Exception(
+                "Gap junctions enabled but no 'gap_current_port' was specified.")
+
+        # the port must be a continuous input port of this neuron
+        input_port = None
+        for block in neuron.get_input_blocks():
+            for port in block.get_input_ports():
+                if port.get_name() == port_name:
+                    input_port = port
+        if input_port is None or not input_port.is_continuous():
+            raise Exception(
+                f"Gap junctions: '{port_name}' is not a continuous input port "
+                f"of neuron '{neuron.get_name()}'.")
+
+        # its units must be compatible with current
+        if input_port.has_datatype():
+            type_symbol = input_port.get_datatype().get_type_symbol()
+        else:
+            type_symbol = None
+        if not self._is_current_compatible(type_symbol):
+            raise Exception(
+                f"Gap junctions: the units of '{port_name}' are not compatible "
+                f"with an electrical current (e.g. pA).")
+
+        # exactly one continuous-input mechanism must represent the port
+        matching = [name for name, info in con_in_info.items()
+                    if port_name in info["Continuous"]]
+        if len(matching) == 0:
+            raise Exception(
+                f"Gap junctions: no continuous-input mechanism uses port "
+                f"'{port_name}'.")
+        if len(matching) > 1:
+            raise Exception(
+                f"Gap junctions: port '{port_name}' is used by more than one "
+                f"continuous-input mechanism ({', '.join(sorted(matching))}); "
+                f"it must be represented by exactly one.")
+
+        gap_ns.update({"enable": True, "mechanism_name": matching[0],
+                       "port_name": port_name, "coupling_scheme": coupling_scheme})
+        return gap_ns
+
+    @staticmethod
+    def _is_current_compatible(type_symbol) -> bool:
+        r"""Return whether ``type_symbol`` carries units convertible to an
+        electrical current (Ampere)."""
+        from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+        if type_symbol is None or not isinstance(type_symbol, UnitTypeSymbol):
+            return False
+        try:
+            from astropy import units as u
+            type_symbol.astropy_unit.to(u.A)
+            return True
+        except BaseException:
+            return False
+
     def _get_neuron_model_namespace(self, neuron: ASTModel, paired_synapses: Optional[Sequence[ASTModel]] = None) -> Dict:
         """
         Returns a standard namespace for generating neuron code for NEST
@@ -890,6 +980,9 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         namespace["con_in_info"] = ContinuousInputProcessing.get_mechs_info(neuron)
         namespace["con_in_info"] = ConInInfoEnricher.enrich_with_additional_info(neuron, namespace["con_in_info"])
+
+        # source-side gap-junction support (disabled by default)
+        namespace["gap_junction"] = self._get_gap_junction_namespace(neuron, namespace["con_in_info"])
 
         namespace["syns_info"] = SynsInfoEnricher.confirm_dependencies_for_synapses(paired_synapses,
                                                                                     SynapseProcessing.get_syn_info(),
