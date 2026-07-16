@@ -142,11 +142,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         "self_spikes_port": "self_spikes",
         "delay_variable": {},
         "weight_variable": {},
-        "gap_junctions": {
-            "enable": False,
-            "gap_current_port": "",
-            "coupling_scheme": "lagged_semi_implicit",
-        }
     }
 
     _fp_precision = "double"
@@ -694,73 +689,75 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
     def _get_gap_junction_namespace(self, neuron: ASTModel, con_in_info: Mapping[str, Any]) -> Dict[str, Any]:
         r"""
-        Validate the ``gap_junctions`` code-generation option and build the
-        template namespace entry that drives the source-side gap-junction code.
+        Detect the designated gap-junction mechanism and build the template
+        namespace entry that drives the gap-junction code.
 
-        Gap support is disabled by default. When disabled, the returned entry
-        has ``enable == False`` and the templates emit the existing API and
+        A gap-junction mechanism is a continuous-input mechanism whose ``inline``
+        is explicitly marked with the ``@mechanism::gap`` decorator. That tag --
+        not a naming convention or a port passed through code-generation options
+        -- is what promotes the continuous input from an ordinary external
+        stimulus to an electrical (gap-junction) attachment point. The
+        ``inline`` name (e.g. ``gap_current``) is the receptor name, as for any
+        other mechanism.
+
+        Gap support is enabled exactly when such a mechanism exists. When no
+        ``@mechanism::gap`` mechanism is present the returned entry has
+        ``enable == False`` and the templates emit the existing API and
         numerical behavior unchanged.
-
-        When enabled, the designated gap mechanism is the single
-        ``continuous_input`` mechanism whose continuous input port is
-        ``gap_current_port``. That port must exist, be current-compatible, and
-        be represented by exactly one continuous-input mechanism.
         """
         gap_ns = {"enable": False, "mechanism_name": "", "port_name": "",
                   "coupling_scheme": ""}
 
-        options = self.get_option("gap_junctions") or {}
-        if not options.get("enable", False):
-            return gap_ns
+        # find the inline(s) marked as gap mechanisms
+        gap_inlines = []
+        for equations_block in neuron.get_equations_blocks() or []:
+            for inline in equations_block.get_inline_expressions():
+                if any(dec.namespace == "mechanism" and dec.name == "gap"
+                       for dec in inline.get_decorators()):
+                    gap_inlines.append(inline)
 
-        port_name = options.get("gap_current_port", "")
-        coupling_scheme = options.get("coupling_scheme", "lagged_semi_implicit")
+        if len(gap_inlines) == 0:
+            return gap_ns  # no gap mechanism -> gap support disabled
 
-        if coupling_scheme != "lagged_semi_implicit":
+        if len(gap_inlines) > 1:
+            names = ", ".join(sorted(i.variable_name for i in gap_inlines))
             raise Exception(
-                f"Gap junctions: unsupported coupling_scheme '{coupling_scheme}'; "
-                f"the only supported value is 'lagged_semi_implicit'.")
+                f"Gap junctions: more than one @mechanism::gap mechanism found "
+                f"({names}); exactly one is supported.")
 
-        if not port_name:
+        mechanism_name = gap_inlines[0].variable_name
+
+        # the gap mechanism is collected as a continuous input (see
+        # ASTMechanismInformationCollector.detect_mechs); it must read exactly
+        # one continuous input port, which becomes the gap current port
+        if mechanism_name not in con_in_info:
             raise Exception(
-                "Gap junctions enabled but no 'gap_current_port' was specified.")
+                f"Gap junctions: the @mechanism::gap mechanism '{mechanism_name}' "
+                f"is not a continuous-input mechanism (its inline must read a "
+                f"continuous input port).")
+        ports = list(con_in_info[mechanism_name]["Continuous"].keys())
+        if len(ports) != 1:
+            raise Exception(
+                f"Gap junctions: the @mechanism::gap mechanism '{mechanism_name}' "
+                f"must read exactly one continuous input port (found {len(ports)}).")
+        port_name = ports[0]
 
-        # the port must be a continuous input port of this neuron
+        # the gap current port units must be compatible with an electrical current
         input_port = None
         for block in neuron.get_input_blocks():
             for port in block.get_input_ports():
                 if port.get_name() == port_name:
                     input_port = port
-        if input_port is None or not input_port.is_continuous():
-            raise Exception(
-                f"Gap junctions: '{port_name}' is not a continuous input port "
-                f"of neuron '{neuron.get_name()}'.")
-
-        # its units must be compatible with current
-        if input_port.has_datatype():
+        type_symbol = None
+        if input_port is not None and input_port.has_datatype():
             type_symbol = input_port.get_datatype().get_type_symbol()
-        else:
-            type_symbol = None
         if not self._is_current_compatible(type_symbol):
             raise Exception(
                 f"Gap junctions: the units of '{port_name}' are not compatible "
                 f"with an electrical current (e.g. pA).")
 
-        # exactly one continuous-input mechanism must represent the port
-        matching = [name for name, info in con_in_info.items()
-                    if port_name in info["Continuous"]]
-        if len(matching) == 0:
-            raise Exception(
-                f"Gap junctions: no continuous-input mechanism uses port "
-                f"'{port_name}'.")
-        if len(matching) > 1:
-            raise Exception(
-                f"Gap junctions: port '{port_name}' is used by more than one "
-                f"continuous-input mechanism ({', '.join(sorted(matching))}); "
-                f"it must be represented by exactly one.")
-
-        gap_ns.update({"enable": True, "mechanism_name": matching[0],
-                       "port_name": port_name, "coupling_scheme": coupling_scheme})
+        gap_ns.update({"enable": True, "mechanism_name": mechanism_name,
+                       "port_name": port_name, "coupling_scheme": "lagged_semi_implicit"})
         return gap_ns
 
     @staticmethod

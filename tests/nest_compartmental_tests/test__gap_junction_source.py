@@ -41,18 +41,12 @@ RESOURCES = os.path.join(TESTS_PATH, "resources")
 TARGET = os.path.join(TESTS_PATH, "target")
 
 MODEL = os.path.join(RESOURCES, "gap_junction_test.nestml")
-
-GAP_OPTS = {
-    "gap_junctions": {
-        "enable": True,
-        "gap_current_port": "i_gap",
-        "coupling_scheme": "lagged_semi_implicit",
-    }
-}
+NOGAP_MODEL = os.path.join(RESOURCES, "gap_junction_nogap.nestml")
 
 ENABLED_MODULE = "gap_source_enabled_module"
 DISABLED_MODULE = "gap_source_disabled_module"
 NEURON = "gap_junction_test_model_nestml"
+NOGAP_NEURON = "gap_junction_nogap_model_nestml"
 
 
 def _read_generated(target_dir, basename):
@@ -88,39 +82,21 @@ def _make_neuron():
 
 
 class TestGapJunctionSourceValidation:
-    """Generator-option validation. Each case must fail during code generation,
-    before any C++ is compiled."""
+    """Validation of the @mechanism::gap designation. Each case must fail during
+    code generation, before any C++ is compiled."""
 
     @pytest.mark.parametrize(
-        "model, opts, needle",
+        "model, needle",
         [
-            ("gap_junction_test.nestml",
-             {"gap_junctions": {"enable": True, "gap_current_port": "",
-                                "coupling_scheme": "lagged_semi_implicit"}},
-             "no 'gap_current_port'"),
-            ("gap_junction_test.nestml",
-             {"gap_junctions": {"enable": True, "gap_current_port": "does_not_exist",
-                                "coupling_scheme": "lagged_semi_implicit"}},
-             "not a continuous input port"),
-            ("gap_junction_test.nestml",
-             {"gap_junctions": {"enable": True, "gap_current_port": "spikes_AMPA",
-                                "coupling_scheme": "lagged_semi_implicit"}},
-             "not a continuous input port"),
+            # a gap mechanism whose current port has non-current units
             ("gap_junction_bad_unit.nestml",
-             {"gap_junctions": {"enable": True, "gap_current_port": "i_gap",
-                                "coupling_scheme": "lagged_semi_implicit"}},
              "not compatible with an electrical current"),
+            # two @mechanism::gap mechanisms -> ambiguous designation
             ("gap_junction_ambiguous.nestml",
-             {"gap_junctions": {"enable": True, "gap_current_port": "i_gap",
-                                "coupling_scheme": "lagged_semi_implicit"}},
-             "more than one continuous-input mechanism"),
-            ("gap_junction_test.nestml",
-             {"gap_junctions": {"enable": True, "gap_current_port": "i_gap",
-                                "coupling_scheme": "unsupported_scheme"}},
-             "unsupported coupling_scheme"),
+             "more than one @mechanism::gap mechanism"),
         ],
     )
-    def test_validation_rejects(self, model, opts, needle):
+    def test_validation_rejects(self, model, needle):
         with pytest.raises(Exception) as excinfo:
             generate_nest_compartmental_target(
                 input_path=os.path.join(RESOURCES, model),
@@ -128,7 +104,6 @@ class TestGapJunctionSourceValidation:
                 module_name="gap_validation_module",
                 suffix="_nestml",
                 logging_level="ERROR",
-                codegen_opts=opts,
             )
         assert needle in str(excinfo.value)
 
@@ -139,20 +114,20 @@ class TestGapJunctionSource:
         if not os.path.exists(TARGET):
             os.makedirs(TARGET)
 
-        # gap-enabled: generate, build, install
+        # gap-enabled: the model uses @mechanism::gap, so no options are needed
         generate_nest_compartmental_target(
             input_path=MODEL,
             target_path=os.path.join(TARGET, "gap_enabled"),
             module_name=ENABLED_MODULE,
             suffix="_nestml",
             logging_level="ERROR",
-            codegen_opts=GAP_OPTS,
         )
 
-        # gap-disabled: generate (and build) only, for source-code inspection.
-        # Not installed, to avoid a model-name clash with the enabled module.
+        # gap-disabled: a structurally identical model without a gap mechanism
+        # (i_gap is an ordinary continuous input). Generated for source-code
+        # inspection; not installed.
         generate_nest_compartmental_target(
-            input_path=MODEL,
+            input_path=NOGAP_MODEL,
             target_path=os.path.join(TARGET, "gap_disabled"),
             module_name=DISABLED_MODULE,
             suffix="_nestml",
@@ -176,8 +151,8 @@ class TestGapJunctionSource:
 
     def test_generated_source_api_disabled(self):
         target = os.path.join(TARGET, "gap_disabled")
-        h = _read_generated(target, NEURON + ".h")
-        cpp = _read_generated(target, NEURON + ".cpp")
+        h = _read_generated(target, NOGAP_NEURON + ".h")
+        cpp = _read_generated(target, NOGAP_NEURON + ".cpp")
 
         # gap support disabled: no secondary-event API and no gap machinery
         assert "GapJunctionEvent" not in h

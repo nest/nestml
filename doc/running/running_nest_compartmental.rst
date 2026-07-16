@@ -224,16 +224,20 @@ below).
 Declaring the gap-junction current port
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The gap current is a designated ``continuous_input`` mechanism. Declare a
-continuous input port with current-compatible units and attach it through an
-``inline`` current equation:
+The gap current is a continuous input that is explicitly marked as a gap
+mechanism with the ``@mechanism::gap`` decorator. This tag -- not a naming
+convention or a code-generation option -- is what promotes the continuous input
+from an ordinary external stimulus to an electrical (gap-junction) attachment
+point. Declare a continuous input port with current-compatible units and attach
+it through an ``inline`` current equation carrying the tag:
 
 .. code-block:: nestml
 
    model <neuron_name>:
        equations:
-           # designated gap-junction current port
-           inline gap_current pA = i_gap @mechanism::continuous_input
+           # gap-junction current port: @mechanism::gap makes this an
+           # electrical attachment point
+           inline gap_current pA = i_gap @mechanism::gap
 
            # an ordinary continuous input current is unaffected
            inline stim_current pA = i_stim @mechanism::continuous_input
@@ -242,23 +246,15 @@ continuous input port with current-compatible units and attach it through an
            i_gap  pA <- continuous
            i_stim pA <- continuous
 
-Enable gap support through the code-generation options. Gap support is
-**disabled by default**; when disabled, the generated code and its numerical
-behavior are unchanged.
+The ``inline`` name (``gap_current`` here) is the receptor name, exactly as for
+any other mechanism. Gap support is enabled automatically when a
+``@mechanism::gap`` mechanism is present; no code-generation option is required.
+A model without such a mechanism generates the existing code and numerical
+behavior unchanged.
 
-.. code-block:: python
-
-   codegen_opts = {
-       "gap_junctions": {
-           "enable": True,
-           "gap_current_port": "i_gap",               # a continuous input port
-           "coupling_scheme": "lagged_semi_implicit",  # the only supported value
-       }
-   }
-
-At code-generation time NESTML validates that ``gap_current_port`` names a
-continuous input port, that its units are current-compatible, and that exactly
-one continuous-input mechanism represents it.
+At code-generation time NESTML validates that the gap mechanism reads exactly
+one continuous input port, that the port's units are current-compatible, and
+that at most one ``@mechanism::gap`` mechanism is declared.
 
 Source and target ports
 ~~~~~~~~~~~~~~~~~~~~~~~~~

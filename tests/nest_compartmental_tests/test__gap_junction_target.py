@@ -51,20 +51,14 @@ TARGET = os.path.join(TESTS_PATH, "target")
 
 PASSIVE_MODEL = os.path.join(RESOURCES, "gap_junction_test.nestml")
 ACTIVE_MODEL = os.path.join(RESOURCES, "gap_junction_active.nestml")
-
-GAP_OPTS = {
-    "gap_junctions": {
-        "enable": True,
-        "gap_current_port": "i_gap",
-        "coupling_scheme": "lagged_semi_implicit",
-    }
-}
+NOGAP_MODEL = os.path.join(RESOURCES, "gap_junction_nogap.nestml")
 
 PASSIVE_MODULE = "gap_target_passive_module"
 ACTIVE_MODULE = "gap_target_active_module"
 DISABLED_MODULE = "gap_target_disabled_module"
 PASSIVE_NEURON = "gap_junction_test_model_nestml"
 ACTIVE_NEURON = "gap_junction_active_model_nestml"
+NOGAP_NEURON = "gap_junction_nogap_model_nestml"
 
 
 # ---------------------------------------------------------------------------
@@ -227,13 +221,13 @@ def _build_modules():
     if not os.path.exists(TARGET):
         os.makedirs(TARGET)
 
+    # gap support is enabled by the @mechanism::gap tag in the model; no options
     generate_nest_compartmental_target(
         input_path=PASSIVE_MODEL,
         target_path=os.path.join(TARGET, "gap_target_passive"),
         module_name=PASSIVE_MODULE,
         suffix="_nestml",
         logging_level="ERROR",
-        codegen_opts=GAP_OPTS,
     )
     generate_nest_compartmental_target(
         input_path=ACTIVE_MODEL,
@@ -241,11 +235,11 @@ def _build_modules():
         module_name=ACTIVE_MODULE,
         suffix="_nestml",
         logging_level="ERROR",
-        codegen_opts=GAP_OPTS,
     )
-    # gap-disabled generation for target-API source inspection (not installed)
+    # a structurally identical model without a gap mechanism, for target-API
+    # source inspection (not installed)
     generate_nest_compartmental_target(
-        input_path=PASSIVE_MODEL,
+        input_path=NOGAP_MODEL,
         target_path=os.path.join(TARGET, "gap_target_disabled"),
         module_name=DISABLED_MODULE,
         suffix="_nestml",
@@ -291,9 +285,9 @@ class TestGeneratedTargetApi:
         assert "->ff) += weighted_remote" in tree_cpp
 
     def test_target_api_disabled(self):
-        h = self._read("gap_target_disabled", PASSIVE_NEURON + ".h")
-        cpp = self._read("gap_target_disabled", PASSIVE_NEURON + ".cpp")
-        tree_cpp = self._read("gap_target_disabled", "cm_tree_" + PASSIVE_NEURON + ".cpp")
+        h = self._read("gap_target_disabled", NOGAP_NEURON + ".h")
+        cpp = self._read("gap_target_disabled", NOGAP_NEURON + ".cpp")
+        tree_cpp = self._read("gap_target_disabled", "cm_tree_" + NOGAP_NEURON + ".cpp")
         assert "GapJunctionEvent" not in h
         assert "add_gap_contribution" not in h
         assert "add_gap_contribution" not in cpp
