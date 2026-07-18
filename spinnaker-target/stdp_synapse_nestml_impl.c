@@ -1,25 +1,5 @@
-{#-
-@SYNAPSE_NAME@_impl.c.jinja2
-
-This file is part of NEST.
-
-Copyright (C) 2004 The NEST Initiative
-
-NEST is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 2 of the License, or
-(at your option) any later version.
-
-NEST is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with NEST.  If not, see <http://www.gnu.org/licenses/>.
--#}
 /**
- *  {{ synapseName }}_impl.c
+ *  stdp_synapse_nestml_impl.c
  *
  *  This file is part of NEST.
  *
@@ -38,10 +18,10 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *  You should have received a copy of the GNU General Public License
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Generated from NESTML {{ nestml_version }} at time: {{ now }}
+ *  Generated from NESTML 8.3.0-rc3-post-dev at time: 2026-07-14 18:14:09.166925
 **/
 
-#include "{{ synapseName }}_impl.h"
+#include "stdp_synapse_nestml_impl.h"
 
 // uncomment the next line to enable printing of detailed debug information
 //#define DEBUG
@@ -157,14 +137,42 @@ bool synapse_dynamics_initialise(
     }
 
     for (uint32_t s = 0; s < 1; s++, config++) {  // XXX: only permit one synapse type for now
-{%- for sym in synapse.get_parameter_symbols() + synapse.get_internal_symbols() %}
-{%-     if (not sym.name == "__h") and (not sym.name.startswith("__P")) %}
-        plasticity_weight_region_data[s].{{ sym.get_symbol_name() }} = config->{{ sym.get_symbol_name() }};
+        plasticity_weight_region_data[s].d = config->d;
 #ifdef DEBUG
-//        log_info("\t[NESTML synapse] \tSynapse type %u: Parameter {{ sym.get_symbol_name() }}, Raw value: %x, Value: %k", s, plasticity_weight_region_data[s].{{ sym.get_symbol_name() }}, plasticity_weight_region_data[s].{{ sym.get_symbol_name() }});
+//        log_info("\t[NESTML synapse] \tSynapse type %u: Parameter d, Raw value: %x, Value: %k", s, plasticity_weight_region_data[s].d, plasticity_weight_region_data[s].d);
 #endif
-{%-     endif %}
-{%- endfor %}
+        plasticity_weight_region_data[s].lambda = config->lambda;
+#ifdef DEBUG
+//        log_info("\t[NESTML synapse] \tSynapse type %u: Parameter lambda, Raw value: %x, Value: %k", s, plasticity_weight_region_data[s].lambda, plasticity_weight_region_data[s].lambda);
+#endif
+        plasticity_weight_region_data[s].alpha = config->alpha;
+#ifdef DEBUG
+//        log_info("\t[NESTML synapse] \tSynapse type %u: Parameter alpha, Raw value: %x, Value: %k", s, plasticity_weight_region_data[s].alpha, plasticity_weight_region_data[s].alpha);
+#endif
+        plasticity_weight_region_data[s].tau_tr_pre = config->tau_tr_pre;
+#ifdef DEBUG
+//        log_info("\t[NESTML synapse] \tSynapse type %u: Parameter tau_tr_pre, Raw value: %x, Value: %k", s, plasticity_weight_region_data[s].tau_tr_pre, plasticity_weight_region_data[s].tau_tr_pre);
+#endif
+        plasticity_weight_region_data[s].tau_tr_post = config->tau_tr_post;
+#ifdef DEBUG
+//        log_info("\t[NESTML synapse] \tSynapse type %u: Parameter tau_tr_post, Raw value: %x, Value: %k", s, plasticity_weight_region_data[s].tau_tr_post, plasticity_weight_region_data[s].tau_tr_post);
+#endif
+        plasticity_weight_region_data[s].mu_plus = config->mu_plus;
+#ifdef DEBUG
+//        log_info("\t[NESTML synapse] \tSynapse type %u: Parameter mu_plus, Raw value: %x, Value: %k", s, plasticity_weight_region_data[s].mu_plus, plasticity_weight_region_data[s].mu_plus);
+#endif
+        plasticity_weight_region_data[s].mu_minus = config->mu_minus;
+#ifdef DEBUG
+//        log_info("\t[NESTML synapse] \tSynapse type %u: Parameter mu_minus, Raw value: %x, Value: %k", s, plasticity_weight_region_data[s].mu_minus, plasticity_weight_region_data[s].mu_minus);
+#endif
+        plasticity_weight_region_data[s].Wmin = config->Wmin;
+#ifdef DEBUG
+//        log_info("\t[NESTML synapse] \tSynapse type %u: Parameter Wmin, Raw value: %x, Value: %k", s, plasticity_weight_region_data[s].Wmin, plasticity_weight_region_data[s].Wmin);
+#endif
+        plasticity_weight_region_data[s].Wmax = config->Wmax;
+#ifdef DEBUG
+//        log_info("\t[NESTML synapse] \tSynapse type %u: Parameter Wmax, Raw value: %x, Value: %k", s, plasticity_weight_region_data[s].Wmax, plasticity_weight_region_data[s].Wmax);
+#endif
     }
 
     post_event_history = post_events_init_buffers(n_neurons);
@@ -220,31 +228,14 @@ static void update_internal_state_(synapse_state_t *state, uint32_t t_start, uin
         return;
     }
 
-{%- for sym in synapse.get_internal_symbols() %}
-{%-     if sym.get_symbol_name().startswith("__P") %}
-    const accum {{ sym.get_symbol_name() }} = {{ printer.print(sym.get_declaring_expression()) }};    // type: {{ sym.get_type_symbol().print_symbol() }}
-{%-     endif %}
-{%- endfor %}
-
     /**
      * Begin NESTML generated code for the update block
     **/
 
 //log_info("[NESTML synapse] \tintegrating __P__post_trace__post_trace = %k = 0x%x\n", __P__post_trace__post_trace, __P__post_trace__post_trace);
 //log_info("[NESTML synapse] \tintegrating state->post_trace before = %k = 0x%x\n", state->post_trace, state->post_trace);
-{%- if synapse.get_update_blocks() %}
-{%-     filter indent(4) %}
-{%-         for block in synapse.get_update_blocks() %}
-{%-             set ast = block.get_stmts_body() %}
-{%-             if ast.print_comment('*')|length > 1 %}
-/*
- {{ast.print_comment('*')}}
- */
-{%-             endif %}
-{%-             include "directives_cpp/StmtsBody.jinja2" %}
-{%-         endfor %}
-{%-     endfilter %}
-{%- endif %}
+    // start rendered code for integrate_odes()
+    // end rendered code for integrate_odes()
 
 //log_info("[NESTML synapse] \tintegrating state->post_trace after = %k = 0x%x\n", state->post_trace, state->post_trace);
     /**
@@ -255,8 +246,6 @@ static void update_internal_state_(synapse_state_t *state, uint32_t t_start, uin
 
 static void post_spike_on_receive(synapse_state_t *state, uint32_t time, synapse_row_plastic_data_t *plastic_region_address) {
     log_info("[NESTML synapse] post_spike_on_receive(time = %d)\n", time);
-
-{%- if pre_header is defined %}
     // synapse row header is defined: need to fetch certain presynaptic variables from there
     // update the state of "header" variables common to all synapses from the time of the last pre spike to the current time
 
@@ -264,86 +253,53 @@ static void post_spike_on_receive(synapse_state_t *state, uint32_t time, synapse
 
     log_info("[NESTML synapse] \ton_address->history.prev_t = %x\n", plastic_region_address->history.prev_time);
     log_info("[NESTML synapse] \t__h = %k\n", __h);
-{%-     for sym in metadata[synapse.name]["pre_header"].get_internal_symbols() %}
-{%-         if sym.get_symbol_name().startswith("__P") %}
-    const accum {{ sym.get_symbol_name() }} = {{ printer.print(sym.get_declaring_expression()) }};    // type: {{ sym.get_type_symbol().print_symbol() }}
-{%-         endif %}
-{%-     endfor %}
+    const accum __P__pre_trace__for__stdp_synapse_nestml__pre_trace__for__stdp_synapse_nestml = expk(_kdivk((-__h), plasticity_weight_region_data->tau_tr_pre));    // type: real
+    const REAL pre_trace__for__stdp_synapse_nestml__tmp = __P__pre_trace__for__stdp_synapse_nestml__pre_trace__for__stdp_synapse_nestml * plastic_region_address->history.pre_trace__for__stdp_synapse_nestml;
 
-{%-     for variable_name in pre_header.get_state_variables() | map(attribute='name') %}
-{%-         set update_expr = metadata[pre_header.name]["analytic_solver"]["update_expressions_ast"][variable_name] %}
-{%-         set var_ast = utils.get_variable_by_name(metadata[synapse.name]["pre_header"], variable_name)%}
-{%-         set var_symbol = var_ast.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)%}
-    const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp = {{ printer.print(update_expr) }};
-{%-     endfor %}
-{%- endif %}
+    log_info("[NESTML synapse] \tpre_trace__for__stdp_synapse_nestml__tmp = %x\n", pre_trace__for__stdp_synapse_nestml__tmp);    
 
-    log_info("[NESTML synapse] \tpre_trace__for__stdp_synapse_nestml__tmp = %x\n", pre_trace__for__stdp_synapse_nestml__tmp);
 
-{%- filter indent(4, True) %}
-{%- if spiking_post_ports is defined %}
-
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_with_origin("process_post_spike") }}
-
-{%-     for post_port in spiking_post_ports %}
-/**
- *  NESTML generated onReceive code block for postsynaptic port "{{ post_port }}" begins here!
-**/
-{%-         if synapse.get_on_receive_block(post_port) %}
-{%-             set dynamics = synapse.get_on_receive_block(post_port) %}
-{%-             with ast = dynamics.get_stmts_body() %}
-{%-                 include "directives_cpp/StmtsBody.jinja2" %}
-{%-             endwith %}
-{%-         endif %}
-
-{%-     endfor %}
-{%- endif %}
-{%- endfilter %}
+    /**
+     *  NESTML generated onReceive code block for postsynaptic port "post_spikes" begins here!
+    **/
+    state->w += plasticity_weight_region_data->lambda * pre_trace__for__stdp_synapse_nestml__tmp;
+    state->w = MIN(plasticity_weight_region_data->Wmax, state->w);
 }
 
 
 /**
  * Contains generated code for all the statements corresponding to ``onReceive(pre_spikes)`` blocks.
 **/
-static void pre_spike_on_receive(synapse_state_t *state, uint32_t time{%- if post_header is defined %}, {%- for variable_name in post_header.get_state_variables() | map(attribute='name') %}const REAL {{variable_name}}__tmp{% if not loop.last %}, {% endif %}{%- endfor %}{%- endif %}) {
-
-{%- for pre_port in pre_ports %}
+static void pre_spike_on_receive(synapse_state_t *state, uint32_t time,const REAL post_trace__for__stdp_synapse_nestml__tmp) {
 
     /**
-     *  NESTML generated onReceive code block for presynaptic port "{{ pre_port }}" begins here!
+     *  NESTML generated onReceive code block for presynaptic port "pre_spikes" begins here!
     **/
 
   log_info("[NESTML synapse] pre_spike_on_receive(time = %d)\n", time);
 //  log_info("[NESTML synapse] \tstate->w = %k (raw: 0x%x)\n", state->w, state->w);
   //log_info("[NESTML synapse] \tplasticity_weight_region_data->lambda = %k (raW: 0x%x)\n", plasticity_weight_region_data->lambda, plasticity_weight_region_data->lambda);
 
-{%      if synapse.get_on_receive_block(pre_port) %}
-{%-         set dynamics = synapse.get_on_receive_block(pre_port) %}
-{%-         with ast = dynamics.get_stmts_body() %}
-{%-             filter indent(4, True) %}
-{%-                 include "directives_cpp/StmtsBody.jinja2" %}
-{%-             endfilter %}
-{%-         endwith %}
-{%-     endif %}
+    
+    state->w -= plasticity_weight_region_data->lambda * post_trace__for__stdp_synapse_nestml__tmp;
+    state->w = MAX(plasticity_weight_region_data->Wmin, state->w);
+
+    // begin generated code for emit_spike() function
+
+    // end generated code for emit_spike() function
 
 //  log_info("[NESTML synapse] \tafter state->w = %k (raw: 0x%x)\n", state->w, state->w);
-
-{%- endfor %}
 }
 
 
 static void process_plastic_synapse(synapse_row_plastic_data_t *plastic_region_address,
         uint32_t control_word,
         uint32_t last_pre_time,
-{%- if pre_header is defined %}
-{%-     for var in pre_header.get_state_variables() %}
-        accum {{ var.name }},
-{%-     endfor %}
-{%- endif %}
+        accum pre_trace__for__stdp_synapse_nestml,
         weight_t *ring_buffers, uint32_t pre_spike_time,
 		uint32_t colour_delay, synapse_word_t *synapse_word) {
 
-    fixed_{{ synapseName }} s = synapse_dynamics_stdp_get_fixed(control_word, pre_spike_time, colour_delay);
+    fixed_stdp_synapse_nestml s = synapse_dynamics_stdp_get_fixed(control_word, pre_spike_time, colour_delay);
 
 #ifdef DEBUG
     log_info("[NESTML synapse] In process_plastic_synapse(time = %d, last_pre_time = %d, dendritic_delay = %x)", pre_spike_time, last_pre_time, s.delay_dendritic);
@@ -358,9 +314,7 @@ static void process_plastic_synapse(synapse_row_plastic_data_t *plastic_region_a
     synapse_state_t state = synapse_word_to_state_t(synapse_word, plastic_synapse_word_stride);
 //#ifdef PLOT_DETAILED_STATE
     log_info("[NESTML synapse] \tCurrent state:");
-{%- for sym in synapse.get_state_symbols() %}
-    log_info("[NESTML synapse] \t\t{{ sym.get_symbol_name() }} = %k (raw: 0x%x)\n", state.{{ sym.get_symbol_name() }}, state.{{ sym.get_symbol_name() }});
-{%- endfor %}
+    log_info("[NESTML synapse] \t\tw = %k (raw: 0x%x)\n", state.w, state.w);
 //#endif
 
     uint32_t current_time = last_pre_time; // at the start, the state is either the initial state, or however we left it when the previous pre-synaptic spike was processed
@@ -400,9 +354,7 @@ static void process_plastic_synapse(synapse_row_plastic_data_t *plastic_region_a
 
 #ifdef PLOT_DETAILED_STATE
     log_info("[NESTML synapse] \tNEW state after updating internal state to t = %u", current_time);
-{%- for sym in synapse.get_state_symbols() %}
-    log_info("[NESTML synapse] \t\t{{ sym.get_symbol_name() }} = 0x%x\n", state.{{ sym.get_symbol_name() }});
-{%- endfor %}
+    log_info("[NESTML synapse] \t\tw = 0x%x\n", state.w);
 #endif
 
         /**
@@ -413,9 +365,7 @@ static void process_plastic_synapse(synapse_row_plastic_data_t *plastic_region_a
 
 #ifdef PLOT_DETAILED_STATE
     log_info("[NESTML synapse] \tNEW state after applying post spike:");
-{%- for sym in synapse.get_state_symbols() %}
-    log_info("[NESTML synapse] \t\t{{ sym.get_symbol_name() }} = 0x%x\n", state.{{ sym.get_symbol_name() }});
-{%- endfor %}
+    log_info("[NESTML synapse] \t\tw = 0x%x\n", state.w);
 #endif
 
         // Go onto next event
@@ -431,13 +381,8 @@ static void process_plastic_synapse(synapse_row_plastic_data_t *plastic_region_a
 
 #ifdef PLOT_DETAILED_STATE
     log_info("[NESTML synapse] \tNEW state after integration to t_pre:");
-{%- for sym in synapse.get_state_symbols() %}
-    log_info("[NESTML synapse] \t\t{{ sym.get_symbol_name() }} = 0x%x\n", state.{{ sym.get_symbol_name() }});
-{%- endfor %}
+    log_info("[NESTML synapse] \t\tw = 0x%x\n", state.w);
 #endif
-
-
-{%- if post_header is defined %}
     /**
      * update postsynaptic history buffer entries from the time of the last post spike (= `current_time`) to `pre_spike_time`
     **/
@@ -448,41 +393,21 @@ static void process_plastic_synapse(synapse_row_plastic_data_t *plastic_region_a
     // update variables in the postsynaptic header (i.e. in the post-history-buffer)
     const accum __h = pre_spike_time - current_time;   // XXX: time constants are in ms, so __h should be as well! convert uint32_t to accum type
 
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_with_origin("from_last_post_to_prepost_event_history") }}
 
-{%-     for sym in metadata[synapse.name]["post_header"].get_internal_symbols() %}
-{%-         if sym.get_symbol_name().startswith("__P") %}
-    const accum {{ sym.get_symbol_name() }} = {{ printer.print(sym.get_declaring_expression()) }};    // type: {{ sym.get_type_symbol().print_symbol() }}
-{%-         endif %}
-{%-     endfor %}
+    const accum __P__post_trace__for__stdp_synapse_nestml__post_trace__for__stdp_synapse_nestml = expk(_kdivk((-__h), plasticity_weight_region_data->tau_tr_post));    // type: real
 
     // propagate the state forward in time
-{%-     for variable_name in post_header.get_state_variables() | map(attribute='name') %}
-{%-         set update_expr = metadata[post_header.name]["analytic_solver"]["update_expressions_ast"][variable_name] %}
-{%-         set var_ast = utils.get_variable_by_name(metadata[synapse.name]["post_header"], variable_name)%}
-{%-         set var_symbol = var_ast.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)%}
-    {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp = {{ printer.print(update_expr) }};
-{%-     endfor %}
-
-
-
-
-
-
-    
-{%- endif %}
+    REAL post_trace__for__stdp_synapse_nestml__tmp = __P__post_trace__for__stdp_synapse_nestml__post_trace__for__stdp_synapse_nestml * post_trace__for__stdp_synapse_nestml__tmp;
 
     /**
      * execute onReceive statements in pre spike onReceive blocks
     **/
 
-    pre_spike_on_receive(&state, pre_spike_time{%- if post_header is defined %}, {%- for variable_name in post_header.get_state_variables() | map(attribute='name') %}{{ variable_name }}__tmp{% if not loop.last %}, {% endif %}{%- endfor %}{%- endif %});
+    pre_spike_on_receive(&state, pre_spike_time,post_trace__for__stdp_synapse_nestml__tmp);
 
 #ifdef PLOT_DETAILED_STATE
     log_info("[NESTML synapse] \tNEW state after processing pre_spikes:");
-{%- for sym in synapse.get_state_symbols() %}
-    log_info("[NESTML synapse] \t\t{{ sym.get_symbol_name() }} = 0x%x\n", state.{{ sym.get_symbol_name() }});
-{%- endfor %}
+    log_info("[NESTML synapse] \t\tw = 0x%x\n", state.w);
 #endif
 log_info("[NESTML synapse] \t\tplastic_region_address->history.pre_trace__for__stdp_synapse_nestml = %x = %k\n", plastic_region_address->history.pre_trace__for__stdp_synapse_nestml, plastic_region_address->history.pre_trace__for__stdp_synapse_nestml);
 
@@ -605,45 +530,19 @@ bool synapse_dynamics_process_plastic_synapses(
 
     // Get last pre-synaptic event from event history
     const uint32_t last_pre_time = plastic_region_address->history.prev_time;
-
-{%- if pre_header is defined %}
     // update the state of presynaptic neuron-related variables common to all synapses
 
     const accum __h = time - last_pre_time;   // XXX: time constants are in ms, so __h should be as well! convert uint32_t to accum type
-
-{%-     for sym in metadata[synapse.name]["pre_header"].get_internal_symbols() %}
-{%-         if sym.get_symbol_name().startswith("__P") %}
-    const accum {{ sym.get_symbol_name() }} = {{ printer.print(sym.get_declaring_expression()) }};    // type: {{ sym.get_type_symbol().print_symbol() }}
-{%-         endif %}
-{%-     endfor %}
+    const accum __P__pre_trace__for__stdp_synapse_nestml__pre_trace__for__stdp_synapse_nestml = expk(_kdivk((-__h), plasticity_weight_region_data->tau_tr_pre));    // type: real
 
     // update the state from the time of the last pre spike to the current time
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_with_origin("synapse_dynamics_process_plastic_synapses") }}
+
 
 //log_info("[NESTML synapse] plastic_region_address->history.pre_trace__for__stdp_synapse_nestml = %x = %k\n", plastic_region_address->history.pre_trace__for__stdp_synapse_nestml, plastic_region_address->history.pre_trace__for__stdp_synapse_nestml);
-{%-     for variable_name in pre_header.get_state_variables() | map(attribute='name') %}
-{%-         set update_expr = metadata[pre_header.name]["analytic_solver"]["update_expressions_ast"][variable_name] %}
-{%-         set var_ast = utils.get_variable_by_name(metadata[synapse.name]["pre_header"], variable_name)%}
-{%-         set var_symbol = var_ast.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)%}
-    const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp = {{ printer.print(update_expr) }};
-{%-     endfor %}
-
-{%-     for variable_name in pre_header.get_state_variables() | map(attribute='name') %}
-{%-         set variable_symbol = pre_header.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE) %}
-    plastic_region_address->history.{{ printer_no_origin.print(utils.get_state_variable_by_name(pre_header, variable_symbol.get_symbol_name())) }} = {{ variable_name }}__tmp;
-{%-     endfor %}
-
-{%-     if pre_header.get_on_receive_block("spikes") %}
+    const REAL pre_trace__for__stdp_synapse_nestml__tmp = __P__pre_trace__for__stdp_synapse_nestml__pre_trace__for__stdp_synapse_nestml * plastic_region_address->history.pre_trace__for__stdp_synapse_nestml;
+    plastic_region_address->history.pre_trace__for__stdp_synapse_nestml = pre_trace__for__stdp_synapse_nestml__tmp;
     // update the state due to statements triggered by spike emission
-{%-         set dynamics = pre_header.get_on_receive_block("spikes") %}
-{%-         with ast = dynamics.get_stmts_body() %}
-{%-             filter indent(4) %}
-{%-                 include "directives_cpp/StmtsBody.jinja2" %}
-{%-             endfilter %}
-{%-         endwith %}
-{%-     endif %}
-
-{%- endif %}
+    plastic_region_address->history.pre_trace__for__stdp_synapse_nestml += 1;
 //log_info("[NESTML synapse] plastic_region_address->history.pre_trace__for__stdp_synapse_nestml = %x = %k\n", plastic_region_address->history.pre_trace__for__stdp_synapse_nestml, plastic_region_address->history.pre_trace__for__stdp_synapse_nestml);
 
     control_words = synapse_row_plastic_controls(fixed_region);
@@ -658,11 +557,7 @@ bool synapse_dynamics_process_plastic_synapses(
         process_plastic_synapse(plastic_region_address,
                                 control_word,
                                 last_pre_time,
-{%- if pre_header is defined %}
-{%-     for var in pre_header.get_state_variables() %}
-                                plastic_region_address->history.{{ var.name }},
-{%-     endfor %}
-{%- endif %}
+                                plastic_region_address->history.pre_trace__for__stdp_synapse_nestml,
                                 ring_buffers,
                                 time,
                                 colour_delay,
@@ -687,49 +582,22 @@ void synapse_dynamics_process_post_synaptic_event(uint32_t time, index_t neuron_
     // Add post-event
     post_event_history_t *history = &post_event_history[neuron_index];
     const uint32_t last_post_time = history->times[history->count_minus_one];
-
-{%- if post_header is defined %}
     // update variables in the postsynaptic header (i.e. in the post-history-buffer)
     const accum __h = time - last_post_time;   // XXX: time constants are in ms, so __h should be as well! convert uint32_t to accum type
 
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_with_origin("synapse_dynamics_process_post_synaptic_event") }}
 
-{%-     for sym in metadata[synapse.name]["post_header"].get_internal_symbols() %}
-{%-         if sym.get_symbol_name().startswith("__P") %}
-    const accum {{ sym.get_symbol_name() }} = {{ printer.print(sym.get_declaring_expression()) }};    // type: {{ sym.get_type_symbol().print_symbol() }}
-{%-         endif %}
-{%-     endfor %}
+    const accum __P__post_trace__for__stdp_synapse_nestml__post_trace__for__stdp_synapse_nestml = expk(_kdivk((-__h), plasticity_weight_region_data->tau_tr_post));    // type: real
 
     // update the state from the time of the last post spike to the current time
-{%-     for variable_name in post_header.get_state_variables() | map(attribute='name') %}
-{%-         set update_expr = metadata[post_header.name]["analytic_solver"]["update_expressions_ast"][variable_name] %}
-{%-         set var_ast = utils.get_variable_by_name(metadata[synapse.name]["post_header"], variable_name)%}
-{%-         set var_symbol = var_ast.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)%}
-    {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp = {{ printer.print(update_expr) }};
-{%-     endfor %}
+    REAL post_trace__for__stdp_synapse_nestml__tmp = __P__post_trace__for__stdp_synapse_nestml__post_trace__for__stdp_synapse_nestml * history->post_trace__for__stdp_synapse_nestml[history->count_minus_one];
 
-{#
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_var_prefix("") }}
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_var_suffix("__tmp") }}
-#}
 
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_with_origin("synapse_dynamics_process_post_synaptic_event_post_updates") }}
 
-{%-     if post_header.get_on_receive_block("spikes") %}
+
     // update the state due to statements triggered by spike emission
-{%-         set dynamics = post_header.get_on_receive_block("spikes") %}
-{%-         with ast = dynamics.get_stmts_body() %}
-{%-             filter indent(4) %}
-{%-                 include "directives_cpp/StmtsBody.jinja2" %}
-{%-             endfilter %}
-{%-         endwith %}
-{%-     endif %}
+    post_trace__for__stdp_synapse_nestml__tmp += 1;
 
-{#
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_var_prefix("plastic_region_address->history.") }}
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_var_suffix("") }}
-#}
-{%- endif %}
+
 
     // Add the post-synaptic event to the history
     uint32_t new_index;
@@ -742,11 +610,7 @@ void synapse_dynamics_process_post_synaptic_event(uint32_t time, index_t neuron_
         // **NOTE** 1st element is always an entry at time 0
         for (uint32_t e = 2; e < MAX_POST_SYNAPTIC_EVENTS; e++) {
             history->times[e - 1] = history->times[e];
-{%- if post_header is defined %}
-{%-     for var in post_header.get_state_variables() %}
-            history->{{ var.name }}[e - 1] = history->{{ var.name }}[e];
-{%-     endfor %}
-{%- endif %}
+            history->post_trace__for__stdp_synapse_nestml[e - 1] = history->post_trace__for__stdp_synapse_nestml[e];
         }
 
         new_index = MAX_POST_SYNAPTIC_EVENTS - 1;
@@ -754,12 +618,7 @@ void synapse_dynamics_process_post_synaptic_event(uint32_t time, index_t neuron_
 
     // write the new values back to history
     history->times[new_index] = time;
-{%- if post_header is defined %}
-{%-     for var in post_header.get_state_variables() %}
-    history->{{ var.name }}[new_index] = {{ var.name }}__tmp;
-{%-     endfor %}
-{%- endif %}
+    history->post_trace__for__stdp_synapse_nestml[new_index] = post_trace__for__stdp_synapse_nestml__tmp;
 }
-
 
 

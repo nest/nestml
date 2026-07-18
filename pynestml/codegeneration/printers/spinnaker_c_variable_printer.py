@@ -78,6 +78,10 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
                     # we're in the context of ``synapse_dynamics_process_post_synaptic_event()``
                     return "history->" + node.get_name() + "[history->count_minus_one]"
 
+                if self.with_origin == "from_last_post_to_pre":
+                    # we're in the context of ``synapse_dynamics_process_post_synaptic_event()``
+                    return "post_event_history[s.index]" + node.get_name() + "[post_event_history->count_minus_one]"
+
                 return node.get_name() + "__tmp"
 
             if node.get_where() == "pre":

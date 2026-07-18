@@ -1,5 +1,5 @@
 #
-#  {{ synapseName }}_impl.py
+#  stdp_synapse_nestml_impl.py
 #
 #  This file is part of NEST.
 #
@@ -18,7 +18,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
-#  Generated from NESTML {{ nestml_version }} at time: {{ now }}
+#  Generated from NESTML 8.3.0-rc3-post-dev at time: 2026-07-14 18:14:10.312415
 
 # Copyright (c) 2015 The University of Manchester
 #
@@ -143,15 +143,71 @@ def float_to_s16_15(x: float) -> int:
 
 
 
-class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
+class stdp_synapse_nestmlDynamics(AbstractPlasticSynapseDynamics):
     r"""
-    Generated sPyNNaker class for the model: {{ synapseName }}
+    Generated sPyNNaker class for the model: stdp_synapse_nestml
 
     Model docstring:
 
-{% filter indent(4) %}
-{{ synapse.print_comment() }}
-{%- endfilter %}
+
+    stdp_synapse - Synapse model for spike-timing dependent plasticity
+    ##################################################################
+
+    XXX: changed this into hard coded multiplicative STDP because SpiNNaker is having difficulty with logk and expk
+    Description
+    +++++++++++
+
+    stdp_synapse is a synapse with spike-timing dependent plasticity (as defined in [1]_). Here the weight dependence exponent can be set separately for potentiation and depression. Examples:
+
+    =================== ==== =============================
+    Multiplicative STDP [2]_ mu_plus = mu_minus = 1
+    Additive STDP       [3]_ mu_plus = mu_minus = 0
+    Guetig STDP         [1]_ mu_plus, mu_minus in [0, 1]
+    Van Rossum STDP     [4]_ mu_plus = 0 mu_minus = 1
+    =================== ==== =============================
+
+    Note that in this particular STDP synapse model, the weight is not allowed to be negative. In case an inhibitory STDP synapse needs to be modeled, this model (with weight >= 0 at all times) can be connected to a postsynaptic neuron at its appropriate (inhibitory) input port. The sign of the postsynaptic response is thus handled in the postsynaptic neuron. In principle, an STDP synapse model can be defined that allows for negative weights, but in this case, care should be taken to prevent the sign of the weight from changing during learning, as a biological synapse cannot simply switch from one type to another, say, from glutamatergic to GABAergic.
+
+
+    References
+    ++++++++++
+
+    .. [1] Guetig et al. (2003) Learning Input Correlations through Nonlinear
+           Temporally Asymmetric Hebbian Plasticity. Journal of Neuroscience
+
+    .. [2] Rubin, J., Lee, D. and Sompolinsky, H. (2001). Equilibrium
+           properties of temporally asymmetric Hebbian plasticity, PRL
+           86,364-367
+
+    .. [3] Song, S., Miller, K. D. and Abbott, L. F. (2000). Competitive
+           Hebbian learning through spike-timing-dependent synaptic
+           plasticity,Nature Neuroscience 3:9,919--926
+
+    .. [4] van Rossum, M. C. W., Bi, G-Q and Turrigiano, G. G. (2000).
+           Stable Hebbian learning from spike timing-dependent
+           plasticity, Journal of Neuroscience, 20:23,8812--8821
+
+    Copyright statement
+    +++++++++++++++++++
+
+    This file is part of NEST.
+
+    Copyright (C) 2004 The NEST Initiative
+
+    NEST is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 2 of the License, or
+    (at your option) any later version.
+
+    NEST is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+
     """
 
     def _init_nestml_model_variables(self):
@@ -159,16 +215,17 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         self._nestml_model_variables = {}
 
         # self._nestml_model_variables["w"] = self.weight   # XXX: TODO: hard-coded name "w", get this from code generation options XXX this is ignored?!
-
-{%- for sym in synapse.get_parameter_symbols() + synapse.get_internal_symbols() %}
-        self._nestml_model_variables["{{ sym.get_symbol_name() }}"] = {{ printer.print(sym.get_declaring_expression()) }}  # type: {{ sym.get_type_symbol().print_symbol() }}
-{%- endfor %}
-
-{%- if "pre_header" in metadata[astnode.name].keys() and metadata[astnode.name]["pre_header"] is not none %}
-{%- for sym in metadata[astnode.name]["pre_header"].get_parameter_symbols() %}
-        self._nestml_model_variables["{{ sym.get_symbol_name() }}"] = {{ printer.print(sym.get_declaring_expression()) }}  # type: {{ sym.get_type_symbol().print_symbol() }}
-{%- endfor %}
-{%- endif %}
+        self._nestml_model_variables["d"] = 1  # type: ms
+        self._nestml_model_variables["lambda"] = 0.01  # type: real
+        self._nestml_model_variables["alpha"] = 1  # type: real
+        self._nestml_model_variables["tau_tr_pre"] = 20  # type: ms
+        self._nestml_model_variables["tau_tr_post"] = 20  # type: ms
+        self._nestml_model_variables["mu_plus"] = 1  # type: real
+        self._nestml_model_variables["mu_minus"] = 1  # type: real
+        self._nestml_model_variables["Wmin"] = 0.0  # type: real
+        self._nestml_model_variables["Wmax"] = 100.0  # type: real
+        self._nestml_model_variables["__h"] = timestep  # type: ms
+        self._nestml_model_variables["tau_tr_pre__for__stdp_synapse_nestml"] = 20  # type: ms
 
     def __init__(
             self,
@@ -209,7 +266,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         if isinstance(synapse_dynamics, SynapseDynamicsNeuromodulation):
             raise NotImplementedError("Neuromodulation not supported!")
 
-        if isinstance(synapse_dynamics, {{ synapseName }}Dynamics) and not self.is_same_as(synapse_dynamics):
+        if isinstance(synapse_dynamics, stdp_synapse_nestmlDynamics) and not self.is_same_as(synapse_dynamics):
             raise SynapticConfigurationException("Synapse dynamics and parameter values must match exactly when using multiple STDP connections to the same population!")
 
         # N.B. merge() should return the type of synapse that's the most general, for example, when merging static and STDP synapse, return STDP synapse
@@ -268,23 +325,33 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
 
     @overrides(AbstractPlasticSynapseDynamics.is_same_as)
     def is_same_as(self, synapse_dynamics: AbstractSynapseDynamics) -> bool:
-        if not isinstance(synapse_dynamics, {{ synapseName }}Dynamics):
+        if not isinstance(synapse_dynamics, stdp_synapse_nestmlDynamics):
             return False
 
         if self.__dendritic_delay_fraction != synapse_dynamics.dendritic_delay_fraction:
             return False
-
-{%- for sym in synapse.get_parameter_symbols() + synapse.get_internal_symbols() %}
-        if self._nestml_model_variables["{{ sym.get_symbol_name() }}"] != synapse_dynamics._nestml_model_variables["{{ sym.get_symbol_name() }}"]:
+        if self._nestml_model_variables["d"] != synapse_dynamics._nestml_model_variables["d"]:
             return False
-{%- endfor %}
-
-{%- if "paired_neuron" in metadata[astnode.name].keys() and metadata[astnode.name]["paired_neuron"] is not none %}
-{%-     for sym in metadata[astnode.name]["paired_neuron"].get_parameter_symbols() %}
-        if self._nestml_model_variables["{{ sym.get_symbol_name() }}"] != synapse_dynamics._nestml_model_variables["{{ sym.get_symbol_name() }}"]:
+        if self._nestml_model_variables["lambda"] != synapse_dynamics._nestml_model_variables["lambda"]:
             return False
-{%-     endfor %}
-{%- endif %}
+        if self._nestml_model_variables["alpha"] != synapse_dynamics._nestml_model_variables["alpha"]:
+            return False
+        if self._nestml_model_variables["tau_tr_pre"] != synapse_dynamics._nestml_model_variables["tau_tr_pre"]:
+            return False
+        if self._nestml_model_variables["tau_tr_post"] != synapse_dynamics._nestml_model_variables["tau_tr_post"]:
+            return False
+        if self._nestml_model_variables["mu_plus"] != synapse_dynamics._nestml_model_variables["mu_plus"]:
+            return False
+        if self._nestml_model_variables["mu_minus"] != synapse_dynamics._nestml_model_variables["mu_minus"]:
+            return False
+        if self._nestml_model_variables["Wmin"] != synapse_dynamics._nestml_model_variables["Wmin"]:
+            return False
+        if self._nestml_model_variables["Wmax"] != synapse_dynamics._nestml_model_variables["Wmax"]:
+            return False
+        if self._nestml_model_variables["__h"] != synapse_dynamics._nestml_model_variables["__h"]:
+            return False
+        if self._nestml_model_variables["tau_tr_post__for__stdp_synapse_nestml"] != synapse_dynamics._nestml_model_variables["tau_tr_post__for__stdp_synapse_nestml"]:
+            return False
 
         return True
 
@@ -303,7 +370,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         :param int n_synapse_types:
         :rtype: int
         """
-        n_parameters = {{ synapse.get_parameter_symbols() | length }}
+        n_parameters = 9
         size = n_parameters * BYTES_PER_WORD * n_synapse_types
 
         if self.__neuromodulation:
@@ -323,14 +390,56 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
 
         # Switch focus to the region:
         spec.switch_write_focus(region)
-
-{%- for sym in synapse.get_parameter_symbols() + synapse.get_internal_symbols() %}
-        # write value for parameter "{{ sym.get_symbol_name() }}"
-        print("[NESTML synapse] writing value for parameter {{ sym.get_symbol_name() }}: " + str(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]) + " ==== encoded --> " + str(hex(float_to_s16_15(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]))))
+        # write value for parameter "d"
+        print("[NESTML synapse] writing value for parameter d: " + str(self._nestml_model_variables["d"]) + " ==== encoded --> " + str(hex(float_to_s16_15(self._nestml_model_variables["d"]))))
         spec.write_value(
-                data=float_to_s16_15(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]),
+                data=float_to_s16_15(self._nestml_model_variables["d"]),
                 data_type=DataType.INT32)
-{%- endfor %}
+        # write value for parameter "lambda"
+        print("[NESTML synapse] writing value for parameter lambda: " + str(self._nestml_model_variables["lambda"]) + " ==== encoded --> " + str(hex(float_to_s16_15(self._nestml_model_variables["lambda"]))))
+        spec.write_value(
+                data=float_to_s16_15(self._nestml_model_variables["lambda"]),
+                data_type=DataType.INT32)
+        # write value for parameter "alpha"
+        print("[NESTML synapse] writing value for parameter alpha: " + str(self._nestml_model_variables["alpha"]) + " ==== encoded --> " + str(hex(float_to_s16_15(self._nestml_model_variables["alpha"]))))
+        spec.write_value(
+                data=float_to_s16_15(self._nestml_model_variables["alpha"]),
+                data_type=DataType.INT32)
+        # write value for parameter "tau_tr_pre"
+        print("[NESTML synapse] writing value for parameter tau_tr_pre: " + str(self._nestml_model_variables["tau_tr_pre"]) + " ==== encoded --> " + str(hex(float_to_s16_15(self._nestml_model_variables["tau_tr_pre"]))))
+        spec.write_value(
+                data=float_to_s16_15(self._nestml_model_variables["tau_tr_pre"]),
+                data_type=DataType.INT32)
+        # write value for parameter "tau_tr_post"
+        print("[NESTML synapse] writing value for parameter tau_tr_post: " + str(self._nestml_model_variables["tau_tr_post"]) + " ==== encoded --> " + str(hex(float_to_s16_15(self._nestml_model_variables["tau_tr_post"]))))
+        spec.write_value(
+                data=float_to_s16_15(self._nestml_model_variables["tau_tr_post"]),
+                data_type=DataType.INT32)
+        # write value for parameter "mu_plus"
+        print("[NESTML synapse] writing value for parameter mu_plus: " + str(self._nestml_model_variables["mu_plus"]) + " ==== encoded --> " + str(hex(float_to_s16_15(self._nestml_model_variables["mu_plus"]))))
+        spec.write_value(
+                data=float_to_s16_15(self._nestml_model_variables["mu_plus"]),
+                data_type=DataType.INT32)
+        # write value for parameter "mu_minus"
+        print("[NESTML synapse] writing value for parameter mu_minus: " + str(self._nestml_model_variables["mu_minus"]) + " ==== encoded --> " + str(hex(float_to_s16_15(self._nestml_model_variables["mu_minus"]))))
+        spec.write_value(
+                data=float_to_s16_15(self._nestml_model_variables["mu_minus"]),
+                data_type=DataType.INT32)
+        # write value for parameter "Wmin"
+        print("[NESTML synapse] writing value for parameter Wmin: " + str(self._nestml_model_variables["Wmin"]) + " ==== encoded --> " + str(hex(float_to_s16_15(self._nestml_model_variables["Wmin"]))))
+        spec.write_value(
+                data=float_to_s16_15(self._nestml_model_variables["Wmin"]),
+                data_type=DataType.INT32)
+        # write value for parameter "Wmax"
+        print("[NESTML synapse] writing value for parameter Wmax: " + str(self._nestml_model_variables["Wmax"]) + " ==== encoded --> " + str(hex(float_to_s16_15(self._nestml_model_variables["Wmax"]))))
+        spec.write_value(
+                data=float_to_s16_15(self._nestml_model_variables["Wmax"]),
+                data_type=DataType.INT32)
+        # write value for parameter "__h"
+        print("[NESTML synapse] writing value for parameter __h: " + str(self._nestml_model_variables["__h"]) + " ==== encoded --> " + str(hex(float_to_s16_15(self._nestml_model_variables["__h"]))))
+        spec.write_value(
+                data=float_to_s16_15(self._nestml_model_variables["__h"]),
+                data_type=DataType.INT32)
 
     @overrides(AbstractPlasticSynapseDynamics.get_n_words_for_plastic_connections)
     def get_n_words_for_plastic_connections(self, n_connections: int) -> int:
@@ -338,10 +447,10 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         Get the number of 32-bit words for `n_connections` in a single row.
         :param n_connections:
         """
-        n_header_words_per_row = 1{% if pre_header is defined %} + {{ metadata[astnode.name]["pre_header"].get_state_variables() | length }}{% endif %}   # 1 for timestamp of last pre spike
+        n_header_words_per_row = 1 + 1   # 1 for timestamp of last pre spike
         print("[NESTML synapse] synapse has " + str(n_header_words_per_row) + " header words")
 
-        n_state_variables = {{ synapse.get_state_symbols() | length }}    # number of state variables per connection (i.e. for a single synapse model)
+        n_state_variables = 1    # number of state variables per connection (i.e. for a single synapse model)
 
         pp_size_words = n_state_variables * n_connections
         fp_size_words = n_connections
@@ -414,23 +523,15 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         # Get the plastic-plastic data words
         #
 
-        n_state_variables = {{ synapse.get_state_symbols() | length }}    # number of state variables per connection (i.e. for a single synapse model)
+        n_state_variables = 1    # number of state variables per connection (i.e. for a single synapse model)
 
         # If neuromodulation...
         if self.__neuromodulation:
             raise Exception("Not supported!")
 
         plastic_plastic = numpy.zeros(n_connections * n_state_variables, dtype=uint32)
-        for connection_idx in range(len(connections)):
-{%- for state_var_sym in synapse.get_state_symbols() %}
-{%-     set state_var_idx = loop.index0 %}
-{%-     if state_var_sym.name == "w" %}  {# XXXX use codegen opts for "w" instead #}
-            plastic_plastic[connection_idx * n_state_variables + {{ state_var_idx }}] = float_to_s16_15(connections["weight"][connection_idx])
-{%-     else %}
-            # XXX: what about other initial values, can they be put into/extracted from ConnectionsArray? Otherwise, do we use printing initial values directly from the NESTML model?
-            plastic_plastic[connection_idx * n_state_variables + {{ state_var_idx }}] = 0
-{%-     endif %}
-{%- endfor %}
+        for connection_idx in range(len(connections)):  
+            plastic_plastic[connection_idx * n_state_variables + 0] = float_to_s16_15(connections["weight"][connection_idx])
 
         # Convert the plastic data into groups of bytes per connection and then into rows
         plastic_plastic_bytes = plastic_plastic.view(dtype=uint8).reshape((-1, 4 * n_state_variables))    # 4 bytes per word
@@ -444,7 +545,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
             #plastic_plastic_row_data = self._pad_row(
             #    plastic_plastic_row_data, bytes_per_connection=4 * n_state_variables)
 
-        n_header_words = 1{% if pre_header is defined %} + {{ metadata[astnode.name]["pre_header"].get_state_variables() | length }}{% endif %}   # 1 for timestamp of last pre spike
+        n_header_words = 1 + 1   # 1 for timestamp of last pre spike
         plastic_headers: np.ndarray[uint8] = numpy.zeros((n_rows, 4 * n_header_words), dtype=uint8)   # timestamp and trace at that time -- measured in bytes (4 bytes per word!)
         plastic_plastic_rows: np.ndarray[uint8] = [numpy.concatenate((plastic_headers[i, :], plastic_plastic_row_data[i])) for i in range(n_rows)]
         pp_size = self.get_n_items(plastic_plastic_rows, BYTES_PER_WORD)
@@ -512,7 +613,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         neuron_id_mask = (1 << n_neuron_id_bits) - 1
 
         # the header size
-        n_header_words = 1{% if pre_header is defined %} + {{ metadata[astnode.name]["pre_header"].get_state_variables() | length }}{% endif %}   # 1 for timestamp of last pre spike
+        n_header_words = 1 + 1   # 1 for timestamp of last pre spike
 
         data_fixed = numpy.concatenate([fp_data[i].view(dtype=uint16)[0:fp_size[i]] for i in range(n_rows)])
         pp_without_headers = [row.view(dtype=uint8)[(4*n_header_words):] for row in pp_data]
@@ -525,7 +626,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
                 half_word::n_half_words]
             for pp, size in zip(pp_without_headers, fp_size)])"""
 
-        n_state_variables = {{ synapse.get_state_symbols() | length }}    # number of state variables per connection (i.e. for a single synapse model)
+        n_state_variables = 1    # number of state variables per connection (i.e. for a single synapse model)
 
         connections = numpy.zeros(data_fixed.size, dtype=NUMPY_CONNECTORS_DTYPE)
         connections["source"] = numpy.concatenate([numpy.repeat(i, fp_size[i]) for i in range(len(fp_size))])
@@ -562,13 +663,15 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
 
     @overrides(AbstractPlasticSynapseDynamics.get_parameter_names)
     def get_parameter_names(self) -> Iterable[str]:
-{%- for variable_symbol in synapse.get_parameter_symbols() %}
-{%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
-{%-     if not isHomogeneous and variable.get_name() != synapse_weight_variable and variable.get_name() != synapse_delay_variable %}
-        yield '{{ variable.name }}'
-{%-     endif %}
-{%- endfor %}
+        yield 'd'
+        yield 'lambda'
+        yield 'alpha'
+        yield 'tau_tr_pre'
+        yield 'tau_tr_post'
+        yield 'mu_plus'
+        yield 'mu_minus'
+        yield 'Wmin'
+        yield 'Wmax'
 
     @overrides(AbstractPlasticSynapseDynamics.get_max_synapses)
     def get_max_synapses(self, n_words: int) -> int:
@@ -578,10 +681,10 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         :param n_words: The number of words the synapses must fit in
         """
         # Subtract the header size that will always exist
-        n_header_words = 1{% if pre_header is defined %} + {{ metadata[astnode.name]["pre_header"].get_state_variables() | length }}{% endif %}   # 1 for timestamp of last pre spike
+        n_header_words = 1 + 1   # 1 for timestamp of last pre spike
 
         # Get plastic plastic size per connection
-        n_state_variables = {{ synapse.get_state_symbols() | length }}    # number of state variables per connection (i.e. for a single synapse model)
+        n_state_variables = 1    # number of state variables per connection (i.e. for a single synapse model)
 
         if self.__neuromodulation:
             raise Exception("Neuromodulation not supported!")
