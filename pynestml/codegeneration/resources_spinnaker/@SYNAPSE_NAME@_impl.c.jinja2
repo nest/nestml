@@ -47,9 +47,8 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 //#define DEBUG
 
 // uncomment the next line to enable printing of very detailed debug information (could overflow ITCM)
-//#define PLOT_DETAILED_STATE
-//#define PLOT_DETAILED_STATE
-#define PLOT_DETAILED_STATE2
+#define PLOT_DETAILED_STATE
+//#define PLOT_DETAILED_STATE2
 
 
 // global plasticity parameter data (in DTCM)
@@ -313,7 +312,8 @@ static void pre_spike_on_receive(synapse_state_t *state, uint32_t time{%- if pos
      *  NESTML generated onReceive code block for presynaptic port "{{ pre_port }}" begins here!
     **/
 
-  log_info("[NESTML synapse] pre_spike_on_receive(time = %d)\n", time);
+  log_info("[NESTML synapse] pre_spike_on_receive(time = %d, )\n", time);
+//  log_info("[NESTML synapse] pre_spike_on_receive(time = %d, post_trace__for__stdp_synapse_nestml__tmp = %x = %k)\n", time, post_trace__for__stdp_synapse_nestml__tmp,post_trace__for__stdp_synapse_nestml__tmp);
 //  log_info("[NESTML synapse] \tstate->w = %k (raw: 0x%x)\n", state->w, state->w);
   //log_info("[NESTML synapse] \tplasticity_weight_region_data->lambda = %k (raW: 0x%x)\n", plasticity_weight_region_data->lambda, plasticity_weight_region_data->lambda);
 
@@ -445,10 +445,14 @@ static void process_plastic_synapse(synapse_row_plastic_data_t *plastic_region_a
 
 
 
-    // update variables in the postsynaptic header (i.e. in the post-history-buffer)
+    // update variables in the post-history-buffer
+
+    post_event_history_t *history = &post_event_history[s.index];
+//    const uint32_t last_post_time = history->times[history->count_minus_one];
+
     const accum __h = pre_spike_time - current_time;   // XXX: time constants are in ms, so __h should be as well! convert uint32_t to accum type
 
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_with_origin("from_last_post_to_prepost_event_history") }}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_with_origin("synapse_dynamics_process_post_synaptic_event") }}
 
 {%-     for sym in metadata[synapse.name]["post_header"].get_internal_symbols() %}
 {%-         if sym.get_symbol_name().startswith("__P") %}
@@ -730,6 +734,9 @@ void synapse_dynamics_process_post_synaptic_event(uint32_t time, index_t neuron_
 {{ printer._expression_printer._simple_expression_printer._variable_printer.set_var_suffix("") }}
 #}
 {%- endif %}
+
+
+//log_info("[NESTML synapse] writing post_trace__for__stdp_synapse_nestml__tmp to history with value 0x%x = %k\n", post_trace__for__stdp_synapse_nestml__tmp, post_trace__for__stdp_synapse_nestml__tmp);
 
     // Add the post-synaptic event to the history
     uint32_t new_index;

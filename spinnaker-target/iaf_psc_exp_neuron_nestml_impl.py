@@ -18,7 +18,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
-#  Generated from NESTML 8.3.0-rc3-post-dev at time: 2026-07-14 18:14:13.994452
+#  Generated from NESTML 8.3.0-rc3-post-dev at time: 2026-07-19 17:20:00.407917
 
 from spinn_front_end_common.interface.ds import DataType
 from spinn_front_end_common.utilities.constants import BYTES_PER_WORD

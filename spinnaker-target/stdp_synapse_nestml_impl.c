@@ -18,7 +18,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Generated from NESTML 8.3.0-rc3-post-dev at time: 2026-07-14 18:14:09.166925
+ *  Generated from NESTML 8.3.0-rc3-post-dev at time: 2026-07-19 17:19:55.067809
 **/
 
 #include "stdp_synapse_nestml_impl.h"
@@ -27,9 +27,8 @@
 //#define DEBUG
 
 // uncomment the next line to enable printing of very detailed debug information (could overflow ITCM)
-//#define PLOT_DETAILED_STATE
-//#define PLOT_DETAILED_STATE
-#define PLOT_DETAILED_STATE2
+#define PLOT_DETAILED_STATE
+//#define PLOT_DETAILED_STATE2
 
 
 // global plasticity parameter data (in DTCM)
@@ -227,6 +226,7 @@ static void update_internal_state_(synapse_state_t *state, uint32_t t_start, uin
     if (timestep == 0) {
         return;
     }
+    const accum __P__post_trace__post_trace = expk(_kdivk((-__h), plasticity_weight_region_data->tau_tr_post));    // type: real
 
     /**
      * Begin NESTML generated code for the update block
@@ -235,6 +235,10 @@ static void update_internal_state_(synapse_state_t *state, uint32_t t_start, uin
 //log_info("[NESTML synapse] \tintegrating __P__post_trace__post_trace = %k = 0x%x\n", __P__post_trace__post_trace, __P__post_trace__post_trace);
 //log_info("[NESTML synapse] \tintegrating state->post_trace before = %k = 0x%x\n", state->post_trace, state->post_trace);
     // start rendered code for integrate_odes()
+    // analytic solver: integrating state variables post_trace (first step: compute new values)
+    const REAL post_trace__tmp = __P__post_trace__post_trace * state->post_trace;
+    // analytic solver: integrating state variables post_trace (second step: replace analytically solvable variables with precisely integrated values)
+    state->post_trace = post_trace__tmp;
     // end rendered code for integrate_odes()
 
 //log_info("[NESTML synapse] \tintegrating state->post_trace after = %k = 0x%x\n", state->post_trace, state->post_trace);
@@ -262,6 +266,7 @@ static void post_spike_on_receive(synapse_state_t *state, uint32_t time, synapse
     /**
      *  NESTML generated onReceive code block for postsynaptic port "post_spikes" begins here!
     **/
+    state->post_trace += 1;
     state->w += plasticity_weight_region_data->lambda * pre_trace__for__stdp_synapse_nestml__tmp;
     state->w = MIN(plasticity_weight_region_data->Wmax, state->w);
 }
@@ -270,18 +275,19 @@ static void post_spike_on_receive(synapse_state_t *state, uint32_t time, synapse
 /**
  * Contains generated code for all the statements corresponding to ``onReceive(pre_spikes)`` blocks.
 **/
-static void pre_spike_on_receive(synapse_state_t *state, uint32_t time,const REAL post_trace__for__stdp_synapse_nestml__tmp) {
+static void pre_spike_on_receive(synapse_state_t *state, uint32_t time) {
 
     /**
      *  NESTML generated onReceive code block for presynaptic port "pre_spikes" begins here!
     **/
 
-  log_info("[NESTML synapse] pre_spike_on_receive(time = %d)\n", time);
+  log_info("[NESTML synapse] pre_spike_on_receive(time = %d, )\n", time);
+//  log_info("[NESTML synapse] pre_spike_on_receive(time = %d, post_trace__for__stdp_synapse_nestml__tmp = %x = %k)\n", time, post_trace__for__stdp_synapse_nestml__tmp,post_trace__for__stdp_synapse_nestml__tmp);
 //  log_info("[NESTML synapse] \tstate->w = %k (raw: 0x%x)\n", state->w, state->w);
   //log_info("[NESTML synapse] \tplasticity_weight_region_data->lambda = %k (raW: 0x%x)\n", plasticity_weight_region_data->lambda, plasticity_weight_region_data->lambda);
 
     
-    state->w -= plasticity_weight_region_data->lambda * post_trace__for__stdp_synapse_nestml__tmp;
+    state->w -= plasticity_weight_region_data->lambda * state->post_trace;
     state->w = MAX(plasticity_weight_region_data->Wmin, state->w);
 
     // begin generated code for emit_spike() function
@@ -315,6 +321,7 @@ static void process_plastic_synapse(synapse_row_plastic_data_t *plastic_region_a
 //#ifdef PLOT_DETAILED_STATE
     log_info("[NESTML synapse] \tCurrent state:");
     log_info("[NESTML synapse] \t\tw = %k (raw: 0x%x)\n", state.w, state.w);
+    log_info("[NESTML synapse] \t\tpost_trace = %k (raw: 0x%x)\n", state.post_trace, state.post_trace);
 //#endif
 
     uint32_t current_time = last_pre_time; // at the start, the state is either the initial state, or however we left it when the previous pre-synaptic spike was processed
@@ -355,6 +362,7 @@ static void process_plastic_synapse(synapse_row_plastic_data_t *plastic_region_a
 #ifdef PLOT_DETAILED_STATE
     log_info("[NESTML synapse] \tNEW state after updating internal state to t = %u", current_time);
     log_info("[NESTML synapse] \t\tw = 0x%x\n", state.w);
+    log_info("[NESTML synapse] \t\tpost_trace = 0x%x\n", state.post_trace);
 #endif
 
         /**
@@ -366,6 +374,7 @@ static void process_plastic_synapse(synapse_row_plastic_data_t *plastic_region_a
 #ifdef PLOT_DETAILED_STATE
     log_info("[NESTML synapse] \tNEW state after applying post spike:");
     log_info("[NESTML synapse] \t\tw = 0x%x\n", state.w);
+    log_info("[NESTML synapse] \t\tpost_trace = 0x%x\n", state.post_trace);
 #endif
 
         // Go onto next event
@@ -382,32 +391,19 @@ static void process_plastic_synapse(synapse_row_plastic_data_t *plastic_region_a
 #ifdef PLOT_DETAILED_STATE
     log_info("[NESTML synapse] \tNEW state after integration to t_pre:");
     log_info("[NESTML synapse] \t\tw = 0x%x\n", state.w);
+    log_info("[NESTML synapse] \t\tpost_trace = 0x%x\n", state.post_trace);
 #endif
-    /**
-     * update postsynaptic history buffer entries from the time of the last post spike (= `current_time`) to `pre_spike_time`
-    **/
-
-
-
-
-    // update variables in the postsynaptic header (i.e. in the post-history-buffer)
-    const accum __h = pre_spike_time - current_time;   // XXX: time constants are in ms, so __h should be as well! convert uint32_t to accum type
-
-
-    const accum __P__post_trace__for__stdp_synapse_nestml__post_trace__for__stdp_synapse_nestml = expk(_kdivk((-__h), plasticity_weight_region_data->tau_tr_post));    // type: real
-
-    // propagate the state forward in time
-    REAL post_trace__for__stdp_synapse_nestml__tmp = __P__post_trace__for__stdp_synapse_nestml__post_trace__for__stdp_synapse_nestml * post_trace__for__stdp_synapse_nestml__tmp;
 
     /**
      * execute onReceive statements in pre spike onReceive blocks
     **/
 
-    pre_spike_on_receive(&state, pre_spike_time,post_trace__for__stdp_synapse_nestml__tmp);
+    pre_spike_on_receive(&state, pre_spike_time);
 
 #ifdef PLOT_DETAILED_STATE
     log_info("[NESTML synapse] \tNEW state after processing pre_spikes:");
     log_info("[NESTML synapse] \t\tw = 0x%x\n", state.w);
+    log_info("[NESTML synapse] \t\tpost_trace = 0x%x\n", state.post_trace);
 #endif
 log_info("[NESTML synapse] \t\tplastic_region_address->history.pre_trace__for__stdp_synapse_nestml = %x = %k\n", plastic_region_address->history.pre_trace__for__stdp_synapse_nestml, plastic_region_address->history.pre_trace__for__stdp_synapse_nestml);
 
@@ -582,22 +578,9 @@ void synapse_dynamics_process_post_synaptic_event(uint32_t time, index_t neuron_
     // Add post-event
     post_event_history_t *history = &post_event_history[neuron_index];
     const uint32_t last_post_time = history->times[history->count_minus_one];
-    // update variables in the postsynaptic header (i.e. in the post-history-buffer)
-    const accum __h = time - last_post_time;   // XXX: time constants are in ms, so __h should be as well! convert uint32_t to accum type
 
 
-    const accum __P__post_trace__for__stdp_synapse_nestml__post_trace__for__stdp_synapse_nestml = expk(_kdivk((-__h), plasticity_weight_region_data->tau_tr_post));    // type: real
-
-    // update the state from the time of the last post spike to the current time
-    REAL post_trace__for__stdp_synapse_nestml__tmp = __P__post_trace__for__stdp_synapse_nestml__post_trace__for__stdp_synapse_nestml * history->post_trace__for__stdp_synapse_nestml[history->count_minus_one];
-
-
-
-
-    // update the state due to statements triggered by spike emission
-    post_trace__for__stdp_synapse_nestml__tmp += 1;
-
-
+//log_info("[NESTML synapse] writing post_trace__for__stdp_synapse_nestml__tmp to history with value 0x%x = %k\n", post_trace__for__stdp_synapse_nestml__tmp, post_trace__for__stdp_synapse_nestml__tmp);
 
     // Add the post-synaptic event to the history
     uint32_t new_index;
@@ -610,7 +593,6 @@ void synapse_dynamics_process_post_synaptic_event(uint32_t time, index_t neuron_
         // **NOTE** 1st element is always an entry at time 0
         for (uint32_t e = 2; e < MAX_POST_SYNAPTIC_EVENTS; e++) {
             history->times[e - 1] = history->times[e];
-            history->post_trace__for__stdp_synapse_nestml[e - 1] = history->post_trace__for__stdp_synapse_nestml[e];
         }
 
         new_index = MAX_POST_SYNAPTIC_EVENTS - 1;
@@ -618,7 +600,6 @@ void synapse_dynamics_process_post_synaptic_event(uint32_t time, index_t neuron_
 
     // write the new values back to history
     history->times[new_index] = time;
-    history->post_trace__for__stdp_synapse_nestml[new_index] = post_trace__for__stdp_synapse_nestml__tmp;
 }
 
 

@@ -18,7 +18,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
-#  Generated from NESTML 8.3.0-rc3-post-dev at time: 2026-07-14 18:14:10.312415
+#  Generated from NESTML 8.3.0-rc3-post-dev at time: 2026-07-19 17:19:56.777889
 
 # Copyright (c) 2015 The University of Manchester
 #
@@ -225,6 +225,7 @@ class stdp_synapse_nestmlDynamics(AbstractPlasticSynapseDynamics):
         self._nestml_model_variables["Wmin"] = 0.0  # type: real
         self._nestml_model_variables["Wmax"] = 100.0  # type: real
         self._nestml_model_variables["__h"] = timestep  # type: ms
+        self._nestml_model_variables["__P__post_trace__post_trace"] = exp((-self._nestml_model_variables["__h"]) / self._nestml_model_variables["tau_tr_post"])  # type: real
         self._nestml_model_variables["tau_tr_pre__for__stdp_synapse_nestml"] = 20  # type: ms
 
     def __init__(
@@ -350,7 +351,9 @@ class stdp_synapse_nestmlDynamics(AbstractPlasticSynapseDynamics):
             return False
         if self._nestml_model_variables["__h"] != synapse_dynamics._nestml_model_variables["__h"]:
             return False
-        if self._nestml_model_variables["tau_tr_post__for__stdp_synapse_nestml"] != synapse_dynamics._nestml_model_variables["tau_tr_post__for__stdp_synapse_nestml"]:
+        if self._nestml_model_variables["__P__post_trace__post_trace"] != synapse_dynamics._nestml_model_variables["__P__post_trace__post_trace"]:
+            return False
+        if self._nestml_model_variables["tau_tr_pre__for__stdp_synapse_nestml"] != synapse_dynamics._nestml_model_variables["tau_tr_pre__for__stdp_synapse_nestml"]:
             return False
 
         return True
@@ -440,6 +443,11 @@ class stdp_synapse_nestmlDynamics(AbstractPlasticSynapseDynamics):
         spec.write_value(
                 data=float_to_s16_15(self._nestml_model_variables["__h"]),
                 data_type=DataType.INT32)
+        # write value for parameter "__P__post_trace__post_trace"
+        print("[NESTML synapse] writing value for parameter __P__post_trace__post_trace: " + str(self._nestml_model_variables["__P__post_trace__post_trace"]) + " ==== encoded --> " + str(hex(float_to_s16_15(self._nestml_model_variables["__P__post_trace__post_trace"]))))
+        spec.write_value(
+                data=float_to_s16_15(self._nestml_model_variables["__P__post_trace__post_trace"]),
+                data_type=DataType.INT32)
 
     @overrides(AbstractPlasticSynapseDynamics.get_n_words_for_plastic_connections)
     def get_n_words_for_plastic_connections(self, n_connections: int) -> int:
@@ -450,7 +458,7 @@ class stdp_synapse_nestmlDynamics(AbstractPlasticSynapseDynamics):
         n_header_words_per_row = 1 + 1   # 1 for timestamp of last pre spike
         print("[NESTML synapse] synapse has " + str(n_header_words_per_row) + " header words")
 
-        n_state_variables = 1    # number of state variables per connection (i.e. for a single synapse model)
+        n_state_variables = 2    # number of state variables per connection (i.e. for a single synapse model)
 
         pp_size_words = n_state_variables * n_connections
         fp_size_words = n_connections
@@ -523,7 +531,7 @@ class stdp_synapse_nestmlDynamics(AbstractPlasticSynapseDynamics):
         # Get the plastic-plastic data words
         #
 
-        n_state_variables = 1    # number of state variables per connection (i.e. for a single synapse model)
+        n_state_variables = 2    # number of state variables per connection (i.e. for a single synapse model)
 
         # If neuromodulation...
         if self.__neuromodulation:
@@ -532,6 +540,8 @@ class stdp_synapse_nestmlDynamics(AbstractPlasticSynapseDynamics):
         plastic_plastic = numpy.zeros(n_connections * n_state_variables, dtype=uint32)
         for connection_idx in range(len(connections)):  
             plastic_plastic[connection_idx * n_state_variables + 0] = float_to_s16_15(connections["weight"][connection_idx])
+            # XXX: what about other initial values, can they be put into/extracted from ConnectionsArray? Otherwise, do we use printing initial values directly from the NESTML model?
+            plastic_plastic[connection_idx * n_state_variables + 1] = 0
 
         # Convert the plastic data into groups of bytes per connection and then into rows
         plastic_plastic_bytes = plastic_plastic.view(dtype=uint8).reshape((-1, 4 * n_state_variables))    # 4 bytes per word
@@ -626,7 +636,7 @@ class stdp_synapse_nestmlDynamics(AbstractPlasticSynapseDynamics):
                 half_word::n_half_words]
             for pp, size in zip(pp_without_headers, fp_size)])"""
 
-        n_state_variables = 1    # number of state variables per connection (i.e. for a single synapse model)
+        n_state_variables = 2    # number of state variables per connection (i.e. for a single synapse model)
 
         connections = numpy.zeros(data_fixed.size, dtype=NUMPY_CONNECTORS_DTYPE)
         connections["source"] = numpy.concatenate([numpy.repeat(i, fp_size[i]) for i in range(len(fp_size))])
@@ -684,7 +694,7 @@ class stdp_synapse_nestmlDynamics(AbstractPlasticSynapseDynamics):
         n_header_words = 1 + 1   # 1 for timestamp of last pre spike
 
         # Get plastic plastic size per connection
-        n_state_variables = 1    # number of state variables per connection (i.e. for a single synapse model)
+        n_state_variables = 2    # number of state variables per connection (i.e. for a single synapse model)
 
         if self.__neuromodulation:
             raise Exception("Neuromodulation not supported!")

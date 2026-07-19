@@ -216,7 +216,7 @@ class TestSpiNNakerSTDPWindow:
 
         pre_spike_times = [250, 1000]
 
-        for t_post in np.linspace(200, 300, 5)[:1]:
+        for t_post in np.linspace(200, 300, 7):#[:1]:
 #        for t_post in np.linspace(200, 300, 19):
                 w_final, actual_pre_spike_times, actual_post_spike_times = self.run_sim([pre_spike_times],
                                                                                         [[t_post]],

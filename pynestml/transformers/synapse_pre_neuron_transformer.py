@@ -326,7 +326,7 @@ class SynapsePreNeuronTransformer(Transformer):
         #print("XXX: skipping synapse_pre_neuron_transformer!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         #return models
 
-        compute_post_header = True
+        compute_post_header = False
 
         models = set(models)
 

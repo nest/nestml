@@ -1,4 +1,3 @@
-
 /**
  *  stdp_synapse_nestml.h
  *
@@ -19,7 +18,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  Generated from NESTML 8.3.0-rc3-post-dev at time: 2026-07-14 18:14:09.166925
+ *  Generated from NESTML 8.3.0-rc3-post-dev at time: 2026-07-19 17:19:55.067809
 **/
 
 #ifndef STDP_SYNAPSE_NESTML_IMPL_H
@@ -115,8 +114,6 @@ typedef struct {
     uint32_t count_minus_one;
     //! Event times
     uint32_t times[MAX_POST_SYNAPTIC_EVENTS];
-    //! Event traces
-    accum post_trace__for__stdp_synapse_nestml[MAX_POST_SYNAPTIC_EVENTS];
 } post_event_history_t;
 
 //! Post event window description
@@ -146,14 +143,16 @@ typedef struct {
 //
 typedef struct synapse_word_t {
     uint32_t w;        // 32 bits by default for every state variable; the actual number is encoded as S1615
+    uint32_t post_trace;        // 32 bits by default for every state variable; the actual number is encoded as S1615
 } synapse_word_t;
 
-const size_t plastic_synapse_word_stride = 1;
+const size_t plastic_synapse_word_stride = 2;
 
 
 //! The current state data for the rule
 typedef struct {
     accum w;
+    accum post_trace;
 
     //! Reference to the configuration data
     const plasticity_weight_region_data_t *weight_region;
@@ -178,6 +177,9 @@ static inline synapse_state_t synapse_structure_get_update_state(
     update_state.w = TYPECAST_TO_ACCUM(synaptic_word.w);
 //    log_info("[NESTML synapse] \tw = %k (raw: 0x%x)\n", synaptic_word.w, update_state.w);
 //    log_info("[NESTML synapse] \tw = %k (raw: 0x%x)\n", update_state.w, synaptic_word.w);
+    update_state.post_trace = TYPECAST_TO_ACCUM(synaptic_word.post_trace);
+//    log_info("[NESTML synapse] \tpost_trace = %k (raw: 0x%x)\n", synaptic_word.post_trace, update_state.post_trace);
+//    log_info("[NESTML synapse] \tpost_trace = %k (raw: 0x%x)\n", update_state.post_trace, synaptic_word.post_trace);
 
     return update_state;
 }
@@ -272,6 +274,7 @@ static uint32_t plastic_saturation_count = 0;
 synapse_state_t synapse_word_to_state_t(const synapse_word_t const *synapse_word, const size_t synapse_word_len) {
     return (synapse_state_t) {
        .w = TYPECAST_TO_ACCUM(synapse_word->w),    // use the typecast to copy bit-for-bit. If we don't do this, the compiler will do a data conversion, discarding and shifting the fractional bits.
+       .post_trace = TYPECAST_TO_ACCUM(synapse_word->post_trace),    // use the typecast to copy bit-for-bit. If we don't do this, the compiler will do a data conversion, discarding and shifting the fractional bits.
        .weight_region = NULL
     };
 }
@@ -280,6 +283,8 @@ synapse_state_t synapse_word_to_state_t(const synapse_word_t const *synapse_word
 void state_t_to_synapse_word(const synapse_state_t *state, synapse_word_t *synapse_word, const size_t synapse_word_len) {
     synapse_word->w = TYPECAST_TO_UINT32_T(state->w);    // use the typecast to copy bit-for-bit. If we don't do this, the compiler will do a data conversion, discarding and shifting the fractional bits.
 //    log_info("[NESTML synapse] ~~~~~~~~~~~~~ assigning 0x%x to 0x%x", state->w, synapse_word->w);
+    synapse_word->post_trace = TYPECAST_TO_UINT32_T(state->post_trace);    // use the typecast to copy bit-for-bit. If we don't do this, the compiler will do a data conversion, discarding and shifting the fractional bits.
+//    log_info("[NESTML synapse] ~~~~~~~~~~~~~ assigning 0x%x to 0x%x", state->post_trace, synapse_word->post_trace);
 }
 
 
@@ -289,12 +294,14 @@ void state_t_to_synapse_word(const synapse_state_t *state, synapse_word_t *synap
 synapse_state_t synapse_word_to_state_t(const size_t const *synapse_word, const size_t synapse_word_len) {
     return (synapse_state_t) {
        .w = *(synapse_word + 0),
+       .post_trace = *(synapse_word + 1),
     };
 }
 
 
 void state_t_to_synapse_word(const synapse_state_t state, size_t *synapse_word, const size_t synapse_word_len) {
     *(synapse_word + 0) = state.w;
+    *(synapse_word + 1) = state.post_trace;
 }
 
 */
@@ -435,7 +442,6 @@ static inline post_event_history_t *post_events_init_buffers(
         // Add initial placeholder entry to buffer
         post_event_history[n].times[0] = 0;
         post_event_history[n].count_minus_one = 0;
-        post_event_history[n].post_trace__for__stdp_synapse_nestml[0] = 0;
     }
 
     return post_event_history;
