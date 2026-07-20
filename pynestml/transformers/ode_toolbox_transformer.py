@@ -23,18 +23,6 @@ from __future__ import annotations
 
 from typing import Any, Dict, Iterable, Mapping, Optional, Set, Tuple
 
-import odetoolbox
-
-from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
-from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
-from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
-from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
-from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
-from pynestml.meta_model.ast_input_port import ASTInputPort
-from pynestml.meta_model.ast_kernel import ASTKernel
-from pynestml.utils.model_parser import ModelParser
-from pynestml.utils.ode_toolbox_utils import ODEToolboxUtils
-
 try:
     # Available in the standard library starting with Python 3.12
     from typing import override
@@ -42,11 +30,21 @@ except ImportError:
     # Fallback for Python 3.8 - 3.11
     from typing_extensions import override
 
+import odetoolbox
+
+from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
+from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
+from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
+from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
+from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.meta_model.ast_input_port import ASTInputPort
+from pynestml.meta_model.ast_kernel import ASTKernel
+from pynestml.utils.model_parser import ModelParser
+from pynestml.utils.ode_toolbox_utils import ODEToolboxUtils
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.transformers.transformer import Transformer
 from pynestml.utils.ast_utils import ASTUtils
-from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 
 class ODEToolboxTransformer(Transformer):
@@ -100,32 +98,37 @@ class ODEToolboxTransformer(Transformer):
     def ode_toolbox_analysis(self,
                              model: ASTModel,
                              kernel_buffers: Mapping[ASTKernel, ASTInputPort],
-                             metadata: Dict[str, Dict[str, Any]]):
+                             metadata: Dict[str, Dict[str, Any]]) -> None:
         """
         Prepare data for ODE-toolbox input format, invoke ODE-toolbox analysis via its API, and return the output.
         """
         assert len(model.get_equations_blocks()) <= 1, "Only one equations block supported for now."
         assert len(model.get_parameters_blocks()) <= 1, "Only one parameters block supported for now."
 
+        if not model.name in metadata.keys():
+            metadata[model.name] = {}
+
         equations_block = model.get_equations_blocks()[0]
 
         if len(equations_block.get_kernels()) == 0 and len(equations_block.get_ode_equations()) == 0:
-            # no equations defined -> no changes to the model
-            return None, None
+            # no equations defined in this equations block; nothing to analyse
+            analytic_solver = None
+            numeric_solver = None
+        else:
 
-        odetoolbox_indict = self.create_ode_toolbox_indict(model, kernel_buffers)
+            odetoolbox_indict = self.create_ode_toolbox_indict(model, kernel_buffers)
 
-        disable_analytic_solver = self.get_option("solver") != "analytic"
-        solver_result = odetoolbox.analysis(odetoolbox_indict,
-                                            disable_stiffness_check=True,
-                                            disable_analytic_solver=disable_analytic_solver,
-                                            preserve_expressions=self.get_option("preserve_expressions"),
-                                            log_level=FrontendConfiguration.logging_level)
-        analytic_solver = None
-        analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
-        assert len(analytic_solvers) <= 1, "More than one analytic solver not presently supported"
-        if len(analytic_solvers) > 0:
-            analytic_solver = analytic_solvers[0]
+            disable_analytic_solver = self.get_option("solver") != "analytic"
+            solver_result = odetoolbox.analysis(odetoolbox_indict,
+                                                disable_stiffness_check=True,
+                                                disable_analytic_solver=disable_analytic_solver,
+                                                preserve_expressions=self.get_option("preserve_expressions"),
+                                                log_level=FrontendConfiguration.logging_level)
+            analytic_solver = None
+            analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
+            assert len(analytic_solvers) <= 1, "More than one analytic solver not presently supported"
+            if len(analytic_solvers) > 0:
+                analytic_solver = analytic_solvers[0]
 
             # parse update expressions into an AST
             analytic_solver["update_expressions_ast"] = {}
@@ -137,21 +140,21 @@ class ODEToolboxTransformer(Transformer):
                 expr_ast.accept(ASTSymbolTableVisitor())
                 analytic_solver["update_expressions_ast"][state_variable_name] = expr_ast
 
-        # if numeric solver is required, generate a stepping function that includes each state variable, including the analytic ones
-        numeric_solver = None
-        numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
-        if numeric_solvers:
-            if analytic_solver:
-                # previous solver_result contains both analytic and numeric solver; re-run ODE-toolbox generating only numeric solver
-                solver_result = odetoolbox.analysis(odetoolbox_indict,
-                                                    disable_stiffness_check=True,
-                                                    disable_analytic_solver=True,
-                                                    preserve_expressions=self.get_option("preserve_expressions"),
-                                                    log_level=FrontendConfiguration.logging_level)
+            # if numeric solver is required, generate a stepping function that includes each state variable, including the analytic ones
+            numeric_solver = None
             numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
-            assert len(numeric_solvers) <= 1, "More than one numeric solver not presently supported"
-            if len(numeric_solvers) > 0:
-                numeric_solver = numeric_solvers[0]
+            if numeric_solvers:
+                if analytic_solver:
+                    # previous solver_result contains both analytic and numeric solver; re-run ODE-toolbox generating only numeric solver
+                    solver_result = odetoolbox.analysis(odetoolbox_indict,
+                                                        disable_stiffness_check=True,
+                                                        disable_analytic_solver=True,
+                                                        preserve_expressions=self.get_option("preserve_expressions"),
+                                                        log_level=FrontendConfiguration.logging_level)
+                numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
+                assert len(numeric_solvers) <= 1, "More than one numeric solver not presently supported"
+                if len(numeric_solvers) > 0:
+                    numeric_solver = numeric_solvers[0]
 
                 # parse update expressions into an AST
                 numeric_solver["update_expressions_ast"] = {}
@@ -168,13 +171,8 @@ class ODEToolboxTransformer(Transformer):
         #   save the results to metadata
         #
 
-        if not model.name in metadata.keys():
-            metadata[model.name] = {}
-
         metadata[model.name]["analytic_solver"] = analytic_solver
         metadata[model.name]["numeric_solver"] = numeric_solver
-
-        return model
 
     @override
     def transform(self,

@@ -360,9 +360,10 @@ class NESTCodeGenerator(CodeGenerator):
     def analyse_neuron(self, neuron: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment], List[ASTOdeEquation], List[ASTOdeEquation]]:
         """
         Analyse and transform a single neuron.
+        See documentation for get_spike_update_expressions() for more information.
         :param neuron: a single neuron.
-        :return: see documentation for get_spike_update_expressions() for more information.
-        :return: post_spike_updates: list of post-synaptic spike update expressions
+        :return: spike_updates: dict from input port to list of pre-synaptic spike update expressions
+        :return: post_spike_updates: dict from input port to list of post-synaptic spike update expressions
         :return: equations_with_delay_vars: list of equations containing delay variables
         :return: equations_with_vector_vars: list of equations containing delay variables
         """
@@ -431,6 +432,8 @@ class NESTCodeGenerator(CodeGenerator):
         Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
 
         spike_updates = {}
+        pre_spike_updates = []
+        post_spike_updates = []
         if synapse.get_equations_blocks():
             analytic_solver = metadata[synapse.name]["analytic_solver"]
             numeric_solver = metadata[synapse.name]["numeric_solver"]
@@ -444,14 +447,24 @@ class NESTCodeGenerator(CodeGenerator):
             self.update_symbol_table(synapse)
             spike_updates, _ = self.get_spike_update_expressions(synapse, metadata[synapse.name]["kernel_buffers"], [analytic_solver, numeric_solver], metadata[synapse.name]["delta_factors"], metadata)
 
-            if metadata[synapse.get_name()]["analytic_solver"] is not None:
+            if "__with_" in synapse.get_name():
+                base_neuron_name = synapse.get_name().split("__with_")[1].removesuffix(FrontendConfiguration.suffix)
+                base_synapse_name = synapse.get_name().split("__with_")[0].removesuffix(FrontendConfiguration.suffix)
+                for port_name in spike_updates.keys():
+                    if CodeGeneratorUtils.is_post_port(port_name, base_neuron_name, base_synapse_name, neuron_synapse_pairs=self._options["neuron_synapse_pairs"]):
+                        post_spike_updates.extend(spike_updates[port_name])
+                    elif not CodeGeneratorUtils.is_vt_port(port_name, base_neuron_name, base_synapse_name, neuron_synapse_pairs=self._options["neuron_synapse_pairs"]):
+                        pre_spike_updates.extend(spike_updates[port_name])
+
+            if not metadata[synapse.get_name()]["analytic_solver"] is None:
                 ASTUtils.add_declarations_to_internals(synapse, metadata[synapse.get_name()]["analytic_solver"]["propagators"])
 
         self.update_symbol_table(synapse)
 
         ASTUtils.update_blocktype_for_common_parameters(synapse)
-
         metadata[synapse.name]["spike_updates"] = spike_updates
+        metadata[synapse.name]["pre_spike_updates"] = pre_spike_updates
+        metadata[synapse.name]["post_spike_updates"] = post_spike_updates
 
     def _check_weight_variable_codegen_opt(self, synapse: ASTModel) -> None:
         synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
@@ -699,6 +712,8 @@ class NESTCodeGenerator(CodeGenerator):
 
         if metadata is not None and synapse.name in metadata.keys():
             namespace["spike_updates"] = metadata[synapse.name]["spike_updates"]
+            namespace["post_spike_updates"] = metadata[synapse.name]["post_spike_updates"]
+            namespace["pre_spike_updates"] = metadata[synapse.name]["pre_spike_updates"]
 
         # special case for NEST delay variable (state or parameter)
         # self._check_delay_variable_codegen_opt(synapse)
