@@ -15,6 +15,8 @@
 {%-         set analytic_state_variables_ = utils.filter_variables_list(analytic_state_variables_, ast.get_args()) %}
 {%-     endif %}
 
+{%-     set analytic_state_variables_ = utils.exclude_convolutions_from_variables_list(analytic_state_variables_) %}
+
 {%-     if analytic_state_variables_ | length > 0 %}
 // analytic solver: integrating state variables {% for variable_name in analytic_state_variables_ %}{{ variable_name }}{% if not loop.last %}, {% endif %}{% endfor %} (first step: compute new values)
 {%-         include "directives_cpp/AnalyticIntegrationStep_begin.jinja2" %}
@@ -67,7 +69,6 @@ const double {{ variable_name }}__orig = {{ printer.print(utils.get_state_variab
 {%-     endif %}
 {%- endif %}
 
-
 // spike updates due to convolutions
 {%- for spike_updates_for_port in spike_updates.values() %}
 {%-     for ast in spike_updates_for_port -%}
@@ -82,7 +83,7 @@ const double {{ variable_name }}__orig = {{ printer.print(utils.get_state_variab
 {%-             set all_state_variables_to_be_integrated = all_state_variables_to_be_integrated + numeric_state_variables_to_be_integrated %}
 {%-         endif %}
 
-{%-         if ast.get_variable().get_name() in all_state_variables_to_be_integrated %}
+{%-         if ast.get_variable().get_name() in all_state_variables_to_be_integrated and "__X__" not in ast.get_variable().get_name() %}    {#- exclude convolutions; they are handled centrally in the integration loop, outside of individual ``integrate_odes()`` calls #}
 {%-             include "directives_cpp/Assignment.jinja2" %}
 {%-         endif %}
 {%-     endfor %}

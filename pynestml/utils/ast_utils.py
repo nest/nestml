@@ -133,6 +133,17 @@ class ASTUtils:
         return isinstance(ast, ASTCompoundStmt)
 
     @classmethod
+    def exclude_convolutions_from_variables_list(cls, variables_list):
+        """
+        """
+        ret = []
+        for var in variables_list:
+            if "__X__" not in var:
+                ret.append(var)
+
+        return ret
+
+    @classmethod
     def filter_variables_list(cls, variables_list, variables_to_filter_by):
         """
         """

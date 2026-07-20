@@ -852,6 +852,15 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%-     endfor %}
 {%- endif %}
 
+{%- for spike_updates_for_port in spike_updates.values() %}
+{%-     for ast in spike_updates_for_port -%}
+{%-         if "__X__" in ast.get_variable().get_name() %}    {#- convolutions only #}
+{%-             include "directives_cpp/Assignment.jinja2" %}
+{%-         endif %}
+{%-     endfor %}
+{%- endfor %}
+
+
 {%  if paired_synapses is defined %}
 {%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
 {%-         if uses_numeric_solver and purely_numeric_state_variables_moved %}
