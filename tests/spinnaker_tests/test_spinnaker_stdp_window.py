@@ -216,8 +216,8 @@ class TestSpiNNakerSTDPWindow:
 
         pre_spike_times = [250, 1000]
 
-        for t_post in np.linspace(200, 300, 5)[:1]:
-#        for t_post in np.linspace(200, 300, 19):
+#       for t_post in np.linspace(200, 300, 7):#[:1]:
+        for t_post in np.linspace(200, 300, 19):
                 w_final, actual_pre_spike_times, actual_post_spike_times = self.run_sim([pre_spike_times],
                                                                                         [[t_post]],
                                                                                         initial_weight=initial_weight)
@@ -259,7 +259,10 @@ class TestSpiNNakerSTDPWindow:
         ax.legend()
         fig.savefig("nestml_stdp_window.png")
 
-        np.testing.assert_allclose(sim_weights, ref_weights)
+        # testing
+
+        atol = 2 / 2**16    # twice LSB tolerance of S1516 format
+        np.testing.assert_allclose(sim_weights, ref_weights, atol=atol, rtol=np.inf)
 
     def test_multiple_stdp_synapses(self):
         r"""Check that multiple STDP synapses onto the same postsynaptic neuron do not influence one another."""

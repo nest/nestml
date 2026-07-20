@@ -1,8 +1,0 @@
-APP = $(notdir $(CURDIR))
-BUILD_DIR = build/
-
-
-SYNAPSE_DYNAMICS = $(EXTRA_SRC_DIR)/my_models/implementations/stdp_synapse_nestml_impl.c
-
-
-include ../extra_synapse.mk
