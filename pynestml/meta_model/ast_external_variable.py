@@ -26,7 +26,7 @@ from pynestml.meta_model.ast_variable import ASTVariable
 
 class ASTExternalVariable(ASTVariable):
     r"""
-    This class is used to store a single "external" variable: a variable the value of which is obtained during runtime from a neuron's postsynaptic partner.
+    This class is used to store a single "external" variable: a variable the value of which is obtained during runtime from somewhere outside of the model, for example, from a synapse's postsynaptic partner or from a history buffer.
     """
     _altscope = None
     _altname = None
