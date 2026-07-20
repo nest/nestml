@@ -27,6 +27,43 @@ Generating code
       apptainer build spinnaker-apptainer.sif spinnaker-apptainer.def
       apptainer overlay create --size 4096 spinnaker-overlay.img
 
+   Note that for now, the sPyNNaker codebase needs to be manually edited to remove the checks in ``/home/spinnaker/source/sPyNNaker/neural_modelling/makefiles/synapse_only/synapse_build.mk`` on lines 99-104 (see https://github.com/SpiNNakerManchester/sPyNNaker/pull/1679):
+
+   .. code-block::
+
+      diff --git a/neural_modelling/makefiles/synapse_only/synapse_build.mk b/neural_modelling/makefiles/synapse_only/synapse_build.mk
+      index b6bfaffa29..004250ecff 100644
+      --- a/neural_modelling/makefiles/synapse_only/synapse_build.mk
+      +++ b/neural_modelling/makefiles/synapse_only/synapse_build.mk
+      @@ -96,12 +96,6 @@ else
+         ifneq ($(SYNAPSE_DYNAMICS), $(SYNAPSE_DYNAMICS_STATIC))
+               STDP_ENABLED = 1
+
+      -        ifndef TIMING_DEPENDENCE_H
+      -            $(error TIMING_DEPENDENCE_H is not set which is required when SYNAPSE_DYNAMICS ($(SYNAPSE_DYNAMICS_C)) != $(SYNAPSE_DYNAMICS_STATIC))
+      -        endif
+      -        ifndef WEIGHT_DEPENDENCE_H
+      -            $(error WEIGHT_DEPENDENCE_H is not set which is required when SYNAPSE_DYNAMICS ($(SYNAPSE_DYNAMICS_C)) != $(SYNAPSE_DYNAMICS_STATIC))
+      -        endif
+         endif
+      endif
+
+      @@ -205,8 +199,10 @@ endif
+
+      #STDP Build rules If and only if STDP used
+      ifeq ($(STDP_ENABLED), 1)
+      -    STDP_INCLUDES:= -include $(WEIGHT_DEPENDENCE_H) -include $(TIMING_DEPENDENCE_H)
+      -    STDP_COMPILE = $(CC) -DLOG_LEVEL=$(PLASTIC_DEBUG) $(CFLAGS) -DSTDP_ENABLED=$(STDP_ENABLED) -DSYNGEN_ENABLED=$(SYNGEN_ENABLED) $(STDP_INCLUDES)
+
+      +    #STDP_INCLUDES:= -include $(WEIGHT_DEPENDENCE_H) -include $(TIMING_DEPENDENCE_H)
+      +    #STDP_INCLUDES:= -include $(WEIGHT_DEPENDENCE_H) -include $(TIMING_DEPENDENCE_H)
+      +    #STDP_COMPILE = $(CC) -DLOG_LEVEL=$(PLASTIC_DEBUG) $(CFLAGS) -DSTDP_ENABLED=$(STDP_ENABLED) -DSYNGEN_ENABLED=$(SYNGEN_ENABLED) $(STDP_INC
+      LUDES)
+      +    STDP_COMPILE = $(CC) -DLOG_LEVEL=$(PLASTIC_DEBUG) $(CFLAGS) -DSTDP_ENABLED=$(STDP_ENABLED) -DSYNGEN_ENABLED=$(SYNGEN_ENABLED)
+
+         $(SYNAPSE_DYNAMICS_O): $(SYNAPSE_DYNAMICS_C)
+            # SYNAPSE_DYNAMICS_O stdp
+
 3. Run the Apptainer image:
 
    .. code-block:: bash
