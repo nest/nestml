@@ -874,13 +874,6 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%- endif %}
 
     /**
-     * spike updates due to convolutions
-    **/
-{%  filter indent(4) %}
-{%-     include "directives_cpp/ApplySpikesFromBuffers.jinja2" %}
-{%- endfilter %}
-
-    /**
      * Begin NESTML generated code for the onCondition block(s)
     **/
 {% if neuron.get_on_condition_blocks() %}
@@ -1132,7 +1125,7 @@ void {{ neuronName }}::handle(nest::SpikeEvent &e)
 #endif
 
   assert(e.get_delay_steps() > 0);
-  assert( e.get_rport() < B_.spike_inputs_.size() );
+  assert(e.get_rport() < B_.spike_inputs_.size());
 
   double weight = e.get_weight();
   size_t nestml_buffer_idx = 0;
