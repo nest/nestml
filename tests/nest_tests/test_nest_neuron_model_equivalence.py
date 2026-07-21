@@ -93,8 +93,8 @@ class TestNESTNeuronModelEquivalence:
     def test_nest_neuron_model_equivalence(self):
         self.generate_all_models()
         nest.Install("nestml_allmodels_module")
-        # nest.Install("nestml_alt_allmodels_module")
-        # nest.Install("nestml_alt_int_allmodels_module")
+        nest.Install("nestml_alt_allmodels_module")
+        nest.Install("nestml_alt_int_allmodels_module")
 
         self._test_model_equivalence_subthreshold("iaf_psc_delta", "iaf_psc_delta_neuron_nestml")
         self._test_model_equivalence_spiking("iaf_psc_delta", "iaf_psc_delta_neuron_nestml")
