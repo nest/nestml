@@ -138,7 +138,7 @@ class ASTUtils:
         """
         ret = []
         for var in variables_list:
-            if "__X__" not in var:
+            if ("__X__" not in var) or ("__X__" in var and "__for_" in var):    # if it's a convolution, don't include it -- unless it's a convolution that corresponds with an ASTExternalVariable (e.g. for the continuous-time postsynaptic history buffer)
                 ret.append(var)
 
         return ret
