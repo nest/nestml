@@ -26,14 +26,18 @@ class ConstantPrinter:
     r"""
     """
 
-    def print_constant(self, const: Union[str, float, int]) -> str:
+    n_float_digits = 9    # number of digits to print for floating point numbers. Increasing this value makes things more precise, but can also encourage unhelpful rewrites like "1E-6" being rendered as "9.9999999999999995e-07"
+
+    def print_constant(self, node: Union[str, float, int]) -> str:
         """
         Converts a single handed over constant.
-        :param constant_name: a constant as string.
-        :type constant_name: str
-        :return: the corresponding nest representation
+        :param node: a constant.
+        :return: the corresponding string representation
         """
-        if isinstance(const, float) or isinstance(const, int):
-            return str(const)
+        if isinstance(node, int):
+            return str(node)
 
-        return const
+        if isinstance(node, float):
+            return f"{node:#.{ConstantPrinter.n_float_digits}g}".rstrip("0")    # make sure decimal point is always included
+
+        raise Exception("Cannot print constant (" + str(node) + ") of unknown type")
