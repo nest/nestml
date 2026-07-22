@@ -98,6 +98,7 @@ class TestNESTNeuronModelEquivalence:
 
         self._test_model_equivalence_subthreshold("iaf_psc_delta", "iaf_psc_delta_neuron_nestml")
         self._test_model_equivalence_spiking("iaf_psc_delta", "iaf_psc_delta_neuron_nestml")
+        self._test_model_equivalence_spikes_during_refractory("iaf_psc_delta", "iaf_psc_delta_neuron_nestml")
         self._test_model_equivalence_fI_curve("iaf_psc_delta", "iaf_psc_delta_neuron_nestml")
         self._test_model_equivalence_curr_inj("iaf_psc_delta", "iaf_psc_delta_neuron_nestml")
 
@@ -162,6 +163,29 @@ class TestNESTNeuronModelEquivalence:
 
     def _test_model_equivalence_spiking(self, nest_model_name, nestml_model_name, tolerance=1E-7, tolerance_spiketimes=1E-9, nest_model_parameters=None, nestml_model_parameters=None, model_initial_state=None, kernel_opts=None, syn_spec=None):
         self._test_model_equivalence_psc(nest_model_name, nestml_model_name, tolerance, tolerance_spiketimes, nest_model_parameters, nestml_model_parameters, model_initial_state, max_weight=5000., kernel_opts=kernel_opts, fname_snip="[spiking]_", syn_spec=syn_spec)
+
+    def _test_model_equivalence_spikes_during_refractory(self, nest_model_name, nestml_model_name, tolerance=1E-7, tolerance_spiketimes=1E-9, nest_model_parameters=None, nestml_model_parameters=None, model_initial_state=None, kernel_opts=None, syn_spec=None):
+        """Test what happens when spikes arrive during the refractory period"""
+        if nestml_model_parameters is None:
+            nestml_model_parameters = {}
+        if nest_model_parameters is None:
+            nest_model_parameters = {}
+
+        if "refr_T" in nest.Create(nestml_model_name).get().keys():
+            nestml_model_parameters["refr_T"] = 25.
+        elif "t_ref" in nest.Create(nestml_model_name).get().keys():
+            nestml_model_parameters["t_ref"] = 25.
+        else:
+            assert False, "Could not set refractory time"
+
+        if "refr_T" in nest.Create(nest_model_name).get().keys():
+            nest_model_parameters["refr_T"] = 25.
+        elif "t_ref" in nest.Create(nest_model_name).get().keys():
+            nest_model_parameters["t_ref"] = 25.
+        else:
+            assert False, "Could not set refractory time"
+
+        self._test_model_equivalence_psc(nest_model_name, nestml_model_name, tolerance, tolerance_spiketimes, nest_model_parameters, nestml_model_parameters, model_initial_state, max_weight=100., kernel_opts=kernel_opts, fname_snip="[spikes_during_refractory]_", syn_spec=syn_spec)
 
     def _test_model_equivalence_curr_inj(self, nest_model_name, nestml_model_name, tolerance=1E-7, nest_model_parameters=None, nestml_model_parameters=None, model_initial_state=None, kernel_opts=None, t_stop=1000., t_pulse_start=100., t_pulse_stop=300.):
         """For different levels of injected current, verify that behaviour is the same between NEST and NESTML"""
@@ -421,7 +445,7 @@ class TestNESTNeuronModelEquivalence:
             for _ax in ax:
                 _ax.legend(loc="upper right")
                 _ax.grid()
-            plt.savefig("/tmp/test_nest_neuron_model_equivalence_psc_[" + nest_model_name + "]_[" + nestml_model_name + "].png")
+            plt.savefig("/tmp/test_nest_neuron_model_equivalence_psc_[" + nest_model_name + "]_[" + nestml_model_name + "]" + fname_snip + ".png")
             plt.close(fig)
 
         np.testing.assert_allclose(ts1, ts2)
