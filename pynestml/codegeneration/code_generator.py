@@ -172,7 +172,6 @@ class CodeGenerator(WithOptions):
         """
         from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
-
         for synapse in synapses:
             self.generate_synapse_code(synapse, metadata)
             if not Logger.has_errors(synapse):

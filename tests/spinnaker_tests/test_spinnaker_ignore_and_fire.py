@@ -25,7 +25,7 @@ import pytest
 from pynestml.frontend.pynestml_frontend import generate_spinnaker_target
 
 
-class TestSpiNNakerIafPscExp:
+class TestSpiNNakerIgnoreAndFire:
     """SpiNNaker code generation tests"""
 
     @pytest.fixture(autouse=True,
