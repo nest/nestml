@@ -77,26 +77,6 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         transformer = IllegalVariableNameTransformer({"forbidden_names": ["alignas", "alignof", "and", "and_eq", "asm", "auto", "bitand", "bitor", "bool", "break", "case", "catch", "char", "char8_t", "char16_t", "char32_t", "class", "compl", "concept", "const", "const_cast", "consteval", "constexpr", "constinit", "continue", "co_await", "co_return", "co_yield", "decltype", "default", "delete", "do", "double", "dynamic_cast", "else", "enum", "explicit", "export", "extern", "false", "float", "for", "friend", "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private", "protected", "public", "register", "reinterpret_cast", "requires", "return", "short", "signed", "sizeof", "static", "static_assert", "static_cast", "struct", "switch", "template", "this", "thread_local", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"]})
         transformers.append(transformer)
 
-    if target_name.upper() not in ["NEST_COMPARTMENTAL"]:
-        # InlineExpressionExpansionTransformer
-        from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
-        transformer = InlineExpressionExpansionTransformer()
-        transformers.append(transformer)
-
-    if target_name.upper() in ["NEST"]:
-        from pynestml.transformers.synapse_post_neuron_transformer import SynapsePostNeuronTransformer
-        transformer = SynapsePostNeuronTransformer()
-        options = transformer.set_options(options)
-        transformers.append(transformer)
-
-    if target_name.upper() in ["SPINNAKER"]:
-        from pynestml.transformers.synapse_pre_neuron_transformer import SynapsePreNeuronTransformer
-
-        # co-generate neuron and synapse
-        transformer = SynapsePreNeuronTransformer()
-        options = transformer.set_options(options)
-        transformers.append(transformer)
-
     if target_name.upper() in ["PYTHON_STANDALONE"]:
         from pynestml.transformers.illegal_variable_name_transformer import IllegalVariableNameTransformer
 
@@ -105,37 +85,27 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         transformer = IllegalVariableNameTransformer({"forbidden_names": ["False", "None", "True", "and", "as", "assert", "async", "await", "break", "class", "continue", "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with", "yield"]})
         transformers.append(transformer)
 
+    if target_name.upper() in ["NEST"]:
+        # co-generate neuron and synapse
+        from pynestml.transformers.synapse_post_neuron_transformer import SynapsePostNeuronTransformer
+        transformer = SynapsePostNeuronTransformer()
+        options = transformer.set_options(options)
+        transformers.append(transformer)
+
+    if target_name.upper() in ["SPINNAKER"]:
+        from pynestml.transformers.synapse_pre_post_submodels_transformer import SynapsePrePostSubmodelsTransformer
+
+        # extract pre- and postsynaptic components of synapse model into separate sub-models
+        transformer = SynapsePrePostSubmodelsTransformer()
+        options = transformer.set_options(options)
+        transformers.append(transformer)
+
     if target_name.upper() not in ["NEST_COMPARTMENTAL"]:
         # InlineExpressionExpansionTransformer
         from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
         transformer = InlineExpressionExpansionTransformer()
         transformers.append(transformer)
 
-        # ConvolutionsToBuffersTransformer
-        from pynestml.transformers.convolutions_to_buffers_transformer import ConvolutionsToBuffersTransformer
-        transformer = ConvolutionsToBuffersTransformer()
-        transformers.append(transformer)
-
-        # EquationsWithDelayVarsTransformer
-        from pynestml.transformers.equations_with_delay_vars_transformer import EquationsWithDelayVarsTransformer
-        transformer = EquationsWithDelayVarsTransformer()
-        transformers.append(transformer)
-
-        # EquationsWithVectorVarsTransformer
-        from pynestml.transformers.equations_with_vector_vars_transformer import EquationsWithVectorVarsTransformer
-        transformer = EquationsWithVectorVarsTransformer()
-        transformers.append(transformer)
-
-        # ODE-toolbox analysis
-        from pynestml.transformers.ode_toolbox_transformer import ODEToolboxTransformer
-        transformer = ODEToolboxTransformer()
-        if target_name.upper() == "GENN":
-            options["ode_toolbox_json_options"] = {"propagators_prefix": "P",    # GeNN does not support variable names that start with an underscore; hence, override the default "__P"
-                                                   "output_timestep_symbol": "dt"}
-        options = transformer.set_options(options)
-        transformers.append(transformer)
-
-    if target_name.upper() not in ["NEST_COMPARTMENTAL"]:
         # ConvolutionsToBuffersTransformer
         from pynestml.transformers.convolutions_to_buffers_transformer import ConvolutionsToBuffersTransformer
         transformer = ConvolutionsToBuffersTransformer()
@@ -593,6 +563,7 @@ def transform_models(transformers: Sequence[Transformer],
 
     for transformer in transformers:
         models = transformer.transform(models, metadata)
+        assert None not in models
 
     return models, metadata
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# synapse_pre_neuron_transformer.py
+# synapse_pre_post_submodels_transformer.py
 #
 # This file is part of NEST.
 #
@@ -50,7 +50,7 @@ from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 
 
-class SynapsePreNeuronTransformer(Transformer):
+class SynapsePrePostSubmodelsTransformer(Transformer):
     r"""In a (pre neuron, synapse, post neuron) tuple, process (pre_neuron, synapse) to move all variables that are only triggered by presynaptic events to the presynaptic neuron.
 
     Options:
@@ -188,7 +188,7 @@ class SynapsePreNeuronTransformer(Transformer):
                                                            header_for_synapse.get_equations_blocks()[0],
                                                            var_name_suffix,
                                                            mode="move")
-            ASTUtils.add_suffix_to_variable_names2(in_port_names + syn_to_header_state_vars + syn_to_header_params, decls, var_name_suffix)
+            ASTUtils.add_suffix_to_variable_names(decls, variable_names=in_port_names + syn_to_header_state_vars + syn_to_header_params, suffix=var_name_suffix)
             ASTUtils.remove_state_var_from_integrate_odes_calls(new_synapse, var)
 
         #
@@ -323,10 +323,8 @@ class SynapsePreNeuronTransformer(Transformer):
     def transform(self,
                   models: Iterable[ASTModel],
                   metadata: Dict[str, Dict[str, Any]]) -> Iterable[ASTModel]:
-        #print("XXX: skipping synapse_pre_neuron_transformer!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        #return models
 
-        compute_post_header = False
+        compute_post_header = True
 
         models = set(models)
 
@@ -346,7 +344,7 @@ class SynapsePreNeuronTransformer(Transformer):
             if compute_post_header:
                 post_header_for_synapse, new_synapse = self._transform_synapse(neuron, new_synapse, metadata, construct_for="post")
 
-            # # replace variables in...
+            # replace variables in pre- and post submodels
             if compute_post_header:
                 for var_name in [var.name for var in post_header_for_synapse.get_state_variables()]:
                     ASTUtils.replace_with_external_variable(var_name, new_synapse, where="post")
@@ -356,13 +354,13 @@ class SynapsePreNeuronTransformer(Transformer):
 
             metadata[new_synapse.name]["pre_header"] = pre_header_for_synapse
 
-            print("Adding new_synapse = " + str(new_synapse))
+            print("Synapse after transformation: " + str(new_synapse))
             if compute_post_header:
                 metadata[new_synapse.name]["post_header"] = post_header_for_synapse
-                print("Adding post header_for_synapse = " + str(post_header_for_synapse))
+                print("Postsynaptic submodel after transformation: " + str(post_header_for_synapse))
                 models.add(post_header_for_synapse)
 
-            print("Adding pre header_for_synapse = " + str(pre_header_for_synapse))
+            print("Presynaptic submodel after transformation: " + str(pre_header_for_synapse))
             models.add(pre_header_for_synapse)
             models.discard(synapse)
             models.add(new_synapse)

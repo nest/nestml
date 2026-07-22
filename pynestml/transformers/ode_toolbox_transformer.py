@@ -40,10 +40,11 @@ from pynestml.codegeneration.printers.sympy_simple_expression_printer import Sym
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_kernel import ASTKernel
-from pynestml.utils.model_parser import ModelParser
-from pynestml.utils.ode_toolbox_utils import ODEToolboxUtils
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.transformers.transformer import Transformer
+from pynestml.utils.model_parser import ModelParser
+from pynestml.utils.ode_toolbox_utils import ODEToolboxUtils
+from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.utils.ast_utils import ASTUtils
 
 
@@ -108,63 +109,68 @@ class ODEToolboxTransformer(Transformer):
         if not model.name in metadata.keys():
             metadata[model.name] = {}
 
+        analytic_solver = None
+        numeric_solver = None
+
+        if len(model.get_equations_blocks()) == 0:
+            # no equations, no need to call ODE-toolbox
+            return
+
         equations_block = model.get_equations_blocks()[0]
 
         if len(equations_block.get_kernels()) == 0 and len(equations_block.get_ode_equations()) == 0:
             # no equations defined in this equations block; nothing to analyse
-            analytic_solver = None
-            numeric_solver = None
-        else:
+            return
 
-            odetoolbox_indict = self.create_ode_toolbox_indict(model, kernel_buffers)
+        odetoolbox_indict = self.create_ode_toolbox_indict(model, kernel_buffers)
 
-            disable_analytic_solver = self.get_option("solver") != "analytic"
-            solver_result = odetoolbox.analysis(odetoolbox_indict,
-                                                disable_stiffness_check=True,
-                                                disable_analytic_solver=disable_analytic_solver,
-                                                preserve_expressions=self.get_option("preserve_expressions"),
-                                                log_level=FrontendConfiguration.logging_level)
-            analytic_solver = None
-            analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
-            assert len(analytic_solvers) <= 1, "More than one analytic solver not presently supported"
-            if len(analytic_solvers) > 0:
-                analytic_solver = analytic_solvers[0]
+        disable_analytic_solver = self.get_option("solver") != "analytic"
+        solver_result = odetoolbox.analysis(odetoolbox_indict,
+                                            disable_stiffness_check=True,
+                                            disable_analytic_solver=disable_analytic_solver,
+                                            preserve_expressions=self.get_option("preserve_expressions"),
+                                            log_level=FrontendConfiguration.logging_level)
+        analytic_solver = None
+        analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
+        assert len(analytic_solvers) <= 1, "More than one analytic solver not presently supported"
+        if len(analytic_solvers) > 0:
+            analytic_solver = analytic_solvers[0]
+
+        # parse update expressions into an AST
+        analytic_solver["update_expressions_ast"] = {}
+        for state_variable_name in analytic_solver["state_variables"]:
+            expr_str = analytic_solver["update_expressions"][state_variable_name]
+            expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr_str)
+            expr_ast = ModelParser.parse_expression(expr_str)
+            expr_ast.update_scope(model.get_scope())
+            expr_ast.accept(ASTSymbolTableVisitor())
+            analytic_solver["update_expressions_ast"][state_variable_name] = expr_ast
+
+        # if numeric solver is required, generate a stepping function that includes each state variable, including the analytic ones
+        numeric_solver = None
+        numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
+        if numeric_solvers:
+            if analytic_solver:
+                # previous solver_result contains both analytic and numeric solver; re-run ODE-toolbox generating only numeric solver
+                solver_result = odetoolbox.analysis(odetoolbox_indict,
+                                                    disable_stiffness_check=True,
+                                                    disable_analytic_solver=True,
+                                                    preserve_expressions=self.get_option("preserve_expressions"),
+                                                    log_level=FrontendConfiguration.logging_level)
+            numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
+            assert len(numeric_solvers) <= 1, "More than one numeric solver not presently supported"
+            if len(numeric_solvers) > 0:
+                numeric_solver = numeric_solvers[0]
 
             # parse update expressions into an AST
-            analytic_solver["update_expressions_ast"] = {}
-            for state_variable_name in analytic_solver["state_variables"]:
-                expr_str = analytic_solver["update_expressions"][state_variable_name]
+            numeric_solver["update_expressions_ast"] = {}
+            for state_variable_name in numeric_solver["state_variables"]:
+                expr_str = numeric_solver["update_expressions"][state_variable_name]
                 expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr_str)
                 expr_ast = ModelParser.parse_expression(expr_str)
                 expr_ast.update_scope(model.get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
-                analytic_solver["update_expressions_ast"][state_variable_name] = expr_ast
-
-            # if numeric solver is required, generate a stepping function that includes each state variable, including the analytic ones
-            numeric_solver = None
-            numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
-            if numeric_solvers:
-                if analytic_solver:
-                    # previous solver_result contains both analytic and numeric solver; re-run ODE-toolbox generating only numeric solver
-                    solver_result = odetoolbox.analysis(odetoolbox_indict,
-                                                        disable_stiffness_check=True,
-                                                        disable_analytic_solver=True,
-                                                        preserve_expressions=self.get_option("preserve_expressions"),
-                                                        log_level=FrontendConfiguration.logging_level)
-                numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
-                assert len(numeric_solvers) <= 1, "More than one numeric solver not presently supported"
-                if len(numeric_solvers) > 0:
-                    numeric_solver = numeric_solvers[0]
-
-                # parse update expressions into an AST
-                numeric_solver["update_expressions_ast"] = {}
-                for state_variable_name in numeric_solver["state_variables"]:
-                    expr_str = numeric_solver["update_expressions"][state_variable_name]
-                    expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr_str)
-                    expr_ast = ModelParser.parse_expression(expr_str)
-                    expr_ast.update_scope(model.get_scope())
-                    expr_ast.accept(ASTSymbolTableVisitor())
-                    numeric_solver["update_expressions_ast"][state_variable_name] = expr_ast
+                numeric_solver["update_expressions_ast"][state_variable_name] = expr_ast
 
 
         #
@@ -178,19 +184,20 @@ class ODEToolboxTransformer(Transformer):
     def transform(self,
                   models: Iterable[ASTModel],
                   metadata: Dict[str, Dict[str, Any]]) -> Iterable[ASTModel]:
-        new_models = []
-
         for model in models:
-            if len(model.get_equations_blocks()) == 0:
-                # no equations, no need to call ODE-toolbox
-                new_models.append(model)
+            if not model.get_equations_blocks():
                 continue
 
             if len(model.get_equations_blocks()) > 1:
                 raise Exception("Only one equations block per model supported for now")
 
-            assert "kernel_buffers" in metadata[model.name].keys(), "ConvolutionsToBuffersTransformer should have been run first on the model!"
-            new_model = self.ode_toolbox_analysis(model, metadata[model.name]["kernel_buffers"], metadata)
-            new_models.append(new_model)
+            equations_block = model.get_equations_blocks()[0]
 
-        return new_models
+            if not model.name in metadata.keys():
+                metadata[model.name] = {}
+
+            assert "kernel_buffers" in metadata[model.name].keys(), "ConvolutionsToBuffersTransformer should have been run first on the model!"
+
+            self.ode_toolbox_analysis(model, metadata[model.name]["kernel_buffers"], metadata)
+
+        return models
