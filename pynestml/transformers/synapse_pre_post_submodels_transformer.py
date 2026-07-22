@@ -188,7 +188,7 @@ class SynapsePrePostSubmodelsTransformer(Transformer):
                                                            header_for_synapse.get_equations_blocks()[0],
                                                            var_name_suffix,
                                                            mode="move")
-            ASTUtils.add_suffix_to_variable_names(decls, variable_names=in_port_names + syn_to_header_state_vars + syn_to_header_params, suffix=var_name_suffix)
+            ASTUtils.add_suffix_to_variable_names(decls, variable_names=in_port_names + syn_to_header_state_vars + syn_to_header_params, suffix=var_name_suffix, altscope=synapse.get_scope())
             ASTUtils.remove_state_var_from_integrate_odes_calls(new_synapse, var)
 
         #

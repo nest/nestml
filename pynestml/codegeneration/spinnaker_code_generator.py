@@ -40,7 +40,6 @@ from pynestml.codegeneration.printers.cpp_printer import CppPrinter
 from pynestml.codegeneration.printers.c_simple_expression_printer import CSimpleExpressionPrinter
 from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
-from pynestml.codegeneration.printers.spinnaker_constant_printer import SpiNNakerConstantPrinter
 from pynestml.codegeneration.printers.gsl_variable_printer import GSLVariablePrinter
 from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
 from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
@@ -71,7 +70,7 @@ from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 class CustomNESTCodeGenerator(NESTCodeGenerator):
     def setup_printers(self, for_neuron: bool = True):
-        self._constant_printer = SpiNNakerConstantPrinter()
+        self._constant_printer = ConstantPrinter()
 
         # C/Spinnaker API printers
         self._type_symbol_printer = SpinnakerCTypeSymbolPrinter()
