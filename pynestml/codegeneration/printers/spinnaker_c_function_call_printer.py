@@ -30,7 +30,8 @@ class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
     Printer for ASTFunctionCall in C Spinnaker API  syntax.
     """
 
-    def print_function_call(self, node: ASTFunctionCall) -> str:
+#!! function_call was called node before
+    def print_function_call(self, function_call: ASTFunctionCall) -> str:
         r"""
         Converts a single handed over function call to C Spinnaker API syntax.
 
@@ -44,22 +45,42 @@ class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
         s
             The function call string in C syntax.
         """
-        function_name = node.get_name()
 
-        if function_name in [PredefinedFunctions.TIME_RESOLUTION, PredefinedFunctions.TIME_TIMESTEP]:
+
+        assert isinstance(function_call, ASTFunctionCall)
+
+        if function_call.get_name() in [PredefinedFunctions.TIME_RESOLUTION, PredefinedFunctions.TIME_TIMESTEP]:
             # context dependent; we assume the template contains the necessary definitions
-            return "parameter->__h"
+            return 'parameter->__h'
 
-        if function_name == PredefinedFunctions.TIME_STEPS:
+        if function_call.get_name() == PredefinedFunctions.TIME_STEPS:
             raise Exception("time_steps() function not yet implemented")
 
-        if function_name == PredefinedFunctions.RANDOM_NORMAL:
+        if function_call.get_name() == PredefinedFunctions.RANDOM_NORMAL:
             raise Exception("rng functions not yet implemented")
 
-        if function_name == PredefinedFunctions.RANDOM_UNIFORM:
+        if function_call.get_name() == PredefinedFunctions.RANDOM_UNIFORM:
             raise Exception("rng functions not yet implemented")
 
-        return super().print_function_call(node)
+        function_name = self._print_function_call_format_string(function_call)
+
+
+        if ASTUtils.needs_arguments(function_call):
+            if function_call.get_name() == PredefinedFunctions.PRINT or function_call.get_name() == PredefinedFunctions.PRINT:
+                return function_name.format(self._print_print_statement(function_call))
+
+            return function_name.format(*self._print_function_call_argument_list(function_call))
+
+        return function_name
+
+    def _print_function_call_argument_list(self, function_call: ASTFunctionCall) -> tuple[str, ...]:
+        ret = []
+
+        for arg in function_call.get_args():
+            ret.append(self._expression_printer.print(arg))
+
+        return tuple(ret)
+
 
     def _print_function_call_format_string(self, function_call: ASTFunctionCall) -> str:
         r"""
@@ -75,6 +96,7 @@ class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
         s
             The function call string in C syntax.
         """
+
         function_name = function_call.get_name()
 
         if function_name == PredefinedFunctions.CLIP:

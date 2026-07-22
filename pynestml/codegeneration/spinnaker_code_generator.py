@@ -32,10 +32,13 @@ import copy
 import os
 
 from pynestml.codegeneration.code_generator import CodeGenerator
+from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
+from pynestml.codegeneration.printers.spinnaker_cpp_expression_printer import SpiNNakerCppExpressionPrinter
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
 from pynestml.codegeneration.printers.cpp_printer import CppPrinter
 from pynestml.codegeneration.printers.c_simple_expression_printer import CSimpleExpressionPrinter
+from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.gsl_variable_printer import GSLVariablePrinter
 from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
@@ -46,43 +49,68 @@ from pynestml.codegeneration.printers.python_standalone_printer import PythonSta
 from pynestml.codegeneration.printers.python_stepping_function_function_call_printer import PythonSteppingFunctionFunctionCallPrinter
 from pynestml.codegeneration.printers.python_stepping_function_variable_printer import PythonSteppingFunctionVariablePrinter
 from pynestml.codegeneration.printers.python_variable_printer import PythonVariablePrinter
+from pynestml.codegeneration.printers.spinnaker_python_variable_printer import SpiNNakerPythonVariablePrinter
 from pynestml.codegeneration.printers.spinnaker_c_function_call_printer import SpinnakerCFunctionCallPrinter
 from pynestml.codegeneration.printers.spinnaker_c_type_symbol_printer import SpinnakerCTypeSymbolPrinter
 from pynestml.codegeneration.printers.spinnaker_c_variable_printer import SpinnakerCVariablePrinter
+from pynestml.codegeneration.printers.spinnaker_synapse_c_variable_printer import SpinnakerSynapseCVariablePrinter
 from pynestml.codegeneration.printers.spinnaker_gsl_function_call_printer import SpinnakerGSLFunctionCallPrinter
 from pynestml.codegeneration.printers.spinnaker_python_function_call_printer import SpinnakerPythonFunctionCallPrinter
 from pynestml.codegeneration.printers.spinnaker_python_simple_expression_printer import SpinnakerPythonSimpleExpressionPrinter
 from pynestml.codegeneration.printers.spinnaker_python_type_symbol_printer import SpinnakerPythonTypeSymbolPrinter
 from pynestml.codegeneration.python_standalone_code_generator import PythonStandaloneCodeGenerator
+from pynestml.codegeneration.python_standalone_target_tools import PythonStandaloneTargetTools
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.symbol_table.symbol_table import SymbolTable
+from pynestml.utils.ast_utils import ASTUtils
+from pynestml.utils.string_utils import removesuffix
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 
 class CustomNESTCodeGenerator(NESTCodeGenerator):
-    def setup_printers(self):
+    def setup_printers(self, for_neuron: bool = True):
         self._constant_printer = ConstantPrinter()
 
         # C/Spinnaker API printers
         self._type_symbol_printer = SpinnakerCTypeSymbolPrinter()
-        self._nest_variable_printer = SpinnakerCVariablePrinter(expression_printer=None, with_origin=True,
-                                                                with_vector_parameter=True)
+        if for_neuron:
+            self._nest_variable_printer = SpinnakerCVariablePrinter(expression_printer=None, with_origin=True,
+                                                                    with_vector_parameter=True)
+        else:
+            # for synapse
+            self._nest_variable_printer = SpinnakerSynapseCVariablePrinter(expression_printer=None, with_origin=True,
+                                                                    with_vector_parameter=True)
         self._nest_function_call_printer = SpinnakerCFunctionCallPrinter(None)
         self._nest_function_call_printer_no_origin = SpinnakerCFunctionCallPrinter(None)
 
-        self._printer = CppExpressionPrinter(
+        if for_neuron:
+            self._printer = CppExpressionPrinter(
             simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
                                                                constant_printer=self._constant_printer,
                                                                function_call_printer=self._nest_function_call_printer))
+        else:
+            self._printer = SpiNNakerCppExpressionPrinter(
+            simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
+                                                               constant_printer=self._constant_printer,
+                                                               function_call_printer=self._nest_function_call_printer))
+
         self._nest_variable_printer._expression_printer = self._printer
         self._nest_function_call_printer._expression_printer = self._printer
         self._nest_printer = CppPrinter(expression_printer=self._printer)
 
         self._nest_variable_printer_no_origin = SpinnakerCVariablePrinter(None, with_origin=False,
                                                                           with_vector_parameter=False)
-        self._printer_no_origin = CppExpressionPrinter(
-            simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
-                                                               constant_printer=self._constant_printer,
-                                                               function_call_printer=self._nest_function_call_printer_no_origin))
+        if for_neuron:
+            self._printer_no_origin = CppExpressionPrinter(
+                simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
+                                                                   constant_printer=self._constant_printer,
+                                                                   function_call_printer=self._nest_function_call_printer_no_origin))
+        else:
+            self._printer_no_origin = SpiNNakerCppExpressionPrinter(
+                simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
+                                                                   constant_printer=self._constant_printer,
+                                                                   function_call_printer=self._nest_function_call_printer_no_origin))
         self._nest_variable_printer_no_origin._expression_printer = self._printer_no_origin
         self._nest_function_call_printer_no_origin._expression_printer = self._printer_no_origin
 
@@ -90,7 +118,21 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         self._gsl_variable_printer = GSLVariablePrinter(None)
         self._gsl_function_call_printer = SpinnakerGSLFunctionCallPrinter(None)
 
-        self._gsl_printer = CppExpressionPrinter(
+        self._gsl_function_call_printer_no_origin = SpinnakerGSLFunctionCallPrinter(None)
+        self._gsl_variable_printer_no_origin = GSLVariablePrinter(None, with_origin=False)
+        self._gsl_printer_no_origin = CppExpressionPrinter(simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer_no_origin,
+                                                                                                                constant_printer=self._constant_printer,
+                                                                                                                function_call_printer=self._gsl_function_call_printer))
+        self._gsl_variable_printer_no_origin._expression_printer = self._gsl_printer_no_origin
+        self._gsl_function_call_printer_no_origin._expression_printer = self._gsl_printer_no_origin
+
+        if for_neuron:
+            self._gsl_printer = CppExpressionPrinter(
+            simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
+                                                               constant_printer=self._constant_printer,
+                                                               function_call_printer=self._gsl_function_call_printer))
+        else:
+            self._gsl_printer = SpiNNakerCppExpressionPrinter(
             simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
                                                                constant_printer=self._constant_printer,
                                                                function_call_printer=self._gsl_function_call_printer))
@@ -107,17 +149,62 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         self._ode_toolbox_variable_printer._expression_printer = self._ode_toolbox_printer
         self._ode_toolbox_function_call_printer._expression_printer = self._ode_toolbox_printer
 
+    def generate_synapse_code(self, synapse: ASTModel,
+                              metadata: Mapping[str, Mapping[str, Any]]) -> None:
+        self.generate_model_code(synapse.get_name(),
+                                 model_templates=self._model_templates["synapse"],
+                                 template_namespace=self._get_synapse_model_namespace(synapse, metadata),
+                                 metadata=metadata,
+                                 model_name_escape_string="@SYNAPSE_NAME@")
+
+    def _get_synapse_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
+        namespace = super()._get_synapse_model_namespace(astnode, metadata)
+        # namespace["header_printer"] = self._header_printer
+        # namespace["history_printer"] = self._history_printer
+        namespace["pre_header"] = metadata[astnode.name]["pre_header"]
+        if "post_header" in metadata[astnode.name].keys():
+            namespace["post_header"] = metadata[astnode.name]["post_header"]
+
+        return namespace
+
+    def _get_neuron_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
+        namespace = super()._get_neuron_model_namespace(astnode, metadata)
+        if self.option_exists("neuron_synapse_pairs") and len(self.get_option("neuron_synapse_pairs")) > 0:
+            assert len(self.get_option("neuron_synapse_pairs")) == 1, "only one neuron/synapse pair supported for now"
+            namespace["spinnaker_paired_synapse"] = True # self.option_exists("neuron_synapse_pairs") and len(self.get_option("neuron_synapse_pairs")) > 0   # set this to a value to trigger the right code path in the makefile
+            namespace["paired_synapse_original_model_name"] = list(self.get_option("neuron_synapse_pairs")[0]["synapses"].keys())[0] + FrontendConfiguration.suffix
+
+        for k, v in metadata.items():
+            if k.startswith(astnode.name) and "header_for__" in k:
+                namespace["paired_synapse"] = v["paired_synapse"]
+                namespace["paired_synapse_original_model"] = v["paired_synapse_original_model"]
+                namespace["paired_synapse_original_model_name"] = v["paired_synapse_original_model"].get_name() + FrontendConfiguration.suffix
+
+        return namespace
 
 class CustomPythonStandaloneCodeGenerator(PythonStandaloneCodeGenerator):
-    def setup_printers(self):
+    def _get_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
+        namespace = super()._get_model_namespace(astnode, metadata)
+        if "neuron" in astnode.name.split("__with_")[0]:
+            # TODO: PythonStandaloneTargetTools does not contain getter for synapse values yet
+            namespace["numeric_parameter_values"], namespace["numeric_internal_values"], namespace["numeric_initial_state_values"] = PythonStandaloneTargetTools.get_neuron_numerical_initial_values(astnode.file_path)
+
+        return namespace
+
+    def setup_printers(self, for_neuron: bool = True):
         super().setup_printers()
 
         self._type_symbol_printer = SpinnakerPythonTypeSymbolPrinter()
         self._constant_printer = ConstantPrinter()
 
         # Python/mini simulation environment API printers
-        self._nest_variable_printer = PythonVariablePrinter(expression_printer=None, with_origin=False,
+        if for_neuron:
+            self._nest_variable_printer = PythonVariablePrinter(expression_printer=None, with_origin=False,
                                                             with_vector_parameter=True)
+        else:
+            self._nest_variable_printer = SpiNNakerPythonVariablePrinter(expression_printer=None, with_origin=False,
+                                                            with_vector_parameter=True)
+
         self._nest_function_call_printer = SpinnakerPythonFunctionCallPrinter(None)
         self._nest_function_call_printer_no_origin = SpinnakerPythonFunctionCallPrinter(None)
 
@@ -129,8 +216,13 @@ class CustomPythonStandaloneCodeGenerator(PythonStandaloneCodeGenerator):
         self._nest_function_call_printer._expression_printer = self._printer
         self._nest_printer = PythonStandalonePrinter(expression_printer=self._printer)
 
-        self._nest_variable_printer_no_origin = PythonVariablePrinter(None, with_origin=False,
+        if for_neuron:
+            self._nest_variable_printer_no_origin = PythonVariablePrinter(None, with_origin=False,
                                                                       with_vector_parameter=False)
+        else:
+            self._nest_variable_printer_no_origin = SpiNNakerPythonVariablePrinter(None, with_origin=False,
+                                                                      with_vector_parameter=False)
+
         self._printer_no_origin = PythonExpressionPrinter(
             simple_expression_printer=SpinnakerPythonSimpleExpressionPrinter(
                 variable_printer=self._nest_variable_printer_no_origin,
@@ -149,15 +241,32 @@ class CustomPythonStandaloneCodeGenerator(PythonStandaloneCodeGenerator):
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
         self._gsl_variable_printer._expression_printer = self._gsl_printer
 
+    def _get_synapse_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
+        namespace = super()._get_synapse_model_namespace(astnode, metadata)
+        namespace["pre_header"] = metadata[astnode.name]["pre_header"]
+        if "post_header" in metadata[astnode.name].keys():
+            namespace["post_header"] = metadata[astnode.name]["post_header"]
+
+        return namespace
 
 class SpiNNakerCodeGenerator(CodeGenerator):
     r"""
     Code generator for SpiNNaker
+
+    For descriptions of the code generator options, please see the NESTCodeGenerator documentation.
+
+    The supported code generator options for SpiNNaker are: ``delay_variable``, ``weight_variable``, ``synapse_models``, ``neuron_synapse_pairs`` and ``templates``.
     """
 
     codegen_cpp: Optional[NESTCodeGenerator] = None
 
     _default_options = {
+
+        "delay_variable": {},
+        "weight_variable": {},
+
+        "synapse_models": [],
+
         "neuron_synapse_pairs": [],
         "templates": {
             "path": os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources_spinnaker"))),
@@ -170,13 +279,6 @@ class SpiNNakerCodeGenerator(CodeGenerator):
                            "Makefile_@NEURON_NAME@_impl.jinja2"],
                 "synapse": ["@SYNAPSE_NAME@_impl.c.jinja2",
                             "@SYNAPSE_NAME@_impl.h.jinja2",
-                            "@SYNAPSE_NAME@_timing_impl.h.jinja2",
-                            "@SYNAPSE_NAME@_timing_impl.c.jinja2",
-                            "@SYNAPSE_NAME@_weight_impl.h.jinja2",
-                            "@SYNAPSE_NAME@_weight_impl.c.jinja2",
-                            "@SYNAPSE_NAME@.py.jinja2",
-                            "@SYNAPSE_NAME@_timing.py.jinja2",
-                            "@SYNAPSE_NAME@_weight.py.jinja2",
                             "@SYNAPSE_NAME@_impl.py.jinja2",
                             "Makefile_@SYNAPSE_NAME@_impl.jinja2"],
             },
@@ -189,6 +291,10 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         super().__init__(options)
 
         options_cpp = copy.deepcopy(NESTCodeGenerator._default_options)
+        options_cpp["delay_variable"] = self._options["delay_variable"]
+        options_cpp["weight_variable"] = self._options["weight_variable"]
+
+
         options_cpp["neuron_synapse_pairs"] = self._options["neuron_synapse_pairs"]
         options_cpp["templates"]["model_templates"]["neuron"] = [fname for fname in
                                                                  self._options["templates"]["model_templates"]["neuron"]
@@ -212,17 +318,90 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         options_py["nest_version"] = "<not available>"
         options_py["templates"]["module_templates"] = []
         options_py["templates"]["path"] = self._options["templates"]["path"]
+
+        options_py["delay_variable"] = self._options["delay_variable"]
+        options_py["weight_variable"] = self._options["weight_variable"]
+
         self.codegen_py = CustomPythonStandaloneCodeGenerator(options_py)
+
+    def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
+        import copy
+        options_copy = copy.deepcopy(options)
+        options_copy2 = copy.deepcopy(options)
+        ret = super().set_options(options)
+        self.codegen_cpp.set_options(options_copy)
+        self.codegen_py.set_options(options_copy2)
+
+        return ret
 
     @override
     def generate_code(self,
                       models: Iterable[ASTModel],
                       metadata: Dict[str, Dict[str, Any]]) -> None:
+        neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
+
         for model in models:
+            if "header_for__" in model.name:
+                # This is synapse header; do not gen code, but run ODE toolbox transformer
+                from pynestml.transformers.add_timestep_to_internals_transformer import AddTimestepToInternalsTransformer
+                add_timestep_to_internals_transformer = AddTimestepToInternalsTransformer()
+                add_timestep_to_internals_transformer.transform([model], metadata)
+
+                from pynestml.transformers.ode_toolbox_transformer import ODEToolboxTransformer
+                transformer = ODEToolboxTransformer()
+                options = transformer.set_options(FrontendConfiguration.get_codegen_opts())
+                transformer.transform([model], metadata)
+
+                symbol_table_visitor = ASTSymbolTableVisitor()
+                model.accept(symbol_table_visitor)
+                SymbolTable.add_model_scope(model.get_name(), model.get_scope())
+
+                if metadata[model.name]["analytic_solver"] is not None:
+                    ASTUtils.add_declarations_to_internals(model, metadata[model.name]["analytic_solver"]["propagators"])
+
+                    for var_name, update_expr_ast in metadata[model.name]["analytic_solver"]["update_expressions_ast"].items():
+                        print("XXXXXXX update expr = " + str(update_expr_ast))
+                        update_expr_ast.update_scope(model.get_scope())
+                        update_expr_ast.accept(ASTSymbolTableVisitor())
+
+                        if "post" in model.name:
+                            # this is the post header
+                            for var_name in [var.name for var in model.get_state_variables()]:
+                                ASTUtils.replace_with_external_variable(var_name, update_expr_ast, where="post")
+
+                        if "pre" in model.name:
+                            # this is the pre header
+                            for var_name in [var.name for var in model.get_state_variables()]:
+                                ASTUtils.replace_with_external_variable(var_name, update_expr_ast, where="pre")
+                                # ASTUtils.replace_with_external_variable(var_name, model.get_on_receive_block("spikes"), where="pre")
+
+                if metadata[model.name]["numeric_solver"] is not None:
+                    for var_name, update_expr_ast in metadata[model.name]["numeric_solver"]["update_expressions_ast"].items():
+                        update_expr_ast.update_scope(model.get_scope())
+                        update_expr_ast.accept(ASTSymbolTableVisitor())
+
+                model.accept(symbol_table_visitor)
+
+        for model in models:
+            print("SpiNNakerCodeGenerator::generate_code(): model = " + str(model.name))
+            if "header_for__" in model.name:
+                continue
+
             cloned_model = model.clone()
             cloned_model.accept(ASTSymbolTableVisitor())
+            if model in neurons:
+                self.codegen_cpp.setup_printers(for_neuron=True)
+            else:
+                assert model in synapses
+                self.codegen_cpp.setup_printers(for_neuron=False)
+
             self.codegen_cpp.generate_code([cloned_model], metadata=metadata)
 
             cloned_model = model.clone()
             cloned_model.accept(ASTSymbolTableVisitor())
+            if model in neurons:
+                self.codegen_py.setup_printers(for_neuron=True)
+            else:
+                assert model in synapses
+                self.codegen_py.setup_printers(for_neuron=False)
             self.codegen_py.generate_code([cloned_model], metadata=metadata)

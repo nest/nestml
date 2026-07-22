@@ -504,14 +504,16 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#model.
     def visitModel(self, ctx):
-        name = str(ctx.NAME()) if ctx.NAME() is not None else None
+        name = str(ctx.NAME()) if ctx.NAME() is not None else ""
         body = self.visit(ctx.modelBody()) if ctx.modelBody() is not None else None
         if hasattr(ctx.start.source[1], "fileName"):
+            file_path = ctx.start.source[1].fileName
             artifact_name = ntpath.basename(ctx.start.source[1].fileName)
         else:
+            file_path = ""
             artifact_name = "parsed from string"
         model = ASTNodeFactory.create_ast_model(name=name + FrontendConfiguration.suffix, body=body, source_position=create_source_pos(ctx),
-                                                artifact_name=artifact_name)
+                                                artifact_name=artifact_name, file_path=file_path)
         # update the comments
         update_node_comments(model, self.__comments.visit(ctx))
         # in order to enable the logger to print correct messages set as the source the corresponding model

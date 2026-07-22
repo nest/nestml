@@ -82,9 +82,11 @@ class PrettyRenderCodeGenerator(CodeGenerator):
                                      template_namespace=self._get_synapse_model_namespace(synapse, metadata),
                                      metadata=metadata)
 
-    def _get_model_namespace(self, model: ASTModel):
+    def _get_model_namespace(self, model: ASTModel, metadata: Mapping[str, Mapping[str, Any]]) -> Dict:
         # Read the source code file
-        with open(model.file_path, "r") as f:
+        assert metadata
+
+        with open(metadata[model.name]["file_path"], "r") as f:
             code = f.read()
 
         # Create the HTML formatter
@@ -101,7 +103,7 @@ class PrettyRenderCodeGenerator(CodeGenerator):
     def _get_neuron_model_namespace(self,
                                     neuron: ASTModel,
                                     metadata: Dict[str, Dict[str, Any]]) -> Dict:
-        namespace = self._get_model_namespace(neuron)
+        namespace = self._get_model_namespace(neuron, metadata)
         namespace["model_type"] = "neuron"
         namespace["model_title"] = "Integrate-and-fire NESTML neuron model"
 
@@ -110,7 +112,7 @@ class PrettyRenderCodeGenerator(CodeGenerator):
     def _get_synapse_model_namespace(self,
                                      synapse: ASTModel,
                                      metadata: Dict[str, Dict[str, Any]]) -> Dict:
-        namespace = self._get_model_namespace(synapse)
+        namespace = self._get_model_namespace(synapse, metadata)
         namespace["model_type"] = "synapse"
         namespace["model_title"] = "STDP synapse NESTML model"
 

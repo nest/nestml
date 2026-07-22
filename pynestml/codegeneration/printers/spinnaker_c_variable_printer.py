@@ -21,7 +21,14 @@
 
 from __future__ import annotations
 
-from pynestml.utils.ast_utils import ASTUtils
+from typing import Dict, Optional
+
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
 
 from pynestml.codegeneration.spinnaker_code_generator_utils import SPINNAKERCodeGeneratorUtils
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
@@ -34,6 +41,7 @@ from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.variable_symbol import BlockType
+from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
@@ -42,44 +50,69 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
     r"""
     Variable printer for C syntax and the Spinnaker API.
     """
-
-    def __init__(self, expression_printer: ExpressionPrinter, with_origin: bool = True, with_vector_parameter: bool = True) -> None:
+    def __init__(self, expression_printer: ExpressionPrinter, with_origin: bool = True, with_vector_parameter: bool = True, variables_special_cases: Optional[Dict[str, str]] = None) -> None:
         super().__init__(expression_printer)
         self.with_origin = with_origin
         self.with_vector_parameter = with_vector_parameter
         self._state_symbols = []
+        self.variables_special_cases = variables_special_cases
 
-    def print_variable(self, variable: ASTVariable) -> str:
+    def set_with_origin(self, with_origin):
+        self.with_origin = with_origin
+        return ""
+
+    @override
+    def print_variable(self, node: ASTVariable) -> str:
         """
-        Converts a single variable to Spinnaker processable format.
-        :param variable: a single variable.
+        Converts a single node to SpiNNaker C format.
+        :param node: a single node.
         :return: a Spinnaker processable format.
         """
-        assert isinstance(variable, ASTVariable)
+        assert isinstance(node, ASTVariable)
+        # if node.name.startswith("__P"):
+            # import pdb;pdb.set_trace()
 
-        if isinstance(variable, ASTExternalVariable):
-            raise Exception("SpiNNaker does not suport external variables")
+        if isinstance(node, ASTExternalVariable):
+            if node.get_where() == "post":
+                if self.with_origin == "synapse_dynamics_process_post_synaptic_event":
+                    # we're in the context of ``synapse_dynamics_process_post_synaptic_event()``
+                    return "history->" + node.get_name() + "[history->count_minus_one]"
 
-        if variable.get_name() == PredefinedVariables.E_CONSTANT:
+                if self.with_origin == "from_last_post_to_pre":
+                    # we're in the context of ``synapse_dynamics_process_post_synaptic_event()``
+                    return "post_event_history[s.index]" + node.get_name() + "[post_event_history->count_minus_one]"
+
+                return node.get_name() + "__tmp"
+
+            if node.get_where() == "pre":
+                # the value for this node is stored in the presynaptic neuron
+                if self.with_origin == "process_post_spike":
+                    return node.get_name() + "__tmp"
+
+                return "plastic_region_address->history." + node.get_name()
+
+            raise Exception("Tried to print an ASTExternalVariable with unknown provenance")
+
+        if node.get_name() == PredefinedVariables.E_CONSTANT:
             return "REAL_CONST(2.718282)"
 
-        if variable.get_name() == PredefinedVariables.PI_CONSTANT:
+        if node.get_name() == PredefinedVariables.PI_CONSTANT:
             return "REAL_CONST(3.14159)"
 
-        symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+        symbol = node.get_scope().resolve_to_symbol(node.get_complete_name(), SymbolKind.VARIABLE)
         if symbol is None:
-            # test if variable name can be resolved to a type
-            if PredefinedUnits.is_unit(variable.get_complete_name()):
-                return str(NESTUnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
+            # test if node name can be resolved to a type
+            if PredefinedUnits.is_unit(node.get_complete_name()):
+                return str(NESTUnitConverter.get_factor(PredefinedUnits.get_unit(node.get_complete_name()).get_unit()))
 
-            code, message = Messages.get_could_not_resolve(variable.get_name())
+            code, message = Messages.get_could_not_resolve(node.get_name())
             Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
-                               error_position=variable.get_source_position())
+                               error_position=node.get_source_position())
             return ""
 
         vector_param = ""
         if self.with_vector_parameter and symbol.has_vector_parameter():
-            vector_param = "[" + self._expression_printer.print(variable.get_vector_parameter()) + "]"
+            vector_param = "[" + self._expression_printer.print(node.get_vector_parameter()) + "]"
 
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
@@ -89,21 +122,18 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
             s = ""
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
-            s += self._print_buffer_value(variable)
+            s += self._print_buffer_value(node)
             if not units_conversion_factor == 1:
                 s += ")"
             return s
 
         if symbol.is_inline_expression:
-            # there might not be a corresponding defined state variable; insist on calling the getter function
-            return "get_" + self._print(variable, symbol, with_origin=False) + vector_param + "()"
+            # there might not be a corresponding defined state node; insist on calling the getter function
+            return "get_" + self._print(node, symbol, with_origin=False) + vector_param + "()"
 
         assert not symbol.is_kernel(), "Cannot print kernel; kernel should have been converted during code generation"
 
-        if symbol.is_state() or symbol.is_inline_expression:
-            return self._print(variable, symbol, with_origin=self.with_origin) + vector_param
-
-        return self._print(variable, symbol, with_origin=self.with_origin) + vector_param
+        return self._print(node, symbol, with_origin=self.with_origin) + vector_param
 
     def _print_delay_variable(self, variable: ASTVariable) -> str:
         """
@@ -146,6 +176,7 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
         assert all([isinstance(s, str) for s in self._state_symbols])
 
         variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
+        # variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
 
         if symbol.is_local():
             return variable_name
@@ -153,7 +184,22 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
         if variable.is_delay_variable():
             return self._print_delay_variable(variable)
 
-        if with_origin:
+        #if variable.name == "__h":
+        #    return variable.name
+
+        """try:
+            from pynestml.meta_model.ast_model import ASTModel
+            model = ASTUtils.find_parent_node_by_type(variable, ASTModel)
+            import pdb;pdb.set_trace()
+            assert isinstance(model, ASTModel)
+            if variable.name in [var.name for var in model.get_parameter_variables()]:
+                # this is a parameter
+                print("Printing parameter for neuron " + str(variable))
+                return SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols, for_synapse=False) % variable_name.split("__for_")[0]
+        except:
+            pass"""
+
+        if with_origin and SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols):
             return SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols) % variable_name
 
         return variable_name

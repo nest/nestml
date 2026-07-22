@@ -114,6 +114,7 @@ class NESTCodeGenerator(CodeGenerator):
 
     """
 
+
     _default_options = {
         "neuron_parent_class": "ArchivingNode",
         "neuron_parent_class_include": "archiving_node.h",
@@ -161,6 +162,9 @@ class NESTCodeGenerator(CodeGenerator):
 
     def run_nest_target_specific_cocos(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
         for model in neurons + synapses:
+            if "header_for__" in model.name:
+                continue
+
             # Check if the random number functions are used in the right blocks
             CoCosManager.check_co_co_nest_random_functions_legally_used(model)
 
@@ -169,6 +173,8 @@ class NESTCodeGenerator(CodeGenerator):
 
         if self.get_option("neuron_synapse_pairs"):
             for model in synapses:
+                if "header_for__" in model.name:
+                    continue
                 synapse_name_stripped = removesuffix(removesuffix(model.name.split("_with_")[0], "_"),
                                                      FrontendConfiguration.suffix)
 
@@ -248,7 +254,7 @@ class NESTCodeGenerator(CodeGenerator):
         synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
 
         self._check_delay_variable_codegen_opt(synapse)
-
+        # variables_special_cases = {"delay_variable": self.get_option("delay_variable")}
         variables_special_cases = {}
         if self.get_option("delay_variable"):
             variables_special_cases[self.get_option("delay_variable")[synapse_name_stripped]] = "get_delay()"
@@ -263,6 +269,17 @@ class NESTCodeGenerator(CodeGenerator):
                       models: Iterable[ASTModel],
                       metadata: Dict[str, Dict[str, Any]]) -> None:
         neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
+
+        synapses_to_generate_code_for = []
+        for synapse in synapses:
+            if "header_for__" in synapse.name:
+                # XXX this is synapse header; treat as a neuron
+                neurons.append(synapse)
+                synapses.pop(synapses.index(synapse))
+            else:
+                synapses_to_generate_code_for.append(synapse)
+
+        synapses = synapses_to_generate_code_for
 
         self.run_nest_target_specific_cocos(neurons, synapses)
         self.analyse_transform_neurons(neurons, metadata)
@@ -479,6 +496,8 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace["metadata"] = metadata
 
+        namespace["FrontendConfiguration"] = FrontendConfiguration
+
         namespace["nestml_version"] = pynestml.__version__
         namespace["now"] = datetime.datetime.utcnow()
         namespace["tracing"] = FrontendConfiguration.is_dev
@@ -539,7 +558,7 @@ class NESTCodeGenerator(CodeGenerator):
         # continuous post ports
         namespace["continuous_state_buffering_method"] = self.get_option("continuous_state_buffering_method")
         namespace["continuous_post_ports"] = []
-        if "continuous_post_ports" in metadata[astnode.name].keys():
+        if metadata and astnode.name in metadata.keys() and "continuous_post_ports" in metadata[astnode.name].keys():
             namespace["continuous_post_ports"] = metadata[astnode.name]["continuous_post_ports"]
 
         return namespace
@@ -554,13 +573,23 @@ class NESTCodeGenerator(CodeGenerator):
         """
         namespace = self._get_model_namespace(synapse, metadata)
 
-        if self.option_exists("nest_version"):
-            namespace["nest_version"] = self.get_option("nest_version")
-            namespace["nest_version_dict"] = NESTTools.get_version_dict_from_version_string(self.get_option("nest_version"))
-
         all_input_port_names = []
         for input_block in synapse.get_input_blocks():
             all_input_port_names.extend([p.name for p in input_block.get_input_ports()])
+
+        xfrm = SynapsePostNeuronTransformer()
+        xfrm.set_options({"neuron_synapse_pairs": self.get_option("neuron_synapse_pairs")})
+
+        codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
+
+        optional_properties = ["pre_ports", "post_ports", "vt_ports", "spiking_post_ports"]
+        for k in optional_properties:
+            if k in dir(synapse):
+                namespace[k] = eval("synapse.k")
+            else:
+                namespace[k] = []
+
+        namespace["syn_to_neuron_state_vars"] = []
 
         if metadata is not None and synapse.name in metadata.keys() and "paired_neuron" in metadata[synapse.name].keys():
             # synapse is being co-generated with neuron
@@ -585,11 +614,20 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace["continuous_post_ports"] = [v for v in post_ports if isinstance(v, tuple) or isinstance(v, list)]
 
             namespace["vt_ports"] = metadata[synapse.name]["vt_port_names"]
-            namespace["pre_ports"] = list(set(all_input_port_names)
-                                          - set(namespace["post_ports"]) - set(namespace["vt_ports"]))
+            namespace["pre_ports"] = metadata[synapse.name]["pre_port_names"]
+            # namespace["pre_ports"] = list(set(all_input_port_names)
+                                        #   - set(namespace["post_ports"]) - set(namespace["vt_ports"]))
         else:
             # separate (not neuron+synapse co-generated)
-            namespace["pre_ports"] = all_input_port_names
+            # XXX: following three lines added for the sake of spinnaker when SynapsePreNeuronTransformer does not run
+            assert len(self._options["neuron_synapse_pairs"]) == 1
+            #namespace["spiking_post_ports"] = self._options["neuron_synapse_pairs"][0]["post_ports"]
+            orig_synapse_name = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
+            assert list(self._options["neuron_synapse_pairs"][0]["synapses"].keys())[0] == orig_synapse_name
+
+            namespace["post_ports"] = self._options["neuron_synapse_pairs"][0]["synapses"][orig_synapse_name]["post_ports"]
+            namespace["spiking_post_ports"] = self._options["neuron_synapse_pairs"][0]["synapses"][orig_synapse_name]["post_ports"]
+            namespace["pre_ports"] = list(set(all_input_port_names) - set(namespace["post_ports"]))
 
         assert len(namespace["pre_ports"]) <= 1, "Synapses only support one spiking input port"
 
@@ -633,11 +671,19 @@ class NESTCodeGenerator(CodeGenerator):
                 expr_str = metadata[synapse.get_name()]["analytic_solver"]["update_expressions"][sym]
                 expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr_str)
                 expr_ast = ModelParser.parse_expression(expr_str)
-                # pretend that update expressions are in "equations" block, which should always be present,
-                # as differential equations must have been defined to get here
-                expr_ast.update_scope(synapse.get_equations_blocks()[0].get_scope())
+                expr_ast.update_scope(synapse.get_equations_blocks()[0].get_scope())       # pretend that update expressions are in "equations" block, which should always be present, as differential equations must have been defined to get here
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["update_expressions"][sym] = expr_ast
+            namespace["propagators"] = metadata[synapse.get_name()]["analytic_solver"]["propagators"]
+            if "paired_neuron" in metadata[synapse.name].keys() and metadata[synapse.name]["paired_neuron"] is not None:
+                for sym_str in metadata[metadata[synapse.name]["paired_neuron"].name]["analytic_solver"]["state_variables"]:
+                    expr_str = metadata[metadata[synapse.name]["paired_neuron"].name]["analytic_solver"]["update_expressions"][sym_str]
+                    expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr_str)
+                    expr_ast = ModelParser.parse_expression(expr_str)
+                    expr_ast.update_scope(metadata[synapse.name]["paired_neuron"].get_scope())
+                    expr_ast.accept(ASTSymbolTableVisitor())
+                    namespace["update_expressions"][sym_str] = expr_ast
+
             namespace["propagators"] = metadata[synapse.get_name()]["analytic_solver"]["propagators"]
 
         if namespace["uses_numeric_solver"]:
@@ -654,7 +700,10 @@ class NESTCodeGenerator(CodeGenerator):
                 expr_ast = ModelParser.parse_expression(expr_str)
                 # pretend that update expressions are in "equations" block, which should always be present,
                 # as differential equations must have been defined to get here
-                expr_ast.update_scope(synapse.get_equations_blocks()[0].get_scope())
+                if "paired_neuron" in metadata[synapse.name].keys() and metadata[synapse.name]["paired_neuron"] is not None:
+                    expr_ast.update_scope(metadata[synapse.name]["paired_neuron"].get_scope())
+                else:
+                    expr_ast.update_scope(synapse.get_equations_blocks()[0].get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["numeric_update_expressions"][sym] = expr_ast
 
@@ -667,11 +716,14 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["pre_spike_updates"] = metadata[synapse.name]["pre_spike_updates"]
 
         # special case for NEST delay variable (state or parameter)
-        self._check_delay_variable_codegen_opt(synapse)
+        # self._check_delay_variable_codegen_opt(synapse)
 
         synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
+
         if self.get_option("delay_variable") and synapse_name_stripped in self.get_option("delay_variable").keys():
             namespace["nest_codegen_opt_delay_variable"] = self.get_option("delay_variable")[synapse_name_stripped]
+        else:
+            namespace["nest_codegen_opt_delay_variable"] = ""
 
         # special case for NEST weight variable (state or parameter)
         if synapse_name_stripped in self.get_option("weight_variable").keys() and ASTUtils.get_variable_by_name(synapse, self.get_option("weight_variable")[synapse_name_stripped]):
@@ -691,7 +743,6 @@ class NESTCodeGenerator(CodeGenerator):
         """
         namespace = self._get_model_namespace(neuron, metadata)
         if metadata is not None and neuron.name in metadata.keys() and "paired_synapses" in metadata[neuron.name].keys() and metadata[neuron.name]["paired_synapses"]:
-
             if "state_vars_that_need_continuous_buffering" in metadata[neuron.name].keys():
                 assert self.get_option("continuous_state_buffering_method") in ["continuous_time_buffer", "post_spike_based"]
                 namespace["neuron_state_vars_that_need_continuous_buffering"] = metadata[neuron.name]["state_vars_that_need_continuous_buffering"]
@@ -712,7 +763,6 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace["transferred_variables"] = [item for val_list in metadata[neuron.name]["transferred_variables"].values() for item in val_list]
                 namespace["transferred_variables_syms"] = {var: neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE) for var in namespace["transferred_variables"]}
             namespace["transferred_variables"] = metadata[neuron.name]["transferred_variables"]
-
         namespace["neuronName"] = neuron.get_name()
         namespace["neuron"] = neuron
         namespace["moduleName"] = FrontendConfiguration.get_module_name()
@@ -904,7 +954,6 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["gap_junction_port"] = self.get_option("gap_junctions")["gap_current_port"]
 
         return namespace
-
     def update_symbol_table(self, model) -> None:
         """
         Update symbol table and scope.

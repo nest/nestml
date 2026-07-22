@@ -77,6 +77,14 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         transformer = IllegalVariableNameTransformer({"forbidden_names": ["alignas", "alignof", "and", "and_eq", "asm", "auto", "bitand", "bitor", "bool", "break", "case", "catch", "char", "char8_t", "char16_t", "char32_t", "class", "compl", "concept", "const", "const_cast", "consteval", "constexpr", "constinit", "continue", "co_await", "co_return", "co_yield", "decltype", "default", "delete", "do", "double", "dynamic_cast", "else", "enum", "explicit", "export", "extern", "false", "float", "for", "friend", "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private", "protected", "public", "register", "reinterpret_cast", "requires", "return", "short", "signed", "sizeof", "static", "static_assert", "static_cast", "struct", "switch", "template", "this", "thread_local", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"]})
         transformers.append(transformer)
 
+    if target_name.upper() in ["PYTHON_STANDALONE"]:
+        from pynestml.transformers.illegal_variable_name_transformer import IllegalVariableNameTransformer
+
+        # rewrite all Python keywords
+        # from: ``import keyword; print(keyword.kwlist)``
+        transformer = IllegalVariableNameTransformer({"forbidden_names": ["False", "None", "True", "and", "as", "assert", "async", "await", "break", "class", "continue", "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with", "yield"]})
+        transformers.append(transformer)
+
     if target_name.upper() not in ["NEST_COMPARTMENTAL"]:
         # InlineExpressionExpansionTransformer
         from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
@@ -84,19 +92,18 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         transformers.append(transformer)
 
     if target_name.upper() in ["NEST"]:
-        from pynestml.transformers.synapse_post_neuron_transformer import SynapsePostNeuronTransformer
-
         # co-generate neuron and synapse
+        from pynestml.transformers.synapse_post_neuron_transformer import SynapsePostNeuronTransformer
         transformer = SynapsePostNeuronTransformer()
         options = transformer.set_options(options)
         transformers.append(transformer)
 
-    if target_name.upper() in ["PYTHON_STANDALONE"]:
-        from pynestml.transformers.illegal_variable_name_transformer import IllegalVariableNameTransformer
+    if target_name.upper() in ["SPINNAKER"]:
+        from pynestml.transformers.synapse_pre_post_submodels_transformer import SynapsePrePostSubmodelsTransformer
 
-        # rewrite all Python keywords
-        # from: ``import keyword; print(keyword.kwlist)``
-        transformer = IllegalVariableNameTransformer({"forbidden_names": ["False", "None", "True", "and", "as", "assert", "async", "await", "break", "class", "continue", "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with", "yield"]})
+        # extract pre- and postsynaptic components of synapse model into separate sub-models
+        transformer = SynapsePrePostSubmodelsTransformer()
+        options = transformer.set_options(options)
         transformers.append(transformer)
 
     if target_name.upper() not in ["NEST_COMPARTMENTAL"]:
@@ -131,6 +138,7 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
     """Static factory method that returns a new instance of a child class of CodeGenerator"""
     assert target_name.upper() in get_known_targets(
     ), "Unknown target platform requested: \"" + str(target_name) + "\""
+
 
     if target_name.upper() == "NEST":
         from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
@@ -532,6 +540,7 @@ def get_parsed_models() -> List[ASTModel]:
     if not type(nestml_files) is list:
         nestml_files = [nestml_files]
 
+
     for nestml_file in nestml_files:
         parsed_unit = ModelParser.parse_file(nestml_file)
         if parsed_unit:
@@ -555,6 +564,7 @@ def transform_models(transformers: Sequence[Transformer],
 
     for transformer in transformers:
         models = transformer.transform(models, metadata)
+        assert None not in models
 
     return models, metadata
 
