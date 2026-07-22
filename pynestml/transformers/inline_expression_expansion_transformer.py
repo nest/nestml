@@ -23,8 +23,6 @@ from __future__ import annotations
 
 from typing import Any, Dict, Iterable, List, Optional, Mapping, Sequence
 
-from pynestml.meta_model.ast_model import ASTModel
-
 try:
     # Available in the standard library starting with Python 3.12
     from typing import override
@@ -36,7 +34,6 @@ import re
 
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_model import ASTModel
-from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.transformers.transformer import Transformer
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor

@@ -31,7 +31,6 @@ except ImportError:
     from typing_extensions import override
 
 from pynestml.meta_model.ast_model import ASTModel
-from pynestml.meta_model.ast_node import ASTNode
 from pynestml.transformers.transformer import Transformer
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel

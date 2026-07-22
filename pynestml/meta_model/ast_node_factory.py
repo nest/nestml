@@ -100,16 +100,13 @@ class ASTNodeFactory:
         return ASTBitOperator(is_bit_and, is_bit_xor, is_bit_or, is_bit_shift_left, is_bit_shift_right, source_position=source_position)
 
     @classmethod
-    def create_ast_stmts_body(cls, stmts, source_position=None):
-        # type: (list(ASTSmallStmt|ASTCompoundStmt),ASTSourceLocation) -> ASTStmtsBody
+    def create_ast_stmts_body(cls, stmts: List[Union[ASTSmallStmt, ASTCompoundStmt]], source_position: Optional[ASTSourceLocation] = None) -> ASTStmtsBody:
         return ASTStmtsBody(stmts, source_position=source_position)
 
     @classmethod
-    def create_ast_block_with_variables(cls, is_state=False, is_parameters=False, is_internals=False,
-                                        declarations=None, source_position=None):
-        # type: (bool,bool,bool,bool,list(ASTDeclaration),ASTSourceLocation) -> ASTBlockWithVariables
-        return ASTBlockWithVariables(is_state, is_parameters, is_internals, declarations,
-                                     source_position=source_position)
+    def create_ast_block_with_variables(cls, is_state: bool = False, is_parameters: bool = False, is_internals: bool = False,
+                                        declarations: Optional[List[ASTDeclaration]] = None, source_position: Optional[ASTSourceLocation] = None) -> ASTBlockWithVariables:
+        return ASTBlockWithVariables(is_state, is_parameters, is_internals, declarations, source_position=source_position)
 
     @classmethod
     def create_ast_namespace_decorator(cls, namespace=None, name=None, source_position=None):

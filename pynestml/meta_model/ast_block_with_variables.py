@@ -19,76 +19,51 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import List
+from __future__ import annotations
+
+from typing import List, Optional
 
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_node import ASTNode
 
 
 class ASTBlockWithVariables(ASTNode):
-    """
-    This class is used to store a block of variable declarations.
-    ast_block_with_variables.py represent a block with variables, e.g.:
-        state:
-            y0, y1, y2, y3 mV [y1 > 0; y2 > 0]
-
-    attribute state: true if the varblock is a state.
-    attribute parameter: true if the varblock is a parameter.
-    attribute internal: true if the varblock is a state internal.
-    Grammar:
-         blockWithVariables:
-            blockType=("state"|"parameters"|"internals")
-            BLOCK_OPEN
-              (declaration | NEWLINE)*
-            BLOCK_CLOSE;
-    Attributes:
-        is_state = False
-        is_parameters = False
-        is_internals = False
-        declarations = None
+    r"""
+    This class is used to store a block of variable declarations, for example, the state, parameters and internals blocks.
     """
 
-    def __init__(self, is_state=False, is_parameters=False, is_internals=False,
-                 declarations=None, *args, **kwargs):
+    def __init__(self, is_state: bool = False, is_parameters: bool = False, is_internals: bool = False, declarations: Optional[List[ASTDeclaration]] = None, *args, **kwargs):
         """
         Standard constructor.
 
         Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
 
         :param is_state: is a state block.
-        :type is_state: bool
         :param is_parameters: is a parameter block.
-        :type is_parameters: bool
         :param is_internals: is an internals block.
-        :type is_internals: bool
         :param declarations: a list of declarations.
-        :type declarations: List[ASTDeclaration]
         """
         super(ASTBlockWithVariables, self).__init__(*args, **kwargs)
-        assert (is_internals or is_parameters or is_state), \
-            "(PyNESTML.AST.BlockWithVariables) Type of variable block specified!"
-        assert ((is_internals + is_parameters + is_state) == 1), \
-            "(PyNestML.AST.BlockWithVariables) Type of block ambiguous!"
-        assert (declarations is None or isinstance(declarations, list)), \
-            "(PyNESTML.AST.BlockWithVariables) Wrong type of declaration provided (%s)!" % type(declarations)
+
+        assert (is_internals or is_parameters or is_state), "Type of variable block not specified!"
+        assert ((is_internals + is_parameters + is_state) == 1), "Type of block ambiguous!"
+
         if declarations is None:
             self.declarations = []
         else:
             self.declarations = declarations
+
         self.is_internals = is_internals
         self.is_parameters = is_parameters
         self.is_state = is_state
 
-    def clone(self):
+    def clone(self) -> ASTBlockWithVariables:
         """
         Return a clone ("deep copy") of this node.
 
         :return: new AST node instance
-        :rtype: ASTBlockWithVariables
         """
-        declarations_dup = None
-        if self.declarations:
-            declarations_dup = [decl.clone() for decl in self.declarations]
+        declarations_dup = [decl.clone() for decl in self.declarations]
         dup = ASTBlockWithVariables(declarations=declarations_dup,
                                     is_internals=self.is_internals,
                                     is_parameters=self.is_parameters,

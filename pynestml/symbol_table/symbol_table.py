@@ -19,21 +19,17 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Mapping
+from typing import Dict
 
 from pynestml.symbol_table.scope import Scope, ScopeType
 
 
 class SymbolTable:
-    """
+    r"""
     This class is used to store a single symbol table, consisting of scope and symbols.
-
-    Attributes:
-        name2model_scope A dict from the name of a model to the corresponding scope. Type str->Scope
-        source_position The source position of the overall compilation unit. Type ASTSourceLocation
     """
-    name2model_scope = {}   # type: Mapping[str, Scope]
-    source_location = None
+    name2model_scope: Dict[str, Scope] = {}    # A dict from the name of a model to the corresponding scope.
+    source_location = None    # The source position of the overall compilation unit.
 
     @classmethod
     def initialize_symbol_table(cls, source_position):
@@ -44,10 +40,9 @@ class SymbolTable:
         cls.name2model_scope = {}
 
     @classmethod
-    def add_model_scope(cls, name, scope):
+    def add_model_scope(cls, name, scope) -> None:
         """
         Adds a single model scope to the set of stored scopes.
-        :return: a single scope element.
         """
         assert isinstance(scope, Scope), \
             "(PyNestML.SymbolTable.SymbolTable) No or wrong type of scope provided (%s)!" % type(scope)
@@ -55,19 +50,18 @@ class SymbolTable:
             "(PyNestML.SymbolTable.SymbolTable) Only global scopes can be added!"
         assert isinstance(name, str), \
             "(PyNestML.SymbolTable.SymbolTable) No or wrong type of name provided (%s)!" % type(name)
+
         if name not in cls.name2model_scope.keys():
             cls.name2model_scope[name] = scope
 
     @classmethod
-    def delete_model_scope(cls, name):
+    def delete_model_scope(cls, name: str) -> None:
         """
         Deletes a single model scope from the set of stored scopes.
-        :return: the name of the scope to delete.
-        :rtype: Scope
+        :param name: the name of the scope to delete.
         """
         if name in cls.name2model_scope.keys():
             del cls.name2model_scope[name]
-        return
 
     @classmethod
     def clean_up_table(cls):
