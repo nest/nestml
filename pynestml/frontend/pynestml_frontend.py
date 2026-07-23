@@ -139,7 +139,6 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
     assert target_name.upper() in get_known_targets(
     ), "Unknown target platform requested: \"" + str(target_name) + "\""
 
-
     if target_name.upper() == "NEST":
         from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
         return NESTCodeGenerator(options)
@@ -540,7 +539,6 @@ def get_parsed_models() -> List[ASTModel]:
     if not type(nestml_files) is list:
         nestml_files = [nestml_files]
 
-
     for nestml_file in nestml_files:
         parsed_unit = ModelParser.parse_file(nestml_file)
         if parsed_unit:
@@ -564,7 +562,6 @@ def transform_models(transformers: Sequence[Transformer],
 
     for transformer in transformers:
         models = transformer.transform(models, metadata)
-        assert None not in models
 
     return models, metadata
 

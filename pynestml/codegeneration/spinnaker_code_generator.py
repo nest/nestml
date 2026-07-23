@@ -79,8 +79,7 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
                                                                     with_vector_parameter=True)
         else:
             # for synapse
-            self._nest_variable_printer = SpinnakerSynapseCVariablePrinter(expression_printer=None, with_origin=True,
-                                                                    with_vector_parameter=True)
+            self._nest_variable_printer = SpinnakerSynapseCVariablePrinter(expression_printer=None, with_origin=True, with_vector_parameter=True)
         self._nest_function_call_printer = SpinnakerCFunctionCallPrinter(None)
         self._nest_function_call_printer_no_origin = SpinnakerCFunctionCallPrinter(None)
 
@@ -121,8 +120,8 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         self._gsl_function_call_printer_no_origin = SpinnakerGSLFunctionCallPrinter(None)
         self._gsl_variable_printer_no_origin = GSLVariablePrinter(None, with_origin=False)
         self._gsl_printer_no_origin = CppExpressionPrinter(simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer_no_origin,
-                                                                                                                constant_printer=self._constant_printer,
-                                                                                                                function_call_printer=self._gsl_function_call_printer))
+                                                                                                              constant_printer=self._constant_printer,
+                                                                                                              function_call_printer=self._gsl_function_call_printer))
         self._gsl_variable_printer_no_origin._expression_printer = self._gsl_printer_no_origin
         self._gsl_function_call_printer_no_origin._expression_printer = self._gsl_printer_no_origin
 
@@ -159,8 +158,6 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
 
     def _get_synapse_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
         namespace = super()._get_synapse_model_namespace(astnode, metadata)
-        # namespace["header_printer"] = self._header_printer
-        # namespace["history_printer"] = self._history_printer
         namespace["pre_header"] = metadata[astnode.name]["pre_header"]
         if "post_header" in metadata[astnode.name].keys():
             namespace["post_header"] = metadata[astnode.name]["post_header"]
@@ -171,7 +168,7 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         namespace = super()._get_neuron_model_namespace(astnode, metadata)
         if self.option_exists("neuron_synapse_pairs") and len(self.get_option("neuron_synapse_pairs")) > 0:
             assert len(self.get_option("neuron_synapse_pairs")) == 1, "only one neuron/synapse pair supported for now"
-            namespace["spinnaker_paired_synapse"] = True # self.option_exists("neuron_synapse_pairs") and len(self.get_option("neuron_synapse_pairs")) > 0   # set this to a value to trigger the right code path in the makefile
+            namespace["spinnaker_paired_synapse"] = True
             namespace["paired_synapse_original_model_name"] = list(self.get_option("neuron_synapse_pairs")[0]["synapses"].keys())[0] + FrontendConfiguration.suffix
 
         for k, v in metadata.items():

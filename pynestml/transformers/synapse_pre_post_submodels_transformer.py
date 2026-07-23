@@ -248,7 +248,6 @@ class SynapsePrePostSubmodelsTransformer(Transformer):
                         for stmt in collected_on_receive_stmts:
                             stmts.pop(stmts.index(stmt))
 
-
         metadata[header_for_synapse.name]["extra_on_emit_spike_stmts_from_synapse"] = collected_on_receive_stmts
 
         block = ASTNodeFactory.create_ast_stmts_body(stmts=collected_on_receive_stmts)
