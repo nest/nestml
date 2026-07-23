@@ -21,6 +21,8 @@
 
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
+from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
+
 try:
     # Available in the standard library starting with Python 3.12
     from typing import override
@@ -495,6 +497,8 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["utils"] = ASTUtils
         namespace["nest_codegen_utils"] = NESTCodeGeneratorUtils
         namespace["declarations"] = NestDeclarationsHelper(self._type_symbol_printer)
+        namespace["IntegerTypeSymbol"] = IntegerTypeSymbol
+        namespace["isinstance"] = isinstance
 
         # the model itself
         namespace["astnode"] = astnode
@@ -875,7 +879,7 @@ class NESTCodeGenerator(CodeGenerator):
                 for var in decl.get_variables():
                     sym = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
 
-                    if isinstance(sym.get_type_symbol(), (UnitTypeSymbol, RealTypeSymbol)) \
+                    if isinstance(sym.get_type_symbol(), (UnitTypeSymbol, RealTypeSymbol, IntegerTypeSymbol)) \
                        and not ASTUtils.is_delta_kernel(neuron.get_kernel_by_name(sym.name)) \
                        and sym.is_recordable:
                         namespace["recordable_state_variables"].append(var)
@@ -890,7 +894,7 @@ class NESTCodeGenerator(CodeGenerator):
                         namespace["parameter_vars_with_iv"].append(var)
 
         namespace["recordable_inline_expressions"] = [sym for sym in neuron.get_inline_expression_symbols()
-                                                      if isinstance(sym.get_type_symbol(), (UnitTypeSymbol, RealTypeSymbol))
+                                                      if isinstance(sym.get_type_symbol(), (UnitTypeSymbol, RealTypeSymbol, IntegerTypeSymbol))
                                                       and sym.is_recordable]
 
         namespace["use_gap_junctions"] = self.get_option("gap_junctions")["enable"]

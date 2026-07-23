@@ -74,7 +74,7 @@ parser grammar PyNestMLParser;
   expression : leftParentheses=LEFT_PAREN term=expression rightParentheses=RIGHT_PAREN
                | <assoc=right> left=expression powOp=STAR_STAR right=expression
                | unaryOperator term=expression
-               | left=expression (timesOp=STAR | divOp=FORWARD_SLASH | moduloOp=PERCENT) right=expression
+               | left=expression (timesOp=STAR | divOp=(FORWARD_SLASH | DOUBLE_FORWARD_SLASH) | moduloOp=PERCENT) right=expression
                | left=expression (plusOp=PLUS | minusOp=MINUS) right=expression
                | left=expression bitOperator right=expression
                | left=expression comparisonOperator right=expression
@@ -167,7 +167,7 @@ parser grammar PyNestMLParser;
                  | compoundSum=PLUS_EQUALS
                  | compoundMinus=MINUS_EQUALS
                  | compoundProduct=STAR_EQUALS
-                 | compoundQuotient=FORWARD_SLASH_EQUALS)
+                 | compoundQuotient=(FORWARD_SLASH_EQUALS | DOUBLE_FORWARD_SLASH_EQUALS))
                expression;
 
   /**

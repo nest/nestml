@@ -34,37 +34,7 @@ from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 
 class ASTExpression(ASTExpressionNode):
     """
-    ASTExpr, i.e., several subexpressions combined by one or more operators, e.g., 10mV + V_m - (V_reset * 2)/ms ....
-    or a simple rhs, e.g. 10mV.
-    Grammar:
-      rhs : leftParentheses="(" rhs rightParentheses=")"
-             | <assoc=right> base=rhs powOp="**" exponent=rhs
-             | unaryOperator term=rhs
-             | left=rhs (timesOp="*" | divOp="/" | moduloOp="%") right=rhs
-             | left=rhs (plusOp="+"  | minusOp="-") right=rhs
-             | left=rhs bitOperator right=rhs
-             | left=rhs comparisonOperator right=rhs
-             | logicalNot="not" rhs
-             | left=rhs logicalOperator right=rhs
-             | condition=rhs "?" ifTrue=rhs ":" ifNot=rhs
-             | simpleExpression
-             ;
-    Attributes:
-        # encapsulated or with unary operator or with a logical not or just a simple rhs.
-        is_encapsulated = False
-        is_logical_not = False
-        unary_operator = None
-        expression = None
-        # lhs and rhs combined by an operator
-        lhs = None
-        binary_operator = None
-        rhs = None
-        # ternary operator
-        condition = None
-        if_true = None
-        if_not = None
-        # simple rhs
-        simple_expression = None
+    Meta model class corresponding to ASTExpression grammar rule.
     """
 
     def __init__(self, is_encapsulated: bool = False, unary_operator: Optional[ASTUnaryOperator] = None,

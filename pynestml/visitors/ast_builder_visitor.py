@@ -390,19 +390,25 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#assignment.
     def visitAssignment(self, ctx):
+        from pynestml.generated.PyNestMLLexer import PyNestMLLexer
+
         lhs = self.visit(ctx.lhs_variable) if ctx.lhs_variable is not None else None
         is_direct_assignment = True if ctx.directAssignment is not None else False
         is_compound_sum = True if ctx.compoundSum is not None else False
         is_compound_minus = True if ctx.compoundMinus is not None else False
         is_compound_product = True if ctx.compoundProduct is not None else False
-        is_compound_quotient = True if ctx.compoundQuotient is not None else False
+        is_compound_integer_quotient = True if ctx.compoundQuotient is not None and ctx.compoundQuotient.type == PyNestMLLexer.DOUBLE_FORWARD_SLASH_EQUALS else False
+        is_compound_quotient = True if ctx.compoundQuotient is not None and ctx.compoundQuotient.type == PyNestMLLexer.FORWARD_SLASH_EQUALS else False
         expression = self.visit(ctx.expression()) if ctx.expression() is not None else None
-        node = ASTNodeFactory.create_ast_assignment(lhs=lhs, is_direct_assignment=is_direct_assignment,
+        node = ASTNodeFactory.create_ast_assignment(lhs=lhs,
+                                                    is_direct_assignment=is_direct_assignment,
                                                     is_compound_sum=is_compound_sum,
                                                     is_compound_minus=is_compound_minus,
                                                     is_compound_product=is_compound_product,
+                                                    is_compound_integer_quotient=is_compound_integer_quotient,
                                                     is_compound_quotient=is_compound_quotient,
-                                                    expression=expression, source_position=create_source_pos(ctx))
+                                                    expression=expression,
+                                                    source_position=create_source_pos(ctx))
         update_node_comments(node, self.__comments.visit(ctx))
         return node
 
