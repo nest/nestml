@@ -69,6 +69,8 @@ class CppPrinter(ModelPrinter):
         ret += " "
         if node.is_compound_quotient:
             ret += "/="
+        elif node.is_compound_integer_quotient:
+            return self._expression_printer.print(node.lhs) + " = (int)(" + self._expression_printer.print(node.lhs) + " / " + self.print(node.rhs) + ")"
         elif node.is_compound_product:
             ret += "*="
         elif node.is_compound_minus:

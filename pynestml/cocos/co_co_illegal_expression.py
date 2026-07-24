@@ -139,7 +139,7 @@ class CorrectExpressionVisitor(ASTVisitor):
                 return
             return
 
-        if node.is_compound_quotient:
+        if node.is_compound_integer_quotient or node.is_compound_quotient:
             if self.__types_do_not_match(lhs_type_symbol, lhs_type_symbol / rhs_type_symbol):
                 TypeCaster.try_to_recover_or_error(lhs_type_symbol, lhs_type_symbol / rhs_type_symbol,
                                                    node.get_expression())
