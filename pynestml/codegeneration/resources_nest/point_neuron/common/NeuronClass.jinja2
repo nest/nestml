@@ -124,7 +124,8 @@ template <> void RecordablesMap<{{ neuronName }}>::create()
     // add state variables to recordables map
 {%-     if has_state_vectors %}
 {%-         for variable in recordable_state_variables %}
-{%-             if not variable.has_vector_parameter() %}
+{%-             set variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
+{%-             if not variable.has_vector_parameter() and not isinstance(variable_symbol.get_type_symbol(), IntegerTypeSymbol) %}
     insert("{{variable.get_complete_name()}}", host.get_data_access_functor( {{ neuronName }}::State_::{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable.get_complete_name())).upper() }} ));
 {%-             endif %}
 {%-         endfor %}
