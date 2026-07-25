@@ -21,7 +21,8 @@
 
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
-
+from pynestml.utils.logger import Logger
+from pynestml.utils.logger import LoggingLevel
 
 class SpiNNakerCppExpressionPrinter(CppExpressionPrinter):
     r"""
