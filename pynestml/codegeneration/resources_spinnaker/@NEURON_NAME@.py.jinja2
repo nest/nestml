@@ -29,78 +29,73 @@ from spynnaker.pyNN.data.spynnaker_data_view import SpynnakerDataView
 from python_models8.neuron.implementations.{{neuronName}}_impl import {{neuronName}}Impl
 
 
-class {{neuronName}}(AbstractPyNNNeuronModel):
+class {{ neuronName }}(AbstractPyNNNeuronModel):
 
     @default_parameters({
 {%- for sym in neuron.get_parameter_symbols() %}
-        "{{sym.get_symbol_name()}}", \
+        "{{ sym.get_symbol_name() }}", \
 {%- endfor %}
     })
     def __init__(self,
-# TODO: Initial values of input ports incorrect
-# XXX: need to print default values here?
-
-{%- filter indent(16) %}
+                 # state variables
 {%- for variable_symbol in neuron.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     include "directives_py/ConstructorParameterWithDefault.jinja2"%}
+                 {{ printer.print(variable) }} = {{ numeric_initial_state_values[variable_symbol.name] }},    # type: {{variable_symbol.get_type_symbol().print_symbol()}}
 {%- endfor %}
-{%- endfilter %}
 
-{%- filter indent(16) %}
+                 # parameters
 {%- for variable_symbol in neuron.get_parameter_symbols() %}
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     include "directives_py/ConstructorParameterWithDefault.jinja2"%}
+                 {{ printer.print(variable) }} = {{ numeric_parameter_values[variable_symbol.name] }},    # type: {{variable_symbol.get_type_symbol().print_symbol()}}
 {%- endfor %}
 
+                 # spike input ports
 {%- for variable_symbol in neuron.get_spike_input_ports() %}
-{%-   if variable_symbol.get_initial_value() == None %}
-{{variable_symbol.get_symbol_name()}} = 0.0,
-{%-   else %}
-{{variable_symbol.get_symbol_name()}} = {{variable_symbol.get_initial_value()}} ,
-{%-   endif %}
+{%-     if variable_symbol.get_initial_value() == None %}
+                 {{ variable_symbol.get_symbol_name() }} = 0.0,
+{%-     else %}
+                 {{ variable_symbol.get_symbol_name() }} = {{ variable_symbol.get_initial_value() }},
+{%-     endif %}
 {%- endfor %}
 
+                 # continuous input ports
 {%- for variable_symbol in neuron.get_continuous_input_ports() %}
-{%-   if variable_symbol.get_initial_value() == None %}
-{{variable_symbol.get_symbol_name()}} = 0.0,
-{%-   else %}
-{{variable_symbol.get_symbol_name()}} = {{variable_symbol.get_initial_value()}} ,
-{%-   endif %}
+{%-     if variable_symbol.get_initial_value() == None %}
+                 {{ variable_symbol.get_symbol_name() }} = 0.0,
+{%-     else %}
+                 {{ variable_symbol.get_symbol_name() }} = {{ variable_symbol.get_initial_value() }},
+{%-     endif %}
 {%- endfor %}
-{%- endfilter %}
                 ):
         timestep = (SpynnakerDataView.get_simulation_time_step_ms())
 
         # compute propagators and other internal parameters
 {%- filter indent(8) %}
-{%- for variable_symbol in neuron.get_internal_symbols() %}
-{%-   set variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-   include "directives_py/MemberInitialization.jinja2" %}
-{%- endfor %}
+{%-     for variable_symbol in neuron.get_internal_symbols() %}
+{%-         set variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-         include "directives_py/MemberInitialization.jinja2" %}
+{%-     endfor %}
 {%- endfilter %}
 
-        super().__init__({{neuronName}}Impl(
+        super().__init__({{ neuronName }}Impl(
                  # state:
-{%- for sym in neuron.get_state_symbols() %}
-                {{sym.get_symbol_name()}},
+{%- for sym in neuron.get_state_symbols() | sort(attribute="name") %}
+                {{ sym.get_symbol_name() }},
 {%- endfor %}
-
                  # parameters:
-{%- for sym in neuron.get_parameter_symbols() %}
-                {{sym.get_symbol_name()}},
-{%- endfor %}
-
-                 # input ports:
-{%- for sym in neuron.get_spike_input_ports() %}
-                {{sym.get_symbol_name()}},
-{%- endfor %}
-                 # continuous ports:
-{%- for sym in neuron.get_continuous_input_ports() %}
-                {{sym.get_symbol_name()}},
+{%- for sym in neuron.get_parameter_symbols() | sort(attribute="name") %}
+                {{ sym.get_symbol_name() }},
 {%- endfor %}
                  # internal variables:
-{%- for sym in neuron.get_internal_symbols() %}
-                {{sym.get_symbol_name()}},
+{%- for sym in neuron.get_internal_symbols() | sort(attribute="name") %}
+                {{ sym.get_symbol_name() }},
+{%- endfor %}
+                 # spiking input ports:
+{%- for sym in neuron.get_spike_input_ports() | sort(attribute="name") %}
+                {{ sym.get_symbol_name() }},
+{%- endfor %}
+                 # continuous input ports:
+{%- for sym in neuron.get_continuous_input_ports() | sort(attribute="name") %}
+                {{ sym.get_symbol_name() }},
 {%- endfor %}
                                            ))
