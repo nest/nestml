@@ -123,7 +123,7 @@ class {{ neuronName }}Impl(AbstractNeuronImpl):
     @overrides(AbstractNeuronImpl.binary_name)
     def binary_name(self):
         s: str = "{{ neuronName }}_impl.aplx"
-        print("The aplx file for this neuron is: " + s)
+        print("The aplx file for the neuron \"{{ neuronName }}\" is: " + s)
         return s
 
     @overrides(AbstractNeuronImpl.get_global_weight_scale)
