@@ -21,6 +21,13 @@
 
 from __future__ import annotations
 
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
+
 from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
@@ -43,12 +50,11 @@ class SpinnakerSynapseCVariablePrinter(SpinnakerCVariablePrinter):
     Variable printer for C syntax and the Spinnaker API -- for synapses
     """
 
-
+    @override
     def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:
         assert all([isinstance(s, str) for s in self._state_symbols])
 
         variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
-        # variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
 
         if symbol.is_local():
             return variable_name
@@ -65,7 +71,6 @@ class SpinnakerSynapseCVariablePrinter(SpinnakerCVariablePrinter):
             assert isinstance(model, ASTModel)
             if variable.name in [var.name for var in model.get_parameter_variables()]:
                 # this is a parameter
-                print("Printing parameter for synapse " + str(variable))
                 return SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols, for_synapse=True) % variable_name.split("__for_")[0]
         except:
             pass
@@ -74,26 +79,3 @@ class SpinnakerSynapseCVariablePrinter(SpinnakerCVariablePrinter):
             return SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols, for_synapse=True) % variable_name
 
         return variable_name
-
-
-
-    # def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:
-    #     assert all([isinstance(s, str) for s in self._state_symbols])
-
-    #     variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
-
-    #     if symbol.is_local():
-    #         return variable_name
-
-    #     if variable.is_delay_variable():
-    #         return self._print_delay_variable(variable)
-
-    #     if with_origin:
-
-    #         if "__for_" in symbol.name:
-    #             # XXX this is a terrible hack, remove!!
-    #             # make sure parameters in the synapse header are printed without suffix
-    #             return SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols, for_synapse=True) % variable_name.split("__for_")[0]
-    #         return SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols, for_synapse=True) % variable_name
-
-    #     return variable_name
