@@ -111,9 +111,7 @@ class NESTCodeGenerator(CodeGenerator):
     - **weight_variable**: Like ``delay_variable``, but for synaptic weight. (Required.)
     - **redirect_build_output**: An optional boolean key for redirecting the build output. Setting the key to ``True``, two files will be created for redirecting the ``stdout`` and the ``stderr`. The ``target_path`` will be used as the default location for creating the two files.
     - **build_output_dir**: An optional string key representing the new path where the files corresponding to the output of the build phase will be created. This key requires that the ``redirect_build_output`` is set to ``True``.
-
     """
-
 
     _default_options = {
         "neuron_parent_class": "ArchivingNode",
@@ -615,13 +613,10 @@ class NESTCodeGenerator(CodeGenerator):
 
             namespace["vt_ports"] = metadata[synapse.name]["vt_port_names"]
             namespace["pre_ports"] = metadata[synapse.name]["pre_port_names"]
-            # namespace["pre_ports"] = list(set(all_input_port_names)
-                                        #   - set(namespace["post_ports"]) - set(namespace["vt_ports"]))
         else:
             # separate (not neuron+synapse co-generated)
-            # XXX: following three lines added for the sake of spinnaker when SynapsePreNeuronTransformer does not run
+            # XXX: following three lines added for the sake of SpiNNaker when SynapsePrePostSubmodelsTransformer does not run
             assert len(self._options["neuron_synapse_pairs"]) == 1
-            #namespace["spiking_post_ports"] = self._options["neuron_synapse_pairs"][0]["post_ports"]
             orig_synapse_name = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
             assert list(self._options["neuron_synapse_pairs"][0]["synapses"].keys())[0] == orig_synapse_name
 
@@ -954,6 +949,7 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["gap_junction_port"] = self.get_option("gap_junctions")["gap_current_port"]
 
         return namespace
+
     def update_symbol_table(self, model) -> None:
         """
         Update symbol table and scope.

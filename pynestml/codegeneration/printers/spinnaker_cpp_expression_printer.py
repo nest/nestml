@@ -21,7 +21,8 @@
 
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
-
+from pynestml.utils.logger import Logger
+from pynestml.utils.logger import LoggingLevel
 
 class SpiNNakerCppExpressionPrinter(CppExpressionPrinter):
     r"""
@@ -35,7 +36,6 @@ class SpiNNakerCppExpressionPrinter(CppExpressionPrinter):
         :return: a string representation
         """
         op = node.get_binary_operator()
-
         lhs = self.print(node.get_lhs())
         rhs = self.print(node.get_rhs())
 
@@ -50,12 +50,10 @@ class SpiNNakerCppExpressionPrinter(CppExpressionPrinter):
             return lhs + " - " + rhs
 
         if op.is_times_op:
-#            return "(" + lhs + " * " + rhs + " >> 16)"
             return lhs + " * " + rhs
 
         if op.is_div_op:
-            #raise Exception("SpiNNaker does not feature an FPU so division is not implemented on this platform") i
-            print("WARNING: SpiNNaker does not feature an FPU so division is not implemented on this platform")
+            Logger.log_message(None, None, "SpiNNaker does not feature an FPU so division is not implemented on this platform", None, LoggingLevel.WARNING)
             return "_kdivk(" + lhs + ", " + rhs + ")"
 
         if op.is_modulo_op:

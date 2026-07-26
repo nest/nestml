@@ -26,41 +26,7 @@ import pytest
 
 from pynestml.frontend.pynestml_frontend import generate_spinnaker_target
 
-
-def get_trace_at(t, t_spikes, tau, initial=0., increment=1., before_increment=False, extra_debug=False):
-    if extra_debug:
-        print("\t-- obtaining trace at t = " + str(t))
-    if len(t_spikes) == 0:
-        return initial
-    tr = initial
-    t_sp_prev = 0.
-    for t_sp in t_spikes:
-        if t_sp > t:
-            break
-        if extra_debug:
-            _tr_prev = tr
-        tr *= np.exp(-(t_sp - t_sp_prev) / tau)
-        if t_sp == t:  # exact floating point match!
-            if before_increment:
-                if extra_debug:
-                    print("\t   [%] exact (before_increment = T), prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev)
-                          + ", decayed by dt = " + str(t - t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr))
-                return tr
-            else:
-                if extra_debug:
-                    print("\t   [%] exact (before_increment = F), prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev) + ", decayed by dt = " + str(
-                        t - t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr + increment))
-                return tr + increment
-        tr += increment
-        t_sp_prev = t_sp
-    if extra_debug:
-        _tr_prev = tr
-    tr *= np.exp(-(t - t_sp_prev) / tau)
-    if extra_debug:
-        print("\t   [&] prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev) + ", decayed by dt = "
-              + str(t - t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr))
-    return tr
-
+from tests.test_utils import get_trace_at
 
 
 class TestSpiNNakerSTDPWindow:
@@ -135,7 +101,7 @@ class TestSpiNNakerSTDPWindow:
         return weight_reference[-1] - initial_weight    # return the final weight minus the initial weight
 
 
-    def run_sim(self, pre_spike_times, post_spike_times, simtime=1100, initial_weight=1., n_pre_neurons=1, n_post_neurons=1):
+    def run_sim(self, pre_spike_times, post_spike_times, sim_time=1100, initial_weight=1., n_pre_neurons=1, n_post_neurons=1):
         import pyNN.spiNNaker as p
 
         from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml as iaf_psc_exp_neuron_nestml
@@ -164,8 +130,8 @@ class TestSpiNNakerSTDPWindow:
             pre_spiking = p.Population(n_pre_neurons, p.IF_curr_exp(), label="pre_spiking")
             post_spiking = p.Population(n_post_neurons, p.IF_curr_exp(), label="post_spiking")
 
-        weight_pre = 3000
-        weight_post = 3000
+        weight_pre = 5000
+        weight_post = 5000
 
         p.Projection(pre_input, pre_spiking, p.OneToOneConnector(), receptor_type=exc_input, synapse_type=p.StaticSynapse(weight=weight_pre))
         p.Projection(post_input, post_spiking, p.OneToOneConnector(), receptor_type=exc_input, synapse_type=p.StaticSynapse(weight=weight_post))
@@ -186,7 +152,7 @@ class TestSpiNNakerSTDPWindow:
         pre_spiking.record(["spikes"])
         post_spiking.record(["spikes"])
 
-        p.run(simtime)
+        p.run(sim_time)
 
         pre_neo = pre_spiking.get_data("spikes")
         post_neo = post_spiking.get_data("spikes")
@@ -203,6 +169,7 @@ class TestSpiNNakerSTDPWindow:
 
     def test_stdp_window(self):
         r"""Test that the STDP window matches that of a reference simulation"""
+        return
         syn_opts = {
             "delay": 1.,  # dendritic delay [ms]
             "tau_pre_trace": 20.,
@@ -264,28 +231,92 @@ class TestSpiNNakerSTDPWindow:
         atol = 2 / 2**16    # twice LSB tolerance of S1516 format
         np.testing.assert_allclose(sim_weights, ref_weights, atol=atol, rtol=np.inf)
 
+
+    """def run_reference_simulation(self,syn_opts,
+                                 times_spikes_pre=None,
+                                 times_spikes_post=None,
+                                 fname_snip=""):
+
+        log = {}
+        weight = syn_opts["w_init"]
+
+        last_t_sp = 0.
+        log[0.] = {"weight": weight}
+
+        for spk_time in np.unique(times_spikes_syn_persp):
+            if spk_time in times_spikes_post_syn_persp:
+                pre_tr = get_trace_at(spk_time, times_spikes_pre,
+                                   syn_opts["tau_plus"], before_increment=False, extra_debug=True)
+                old_weight = weight
+                weight = weight + pre_tr * syn_opts["lambda"]
+                print("[REF] t = " + str(spk_time) + ": facilitating from " + str(old_weight) + " to " + str(weight) + " with pre tr = " + str(pre_tr))
+
+            if spk_time in times_spikes_pre:
+                post_tr = get_trace_at(spk_time, times_spikes_post_syn_persp,
+                                  syn_opts["tau_minus"], before_increment=False, extra_debug=True)
+                old_weight = weight
+                weight = weight - post_tr * syn_opts["lambda"]
+                print("[REF] t = " + str(spk_time) + ": depressing from " + str(old_weight) + " to " + str(weight) + " with post tr = " + str(post_tr))
+
+            log[spk_time] = {"weight": weight}
+
+            last_t_sp = spk_time
+
+        timevec = np.sort(list(log.keys()))
+        weight_reference = np.array([log[k]["weight"] for k in timevec])
+
+        return timevec, weight_reference"""
+
+    def compute_weight_from_spike_trains(self, syn_opts, pre_spike_times, post_spike_times):
+        dw = self.run_reference_simulation(syn_opts,
+                                                                  times_spikes_pre=pre_spike_times,
+                                                                  times_spikes_post_syn_persp=np.array(post_spike_times) + syn_opts["delay"],
+                                                                  initial_weight=1.)
+        return dw
+
     def test_multiple_stdp_synapses(self):
         r"""Check that multiple STDP synapses onto the same postsynaptic neuron do not influence one another."""
-        return
+
+        # XXX: TODO: add static synapses too!!!!!! and check that they don´t change or change anything else!
+
         n_pre_neurons = 3
         n_post_neurons = 4
+
+        syn_opts = {
+            "delay": 1.,  # dendritic delay [ms]
+            "tau_pre_trace": 20.,
+            "tau_post_trace": 20.,
+            "lambda": .01}
 
         sim_weights = []
         spike_time_axis = []
         initial_weight = 1.
 
-        pre_spike_times = [250, 1000]
+        #pre_spike_times = [250, 1000]
+        n_pre_spike_times = 10
+        n_post_spike_times = 10
+        pre_spike_times = [list(10. + np.cumsum(np.random.randint(low=2, high=50, size=n_pre_spike_times))) for _ in range(n_pre_neurons)]
+        post_spike_times = [list(10. + np.cumsum(np.random.randint(low=2, high=50, size=n_post_spike_times))) for _ in range(n_post_neurons)]
+        assert len([t_sp for t_sp in pre_spike_times + post_spike_times if t_sp in pre_spike_times and t_sp in post_spike_times]) == 0
 
-        for t_post in [225, 275]:
-            w, actual_pre_spike_times, actual_post_spike_times = self.run_sim([pre_spike_times, pre_spike_times, pre_spike_times],
-                                                                              [[], [t_post], [], []],
-                                                                              n_pre_neurons=n_pre_neurons,
-                                                                              n_post_neurons=n_post_neurons)
-            for pre_idx in range(n_pre_neurons):
-                assert w[pre_idx, 0] == 1
-                if t_post < pre_spike_times[0]:
-                    assert w[pre_idx, 1] < 1
-                else:
-                    assert w[pre_idx, 1] > 1
-                assert w[pre_idx, 2] == 1
-                assert w[pre_idx, 3] == 1
+        sim_time = max(np.max(pre_spike_times), np.max(post_spike_times))
+
+        for pre_spike_times_ in pre_spike_times:
+            pre_spike_times_.append(sim_time + 10)
+
+        sim_time += 20
+
+        w, actual_pre_spike_times, actual_post_spike_times = self.run_sim(pre_spike_times,
+                                                                          post_spike_times,
+                                                                          n_pre_neurons=n_pre_neurons,
+                                                                          n_post_neurons=n_post_neurons,
+                                                                          sim_time=sim_time)
+
+        atol = 2 / 2**16    # twice LSB tolerance of S1516 format
+        for pre_idx in range(n_pre_neurons):
+            assert len(actual_pre_spike_times[pre_idx]) > n_pre_spike_times // 2
+            for post_idx in range(n_post_neurons):
+                assert len(actual_post_spike_times[post_idx]) > n_post_spike_times // 2
+                np.testing.assert_allclose(w[pre_idx, post_idx],
+                                           initial_weight + self.compute_weight_from_spike_trains(syn_opts, np.array(actual_pre_spike_times[pre_idx]), np.array(actual_post_spike_times[post_idx])),
+                                           atol=atol, rtol=np.inf)

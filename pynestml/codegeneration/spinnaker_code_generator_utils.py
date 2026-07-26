@@ -41,7 +41,7 @@ class SPINNAKERCodeGeneratorUtils:
     def _print_symbol_origin_for_neuron(cls, variable_symbol: VariableSymbol, numerical_state_symbols=None) -> str:
         if variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
             if numerical_state_symbols and variable_symbol.get_symbol_name() in numerical_state_symbols:
-                return 'state.S_.ode_state[State_::%s]'
+                return "state.S_.ode_state[State_::%s]"
 
             return "state->%s"
 
@@ -55,40 +55,31 @@ class SPINNAKERCodeGeneratorUtils:
             return "parameter->%s"
 
         if variable_symbol.block_type == BlockType.INPUT:
-            return 'input->%s'
+            return "input->%s"
 
-        return ''
+        return ""
 
     @classmethod
     def _print_symbol_origin_for_synapse(cls, variable_symbol: VariableSymbol, numerical_state_symbols=None) -> str:
 
         if variable_symbol.name == "__h" or variable_symbol.name.startswith("__P"):
             # these are just local temporaries
-            return '%s'
+            return "%s"
 
         if variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
-            #if numerical_state_symbols and variable_symbol.get_symbol_name() in numerical_state_symbols:
-            #    return 'state.S_.ode_state[State_::%s]'
-
-            return 'state->%s'
+            return "state->%s"
 
         if variable_symbol.block_type == BlockType.PARAMETERS:
             # parameters are global variables
-            #return '%s'
-            #return 'state.weight_region->%s'
-            return 'plasticity_weight_region_data->%s'
+            return "plasticity_weight_region_data->%s"
 
         if variable_symbol.block_type == BlockType.COMMON_PARAMETERS:
-            return 'plasticity_weight_region_data->%s'
             # parameters are global variables
-            #return 'state.weight_region->%s'
-            #return 'parameter->%s'
+            return "plasticity_weight_region_data->%s"
 
         if variable_symbol.block_type == BlockType.INTERNALS:
-            return 'plasticity_weight_region_data->%s'
             # parameters are global variables
-            #return 'state.weight_region->%s'
-            #return 'parameter->%s'
+            return "plasticity_weight_region_data->%s"
 
         if variable_symbol.block_type == BlockType.INPUT:
             return "input->%s"
