@@ -254,7 +254,7 @@ if ( BUILD_SHARED_LIBS )
     endif ()
     set_target_properties( ${MODULE_NAME}_module
         PROPERTIES
-        COMPILE_FLAGS "${NEST_CXXFLAGS} -DLTX_MODULE"
+        COMPILE_FLAGS "${NEST_CXXFLAGS} -fno-gnu-unique -DLTX_MODULE"
         LINK_FLAGS "${LINKER_FLAGS}"
         PREFIX ""
         OUTPUT_NAME ${MODULE_NAME} )
