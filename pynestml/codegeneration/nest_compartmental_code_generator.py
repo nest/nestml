@@ -19,10 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import inspect
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
-
-from pynestml.transformers.convolutions_to_buffers_transformer import ConvolutionsToBuffersTransformer
 
 try:
     # Available in the standard library starting with Python 3.12
@@ -37,6 +34,7 @@ import os
 from jinja2 import TemplateRuntimeError
 
 import odetoolbox
+from pynestml.utils.ode_toolbox_utils import ODEToolboxUtils
 
 import pynestml
 from pynestml.cocos.co_cos_manager import CoCosManager
@@ -69,9 +67,10 @@ from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.transformers.convolutions_to_buffers_transformer import ConvolutionsToBuffersTransformer
+from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
 from pynestml.utils.global_info_enricher import GlobalInfoEnricher
 from pynestml.utils.global_processing import GlobalProcessing
-from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
 from pynestml.utils.ast_vector_parameter_setter_and_printer_factory import ASTVectorParameterSetterAndPrinterFactory
 from pynestml.utils.mechanism_processing import MechanismProcessing
 from pynestml.utils.channel_processing import ChannelProcessing
@@ -140,7 +139,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         "compartmental_variable_name": "v_comp",
         "self_spikes_port": "self_spikes",
         "delay_variable": {},
-        "weight_variable": {},
+        "weight_variable": {}
     }
 
     _variable_matching_template = r"(\b)({})(\b)"
@@ -406,7 +405,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             neuron, parameters_block, kernel_buffers)
 
         extra_kws = {}
-        if "use_alternative_expM" in inspect.signature(odetoolbox.analysis).parameters.keys():
+        if ODEToolboxUtils.is_ode_toolbox_v3_or_higher(odetoolbox):
             extra_kws["disable_singularity_mitigation"] = True    # multiple conditional solvers returned from ODE-toolbox not yet supported by NESTML
         else:
             Logger.log_message(None, None, "Old version of ODE-toolbox used; consider upgrading. ``use_alternative_expM`` flags will be ignored.", None, LoggingLevel.WARNING)
@@ -462,7 +461,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             odetoolbox_indict = self.create_ode_indict(
                 neuron, parameters_block, kernel_buffers)
             extra_kws = {}
-            if "use_alternative_expM" in inspect.signature(odetoolbox.analysis).parameters.keys():
+            if ODEToolboxUtils.is_ode_toolbox_v3_or_higher(odetoolbox):
                 extra_kws["disable_singularity_mitigation"] = True    # multiple conditional solvers returned from ODE-toolbox not yet supported by NESTML
             else:
                 Logger.log_message(None, None, "Old version of ODE-toolbox used; consider upgrading. ``use_alternative_expM`` flags will be ignored.", None, LoggingLevel.WARNING)

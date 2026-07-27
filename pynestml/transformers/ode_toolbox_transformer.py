@@ -23,8 +23,6 @@ from __future__ import annotations
 
 from typing import Any, Dict, Iterable, Mapping, Optional, Set, Tuple
 
-import inspect
-
 try:
     # Available in the standard library starting with Python 3.12
     from typing import override
@@ -33,6 +31,7 @@ except ImportError:
     from typing_extensions import override
 
 import odetoolbox
+from pynestml.utils.ode_toolbox_utils import ODEToolboxUtils
 
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
@@ -116,13 +115,13 @@ class ODEToolboxTransformer(Transformer):
 
         equations_block = model.get_equations_blocks()[0]
 
-        if len(equations_block.get_kernels()) > 0 and len(equations_block.get_ode_equations()) > 0:
+        if len(equations_block.get_kernels()) + len(equations_block.get_ode_equations()) > 0:
             # if no equations defined, nothing to analyse
 
             odetoolbox_indict = self.create_ode_toolbox_indict(model, kernel_buffers)
             disable_analytic_solver = self.get_option("solver") != "analytic"
 
-            if "use_alternative_expM" in inspect.signature(odetoolbox.analysis).parameters.keys():
+            if ODEToolboxUtils.is_ode_toolbox_v3_or_higher(odetoolbox):
                 # ODE-toolbox version 3 or higher
                 solver_result = odetoolbox.analysis(odetoolbox_indict,
                                                     disable_stiffness_check=True,
@@ -154,7 +153,7 @@ class ODEToolboxTransformer(Transformer):
             if numeric_solvers:
                 if analytic_solver:
                     # previous solver_result contains both analytic and numeric solver; re-run ODE-toolbox generating only numeric solver
-                    if "use_alternative_expM" in inspect.signature(odetoolbox.analysis).parameters.keys():
+                    if ODEToolboxUtils.is_ode_toolbox_v3_or_higher(odetoolbox):
                         # ODE-toolbox version 3 or higher
                         solver_result = odetoolbox.analysis(odetoolbox_indict,
                                                             disable_stiffness_check=True,
