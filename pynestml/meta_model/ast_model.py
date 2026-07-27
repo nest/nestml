@@ -420,22 +420,21 @@ class ASTModel(ASTNode):
 
     def get_parameter_variables(self) -> List[ASTVariable]:
         """
-        Returns a list of all parameters.
-        :return:
+        Returns a list of all parameter variables.
+        :return: a list of all parameter variables.
         """
         ret = []
-        blocks = set(self.get_parameters_blocks())
-        if not isinstance(blocks, list):
-            blocks = [blocks]
+        blocks = self.get_parameters_blocks()
         for block in blocks:
             for decl in block.get_declarations():
                 ret.extend(decl.get_variables())
+
         return ret
 
     def get_state_variables(self) -> List[ASTVariable]:
         """
         Returns a list of all state variables.
-        :return:
+        :return: a list of all state variables.
         """
         ret = []
         for block in self.get_state_blocks():
