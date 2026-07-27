@@ -34,6 +34,7 @@ from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import LoggingLevel, Logger
+from pynestml.utils.messages import MessageCode
 from pynestml.utils.model_parser import ModelParser
 
 
@@ -123,6 +124,32 @@ class TestCoCos:
                 "CoCoCmVcompExists.nestml"))
         assert len(Logger.get_messages(
             model, LoggingLevel.ERROR)) == 0
+
+    def test_integrate_odes_ignored_in_compartmental_warning(self):
+        model = self._parse_and_validate_model(
+            os.path.join(
+                os.path.realpath(
+                    os.path.join(
+                        os.path.dirname(__file__), "resources",
+                        "valid")),
+                "CoCoIntegrateOdesIgnoredInCompartmental.nestml"))
+        assert len(Logger.get_messages(
+            model,
+            LoggingLevel.WARNING,
+            message_code=MessageCode.CM_INTEGRATE_ODES_IGNORED)) == 1
+
+    def test_no_integrate_odes_ignored_in_compartmental_warning_without_call(self):
+        model = self._parse_and_validate_model(
+            os.path.join(
+                os.path.realpath(
+                    os.path.join(
+                        os.path.dirname(__file__), "resources",
+                        "valid")),
+                "CoCoCmVcompExists.nestml"))
+        assert len(Logger.get_messages(
+            model,
+            LoggingLevel.WARNING,
+            message_code=MessageCode.CM_INTEGRATE_ODES_IGNORED)) == 0
 
     def _parse_and_validate_model(self, fname: str) -> Optional[str]:
         from pynestml.frontend.pynestml_frontend import generate_target

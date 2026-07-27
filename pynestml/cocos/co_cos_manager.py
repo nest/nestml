@@ -36,6 +36,7 @@ from pynestml.cocos.co_co_function_argument_template_types_consistent import CoC
 from pynestml.cocos.co_co_function_calls_consistent import CoCoFunctionCallsConsistent
 from pynestml.cocos.co_co_function_unique import CoCoFunctionUnique
 from pynestml.cocos.co_co_illegal_expression import CoCoIllegalExpression
+from pynestml.cocos.co_co_integrate_odes_ignored_in_compartmental import CoCoIntegrateOdesIgnoredInCompartmental
 from pynestml.cocos.co_co_integrate_odes_params_correct import CoCoIntegrateODEsParamsCorrect
 from pynestml.cocos.co_co_inline_expressions_have_rhs import CoCoInlineExpressionsHaveRhs
 from pynestml.cocos.co_co_inline_expression_not_assigned_to import CoCoInlineExpressionNotAssignedTo
@@ -274,6 +275,13 @@ class CoCosManager:
         CoCoIntegrateOdesCalledIfEquationsDefined.check_co_co(model)
 
     @classmethod
+    def check_integrate_odes_ignored_in_compartmental(cls, model: ASTModel):
+        """
+        Warns that integrate_odes() calls are ignored for the NEST compartmental target.
+        """
+        CoCoIntegrateOdesIgnoredInCompartmental.check_co_co(model)
+
+    @classmethod
     def check_user_defined_function_correctly_built(cls, model: ASTModel):
         """
         Checks that all user defined functions are correctly constructed, i.e., have a return statement if declared
@@ -496,6 +504,8 @@ class CoCosManager:
             cls.check_resolution_func_used(model)    # ``__h = resolution()`` is added after transformations; put this check inside the ``if`` to make sure it's not always triggered
             if FrontendConfiguration.get_target_platform().upper() != "NEST_COMPARTMENTAL":
                 cls.check_integrate_odes_called_if_equations_defined(model)
+            else:
+                cls.check_integrate_odes_ignored_in_compartmental(model)
         cls.check_invariant_type_correct(model)
         cls.check_vector_in_non_vector_declaration_detected(model)
         cls.check_convolve_has_correct_parameter(model)

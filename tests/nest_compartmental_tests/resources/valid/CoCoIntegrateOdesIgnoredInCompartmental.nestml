@@ -1,0 +1,16 @@
+# CoCoIntegrateOdesIgnoredInCompartmental.nestml
+#
+# This model is used to test that integrate_odes() calls emit a warning
+# for the NEST compartmental target.
+
+model CoCoIntegrateOdesIgnoredInCompartmental:
+
+    state:
+        v_comp real = 0.0
+        x real = 1.0
+
+    equations:
+        x' = -x / ms
+
+    update:
+        integrate_odes()

@@ -153,6 +153,7 @@ class MessageCode(Enum):
     UNKNOWN_NEURON_SYNAPSE_PAIR_MODEL = 124
     CM_UNRESOLVED_FUNCTION_DEPENDENCY = 125
     CM_UNRESOLVED_VARIABLE_DEPENDENCY = 126
+    CM_INTEGRATE_ODES_IGNORED = 127
     CONVOLVE_NEEDS_BUFFER_PARAMETER = 122
 
 
@@ -1062,6 +1063,13 @@ class Messages:
     def get_integrate_odes_arg_higher_order(cls, arg: str) -> Tuple[MessageCode, str]:
         message = "Parameter provided to integrate_odes() function is a state variable of higher order: \"" + arg + "\""
         return MessageCode.INTEGRATE_ODES_ARG_HIGHER_ORDER, message
+
+    @classmethod
+    def get_integrate_odes_ignored_in_compartmental(cls) -> Tuple[MessageCode, str]:
+        message = "integrate_odes() has no effect for the NEST compartmental target; " \
+                  "ODEs are integrated implicitly. The call is accepted for model " \
+                  "compatibility and will be ignored."
+        return MessageCode.CM_INTEGRATE_ODES_IGNORED, message
 
     @classmethod
     def get_mechs_dictionary_info(cls, chan_info, recs_info, conc_info, con_in_info, syns_info, global_info) -> Tuple[MessageCode, str]:
