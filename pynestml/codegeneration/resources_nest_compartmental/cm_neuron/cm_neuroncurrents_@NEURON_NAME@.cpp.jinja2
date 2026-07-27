@@ -563,7 +563,13 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(const std::vector
 
         {%- for convolution, convolution_info in channel_info["convolutions"].items() %}
       {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
-      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i", non_vec_vars) }};
+      const {{ cm_scalar_t }} old_{{state_variable_name}} = {{state_variable_name}}[i];
+      {%- endfor %}
+      {%- endfor %}
+
+        {%- for convolution, convolution_info in channel_info["convolutions"].items() %}
+      {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
+      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["simultaneous_update_expression"], "i", non_vec_vars) }};
       {{state_variable_name}}[i] += self_spikes * {{ vector_printer.print(state_variable_info["init_expression"], "i", non_vec_vars) }};
       {%- endfor %}
       {%- endfor %}
@@ -1024,7 +1030,13 @@ void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(const std::ve
 
         {%- for convolution, convolution_info in concentration_info["convolutions"].items() %}
       {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
-      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i", non_vec_vars) }};
+      const {{ cm_scalar_t }} old_{{state_variable_name}} = {{state_variable_name}}[i];
+      {%- endfor %}
+      {%- endfor %}
+
+        {%- for convolution, convolution_info in concentration_info["convolutions"].items() %}
+      {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
+      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["simultaneous_update_expression"], "i", non_vec_vars) }};
       {{state_variable_name}}[i] += self_spikes * {{ vector_printer.print(state_variable_info["init_expression"], "i", non_vec_vars) }};
       {%- endfor %}
       {%- endfor %}
@@ -1344,11 +1356,6 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::f_numstep(const std::vector< {
 
     double self_spikes = *self_spikes_p;
 
-  for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
-      // get spikes
-      s_val[i] = {{receptor_info["buffer_name"]}}_[i]->get_value( lag );
-  }
-
     {%- for function in receptor_info["Functions"] %}
     {{render_lambda(function, printer_no_origin)}}
     {%- endfor %}
@@ -1440,7 +1447,20 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::f_numstep(const std::vector< {
       // update kernel state variable / compute recaptic conductance
       {%- for convolution, convolution_info in receptor_info["convolutions"].items() %}
       {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
-      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i", non_vec_vars) }};
+      const {{ cm_scalar_t }} old_{{state_variable_name}} = {{state_variable_name}}[i];
+      {%- endfor %}
+      {%- endfor %}
+
+      {%- for convolution, convolution_info in receptor_info["convolutions"].items() %}
+      {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
+      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["simultaneous_update_expression"], "i", non_vec_vars) }};
+      {%- endfor %}
+      {%- endfor %}
+
+      // apply spike-triggered kernel state jumps
+      s_val[i] = {{receptor_info["buffer_name"]}}_[i]->get_value( lag );
+      {%- for convolution, convolution_info in receptor_info["convolutions"].items() %}
+      {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
           {%- if convolution_info["spikes"]["name"] == self_spikes_name %}
       {{state_variable_name}}[i] += self_spikes * {{ vector_printer.print(state_variable_info["init_expression"], "i", non_vec_vars) }};
           {%- else %}
@@ -1938,33 +1958,18 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep
 
     double self_spikes = *self_spikes_p;
 
-    for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
-      // get spikes
-      s_val[i] = {{receptor_info["buffer_name"]}}_[i]->get_value( lag );
-    }
-        //synaptic processing:
-        //presynaptic spike processing
-  #pragma omp simd
-  for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
-      if(s_val[i]!=0) {
-            {%- set function = synapse_info["PreSpikeFunction"] %}
-            {%-   filter indent(2,True) %}
-            {%-   with ast = function.get_stmts_body() %}
-                {%- set printer = vector_printer.printer(black_list = non_vec_vars) %}
-            {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
-            {%-   endwith %}
-            {%-   endfilter %}
-      }
-  }
-    //presynaptic spike processing end
         //continuous synaptic processing
     #pragma omp simd
     for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
         //inlines and convolutions
     {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
       {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
-      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i", non_vec_vars) }};
-      {{state_variable_name}}[i] += {%- if convolution_info["post_port"] %}self_spikes{%- else %}s_val[i]{%- endif %} * {{ vector_printer.print(state_variable_info["init_expression"], "i", non_vec_vars) }};
+      const {{ cm_scalar_t }} old_{{state_variable_name}} = {{state_variable_name}}[i];
+      {%- endfor %}
+    {%- endfor %}
+    {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
+      {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
+      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["simultaneous_update_expression"], "i", non_vec_vars) }};
       {%- endfor %}
     {%- endfor %}
     {%- for inline, inline_info in synapse_info["Inlines"].items() %}
@@ -1998,11 +2003,27 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep
       {%- endfor %}
     }
 
-    #pragma omp simd
-    for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
-        // receive (potentially) delayed spikes
-        s_val[i] = delayed_spikes[i].tick();
-    }
+        //synaptic processing:
+        //presynaptic spike processing
+  #pragma omp simd
+  for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
+      s_val[i] = {{receptor_info["buffer_name"]}}_[i]->get_value( lag );
+      if(s_val[i]!=0) {
+            {%- set function = synapse_info["PreSpikeFunction"] %}
+            {%-   filter indent(2,True) %}
+            {%-   with ast = function.get_stmts_body() %}
+                {%- set printer = vector_printer.printer(black_list = non_vec_vars) %}
+            {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
+            {%-   endwith %}
+            {%-   endfilter %}
+      }
+    {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
+      {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
+      {{state_variable_name}}[i] += {%- if convolution_info["post_port"] %}self_spikes{%- else %}s_val[i]{%- endif %} * {{ vector_printer.print(state_variable_info["init_expression"], "i", non_vec_vars) }};
+      {%- endfor %}
+    {%- endfor %}
+  }
+    //presynaptic spike processing end
 
     {% if receptor_info["ODEs"].items()|length %}
   {{ cm_scalar_t }} {{ printer_no_origin.print(receptor_info["analytic_helpers"]["__h"]["ASTVariable"]) }} = Time::get_resolution().get_ms();
@@ -2099,7 +2120,20 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep
       // update kernel state variable / compute synaptic conductance
       {%- for convolution, convolution_info in receptor_info["convolutions"].items() %}
       {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
-      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i", non_vec_vars) }};
+      const {{ cm_scalar_t }} old_{{state_variable_name}} = {{state_variable_name}}[i];
+      {%- endfor %}
+      {%- endfor %}
+
+      {%- for convolution, convolution_info in receptor_info["convolutions"].items() %}
+      {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
+      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["simultaneous_update_expression"], "i", non_vec_vars) }};
+      {%- endfor %}
+      {%- endfor %}
+
+      // apply spike-triggered kernel state jumps
+      s_val[i] = delayed_spikes[i].tick();
+      {%- for convolution, convolution_info in receptor_info["convolutions"].items() %}
+      {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
           {%- if convolution_info["spikes"]["name"] == self_spikes_name %}
       {{state_variable_name}}[i] += self_spikes[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i", non_vec_vars) }};
           {%- else %}
@@ -2539,11 +2573,17 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::f_numstep(const std::vector<
         {%- set rhs_expression = variable_info.expression %}
         {{ variable }}[i] = {{ vector_printer.print(rhs_expression, "i", non_vec_vars) }};
         {%- endif %}
-        {%- endfor %}
+      {%- endfor %}
 
       {%- for convolution, convolution_info in continuous_info["convolutions"].items() %}
       {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
-      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i", non_vec_vars) }};
+      const {{ cm_scalar_t }} old_{{state_variable_name}} = {{state_variable_name}}[i];
+      {%- endfor %}
+      {%- endfor %}
+
+      {%- for convolution, convolution_info in continuous_info["convolutions"].items() %}
+      {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
+      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["simultaneous_update_expression"], "i", non_vec_vars) }};
       {{state_variable_name}}[i] += self_spikes * {{ vector_printer.print(state_variable_info["init_expression"], "i", non_vec_vars) }};
       {%- endfor %}
       {%- endfor %}

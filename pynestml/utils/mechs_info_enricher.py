@@ -41,6 +41,7 @@ from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.symbol_table.symbol_table import SymbolTable
@@ -110,6 +111,7 @@ class MechsInfoEnricher:
 
         mechs_info = cls.transform_ode_solutions(neuron, mechs_info)
         mechs_info = cls.transform_convolutions_analytic_solutions_general(neuron, mechs_info)
+        mechs_info = cls.create_convolution_simultaneous_update_expressions(neuron, mechs_info)
         mechs_info = cls.enrich_mechanism_specific(neuron, mechs_info)
         mechs_info = cls.create_non_vec_variables(mechs_info)
         mechs_info = cls.global_common_subexpression_elimination(neuron, mechs_info)
@@ -348,6 +350,7 @@ class MechsInfoEnricher:
         enriched_mechs_info = copy.copy(mechs_info)
         for mechanism_name, mechanism_info in mechs_info.items():
             non_vec_vars = ["self_spikes", "v_comp"]
+            non_vec_vars.extend(mechanism_info.get("old_kernel_state_variables", []))
             if "time_resolution_var" in mechanism_info:
                 non_vec_vars.append(mechanism_info["time_resolution_var"].name)
 
@@ -365,6 +368,35 @@ class MechsInfoEnricher:
                 non_vec_vars.append(inline.variable_name)
 
             enriched_mechs_info[mechanism_name]["non_vec_vars"] = non_vec_vars
+
+        return enriched_mechs_info
+
+    @classmethod
+    def create_convolution_simultaneous_update_expressions(cls, neuron: ASTModel, mechs_info: dict):
+        enriched_mechs_info = copy.copy(mechs_info)
+
+        for mechanism_info in enriched_mechs_info.values():
+            kernel_state_names = set()
+            for convolution_info in mechanism_info.get("convolutions", {}).values():
+                kernel_state_names.update(convolution_info["analytic_solution"]["kernel_states"].keys())
+
+            old_kernel_state_variables = sorted("old_" + state_name for state_name in kernel_state_names)
+            mechanism_info["old_kernel_state_variables"] = old_kernel_state_variables
+
+            for old_state_name in old_kernel_state_variables:
+                if not ASTUtils.declaration_in_state_block(neuron, old_state_name):
+                    ASTUtils.add_declaration_to_state_block(neuron, old_state_name, "0")
+
+            for convolution_info in mechanism_info.get("convolutions", {}).values():
+                for state_variable_info in convolution_info["analytic_solution"]["kernel_states"].values():
+                    simultaneous_update_expression = state_variable_info["update_expression"].clone()
+                    ASTKernelStateVariableRenamer(
+                        simultaneous_update_expression,
+                        kernel_state_names,
+                        "old_")
+                    simultaneous_update_expression.update_scope(neuron.get_equations_blocks()[0].get_scope())
+                    simultaneous_update_expression.accept(ASTSymbolTableVisitor())
+                    state_variable_info["simultaneous_update_expression"] = simultaneous_update_expression
 
         return enriched_mechs_info
 
@@ -946,6 +978,18 @@ class ASTFunctionExpressionReplacer(ASTVisitor):
                     node.accept(ASTParentVisitor())
 
             self.inside_expression = False
+
+
+class ASTKernelStateVariableRenamer(ASTVisitor):
+    def __init__(self, node, kernel_state_names, prefix):
+        super(ASTKernelStateVariableRenamer, self).__init__()
+        self.kernel_state_names = kernel_state_names
+        self.prefix = prefix
+        node.accept(self)
+
+    def visit_variable(self, node: ASTVariable):
+        if node.get_name() in self.kernel_state_names:
+            node.name = self.prefix + node.get_name()
 
 
 class ASTFunctionCallParameterAdder(ASTVisitor):

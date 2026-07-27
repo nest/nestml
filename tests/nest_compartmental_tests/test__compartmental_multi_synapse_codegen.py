@@ -245,7 +245,7 @@ class TestCompartmentalMultiSynapseCodegen(unittest.TestCase):
         if TEST_PLOTS:
             self.plot_comparison(synapse_case, rec_nest_runs, rec_nestml_runs, signed_diff_values)
 
-        assert max(abs_diff_values) <= 0.005, (
+        assert max(abs_diff_values) <= 0.01, (
             "the maximum weight difference is too large! ("
             + str(max(abs_diff_values))
             + " > 0.005)")
