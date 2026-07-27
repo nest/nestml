@@ -281,7 +281,7 @@ jobs:
           for fn in $ipynb_fns; do
               echo "Now running Jupyter notebook: ${fn}"
               cd `dirname ${fn}`
-              ipython3 ${fn}
+              ipython3 --raise-exceptions ${fn}
               if [ $? -ne 0 ]; then
                   echo "Error running Jupyter notebook: ${fn}"
                   rc=1
