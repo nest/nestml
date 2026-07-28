@@ -204,11 +204,11 @@ class CppExpressionPrinter(ExpressionPrinter):
                     if exponent == 1:
                         return "(" + lhs + ")"
                     if exponent == 2:
-                        return "(" + lhs + " * " + lhs + ")"
+                        return "(" + "(" + lhs + ")" + " * " + "(" + lhs + ")" + ")"
                     if exponent == 3:
-                        return "(" + lhs + " * " + lhs + " * " + lhs + ")"
+                        return "(" + "(" + lhs + ")" + " * " + "(" + lhs + ")" + " * " + "(" + lhs + ")" + ")"
                     if exponent == 4:
-                        return "(" + lhs + " * " + lhs + " * " + lhs + " * " + lhs + ")"
+                        return "(" + "(" + lhs + ")" + " * " + "(" + lhs + ")" + " * " + "(" + lhs + ")" + " * " + "(" + lhs + ")" + ")"
 
             # make a dummy ASTFunctionCall so we can delegate this to the FunctionCallPrinter
             dummy_ast_function_call: ASTFunctionCall = ASTNodeFactory.create_ast_function_call(callee_name="pow", args=(node.get_lhs(), node.get_rhs()), source_position=ASTSourceLocation.get_added_source_position())

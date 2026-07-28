@@ -633,7 +633,7 @@ public:
     void f_update();
     void f_self_spike();
 
-  void  postsynaptic_synaptic_processing();
+    void postsynaptic_synaptic_processing();
 
   // calibration
 {%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}

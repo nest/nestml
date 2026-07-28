@@ -114,6 +114,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
     - **nest_version**: A string identifying the version of NEST Simulator to generate code for. The string corresponds to the NEST Simulator git repository tag or git branch name, for instance, ``"v2.20.2"`` or ``"main"``. The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
     - **delay_variable**: A mapping identifying, for each synapse (the name of which is given as a key), the variable or parameter in the model that corresponds with the NEST ``Connection`` class delay property. (Optional.)
     - **weight_variable**: Like ``delay_variable``, but for synaptic weight.
+    - **use_fastexp**: If ``True``, generated code uses a fast polynomial approximation only for dynamic propagator ``exp()`` terms in hot loops; all other exponentials use ``std::exp``. Default: ``False``.
+    - **fp_precision**: Floating-point precision for compartmental state and helper variables. Supported values: ``"double"``. ``"single"`` is reserved for upcoming single-precision support and currently raises an error.
     """
 
     _default_options = {
@@ -140,6 +142,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         "nest_version": "",
         "compartmental_variable_name": "v_comp",
         "self_spikes_port": "self_spikes",
+        "fp_precision": "double",
         "delay_variable": {},
         "weight_variable": {}
     }
@@ -253,8 +256,14 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             return {}
         if "use_fastexp" in options and not isinstance(options["use_fastexp"], bool):
             raise ValueError("`use_fastexp` must be a bool.")
+        if "fp_precision" in options:
+            if options["fp_precision"] not in ["double", "single"]:
+                raise ValueError("`fp_precision` must be either 'double' or 'single'.")
+            if options["fp_precision"] == "single":
+                raise ValueError("Single precision for the NEST compartmental code generator is not supported yet; this is coming in the future.")
         self._nest_code_generator.set_options(options)
         ret = super().set_options(options)
+        self._fp_precision = self.get_option("fp_precision")
         self.setup_template_env()
         self.setup_printers()
 
@@ -731,6 +740,15 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             return float_lit_re.sub(lambda m: m.group(1) + "f", expr)
 
         class FinalFloatSuffixPrinter:
+            """
+            Adds ``f`` suffixes after final C++ rendering in single precision.
+
+            Doing this only in ``ConstantPrinter`` would miss float literals
+            introduced directly by C++ printers, such as hard-coded ``1.0``
+            results from expression rewrites. Keeping the suffix pass here
+            makes those generated literals follow the same precision mode.
+            """
+
             def __init__(self, base_printer):
                 self._base_printer = base_printer
 

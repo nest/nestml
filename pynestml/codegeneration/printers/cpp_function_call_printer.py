@@ -41,6 +41,7 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
 
     def __init__(self, expression_printer=None, exp_function: str = "std::exp"):
         super().__init__(expression_printer)
+        assert exp_function in ["std::exp", "cm_fast_propagator_exp", "bounded_propagator_expf"]
         self._exp_function = exp_function
 
     def print(self, node: ASTNode) -> str:
