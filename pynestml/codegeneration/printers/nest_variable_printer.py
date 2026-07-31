@@ -45,6 +45,7 @@ class NESTVariablePrinter(CppVariablePrinter):
         super().__init__(expression_printer)
         self.with_origin = with_origin
         self.with_vector_parameter = with_vector_parameter
+        self.is_vt_port_in_synapse = False
         self.enforce_getter = enforce_getter
         self.variables_special_cases = variables_special_cases
         self.cpp_variable_suffix = ""
@@ -56,6 +57,10 @@ class NESTVariablePrinter(CppVariablePrinter):
         self.postsynaptic_getter_string_ = s
         return ""
 
+    def set_with_origin(self, s):
+        self.with_origin = s
+        return ""
+
     def print_variable(self, variable: ASTVariable) -> str:
         """
         Converts a single variable to nest processable format.
@@ -63,6 +68,11 @@ class NESTVariablePrinter(CppVariablePrinter):
         :return: a nest processable format.
         """
         assert isinstance(variable, ASTVariable)
+
+        # print special case for the vt port: "weight" of the spike is taken from multiplicity attribute
+        variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+        if variable_symbol is not None and variable_symbol.is_spike_input_port() and self.is_vt_port_in_synapse:
+            return "__vt_port_multiplicity"
 
         # print special cases such as synaptic delay variable
         if self.variables_special_cases and variable.get_name() in self.variables_special_cases.keys():
@@ -148,6 +158,10 @@ class NESTVariablePrinter(CppVariablePrinter):
         if symbol and symbol.is_state() and symbol.has_delay_parameter():
             return "get_delayed_" + variable.get_name() + "()"
 
+        return ""
+
+    def set_is_vt_port_in_synapse(self, is_vt_port_in_synapse: bool) -> str:
+        self.is_vt_port_in_synapse = is_vt_port_in_synapse
         return ""
 
     def _print_buffer_value(self, variable: ASTVariable) -> str:
