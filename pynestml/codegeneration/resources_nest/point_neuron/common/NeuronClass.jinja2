@@ -811,7 +811,7 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
      * Begin NESTML generated code for the update block(s)
     **/
 {%  if neuron.get_update_blocks() %}
-{%-     filter indent(2) %}
+{%-     filter indent(4) %}
 {%-         for block in neuron.get_update_blocks() %}
 {%-             set ast = block.get_stmts_body() %}
 {%-             if ast.print_comment('*')|length > 1 %}
@@ -1008,7 +1008,7 @@ std::cout << "[neuron " << this << "] Writing history at time " << nest::Time(ne
 {%-     endfor %}
     );
 {%- endif %}
-}
+  }
 
 {%- if use_gap_junctions %}
   // if not called_from_wfr_update perform constant extrapolation and reset last_y_values
