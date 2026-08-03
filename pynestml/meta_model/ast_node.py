@@ -68,7 +68,7 @@ class ASTNode(metaclass=ABCMeta):
         self.implicit_conversion_factor = implicit_conversion_factor
 
     @abstractmethod
-    def clone(self):
+    def clone(self) -> ASTNode:
         """
         Return a deep copy of this node.
         """

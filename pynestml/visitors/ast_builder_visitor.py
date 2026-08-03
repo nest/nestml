@@ -59,9 +59,9 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         else:
             artifact_name = "parsed_from_string"
 
-        compilation_unit = ASTNodeFactory.create_ast_nestml_compilation_unit(list_of_models=models,
-                                                                             source_position=create_source_pos(ctx),
-                                                                             artifact_name=artifact_name)
+        compilation_unit = ASTNodeFactory.create_ast_compilation_unit(list_of_models=models,
+                                                                      source_position=create_source_pos(ctx),
+                                                                      artifact_name=artifact_name)
 
         return compilation_unit
 

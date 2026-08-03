@@ -26,8 +26,12 @@ import re
 
 
 class ChannelProcessing(MechanismProcessing):
-    """Extends MechanismProcessing. Searches for Variables that if 0 lead to the root expression always beeing zero so
-    that the computation can be skipped during the simulation"""
+    """
+    This file is part of the compartmental code generation process.
+
+    Extends MechanismProcessing. Searches for Variables that if 0 lead to the root expression always being zero so
+    that the computation can be skipped during the simulation
+    """
 
     mechType = "channel"
 
@@ -37,6 +41,7 @@ class ChannelProcessing(MechanismProcessing):
     @classmethod
     def collect_information_for_specific_mech_types(cls, neuron, mechs_info):
         mechs_info = cls.write_key_zero_parameters_for_root_inlines(mechs_info)
+        cls.check_all_convolutions_with_self_spikes(mechs_info)
 
         return mechs_info
 

@@ -31,25 +31,18 @@ class CSimpleExpressionPrinter(SimpleExpressionPrinter):
     Printer for ASTSimpleExpressions in C syntax.
     """
 
-    n_float_digits = 17    # number of digits to print for floating point numbers
-
     def print_simple_expression(self, node: ASTSimpleExpression) -> str:
         if node.has_unit():
             if self._variable_printer.print(node.get_variable()) in ["1", "1.", "1.0"]:
-                return str(node.get_numeric_literal())
+                return self._constant_printer.print_constant(node.get_numeric_literal())
 
-            return str(node.get_numeric_literal()) + " * " + self._variable_printer.print(node.get_variable())
-
-        if node.is_numeric_literal():
-            n = node.get_numeric_literal()
-            if isinstance(n, int):
-                return str(n)
-
-            assert isinstance(n, float)
-            return f"{n:#.{CSimpleExpressionPrinter.n_float_digits}g}".rstrip("0")    # make sure decimal point is always included
+            return self._constant_printer.print_constant(node.get_numeric_literal()) + " * " + self._variable_printer.print(node.get_variable())
 
         if node.is_inf_literal:
             return "INFINITY"
+
+        if node.is_numeric_literal():
+            return self._constant_printer.print_constant(node.get_numeric_literal())
 
         if node.is_string():
             return str(node.get_string())

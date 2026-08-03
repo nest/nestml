@@ -55,7 +55,7 @@ from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
-from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
+from pynestml.meta_model.ast_compilation_unit import ASTCompilationUnit
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_on_condition_block import ASTOnConditionBlock
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
@@ -355,7 +355,7 @@ class NESTMLPrinter(ModelPrinter):
         ret += print_sl_comment(node.in_comment) + "\n"
         return ret
 
-    def print_compilation_unit(self, node: ASTNestMLCompilationUnit) -> str:
+    def print_compilation_unit(self, node: ASTCompilationUnit) -> str:
         ret = ""
         if node.get_model_list() is not None:
             for model in node.get_model_list():

@@ -19,14 +19,25 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Any, Dict, Optional
+
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
+
 from pynestml.cocos.co_co import CoCo
+from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.template_type_symbol import TemplateTypeSymbol
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
-from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
-from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.template_type_symbol import TemplateTypeSymbol
 
 
 class CoCoFunctionArgumentTemplateTypesConsistent(CoCo):
@@ -35,13 +46,15 @@ class CoCoFunctionArgumentTemplateTypesConsistent(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, neuron):
+    @override
+    def check_co_co(cls, node: ASTNode, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
         """
-        Ensures the coco for the handed over neuron.
-        :param neuron: a single neuron instance.
-        :type neuron: ASTModel
+        Ensures the coco for the handed over model.
+        :param node: a single model instance.
         """
-        neuron.accept(CorrectTemplatedArgumentTypesVisitor())
+        assert isinstance(node, ASTModel), "This coco can only be called on ASTModels!"
+
+        node.accept(CorrectTemplatedArgumentTypesVisitor())
 
 
 class CorrectTemplatedArgumentTypesVisitor(ASTVisitor):

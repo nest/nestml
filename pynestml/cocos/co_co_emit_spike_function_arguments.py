@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Any, Dict, Optional
+
 try:
     # Available in the standard library starting with Python 3.12
     from typing import override
@@ -28,16 +30,11 @@ except ImportError:
 
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.template_type_symbol import TemplateTypeSymbol
-from pynestml.symbols.variadic_type_symbol import VariadicTypeSymbol
-from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
-from pynestml.utils.type_caster import TypeCaster
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
@@ -47,12 +44,14 @@ class CoCoEmitSpikeFunctionArguments(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node: ASTNode):
+    @override
+    def check_co_co(cls, node: ASTNode, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
         """
-        Checks the coco for the handed over neuron.
-        :param node: a single neuron instance.
-        :type node: ASTModel
+        Checks the coco for the handed over model.
+        :param node: a single model instance.
         """
+        assert isinstance(node, ASTModel), "This coco can only be called on ASTModels!"
+
         node.accept(EmitSpikeFunctionArgumentsVisitor())
 
 

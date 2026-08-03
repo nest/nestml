@@ -41,7 +41,7 @@ from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
-from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
+from pynestml.meta_model.ast_compilation_unit import ASTCompilationUnit
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_node import ASTNode
@@ -80,7 +80,7 @@ class ASTVisitor:
         """
         Visits a single compilation unit, thus all models.
         :param node: a single compilation unit.
-        :type node: ASTNestMLCompilationUnit
+        :type node: ASTCompilationUnit
         """
         return
 
@@ -389,7 +389,7 @@ class ASTVisitor:
     def visit_stmt(self, node):
         return
 
-    def endvisit_compilation_unit(self, node: ASTNestMLCompilationUnit):
+    def endvisit_compilation_unit(self, node: ASTCompilationUnit):
         """
         Visits a single compilation unit, thus all models.
         :param node: a single compilation unit.
@@ -784,7 +784,7 @@ class ASTVisitor:
         if isinstance(node, ASTLogicalOperator):
             self.visit_logical_operator(node)
             return
-        if isinstance(node, ASTNestMLCompilationUnit):
+        if isinstance(node, ASTCompilationUnit):
             self.visit_compilation_unit(node)
             return
         if isinstance(node, ASTModel):
@@ -911,7 +911,7 @@ class ASTVisitor:
         if isinstance(node, ASTLogicalOperator):
             self.traverse_logical_operator(node)
             return
-        if isinstance(node, ASTNestMLCompilationUnit):
+        if isinstance(node, ASTCompilationUnit):
             self.traverse_compilation_unit(node)
             return
         if isinstance(node, ASTModel):
@@ -1038,7 +1038,7 @@ class ASTVisitor:
         if isinstance(node, ASTLogicalOperator):
             self.endvisit_logical_operator(node)
             return
-        if isinstance(node, ASTNestMLCompilationUnit):
+        if isinstance(node, ASTCompilationUnit):
             self.endvisit_compilation_unit(node)
             return
         if isinstance(node, ASTModel):

@@ -18,8 +18,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+from typing import Any, Dict, Optional
+
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
+
 from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.cocos.co_co import CoCo
@@ -47,16 +58,16 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
     processed_function = None
 
     @classmethod
-    def check_co_co(cls, _node=None):
+    @override
+    def check_co_co(cls, node: ASTNode, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
         """
         Checks the coco for the handed over node.
-        :param _node: a single node instance.
-        :type _node: ASTModel
+        :param node: a single model instance.
         """
-        assert (_node is not None and (isinstance(_node, ASTModel))), \
-            "(PyNestML.CoCo.FunctionCallsConsistent) No or wrong type of node provided (%s)!" % type(_node)
-        cls.__nodeName = _node.get_name()
-        for userDefinedFunction in _node.get_functions():
+        assert isinstance(node, ASTModel), "This coco can only be called on ASTModels!"
+
+        cls.__nodeName = node.get_name()
+        for userDefinedFunction in node.get_functions():
             cls.processed_function = userDefinedFunction
             symbol = userDefinedFunction.get_scope().resolve_to_symbol(userDefinedFunction.get_name(),
                                                                        SymbolKind.FUNCTION)
@@ -69,7 +80,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
             elif symbol is not None and userDefinedFunction.has_return_type() and \
                     not symbol.get_return_type().equals(PredefinedTypes.get_void_type()):
                 code, message = Messages.get_no_return()
-                Logger.log_message(node=_node, code=code, message=message,
+                Logger.log_message(node=node, code=code, message=message,
                                    error_position=userDefinedFunction.get_source_position(),
                                    log_level=LoggingLevel.ERROR)
         return

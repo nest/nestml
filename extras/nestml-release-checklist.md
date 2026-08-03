@@ -60,6 +60,20 @@ Follow this checklist to successfully perform a NESTML release. Let's say that 5
 - Add the new tag ("v5.0.0") as an _active version_ in ReadTheDocs, and then change the _default version_ to this tag.
 - Create a PR updating ``doc/citing.rst``.
 
+Release candidate checklist
+---------------------------
+
+Add the following text to the release notes:
+
+```
+It is currently in release candidate status, which means that
+
+- this is the version we recommend you to use;
+- we invite feedback, reports and feature requests on the GitHub issue tracker and the NEST-user mailing list;
+- for citing this version, we already reserved a DOI ([...](https://doi.org/...));
+- documentation at [nestml.readthedocs.org](https://nestml.readthedocs.io/) is up-to-date with this release candidate.
+```
+
 Deployment checklist
 --------------------
 
