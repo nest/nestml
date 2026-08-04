@@ -2472,7 +2472,7 @@ class ASTUtils:
         return s
 
     @classmethod
-    def depends_only_on_vars(cls, expr, vars):
+    def depends_only_on_vars(cls, expr, var_names):
         r"""Returns True if and only if all variables that occur in ``expr`` are in ``vars``"""
 
         class VariableFinderVisitor(ASTVisitor):
