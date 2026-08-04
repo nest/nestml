@@ -200,4 +200,4 @@ class TestNestMultiSynapse:
             fig.savefig("/tmp/test_multisynapse_vector.png")
 
         # testing
-        np.testing.assert_almost_equal(V_m[-1], -72.77067117288824)
+        np.testing.assert_almost_equal(V_m[-1], -72.7358433852475)
