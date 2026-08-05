@@ -8,4 +8,4 @@ Jinja2 >= 2.10
 typing_extensions;python_version<"3.12"
 astropy
 semver
-odetoolbox >= 2.5.9
+# odetoolbox >= 3.0.0  # XXX: UNCOMMENT THIS!
