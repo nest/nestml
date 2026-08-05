@@ -101,7 +101,7 @@ class MechsInfoEnricher:
         return LowerMinMaxPrinter().doprint(expr)
 
     @classmethod
-    def enrich_with_additional_info(cls, neuron: ASTModel, mechs_info: dict):
+    def enrich_with_additional_info(cls, neuron: ASTModel, mechs_info: dict, enable_cse: bool = True):
         neuron.accept(SynsInfoEnricherVisitor())
         mechs_info = cls.get_transformed_ode_equations(mechs_info)
         mechs_info = cls.ode_toolbox_processing(neuron, mechs_info)
@@ -114,7 +114,20 @@ class MechsInfoEnricher:
         mechs_info = cls.create_convolution_simultaneous_update_expressions(neuron, mechs_info)
         mechs_info = cls.enrich_mechanism_specific(neuron, mechs_info)
         mechs_info = cls.create_non_vec_variables(mechs_info)
-        mechs_info = cls.global_common_subexpression_elimination(neuron, mechs_info)
+        if enable_cse:
+            mechs_info = cls.global_common_subexpression_elimination(neuron, mechs_info)
+        else:
+            mechs_info = cls.initialize_empty_cse_replacements(mechs_info)
+        return mechs_info
+
+    @classmethod
+    def initialize_empty_cse_replacements(cls, mechs_info: dict):
+        for mechanism_info in mechs_info.values():
+            if isinstance(mechanism_info["root_expression"], ASTInlineExpression):
+                mechanism_info["root_expression"] = mechanism_info["root_expression"].expression
+            mechanism_info["cse_body_replacements"] = {}
+            mechanism_info["cse_function_replacements"] = {}
+
         return mechs_info
 
     @classmethod

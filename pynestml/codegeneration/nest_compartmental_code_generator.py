@@ -115,6 +115,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
     - **delay_variable**: A mapping identifying, for each synapse (the name of which is given as a key), the variable or parameter in the model that corresponds with the NEST ``Connection`` class delay property. (Optional.)
     - **weight_variable**: Like ``delay_variable``, but for synaptic weight.
     - **use_fastexp**: If ``True``, generated code uses a fast polynomial approximation only for dynamic propagator ``exp()`` terms in hot loops; all other exponentials use ``std::exp``. Default: ``False``.
+    - **enable_cse**: If ``True``, run common subexpression elimination for compartmental mechanism expressions. Default: ``True``.
     - **fp_precision**: Floating-point precision for compartmental state and helper variables. Supported values: ``"double"``. ``"single"`` is reserved for upcoming single-precision support and currently raises an error.
     """
 
@@ -123,6 +124,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         "neuron_models": [],
         "synapse_models": [],
         "use_fastexp": False,
+        "enable_cse": True,
         "neuron_parent_class": "ArchivingNode",
         "neuron_parent_class_include": "archiving_node.h",
         "preserve_expressions": True,
@@ -256,6 +258,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             return {}
         if "use_fastexp" in options and not isinstance(options["use_fastexp"], bool):
             raise ValueError("`use_fastexp` must be a bool.")
+        if "enable_cse" in options and not isinstance(options["enable_cse"], bool):
+            raise ValueError("`enable_cse` must be a bool.")
         if "fp_precision" in options:
             if options["fp_precision"] not in ["double", "single"]:
                 raise ValueError("`fp_precision` must be either 'double' or 'single'.")
@@ -897,17 +901,23 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["cm_unique_suffix"] = self.getUniqueSuffix(neuron)
 
         # get the mechanisms info dictionaries and enrich them.
+        enable_cse = self.get_option("enable_cse")
+
         namespace["chan_info"] = ChannelProcessing.get_mechs_info(neuron)
-        namespace["chan_info"] = ChanInfoEnricher.enrich_with_additional_info(neuron, namespace["chan_info"])
+        namespace["chan_info"] = ChanInfoEnricher.enrich_with_additional_info(
+            neuron, namespace["chan_info"], enable_cse=enable_cse)
 
         namespace["recs_info"] = ReceptorProcessing.get_mechs_info(neuron)
-        namespace["recs_info"] = RecsInfoEnricher.enrich_with_additional_info(neuron, namespace["recs_info"])
+        namespace["recs_info"] = RecsInfoEnricher.enrich_with_additional_info(
+            neuron, namespace["recs_info"], enable_cse=enable_cse)
 
         namespace["conc_info"] = ConcentrationProcessing.get_mechs_info(neuron)
-        namespace["conc_info"] = ConcInfoEnricher.enrich_with_additional_info(neuron, namespace["conc_info"])
+        namespace["conc_info"] = ConcInfoEnricher.enrich_with_additional_info(
+            neuron, namespace["conc_info"], enable_cse=enable_cse)
 
         namespace["con_in_info"] = ContinuousInputProcessing.get_mechs_info(neuron)
-        namespace["con_in_info"] = ConInInfoEnricher.enrich_with_additional_info(neuron, namespace["con_in_info"])
+        namespace["con_in_info"] = ConInInfoEnricher.enrich_with_additional_info(
+            neuron, namespace["con_in_info"], enable_cse=enable_cse)
 
         namespace["syns_info"] = SynsInfoEnricher.confirm_dependencies_for_synapses(paired_synapses,
                                                                                     SynapseProcessing.get_syn_info(),
