@@ -115,6 +115,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
     - **delay_variable**: A mapping identifying, for each synapse (the name of which is given as a key), the variable or parameter in the model that corresponds with the NEST ``Connection`` class delay property. (Optional.)
     - **weight_variable**: Like ``delay_variable``, but for synaptic weight.
     - **use_fastexp**: Reserved for upcoming fast propagator ``exp()`` support. Default: ``False``. Currently raises an error if set to ``True``.
+    - **use_fast_math**: Select floating-point compiler relaxations for generated compartmental code. Supported values are ``"None"`` for no additional relaxations, ``"soft-fast"`` for conservative vector-math relaxations, and ``"fast"`` for ``-ffast-math``. Default: ``"soft-fast"``.
     - **enable_cse**: If ``True``, run common subexpression elimination for compartmental mechanism expressions. Default: ``True``.
     - **fp_precision**: Floating-point precision for compartmental state and helper variables. Supported values: ``"double"``. ``"single"`` is reserved for upcoming single-precision support and currently raises an error.
     """
@@ -124,6 +125,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         "neuron_models": [],
         "synapse_models": [],
         "use_fastexp": False,
+        "use_fast_math": "soft-fast",
         "enable_cse": True,
         "neuron_parent_class": "ArchivingNode",
         "neuron_parent_class_include": "archiving_node.h",
@@ -260,6 +262,11 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             raise ValueError("`use_fastexp` must be a bool.")
         if options.get("use_fastexp"):
             raise ValueError("Fast exponential approximation for the NEST compartmental code generator is not supported yet; this is coming in the future.")
+        if "use_fast_math" in options:
+            if not isinstance(options["use_fast_math"], str):
+                raise ValueError("`use_fast_math` must be a string.")
+            if options["use_fast_math"] not in ["None", "soft-fast", "fast"]:
+                raise ValueError("`use_fast_math` must be one of 'None', 'soft-fast', or 'fast'.")
         if "enable_cse" in options and not isinstance(options["enable_cse"], bool):
             raise ValueError("`enable_cse` must be a bool.")
         if "fp_precision" in options:
@@ -337,6 +344,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                      "moduleName": FrontendConfiguration.get_module_name(),
                      "fp_precision": self._fp_precision,
                      "use_fastexp": self.get_option("use_fastexp"),
+                     "use_fast_math": self.get_option("use_fast_math"),
                      "nestml_version": pynestml.__version__,
                      "now": datetime.datetime.utcnow()}
         namespace.update(self._get_nest_version_namespace())

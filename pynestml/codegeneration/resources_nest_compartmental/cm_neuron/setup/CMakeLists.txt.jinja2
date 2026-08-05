@@ -310,7 +310,7 @@ if ( BUILD_SHARED_LIBS )
     add_library( ${MODULE_NAME}_module MODULE ${MODULE_SOURCES} )
     set_target_properties( ${MODULE_NAME}_module
         PROPERTIES
-        COMPILE_FLAGS "${NEST_CXXFLAGS} -DLTX_MODULE -march=native -ffast-math${CM_EXTRA_COMPILE_FLAGS}"
+        COMPILE_FLAGS "${NEST_CXXFLAGS} -DLTX_MODULE -march=native{% if use_fast_math == "soft-fast" %} -fno-math-errno -fno-trapping-math{% elif use_fast_math == "fast" %} -ffast-math{% endif %}${CM_EXTRA_COMPILE_FLAGS}"
         LINK_FLAGS "${NEST_LIBS}${CM_EXTRA_LINK_FLAGS}"
         PREFIX ""
         OUTPUT_NAME ${MODULE_NAME} )
