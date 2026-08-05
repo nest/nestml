@@ -27,6 +27,7 @@ import pytest
 
 import nest
 
+from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
 from pynestml.frontend.pynestml_frontend import generate_nest_compartmental_target
 
 try:
@@ -168,6 +169,7 @@ class TestFastExpAccuracy:
         for variant_name, variant in VARIANTS.items():
             target_path = os.path.join(tests_path, "target", "fastexp_accuracy", variant_name)
             os.makedirs(target_path, exist_ok=True)
+            variant["target_path"] = target_path
 
             generate_nest_compartmental_target(
                 input_path=input_path,
@@ -183,6 +185,7 @@ class TestFastExpAccuracy:
         return self._run_variant("reference")
 
     @pytest.mark.parametrize("variant_name", ["double_fastexp"])
+    @pytest.mark.skip(reason="use_fastexp is reserved until the fast approximation is valid for all propagator ranges.")
     def test_stressful_multicompartment_accuracy_against_double_reference(self, variant_name, reference_trace):
         result = self._run_variant(variant_name)
 
@@ -203,6 +206,19 @@ class TestFastExpAccuracy:
         assert np.ptp(reference_trace["h_Na0"]) > 0.05
         assert np.ptp(reference_trace["n_K0"]) > 0.05
         assert np.max(reference_trace["g_AN_AMPA2"]) > 0.5
+
+    @pytest.mark.skip(reason="use_fastexp is reserved until the fast approximation is valid for all propagator ranges.")
+    def test_fastexp_variant_uses_fast_propagator_function(self):
+        variant = VARIANTS["double_fastexp"]
+        source_path = os.path.join(
+            variant["target_path"],
+            "cm_neuroncurrents_" + variant["model_name"] + ".cpp",
+        )
+
+        with open(source_path, "r", encoding="utf-8") as f:
+            source = f.read()
+
+        assert "cm_fast_propagator_exp(" in source
 
     @staticmethod
     def _run_variant(variant_name):
@@ -301,3 +317,9 @@ class TestFastExpAccuracy:
         )
         fig.savefig(output_path)
         plt.close(fig)
+
+
+def test_fastexp_option_is_reserved():
+    code_generator = NESTCompartmentalCodeGenerator()
+    with pytest.raises(ValueError, match="Fast exponential approximation"):
+        code_generator.set_options({"use_fastexp": True})

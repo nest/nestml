@@ -101,7 +101,8 @@ class MechsInfoEnricher:
         return LowerMinMaxPrinter().doprint(expr)
 
     @classmethod
-    def enrich_with_additional_info(cls, neuron: ASTModel, mechs_info: dict, enable_cse: bool = True):
+    def enrich_with_additional_info(cls, neuron: ASTModel, mechs_info: dict, enable_cse: bool = True,
+                                    exclude_propagator_init_from_cse: bool = False):
         neuron.accept(SynsInfoEnricherVisitor())
         mechs_info = cls.get_transformed_ode_equations(mechs_info)
         mechs_info = cls.ode_toolbox_processing(neuron, mechs_info)
@@ -115,7 +116,8 @@ class MechsInfoEnricher:
         mechs_info = cls.enrich_mechanism_specific(neuron, mechs_info)
         mechs_info = cls.create_non_vec_variables(mechs_info)
         if enable_cse:
-            mechs_info = cls.global_common_subexpression_elimination(neuron, mechs_info)
+            mechs_info = cls.global_common_subexpression_elimination(
+                neuron, mechs_info, exclude_propagator_init_from_cse=exclude_propagator_init_from_cse)
         else:
             mechs_info = cls.initialize_empty_cse_replacements(mechs_info)
         return mechs_info
@@ -131,7 +133,8 @@ class MechsInfoEnricher:
         return mechs_info
 
     @classmethod
-    def global_common_subexpression_elimination(cls, neuron: ASTModel, mechs_info: dict):
+    def global_common_subexpression_elimination(cls, neuron: ASTModel, mechs_info: dict,
+                                                exclude_propagator_init_from_cse: bool = False):
         nestml_printer = NESTMLPrinter()
         for mechanism_name, mechanism_info in mechs_info.items():
             allowed = ["v_comp", "self_spikes"]
@@ -149,8 +152,12 @@ class MechsInfoEnricher:
             # Collect and parse simd body expressions and associate with the originals
             for ode_variable, ode_info in mechanism_info["ODEs"].items():
                 for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items():
-                    simd_body_expressions.append(parse_expr(cls._ode_toolbox_printer.print(propagator_info["init_expression"])))
-                    expression_association.append(["ODEs", ode_variable, "transformed_solutions", 0, "propagators", propagator, "init_expression"])
+                    if not exclude_propagator_init_from_cse:
+                        simd_body_expressions.append(
+                            parse_expr(cls._ode_toolbox_printer.print(propagator_info["init_expression"])))
+                        expression_association.append(
+                            ["ODEs", ode_variable, "transformed_solutions", 0, "propagators", propagator,
+                             "init_expression"])
                     invalid_vars.add(propagator)
 
                 for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items():

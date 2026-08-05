@@ -114,7 +114,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
     - **nest_version**: A string identifying the version of NEST Simulator to generate code for. The string corresponds to the NEST Simulator git repository tag or git branch name, for instance, ``"v2.20.2"`` or ``"main"``. The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
     - **delay_variable**: A mapping identifying, for each synapse (the name of which is given as a key), the variable or parameter in the model that corresponds with the NEST ``Connection`` class delay property. (Optional.)
     - **weight_variable**: Like ``delay_variable``, but for synaptic weight.
-    - **use_fastexp**: If ``True``, generated code uses a fast polynomial approximation only for dynamic propagator ``exp()`` terms in hot loops; all other exponentials use ``std::exp``. Default: ``False``.
+    - **use_fastexp**: Reserved for upcoming fast propagator ``exp()`` support. Default: ``False``. Currently raises an error if set to ``True``.
     - **enable_cse**: If ``True``, run common subexpression elimination for compartmental mechanism expressions. Default: ``True``.
     - **fp_precision**: Floating-point precision for compartmental state and helper variables. Supported values: ``"double"``. ``"single"`` is reserved for upcoming single-precision support and currently raises an error.
     """
@@ -258,6 +258,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             return {}
         if "use_fastexp" in options and not isinstance(options["use_fastexp"], bool):
             raise ValueError("`use_fastexp` must be a bool.")
+        if options.get("use_fastexp"):
+            raise ValueError("Fast exponential approximation for the NEST compartmental code generator is not supported yet; this is coming in the future.")
         if "enable_cse" in options and not isinstance(options["enable_cse"], bool):
             raise ValueError("`enable_cse` must be a bool.")
         if "fp_precision" in options:
@@ -764,6 +766,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         render_printer = FinalFloatSuffixPrinter(self._nest_printer)
         render_printer_no_origin = FinalFloatSuffixPrinter(self._printer_no_origin)
+        render_printer_no_origin_propagator = FinalFloatSuffixPrinter(self._printer_no_origin_propagator)
 
         # printers
         namespace["printer"] = render_printer
@@ -790,8 +793,11 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         vector_printer = VectorPrinter(neuron, self._printer_no_origin)
         vector_printer.set_std_vector_parameter("i")
+        vector_printer_propagator = VectorPrinter(neuron, render_printer_no_origin_propagator)
+        vector_printer_propagator.set_std_vector_parameter("i")
 
         namespace["vector_printer"] = vector_printer
+        namespace["vector_printer_propagator"] = vector_printer_propagator
 
         namespace["self_spikes_name"] = self.get_option("self_spikes_port")
 
@@ -902,22 +908,27 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         # get the mechanisms info dictionaries and enrich them.
         enable_cse = self.get_option("enable_cse")
+        exclude_propagator_init_from_cse = self.get_option("use_fastexp")
 
         namespace["chan_info"] = ChannelProcessing.get_mechs_info(neuron)
         namespace["chan_info"] = ChanInfoEnricher.enrich_with_additional_info(
-            neuron, namespace["chan_info"], enable_cse=enable_cse)
+            neuron, namespace["chan_info"], enable_cse=enable_cse,
+            exclude_propagator_init_from_cse=exclude_propagator_init_from_cse)
 
         namespace["recs_info"] = ReceptorProcessing.get_mechs_info(neuron)
         namespace["recs_info"] = RecsInfoEnricher.enrich_with_additional_info(
-            neuron, namespace["recs_info"], enable_cse=enable_cse)
+            neuron, namespace["recs_info"], enable_cse=enable_cse,
+            exclude_propagator_init_from_cse=exclude_propagator_init_from_cse)
 
         namespace["conc_info"] = ConcentrationProcessing.get_mechs_info(neuron)
         namespace["conc_info"] = ConcInfoEnricher.enrich_with_additional_info(
-            neuron, namespace["conc_info"], enable_cse=enable_cse)
+            neuron, namespace["conc_info"], enable_cse=enable_cse,
+            exclude_propagator_init_from_cse=exclude_propagator_init_from_cse)
 
         namespace["con_in_info"] = ContinuousInputProcessing.get_mechs_info(neuron)
         namespace["con_in_info"] = ConInInfoEnricher.enrich_with_additional_info(
-            neuron, namespace["con_in_info"], enable_cse=enable_cse)
+            neuron, namespace["con_in_info"], enable_cse=enable_cse,
+            exclude_propagator_init_from_cse=exclude_propagator_init_from_cse)
 
         namespace["syns_info"] = SynsInfoEnricher.confirm_dependencies_for_synapses(paired_synapses,
                                                                                     SynapseProcessing.get_syn_info(),

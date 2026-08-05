@@ -576,7 +576,7 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(const std::vector
 
         {%- for ode_variable, ode_info in channel_info["ODEs"].items() %}
             {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-            {{ cm_scalar_t }} {{ propagator }} = {{ vector_printer.print(propagator_info["init_expression"], "i", non_vec_vars) }};
+            {{ cm_scalar_t }} {{ propagator }} = {{ vector_printer_propagator.print(propagator_info["init_expression"], "i", non_vec_vars) }};
             {%- endfor %}
             {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
             {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i", non_vec_vars) }};
@@ -1043,7 +1043,7 @@ void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(const std::ve
 
         {%- for ode_variable, ode_info in concentration_info["ODEs"].items() %}
             {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-            {{ cm_scalar_t }} {{ propagator }} = {{ vector_printer.print(propagator_info["init_expression"], "i", non_vec_vars) }};
+            {{ cm_scalar_t }} {{ propagator }} = {{ vector_printer_propagator.print(propagator_info["init_expression"], "i", non_vec_vars) }};
             {%- endfor %}
             {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
             {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i", non_vec_vars) }};
@@ -1437,7 +1437,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::f_numstep(const std::vector< {
 
       {%- for ode_variable, ode_info in receptor_info["ODEs"].items() %}
           {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-      {{ cm_scalar_t }} {{ propagator }} = {{ vector_printer.print(propagator_info["init_expression"], "i", non_vec_vars) }};
+      {{ cm_scalar_t }} {{ propagator }} = {{ vector_printer_propagator.print(propagator_info["init_expression"], "i", non_vec_vars) }};
           {%- endfor %}
           {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
       {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i", non_vec_vars) }};
@@ -1995,7 +1995,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep
     for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
         {%- for ode_variable, ode_info in synapse_info["ODEs"].items() %}
           {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-      {{ cm_scalar_t }} {{ propagator }} = {{ vector_printer.print(propagator_info["init_expression"], "i", non_vec_vars) }};
+      {{ cm_scalar_t }} {{ propagator }} = {{ vector_printer_propagator.print(propagator_info["init_expression"], "i", non_vec_vars) }};
           {%- endfor %}
           {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
       {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i", non_vec_vars) }};
@@ -2110,7 +2110,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep
 
       {%- for ode_variable, ode_info in receptor_info["ODEs"].items() %}
           {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-      {{ cm_scalar_t }} {{ propagator }} = {{ vector_printer.print(propagator_info["init_expression"], "i", non_vec_vars) }};
+      {{ cm_scalar_t }} {{ propagator }} = {{ vector_printer_propagator.print(propagator_info["init_expression"], "i", non_vec_vars) }};
           {%- endfor %}
           {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
       {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i", non_vec_vars) }};
@@ -2591,7 +2591,7 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::f_numstep(const std::vector<
       //update ODE state variable
       {%- for ode_variable, ode_info in continuous_info["ODEs"].items() %}
           {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-      {{ cm_scalar_t }} {{ propagator }} = {{ vector_printer.print(propagator_info["init_expression"], "i", non_vec_vars) }};
+      {{ cm_scalar_t }} {{ propagator }} = {{ vector_printer_propagator.print(propagator_info["init_expression"], "i", non_vec_vars) }};
           {%- endfor %}
           {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
       {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i", non_vec_vars) }};
