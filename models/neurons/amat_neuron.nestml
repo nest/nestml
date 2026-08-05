@@ -1,0 +1,228 @@
+# amat_neuron - Non-resetting leaky integrate-and-fire neuron with exponential PSCs and a multi-timescale adaptive threshold augmented with a voltage-dependency term (AMAT model)
+# ################################################################################################################################################################################
+#
+# Description
+# +++++++++++
+#
+# amat_neuron NESTML script extends mat2_psc_exp by adding a voltage-dependent term to the
+# adaptive threshold, as proposed by Yamauchi, Kim & Shinomoto (2011). The
+# threshold is now the sum of THREE components on top of the resting value omega:
+#
+#   1. V_th_alpha_1, V_th_alpha_2 : the original two-timescale spike-history
+#      terms, unchanged from mat2_psc_exp. Each own spike adds alpha_1/alpha_2
+#      and the terms decay with time constants tau_1/tau_2.
+#
+#   2. V_th_v : a new term driven continuously by dV/dt (NOT by spikes). It is
+#      the convolution of dV/dt with an alpha-function kernel K(s) = s*exp(-s/tau_V),
+#      scaled by beta. This convolution is implemented exactly as a pair of
+#      coupled linear ODEs (V_th_v, V_th_v_aux), derived via the Laplace-transform
+#      / alpha-kernel decomposition described in Yamauchi et al. (2011)
+#
+# Variable Description
+# +++++++++++
+# State variables (evolve over time during simulation):
+#   V_m          [mV]     Membrane potential, absolute (not relative to E_L).
+#                          Not reset on spike -- only the threshold moves.
+#   V_th_alpha_1 [mV]     Short-timescale component of the spike-history
+#                          threshold, theta_1(t) in the paper.
+#   V_th_alpha_2 [mV]     Long-timescale component of the spike-history
+#                          threshold, theta_2(t) in the paper.
+#   V_th_v       [mV]     Voltage-dependent threshold component, theta_V(t)
+#                          in the paper. Driven continuously by dV/dt, never
+#                          jumps at a spike.
+#   V_th_v_aux   [mV/ms]  Auxiliary variable w = dV_th_v/dt + V_th_v/tau_V.
+#                          Needed because the alpha-kernel convolution
+#                          defining V_th_v is mathematically a *second*-order
+#                          ODE; introducing w splits it into two coupled
+#                          *first*-order ODEs, which is what the simulator
+#                          can actually integrate.
+#   refr_t       [ms]     Countdown timer for the absolute refractory period.
+#                          Counts down from refr_T to 0 after each spike.
+# 
+# Parameters (fixed for the duration of a simulation, defined by the user/defaults):
+#   tau_m       [ms]    Membrane time constant.
+#   C_m         [pF]    Membrane capacitance.
+#   refr_T      [ms]    Duration of the absolute refractory period.
+#   E_L         [mV]    Resting potential.
+#   tau_syn_exc [ms]    Time constant of excitatory postsynaptic currents.
+#   tau_syn_inh [ms]    Time constant of inhibitory postsynaptic currents.
+#   tau_1       [ms]    Decay time constant of V_th_alpha_1.
+#   tau_2       [ms]    Decay time constant of V_th_alpha_2.
+#   alpha_1     [mV]    Amount V_th_alpha_1 jumps by on each own spike.
+#   alpha_2     [mV]    Amount V_th_alpha_2 jumps by on each own spike.
+#   omega       [mV]    Resting spike threshold (absolute, not relative to E_L).
+#   tau_V       [ms]    Timescale of the voltage-dependency kernel
+#                        K(s) = s*exp(-s/tau_V). Fixed at 5 ms in the paper.
+#   beta        [1/ms]  Strength and sign of the voltage dependency.
+#                        beta = 0  -> V_th_v stays at 0, model is identical
+#                                     to the original mat2_psc_exp.
+#                        beta < 0  -> phasic / rebound-type behaviour.
+#                        beta > 0  -> resonator / subthreshold-oscillation
+#                                     type behaviour.
+#   I_e         [pA]    Constant external input current.
+#
+# Internals (derived once, from the parameters above and the simulation
+# resolution; not set directly by the user):
+#   h        [ms]   Simulation time step (the simulation resolution).
+#   P11th    [real] Per-step decay factor for V_th_alpha_1: exp(-h/tau_1).
+#   P22th    [real] Per-step decay factor for V_th_alpha_2: exp(-h/tau_2).
+#   unit_psc [pA]   Unit-conversion constant for postsynaptic current amplitude.
+#
+# Input:
+#   exc_spikes         Excitatory spike train received by the neuron.
+#   inh_spikes         Inhibitory spike train received by the neuron.
+#   I_stim      [pA]   Externally injected continuous current (e.g. a current
+#                       generator device connected to this neuron).
+#
+# Output:
+#   spike              Emitted whenever the threshold condition is satisfied.
+#
+# References
+# ++++++++++
+#
+# .. [1] Rotter S and Diesmann M (1999). Exact simulation of
+#        time-invariant linear systems with applications to neuronal
+#        modeling. Biological Cybernetics 81:381-402.
+#        DOI: https://doi.org/10.1007/s004220050570
+#
+# .. [2] Diesmann M, Gewaltig M-O, Rotter S, Aertsen A (2001). State
+#        space analysis of synchronous spiking in cortical neural
+#        networks. Neurocomputing 38-40:565-571.
+#        DOI:https://doi.org/10.1016/S0925-2312(01)00409-X
+#
+# .. [3] Kobayashi R, Tsubo Y and Shinomoto S (2009). Made-to-order
+#        spiking neuron model equipped with a multi-timescale adaptive
+#        threshold. Frontiers in Computational Neuroscience 3:9.
+#        DOI: https://doi.org/10.3389/neuro.10.009.2009
+#
+# .. [4] Yamauchi S, Kim H and Shinomoto S (2011). Elemental spiking
+#        neuron model for reproducing diverse firing patterns and
+#        predicting precise firing times. Frontiers in Computational
+#        Neuroscience 5:42. DOI: https://doi.org/10.3389/fncom.2011.00042
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+model amat_neuron:
+    state:
+        
+        # spike-history threshold (oringal MAT neuronal model)
+        V_th_alpha_1 mV = 0 mV      # theta_1(t): short-timescale spike-history threshold
+        V_th_alpha_2 mV = 0 mV      # theta_2(t): long-timescale spike-history threshold
+
+        # voltage-dependent threshold (AMAT extension)
+        V_th_v mV = 0 mV           # theta_V(t): voltage-dependent threshold term
+        V_th_v_aux mV/ms = 0 mV/ms # Auxiliary variable w = dtheta_V/dt + theta_V/tau_V,
+                                   # needed to express the alpha-kernel convolution as two
+                                   # coupled first-order ODEs instead of one 2nd-order ODE. 
+        # membrane potential and refractory timer 
+        V_m mV = E_L        # Absolute membrane potential; never reset on spike
+        refr_t ms = 0 ms    # Refractory period timer; counts down to 0 after a spike
+
+    equations:
+
+        # Exponential-shaped postsynaptic current kernels (unchanged from mat2_psc_exp)
+        kernel I_kernel_inh = exp(-t / tau_syn_inh) # inhibitory kernel # inhibitory PSC waveform
+        kernel I_kernel_exc = exp(-t / tau_syn_exc) # excitatory kernel # excitatory PSC waveform
+
+        # decay ODEs for slow and fast adaptation (from mat2_psc_exp)
+        V_th_alpha_1' = -V_th_alpha_1 / tau_1
+        V_th_alpha_2' = -V_th_alpha_2 / tau_2
+
+
+        recordable inline I_syn_ex pA = (unit_psc * convolve(I_kernel_exc, exc_spikes))  # convolving the I_e exp exc kernel and convolved 
+    
+        recordable inline I_syn_in pA = (-unit_psc * convolve(I_kernel_inh, inh_spikes))   # convolving the I_e exp inh kernel and convolved 
+    
+        recordable inline I_syn pA = I_syn_ex + I_syn_in  # calculating the total synaptic current
+
+        # dV/dt, written once and reused below so the voltage-dependent threshold
+        # is driven by exactly the same rate-of-change that updates V_m itself.
+        inline dV_dt mV/ms = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
+
+        # Membrane potential ODE: tau_m * dV/dt = -(V-E_L) + R*I  (unchanged from mat2_psc_exp)
+        V_m' = dV_dt
+
+        # The AMAT voltage-dependent threshold pair
+        # Single second-order ODE into the two coupled first-order ODEs below: 
+        V_th_v_aux' = -V_th_v_aux / tau_v + beta * dV_dt
+        V_th_v' = -V_th_v / tau_v + V_th_v_aux
+
+        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. 
+
+        recordable inline V_th mV = (omega + V_th_alpha_1 + V_th_alpha_2 + V_th_v)  #  recordable summed threshold per Eq. 16 of Yamauchi et al. 2011
+
+
+    parameters:
+        
+        # membrane parameters (unchanged from mat2_psc_exp) 
+        tau_m ms = 10 ms          # Membrane time constant (Yamauchi et al. explicitly states to use 10 ms)
+        C_m pF = 200 pF          # Capacitance of the membrane
+        refr_T ms = 2 ms         # Duration of refractory period
+        E_L mV = -70 mV          # Resting potential
+        tau_syn_exc ms = 1 ms    # Time constant of postsynaptic excitatory currents
+        tau_syn_inh ms = 3 ms    # Time constant of postsynaptic inhibitory currents
+        
+        # spike-history threshold parameters (unchanged from mat2_psc_exp) 
+        tau_1 ms = 10 ms         # Short time constant of adaptive threshold
+        tau_2 ms = 200 ms        # Long time constant of adaptive threshold
+        alpha_1 mV = 10 mV       # Amplitude of short time threshold adaptation [3]
+        alpha_2 mV = 0 mV        # Amplitude of long time threshold adaptation [4]
+        
+        omega mV = -65 mV         # This value is relative to E_L (resting spike offset) 
+                                  # E_L is resting ate -70mV and then with omega_offset is 5mV, sitting 5mV higher than resting. 
+
+        # voltage-dependent threshold parameters (new, AMAT extension) 
+        tau_v ms = 5 ms          # Timescale of the voltage-dependency kernel K(s)=s*exp(-s/tau_v) [4]
+        
+        beta 1/ms = 0 / ms       # Strength/sign of voltage dependency. beta=0 recovers mat2_psc_exp
+                                 # exactly. Negative beta -> phasic/rebound-type behaviour;
+                                 # positive beta -> resonator/subthreshold-oscillation-type behaviour [4]
+        
+        I_e pA = 0 pA            # constant external input current
+
+    internals:
+        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+
+    input:
+        exc_spikes <- excitatory spike  # Incoming excitatory spikes
+        inh_spikes <- inhibitory spike  # Incoming inhibitory spikes
+        I_stim pA <- continuous         # Externally injected continuous current
+
+    output:
+        spike                            # This neuron emits spike events
+
+    
+    update:
+        if refr_t > 0 ms:
+            # Neuron is absolute refractory. To match the NEST AMAT model behaviour, all dynamical equations continue to be integrated, even while the neuron is refractory
+            integrate_odes(V_m, V_th_v_aux, V_th_v, V_th_alpha_1, V_th_alpha_2, refr_t)
+        else:
+            integrate_odes(V_m, V_th_v_aux, V_th_v, V_th_alpha_1, V_th_alpha_2)
+    
+    onCondition(refr_t <= 0 ms and V_m >= V_th):
+        # Firing threshold was crossed: fire a spike!
+        
+        refr_t = refr_T    # start of the refractory period
+
+        V_th_alpha_1 += alpha_1 # short adaptation time
+        V_th_alpha_2 += alpha_2 # long adaptation time
+
+        emit_spike()
