@@ -19,8 +19,18 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Any, Dict, Optional
+
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
+
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
@@ -40,11 +50,14 @@ class CoCoConvolveCondCorrectlyBuilt(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node: ASTModel):
+    @override
+    def check_co_co(cls, node: ASTNode, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
         """
         Ensures the coco for the handed over neuron.
-        :param node: a single neuron instance.
+        :param node: a single model instance.
         """
+        assert isinstance(node, ASTModel), "This coco can only be called on ASTModels!"
+
         node.accept(ConvolveCheckerVisitor())
 
 
@@ -55,7 +68,7 @@ class ConvolveCheckerVisitor(ASTVisitor):
 
     def visit_function_call(self, node):
         func_name = node.get_name()
-        if func_name == 'convolve':
+        if func_name == "convolve":
             symbol_var = node.get_scope().resolve_to_symbol(str(node.get_args()[0]),
                                                             SymbolKind.VARIABLE)
             symbol_port = node.get_scope().resolve_to_symbol(str(node.get_args()[1]),

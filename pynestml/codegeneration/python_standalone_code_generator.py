@@ -67,7 +67,6 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
         "solver": "analytic",
         "numeric_solver": "rk45",
         "neuron_synapse_pairs": [],
-        "delay_variable": {},
         "weight_variable": {}
     }
 
@@ -79,8 +78,6 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
             if not k in self._options.keys():
                 self.add_options({k: v})
 
-        self.analytic_solver = {}
-        self.numeric_solver = {}
         self.non_equations_state_variables = {}  # those state variables not defined as an ODE in the equations block
 
         self.setup_template_env()
@@ -120,8 +117,8 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
         self._gsl_variable_printer._expression_printer = self._gsl_printer
 
-    def _get_model_namespace(self, astnode: ASTModel) -> Dict:
-        namespace = super()._get_model_namespace(astnode)
+    def _get_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
+        namespace = super()._get_model_namespace(astnode, metadata)
         namespace["python_codegen_utils"] = PythonCodeGeneratorUtils
         namespace["gsl_printer"] = self._gsl_printer
 

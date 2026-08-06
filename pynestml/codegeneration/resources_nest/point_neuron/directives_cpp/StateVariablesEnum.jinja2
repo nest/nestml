@@ -1,8 +1,9 @@
 {#
   Generates an Enum with state variables that are recordable when the neuron model uses vectors
   @param neuron ASTModel: the neuron model
--#}
+#}
 
+{%- filter indent(4, True) %}
 enum StateVecVars {
 {%- set ns = namespace(count=0) %}
 {%- for variable in neuron.get_state_symbols() %}
@@ -18,3 +19,4 @@ enum StateVecVars {
 {%-     endif %}
 {%- endfor %}
 };
+{%- endfilter %}

@@ -107,31 +107,31 @@ class TestUnitSystem:
         return self.printer.print(return_expression)
 
     def test_expression_after_magnitude_conversion_in_direct_assignment(self):
-        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')), 'DirectAssignmentWithDifferentButCompatibleUnits.nestml'))
+        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "DirectAssignmentWithDifferentButCompatibleUnits.nestml"))
         printed_rhs_expression = self.print_rhs_of_first_assignment_in_update_block(model)
 
-        assert printed_rhs_expression == '(1000.0 * (10 * V))'
+        assert printed_rhs_expression == "(1000.0 * (10 * V))"
 
     def test_expression_after_nested_magnitude_conversion_in_direct_assignment(self):
-        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')), 'DirectAssignmentWithDifferentButCompatibleNestedUnits.nestml'))
+        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "DirectAssignmentWithDifferentButCompatibleNestedUnits.nestml"))
         printed_rhs_expression = self.print_rhs_of_first_assignment_in_update_block(model)
 
-        assert printed_rhs_expression == '(1000.0 * (10 * V + (0.001 * (5 * mV)) + 20 * V + (1000.0 * (1 * kV))))'
+        assert printed_rhs_expression == "(1000.0 * (10 * V + (0.001 * (5 * mV)) + 20 * V + (1000.0 * (1 * kV))))"
 
     def test_expression_after_magnitude_conversion_in_compound_assignment(self):
-        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')), 'CompoundAssignmentWithDifferentButCompatibleUnits.nestml'))
+        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "CompoundAssignmentWithDifferentButCompatibleUnits.nestml"))
         printed_rhs_expression = self.print_rhs_of_first_assignment_in_update_block(model)
 
-        assert printed_rhs_expression == '(0.001 * (1200 * mV))'
+        assert printed_rhs_expression == "(0.001 * (1200 * mV))"
 
     def test_expression_after_magnitude_conversion_in_declaration(self):
-        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')), 'DeclarationWithDifferentButCompatibleUnitMagnitude.nestml'))
+        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "DeclarationWithDifferentButCompatibleUnitMagnitude.nestml"))
         printed_rhs_expression = self.print_rhs_of_first_declaration_in_state_block(model)
 
-        assert printed_rhs_expression == '(1000.0 * (10 * V))'
+        assert printed_rhs_expression == "(1000.0 * (10 * V))"
 
     def test_expression_after_type_conversion_in_declaration(self):
-        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')), 'DeclarationWithDifferentButCompatibleUnits.nestml'))
+        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "DeclarationWithDifferentButCompatibleUnits.nestml"))
         declaration = self.get_first_declaration_in_state_block(model)
         from astropy import units as u
 
@@ -140,25 +140,25 @@ class TestUnitSystem:
     def test_declaration_with_same_variable_name_as_unit(self):
         Logger.init_logger(LoggingLevel.DEBUG)
 
-        generate_target(input_path=os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')), 'DeclarationWithSameVariableNameAsUnit.nestml'), target_platform="NONE", logging_level="DEBUG")
+        generate_target(input_path=os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "DeclarationWithSameVariableNameAsUnit.nestml"), target_platform="NONE", logging_level="DEBUG")
 
         assert len(Logger.get_messages("BlockTest", LoggingLevel.ERROR)) == 0
         assert len(Logger.get_messages("BlockTest", LoggingLevel.WARNING)) == 3
 
     def test_expression_after_magnitude_conversion_in_standalone_function_call(self):
-        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')), 'FunctionCallWithDifferentButCompatibleUnits.nestml'))
+        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "FunctionCallWithDifferentButCompatibleUnits.nestml"))
         printed_function_call = self.print_first_function_call_in_update_block(model)
 
-        assert printed_function_call == 'foo((1000.0 * (10 * V)))'
+        assert printed_function_call == "foo((1000.0 * (10 * V)))"
 
     def test_expression_after_magnitude_conversion_in_rhs_function_call(self):
-        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')), 'RhsFunctionCallWithDifferentButCompatibleUnits.nestml'))
+        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "RhsFunctionCallWithDifferentButCompatibleUnits.nestml"))
         printed_function_call = self.print_rhs_of_first_assignment_in_update_block(model)
 
-        assert printed_function_call == 'foo((1000.0 * (10 * V)))'
+        assert printed_function_call == "foo((1000.0 * (10 * V)))"
 
     def test_return_stmt_after_magnitude_conversion_in_function_body(self):
-        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')), 'FunctionBodyReturnStatementWithDifferentButCompatibleUnits.nestml'))
+        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "FunctionBodyReturnStatementWithDifferentButCompatibleUnits.nestml"))
         printed_return_stmt = self.print_first_return_statement_in_first_declared_function(model)
 
-        assert printed_return_stmt == '(0.001 * (bar))'
+        assert printed_return_stmt == "(0.001 * (bar))"

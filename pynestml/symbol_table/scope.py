@@ -331,11 +331,11 @@ class Scope:
         Returns a string representation of symbol table as used for debug purpose.
         :return: a string representation of the scope and its sub-scope.
         """
-        ret = ('-' * 2 * (self.get_depth_of_scope()))
-        ret += '<' + self.get_scope_type().name + ',' + str(self.get_source_location()) + '>' + '\n'
+        ret = ("-" * 2 * (self.get_depth_of_scope()))
+        ret += "<" + self.get_scope_type().name + "," + str(self.get_source_location()) + ">" + "\n"
         for elem in self.declared_elements:
             if isinstance(elem, Symbol):
-                ret += ('-' * 2 * (self.get_depth_of_scope() + 1)) + elem.print_symbol() + '\n'
+                ret += ("-" * 2 * (self.get_depth_of_scope() + 1)) + elem.print_symbol() + "\n"
             else:
                 ret += elem.print_scope()
         return ret

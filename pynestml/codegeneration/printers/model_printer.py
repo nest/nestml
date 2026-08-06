@@ -60,7 +60,7 @@ from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
 from pynestml.meta_model.ast_input_port import ASTInputPort
-from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
+from pynestml.meta_model.ast_compilation_unit import ASTCompilationUnit
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 
 
@@ -129,7 +129,7 @@ class ModelPrinter(ASTPrinter):
     def print_logical_operator(self, node: ASTLogicalOperator) -> str:
         raise Exception("Printer does not support printing this node type")
 
-    def print_compilation_unit(self, node: ASTNestMLCompilationUnit) -> str:
+    def print_compilation_unit(self, node: ASTCompilationUnit) -> str:
         raise Exception("Printer does not support printing this node type")
 
     def print_neuron(self, node: ASTModel) -> str:
@@ -259,7 +259,7 @@ class ModelPrinter(ASTPrinter):
         if isinstance(node, ASTLogicalOperator):
             return self.print_logical_operator(node)
 
-        if isinstance(node, ASTNestMLCompilationUnit):
+        if isinstance(node, ASTCompilationUnit):
             return self.print_compilation_unit(node)
 
         if isinstance(node, ASTModel):

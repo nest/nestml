@@ -10,7 +10,7 @@ GeNN is a GPU-enhanced Neuronal Network simulation environment based on code gen
 
 NESTML code generation support for GeNN currently covers neuron models with linear dynamics that can be solved with propagators, as well as neurons that require a numeric solver, which for GeNN is implemented (in the neuron code templates) as a forward Euler solver.
 
-Please see the unit tests in https://github.com/nest/nestml/tree/master/tests/genn_tests for usage examples.
+Please see the unit tests in https://github.com/nest/nestml/tree/main/tests/genn_tests for usage examples.
 
 
 Generating code

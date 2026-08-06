@@ -23,19 +23,19 @@ import numpy as np
 import os
 import pytest
 
+# try to import matplotlib; set the result in the flag TEST_PLOTS
+try:
+    import matplotlib as mpl
+    mpl.use("agg")
+    import matplotlib.pyplot as plt
+    TEST_PLOTS = True
+except BaseException:
+    TEST_PLOTS = False
+
 import nest
 
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
-
-try:
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.ticker
-    import matplotlib.pyplot as plt
-    TEST_PLOTS = True
-except Exception:
-    TEST_PLOTS = False
 
 
 @pytest.fixture(autouse=True,
@@ -52,12 +52,9 @@ def nestml_generate_target():
                          logging_level="INFO",
                          suffix="_nestml",
                          codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_neuron",
-                                                                 "synapse": "stdp_synapse",
-                                                                 "post_ports": ["post_spikes"]},
+                                                                 "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}},
                                                                 {"neuron": "izhikevich_neuron",
-                                                                 "synapse": "stdp_synapse",
-                                                                 "post_ports": ["post_spikes"]}],
-                                       "delay_variable": {"stdp_synapse": "d"},
+                                                                 "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}}],
                                        "weight_variable": {"stdp_synapse": "w"}})
 
 
@@ -72,7 +69,7 @@ def run_stdp_network(pre_spike_time, post_spike_time,
     print("Pre spike time: " + str(pre_spike_time))
     print("Post spike time: " + str(post_spike_time))
 
-    nest.set_verbosity("M_ALL")
+    NESTTools.set_nest_verbosity("ALL")
 
     nest.ResetKernel()
     nest.SetKernelStatus({"resolution": resolution})

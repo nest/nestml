@@ -1,14 +1,12 @@
 # CoCoVariableRedeclared.nestml
 # #############################
 #
-#
 # Description
 # +++++++++++
 #
 # This model is used to test if broken CoCos are identified correctly. Here, if redeclaration of symbols is detected.
 #
 # Negative case.
-#
 #
 # Copyright statement
 # +++++++++++++++++++

@@ -30,10 +30,10 @@ class StringTypeSymbol(TypeSymbol):
         return True
 
     def __init__(self):
-        super(StringTypeSymbol, self).__init__(name='string')
+        super(StringTypeSymbol, self).__init__(name="string")
 
     def print_nestml_type(self):
-        return 'string'
+        return "string"
 
     def __add__(self, other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
@@ -42,7 +42,7 @@ class StringTypeSymbol(TypeSymbol):
             return other
         if not other.is_instance_of(VoidTypeSymbol):
             return self
-        return self.binary_operation_not_defined_error('+', other)
+        return self.binary_operation_not_defined_error("+", other)
 
     def is_castable_to(self, _other_type):
         if super(StringTypeSymbol, self).is_castable_to(_other_type):

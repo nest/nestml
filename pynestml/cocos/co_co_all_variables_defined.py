@@ -19,9 +19,19 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
+
+from typing import Any, Dict, Optional
+
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
@@ -41,11 +51,14 @@ class CoCoAllVariablesDefined(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node: ASTModel):
+    @override
+    def check_co_co(cls, node: ASTNode, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
         """
         Checks if this coco applies for the handed over neuron. Models which contain undefined variables are not correct.
-        :param node: a single neuron instance.
+        :param node: a single model instance.
         """
+        assert isinstance(node, ASTModel), "This coco can only be called on ASTModels!"
+
         # for each variable in all expressions, check if the variable has been defined previously
         expression_collector_visitor = ASTExpressionCollectorVisitor()
         node.accept(expression_collector_visitor)
@@ -67,17 +80,6 @@ class CoCoAllVariablesDefined(CoCo):
                     for equations_block in node.get_equations_blocks():
                         inline_expr_names.extend([inline_expr.variable_name for inline_expr in equations_block.get_inline_expressions()])
                         inline_exprs.extend(equations_block.get_inline_expressions())
-
-                    if var.get_name() in inline_expr_names:
-                        inline_expr_idx = inline_expr_names.index(var.get_name())
-                        inline_expr = inline_exprs[inline_expr_idx]
-                        from pynestml.utils.ast_utils import ASTUtils
-                        if ASTUtils.inline_aliases_convolution(inline_expr):
-                            symbol2 = node.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
-                            if symbol2 is not None:
-                                # actually, no problem detected, skip error
-                                # XXX: TODO: check that differential order is less than or equal to that of the kernel
-                                continue
 
                     # check if this symbol is actually a type, e.g. "mV" in the expression "(1 + 2) * mV"
                     symbol2 = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.TYPE)

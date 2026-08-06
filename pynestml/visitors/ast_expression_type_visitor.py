@@ -82,7 +82,7 @@ class ASTExpressionTypeVisitor(ASTVisitor):
         :type node: ASTSimpleExpression
         """
         assert (node is not None and isinstance(node, ASTSimpleExpression)), \
-            '(PyNestML.ASTExpressionTypeVisitor) No or wrong type of simple-expression provided (%s)!' % type(node)
+            "(PyNestML.ASTExpressionTypeVisitor) No or wrong type of simple-expression provided (%s)!" % type(node)
         # handle all simpleExpressions
         if isinstance(node, ASTSimpleExpression):
             # simpleExpression = functionCall
@@ -120,7 +120,7 @@ class ASTExpressionTypeVisitor(ASTVisitor):
         :type _node: ASTExpression
         """
         assert (_node is not None and isinstance(_node, ASTExpression)), \
-            '(PyNestML.ASTExpressionTypeVisitor) No or wrong type of expression provided (%s)!' % type(_node)
+            "(PyNestML.ASTExpressionTypeVisitor) No or wrong type of expression provided (%s)!" % type(_node)
         # Expr = unaryOperator term=expression
         if _node.get_expression() is not None and _node.get_unary_operator() is not None:
             _node.get_expression().accept(self)

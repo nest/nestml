@@ -24,7 +24,7 @@ from pynestml.symbols.type_symbol import TypeSymbol
 
 class ErrorTypeSymbol(TypeSymbol):
     """
-    Originally intended to only be a 'Null type' for the TypeSymbol hierarchy,
+    Originally intended to only be a "Null type" for the TypeSymbol hierarchy,
     it is now also a device to communicate errors and warnings back to a place where they can be properly logged
     (we cant do that here because we don't know t he source-position).
     Thought about using Exceptions but that would lead to loads of code duplication in the
@@ -40,13 +40,13 @@ class ErrorTypeSymbol(TypeSymbol):
         return False
 
     def print_nestml_type(self) -> str:
-        return 'error'
+        return "error"
 
     def is_primitive(self):
         return False
 
     def __init__(self):
-        super(ErrorTypeSymbol, self).__init__(name='error')
+        super(ErrorTypeSymbol, self).__init__(name="error")
 
     def __mul__(self, other):
         return self

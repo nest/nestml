@@ -26,7 +26,7 @@ class VariadicTypeSymbol(TypeSymbol):
     r"""Variadic type symbol for a variadic parameters list (variable-length list of parameters)."""
 
     def __init__(self):
-        super(VariadicTypeSymbol, self).__init__(name='__variadic__')
+        super(VariadicTypeSymbol, self).__init__(name="__variadic__")
 
     def is_numeric(self):
         return False
@@ -35,7 +35,7 @@ class VariadicTypeSymbol(TypeSymbol):
         return False
 
     def print_nestml_type(self):
-        return '<variadic>'
+        return "<variadic>"
 
     def is_castable_to(self, _other_type):
         return False

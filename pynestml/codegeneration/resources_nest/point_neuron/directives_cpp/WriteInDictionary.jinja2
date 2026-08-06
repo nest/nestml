@@ -1,6 +1,18 @@
 {#
 Write a value into a dictionary.
 #}
-{%- macro WriteInDictionary(dict_name, variable_type, variable_name, value) -%}
+{%- macro WriteInDictionary(dict_name, variable_type, variable_name, value, key_as_str=false) -%}
+{%- if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3)))  %}
+{%-   if key_as_str %}
+def< {{ variable_type }} >({{ dict_name }}, "{{ variable_name }}", {{ value }});
+{%-   else %}
 def< {{ variable_type }} >({{ dict_name }}, {{ variable_name }}, {{ value }});
+{%-   endif  %}
+{%- else %}
+{%-   if key_as_str %}
+{{ dict_name }}[ "{{ variable_name }}" ] = {{ value }};
+{%-   else %}
+{{ dict_name }}[ {{ variable_name }} ] = {{ value }};
+{%-   endif  %}
+{%- endif %}
 {%- endmacro -%}

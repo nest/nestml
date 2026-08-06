@@ -29,10 +29,10 @@ class VoidTypeSymbol(TypeSymbol):
         return True
 
     def __init__(self):
-        super(VoidTypeSymbol, self).__init__(name='void')
+        super(VoidTypeSymbol, self).__init__(name="void")
 
     def print_nestml_type(self):
-        return 'void'
+        return "void"
 
     def is_castable_to(self, _other_type):
         if super(VoidTypeSymbol, self).is_castable_to(_other_type):

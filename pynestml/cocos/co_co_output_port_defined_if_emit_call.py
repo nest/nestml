@@ -19,13 +19,20 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
+from typing import Any, Dict, Optional
+
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
 
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -37,14 +44,17 @@ class CoCoOutputPortDefinedIfEmitCall(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, neuron: ASTModel):
+    @override
+    def check_co_co(cls, node: ASTNode, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
         """
-        Checks the coco for the handed over neuron.
-        :param neuron: a single neuron instance.
+        Checks the coco for the handed over model.
+        :param node: a single model instance.
         """
+        assert isinstance(node, ASTModel), "This coco can only be called on ASTModels!"
+
         visitor = OutputPortDefinedIfEmitCalledVisitor()
-        visitor.neuron = neuron
-        neuron.accept(visitor)
+        visitor.neuron = node
+        node.accept(visitor)
 
 
 class OutputPortDefinedIfEmitCalledVisitor(ASTVisitor):
@@ -67,13 +77,13 @@ class OutputPortDefinedIfEmitCalledVisitor(ASTVisitor):
 
             # exactly one output block should be defined
             if len(output_blocks) == 0:
-                code, message = Messages.get_block_not_defined_correctly('output', missing=True)
+                code, message = Messages.get_block_not_defined_correctly("output", missing=True)
                 Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
                                    code=code, message=message)
                 return
 
             if len(output_blocks) > 1:
-                code, message = Messages.get_block_not_defined_correctly('output', missing=False)
+                code, message = Messages.get_block_not_defined_correctly("output", missing=False)
                 Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
                                    code=code, message=message)
                 return
@@ -85,31 +95,3 @@ class OutputPortDefinedIfEmitCalledVisitor(ASTVisitor):
                 Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR,
                                    error_position=output_blocks[0].get_source_position())
                 return
-
-            # check types
-            if len(node.get_args()) != len(output_blocks[0].get_attributes()):
-                code, message = Messages.get_output_port_type_differs()
-                Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR,
-                                   error_position=output_blocks[0].get_source_position())
-                return
-
-            for emit_spike_arg, output_block_attr in zip(node.get_args(), output_blocks[0].get_attributes()):
-                emit_spike_arg_type_sym = emit_spike_arg.type
-                output_block_attr_type_sym = output_block_attr.get_data_type().get_type_symbol()
-
-                if emit_spike_arg_type_sym.equals(output_block_attr_type_sym):
-                    continue
-
-                if emit_spike_arg_type_sym.is_castable_to(output_block_attr_type_sym):
-                    # types are not equal, but castable
-                    code, message = Messages.get_implicit_cast_rhs_to_lhs(output_block_attr_type_sym.print_symbol(),
-                                                                          emit_spike_arg_type_sym.print_symbol())
-                    Logger.log_message(error_position=output_blocks[0].get_source_position(),
-                                       code=code, message=message, log_level=LoggingLevel.WARNING)
-                    continue
-                else:
-                    # types are not equal and not castable
-                    code, message = Messages.get_output_port_type_differs()
-                    Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR,
-                                       error_position=output_blocks[0].get_source_position())
-                    return

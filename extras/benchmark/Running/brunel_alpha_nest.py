@@ -185,8 +185,8 @@ def convert_np_arrays_to_lists(obj):
 
 def _VmB(VmKey):
     r"""This code is from beNNch, https://github.com/INM-6/beNNch-models/, 2024-05-18"""
-    _proc_status = '/proc/%d/status' % os.getpid()
-    _scale = {'kB': 1024.0, 'mB': 1024.0 * 1024.0, 'KB': 1024.0, 'MB': 1024.0 * 1024.0}
+    _proc_status = "/proc/%d/status" % os.getpid()
+    _scale = {"kB": 1024.0, "mB": 1024.0 * 1024.0, "KB": 1024.0, "MB": 1024.0 * 1024.0}
     # get pseudo file  /proc/<pid>/status
     try:
         t = open(_proc_status)
@@ -205,17 +205,17 @@ def _VmB(VmKey):
 
 def get_vmsize(since=0.0):
     """Return memory usage in bytes."""
-    return _VmB('VmSize:') - since
+    return _VmB("VmSize:") - since
 
 
 def get_rss(since=0.0):
     """Return resident memory usage in bytes."""
-    return _VmB('VmRSS:') - since
+    return _VmB("VmRSS:") - since
 
 
 def get_vmpeak(since=0.0):
     """Return peak memory usage in bytes."""
-    return _VmB('VmPeak:') - since
+    return _VmB("VmPeak:") - since
 
 
 ###############################################################################
@@ -267,9 +267,9 @@ def plot_interspike_intervals(spike_times_list, path, fname_snip=""):
 
     # Plot the distribution of interspike intervals
     plt.figure(figsize=(6, 4))
-    plt.hist(interspike_intervals, bins=30, edgecolor='black', alpha=0.75)
-    plt.xlabel('Interspike Interval (ms)')
-    plt.ylabel('Frequency')
+    plt.hist(interspike_intervals, bins=30, edgecolor="black", alpha=0.75)
+    plt.xlabel("Interspike Interval (ms)")
+    plt.ylabel("Frequency")
     plt.grid(True)
     plt.tight_layout()
     plt.savefig(f"{path}/isi_distribution_" + fname_snip + ".png")
@@ -289,14 +289,14 @@ def plot_interspike_intervals(spike_times_list, path, fname_snip=""):
 # (1 pA) using the `Lambert W` function. Thus function will later be used to
 # calibrate the synaptic weights.
 
-parser = argparse.ArgumentParser(description='Run a simulation with NEST')
-parser.add_argument('--benchmarkPath', type=str, default='', help='Path to the nest installation')
-parser.add_argument('--simulated_neuron', type=str, default='iaf_psc_alpha_neuron_Nestml', help='Name of the model to use')
-parser.add_argument('--network_scale', type=int, default=2500, help='Number of neurons to use')
-parser.add_argument('--nodes', type=int, default=1, required=False, help='Number of compute nodes to use')
-parser.add_argument('--threads', type=int, default=1, help='Number of threads to use')
-parser.add_argument('--iteration', type=int, help='iteration number used for the benchmark')
-parser.add_argument('--rng_seed', type=int, help='random seed', default=123)
+parser = argparse.ArgumentParser(description="Run a simulation with NEST")
+parser.add_argument("--benchmarkPath", type=str, default="", help="Path to the nest installation")
+parser.add_argument("--simulated_neuron", type=str, default="iaf_psc_alpha_neuron_Nestml", help="Name of the model to use")
+parser.add_argument("--network_scale", type=int, default=2500, help="Number of neurons to use")
+parser.add_argument("--nodes", type=int, default=1, required=False, help="Number of compute nodes to use")
+parser.add_argument("--threads", type=int, default=1, help="Number of threads to use")
+parser.add_argument("--iteration", type=int, help="iteration number used for the benchmark")
+parser.add_argument("--rng_seed", type=int, help="random seed", default=123)
 args = parser.parse_args()
 
 

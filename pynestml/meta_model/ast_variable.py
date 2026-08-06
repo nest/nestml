@@ -32,9 +32,9 @@ class ASTVariable(ASTNode):
     r"""
     This class is used to store a single variable.
 
-    ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
+    ASTVariable Provides a "marker" AST node to identify variables used in expressions.
     Grammar:
-        variable : NAME (differentialOrder='\'')*;
+        variable : NAME (differentialOrder="'")*;
     Attributes:
         name = None
         differential_order = None
@@ -56,11 +56,11 @@ class ASTVariable(ASTNode):
         """
         super(ASTVariable, self).__init__(*args, **kwargs)
         assert isinstance(differential_order, int), \
-            '(PyNestML.AST.Variable) No or wrong type of differential order provided (%s)!' % type(differential_order)
+            "(PyNestML.AST.Variable) No or wrong type of differential order provided (%s)!" % type(differential_order)
         assert (differential_order >= 0), \
-            '(PyNestML.AST.Variable) Differential order must be at least 0, is %d!' % differential_order
+            "(PyNestML.AST.Variable) Differential order must be at least 0, is %d!" % differential_order
         assert isinstance(name, str), \
-            '(PyNestML.AST.Variable) No or wrong type of name provided (%s)!' % type(name)
+            "(PyNestML.AST.Variable) No or wrong type of name provided (%s)!" % type(name)
         self.name = name
         self.differential_order = differential_order
         self.type_symbol = type_symbol
@@ -125,7 +125,7 @@ class ASTVariable(ASTNode):
         Returns the complete name, consisting of the name and the differential order.
         :return: the complete name.
         """
-        return self.get_name() + '\'' * self.get_differential_order()
+        return self.get_name() + "'" * self.get_differential_order()
 
     def get_name_of_lhs(self) -> str:
         r"""
@@ -133,7 +133,7 @@ class ASTVariable(ASTNode):
         :return: the name.
         """
         if self.get_differential_order() > 0:
-            return self.get_name() + '\'' * (self.get_differential_order() - 1)
+            return self.get_name() + "'" * (self.get_differential_order() - 1)
         return self.get_name()
 
     def get_type_symbol(self) -> TypeSymbol:
@@ -182,7 +182,7 @@ class ASTVariable(ASTNode):
         Updates the current delay parameter to the handed over value
         :param delay: delay parameter
         """
-        assert (delay is not None), '(PyNestML.AST.Variable) No delay parameter provided'
+        assert (delay is not None), "(PyNestML.AST.Variable) No delay parameter provided"
         self.delay_parameter = delay
 
     def is_unit_variable(self) -> bool:

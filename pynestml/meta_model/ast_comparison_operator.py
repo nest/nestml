@@ -28,7 +28,7 @@ class ASTComparisonOperator(ASTNode):
     """
     This class is used to store a single comparison operator.
     Grammar:
-        comparisonOperator : (lt='<' | le='<=' | eq='==' | ne='!=' | ne2='<>' | ge='>=' | gt='>');
+        comparisonOperator : (lt="<" | le="<=" | eq="==" | ne="!=" | ne2="<>" | ge=">=" | gt=">");
     Attributes:
         is_lt = False
         is_le = False
@@ -62,7 +62,7 @@ class ASTComparisonOperator(ASTNode):
         :type is_gt: bool
         """
         assert ((is_lt + is_le + is_eq + is_ne + is_ne2 + is_ge + is_gt) == 1), \
-            '(PyNestML.ASTComparisonOperator) Comparison operator not correctly specified!'
+            "(PyNestML.ASTComparisonOperator) Comparison operator not correctly specified!"
         super(ASTComparisonOperator, self).__init__(*args, **kwargs)
         self.is_gt = is_gt
         self.is_ge = is_ge

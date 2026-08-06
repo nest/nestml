@@ -23,19 +23,19 @@ import numpy as np
 import os
 import pytest
 
+# try to import matplotlib; set the result in the flag TEST_PLOTS
+try:
+    import matplotlib as mpl
+    mpl.use("agg")
+    import matplotlib.pyplot as plt
+    TEST_PLOTS = True
+except BaseException:
+    TEST_PLOTS = False
+
 import nest
 
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
-
-try:
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.ticker
-    import matplotlib.pyplot as plt
-    TEST_PLOTS = True
-except Exception:
-    TEST_PLOTS = False
 
 
 @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
@@ -66,10 +66,7 @@ class TestSynapseContinuousThirdFactorIsPostsynapticInlineExpression:
                 "neuron_parent_class_include": "structural_plasticity_node.h",
                 "neuron_synapse_pairs": [{
                     "neuron": self.neuron_model_name,
-                    "synapse": self.synapse_model_name,
-                    "post_ports": ["post_spikes", ("I_AMPA", "I_AMPA")],
-                }],
-                "delay_variable": {self.synapse_model_name: "d"},
+                    "synapses": {self.synapse_model_name: {"post_ports": ["post_spikes", ("I_AMPA", "I_AMPA")]}}}],
                 "weight_variable": {self.synapse_model_name: "w"},
                 "continuous_state_buffering_method": "post_spike_based"
             }
@@ -83,7 +80,7 @@ class TestSynapseContinuousThirdFactorIsPostsynapticInlineExpression:
 
         nest.ResetKernel()
         nest.resolution = 1.
-        nest.set_verbosity("M_ERROR")
+        NESTTools.set_nest_verbosity("ERROR")
 
         nest.Install("nestmlmodule")
 

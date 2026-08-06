@@ -40,7 +40,7 @@ class TestNestMathFunction:
 
         nest_version = NESTTools.detect_nest_version()
 
-        nest.set_verbosity("M_ALL")
+        NESTTools.set_nest_verbosity("ALL")
         generate_nest_target(input_path,
                              target_path=target_path,
                              logging_level=logging_level,

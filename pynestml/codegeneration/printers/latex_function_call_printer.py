@@ -56,22 +56,22 @@ class LatexFunctionCallPrinter(FunctionCallPrinter):
 
         if function_name in [PredefinedFunctions.TIME_RESOLUTION, PredefinedFunctions.TIME_TIMESTEP]:
             # context dependent; we assume the template contains the necessary definitions
-            return r'\Delta{}t'
+            return r"\Delta{}t"
 
         if function_name == PredefinedFunctions.TIME_STEPS:
-            return r'\text{steps}'
+            return r"\text{steps}"
 
         if function_name == PredefinedFunctions.RANDOM_NORMAL:
-            return r'\mathcal{N}({!s}, {!s})'
+            return r"\mathcal{N}({!s}, {!s})"
 
         if function_name == PredefinedFunctions.RANDOM_POISSON:
-            return r'\mathrm{Poisson}({!s})'
+            return r"\mathrm{Poisson}({!s})"
 
         if function_name == PredefinedFunctions.RANDOM_UNIFORM:
-            return r'\mathcal{U}({!s}, {!s})'
+            return r"\mathcal{U}({!s}, {!s})"
 
         if function_name == PredefinedFunctions.EMIT_SPIKE:
-            return r'\text{spike}'
+            return r"\text{spike}"
 
         return r"\text{" + function_name + r"}"
 
@@ -80,9 +80,9 @@ class LatexFunctionCallPrinter(FunctionCallPrinter):
 
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
-            result += '(' + ', '.join(['%s' for _ in range(n_args)]) + ')'
+            result += "(" + ", ".join(["%s" for _ in range(n_args)]) + ")"
         else:
-            result += '()'
+            result += "()"
 
         return result % self._print_function_call_argument_list(function_call)
 

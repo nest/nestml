@@ -57,9 +57,9 @@ class TestCoCos:
             os.path.join(
                 os.path.realpath(
                     os.path.join(
-                        os.path.dirname(__file__), 'resources',
-                        'invalid')),
-                'CoCoCmVariablesDeclared.nestml'))
+                        os.path.dirname(__file__), "resources",
+                        "invalid")),
+                "CoCoCmVariablesDeclared.nestml"))
         assert len(Logger.get_messages(
             model, LoggingLevel.ERROR)) == 6
 
@@ -68,9 +68,9 @@ class TestCoCos:
             os.path.join(
                 os.path.realpath(
                     os.path.join(
-                        os.path.dirname(__file__), 'resources',
-                        'valid')),
-                'CoCoCmVariablesDeclared.nestml'))
+                        os.path.dirname(__file__), "resources",
+                        "valid")),
+                "CoCoCmVariablesDeclared.nestml"))
         assert len(Logger.get_messages(
             model, LoggingLevel.ERROR)) == 0
 
@@ -81,9 +81,9 @@ class TestCoCos:
             os.path.join(
                 os.path.realpath(
                     os.path.join(
-                        os.path.dirname(__file__), 'resources',
-                        'invalid')),
-                'CoCoCmVariableHasRhs.nestml'))
+                        os.path.dirname(__file__), "resources",
+                        "invalid")),
+                "CoCoCmVariableHasRhs.nestml"))
         assert len(Logger.get_messages(
             model, LoggingLevel.ERROR)) == 2
 
@@ -93,9 +93,9 @@ class TestCoCos:
             os.path.join(
                 os.path.realpath(
                     os.path.join(
-                        os.path.dirname(__file__), 'resources',
-                        'valid')),
-                'CoCoCmVariableHasRhs.nestml'))
+                        os.path.dirname(__file__), "resources",
+                        "valid")),
+                "CoCoCmVariableHasRhs.nestml"))
         assert len(Logger.get_messages(
             model, LoggingLevel.ERROR)) == 0
 
@@ -106,11 +106,11 @@ class TestCoCos:
             os.path.join(
                 os.path.realpath(
                     os.path.join(
-                        os.path.dirname(__file__), 'resources',
-                        'invalid')),
-                'CoCoCmVcompExists.nestml'))
+                        os.path.dirname(__file__), "resources",
+                        "invalid")),
+                "CoCoCmVcompExists.nestml"))
         assert len(Logger.get_messages(
-            model, LoggingLevel.ERROR)) == 4
+            model, LoggingLevel.ERROR)) == 6
 
     def test_valid_cm_v_comp_exists(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -118,9 +118,9 @@ class TestCoCos:
             os.path.join(
                 os.path.realpath(
                     os.path.join(
-                        os.path.dirname(__file__), 'resources',
-                        'valid')),
-                'CoCoCmVcompExists.nestml'))
+                        os.path.dirname(__file__), "resources",
+                        "valid")),
+                "CoCoCmVcompExists.nestml"))
         assert len(Logger.get_messages(
             model, LoggingLevel.ERROR)) == 0
 
@@ -130,7 +130,7 @@ class TestCoCos:
         Logger.init_logger(LoggingLevel.DEBUG)
 
         try:
-            generate_target(input_path=fname, target_platform="NONE", logging_level="DEBUG")
+            generate_target(input_path=fname, target_platform="NEST_COMPARTMENTAL", logging_level="DEBUG")
         except BaseException:
             return None
 
@@ -142,3 +142,14 @@ class TestCoCos:
         model_name = model.get_name()
 
         return model_name
+
+    def test_invalid_cm_mech_shared_code(self, setUp):
+        model = self._parse_and_validate_model(
+            os.path.join(
+                os.path.realpath(
+                    os.path.join(
+                        os.path.dirname(__file__), "resources",
+                        "invalid")),
+                "CoCoCmMechSharedCode.nestml"))
+        assert len(Logger.get_messages(
+            model, LoggingLevel.ERROR)) == 4

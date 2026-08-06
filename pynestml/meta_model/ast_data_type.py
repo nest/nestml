@@ -32,11 +32,11 @@ class ASTDataType(ASTNode):
     datatype.
     @attribute boolean getters for integer, real, ...
     @attribute unitType a SI datatype
-    datatype : 'integer'
-               | 'real'
-               | 'string'
-               | 'boolean'
-               | 'void'
+    datatype : "integer"
+               | "real"
+               | "string"
+               | "boolean"
+               | "void"
                | unitType;
     Attributes:
         is_integer = False
@@ -138,7 +138,7 @@ class ASTDataType(ASTNode):
         """
         from pynestml.symbols.type_symbol import TypeSymbol
         assert (type_symbol is not None and isinstance(type_symbol, TypeSymbol)), \
-            '(PyNestML.AST.DataType) No or wrong type of type symbol provided (%s)!' % (type(type_symbol))
+            "(PyNestML.AST.DataType) No or wrong type of type symbol provided (%s)!" % (type(type_symbol))
         self.type_symbol = type_symbol
 
     def get_children(self) -> List[ASTNode]:

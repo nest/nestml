@@ -28,7 +28,7 @@ class ASTLogicalOperator(ASTNode):
     """
     This class is used to store a single logical operator.
     Grammar:
-        logicalOperator : (logicalAnd='and' | logicalOr='or');
+        logicalOperator : (logicalAnd="and" | logicalOr="or");
     Attributes:
         is_logical_and = False
         is_logical_or = False
@@ -46,7 +46,7 @@ class ASTLogicalOperator(ASTNode):
         :type is_logical_or: bool
         """
         assert (is_logical_and ^ is_logical_or), \
-            '(PyNestML.AST.LogicalOperator) Logical operator not correctly specified!'
+            "(PyNestML.AST.LogicalOperator) Logical operator not correctly specified!"
         super(ASTLogicalOperator, self).__init__(*args, **kwargs)
         self.is_logical_and = is_logical_and
         self.is_logical_or = is_logical_or

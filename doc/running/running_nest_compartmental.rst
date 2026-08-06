@@ -19,10 +19,10 @@ Writing a compartmental NESTML model
 Defining the membrane potential variable
 ----------------------------------------
 
-One variable in the model represents the local membrane potential in a compartment. By default, it is called ``v_comp``. (This name is defined in the compartmental code generator options as the ``compartmental_variable_name`` option.). This variable needs to be defined as a state in any compartmental model to be referenced in the equations describing channels and synapses.
+One variable in the model represents the local membrane potential in a compartment. By default, it is called ``v_comp``. (This name is defined in the compartmental code generator options as the ``compartmental_variable_name`` option.) This variable needs to be defined as a state in any compartmental model to be referenced in the equations describing channels and receptors.
 
 .. code-block:: nestml
-    
+
    model <neuron_name>:
        state:
            v_comp real = 0   # rhs value is irrelevant
@@ -34,7 +34,7 @@ Channel description
 Next, define one or more channels. An ion-channel is described in the following way:
 
 .. code-block:: nestml
-    
+
    model <neuron_name>:
         equations:
             inline <current_equation_name> real = \
@@ -48,7 +48,7 @@ The explicit ``@mechanism::<type>`` descriptor has been added which we thought e
 As an example for a HH-type channel:
 
 .. code-block:: nestml
-    
+
    model <neuron_name>:
        parameters:
           gbar_Ca_HVA real = 0.00
@@ -79,7 +79,7 @@ As an example for a HH-type channel:
 
 All of the currents within a compartment (marked by ``@mechanism::channel``) are added up within a compartment.
 
-For a complete example, please see `cm_default.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/concmech.nestml>`_ and its associated unit test, `test__compartmental_model.py <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/test__concmech_model.py>`_.
+For a complete example, please see `cm_default.nestml <https://github.com/nest/nestml/blob/main/tests/nest_compartmental_tests/resources/concmech.nestml>`_ and its associated unit test, `test__compartmental_model.py <https://github.com/nest/nestml/blob/main/tests/nest_compartmental_tests/test__concmech_model.py>`_.
 
 
 Concentration description
@@ -88,7 +88,7 @@ Concentration description
 The concentration-model description looks very similar:
 
 .. code-block:: nestml
-    
+
    model <neuron_name>:
        equations:
            <some_state_variable>' = <ODE right-hand-side for some_state_variable> @mechanism::concentration
@@ -111,14 +111,14 @@ As an example a description of a calcium concentration model where we pretend th
 
 The only difference here is that the equation that is marked with the ``@mechanism::concentration`` descriptor is not an inline equation but an ODE. This is because in case of the ion-channel what we want to simulate is the current which relies on the evolution of some state variables like gating variables in case of the HH-models, and the compartment voltage. The concentration though can be more simply described by an evolving state directly.
 
-For a complete example, please see `concmech.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/concmech.nestml>`_ and its associated unit test, `test__concmech_model.py <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/test__concmech_model.py>`_.
+For a complete example, please see `concmech.nestml <https://github.com/nest/nestml/blob/main/tests/nest_compartmental_tests/resources/concmech.nestml>`_ and its associated unit test, `test__concmech_model.py <https://github.com/nest/nestml/blob/main/tests/nest_compartmental_tests/test__concmech_model.py>`_.
 
-Synapse description
--------------------
+Receptor description
+--------------------
 
-Here synapse models are based on convolutions over a buffer of incoming spikes. This means that the equation for the
+Here receptor models are based on convolutions over a buffer of incoming spikes. This means that the equation for the
 current-contribution must contain a convolve() call and a description of the kernel used for that convolution is needed.
-The descriptor for synapses is ``@mechanism::receptor``.
+The descriptor for receptors is ``@mechanism::receptor``.
 
 .. code-block:: nestml
 
@@ -135,7 +135,7 @@ The descriptor for synapses is ``@mechanism::receptor``.
         input:
             <spike_name> <- spike
 
-For a complete example, please see `concmech.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/concmech.nestml>`_ and its associated unit test, `test__concmech_model.py <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/test__concmech_model.py>`_.
+For a complete example, please see `concmech.nestml <https://github.com/nest/nestml/blob/main/tests/nest_compartmental_tests/resources/concmech.nestml>`_ and its associated unit test, `test__concmech_model.py <https://github.com/nest/nestml/blob/main/tests/nest_compartmental_tests/test__concmech_model.py>`_.
 
 Continuous input description
 ----------------------------
@@ -155,12 +155,61 @@ include one input of type continuous and may include any states, parameters and 
             input:
                 <continuous_name> real <- continuous
 
-For a complete example, please see `continuous_test.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/continuous_test.nestml>`_ and its associated unit test, `test__continuous_input.py <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/test__continuous_input.py>`_.
+For a complete example, please see `continuous_test.nestml <https://github.com/nest/nestml/blob/main/tests/nest_compartmental_tests/resources/continuous_test.nestml>`_ and its associated unit test, `test__continuous_input.py <https://github.com/nest/nestml/blob/main/tests/nest_compartmental_tests/test__continuous_input.py>`_.
 
 Mechanism interdependence
 -------------------------
 
-Above examples of explicit interdependence inbetween concentration and channel models where already described. Note that it is not necessary to describe the basic interaction inherent through the contribution to the overall current of the compartment. During a simulation step all currents of channels and synapses are added up and contribute to the change of the membrane potential (v_comp) in the next timestep. Thereby one must only express a dependence explicitly if the mechanism depends on the activity of a specific channel- or synapse-type amongst multiple in a given compartment or some concentration.
+Above examples of explicit interdependence inbetween concentration and channel models were already described. Note that it is not necessary to describe the basic interaction inherent through the contribution to the overall current of the compartment. During a simulation step all currents of channels and receptors are added up and contribute to the change of the membrane potential (v_comp) in the next timestep. Thereby one must only express a dependence explicitly if the mechanism depends on the activity of a specific channel- or receptor-type amongst multiple in a given compartment or some concentration.
+
+General compartment scripting
+-----------------------------
+
+Script blocks
+~~~~~~~~~~~~~
+
+Even though the intended focus of the compartmental feature is the usage of the above mechanisms whose influence on the compartment and overall neurons is implicit, it is still possible to use the ``update`` block. Statements in the ``update`` block are rearranged so they are associated with specific mechanisms. We also introduce a new special case of the ``onReceive`` block with an input port that is unique to the compartmental code generator, by default called ``self_spikes`` (this can be set in the code generator option ``self_spikes_input_port_name``), which contains statements that are executed if the neuron has emitted a (somatic) action potential in the last timestep. We deem ``onReceive()`` blocks for all other input ports not sensible as the ports the modeler defines in NESTML compartmental do not map one to one to an actual port that the neuron instance will have in the simulation (instead, they are ports of which there will be a multitude, depending on how many receptors and/or synapses associated with this NESTML port will be attached to the neuron).
+
+Together, the ``update`` block and the ``onReceive(self_spikes)`` block are referred to as "script blocks".
+
+For example, say we have the following inline expressions in our ``equations`` block:
+
+.. code::
+
+   inline refr real = G_refr * is_refr * (V_reset - v_comp)    @mechanism::channel
+   inline adapt pA = -g_adapt * w    @mechanism::channel
+
+Given the following example ``onReceive()`` block, the toolchain will automatically detect that the first two statements are relevant for the ``refr`` mechanism, and generate code for them only inside this mechanism; and detect that the last statement is relevant only for the ``adapt`` mechanism, and generate code for it only inside this mechanism.
+
+.. code::
+
+   onReceive(self_spikes):
+       is_refr = 1
+       refr_t = refr_period
+       w += b
+
+Likewise, statements in the ``update`` block do not control the overall behaviour of the neuron, but its computation may support the behaviour of individual mechanisms. The use of ``integrate_odes()`` in the update block will be ignored and this function should not be called anywhere in the model; all ODEs are integrated automatically by the mechanisms that own them.
+
+Technical background
+~~~~~~~~~~~~~~~~~~~~
+
+As a core design principle of our compartmental feature, the modularity of mechanisms requires that we tailor our interpretation of the code the modeller formulates in the update and ``onReceive(self_spikes)`` blocks accordingly. Specifically, this means that the variables used in one mechanism must not be influenced by the original variables of another mechanism. We define an original variable as any variable that would be associated with a mechanism outside a script block, as we have collected variables for each mechanism so far. This original ownership has been and will remain exclusive. This does not mean, though, that no variables may be shared in the scripted behaviour of two mechanisms in the ``update`` block. For instance, two variables of two different mechanisms may have some value assigned to them under the same if-condition as long as the condition does not contain a variable which is original to or whose state has previously been influenced by an original variable of any mechanism. A variable that is not original to a mechanism but is assigned a value depending on an original or other owned variable is owned by a mechanism. A variable may not be owned by more than one mechanism, but may be used by multiple mechanisms.
+
+With this rule, we can guarantee that during code generation, we can extract separate, independent code blocks for each mechanism that contain only the relevant computation, without worrying about interactions. If the modeller wants interaction between two mechanisms, there are two options. In the case of slow coupling dynamics, the concentration mechanism should be used, and in the case of potentially fast dynamics or in this new case of scripted interactions, the two mechanisms should be implemented as one.
+
+Applications
+~~~~~~~~~~~~
+
+This feature has been implemented with the implementation of IAF behaviour or backpropagation in mind. For an example, see this model file: `cm_iaf_psc_exp_dend_neuron.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/cm_iaf_psc_exp_dend_neuron.nestml>`_
+
+Synapses
+--------
+
+We have also changed the way synapses may interact with the neuron. The background to this is that NESTML STDP-synapse models are always co-generated with the postsynaptic neuron model to communicate certain variables, such as the postsynaptic spike trace. We found this to be insufficient; instead, the synapse models are fully integrated with the receptor mechanisms of the neuron. This enables the user to access any receptor variables and other mechanism values within the synapse model by simply declaring them as states in the synapse model, without requiring further assignments.
+
+Another consequence of this merge is that all ODE equations in the synapse model are implicitly continuously integrated at each timestep, making calls to ``integrate_odes()`` unnecessary.
+
+An example of such a model is implemented here: `third_factor_stdp_synapse.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/third_factor_stdp_synapse.nestml>`_
 
 Technical Notes
 ---------------
@@ -171,18 +220,16 @@ Let's say you have an AVX2 SIMD instruction set available, which can fit 4 doubl
 
 Here is a small benchmark example that shows the performance ratio (y-axis) as the number of compartments per neuron (x-axis) increases.
 
-.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/performance_ratio_nonVec_vs_vec_compartmental.png
-   :width: 326px
-   :height: 203px
-   :align: left
-   :target: #
+.. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/fig/performance_ratio_nonVec_vs_vec_compartmental.png
+   :width: 380px
+   :height: 170px
 
-Be aware that we are using the -ffast-math flag when compiling the model by default. This can potentially lead to precision problems and inconsistencies across different systems. If you encounter unexpected results or want to be on the safe side, you can disable this by removing the flag from the CMakeLists.txt, which is part of the generated code. Note, however, that this may inhibit the compiler's ability to vectorize parts of the code in some cases.
+Be aware that we are using the ``-ffast-math`` flag when compiling the model by default. This can potentially lead to precision problems and inconsistencies across different systems. If you encounter unexpected results or want to be on the safe side, you can disable this by removing the flag from the ``CMakeLists.txt``, which is part of the generated code. Note, however, that this may inhibit the compiler's ability to vectorize parts of the code in some cases.
 
 See also
 --------
 
-`convert_cm_default_to_template.py <https://github.com/nest/nestml/blob/master/extras/convert_cm_default_to_template.py>`_
+`convert_cm_default_to_template.py <https://github.com/nest/nestml/blob/main/extras/convert_cm_default_to_template.py>`_
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This script converts the generic parts (cm_default.* and cm_tree.*) of the default compartmental model in NEST to a .jinja template.

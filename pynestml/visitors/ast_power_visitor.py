@@ -110,7 +110,7 @@ class ASTPowerVisitor(ASTVisitor):
                 if PredefinedUnits.is_unit(variable.get_complete_name()):
                     return NESTUnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit())
 
-                raise Exception("Declaration for symbol '" + str(variable) + "' not found and is not a unit.")
+                raise Exception("Declaration for symbol \"" + str(variable) + "\" not found and is not a unit.")
 
             return self.calculate_numeric_value(symbol.get_declaring_expression())
 
