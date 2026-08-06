@@ -75,7 +75,9 @@ class NESTMLSimpleExpressionPrinter(SimpleExpressionPrinter):
 
             return t_lhs + "/" + self.print(node.get_rhs())
 
-        return node.unit
+        assert node.unit is not None
+
+        return str(node.unit)
 
     def print_simple_expression(self, node: ASTSimpleExpression) -> str:
         if node.is_function_call():
