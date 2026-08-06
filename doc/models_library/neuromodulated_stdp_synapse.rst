@@ -64,7 +64,7 @@ State variables
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `neuromodulated_stdp_synapse <https://github.com/nest/nestml/tree/master/models/synapses/neuromodulated_stdp_synapse.nestml>`_.
+The model source code can be found in the NESTML models repository here: `neuromodulated_stdp_synapse <https://github.com/nest/nestml/tree/main/models/synapses/neuromodulated_stdp_synapse.nestml>`_.
 
 
 .. include:: neuromodulated_stdp_synapse_characterisation.rst

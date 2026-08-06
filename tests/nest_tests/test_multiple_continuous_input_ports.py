@@ -44,10 +44,10 @@ class TestMultipleInputPorts:
         continuous_inputs = nest.GetStatus(neuron, "continuous_inputs")[0]
 
         dc1 = nest.Create("dc_generator", params={"amplitude": 150.0})
-        nest.Connect(dc1, neuron, syn_spec={'receptor_type': continuous_inputs["I_1"]})
+        nest.Connect(dc1, neuron, syn_spec={"receptor_type": continuous_inputs["I_1"]})
 
         dc2 = nest.Create("dc_generator", params={"amplitude": 225.0})
-        nest.Connect(dc2, neuron, syn_spec={'receptor_type': continuous_inputs["I_2"]})
+        nest.Connect(dc2, neuron, syn_spec={"receptor_type": continuous_inputs["I_2"]})
 
         # multimeter{
         mm = nest.Create("multimeter", params={"record_from": ["V_m1", "V_m2"]})

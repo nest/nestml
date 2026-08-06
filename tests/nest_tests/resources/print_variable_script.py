@@ -22,6 +22,7 @@
 import os
 import nest
 
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
@@ -36,9 +37,9 @@ generate_nest_target(input_path,
                      logging_level=logging_level,
                      module_name=module_name,
                      suffix=suffix)
-nest.set_verbosity("M_ALL")
 
 nest.ResetKernel()
+NESTTools.set_nest_verbosity("ERROR")
 nest.Install(module_name)
 
 neuron = nest.Create("print_variable_nestml")

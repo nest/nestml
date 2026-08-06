@@ -20,7 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-rhs : left=rhs (plusOp='+'  | minusOp='-') right=rhs
+rhs : left=rhs (plusOp="+"  | minusOp="-") right=rhs
 """
 from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol

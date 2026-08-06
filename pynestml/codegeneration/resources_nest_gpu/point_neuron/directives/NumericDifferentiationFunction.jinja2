@@ -1,0 +1,18 @@
+ {#
+  Creates an implementation of the RK5 differentiation function for the system of ODEs.
+-#}
+
+ 
+ template<int NVAR, int NPARAM> //, class DataStruct>
+__device__
+    void Derivatives{% if ast.get_args() | length > 0 %}_{{ utils.integrate_odes_args_str_from_function_call(ast) }}{% endif %}(double x, float *y, float *dydx, float *param,
+		     {{ neuronName }}_rk5 data_struct)
+{
+{%- filter indent(2,True) %}
+{%    set numeric_state_variables_to_be_integrated = numeric_state_variables %}
+{%-   if ast.get_args() | length > 0 %}
+{%-     set numeric_state_variables_to_be_integrated = utils.filter_variables_list(numeric_state_variables, ast.get_args()) %}
+{%-   endif %}
+{%- include "directives/NumericIntegrationStep.jinja2" %}
+{%- endfilter %}
+}

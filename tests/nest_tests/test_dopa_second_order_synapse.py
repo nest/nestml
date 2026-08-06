@@ -23,19 +23,19 @@ import numpy as np
 import os
 import pytest
 
+# try to import matplotlib; set the result in the flag TEST_PLOTS
+try:
+    import matplotlib as mpl
+    mpl.use("agg")
+    import matplotlib.pyplot as plt
+    TEST_PLOTS = True
+except BaseException:
+    TEST_PLOTS = False
+
 import nest
 
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
-
-try:
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.ticker
-    import matplotlib.pyplot as plt
-    TEST_PLOTS = True
-except Exception:
-    TEST_PLOTS = False
 
 
 class TestDopaSecondOrder:
@@ -60,15 +60,12 @@ class TestDopaSecondOrder:
                              codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                            "neuron_parent_class_include": "structural_plasticity_node.h",
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                                     "synapse": "dopa_second_order_synapse",
-                                                                     "vt_ports": ["dopa_spikes"]}],
-                                           "delay_variable": {"dopa_second_order_synapse": "d"},
+                                                                     "synapses": {"dopa_second_order_synapse": {"vt_ports": ["dopa_spikes"]}}}],
                                            "weight_variable": {"dopa_second_order_synapse": "w"}})
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_synapse(self):
-
         resolution = .25   # [ms]
         delay = 1.    # [ms]
         t_stop = 250.    # [ms]
@@ -94,7 +91,7 @@ class TestDopaSecondOrder:
         # set up custom synapse model
         wr = nest.Create("weight_recorder")
         nest.CopyModel(self.synapse_model_name, "stdp_nestml_rec",
-                       {"weight_recorder": wr[0], "d": delay, "receptor_type": 0,
+                       {"weight_recorder": wr[0], "delay": delay, "receptor_type": 0,
                         "volume_transmitter": vt})
 
         # create parrot neurons and connect spike_generators

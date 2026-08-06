@@ -23,7 +23,7 @@ import unittest
 
 from antlr4 import *
 
-from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
+from pynestml.meta_model.ast_compilation_unit import ASTCompilationUnit
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.generated.PyNestMLParser import PyNestMLParser
@@ -49,7 +49,7 @@ class ASTCloneTest(unittest.TestCase):
 
     @classmethod
     def _test_single_input_path(cls, input_path):
-        print('Start creating AST for ' + input_path + ' ...'),
+        print("Start creating AST for " + input_path + " ..."),
         input_file = FileStream(input_path)
         lexer = PyNestMLLexer(input_file)
         lexer._errHandler = BailErrorStrategy()
@@ -70,7 +70,7 @@ class ASTCloneTest(unittest.TestCase):
         # now build the meta_model
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
         ast = ast_builder_visitor.visit(compilation_unit)
-        assert isinstance(ast, ASTNestMLCompilationUnit)
+        assert isinstance(ast, ASTCompilationUnit)
 
         # now, do the actual test for clone()
         ast_copy = ast.clone()
@@ -89,5 +89,5 @@ class ASTCloneTest(unittest.TestCase):
             cls._test_single_input_path(input_path)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -24,6 +24,11 @@ from pynestml.codegeneration.printers.nest_variable_printer import NESTVariableP
 
 
 class ASTVectorParameterSetterAndPrinter(ASTPrinter):
+    """
+    This file is part of the compartmental code generation process.
+
+    Part of vectorized printing.
+    """
     def __init__(self):
         super(ASTVectorParameterSetterAndPrinter, self).__init__()
         self.inside_variable = False

@@ -34,24 +34,24 @@ class CSimpleExpressionPrinter(SimpleExpressionPrinter):
     def print_simple_expression(self, node: ASTSimpleExpression) -> str:
         if node.has_unit():
             if self._variable_printer.print(node.get_variable()) in ["1", "1.", "1.0"]:
-                return str(node.get_numeric_literal())
+                return self._constant_printer.print_constant(node.get_numeric_literal())
 
-            return str(node.get_numeric_literal()) + " * " + self._variable_printer.print(node.get_variable())
-
-        if node.is_numeric_literal():
-            return str(node.get_numeric_literal())
+            return self._constant_printer.print_constant(node.get_numeric_literal()) + " * " + self._variable_printer.print(node.get_variable())
 
         if node.is_inf_literal:
-            return 'INFINITY'
+            return "INFINITY"
+
+        if node.is_numeric_literal():
+            return self._constant_printer.print_constant(node.get_numeric_literal())
 
         if node.is_string():
             return str(node.get_string())
 
         if node.is_boolean_true:
-            return 'true'
+            return "true"
 
         if node.is_boolean_false:
-            return 'false'
+            return "false"
 
         if node.is_variable() or node.is_delay_variable():
             return self._variable_printer.print(node.get_variable())

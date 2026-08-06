@@ -1,0 +1,80 @@
+# stdp_synapse - Synapse model for spike-timing dependent plasticity
+# ##################################################################
+#
+#
+# Description
+# +++++++++++
+#
+# Like stdp_synapse, but with an additional (unused) delay parameter.
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+model stdp_synapse:
+    state:
+        w real = 1 [[w >= 0]]   # Synaptic weight
+        pre_trace real = 0.
+        post_trace real = 0.
+
+    parameters:
+        d ms = 1 ms                 # dendritic delay
+        lambda real =  0.01         # (dimensionless) learning rate for causal updates
+        alpha real = 1              # relative learning rate for acausal firing
+        tau_tr_pre ms = 20 ms       # time constant of presynaptic trace
+        tau_tr_post ms = 20 ms      # time constant of postsynaptic trace
+        mu_plus real = 1            # weight dependence exponent for causal updates
+        mu_minus real = 1           # weight dependence exponent for acausal updates
+
+        Wmin real = 0. [[Wmin >= 0]]             # minimum absolute value of synaptic weight
+        Wmax real = 100. [[Wmax >= 0]]           # maximum absolute value of synaptic weight
+
+    equations:
+        pre_trace' = -pre_trace / tau_tr_pre
+        post_trace' = -post_trace / tau_tr_post
+
+    input:
+        pre_spikes <- spike
+        post_spikes <- spike
+
+    output:
+        spike
+
+    onReceive(post_spikes):
+        post_trace += 1
+
+        # potentiate synapse
+        # note that w is at all times >= 0
+        w_ real = Wmax * (w / Wmax + (lambda * (1. - (w / Wmax))**mu_plus * pre_trace))
+        w = min(Wmax, w_)
+
+    onReceive(pre_spikes):
+        pre_trace += 1
+
+        # depress synapse
+        # note that w is at all times >= 0
+        w_ real = Wmax * (w / Wmax - (alpha * lambda * (w / Wmax)**mu_minus * post_trace))
+        w = max(Wmin, w_)
+
+        # deliver spike to postsynaptic partner
+        emit_spike(w)
+
+    update:
+        integrate_odes()

@@ -27,6 +27,9 @@ from collections import defaultdict
 
 
 class ContinuousInputProcessing(MechanismProcessing):
+    """
+    This file is part of the compartmental code generation process.
+    """
     mechType = "continuous_input"
 
     def __init__(self, params):
@@ -39,5 +42,7 @@ class ContinuousInputProcessing(MechanismProcessing):
             for port in continuous_info["Continuous"]:
                 continuous[port.name] = copy.deepcopy(port)
             mechs_info[continuous_name]["Continuous"] = continuous
+
+        cls.check_all_convolutions_with_self_spikes(mechs_info)
 
         return mechs_info

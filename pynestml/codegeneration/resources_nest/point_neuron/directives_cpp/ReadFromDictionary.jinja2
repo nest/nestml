@@ -1,0 +1,36 @@
+{#
+Read a value from a dictionary.
+#}
+{%- macro ReadFromDictionary(dict_name, variable_type, key, value, node, update_param=true, key_as_str=false) -%}
+{%- if not (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3)))  %}
+{%-   if update_param -%}
+{%-     if key_as_str -%}
+nest::updateValueParam<{{variable_type}}>({{ dict_name }}, "{{ key }}", {{ value }}, {{ node }})
+{%-     else  -%}
+nest::updateValueParam<{{variable_type}}>({{ dict_name }}, {{ key }}, {{ value }}, {{ node }})
+{%-    endif -%}
+{%-   else  -%}
+{%-     if key_as_str -%}
+updateValue<{{variable_type}}>({{ dict_name }}, "{{ key }}", {{ value }})
+{%-     else  -%}
+updateValue<{{variable_type}}>({{ dict_name }}, {{ key }}, {{ value }})
+{%-    endif -%}
+{%-  endif -%}
+
+{# For versions >= 3.10 #}
+{%- else %}
+{%-   if update_param -%}
+{%-     if key_as_str -%}
+update_value_param({{ dict_name }}, "{{ key }}", {{ value }}, {{ node }})
+{%-     else  -%}
+update_value_param({{ dict_name }}, {{ key }}, {{ value }}, {{ node }})
+{%-     endif -%}
+{%-   else -%}
+{%-     if key_as_str -%}
+{{ dict_name }}.update_value("{{ key }}", {{ value }})
+{%-     else  -%}
+{{ dict_name }}.update_value({{ key }}, {{ value }})
+{%-     endif -%}
+{%-   endif  -%}
+{%- endif  -%}
+{%- endmacro -%}

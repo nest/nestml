@@ -23,7 +23,7 @@ from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import LoggingLevel, Logger
-from pynestml.utils.messages import MessageCode
+from pynestml.utils.messages import MessageCode, Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
@@ -39,9 +39,9 @@ class ASTVariableVisitor(ASTVisitor):
         :type node: ASTSimpleExpression
         """
         assert isinstance(node, ASTSimpleExpression), \
-            '(PyNestML.Visitor.VariableVisitor) No or wrong type of simple expression provided (%s)!' % type(node)
+            "(PyNestML.Visitor.VariableVisitor) No or wrong type of simple expression provided (%s)!" % type(node)
         assert (node.get_scope() is not None), \
-            '(PyNestML.Visitor.VariableVisitor) No scope found, run symboltable creator!'
+            "(PyNestML.Visitor.VariableVisitor) No scope found, run symboltable creator!"
 
         scope = node.get_scope()
         var_name = node.get_variable().get_complete_name()
@@ -60,8 +60,8 @@ class ASTVariableVisitor(ASTVisitor):
             node.type.referenced_object = node
             return
 
-        message = 'Variable ' + str(node) + ' could not be resolved!'
-        Logger.log_message(code=MessageCode.SYMBOL_NOT_RESOLVED,
+        code, message = Messages.get_could_not_resolve(str(node))
+        Logger.log_message(code=code,
                            error_position=node.get_source_position(),
                            message=message, log_level=LoggingLevel.ERROR)
         node.type = ErrorTypeSymbol()

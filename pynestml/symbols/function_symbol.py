@@ -56,19 +56,19 @@ class FunctionSymbol(Symbol):
         """
         Returns a string representation of this symbol.
         """
-        ret = 'FunctionSymbol[' + self.get_symbol_name() + ', Parameters = {'
+        ret = "FunctionSymbol[" + self.get_symbol_name() + ", Parameters = {"
         for arg in self.param_types:
             ret += arg.print_symbol()
             if self.param_types.index(arg) < len(
                     self.param_types) - 1:  # in the case that it is not the last arg, print also a comma
-                ret += ','
-        ret += '}, return type = ' + (self.get_return_type().print_symbol())
-        ret += ', @['
+                ret += ","
+        ret += "}, return type = " + (self.get_return_type().print_symbol())
+        ret += ", @["
         if self.get_referenced_object() is not None:
             ret += str(self.get_referenced_object().get_source_position())
         else:
-            ret += 'predefined'
-        ret += ']'
+            ret += "predefined"
+        ret += "]"
         return ret
 
     def get_return_type(self):

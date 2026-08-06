@@ -65,7 +65,7 @@ class ASTNode(metaclass=ABCMeta):
         self.in_comment = in_comment
 
     @abstractmethod
-    def clone(self):
+    def clone(self) -> ASTNode:
         """
         Return a deep copy of this node.
         """
@@ -166,14 +166,14 @@ class ASTNode(metaclass=ABCMeta):
         :param prefix: a prefix string
         :return: a comment
         """
-        ret = ''
+        ret = ""
         if not self.has_comment():
-            return prefix if prefix is not None else ''
+            return prefix if prefix is not None else ""
         # in the last part, delete the new line if it is the last comment, otherwise there is an ugly gap
         # between the comment and the element
         for comment in self.get_comment():
-            ret += (prefix + ' ' if prefix is not None else '') + comment + \
-                   ('\n' if self.get_comment().index(comment) < len(self.get_comment()) - 1 else '')
+            ret += (prefix + " " if prefix is not None else "") + comment + \
+                   ("\n" if self.get_comment().index(comment) < len(self.get_comment()) - 1 else "")
         return ret
 
     def get_comments(self):

@@ -78,7 +78,7 @@ void {{moduleName}}::initialize()
 {%- if synapses %}
     // register synapses
 {%-   for synapse in synapses %}
-    nest::register_{{synapse.get_name()}}( "{{synapse.get_name()}}" );
+    nest::{{synapse.get_name()}}::register_{{synapse.get_name()}}( "{{synapse.get_name()}}" );
 {%-   endfor %}
 {%- endif %}
 }

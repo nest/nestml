@@ -19,24 +19,25 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
 import numpy as np
 import os
 import pytest
+
+from tests.test_utils import get_trace_at
+
+# try to import matplotlib; set the result in the flag TEST_PLOTS
+try:
+    import matplotlib as mpl
+    mpl.use("agg")
+    import matplotlib.pyplot as plt
+    TEST_PLOTS = True
+except BaseException:
+    TEST_PLOTS = False
 
 import nest
 
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
-
-try:
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.ticker
-    import matplotlib.pyplot as plt
-    TEST_PLOTS = True
-except Exception:
-    TEST_PLOTS = False
 
 
 @pytest.fixture(autouse=True,
@@ -54,45 +55,8 @@ def nestml_generate_target():
                          codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                        "neuron_parent_class_include": "structural_plasticity_node.h",
                                        "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_fixed_timestep_neuron",
-                                                                 "synapse": "stdp_triplet_synapse",
-                                                                 "post_ports": ["post_spikes"]}],
-                                       "delay_variable": {"stdp_triplet_synapse": "d"},
+                                                                 "synapses": {"stdp_triplet_synapse": {"post_ports": ["post_spikes"]}}}],
                                        "weight_variable": {"stdp_triplet_synapse": "w"}})
-
-
-def get_trace_at(t, t_spikes, tau, initial=0., increment=1., before_increment=False, extra_debug=False):
-    if extra_debug:
-        print("\t-- obtaining trace at t = " + str(t))
-    if len(t_spikes) == 0:
-        return initial
-    tr = initial
-    t_sp_prev = 0.
-    for t_sp in t_spikes:
-        if t_sp > t:
-            break
-        if extra_debug:
-            _tr_prev = tr
-        tr *= np.exp(-(t_sp - t_sp_prev) / tau)
-        if t_sp == t:  # exact floating point match!
-            if before_increment:
-                if extra_debug:
-                    print("\t   [%] exact (before_increment = T), prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev)
-                          + ", decayed by dt = " + str(t - t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr))
-                return tr
-            else:
-                if extra_debug:
-                    print("\t   [%] exact (before_increment = F), prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev) + ", decayed by dt = " + str(
-                        t - t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr + increment))
-                return tr + increment
-        tr += increment
-        t_sp_prev = t_sp
-    if extra_debug:
-        _tr_prev = tr
-    tr *= np.exp(-(t - t_sp_prev) / tau)
-    if extra_debug:
-        print("\t   [&] prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev) + ", decayed by dt = "
-              + str(t - t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr))
-    return tr
 
 
 def run_reference_simulation(syn_opts,
@@ -171,7 +135,7 @@ def run_nest_simulation(neuron_model_name,
     if sim_time is None:
         sim_time = max(np.amax(pre_spike_times_req), np.amax(post_spike_times_req)) + 10. + 3 * syn_opts["delay"]
 
-    nest.set_verbosity("M_ALL")
+    NESTTools.set_nest_verbosity("ALL")
 
     # Set parameters of the NEST simulation kernel
     nest.ResetKernel()
@@ -217,7 +181,6 @@ def run_nest_simulation(neuron_model_name,
     _syn_opts["Wmax"] = _syn_opts.pop("w_max")
     _syn_opts["Wmin"] = _syn_opts.pop("w_min")
     _syn_opts["w"] = _syn_opts.pop("w_init")
-    _syn_opts.pop("delay")
     nest.CopyModel(synapse_model_name,
                    synapse_model_name + "_rec",
                    {"weight_recorder": weight_recorder_E[0]})
@@ -332,7 +295,7 @@ def plot_comparison(syn_opts, times_spikes_pre, times_spikes_post, times_spikes_
     for _ax in ax:
         _ax.grid(True)
         _ax.set_xlim(0., sim_time)
-        _ax.xaxis.set_major_locator(matplotlib.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
+        _ax.xaxis.set_major_locator(mpl.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
         if not _ax == ax[-1]:
             _ax.set_xticklabels([])
 
@@ -366,7 +329,7 @@ def _test_stdp_triplet_synapse(delay, spike_times_len):
                        "tau_y__for_stdp_triplet_synapse_nestml": syn_opts["tau_y"]}
 
         synapse_model_name = "stdp_triplet_synapse_nestml__with_iaf_psc_delta_fixed_timestep_neuron_nestml"
-        nest_syn_opts = {"d": delay}
+        nest_syn_opts = {}
         nest_syn_opts.update(syn_opts)
         nest_syn_opts.pop("tau_minus")  # these have been moved to the neuron
         nest_syn_opts.pop("tau_y")

@@ -28,7 +28,7 @@ class TemplateTypeSymbol(TypeSymbol):
     Template type symbols are uniquely identified with an integer number `i`, i.e. TemplateTypeSymbol(n) == TemplateTypeSymbol(m) iff n == m."""
 
     def __init__(self, i):
-        super(TemplateTypeSymbol, self).__init__(name='_template_' + str(i))
+        super(TemplateTypeSymbol, self).__init__(name="_template_" + str(i))
         self._i = i
 
     def is_numeric(self):
@@ -38,7 +38,7 @@ class TemplateTypeSymbol(TypeSymbol):
         return True
 
     def print_nestml_type(self):
-        return '_template_' + str(self._i)
+        return "_template_" + str(self._i)
 
     def is_castable_to(self, _other_type):
         if isinstance(_other_type, TemplateTypeSymbol) and _other_type._i == self._i:

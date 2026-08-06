@@ -31,7 +31,7 @@ class ASTReturnStmt(ASTNode):
         @attribute minus An optional sing
         @attribute definingVariable Name of the variable
         Grammar:
-            returnStmt : 'return' expr?;
+            returnStmt : "return" expr?;
     Attributes:
           expression (ASTSimpleExpression or ASTExpression): An rhs representing the returned value.
     """

@@ -29,7 +29,7 @@ eligibility trace [1]_ (implemented on the postsynaptic neuron side). It
 decays exponentially with the time constant tau_minus and increases to 1 on
 a post-spike occurrence (instead of increasing by 1 as in stdp_synapse).
 
-.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/stdp-nearest-neighbour.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/fig/stdp-nearest-neighbour.png
 
    Figure 7 from Morrison, Diesmann and Gerstner
 
@@ -81,7 +81,7 @@ State variables
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `stdp_nn_restr_symm_synapse <https://github.com/nest/nestml/tree/master/models/synapses/stdp_nn_restr_symm_synapse.nestml>`_.
+The model source code can be found in the NESTML models repository here: `stdp_nn_restr_symm_synapse <https://github.com/nest/nestml/tree/main/models/synapses/stdp_nn_restr_symm_synapse.nestml>`_.
 
 
 .. include:: stdp_nn_restr_symm_synapse_characterisation.rst

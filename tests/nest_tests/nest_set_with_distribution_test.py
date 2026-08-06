@@ -39,9 +39,7 @@ class TestNestSetWithDistribution:
         """Generate the model code"""
 
         codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                  "synapse": "stdp_synapse",
-                                                  "post_ports": ["post_spikes"]}],
-                        "delay_variable": {"stdp_synapse": "d"},
+                                                  "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}}],
                         "weight_variable": {"stdp_synapse": "w"}}
 
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
@@ -59,9 +57,8 @@ class TestNestSetWithDistribution:
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_nest_set_with_distribution(self):
-        nest.set_verbosity("M_ALL")
-
         nest.ResetKernel()
+        NESTTools.set_nest_verbosity("ALL")
         nest.Install("nestmlmodule")
 
         neur = nest.Create("iaf_psc_exp_neuron_nestml__with_stdp_synapse_nestml", 100)
