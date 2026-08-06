@@ -36,4 +36,4 @@ model CoCoAssignmentToUnitTypeAlt_neuron:
         pA real = 1
 
     update:
-        V = 1 V * pA * F**-1 * exp(1)
+        V = 1 V * pA * F**-1 * exp(1)    # wrong! should be "1 F**-1"

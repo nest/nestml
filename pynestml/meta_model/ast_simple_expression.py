@@ -107,6 +107,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         variable_dup = None
         if self.variable:
             variable_dup = self.variable.clone()
+        unitType_dup = None
         if self.unitType:
             unitType_dup = self.unitType.clone()
         numeric_literal_dup = clone_numeric_literal(self.numeric_literal)

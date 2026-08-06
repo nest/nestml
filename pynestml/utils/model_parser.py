@@ -154,26 +154,13 @@ class ModelParser:
             model.accept(ASTSymbolTableVisitor())
             SymbolTable.add_model_scope(model.get_name(), model.get_scope())
 
+            model_copy = None
+            while not model.equals(model_copy):
+                model_copy = model.clone()
+                model.accept(UnitTypeFixerVisitor())
+                model.accept(ASTSymbolTableVisitor())
+                model.accept(ASTParentVisitor())
 
-            print("Model before transformation: ---------------------")
-            print(model)
-
-
-            model.accept(UnitTypeFixerVisitor())
-            model.accept(ASTSymbolTableVisitor())
-
-            print("Model after transformation: ---------------------")
-            print(model)
-
-            model.accept(UnitTypeFixerVisitor())
-            model.accept(ASTSymbolTableVisitor())
-
-            print("Model after transformation 2: ---------------------")
-            print(model)
-
-
-            model.accept(UnitTypeFixerVisitor())
-            model.accept(ASTSymbolTableVisitor())
             Logger.set_current_node(model)
             model.accept(AssignImplicitConversionFactorsVisitor())
             Logger.set_current_node(None)

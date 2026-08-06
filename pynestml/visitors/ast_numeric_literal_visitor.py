@@ -43,7 +43,6 @@ class ASTNumericLiteralVisitor(ASTVisitor):
         :rtype: void
         """
         assert node.get_scope() is not None, "Run symboltable creator."
-
         # if unitType is set in this rhs, the var type overrides the literal
         if node.unitType is not None:
             # scope = node.get_scope()
