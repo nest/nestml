@@ -67,7 +67,7 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
         "solver": "analytic",
         "numeric_solver": "rk45",
         "neuron_synapse_pairs": [],
-        "weight_variable": {}
+        "weight_variable": {},
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):

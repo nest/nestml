@@ -95,3 +95,4 @@ class OutputPortDefinedIfEmitCalledVisitor(ASTVisitor):
                 Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR,
                                    error_position=output_blocks[0].get_source_position())
                 return
+                    # XXX: this should be removed
