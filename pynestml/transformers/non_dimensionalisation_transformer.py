@@ -21,11 +21,15 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Sequence, Mapping, Optional, Union
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
 
+from typing import Any, Dict, Iterable, Sequence, Mapping, Optional, Union
 
-from pynestml.cocos.co_cos_manager import CoCosManager
-from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_data_type import ASTDataType
@@ -96,16 +100,6 @@ class NonDimVis(ASTVisitor):
         "z": 1e-21,     # zepto
         "y": 1e-24,     # yocto
     }
-
-    def get_conversion_factor_to_si(self, from_unit_str):
-        r"""
-        Return the conversion factor from the unit we have in the NESTML file to SI units.
-        """
-
-        from_unit = u.Unit(from_unit_str)
-        scale = from_unit.si.scale
-
-        return scale
 
     def _is_valid_astropy_unit(self, unit_string):
         """Check if a string can be interpreted as an astropy unit"""
@@ -517,7 +511,7 @@ class NonDimensionalisationNumericLiteralVisitor(NonDimVis):
 
         # The variable encountered is something like mV, without a numeric literal in front, e.g. (4 + 3) * mV
         assert PredefinedUnits.is_unit(node.get_name())
-        conversion_factor = float(f"{super().get_conversion_factor_to_si(node.get_name()):.1E}")
+        conversion_factor = float(f"{NonDimensionalisationTransformer.get_conversion_factor_unit_to_si(node.get_name()):.1E}")
 
         if conversion_factor == 1:
             # skip conversation with factor 1
@@ -548,8 +542,15 @@ class NonDimensionalisationVariableVisitor(NonDimVis):
 
         var_unit = type_sym.unit.unit
         var_quantity = var_unit.physical_type
-        var_preferred_prefix = self.preferred_prefix[str(var_quantity)]
-        conversion_factor_to_si = float(self.PREFIX_FACTORS[var_preferred_prefix])
+        if str(var_quantity) in self.preferred_prefix.keys():
+            var_preferred_prefix = self.preferred_prefix[str(var_quantity)]
+            conversion_factor_to_si = float(self.PREFIX_FACTORS[var_preferred_prefix])
+        else:
+            # add exception for "mass" here as it's in kg not g in SI units!
+            if str(var_quantity) == "mass":
+                conversion_factor_to_si = 1E3
+            else:
+                conversion_factor_to_si = 1.
 
         # multiply the variable by conversion_factor_to_si
         parent_node = node.get_parent()
@@ -632,7 +633,7 @@ class NonDimensionalisationSimpleExpressionVisitor(NonDimVis):
                 parent_node = node.get_parent()
                 print("\tUnit: " + str(node.type.unit.unit))
                 conversion_factor = (
-                    f"{super().get_conversion_factor_to_si(node.variable.name):.1E}"
+                    f"{NonDimensionalisationTransformer.get_conversion_factor_unit_to_si(node.variable.name):.1E}"
                 )
                 numeric_literal = node.get_numeric_literal()
                 lhs_expression = ASTSimpleExpression(
@@ -899,6 +900,19 @@ class NonDimensionalisationTransformer(Transformer):
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super(Transformer, self).__init__(options)
 
+
+    @classmethod
+    def get_conversion_factor_unit_to_si(cls, from_unit_str):
+        r"""
+        Return the conversion factor from the unit we have in the NESTML file to SI units.
+        """
+
+        from_unit = u.Unit(from_unit_str)
+        scale = from_unit.si.scale
+
+        return scale
+
+
     def transform_(
         self, model: Union[ASTNode, Sequence[ASTNode]]
     ) -> Union[ASTNode, Sequence[ASTNode]]:
@@ -959,9 +973,10 @@ class NonDimensionalisationTransformer(Transformer):
 
         return transformed_model
 
-    def transform(
-        self, models: Union[ASTNode, Sequence[ASTNode]]
-    ) -> Union[ASTNode, Sequence[ASTNode]]:
+    @override
+    def transform(self,
+                  models: Iterable[ASTModel],
+                  metadata: Mapping[str, Mapping[str, Any]]) -> Iterable[ASTModel]:
         transformed_models = []
 
         single = False
