@@ -127,10 +127,10 @@ model aeif_cond_alpha_alt_neuron:
             integrate_odes(g_exc, g_inh, V_m, w)
 
     onReceive(exc_spikes):
-        g_exc' += unit_psg * exc_spikes * (e / tau_syn_exc) * s
+        g_exc' += unit_psg * exc_spikes * (e / tau_syn_exc) * 1E3 s    # XXX: TODO: factor 1E3 should be removed; see https://github.com/nest/nestml/issues/984
 
     onReceive(inh_spikes):
-        g_inh' += unit_psg * inh_spikes * (e / tau_syn_inh) * s
+        g_inh' += unit_psg * inh_spikes * (e / tau_syn_inh) * 1E3 s    # XXX: TODO: factor 1E3 should be removed; see https://github.com/nest/nestml/issues/984
 
     onCondition(refr_t <= 0 ms and V_m >= V_th):
         # threshold crossing
