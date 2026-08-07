@@ -245,7 +245,7 @@ class Logger:
         cls.current_node = node
 
     @classmethod
-    def get_messages(cls, node_or_node_name: Optional[Union[ASTNode, str]] = None, level: Optional[LoggingLevel] = None, message_code: Optional[int] = None, artifact_name: Optional[str] = None) -> List[Tuple[ASTNode, LoggingLevel, str]]:
+    def get_messages(cls, node_or_node_name: Optional[Union[ASTNode, str]] = None, level: Optional[LoggingLevel] = None, message_code: Optional[MessageCode] = None, artifact_name: Optional[str] = None) -> List[Tuple[ASTNode, LoggingLevel, str]]:
         """
         Returns all messages which have a certain logging level, or have been reported for a certain node, or both.
 

@@ -31,7 +31,7 @@ model resolution_legally_used_synapse:
         x real = 0.
 
     equations:
-        x' = -x / tau + (resolution() / ms**2)
+        x' = -x / tau + (resolution() / 1 ms**2)
 
     function test(tau ms) real:
         z ms = resolution()

@@ -1,12 +1,14 @@
-# CoCoConvolveNotCorrectlyParametrized.nestml
-# ###########################################
+# CoCoAssignmentToUnitTypeAlt.nestml
+# ##################################
+#
 #
 # Description
 # +++++++++++
 #
-# This model is used to test if broken CoCos are identified correctly. Here, if convolve has been correctly provided with a state block defined variable and a spike input port.
+# This model is used to check if all cocos work correctly by detecting corresponding broken context.
 #
-# Negative case.
+# Positive case.
+#
 #
 # Copyright statement
 # +++++++++++++++++++
@@ -28,12 +30,11 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
-model CoCoConvolveNotCorrectlyParametrized:
+model CoCoAssignmentToUnitTypeAlt_neuron:
     state:
-        V_m mV = 10 mV
+        V mV/C = 250 mV/C    # Coulomb is equivalent to Faraday
+        pA real = 1
+        F C = 1 C
 
-    equations:
-        inline testB pA = convolve(V_m + V_m, spikeExc)
-
-    input:
-        spikeExc <- excitatory spike
+    update:
+        V = 1 V * pA * F**-1 * exp(1)

@@ -31,4 +31,4 @@
 #
 model CoCoUnitNumeratorNotOne:
     state:
-        test1 2/s = 10 / s
+        test1 2/s = 1 s**-1

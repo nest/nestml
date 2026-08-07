@@ -31,4 +31,4 @@
 #
 model CoCoUnitNumeratorNotOne:
     state:
-        test1 1/s = 10/s # the numerator is correctly stated as 1, thus everything correct
+        test1 1/s = 1 s**-1    # the numerator is correctly stated as 1, thus everything correct

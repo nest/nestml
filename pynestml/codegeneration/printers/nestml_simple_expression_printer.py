@@ -50,7 +50,6 @@ class NESTMLSimpleExpressionPrinter(SimpleExpressionPrinter):
 
         return self._print(node)
 
-
     def print_unit_type(self, node: ASTUnitType) -> str:
         if node.is_encapsulated:
             return "(" + self.print(node.compound_unit) + ")"

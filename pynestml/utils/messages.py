@@ -156,6 +156,7 @@ class MessageCode(Enum):
     CM_UNRESOLVED_FUNCTION_DEPENDENCY = 127
     CM_UNRESOLVED_VARIABLE_DEPENDENCY = 128
     CONVOLVE_NEEDS_BUFFER_PARAMETER = 129
+    NO_SOLITARY_PHYSICAL_UNITS = 130
 
 
 class Messages:
@@ -1223,3 +1224,9 @@ class Messages:
         message = "Could not resolve variable dependency \"" + variable_name + "\" while collecting " + context + "."
 
         return MessageCode.CM_UNRESOLVED_VARIABLE_DEPENDENCY, message
+
+    @classmethod
+    def get_no_solitary_physical_units_allowed(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "No free-standing physical units allowed (" + variable_name + ")"
+
+        return MessageCode.NO_SOLITARY_PHYSICAL_UNITS, message
