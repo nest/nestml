@@ -19,12 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-simpleExpression : (UNSIGNED_INTEGER | FLOAT) (variable)?
-"""
-from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.symbols.predefined_types import PredefinedTypes
-from pynestml.symbols.symbol import SymbolKind
 from pynestml.visitors.ast_data_type_visitor import ASTDataTypeVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 
@@ -34,25 +30,17 @@ class ASTNumericLiteralVisitor(ASTVisitor):
     Visits a single numeric literal and updates its type.
     """
 
-    def visit_simple_expression(self, node):
+    def visit_simple_expression(self, node: ASTNode) -> None:
         """
         Visit a simple rhs and update the type of a numeric literal.
         :param node: a single meta_model node
-        :type node: ast_node
         :return: no value returned, the type is updated in-place
-        :rtype: void
         """
         assert node.get_scope() is not None, "Run symboltable creator."
         # if unitType is set in this rhs, the var type overrides the literal
         if node.unitType is not None:
-            # scope = node.get_scope()
-
             node.unitType.accept(ASTDataTypeVisitor())
             node.type = node.unitType.get_type_symbol()
-
-            # type_symbol_resolve = scope.resolve_to_symbol(node.unitType.unit, SymbolKind.TYPE)
-            # assert type_symbol_resolve is not None, "Unknown unit type: " + str(node.unitType)
-            # node.type = type_symbol_resolve
             node.type.referenced_object = node
             return
 

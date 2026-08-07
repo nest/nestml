@@ -94,23 +94,43 @@ class UnitTypeFixerVisitor(ASTVisitor):
             parent_node = ASTUtils.find_parent_node_by_type(node, ASTExpression)
             if parent_node:
                 # appears inside an expression
-                assert parent_node.lhs == node
+                if parent_node.lhs == node:
+                    if parent_node.get_binary_operator() and parent_unit_type.is_times:
+                        binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_times_op=True)
+                        new_node = ASTExpression(binary_operator=binary_operator, lhs=new_numeric_literal_expr, rhs=expr_to_be_moved)
 
-                if parent_node.get_binary_operator() and parent_unit_type.is_times:
-                    binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_times_op=True)
-                    new_node = ASTExpression(binary_operator=binary_operator, lhs=new_numeric_literal_expr, rhs=expr_to_be_moved)
+                        parent_node.lhs = new_node
+                    elif parent_node.get_binary_operator() and parent_unit_type.is_div:
+                        binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_div_op=True)
+                        new_node = ASTExpression(binary_operator=binary_operator, lhs=new_numeric_literal_expr, rhs=expr_to_be_moved)
 
-                    parent_node.lhs = new_node
-                elif parent_node.get_binary_operator() and parent_unit_type.is_div:
-                    binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_div_op=True)
-                    new_node = ASTExpression(binary_operator=binary_operator, lhs=new_numeric_literal_expr, rhs=expr_to_be_moved)
+                        parent_node.lhs = new_node
+                        new_node._parent = parent_node
+                    else:
+                        raise Exception("not handled!")
 
-                    parent_node.lhs = new_node
-                    new_node._parent = parent_node
+                    return
+
+                elif parent_node.rhs == node:
+                    if parent_node.get_binary_operator() and parent_unit_type.is_times:
+                        binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_times_op=True)
+                        new_node = ASTExpression(binary_operator=binary_operator, lhs=parent_node.lhs, rhs=new_numeric_literal_expr)
+
+                        parent_node.lhs = new_node
+                        parent_node.rhs = expr_to_be_moved
+                    elif parent_node.get_binary_operator() and parent_unit_type.is_div:
+                        binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_div_op=True)
+                        new_node = ASTExpression(binary_operator=binary_operator, lhs=parent_node.lhs, rhs=new_numeric_literal_expr)
+
+                        parent_node.lhs = new_node
+                        parent_node.rhs = expr_to_be_moved
+                        new_node._parent = parent_node
+                    else:
+                        raise Exception("not handled!")
+
+                    return
                 else:
                     raise Exception("not handled!")
-
-                return
 
             parent_node = ASTUtils.find_parent_node_by_type(node, ASTAssignment)
             if parent_node:

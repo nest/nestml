@@ -30,24 +30,7 @@ from pynestml.utils.cloning_helpers import clone_numeric_literal
 
 class ASTSimpleExpression(ASTExpressionNode):
     """
-    This class is used to store a simple rhs, e.g. +42mV.
-    ASTSimpleExpression, consisting of a single element without combining operator, e.g.,10mV, inf, V_m.
-    Grammar:
-    simpleExpression : functionCall
-                   | BOOLEAN_LITERAL // true & false ;
-                   | (UNSIGNED_INTEGER | FLOAT) (variable)?
-                   | isInf="inf"
-                   | STRING_LITERAL
-                   | variable;
-    Attributes:
-        function_call: A function call reference.
-        numeric_literal: A numeric literal.
-        variable: A variable reference.
-        is_boolean_true (bool): True if this is a boolean true literal.
-        is_boolean_false (bool): True if this is a boolean false literal.
-        is_inf_literal (bool): True if this is a infinity literal.
-        string (str): A string literal.
-
+    ASTSimpleExpression consists of a single element without combining operator, e.g.,10mV, inf, V_m. Corresponds to ``simpleExpression`` rule in the grammar.
     """
 
     def __init__(self, function_call: Optional[ASTFunctionCall] = None, boolean_literal: Optional[bool] = None,

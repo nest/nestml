@@ -124,14 +124,14 @@ model hill_tononi_neuron:
 
         # equation modified from y[](1-D_eq) to (y[]-D_eq), since we'd not
         # be converging to equilibrium otherwise
-        IKNa_D' = (D_influx_peak * D_influx * nS - (IKNa_D - KNa_D_EQ / 1 mV) / tau_D) / 1 ms
+        IKNa_D' = (D_influx_peak * D_influx * 1 nS - (IKNa_D - KNa_D_EQ / 1 mV) / tau_D) / 1 ms
         inline tau_m_T real = 0.22 / (exp(-(V_m / 1 mV + 132.0) / 16.7) + exp((V_m / 1 mV + 16.8) / 18.2)) + 0.13
         inline tau_h_T real = 8.2 + (56.6 + 0.27 * exp((V_m / 1 mV + 115.2) / 5.0)) / (1.0 + exp((V_m / 1 mV + 86.0) / 3.2))
         inline I_h_Vthreshold real = -75.0
         inline m_inf_h real = 1.0 / (1.0 + exp((V_m / 1 mV - I_h_Vthreshold) / 5.5))
-        IT_m' = (m_inf_T * nS - IT_m) / tau_m_T / 1 ms
-        IT_h' = (h_inf_T * nS - IT_h) / tau_h_T / 1 ms
-        Ih_m' = (m_inf_h * nS - Ih_m) / tau_m_h / 1 ms
+        IT_m' = (m_inf_T * 1 nS - IT_m) / tau_m_T / 1 ms
+        IT_h' = (h_inf_T * 1 nS - IT_h) / tau_h_T / 1 ms
+        Ih_m' = (m_inf_h * 1 nS - Ih_m) / tau_m_h / 1 ms
 
         #############
         # Synapses

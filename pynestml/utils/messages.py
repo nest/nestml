@@ -1202,12 +1202,6 @@ class Messages:
 
         return MessageCode.NOT_ALLOWED_TO_ASSIGN_TO_A_UNIT_TYPE, message
 
-    @classmethod
-    def get_variable_used_as_a_unit(cls, variable_name: str) -> Tuple[MessageCode, str]:
-        message = "Variable '" + variable_name + "' used as a physical unit!"
-
-        return MessageCode.VARIABLE_USED_AS_A_UNIT, message
-
     def get_unknown_neuron_synapse_pair_model(cls, model_type: str, model_name: str) -> Tuple[MessageCode, str]:
         message = "Unknown " + model_type + " model \"" + model_name + "\" in neuron_synapse_pairs."
 
