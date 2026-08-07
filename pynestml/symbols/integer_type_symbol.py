@@ -124,7 +124,13 @@ class IntegerTypeSymbol(TypeSymbol):
         if super(IntegerTypeSymbol, self).is_castable_to(_other_type):
             return True
         from pynestml.symbols.real_type_symbol import RealTypeSymbol
+
         if _other_type.is_instance_of(RealTypeSymbol):
             return True
-        else:
+
+        try:
+            # check if int number is being assigned to something with physical units that is equivalent to a real number (e.g. ``ms/s``)
+            _other_type.unit.get_unit().to("1")
+            return True
+        except BaseException:
             return False
