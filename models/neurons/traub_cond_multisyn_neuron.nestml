@@ -73,7 +73,7 @@ model traub_cond_multisyn_neuron:
         inline I_L pA = g_L * (V_m - E_L)
 
         V_m' = (-(I_Na + I_K + I_L) + I_e + I_stim + I_syn) / C_m
-        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
+        refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero at a rate of one second per second
 
         # Act_n
         inline alpha_n real = 0.032 * (V_m / mV + 52.) / (1. - exp(-(V_m / mV + 52.) / 5.))

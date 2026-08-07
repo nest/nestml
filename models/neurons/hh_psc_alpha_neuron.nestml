@@ -99,7 +99,7 @@ model hh_psc_alpha_neuron:
         Inact_h' = (alpha_h * (1 - Inact_h) - beta_h * Inact_h) / ms # h-variable
 
         V_m' = (-(I_Na + I_K + I_L) + I_e + I_stim + I_syn_exc - I_syn_inh) / C_m
-        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
+        refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero at a rate of one second per second
 
     parameters:
         V_m_init mV = -65 mV     # Initial membrane potential

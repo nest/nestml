@@ -81,7 +81,7 @@ model hh_cond_exp_destexhe_neuron:
         inline I_syn_inh pA = unit_psg * convolve(g_inh, inh_spikes) * (V_m - E_inh)
 
         V_m' =(-I_Na - I_K - I_M - I_L - I_syn_exc - I_syn_inh + I_e + I_stim - I_noise) / C_m
-        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
+        refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero at a rate of one second per second
 
         # channel dynamics
         inline V_rel mV = V_m - V_T

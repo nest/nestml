@@ -120,7 +120,7 @@ model terub_stn_neuron:
 
         # V dot -- synaptic input are currents, inhib current is negative
         V_m' = (-(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) + I_e + I_stim + I_exc_mod + I_inh_mod) / C_m
-        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
+        refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero at a rate of one second per second
 
         # channel dynamics
         gate_h' = phi_h *((h_inf - gate_h) / tau_h)  # h-variable

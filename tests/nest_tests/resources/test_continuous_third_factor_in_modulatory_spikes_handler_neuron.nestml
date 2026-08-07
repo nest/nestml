@@ -39,7 +39,7 @@ model test_continuous_third_factor_in_modulatory_spikes_handler_neuron:
         I_syn_exc' = -I_syn_exc / tau_syn_exc
         I_syn_inh' = -I_syn_inh / tau_syn_inh
         V_m' = -(V_m - E_L) / tau_m + (I_syn_exc - I_syn_inh + I_e + I_stim) / C_m
-        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
+        refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero at a rate of one second per second
 
     parameters:
         C_m pF = 250 pF           # Capacitance of the membrane
