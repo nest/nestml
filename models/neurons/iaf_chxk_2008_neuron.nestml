@@ -91,7 +91,7 @@ model iaf_chxk_2008_neuron:
         I_e pA = 0 pA
 
     internals:
-        PSConInit_AHP real = G_ahp * e / tau_ahp * (ms / nS)
+        PSConInit_AHP real = G_ahp * e / tau_ahp * (1 ms / nS)
 
         unit_psg nS = 1 nS    # Unitary postsynaptic conductance amplitude
 
@@ -109,7 +109,7 @@ model iaf_chxk_2008_neuron:
 
     onCondition(V_m_prev < V_th and V_m >= V_th):
         # Find precise spike time using linear interpolation
-        sigma real = (V_m - V_th) * resolution() / (V_m - V_m_prev) / ms
+        sigma real = (V_m - V_th) * resolution() / (V_m - V_m_prev) / 1 ms
 
         alpha real = exp(-sigma / tau_ahp)
 
@@ -118,11 +118,11 @@ model iaf_chxk_2008_neuron:
 
         if ahp_bug == true:
             # Bug in original code ignores AHP conductance from previous spikes
-            g_ahp = delta_g_ahp * nS
-            g_ahp' = delta_dg_ahp * nS / ms
+            g_ahp = delta_g_ahp * 1 nS
+            g_ahp' = delta_dg_ahp * 1 nS / ms
         else:
             # Correct implementation adds initial values for new AHP to AHP history
-            g_ahp += delta_g_ahp * nS
-            g_ahp' += delta_dg_ahp * nS / ms
+            g_ahp += delta_g_ahp * 1 nS
+            g_ahp' += delta_dg_ahp * 1 nS / ms
 
         emit_spike()

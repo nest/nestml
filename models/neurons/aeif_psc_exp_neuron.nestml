@@ -83,6 +83,9 @@ model aeif_psc_exp_neuron:
         # constant external input current
         I_e pA = 0 pA
 
+    internals:
+        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+
     input:
         exc_spikes <- excitatory spike
         inh_spikes <- inhibitory spike
@@ -100,10 +103,10 @@ model aeif_psc_exp_neuron:
             integrate_odes(I_syn_exc, I_syn_inh, w, V_m)
 
     onReceive(exc_spikes):
-        I_syn_exc += exc_spikes * pA * s
+        I_syn_exc += unit_psc * exc_spikes * 1E3 s    # XXX: TODO: factor 1E3 should be removed; see https://github.com/nest/nestml/issues/984
 
     onReceive(inh_spikes):
-        I_syn_inh += inh_spikes * pA * s
+        I_syn_inh += unit_psc * inh_spikes * 1E3 s    # XXX: TODO: factor 1E3 should be removed; see https://github.com/nest/nestml/issues/984
 
     onCondition(V_m >= V_th):
         # threshold crossing

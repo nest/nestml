@@ -92,7 +92,7 @@ model terub_stn_neuron:
         inline phi_r real = 0.5 # Guo 0.5 Terman02 0.2
 
         # Calcium concentration and afterhyperpolarization current
-        inline epsilon 1/ms = 0.00005 / ms # 1/ms Guo 0.00005 Terman02 0.0000375
+        inline epsilon 1/ms = 0.00005 ms**-1 # Guo 0.00005 Terman02 0.0000375
         inline k_Ca real = 22.5
         inline k1 real = 15.0
 
@@ -128,7 +128,7 @@ model terub_stn_neuron:
         gate_r' = phi_r *((r_inf - gate_r) / tau_r)  # r-variable
 
         # Calcium concentration
-        Ca_con' = epsilon * ((-I_Ca - I_T) / pA - k_Ca * Ca_con)
+        Ca_con' = epsilon * ((-I_Ca - I_T) / 1 pA - k_Ca * Ca_con)
 
         # synapses: alpha functions
         ## alpha function for the g_inh

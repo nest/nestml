@@ -94,12 +94,12 @@ model hh_cond_exp_traub_neuron:
 
         # channel dynamics
         inline V_rel mV = V_m - V_T
-        inline alpha_n 1/ms = 0.032 / (ms * mV) * (15 mV - V_rel) / (exp((15 mV - V_rel) / 5 mV) - 1.)
-        inline beta_n 1/ms = 0.5 / ms * exp((10 mV - V_rel) / 40 mV)
-        inline alpha_m 1/ms = 0.32 / (ms * mV) * (13 mV - V_rel) / (exp((13 mV - V_rel) / 4 mV) - 1.)
-        inline beta_m 1/ms = 0.28 / (ms * mV) * (V_rel  - 40 mV) / (exp((V_rel - 40 mV) / 5 mV) - 1.)
-        inline alpha_h 1/ms = 0.128 / ms * exp((17 mV - V_rel) / 18 mV)
-        inline beta_h 1/ms = (4. / (1. + exp((40 mV - V_rel) / 5 mV))) / ms
+        inline alpha_n 1/ms = 0.032 ms**-1*mV**-1 * (15 mV - V_rel) / (exp((15 mV - V_rel) / 5 mV) - 1.)
+        inline beta_n 1/ms = 0.5 ms**-1 * exp((10 mV - V_rel) / 40 mV)
+        inline alpha_m 1/ms = 0.32 ms**-1*mV**-1 * (13 mV - V_rel) / (exp((13 mV - V_rel) / 4 mV) - 1.)
+        inline beta_m 1/ms = 0.28 ms**-1*mV**-1 * (V_rel  - 40 mV) / (exp((V_rel - 40 mV) / 5 mV) - 1.)
+        inline alpha_h 1/ms = 0.128 ms**-1 * exp((17 mV - V_rel) / 18 mV)
+        inline beta_h 1/ms = (4. / (1. + exp((40 mV - V_rel) / 5 mV))) / 1 ms
 
         Act_m' = (alpha_m - (alpha_m + beta_m) * Act_m)
         Act_h' = (alpha_h - (alpha_h + beta_h) * Act_h)
@@ -121,12 +121,12 @@ model hh_cond_exp_traub_neuron:
         E_exc mV = 0 mV           # Excitatory synaptic reversal potential
         E_inh mV = -80 mV         # Inhibitory synaptic reversal potential
 
-        alpha_n_init 1/ms = 0.032 / (ms * mV) * (15 mV - E_L) / (exp((15 mV - E_L) / 5 mV) - 1)
-        beta_n_init 1/ms = 0.5 / ms * exp((10 mV - E_L) / 40 mV)
-        alpha_m_init 1/ms = 0.32 / (ms * mV) * (13 mV - E_L) / (exp((13 mV - E_L) / 4 mV) - 1)
-        beta_m_init 1/ms = 0.28 / (ms * mV) * (E_L  - 40 mV) / (exp((E_L - 40 mV) / 5 mV) - 1)
-        alpha_h_init 1/ms = 0.128 / ms * exp((17 mV - E_L) / 18 mV)
-        beta_h_init 1/ms = (4 / (1 + exp((40 mV - E_L) / 5 mV))) / ms
+        alpha_n_init 1/ms = 0.032 ms**-1*mV**-1 * (15 mV - E_L) / (exp((15 mV - E_L) / 5 mV) - 1)
+        beta_n_init 1/ms = 0.5 ms**-1 * exp((10 mV - E_L) / 40 mV)
+        alpha_m_init 1/ms = 0.32 ms**-1*mV**-1 * (13 mV - E_L) / (exp((13 mV - E_L) / 4 mV) - 1)
+        beta_m_init 1/ms = 0.28 ms**-1*mV**-1 * (E_L  - 40 mV) / (exp((E_L - 40 mV) / 5 mV) - 1)
+        alpha_h_init 1/ms = 0.128 ms**-1 * exp((17 mV - E_L) / 18 mV)
+        beta_h_init 1/ms = (4 / (1 + exp((40 mV - E_L) / 5 mV))) / 1 ms
 
         # constant external input current
         I_e pA = 0 pA

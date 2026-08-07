@@ -38,7 +38,7 @@
 # ++++++++
 #
 # iaf_psc_alpha, aeif_psc_exp
-
+#
 model aeif_cond_alpha_alt_neuron:
 
     state:
@@ -92,6 +92,10 @@ model aeif_cond_alpha_alt_neuron:
         # constant external input current
         I_e pA = 0 pA
 
+    internals:
+        unit_psg_exc nS =  1 nS * e / tau_syn_exc         # Unitary postsynaptic conductance amplitude
+        unit_psg_inh nS =  1 nS * e / tau_syn_inh         # Unitary postsynaptic conductance amplitude
+
     input:
         exc_spikes <- excitatory spike
         inh_spikes <- inhibitory spike
@@ -109,10 +113,10 @@ model aeif_cond_alpha_alt_neuron:
             integrate_odes(g_exc, g_inh, V_m, w)
 
     onReceive(exc_spikes):
-        g_exc' += exc_spikes * (e / tau_syn_exc) * nS * s
+        g_exc' += unit_psg_exc * exc_spikes * 1E3 s    # XXX: TODO: factor 1E3 should be removed; see https://github.com/nest/nestml/issues/984
 
     onReceive(inh_spikes):
-        g_inh' += inh_spikes * (e / tau_syn_inh) * nS * s
+        g_inh' += unit_psg_inh * inh_spikes * 1E3 s    # XXX: TODO: factor 1E3 should be removed; see https://github.com/nest/nestml/issues/984
 
     onCondition(refr_t <= 0 ms and V_m >= V_peak):
         # threshold crossing
