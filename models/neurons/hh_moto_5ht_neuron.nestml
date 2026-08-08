@@ -177,4 +177,4 @@ model hh_moto_5ht_neuron:
         return (0.4 * (V_m + 66.)) / 1 mV / (1. - exp(-(V_m + 66.) / (5 mV))) / 1 ms
 
     function beta_m(V_m mV) 1/ms:
-        return (0.4 * (-(V_m + 32.))) / mV / (1. - exp((V_m + 32.) / (5 mV))) / 1 ms
+        return (0.4 * (-(V_m + 32.))) / 1 mV / (1. - exp((V_m + 32.) / (5 mV))) / 1 ms

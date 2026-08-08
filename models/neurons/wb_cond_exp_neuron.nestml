@@ -141,4 +141,4 @@ model wb_cond_exp_neuron:
         return 0.35 ms**-1 * exp(-(V_m + 58.0 mV) / 20.0 mV)
 
     function beta_h(V_m mV) 1/ms:
-        return 5.0 / (exp(-0.1 / 1 mV * (V_m + 28.0 mV)) + 1.0) / ms
+        return 5.0 / (exp(-0.1 / 1 mV * (V_m + 28.0 mV)) + 1.0) / 1 ms
