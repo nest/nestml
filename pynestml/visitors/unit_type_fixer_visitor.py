@@ -29,6 +29,7 @@ from pynestml.meta_model.ast_unit_type import ASTUnitType
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.ast_utils import ASTUtils
+from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
@@ -38,7 +39,8 @@ class UnitTypeFixerVisitor(ASTVisitor):
     """
 
     def _split_off_unit_type_term(self, unit_type, parent_unit_type: ASTUnitType, node):
-        assert unit_type.is_simple_unit() or unit_type.is_pow
+        assert unit_type.is_simple_unit() or unit_type.is_pow or unit_type.is_arithmetic_expression()
+
 
         var_name = None
 
@@ -48,11 +50,9 @@ class UnitTypeFixerVisitor(ASTVisitor):
         if unit_type.is_simple_unit():
             var_name = unit_type.unit
 
-        assert var_name is not None
-
         scope = node.get_scope()
         var_sym_resolve = scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE)
-        if var_sym_resolve:
+        if var_sym_resolve or unit_type.is_arithmetic_expression():
             # it's actually a variable and not part of the unitType!
 
             # remove the variable from ``node``
@@ -83,6 +83,14 @@ class UnitTypeFixerVisitor(ASTVisitor):
                 var = ASTNodeFactory.create_ast_variable(var_name)
                 var_simple_expr = ASTNodeFactory.create_ast_simple_expression(variable=var)
                 expr_to_be_moved = var_simple_expr
+            elif unit_type.is_arithmetic_expression():
+                from pynestml.utils.model_parser import ModelParser
+                expr_to_be_moved = ModelParser.parse_expression("(" + str(unit_type) + ")")
+                # pretend that update expressions are in "equations" block, which should always be present,
+                # as differential equations must have been defined to get here
+                expr_to_be_moved.scope = node.scope
+                expr_to_be_moved.source_position = node.source_position
+                expr_to_be_moved.accept(ASTSymbolTableVisitor())
             else:
                 raise Exception("Not implemented yet!")
 
