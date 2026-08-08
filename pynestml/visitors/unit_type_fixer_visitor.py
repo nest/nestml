@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.meta_model.ast_assignment import ASTAssignment
+from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
@@ -62,12 +63,9 @@ class UnitTypeFixerVisitor(ASTVisitor):
             if unit_type.is_pow:
                 # construct the new term
                 binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_pow_op=True)
-
                 base_var_name = unit_type.base.unit
                 base_var = ASTNodeFactory.create_ast_variable(base_var_name)
                 base_var_simple_expr = ASTNodeFactory.create_ast_simple_expression(variable=base_var)
-                base_var_expr = ASTExpression(expression=base_var_simple_expr)
-
                 exponent = unit_type.exponent
                 exponent_simple_expr = ASTNodeFactory.create_ast_simple_expression(numeric_literal=abs(exponent))
                 if exponent < 0:
@@ -75,19 +73,16 @@ class UnitTypeFixerVisitor(ASTVisitor):
                     exponent_expr = ASTExpression(unary_operator=unary_operator, expression=exponent_simple_expr)
                 else:
                     exponent_expr = ASTExpression(expression=exponent_simple_expr)
+
                 exponent_expr.type = RealTypeSymbol()
                 exponent_simple_expr.type = RealTypeSymbol()
-
                 expr_to_be_moved = ASTNodeFactory.create_ast_compound_expression(lhs=base_var_simple_expr, binary_operator=binary_operator, rhs=exponent_expr)
-
             elif unit_type.is_simple_unit():
                 # construct the new term
                 var_name = unit_type.unit
                 var = ASTNodeFactory.create_ast_variable(var_name)
                 var_simple_expr = ASTNodeFactory.create_ast_simple_expression(variable=var)
-                var_expr = ASTExpression(expression=var_simple_expr)
                 expr_to_be_moved = var_simple_expr
-
             else:
                 raise Exception("Not implemented yet!")
 
@@ -98,14 +93,14 @@ class UnitTypeFixerVisitor(ASTVisitor):
                     if parent_node.get_binary_operator() and parent_unit_type.is_times:
                         binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_times_op=True)
                         new_node = ASTExpression(binary_operator=binary_operator, lhs=new_numeric_literal_expr, rhs=expr_to_be_moved)
-
+                        new_node.source_position = parent_node.source_position
                         parent_node.lhs = new_node
                     elif parent_node.get_binary_operator() and parent_unit_type.is_div:
                         binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_div_op=True)
                         new_node = ASTExpression(binary_operator=binary_operator, lhs=new_numeric_literal_expr, rhs=expr_to_be_moved)
-
                         parent_node.lhs = new_node
                         new_node._parent = parent_node
+                        new_node.source_position = parent_node.source_position
                     else:
                         raise Exception("not handled!")
 
@@ -115,13 +110,13 @@ class UnitTypeFixerVisitor(ASTVisitor):
                     if parent_node.get_binary_operator() and parent_unit_type.is_times:
                         binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_times_op=True)
                         new_node = ASTExpression(binary_operator=binary_operator, lhs=parent_node.lhs, rhs=new_numeric_literal_expr)
-
+                        new_node.source_position = parent_node.source_position
                         parent_node.lhs = new_node
                         parent_node.rhs = expr_to_be_moved
                     elif parent_node.get_binary_operator() and parent_unit_type.is_div:
                         binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_div_op=True)
                         new_node = ASTExpression(binary_operator=binary_operator, lhs=parent_node.lhs, rhs=new_numeric_literal_expr)
-
+                        new_node.source_position = parent_node.source_position
                         parent_node.lhs = new_node
                         parent_node.rhs = expr_to_be_moved
                         new_node._parent = parent_node
@@ -148,8 +143,30 @@ class UnitTypeFixerVisitor(ASTVisitor):
 
                 parent_node.rhs = new_node
                 new_node._parent = parent_node
-                print("\tsub done! parent_node = " + str(parent_node))
+                new_node.source_position = parent_node.source_position
+
                 return
+
+            parent_node = ASTUtils.find_parent_node_by_type(node, ASTDeclaration)
+            if parent_node:
+                # appears on the rhs of a declaration
+
+                if parent_unit_type.is_div:
+                    binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_div_op=True)
+                    new_node = ASTExpression(binary_operator=binary_operator, lhs=new_numeric_literal_expr, rhs=expr_to_be_moved)
+                elif parent_unit_type.is_times:
+                    binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_times_op=True)
+                    new_node = ASTExpression(binary_operator=binary_operator, lhs=new_numeric_literal_expr, rhs=expr_to_be_moved)
+                else:
+                    raise Exception("not handled!")
+
+                parent_node.expression = new_node
+                new_node._parent = parent_node
+                new_node.source_position = parent_node.source_position
+
+                return
+
+            raise Exception("not handled!")
 
     def visit_simple_expression(self, node: ASTSimpleExpression):
         if node.is_numeric_literal() and node.unitType:

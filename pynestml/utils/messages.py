@@ -822,8 +822,7 @@ class Messages:
     @classmethod
     def astdatatype_type_symbol_could_not_be_derived(cls) -> Tuple[MessageCode, str]:
         """
-        Unknown type or unit literal.
-        :param provided_type_str: the provided type as a string
+        Type symbol could not be derived.
         """
         message = "ASTDataType type symbol could not be derived"
         return MessageCode.ASTDATATYPE_TYPE_SYMBOL_COULD_NOT_BE_DERIVED, message

@@ -93,8 +93,8 @@ model aeif_cond_alpha_alt_neuron:
         I_e pA = 0 pA
 
     internals:
-        unit_psg_exc nS =  1 nS * e / tau_syn_exc         # Unitary postsynaptic conductance amplitude
-        unit_psg_inh nS =  1 nS * e / tau_syn_inh         # Unitary postsynaptic conductance amplitude
+        unit_psg_exc nS/ms =  1 nS * e / tau_syn_exc         # Unitary postsynaptic conductance amplitude
+        unit_psg_inh nS/ms =  1 nS * e / tau_syn_inh         # Unitary postsynaptic conductance amplitude
 
     input:
         exc_spikes <- excitatory spike

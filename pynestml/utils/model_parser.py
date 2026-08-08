@@ -161,6 +161,9 @@ class ModelParser:
                 model.accept(ASTSymbolTableVisitor())
                 model.accept(ASTParentVisitor())
 
+            print("model after transformation:")
+            print(model)
+
             Logger.set_current_node(model)
             model.accept(AssignImplicitConversionFactorsVisitor())
             Logger.set_current_node(None)
