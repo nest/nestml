@@ -41,7 +41,6 @@ class UnitTypeFixerVisitor(ASTVisitor):
     def _split_off_unit_type_term(self, unit_type, parent_unit_type: ASTUnitType, node):
         assert unit_type.is_simple_unit() or unit_type.is_pow or unit_type.is_arithmetic_expression()
 
-
         var_name = None
 
         if unit_type.is_pow:
