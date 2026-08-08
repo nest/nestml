@@ -34,7 +34,7 @@ model alpha_function_2nd_order_ode_neuron:
 
     equations:
         x'' = -2 * x' / 1 ms - x / 1 ms**2
-        y' = (-y + 42) / 1 s
+        y' = (-y + 42) / 1E-3 s
 
     update:
         integrate_odes(x, y)
