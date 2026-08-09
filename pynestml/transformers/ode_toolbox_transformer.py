@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Iterable, Mapping, Optional, Set, Tuple
+from typing import Any, Dict, Iterable, Mapping, Optional
 
 try:
     # Available in the standard library starting with Python 3.12
@@ -31,7 +31,6 @@ except ImportError:
     from typing_extensions import override
 
 import odetoolbox
-from pynestml.utils.ode_toolbox_utils import ODEToolboxUtils
 
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
@@ -44,6 +43,8 @@ from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.transformers.transformer import Transformer
 from pynestml.utils.ast_utils import ASTUtils
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.ode_toolbox_utils import ODEToolboxUtils
 
 
 class ODEToolboxTransformer(Transformer):
