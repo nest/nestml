@@ -23,15 +23,14 @@ from typing import Tuple
 
 import re
 
-from pynestml.symbols.symbol import SymbolKind
-
 from pynestml.codegeneration.printers.function_call_printer import FunctionCallPrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.symbol_table.scope import Scope
-from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.utils.ast_utils import ASTUtils
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.symbol_table.scope import Scope
+from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.symbols.symbol import SymbolKind
+from pynestml.utils.ast_utils import ASTUtils
 
 
 class CppFunctionCallPrinter(FunctionCallPrinter):
@@ -59,9 +58,12 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         """
         assert isinstance(function_call, ASTFunctionCall)
         function_name = self._print_function_call_format_string(function_call)
+
         if ASTUtils.needs_arguments(function_call):
             if function_call.get_name() == PredefinedFunctions.PRINT or function_call.get_name() == PredefinedFunctions.PRINTLN:
                 return function_name.format(self._print_print_statement(function_call))
+            elif function_call.get_name() == PredefinedFunctions.SIFT:
+                return self._expression_printer.print(function_call.get_args()[0])
 
             return function_name.format(*self._print_function_call_argument_list(function_call))
 

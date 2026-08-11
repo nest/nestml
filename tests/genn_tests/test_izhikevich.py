@@ -146,7 +146,7 @@ class TestGeNNIzhikevich:
                                                poisson_gen_pop, neuron_pop,
                                                init_weight_update("StaticPulse", {}, {"g": 100.}),
                                                init_postsynaptic("DeltaCurr"))
-        syn_pop.post_target_var = "spikes"
+        syn_pop.post_target_var = "spike_in_port"
 
         model.build()
         model.load(num_recording_timesteps=SIM_TIMESTEPS)

@@ -19,15 +19,20 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
+from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.scope import Scope, ScopeType
+from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.function_symbol import FunctionSymbol
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
@@ -159,25 +164,23 @@ class ASTSymbolTableVisitor(ASTVisitor):
                       source_position=node.get_source_position())
         node.get_scope().add_scope(scope)
         node.get_stmts_body().update_scope(scope)
-        return
 
     def endvisit_update_block(self, node=None):
         self.block_type_stack.pop()
-        return
 
-    def visit_on_receive_block(self, node):
+    def visit_on_receive_block(self, node: ASTOnReceiveBlock) -> None:
         """
         Private method: Used to visit a single onReceive block and create the corresponding scope.
         :param node: an onReceive block object.
-        :type node: ASTOnReceiveBlock
         """
         self.block_type_stack.push(BlockType.LOCAL)
         scope = Scope(scope_type=ScopeType.ON_RECEIVE, enclosing_scope=node.get_scope(),
                       source_position=node.get_source_position())
         node.get_scope().add_scope(scope)
         node.get_stmts_body().update_scope(scope)
+        node.get_input_port_variable().update_scope(scope)
 
-    def endvisit_on_receive_block(self, node=None):
+    def endvisit_on_receive_block(self, node: ASTOnReceiveBlock):
         self.block_type_stack.pop()
 
     def visit_on_condition_block(self, node):
@@ -463,9 +466,29 @@ class ASTSymbolTableVisitor(ASTVisitor):
                 node.get_variable().get_vector_parameter().update_scope(node.get_scope())
 
     def visit_variable(self, node: ASTVariable):
+
         if node.has_vector_parameter():
             node.get_vector_parameter().update_scope(node.get_scope())
             node.get_vector_parameter().accept(self)
+
+            if isinstance(node.get_vector_parameter(), ASTParameter):
+                # vector parameter is a declaration
+                symbol = VariableSymbol(element_reference=node,
+                                        scope=node.get_scope(),
+                                        name=node.get_vector_parameter().get_name(),
+                                        block_type=BlockType.ON_RECEIVE,
+                                        declaring_expression=None,
+                                        is_predefined=False,
+                                        is_inline_expression=False,
+                                        is_recordable=False,
+                                        type_symbol=node.get_vector_parameter().get_data_type(),
+                                        initial_value=None,
+                                        vector_parameter=None,
+                                        variable_type=VariableType.VARIABLE,
+                                        decorators=None,
+                                        namespace_decorators=None)
+                symbol.set_comment(node.get_vector_parameter().get_comment())
+                node.get_parent().get_scope().add_symbol(symbol)
 
     def visit_inline_expression(self, node: ASTInlineExpression):
         """
@@ -582,23 +605,41 @@ class ASTSymbolTableVisitor(ASTVisitor):
             else:
                 node.get_datatype().update_scope(node.get_scope())
 
-        for qual in node.get_input_qualifiers():
-            qual.update_scope(node.get_scope())
-
-    def endvisit_input_port(self, node):
-        type_symbol = PredefinedTypes.get_type("s")**-1
-        if node.is_continuous() and node.has_datatype():
+    def endvisit_input_port(self, node: ASTInputPort):
+        if node.is_continuous():
+            assert node.has_datatype()
             type_symbol = node.get_datatype().get_type_symbol()
-        type_symbol.is_buffer = True  # set it as a buffer
+            type_symbol.is_buffer = True  # set it as a buffer
+            if node.has_size_parameter():
+                if isinstance(node.get_size_parameter(), ASTSimpleExpression) and node.get_size_parameter().is_variable():
+                    node.get_size_parameter().update_scope(node.get_scope())
+            symbol = VariableSymbol(element_reference=node, scope=node.get_scope(), name=node.get_name(),
+                                    block_type=BlockType.INPUT, vector_parameter=node.get_size_parameter(),
+                                    is_predefined=False, is_inline_expression=False, is_recordable=False,
+                                    type_symbol=type_symbol, variable_type=VariableType.BUFFER)
+            symbol.set_comment(node.get_comment())
+            node.get_scope().add_symbol(symbol)
+            return
+
+        assert node.is_spike()
+
+        symbol = VariableSymbol(element_reference=node,
+                                scope=node.get_scope(),
+                                name=node.get_name(),
+                                block_type=BlockType.INPUT,
+                                declaring_expression=None,
+                                is_predefined=False,
+                                is_inline_expression=False,
+                                is_recordable=False,
+                                type_symbol=PredefinedTypes.get_type("s")**-1,
+                                vector_parameter=node.get_size_parameter(),
+                                variable_type=VariableType.BUFFER)
+        symbol.set_comment(node.get_comment())
+        node.get_scope().add_symbol(symbol)
+
         if node.has_size_parameter():
             if isinstance(node.get_size_parameter(), ASTSimpleExpression) and node.get_size_parameter().is_variable():
                 node.get_size_parameter().update_scope(node.get_scope())
-        symbol = VariableSymbol(element_reference=node, scope=node.get_scope(), name=node.get_name(),
-                                block_type=BlockType.INPUT, vector_parameter=node.get_size_parameter(),
-                                is_predefined=False, is_inline_expression=False, is_recordable=False,
-                                type_symbol=type_symbol, variable_type=VariableType.BUFFER)
-        symbol.set_comment(node.get_comment())
-        node.get_scope().add_symbol(symbol)
 
     def visit_stmt(self, node: ASTStmt):
         """

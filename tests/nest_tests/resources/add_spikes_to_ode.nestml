@@ -29,8 +29,9 @@ model add_spikes_to_ode:
     y real = 0
 
   equations:
-    x' = -x + 42 * spikes      # linear eq
-    y' = -y**2 + 123 * spikes   # nonlinear eq
+    kernel K = delta(t)
+    x' = -x + 42 * convolve(K, spikes) / s      # linear eq
+    y' = -y**2 + 123 * convolve(K, spikes) / s   # nonlinear eq
 
   input:
     spikes <- spike
@@ -40,6 +41,3 @@ model add_spikes_to_ode:
 
   update:
     integrate_odes()
-
-    x += spikes / 5
-    y += spikes / 42

@@ -102,7 +102,7 @@ void NodeInit(int n_var, int n_param, double x, float *y, float *param,
   // Input port variables
 {%- for variable_symbol in neuron.get_spike_input_ports() %}
     y[N_SCAL_VAR + i_{{ variable_symbol.get_symbol_name() }}] = 0;
-{%- endfor %}  
+{%- endfor %}
 }
 
 __device__
@@ -160,13 +160,13 @@ __device__
      * Begin NESTML generated code for the onReceive block(s)
     **/
 {%  for blk in neuron.get_on_receive_blocks() %}
-{%-     set inport = blk.get_port_name() %}
+{%-     set inport = blk.get_input_port_variable().get_name() %}
     if (y[N_SCAL_VAR + i_{{ inport }}] > 0)
     {
 {%-     set ast = blk.get_stmts_body() %}
 {%-     filter indent(6, True) -%}
 {%-         include "directives/StmtsBody.jinja2" %}
-{%-     endfilter %}      
+{%-     endfilter %}
       y[N_SCAL_VAR + i_{{ inport }}] = 0; // reset the value
     }
 {%- endfor %}
@@ -194,11 +194,11 @@ __device__
   // Reset the input port variables
 {%- for variable_symbol in neuron.get_spike_input_ports() %}
     y[N_SCAL_VAR + i_{{ variable_symbol.get_symbol_name() }}] = 0;
-{%- endfor %} 
+{%- endfor %}
 }
 
 }; // namespace
-			    
+
 __device__
 void NodeInit(int n_var, int n_param, double x, float *y,
 	     float *param, {{neuronName}}_rk5 data_struct)
@@ -317,6 +317,6 @@ int {{ neuronName }}::Calibrate(double time_min, float time_resolution)
 
 int {{ neuronName }}::Update(long long it, double t1)
 {
-  rk5_.Update<N_SCAL_VAR + N_PORT_VAR, N_SCAL_PARAM>(t1, h_min_, rk5_data_struct_); 
+  rk5_.Update<N_SCAL_VAR + N_PORT_VAR, N_SCAL_PARAM>(t1, h_min_, rk5_data_struct_);
   return 0;
 }

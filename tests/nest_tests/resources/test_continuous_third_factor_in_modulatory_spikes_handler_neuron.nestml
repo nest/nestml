@@ -55,8 +55,8 @@ model test_continuous_third_factor_in_modulatory_spikes_handler_neuron:
         I_e pA = 0 pA
 
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:

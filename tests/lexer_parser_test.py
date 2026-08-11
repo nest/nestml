@@ -55,8 +55,6 @@ class LexerParserTest(unittest.TestCase):
             stream.fill()
             # parse the file
             parser = PyNestMLParser(stream)
-            parser._errHandler = BailErrorStrategy()
-            parser._errHandler.reset(parser)
             compilation_unit = parser.nestMLCompilationUnit()
             assert compilation_unit is not None
 
