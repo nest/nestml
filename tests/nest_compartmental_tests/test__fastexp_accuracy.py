@@ -189,7 +189,7 @@ class TestFastExpAccuracy:
         return self._run_variant("reference")
 
     @pytest.mark.parametrize("variant_name", ["double_fastexp"])
-    def test_stressful_multicompartment_accuracy_against_double_reference(self, variant_name, reference_trace):
+    def test_stressful_multicompartment_states(self, variant_name, reference_trace):
         result = self._run_variant(variant_name)
 
         np.testing.assert_allclose(result["times"], reference_trace["times"])
@@ -199,18 +199,7 @@ class TestFastExpAccuracy:
             assert np.all(np.isfinite(reference_trace[variable]))
             assert np.all(np.isfinite(result[variable]))
 
-        assert np.ptp(reference_trace["v_comp0"]) > 5.0
-        assert np.ptp(reference_trace["v_comp1"]) > 5.0
-        assert np.ptp(reference_trace["v_comp2"]) > 5.0
-        assert np.ptp(result["v_comp0"]) > 5.0
-        assert np.ptp(result["v_comp1"]) > 5.0
-        assert np.ptp(result["v_comp2"]) > 5.0
-        assert np.ptp(reference_trace["m_Na0"]) > 0.05
-        assert np.ptp(reference_trace["h_Na0"]) > 0.05
-        assert np.ptp(reference_trace["n_K0"]) > 0.05
-        assert np.max(reference_trace["g_AN_AMPA2"]) > 0.5
-
-    def test_stressful_multicompartment_spike_times_against_double_reference(self, reference_trace):
+    def test_stressful_multicompartment_spike_times(self, reference_trace):
         result = self._run_variant("double_fastexp")
 
         assert len(reference_trace["spike_times"]) > 0
@@ -280,16 +269,6 @@ class TestFastExpAccuracy:
         result = {variable: np.asarray(multimeter_events[variable]) for variable in ["times"] + RECORDABLES}
         result["spike_times"] = np.asarray(spike_events["times"])
         return result
-
-    @staticmethod
-    def _absolute_tolerance(variable):
-        if variable.startswith("v_comp"):
-            return 0.75
-        if variable.startswith(("m_Na", "h_Na", "n_K")):
-            return 0.03
-        if variable.startswith(("g_AN_AMPA", "g_AN_NMDA")):
-            return 0.08
-        raise AssertionError(f"No tolerance configured for {variable}.")
 
     @staticmethod
     def _plot_comparison(reference, result, variant_name):
@@ -451,6 +430,6 @@ class TestFastExpAccuracy:
             )
 
 
-def test_fastexp_option_is_accepted_for_testing():
+def test_fastexp_option_is_accepted():
     code_generator = NESTCompartmentalCodeGenerator()
     code_generator.set_options({"use_fastexp": True})

@@ -27,6 +27,14 @@ import pytest
 
 from pynestml.frontend.pynestml_frontend import generate_nest_compartmental_target
 
+try:
+    import matplotlib as mpl
+    mpl.use("agg")
+    import matplotlib.pyplot as plt
+    TEST_PLOTS = True
+except BaseException:
+    TEST_PLOTS = False
+
 
 class TestCompartmentalCSEEquivalence:
     CASES = {
@@ -136,6 +144,9 @@ class TestCompartmentalCSEEquivalence:
 
         recordables = [
             "v_comp0",
+            "m_Na0",
+            "h_Na0",
+            "n_K0",
             "w0",
             "pre_trace0",
             "post_trace0",
@@ -155,6 +166,9 @@ class TestCompartmentalCSEEquivalence:
         return {
             "times": events["times"],
             "v_comp": events["v_comp0"],
+            "m_Na": events["m_Na0"],
+            "h_Na": events["h_Na0"],
+            "n_K": events["n_K0"],
             "weight": events["w0"],
             "pre_trace": events["pre_trace0"],
             "post_trace": events["post_trace0"],
@@ -171,7 +185,55 @@ class TestCompartmentalCSEEquivalence:
         assert len(no_cse_result["post_spikes"]) > 0
 
         for key in cse_result:
-            np.testing.assert_allclose(cse_result[key], no_cse_result[key], rtol=1e-7, atol=1e-7)
+            try:
+                np.testing.assert_allclose(cse_result[key], no_cse_result[key], rtol=1e-7, atol=1e-7)
+            except AssertionError:
+                self._plot_comparison_failure(cse_result, no_cse_result, failing_key=key)
+                raise
+
+    @staticmethod
+    def _plot_comparison_failure(cse_result, no_cse_result, failing_key):
+        if not TEST_PLOTS:
+            return
+
+        trace_keys = [
+            "v_comp",
+            "m_Na",
+            "h_Na",
+            "n_K",
+            "weight",
+            "pre_trace",
+            "post_trace",
+            "receptor_current",
+        ]
+        times = cse_result["times"]
+        fig, axes = plt.subplots(len(trace_keys), 2, figsize=(12, 2.2 * len(trace_keys)), squeeze=False)
+
+        for row, key in enumerate(trace_keys):
+            trace_axis = axes[row][0]
+            diff_axis = axes[row][1]
+
+            trace_axis.plot(times, cse_result[key], label=f"{key} cse")
+            trace_axis.plot(times, no_cse_result[key], linestyle="--", label=f"{key} no_cse")
+            trace_axis.set_title(key)
+            trace_axis.set_xlabel("time [ms]")
+            trace_axis.legend(fontsize="x-small")
+            trace_axis.grid(True, alpha=0.3)
+
+            diff_axis.plot(times, np.abs(cse_result[key] - no_cse_result[key]), label=f"|{key} cse - no_cse|")
+            diff_axis.set_title(f"{key} absolute difference")
+            diff_axis.set_xlabel("time [ms]")
+            diff_axis.legend(fontsize="x-small")
+            diff_axis.grid(True, alpha=0.3)
+
+        fig.suptitle(f"CSE equivalence comparison failed for {failing_key}")
+        fig.tight_layout()
+        output_path = os.path.join(
+            os.path.realpath(os.path.dirname(__file__)),
+            "compartmental_cse_equivalence_failure.png",
+        )
+        fig.savefig(output_path)
+        plt.close(fig)
 
     def test_cse_option_changes_generated_source(self):
         cse_source = os.path.join(

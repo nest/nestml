@@ -19,6 +19,23 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+Optional diagnostic benchmark for compartmental vectorization performance.
+
+This test is intended for users who expect the compartmental code generator's
+vectorized mechanism loops to improve performance, but do not see the expected
+speedup in their local build or model setup. It generates comparable
+``cm_default`` variants with different fast-math settings, patches the generated
+CMake files to request compiler vectorization reports, rebuilds the modules, and
+measures simulation time per compartment across a small compartment-count sweep.
+
+Run it explicitly with ``NESTML_RUN_PERFORMANCE_TESTS=1``. The generated report,
+plots, build logs, and compiler vectorization diagnostics are written under
+``tests/nest_compartmental_tests/target/fast_math_vectorization_performance`` and
+can be used to identify which generated loops were vectorized and which compiler
+diagnostics explain missed vectorization.
+"""
+
 import json
 import os
 from pathlib import Path

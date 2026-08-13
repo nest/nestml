@@ -114,8 +114,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
     - **nest_version**: A string identifying the version of NEST Simulator to generate code for. The string corresponds to the NEST Simulator git repository tag or git branch name, for instance, ``"v2.20.2"`` or ``"main"``. The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
     - **delay_variable**: A mapping identifying, for each synapse (the name of which is given as a key), the variable or parameter in the model that corresponds with the NEST ``Connection`` class delay property. (Optional.)
     - **weight_variable**: Like ``delay_variable``, but for synaptic weight.
-    - **use_fastexp**: Reserved for upcoming fast propagator ``exp()`` support. Default: ``False``. Currently raises an error if set to ``True``.
-    - **use_fast_math**: Select floating-point compiler relaxations for generated compartmental code. Supported values are ``"None"`` for no additional relaxations, ``"soft-fast"`` for conservative vector-math relaxations, and ``"fast"`` for ``-ffast-math``. Default: ``"soft-fast"``.
+    - **use_fastexp**: Use a bounded polynomial approximation for exponential propagators in generated compartmental mechanism updates. Default: ``False``. This can improve performance, but spike shape is not necessarily preserved; benchmark spike-time accuracy for the concrete model, for example see ``tests/nest_compartmental_tests/test__fastexp_spike_timing_sweep.py``.
+    - **use_fast_math**: Select floating-point compiler relaxations for generated compartmental code. Supported values are ``"None"`` for no additional relaxations, ``"soft-fast"`` for conservative relaxations, and ``"fast"`` for ``-ffast-math``. Default: ``"fast"``.
     - **enable_cse**: If ``True``, run common subexpression elimination for compartmental mechanism expressions. Default: ``True``.
     - **fp_precision**: Floating-point precision for compartmental state and helper variables. Supported values: ``"double"``. ``"single"`` is reserved for upcoming single-precision support and currently raises an error.
     """
@@ -125,7 +125,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         "neuron_models": [],
         "synapse_models": [],
         "use_fastexp": False,
-        "use_fast_math": "soft-fast",
+        "use_fast_math": "fast",
         "enable_cse": True,
         "neuron_parent_class": "ArchivingNode",
         "neuron_parent_class_include": "archiving_node.h",
@@ -268,9 +268,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         if "enable_cse" in options and not isinstance(options["enable_cse"], bool):
             raise ValueError("`enable_cse` must be a bool.")
         if "fp_precision" in options:
-            if options["fp_precision"] not in ["double", "single"]:
-                raise ValueError("`fp_precision` must be either 'double' or 'single'.")
-            if options["fp_precision"] == "single":
+            if options["fp_precision"] != "double":
                 raise ValueError("Single precision for the NEST compartmental code generator is not supported yet; this is coming in the future.")
         if options.get("use_fastexp"):
             code, message = Messages.get_cm_fastexp_accuracy_warning()
