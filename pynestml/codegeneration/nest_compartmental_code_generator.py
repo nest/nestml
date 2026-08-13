@@ -260,8 +260,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             return {}
         if "use_fastexp" in options and not isinstance(options["use_fastexp"], bool):
             raise ValueError("`use_fastexp` must be a bool.")
-        if options.get("use_fastexp"):
-            raise ValueError("Fast exponential approximation for the NEST compartmental code generator is not supported yet; this is coming in the future.")
         if "use_fast_math" in options:
             if not isinstance(options["use_fast_math"], str):
                 raise ValueError("`use_fast_math` must be a string.")
@@ -274,6 +272,9 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 raise ValueError("`fp_precision` must be either 'double' or 'single'.")
             if options["fp_precision"] == "single":
                 raise ValueError("Single precision for the NEST compartmental code generator is not supported yet; this is coming in the future.")
+        if options.get("use_fastexp"):
+            code, message = Messages.get_cm_fastexp_accuracy_warning()
+            Logger.log_message(code=code, message=message, log_level=LoggingLevel.WARNING)
         self._nest_code_generator.set_options(options)
         ret = super().set_options(options)
         self._fp_precision = self.get_option("fp_precision")

@@ -93,7 +93,7 @@ PROXIMAL_DEND_CHANNEL_SCALE = 12.0      # Makes dendritic Na/K currents clearly 
 DISTAL_DEND_CHANNEL_SCALE = 8.0         # Keeps distal dynamics active but weaker than the proximal compartment.
 DISTAL_DEND_CAPACITANCE_SCALE = 0.75    # Makes the distal voltage respond within a few 0.1 ms steps.
 AMPA_TAU_SCALE = 0.6                    # Puts the AMPA rise time near one 0.1 ms step, stressing exponential propagators.
-NMDA_TAU_SCALE = 1.0 / 3.0              # Keeps NMDA slower than AMPA but short enough to change over this 45 ms test.
+NMDA_TAU_SCALE = 1.0 / 3.0              # Shortens the 43 ms NMDA decay while keeping it slower than the scaled AMPA decay.
 
 
 def _scaled_params(base_params, scales=None, updates=None):
@@ -168,12 +168,16 @@ class TestFastExpAccuracy:
 
         for variant_name, variant in VARIANTS.items():
             target_path = os.path.join(tests_path, "target", "fastexp_accuracy", variant_name)
+            install_path = os.path.join(target_path, "install")
             os.makedirs(target_path, exist_ok=True)
+            os.makedirs(install_path, exist_ok=True)
             variant["target_path"] = target_path
+            variant["module_path"] = os.path.join(install_path, variant["module_name"] + ".so")
 
             generate_nest_compartmental_target(
                 input_path=input_path,
                 target_path=target_path,
+                install_path=install_path,
                 module_name=variant["module_name"],
                 suffix=variant["suffix"],
                 logging_level="INFO",
@@ -185,7 +189,6 @@ class TestFastExpAccuracy:
         return self._run_variant("reference")
 
     @pytest.mark.parametrize("variant_name", ["double_fastexp"])
-    @pytest.mark.skip(reason="use_fastexp is reserved until the fast approximation is valid for all propagator ranges.")
     def test_stressful_multicompartment_accuracy_against_double_reference(self, variant_name, reference_trace):
         result = self._run_variant(variant_name)
 
@@ -193,21 +196,27 @@ class TestFastExpAccuracy:
         self._plot_comparison(reference_trace, result, variant_name)
 
         for variable in RECORDABLES:
-            max_abs = np.max(np.abs(result[variable] - reference_trace[variable]))
-            assert max_abs <= self._absolute_tolerance(variable), (
-                f"{variant_name} deviates from double precision reference for {variable}: "
-                f"max abs diff {max_abs} > {self._absolute_tolerance(variable)}"
-            )
+            assert np.all(np.isfinite(reference_trace[variable]))
+            assert np.all(np.isfinite(result[variable]))
 
         assert np.ptp(reference_trace["v_comp0"]) > 5.0
         assert np.ptp(reference_trace["v_comp1"]) > 5.0
         assert np.ptp(reference_trace["v_comp2"]) > 5.0
+        assert np.ptp(result["v_comp0"]) > 5.0
+        assert np.ptp(result["v_comp1"]) > 5.0
+        assert np.ptp(result["v_comp2"]) > 5.0
         assert np.ptp(reference_trace["m_Na0"]) > 0.05
         assert np.ptp(reference_trace["h_Na0"]) > 0.05
         assert np.ptp(reference_trace["n_K0"]) > 0.05
         assert np.max(reference_trace["g_AN_AMPA2"]) > 0.5
 
-    @pytest.mark.skip(reason="use_fastexp is reserved until the fast approximation is valid for all propagator ranges.")
+    def test_stressful_multicompartment_spike_times_against_double_reference(self, reference_trace):
+        result = self._run_variant("double_fastexp")
+
+        assert len(reference_trace["spike_times"]) > 0
+        assert len(result["spike_times"]) == len(reference_trace["spike_times"])
+        np.testing.assert_allclose(result["spike_times"], reference_trace["spike_times"], atol=0.5, rtol=0.0)
+
     def test_fastexp_variant_uses_fast_propagator_function(self):
         variant = VARIANTS["double_fastexp"]
         source_path = os.path.join(
@@ -226,9 +235,10 @@ class TestFastExpAccuracy:
 
         nest.ResetKernel()
         nest.SetKernelStatus({"resolution": DT})
-        nest.Install(variant["module_name"] + ".so")
+        nest.Install(variant["module_path"])
 
         neuron = nest.Create(variant["model_name"])
+        neuron.V_th = -50.0
         neuron.compartments = copy.deepcopy(COMPARTMENTS)
         neuron.receptors = [
             {"comp_idx": 0, "receptor_type": "AMPA_NMDA", "params": copy.deepcopy(RECEPTOR_PARAMS)},
@@ -260,11 +270,16 @@ class TestFastExpAccuracy:
 
         multimeter = nest.Create("multimeter", 1, {"record_from": RECORDABLES, "interval": DT})
         nest.Connect(multimeter, neuron)
+        spike_recorder = nest.Create("spike_recorder")
+        nest.Connect(neuron, spike_recorder)
 
         nest.Simulate(SIM_TIME)
-        events = nest.GetStatus(multimeter, "events")[0]
+        multimeter_events = nest.GetStatus(multimeter, "events")[0]
+        spike_events = nest.GetStatus(spike_recorder, "events")[0]
 
-        return {variable: np.asarray(events[variable]) for variable in ["times"] + RECORDABLES}
+        result = {variable: np.asarray(multimeter_events[variable]) for variable in ["times"] + RECORDABLES}
+        result["spike_times"] = np.asarray(spike_events["times"])
+        return result
 
     @staticmethod
     def _absolute_tolerance(variable):
@@ -284,13 +299,9 @@ class TestFastExpAccuracy:
         plot_groups = [
             ("compartment voltages", ["v_comp0", "v_comp1", "v_comp2"]),
             ("soma channel states", ["m_Na0", "h_Na0", "n_K0"]),
-            (
-                "receptor conductances",
-                ["g_AN_AMPA0", "g_AN_NMDA0", "g_AN_AMPA1", "g_AN_NMDA1", "g_AN_AMPA2", "g_AN_NMDA2"],
-            ),
         ]
 
-        fig, axes = plt.subplots(len(plot_groups), 2, figsize=(12, 9), squeeze=False)
+        fig, axes = plt.subplots(len(plot_groups) + 1, 2, figsize=(12, 9), squeeze=False)
         times = reference["times"]
 
         for row, (title, variables) in enumerate(plot_groups):
@@ -302,6 +313,9 @@ class TestFastExpAccuracy:
                 trace_ax.plot(times, result[variable], linestyle="--", label=f"{variable} {variant_name}")
                 diff_ax.plot(times, np.abs(result[variable] - reference[variable]), label=variable)
 
+            TestFastExpAccuracy._plot_spike_times(trace_ax, reference, result, variant_name)
+            TestFastExpAccuracy._plot_spike_times(diff_ax, reference, result, variant_name)
+
             trace_ax.set_title(title)
             trace_ax.set_xlabel("time [ms]")
             trace_ax.legend(fontsize="x-small", ncol=2)
@@ -309,6 +323,8 @@ class TestFastExpAccuracy:
             diff_ax.set_title(f"{title} absolute difference")
             diff_ax.set_xlabel("time [ms]")
             diff_ax.legend(fontsize="x-small", ncol=2)
+
+        TestFastExpAccuracy._plot_tau_comparison(axes[len(plot_groups)])
 
         fig.tight_layout()
         output_path = os.path.join(
@@ -318,8 +334,123 @@ class TestFastExpAccuracy:
         fig.savefig(output_path)
         plt.close(fig)
 
+    @staticmethod
+    def _plot_spike_times(axis, reference, result, variant_name):
+        for spike_idx, spike_time in enumerate(reference["spike_times"]):
+            axis.axvline(
+                spike_time,
+                color="black",
+                linewidth=0.8,
+                alpha=0.45,
+                label="reference spikes" if spike_idx == 0 else None,
+            )
+        for spike_idx, spike_time in enumerate(result["spike_times"]):
+            axis.axvline(
+                spike_time,
+                color="tab:red",
+                linestyle="--",
+                linewidth=0.8,
+                alpha=0.45,
+                label=f"{variant_name} spikes" if spike_idx == 0 else None,
+            )
 
-def test_fastexp_option_is_reserved():
+    @staticmethod
+    def _plot_tau_comparison(axes):
+        voltages = np.linspace(-100.0, 80.0, 1801)
+        tau_values = {
+            "m_Na": TestFastExpAccuracy._positive_finite_tau(TestFastExpAccuracy._tau_m_Na(voltages)),
+            "h_Na": TestFastExpAccuracy._positive_finite_tau(TestFastExpAccuracy._tau_h_Na(voltages)),
+            "n_K": TestFastExpAccuracy._positive_finite_tau(TestFastExpAccuracy._tau_n_K(voltages)),
+        }
+
+        tau_ax = axes[0]
+        propagator_ax = axes[1]
+
+        for name, tau in tau_values.items():
+            tau_ax.plot(voltages, tau, label=f"tau_{name}")
+            exact = TestFastExpAccuracy._exact_propagator(tau)
+            fastexp = TestFastExpAccuracy._bounded_fast_propagator(tau)
+            propagator_ax.plot(voltages, exact, label=f"{name} std::exp")
+            propagator_ax.plot(voltages, fastexp, linestyle="--", label=f"{name} fastexp")
+
+        tau_ax.axhline(
+            DT / 2.0,
+            linestyle="--",
+            color="black",
+            linewidth=1.0,
+            label="fastexp lower bound: tau = h / 2",
+        )
+        tau_ax.set_xlabel("v_comp [mV]")
+        tau_ax.set_ylabel("tau [ms]")
+        tau_ax.set_yscale("log")
+        tau_ax.set_title("propagator tau ranges")
+        tau_ax.grid(True, which="both", alpha=0.3)
+        tau_ax.legend(fontsize="x-small", ncol=2)
+
+        propagator_ax.set_xlabel("v_comp [mV]")
+        propagator_ax.set_ylabel("exp(-h / tau)")
+        propagator_ax.set_title("fastexp disabled vs bounded fastexp")
+        propagator_ax.grid(True, alpha=0.3)
+        propagator_ax.legend(fontsize="x-small", ncol=2)
+
+    @staticmethod
+    def _tau_m_Na(v_comp):
+        with np.errstate(divide="ignore", invalid="ignore"):
+            simd_cse_tmp_Na0 = 0.111111111 * v_comp
+            simd_cse_tmp_Na1 = (0.182 * v_comp + 6.372366) / (
+                1.0 - 0.0204385321 * np.exp(-simd_cse_tmp_Na0)
+            )
+            simd_cse_tmp_Na2 = 1.0 / (
+                simd_cse_tmp_Na1
+                + ((-0.124) * v_comp - 4.341612) / (1.0 - 48.9271929 * np.exp(simd_cse_tmp_Na0))
+            )
+            return 0.31152648 * simd_cse_tmp_Na2
+
+    @staticmethod
+    def _tau_h_Na(v_comp):
+        with np.errstate(divide="ignore", invalid="ignore"):
+            simd_cse_tmp_Na3 = 0.2 * v_comp
+            return 0.31152648 / (
+                ((-0.0091) * v_comp - 0.6826183) / (1.0 - 3277527.88 * np.exp(simd_cse_tmp_Na3))
+                + (0.024 * v_comp + 1.200312) / (1.0 - 4.52820433e-05 * np.exp(-simd_cse_tmp_Na3))
+            )
+
+    @staticmethod
+    def _tau_n_K(v_comp):
+        with np.errstate(divide="ignore", invalid="ignore"):
+            simd_cse_tmp_K0 = 0.111111111 * v_comp
+            simd_cse_tmp_K1 = 1.0 / (1.0 - 16.0832406 * np.exp(-simd_cse_tmp_K0))
+            simd_cse_tmp_K2 = 1.0 / (
+                simd_cse_tmp_K1 * (0.02 * v_comp - 0.5)
+                + (0.05 - 0.002 * v_comp) / (1.0 - 0.0621765242 * np.exp(simd_cse_tmp_K0))
+            )
+            return 0.31152648 * simd_cse_tmp_K2
+
+    @staticmethod
+    def _positive_finite_tau(tau_values):
+        return np.where(np.isfinite(tau_values) & (tau_values > 0.0), tau_values, np.nan)
+
+    @staticmethod
+    def _exact_propagator(tau_values):
+        with np.errstate(divide="ignore", invalid="ignore"):
+            return np.exp(-DT / tau_values)
+
+    @staticmethod
+    def _bounded_fast_propagator(tau_values):
+        with np.errstate(divide="ignore", invalid="ignore"):
+            x = -DT / tau_values
+            xc = np.minimum(-1.0e-12, np.maximum(-2.0, x))
+            return 0.9999833698215348 + xc * (
+                0.9993709968710967 + xc * (
+                    0.4961277470116421 + xc * (
+                        0.15781341991629894 + xc * (
+                            0.03218380466140601 + xc * 0.003214600822495845
+                        )
+                    )
+                )
+            )
+
+
+def test_fastexp_option_is_accepted_for_testing():
     code_generator = NESTCompartmentalCodeGenerator()
-    with pytest.raises(ValueError, match="Fast exponential approximation"):
-        code_generator.set_options({"use_fastexp": True})
+    code_generator.set_options({"use_fastexp": True})

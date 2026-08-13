@@ -154,6 +154,7 @@ class MessageCode(Enum):
     CM_UNRESOLVED_FUNCTION_DEPENDENCY = 125
     CM_UNRESOLVED_VARIABLE_DEPENDENCY = 126
     CM_INTEGRATE_ODES_IGNORED = 127
+    CM_FASTEXP_ACCURACY_WARNING = 128
     CONVOLVE_NEEDS_BUFFER_PARAMETER = 122
 
 
@@ -1070,6 +1071,16 @@ class Messages:
                   "ODEs are integrated implicitly. The call is accepted for model " \
                   "compatibility and will be ignored."
         return MessageCode.CM_INTEGRATE_ODES_IGNORED, message
+
+    @classmethod
+    def get_cm_fastexp_accuracy_warning(cls) -> Tuple[MessageCode, str]:
+        message = "The NEST compartmental fast exponential option uses a bounded exponential approximation. " \
+                  "Spike shape is not necessarily preserved; see " \
+                  "tests/nest_compartmental_tests/test__fastexp_accuracy.py \n" \
+                  "For spike-time accuracy, benchmark your own model " \
+                  "against a standard-exponential reference; see " \
+                  "tests/nest_compartmental_tests/test__fastexp_spike_timing_sweep.py for an example."
+        return MessageCode.CM_FASTEXP_ACCURACY_WARNING, message
 
     @classmethod
     def get_mechs_dictionary_info(cls, chan_info, recs_info, conc_info, con_in_info, syns_info, global_info) -> Tuple[MessageCode, str]:
