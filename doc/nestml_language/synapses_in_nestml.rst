@@ -161,9 +161,9 @@ Experiments have shown that synaptic strength changes as a function of the preci
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/b96d9144664ef8ddb75dce51c8e5b38b7878dde5/doc/fig/Asymmetric-STDP-learning-window-Spike-timing-window-of-STDP-for-the-induction-of.png
 
-   Asymmetric STDP learning window. Spike-timing window of STDP for the induction of synaptic potentiation and depression characterized in hippocampal cultures. Data points from Bi and Poo (1998), represent the relative change in the amplitude of EPSC after repetitive correlated activity of pre-post spike pairs. The potentiation window (right of the vertical axis) and depression window (left of the vertical axis) are fitted by an exponential function $A^\pm\exp(−|\Delta t|/\tau^\pm)$, with parameters $A^+ = 0.86$, $A^- = -0.25$, $\tau^+ = 19 \text{ms}$, and $\tau^- = 34 \text{ms}$. Adopted from Bi and Wang (2002).
+   Asymmetric STDP learning window. Spike-timing window of STDP for the induction of synaptic potentiation and depression characterized in hippocampal cultures. Data points from Bi and Poo (1998), represent the relative change in the amplitude of EPSC after repetitive correlated activity of pre-post spike pairs. The potentiation window (right of the vertical axis) and depression window (left of the vertical axis) are fitted by an exponential function :math:`A^\pm\exp(−|\Delta t|/\tau^\pm)` with parameters :math:`A^+ = 0.86`, :math:`A^- = -0.25`, :math:`\tau^+ = 19 \text{ms}`, and :math:`\tau^- = 34 \text{ms}`. Adopted from Bi and Wang (2002).
 
-We will define the theoretical model following [3]_.
+We will define the theoretical model following [2]_.
 
 A pair of spikes in the input and the output cell, at times :math:`t_i` and :math:`t_j` respectively, induces a change :math:`\Delta w` in the weight :math:`w`:
 
@@ -180,7 +180,7 @@ The weight is increased by :math:`\Delta^+ w` when :math:`t_o>t_i` and decreased
    f_-(w) &= \alpha w^{\mu_-}
    \end{align}
 
-with the parameter :math:`\alpha\in\mathbb{R}, \alpha>0` allowing to set an asymmetry between increasing and decreasing the synaptic efficacy, and :math:`\mu_\pm\in\{0,1\}` allowing to choose between four different kinds of STDP (for references, see https://nest-simulator.readthedocs.io/en/nest-2.20.1/models/stdp.html?highlight=stdp#_CPPv4I0EN4nest14STDPConnectionE).
+with the parameter :math:`\alpha\in\mathbb{R}, \alpha>0` allowing to set an asymmetry between increasing and decreasing the synaptic efficacy, and :math:`\mu_\pm\in\{0,1\}` allowing to choose between four different kinds of STDP [4]_.
 
 To implement the kernel, we use two extra state variables, one presynaptic so-called *trace value* and another postsynaptic trace value. These could correspond to calcium concentration in biology, maintaing a history of recent neuron spiking activity. They are incremented by 1 whenever a spike is generated, and decay back to zero exponentially. Mathematically, this can be formulated as a convolution between the exponentially decaying kernel and the emitted spike train:
 
@@ -220,7 +220,7 @@ With the traces in place, the weight updates can then be expressed closely follo
 .. code-block:: nestml
 
    state:
-       w real = 1.
+       w real = 1
 
 Our update rule for facilitation is:
 
@@ -234,7 +234,7 @@ In NESTML, this expression can be entered almost verbatim. Note that the only di
 
    onReceive(post_spikes):
        # potentiate synapse
-       w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * tr_pre ))
+       w_ real = Wmax * (w / Wmax  + (lambda * (1 - (w / Wmax))**mu_plus * tr_pre))
        w = min(Wmax, w_)
 
 Our update rule for depression is:
@@ -247,7 +247,7 @@ Our update rule for depression is:
 
    onReceive(pre_spikes):
        # depress synapse
-       w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * tr_post ))
+       w_ real = Wmax * (w / Wmax - (alpha * lambda * (w / Wmax)**mu_minus * tr_post))
        w = max(Wmin, w_)
 
        # send spike to postsynaptic partner
@@ -259,13 +259,13 @@ Finally, all remaining parameters are defined:
 
    parameters:
        lambda real = .01
-       alpha real = 1.
-       mu_plus real = 1.
-       mu_minus real = 1.
-       Wmax real = 100.
-       Wmin real = 0.
+       alpha real = 1
+       mu_plus real = 1
+       mu_minus real = 1
+       Wmax real = 100
+       Wmin real = 0
 
-The NESTML STDP synapse integration test (``tests/nest_tests/stdp_window_test.py``) runs the model for a variety of pre/post spike timings, and measures the weight change numerically. We can use this to verify that our model approximates the correct STDP window. Note that the dendritic delay in this example has been set to 10 ms, to make its effect on the STDP window more clear: it is not centered around zero, but shifted to the left by the dendritic delay.
+The NESTML STDP synapse integration test (`tests/nest_tests/stdp_window_test.py <https://github.com/nest/nestml/blob/main/tests/nest_tests/stdp_window_test.py>`_) runs the model for a variety of pre/post spike timings, and measures the weight change numerically. We can use this to verify that our model approximates the correct STDP window. Note that the dendritic delay in this example has been set to 10 ms, to make its effect on the STDP window more clear: it is not centered around zero, but shifted to the left by the dendritic delay.
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/c4c47d053077b11ad385d5f882696248a55b31af/doc/fig/stdp_test_window.png
 
@@ -279,7 +279,7 @@ This synapse model extends the STDP model by restrictions on interactions betwee
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/1c692f7ce70a548103b4cc1572a05a2aed3b27a4/doc/fig/stdp-nearest-neighbour.png
 
-   Figure 7 from Morrison, Diesmann and Gerstner [1]_. Original caption: "Examples of nearest neighbor spike pairing schemes for a pre-synaptic neuron j and a postsynaptic neuron i. In each case, the dark gray indicate which pairings contribute toward depression of a synapse, and light gray indicate which pairings contribute toward potentiation. **(a)** Symmetric interpretation: each presynaptic spike is paired with the last postsynaptic spike, and each postsynaptic spike is paired with the last presynaptic spike (Morrison et al. 2007). **(b)** Presynaptic centered interpretation: each presynaptic spike is paired with the last postsynaptic spike and the next postsynaptic spike (Izhikevich and Desai 2003; Burkitt et al. 2004: Model II). **(c)** Reduced symmetric interpretation: as in **(b)** but only for immediate pairings (Burkitt et al. 2004: Model IV, also implemented in hardware by Schemmel et al. 2006)"
+   Figure 7 from Morrison, Diesmann and Gerstner [1]_. Original caption: "Examples of nearest neighbor spike pairing schemes for a pre-synaptic neuron :math:`j` and a postsynaptic neuron :math:`i`. In each case, the dark gray indicate which pairings contribute toward depression of a synapse, and light gray indicate which pairings contribute toward potentiation. **(a)** Symmetric interpretation: each presynaptic spike is paired with the last postsynaptic spike, and each postsynaptic spike is paired with the last presynaptic spike (Morrison et al. 2007). **(b)** Presynaptic centered interpretation: each presynaptic spike is paired with the last postsynaptic spike and the next postsynaptic spike (Izhikevich and Desai 2003; Burkitt et al. 2004: Model II). **(c)** Reduced symmetric interpretation: as in **(b)** but only for immediate pairings (Burkitt et al. 2004: Model IV, also implemented in hardware by Schemmel et al. 2006)"
 
 
 Nearest-neighbour symmetric
@@ -313,7 +313,7 @@ Resetting to 1 can then be done by assignment in the pre- and post-event handler
 
 The rest of the model is equivalent to the normal (all-to-all spike pairing) STDP.
 
-The full model can be downloaded here: `stdp_nn_symm_synapse.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/synapses/stdp_nn_symm_synapse.nestml>`_.
+The full model can be downloaded here: `stdp_nn_symm_synapse.nestml <https://github.com/nest/nestml/blob/main/models/synapses/stdp_nn_symm_synapse.nestml>`_.
 
 
 Presynaptic centered
@@ -337,7 +337,7 @@ To implement this rule, the postsynaptic trace is reset to 1 upon a spike, where
 
 The remainder of the model is the same as the all-to-all STDP synapse.
 
-The full model can be downloaded here: `stdp_nn_pre_centered_synapse.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/synapses/stdp_nn_pre_centered_synapse.nestml>`_.
+The full model can be downloaded here: `stdp_nn_pre_centered_synapse.nestml <https://github.com/nest/nestml/blob/main/models/synapses/stdp_nn_pre_centered_synapse.nestml>`_.
 
 
 Restricted symmetric
@@ -372,17 +372,17 @@ To implement this rule, depression and facilitation are gated through a boolean,
 
 The remainder of the model is the same as the :ref:`Presynaptic centered` variant.
 
-The full model can be downloaded here: `stdp_nn_restr_symm_synapse.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/synapses/stdp_nn_restr_symm_synapse.nestml>`_.
+The full model can be downloaded here: `stdp_nn_restr_symm_synapse.nestml <https://github.com/nest/nestml/blob/main/models/synapses/stdp_nn_restr_symm_synapse.nestml>`_.
 
 
 Triplet-rule STDP synapse
 -------------------------
 
-Traditional STDP models express the weight change as a function of pairs of pre- and postsynaptic spikes, but these fall short in accounting for the frequency dependence of weight changes. To improve the fit between model and empirical data, [4]_ propose a "triplet" rule, which considers sets of three spikes, that is, two pre and one post, or one pre and two post.
+Traditional STDP models express the weight change as a function of pairs of pre- and postsynaptic spikes, but these fall short in accounting for the frequency dependence of weight changes. To improve the fit between model and empirical data, [3]_ propose a "triplet" rule, which considers sets of three spikes, that is, two pre and one post, or one pre and two post.
 
-.. figure:: https://www.jneurosci.org/content/jneuro/26/38/9673/F1.large.jpg?width=800&height=600&carousel=1
+.. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/fig/pfister_gerstner_synapse.jpeg
 
-   Figure 1 from [4]_.
+   Figure 1 from [3]_.
 
 Two traces, with different time constants, are defined for both pre- and postsynaptic partners. The temporal evolution of the traces is illustrated in panels B and C: for the all-to-all variant of the rule, each trace is incremented by 1 upon a spike (panel B), whereas for the nearest-neighbour variant, each trace is reset to 1 upon a spike (panel C). The weight updates are then computed as a function of the trace values and four coefficients: a depression pair term :math:`A_2^-` and triplet term :math:`A_3^-`, and a facilitation pair term :math:`A_2^+` and triplet term :math:`A_3^+`. A presynaptic spike after a postsynaptic one induces depression, if the temporal difference is not much larger than :math:`\tau_-` (pair term, :math:`A_2^−`). The presence of a previous presynaptic spike gives an additional contribution (2-pre-1-post triplet term, :math:`A_3^−`) if the interval between the two presynaptic spikes is not much larger than :math:`\tau_x`. Similarly, the triplet term for potentiation depends on one presynaptic spike but two postsynaptic spikes. The presynaptic spike must occur before the second postsynaptic one with a temporal difference not much larger than :math:`\tau_+`.
 
@@ -407,7 +407,7 @@ Two traces, with different time constants, are defined for both pre- and postsyn
        kernel tr_o2_kernel = exp(-t / tau_y)
        inline tr_o2 real = convolve(tr_o2_kernel, post_spikes)
 
-The weight update rules can then be expressed in terms of the traces and parameters, directly following the formulation in the paper (eqs. 3 and 4, [4]_):
+The weight update rules can then be expressed in terms of the traces and parameters, directly following the formulation in the paper (eqs. 3 and 4, [3]_):
 
 .. code-block:: nestml
 
@@ -422,12 +422,12 @@ The weight update rules can then be expressed in terms of the traces and paramet
 
    onReceive(post_spikes):
        # potentiate synapse
-       w_ real = w + tr_r1 * ( A2_plus + A3_plus * tr_o2 )
+       w_ real = w + tr_r1 * (A2_plus + A3_plus * tr_o2)
        w = min(Wmax, w_)
 
    onReceive(pre_spikes):
        # depress synapse
-       w_ real = w  -  tr_o1 * ( A2_minus + A3_minus * tr_r2 )
+       w_ real = w  -  tr_o1 * (A2_minus + A3_minus * tr_r2)
        w = max(Wmin, w_)
 
        # deliver spike to postsynaptic partner
@@ -479,10 +479,8 @@ References
        models of synaptic plasticity based on spike timing,
        Biol. Cybern. 98, 459--478
 
-.. [2] Front. Comput. Neurosci., 23 November 2010 | https://doi.org/10.3389/fncom.2010.00141 Enabling functional neural circuit simulations with distributed computing of neuromodulated plasticity, Wiebke Potjans, Abigail Morrison and Markus Diesmann
+.. [2] Rubin, Lee and Sompolinsky. Equilibrium Properties of Temporally Asymmetric Hebbian Plasticity. Physical Review Letters, 8 Jan 2001, Vol 86, No 2
 
-.. [3] Rubin, Lee and Sompolinsky. Equilibrium Properties of Temporally Asymmetric Hebbian Plasticity. Physical Review Letters, 8 Jan 2001, Vol 86, No 2
+.. [3] Pfister JP, Gerstner W (2006). Triplets of spikes in a model of spike timing-dependent plasticity.  The Journal of Neuroscience 26(38):9673-9682. DOI: https://doi.org/10.1523/JNEUROSCI.1425-06.2006
 
-.. [4] Pfister JP, Gerstner W (2006). Triplets of spikes in a model of spike timing-dependent plasticity.  The Journal of Neuroscience 26(38):9673-9682. DOI: https://doi.org/10.1523/JNEUROSCI.1425-06.2006
-
-.. [5] Potjans W, Morrison A and Diesmann M (2010) Enabling functional neural circuit simulations with distributed computing of neuromodulated plasticity. Front. Comput. Neurosci. 4:141. doi: 10.3389/fncom.2010.00141
+.. [4] Guetig et al. (2003). Learning input correlations through nonlinear temporally asymmetric hebbian plasticity. Journal of Neuroscience, 23:3697-3714 DOI: https://doi.org/10.1523/JNEUROSCI.23-09-03697.2003
