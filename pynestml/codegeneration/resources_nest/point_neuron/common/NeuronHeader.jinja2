@@ -962,21 +962,7 @@ public:
 {%- endfor %}
 {%- endfilter %}
 
-  // -------------------------------------------------------------------------
-  //   Setters for inline expressions (this is allowed for expressions containing a convolve() call)
-  // -------------------------------------------------------------------------
 private:
-{%  filter indent(2, True) -%}
-{%- for equations_block in neuron.get_equations_blocks() %}
-{%-     for inline_expr in equations_block.get_inline_expressions() %}
-{%-         set variable = ast_node_factory.create_ast_variable(inline_expr.get_variable_name(), differential_order=0, scope=inline_expr.scope) %}
-{%-         set variable_symbol = equations_block.get_scope().resolve_to_symbol(inline_expr.get_variable_name(), SymbolKind.VARIABLE) %}
-{%-         include "directives_cpp/MemberVariableSetter.jinja2" %}
-
-{%     endfor %}
-{%- endfor %}
-{%- endfilter %}
-
   // -------------------------------------------------------------------------
   //   Getters/setters for input buffers
   // -------------------------------------------------------------------------
@@ -1007,7 +993,6 @@ private:
   //   Note: Devices require one additional data member, an instance of the
   //   ``Device`` child class they belong to.
   // -------------------------------------------------------------------------
-
 
   Parameters_       P_;        //!< Free parameters.
   State_            S_;        //!< Dynamic state.
