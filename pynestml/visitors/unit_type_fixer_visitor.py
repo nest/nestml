@@ -85,8 +85,7 @@ class UnitTypeFixerVisitor(ASTVisitor):
             elif unit_type.is_arithmetic_expression():
                 from pynestml.utils.model_parser import ModelParser
                 expr_to_be_moved = ModelParser.parse_expression("(" + str(unit_type) + ")")
-                # pretend that update expressions are in "equations" block, which should always be present,
-                # as differential equations must have been defined to get here
+                # pretend that update expressions are in "equations" block, which should always be present, as differential equations must have been defined to get here
                 expr_to_be_moved.scope = node.scope
                 expr_to_be_moved.source_position = node.source_position
                 expr_to_be_moved.accept(ASTSymbolTableVisitor())
@@ -114,13 +113,30 @@ class UnitTypeFixerVisitor(ASTVisitor):
                     return
 
                 elif parent_node.rhs == node:
-                    if parent_node.get_binary_operator() and parent_unit_type.is_times:
+                    if parent_node.get_binary_operator() and parent_node.get_binary_operator().is_times_op and parent_unit_type.is_times:
                         binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_times_op=True)
                         new_node = ASTExpression(binary_operator=binary_operator, lhs=parent_node.lhs, rhs=new_numeric_literal_expr)
                         new_node.source_position = parent_node.source_position
                         parent_node.lhs = new_node
                         parent_node.rhs = expr_to_be_moved
-                    elif parent_node.get_binary_operator() and parent_unit_type.is_div:
+                    elif parent_node.get_binary_operator() and parent_node.get_binary_operator().is_div_op and parent_unit_type.is_times:
+                        binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_div_op=True)
+                        new_node = ASTExpression(binary_operator=binary_operator, lhs=parent_node.lhs, rhs=new_numeric_literal_expr)
+                        new_node.source_position = parent_node.source_position
+                        parent_node.lhs = new_node
+                        parent_node.binary_operator.is_div_op = False
+                        parent_node.binary_operator.is_times_op = True
+                        parent_node.rhs = expr_to_be_moved
+                    elif parent_node.get_binary_operator() and parent_node.get_binary_operator().is_times_op and parent_unit_type.is_div:
+                        binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_times_op=True)
+                        new_node = ASTExpression(binary_operator=binary_operator, lhs=parent_node.lhs, rhs=new_numeric_literal_expr)
+                        new_node.source_position = parent_node.source_position
+                        parent_node.lhs = new_node
+                        parent_node.binary_operator.is_div_op = True
+                        parent_node.binary_operator.is_times_op = False
+                        parent_node.rhs = expr_to_be_moved
+                        new_node._parent = parent_node
+                    elif parent_node.get_binary_operator() and parent_node.get_binary_operator().is_div_op and parent_unit_type.is_div:
                         binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_div_op=True)
                         new_node = ASTExpression(binary_operator=binary_operator, lhs=parent_node.lhs, rhs=new_numeric_literal_expr)
                         new_node.source_position = parent_node.source_position
