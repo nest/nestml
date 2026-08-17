@@ -24,7 +24,7 @@
 model iaf_psc_exp_nonlineardendrite_neuron:
 
     state:
-        V_m mV = 0 mV         # membrane potential in mV
+        V_m mV = 0 mV         # membrane potential
         dAP_trace pA = 0 pA             # dAP trace
         active_dendrite boolean = false
         active_dendrite_readout real = 0.    # an extra readout is included so the state can be recorded in NEST; see https://github.com/nest/nestml/issues/986
@@ -45,8 +45,8 @@ model iaf_psc_exp_nonlineardendrite_neuron:
         kernel I_kernel3 = exp(-t / tau_syn3)
 
         # diff. eq. for membrane potential
-        inline I_syn pA = convolve(I_kernel1, I_1) * pA - convolve(I_kernel3, I_3) * pA + I_e
-        V_m' = -(V_m - E_L)/tau_m + (I_syn + I_dend) / C_m
+        inline I_syn pA = unit_psc * (convolve(I_kernel1, I_1) - convolve(I_kernel3, I_3)) + I_e
+        V_m' = -(V_m - E_L) / tau_m + (I_syn + I_dend) / C_m
 
         # diff. eq. for dAP trace
         dAP_trace' = -evolve_dAP_trace * dAP_trace / tau_h
@@ -75,7 +75,8 @@ model iaf_psc_exp_nonlineardendrite_neuron:
         ref_timeout_ticks integer = steps(t_ref)
 
     internals:
-        unit_psr pA/ms = pA * exp(1) / tau_syn2         # Unitary postsynaptic response amplitude
+        unit_psr pA/ms = 1 pA * exp(1) / tau_syn2       # Unitary postsynaptic response amplitude
+        unit_psc pA = 1 pA                              # Unitary postsynaptic current amplitude
 
     input:
         I_1 <- spike
@@ -86,7 +87,7 @@ model iaf_psc_exp_nonlineardendrite_neuron:
         spike
 
     onReceive(I_2):
-        I_dend$ += unit_psr * I_2 * s
+        I_dend$ += unit_psr * I_2 * 1E3 s    # XXX: TODO: factor 1E3 should be removed; see https://github.com/nest/nestml/issues/984
 
     update:
         # solve ODEs
@@ -112,7 +113,7 @@ model iaf_psc_exp_nonlineardendrite_neuron:
                     # the following assignment to I_dend$ reproduces a bug in the original implementation. It is included here to replicate the results of the original model
                     c1 real = -resolution() * exp(-resolution() / tau_syn2) / tau_syn2**2
                     c2 real = (-resolution() + tau_syn2) * exp(-resolution() / tau_syn2) / tau_syn2
-                    I_dend$ = I_p * c1 / (1 - c2) / ms
+                    I_dend$ = I_p * c1 / (1 - c2) / 1 ms
 
             else:
                 dAP_counts -= 1
