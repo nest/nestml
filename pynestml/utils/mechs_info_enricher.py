@@ -126,7 +126,9 @@ class MechsInfoEnricher:
     def initialize_empty_cse_replacements(cls, mechs_info: dict):
         for mechanism_info in mechs_info.values():
             if isinstance(mechanism_info["root_expression"], ASTInlineExpression):
+                inline_expression_name = mechanism_info["root_expression"].get_variable_name()
                 mechanism_info["root_expression"] = mechanism_info["root_expression"].expression
+                mechanism_info["root_expression"].variable_name = inline_expression_name
             mechanism_info["cse_body_replacements"] = {}
             mechanism_info["cse_function_replacements"] = {}
 
@@ -173,6 +175,7 @@ class MechsInfoEnricher:
                     invalid_vars.add(state)
 
             if isinstance(mechanism_info["root_expression"], ASTInlineExpression):
+                inline_expression_name = mechanism_info["root_expression"].get_variable_name()
                 simd_body_expressions.append(parse_expr(cls._ode_toolbox_printer.print(mechanism_info["root_expression"].expression)))
                 expression_association.append(["root_expression"])
 
@@ -273,6 +276,8 @@ class MechsInfoEnricher:
                     original = original[key]
 
                 original[association[-1]] = expression
+                if association == ["root_expression"]:
+                    expression.variable_name = inline_expression_name
 
             # Add CSE replacement parameters to functions before parsing reduced function expressions
             cse_var_names = set(cse_replacements.keys())
@@ -645,6 +650,7 @@ class MechsInfoEnricher:
                 inline_expression_name = enriched_syns_info[mechanism_name]["root_expression"].variable_name
                 enriched_syns_info[mechanism_name]["root_expression"] =\
                     SynsInfoEnricherVisitor.inline_name_to_transformed_inline[inline_expression_name]
+                enriched_syns_info[mechanism_name]["root_expression"].variable_name = inline_expression_name
 
             transformed_inlines = list()
             for inline in cm_mechs_info[mechanism_name]["SecondaryInlineExpressions"]:

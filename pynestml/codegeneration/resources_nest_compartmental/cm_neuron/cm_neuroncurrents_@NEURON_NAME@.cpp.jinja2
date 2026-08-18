@@ -1577,6 +1577,10 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::distribute_shared_vector(std::
 {%- for synapse_name, synapse_info in syns_info.items() %}
 {%- for receptor_name, receptor_info in recs_info.items() %}
     {%- set non_vec_vars = receptor_info["non_vec_vars"] + synapse_info["non_vec_vars"] %}
+    {%- set conc_dep = set(receptor_info["Dependencies"]["concentrations"]).union(synapse_info["Dependencies"]["concentrations"])%}
+    {%- set rec_dep = set(receptor_info["Dependencies"]["receptors"]).union(synapse_info["Dependencies"]["receptors"])%}
+    {%- set chan_dep = set(receptor_info["Dependencies"]["channels"]).union(synapse_info["Dependencies"]["channels"])%}
+    {%- set con_in_dep = set(receptor_info["Dependencies"]["continuous"]).union(synapse_info["Dependencies"]["continuous"])%}
 
 // {{receptor_name}} receptor ////////////////////////////////////////////////////////////////
 
@@ -1587,16 +1591,16 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
     i_vals_{{receptor_name}}.push_back(0);
     g_vals_{{receptor_name}}.push_back(0);
     v_comp_rec_.push_back(0);
-    {%- for ode in receptor_info["Dependencies"]["concentrations"] %}
+    {%- for ode in conc_dep %}
     dep_conc_{{ode.lhs.name}}_rec_.push_back(0);
     {%- endfor %}
-    {%- for inline in receptor_info["Dependencies"]["receptors"] %}
+    {%- for inline in rec_dep %}
     dep_rec_{{inline.variable_name}}_rec_.push_back(0);
     {%- endfor %}
-    {%- for inline in receptor_info["Dependencies"]["channels"] %}
+    {%- for inline in chan_dep %}
     dep_chan_{{inline.variable_name}}_rec_.push_back(0);
     {%- endfor %}
-    {%- for inline in receptor_info["Dependencies"]["continuous"] %}
+    {%- for inline in con_in_dep %}
     dep_con_in_{{inline.variable_name}}_rec_.push_back(0);
     {%- endfor %}
     compartment_association.push_back(comp_ass);
@@ -1696,16 +1700,16 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
     i_vals_{{receptor_name}}.push_back(0);
     g_vals_{{receptor_name}}.push_back(0);
     v_comp_rec_.push_back(0);
-    {%- for ode in receptor_info["Dependencies"]["concentrations"] %}
+    {%- for ode in conc_dep %}
     dep_conc_{{ode.lhs.name}}_rec_.push_back(0);
     {%- endfor %}
-    {%- for inline in receptor_info["Dependencies"]["receptors"] %}
+    {%- for inline in rec_dep %}
     dep_rec_{{inline.variable_name}}_rec_.push_back(0);
     {%- endfor %}
-    {%- for inline in receptor_info["Dependencies"]["channels"] %}
+    {%- for inline in chan_dep %}
     dep_chan_{{inline.variable_name}}_rec_.push_back(0);
     {%- endfor %}
-    {%- for inline in receptor_info["Dependencies"]["continuous"] %}
+    {%- for inline in con_in_dep %}
     dep_con_in_{{inline.variable_name}}_rec_.push_back(0);
     {%- endfor %}
     syn_idx.push_back(syn_index);
@@ -1945,10 +1949,6 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::postsynap
         {%-   endfilter %}
     }
 }
-    {%- set conc_dep = set(receptor_info["Dependencies"]["concentrations"]).union(synapse_info["Dependencies"]["concentrations"])%}
-    {%- set rec_dep = set(receptor_info["Dependencies"]["receptors"]).union(synapse_info["Dependencies"]["receptors"])%}
-    {%- set chan_dep = set(receptor_info["Dependencies"]["channels"]).union(synapse_info["Dependencies"]["channels"])%}
-    {%- set con_in_dep = set(receptor_info["Dependencies"]["continuous"]).union(synapse_info["Dependencies"]["continuous"])%}
 void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep(const std::vector< {{ cm_scalar_t }} >& shared_v_comp, const long& lag {% for ode in conc_dep %}, const std::vector< {{ cm_scalar_t }} >& shared_{{ode.lhs.name}}{% endfor %}{% if rec_dep|length %}
                         {% endif %}{% for inline in rec_dep %}, const std::vector< {{ cm_scalar_t }} >& shared_{{inline.variable_name}}{% endfor %}{% if chan_dep|length %}
                         {% endif %}{% for inline in chan_dep %}, const std::vector< {{ cm_scalar_t }} >& shared_{{inline.variable_name}}{% endfor %}{% if con_in_dep|length %}
@@ -1957,6 +1957,73 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep
 {
 
     double self_spikes = *self_spikes_p;
+
+  std::size_t syn_con_area_count = con_area.size();
+  if(syn_con_area_count > 0){
+      for(std::size_t con_area_index = 0; con_area_index < syn_con_area_count-1; con_area_index++){
+          std::size_t con_start = con_area[con_area_index].first;
+          std::size_t con_end = con_area[con_area_index+1].first;
+          int offset = con_area[con_area_index].second;
+          #pragma omp simd
+          for(std::size_t rec_id = con_start; rec_id < con_end; rec_id++){
+              v_comp_rec_[rec_id] = shared_v_comp[rec_id + offset];
+              {%- for ode in conc_dep %}
+              dep_conc_{{ode.lhs.name}}_rec_[rec_id] = shared_{{ode.lhs.name}}[rec_id + offset];
+              {%- if ode.lhs.name in synapse_info["States"] %}
+              {{ode.lhs.name}}[rec_id] = dep_conc_{{ode.lhs.name}}_rec_[rec_id];
+              {%- endif %}
+              {%- endfor %}
+              {%- for inline in rec_dep %}
+              dep_rec_{{inline.variable_name}}_rec_[rec_id] = shared_{{inline.variable_name}}[rec_id + offset];
+              {%- if inline.variable_name in synapse_info["States"] %}
+              {{inline.variable_name}}[rec_id] = dep_rec_{{inline.variable_name}}_rec_[rec_id];
+              {%- endif %}
+              {%- endfor %}
+              {%- for inline in chan_dep %}
+              dep_chan_{{inline.variable_name}}_rec_[rec_id] = shared_{{inline.variable_name}}[rec_id + offset];
+              {%- if inline.variable_name in synapse_info["States"] %}
+              {{inline.variable_name}}[rec_id] = dep_chan_{{inline.variable_name}}_rec_[rec_id];
+              {%- endif %}
+              {%- endfor %}
+              {%- for inline in con_in_dep %}
+              dep_con_in_{{inline.variable_name}}_rec_[rec_id] = shared_{{inline.variable_name}}[rec_id + offset];
+              {%- if inline.variable_name in synapse_info["States"] %}
+              {{inline.variable_name}}[rec_id] = dep_con_in_{{inline.variable_name}}_rec_[rec_id];
+              {%- endif %}
+              {%- endfor %}
+          }
+      }
+      std::size_t con_start = con_area[syn_con_area_count-1].first;
+      int offset = con_area[syn_con_area_count-1].second;
+      #pragma omp simd
+      for(std::size_t rec_id = con_start; rec_id < neuron_{{ receptor_name }}_receptor_count; rec_id++){
+          v_comp_rec_[rec_id] = shared_v_comp[rec_id + offset];
+          {%- for ode in conc_dep %}
+          dep_conc_{{ode.lhs.name}}_rec_[rec_id] = shared_{{ode.lhs.name}}[rec_id + offset];
+          {%- if ode.lhs.name in synapse_info["States"] %}
+          {{ode.lhs.name}}[rec_id] = dep_conc_{{ode.lhs.name}}_rec_[rec_id];
+          {%- endif %}
+          {%- endfor %}
+          {%- for inline in rec_dep %}
+          dep_rec_{{inline.variable_name}}_rec_[rec_id] = shared_{{inline.variable_name}}[rec_id + offset];
+          {%- if inline.variable_name in synapse_info["States"] %}
+          {{inline.variable_name}}[rec_id] = dep_rec_{{inline.variable_name}}_rec_[rec_id];
+          {%- endif %}
+          {%- endfor %}
+          {%- for inline in chan_dep %}
+          dep_chan_{{inline.variable_name}}_rec_[rec_id] = shared_{{inline.variable_name}}[rec_id + offset];
+          {%- if inline.variable_name in synapse_info["States"] %}
+          {{inline.variable_name}}[rec_id] = dep_chan_{{inline.variable_name}}_rec_[rec_id];
+          {%- endif %}
+          {%- endfor %}
+          {%- for inline in con_in_dep %}
+          dep_con_in_{{inline.variable_name}}_rec_[rec_id] = shared_{{inline.variable_name}}[rec_id + offset];
+          {%- if inline.variable_name in synapse_info["States"] %}
+          {{inline.variable_name}}[rec_id] = dep_con_in_{{inline.variable_name}}_rec_[rec_id];
+          {%- endif %}
+          {%- endfor %}
+      }
+  }
 
         //continuous synaptic processing
     #pragma omp simd
@@ -2032,49 +2099,6 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep
         {%- for function in receptor_info["Functions"] %}
         {{render_lambda(function, printer_no_origin)}}
         {%- endfor %}
-
-  std::size_t con_area_count = con_area.size();
-  if(con_area_count > 0){
-      for(std::size_t con_area_index = 0; con_area_index < con_area_count-1; con_area_index++){
-          std::size_t con_start = con_area[con_area_index].first;
-          std::size_t con_end = con_area[con_area_index+1].first;
-          int offset = con_area[con_area_index].second;
-          #pragma omp simd
-          for(std::size_t rec_id = con_start; rec_id < con_end; rec_id++){
-              v_comp_rec_[rec_id] = shared_v_comp[rec_id + offset];
-              {%- for ode in conc_dep %}
-              dep_conc_{{ode.lhs.name}}_rec_[rec_id] = shared_{{ode.lhs.name}}[rec_id + offset];
-              {%- endfor %}
-              {%- for inline in rec_dep %}
-              dep_rec_{{inline.variable_name}}_rec_[rec_id] = shared_{{inline.variable_name}}[rec_id + offset];
-              {%- endfor %}
-              {%- for inline in chan_dep %}
-              dep_chan_{{inline.variable_name}}_rec_[rec_id] = shared_{{inline.variable_name}}[rec_id + offset];
-              {%- endfor %}
-              {%- for inline in con_in_dep %}
-              dep_con_in_{{inline.variable_name}}_rec_[rec_id] = shared_{{inline.variable_name}}[rec_id + offset];
-              {%- endfor %}
-          }
-      }
-      std::size_t con_start = con_area[con_area_count-1].first;
-      int offset = con_area[con_area_count-1].second;
-      #pragma omp simd
-      for(std::size_t rec_id = con_start; rec_id < neuron_{{ receptor_name }}_receptor_count; rec_id++){
-          v_comp_rec_[rec_id] = shared_v_comp[rec_id + offset];
-          {%- for ode in conc_dep %}
-          dep_conc_{{ode.lhs.name}}_rec_[rec_id] = shared_{{ode.lhs.name}}[rec_id + offset];
-          {%- endfor %}
-          {%- for inline in rec_dep %}
-          dep_rec_{{inline.variable_name}}_rec_[rec_id] = shared_{{inline.variable_name}}[rec_id + offset];
-          {%- endfor %}
-          {%- for inline in chan_dep %}
-          dep_chan_{{inline.variable_name}}_rec_[rec_id] = shared_{{inline.variable_name}}[rec_id + offset];
-          {%- endfor %}
-          {%- for inline in con_in_dep %}
-          dep_con_in_{{inline.variable_name}}_rec_[rec_id] = shared_{{inline.variable_name}}[rec_id + offset];
-          {%- endfor %}
-      }
-  }
 
       //update ODE state variable
   #pragma omp simd
@@ -2157,6 +2181,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep
       i_vals_{{receptor_name}}[i] = i_tot_{{receptor_name}}[i] - d_i_tot_dv * v_comp;
     }
 
+  std::size_t con_area_count = con_area.size();
   if(con_area_count > 0){
       for(std::size_t con_area_index = 0; con_area_index < con_area_count-1; con_area_index++){
           std::size_t con_start = con_area[con_area_index].first;
