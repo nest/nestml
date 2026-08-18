@@ -169,7 +169,6 @@ class TestSpiNNakerSTDPWindow:
 
     def test_stdp_window(self):
         r"""Test that the STDP window matches that of a reference simulation"""
-        return
         syn_opts = {
             "delay": 1.,  # dendritic delay [ms]
             "tau_pre_trace": 20.,

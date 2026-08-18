@@ -61,7 +61,8 @@ from spynnaker.pyNN.exceptions import (
 from spynnaker.pyNN.models.neural_projections.connectors import (
     AbstractConnector)
 from spynnaker.pyNN.types import Weights
-from spynnaker.pyNN.types import Weight_Delay_In_Types as Weight_Delay_In_Types
+from spynnaker.pyNN.types import WeightScales
+from spynnaker.pyNN.types import WeightsDelysIn
 from spynnaker.pyNN.utilities.utility_calls import get_n_bits
 from spynnaker.pyNN.models.neuron.synapse_dynamics.types import (
     NUMPY_CONNECTORS_DTYPE)
@@ -174,8 +175,8 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
             self,
             voltage_dependence: None = None,
             dendritic_delay_fraction: float = 1.0,
-            weight: Weight_Delay_In_Types = StaticSynapse.default_parameters['weight'],
-            delay: Weight_Delay_In_Types = None, pad_to_length: Optional[int] = None,
+            weight: WeightsDelysIn = StaticSynapse.default_parameters['weight'],
+            delay: WeightsDelysIn = None, pad_to_length: Optional[int] = None,
             backprop_delay: bool = True):
         """
         :param None voltage_dependence: not supported
@@ -356,10 +357,11 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
                                   n_rows: int,
                                   n_synapse_types: int,
                                   max_n_synapses: int,
-                                  max_atoms_per_core: int) -> Tuple[List[NDArray[uint32]],
-                                                                    List[NDArray[uint32]],
-                                                                    NDArray[uint32],
-                                                                    NDArray[uint32]]:
+                                  max_atoms_per_core: int,
+                                  ring_buffer_weight_scales: WeightScales) -> Tuple[List[NDArray[uint32]],
+                                                                                    List[NDArray[uint32]],
+                                                                                    NDArray[uint32],
+                                                                                    NDArray[uint32]]:
         """
         Convert from a list of tuples (source, target, weight, delay) into raw memory (``pp_data`` and ``fp_data``).
 
@@ -425,7 +427,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
 {%- for state_var_sym in synapse.get_state_symbols() %}
 {%-     set state_var_idx = loop.index0 %}
 {%-     if state_var_sym.name == "w" %}  {# XXXX use codegen opts for "w" instead #}
-            plastic_plastic[connection_idx * n_state_variables + {{ state_var_idx }}] = float_to_s16_15(connections["weight"][connection_idx])
+            plastic_plastic[connection_idx * n_state_variables + {{ state_var_idx }}] = float_to_s16_15(connections["weight"][connection_idx]) * numpy.array(ring_buffer_weight_scales)[connections["synapse_type"]][connection_idx]
 {%-     else %}
             # XXX: what about other initial values, can they be put into/extracted from ConnectionsArray? Otherwise, do we use printing initial values directly from the NESTML model?
             plastic_plastic[connection_idx * n_state_variables + {{ state_var_idx }}] = 0
@@ -500,14 +502,20 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
             pp_data: List[NDArray[uint32]],
             fp_size: NDArray[uint32],
             fp_data: List[NDArray[uint32]],
-            max_atoms_per_core: int) -> ConnectionsArray:
+            max_atoms_per_core: int,
+            ring_buffer_weight_scales: WeightScales) -> ConnectionsArray:
         """
         Convert from raw memory (``pp_data`` and ``fp_data``) into a list of tuples (source, target, weight, delay).
         """
         print("[NESTML synapse] read_plastic_synaptic_data")
-        n_rows = len(fp_size)
 
+        n_rows = len(fp_size)
         n_synapse_type_bits = get_n_bits(n_synapse_types)
+        n_neuron_id_bits = get_n_bits(max_atoms_per_core)
+        data_fixed = numpy.concatenate([
+            fp_data[i].view(dtype=uint16)[0:fp_size[i]]
+            for i in range(n_rows)])
+        synapse_type = (data_fixed >> n_neuron_id_bits) & ((1 << n_synapse_type_bits) - 1)
         n_neuron_id_bits = get_n_bits(max_atoms_per_core)
         neuron_id_mask = (1 << n_neuron_id_bits) - 1
 
@@ -530,7 +538,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         connections = numpy.zeros(data_fixed.size, dtype=NUMPY_CONNECTORS_DTYPE)
         connections["source"] = numpy.concatenate([numpy.repeat(i, fp_size[i]) for i in range(len(fp_size))])
         connections["target"] = data_fixed & neuron_id_mask
-        connections["weight"] = s16_15_to_float(numpy.concatenate([pp[:size * 4 * n_state_variables].view(uint32)[::n_state_variables] for pp, size in zip(pp_without_headers, fp_size)]).astype(uint32))
+        connections["weight"] = s16_15_to_float(numpy.concatenate([pp[:size * 4 * n_state_variables].view(uint32)[::n_state_variables] for pp, size in zip(pp_without_headers, fp_size)]).astype(uint32)) / numpy.array(ring_buffer_weight_scales)[synapse_type]
         connections["delay"] = data_fixed >> (n_neuron_id_bits + n_synapse_type_bits)
 
         print("[NESTML synapse] Returning connections: " + str(connections))
