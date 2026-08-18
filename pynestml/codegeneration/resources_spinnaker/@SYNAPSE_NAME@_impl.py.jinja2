@@ -60,8 +60,8 @@ from spynnaker.pyNN.exceptions import (
     SynapticConfigurationException, InvalidParameterType)
 from spynnaker.pyNN.models.neural_projections.connectors import (
     AbstractConnector)
-from spynnaker.pyNN.types import Weight_Types
-from spynnaker.pyNN.types import Weight_Delay_In_Types as _In_Types
+from spynnaker.pyNN.types import Weights
+from spynnaker.pyNN.types import Weight_Delay_In_Types as Weight_Delay_In_Types
 from spynnaker.pyNN.utilities.utility_calls import get_n_bits
 from spynnaker.pyNN.models.neuron.synapse_dynamics.types import (
     NUMPY_CONNECTORS_DTYPE)
@@ -174,8 +174,8 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
             self,
             voltage_dependence: None = None,
             dendritic_delay_fraction: float = 1.0,
-            weight: _In_Types = StaticSynapse.default_parameters['weight'],
-            delay: _In_Types = None, pad_to_length: Optional[int] = None,
+            weight: Weight_Delay_In_Types = StaticSynapse.default_parameters['weight'],
+            delay: Weight_Delay_In_Types = None, pad_to_length: Optional[int] = None,
             backprop_delay: bool = True):
         """
         :param None voltage_dependence: not supported
@@ -546,7 +546,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
 
     @overrides(AbstractPlasticSynapseDynamics.get_weight_variance)
     def get_weight_variance(
-           self, connector: AbstractConnector, weights: Weight_Types,
+           self, connector: AbstractConnector, weights: Weights,
             synapse_info: SynapseInformation) -> float:
         # Because the weights could all be changed to the maximum, the variance
         # has to be given as no variance
