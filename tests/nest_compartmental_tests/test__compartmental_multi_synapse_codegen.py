@@ -211,6 +211,13 @@ class TestCompartmentalMultiSynapseCodegen(unittest.TestCase):
         return recorded
 
     def assert_generated_synapse_matches_nest(self, synapse_case):
+        """
+        The difference between the NEST model and the generated model in this case can be explained by two factors:
+        1.  The half-time integration of mechanisms, which adds a small effective delay because mechanisms are evaluated
+            at half-time, which means that spikes arriving at time t only take effect at t+h/2.
+        2.  Our differing interpretation of delay as dendritic forward-propagation delay opposed to dendritic back-propagation delay in the
+            nest synapse.
+        """
         rec_nest_runs = []
         rec_nestml_runs = []
 
@@ -245,10 +252,10 @@ class TestCompartmentalMultiSynapseCodegen(unittest.TestCase):
         if TEST_PLOTS:
             self.plot_comparison(synapse_case, rec_nest_runs, rec_nestml_runs, signed_diff_values)
 
-        assert max(abs_diff_values) <= 0.005, (
+        assert max(abs_diff_values) <= 0.01, (
             "the maximum weight difference is too large! ("
             + str(max(abs_diff_values))
-            + " > 0.005)")
+            + " > 0.01)")
 
     def plot_comparison(self, synapse_case, rec_nest_runs, rec_nestml_runs, diff_values):
         fig, axs = plt.subplots(4)

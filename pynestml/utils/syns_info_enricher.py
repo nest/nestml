@@ -27,6 +27,7 @@ from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.utils.ast_utils import ASTUtils
@@ -64,9 +65,52 @@ class SynsInfoEnricher:
             synapse_info = cls.extract_infunction_declarations(synapse_info)
 
             synapse_info = cls.transform_convolutions_analytic_solutions(synapse, synapse_info)
+            synapse_info = cls.create_convolution_simultaneous_update_expressions(synapse, synapse_info)
+            synapse_info = cls.create_non_vec_variables(synapse_info)
             enriched_syns_info[synapse_name] = synapse_info
 
         return enriched_syns_info
+
+    @classmethod
+    def create_non_vec_variables(cls, synapse_info: dict):
+        non_vec_vars = ["self_spikes"]
+        non_vec_vars.extend(synapse_info.get("old_kernel_state_variables", []))
+        if "time_resolution_var" in synapse_info:
+            non_vec_vars.append(synapse_info["time_resolution_var"].name)
+
+        for ode_variable, ode_info in synapse_info["ODEs"].items():
+            for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items():
+                non_vec_vars.append(propagator)
+
+        synapse_info["non_vec_vars"] = non_vec_vars
+
+        return synapse_info
+
+    @classmethod
+    def create_convolution_simultaneous_update_expressions(cls, synapse: ASTModel, synapse_info: dict):
+        kernel_state_names = set()
+        for convolution_info in synapse_info.get("convolutions", {}).values():
+            kernel_state_names.update(convolution_info["analytic_solution"]["kernel_states"].keys())
+
+        old_kernel_state_variables = sorted("old_" + state_name for state_name in kernel_state_names)
+        synapse_info["old_kernel_state_variables"] = old_kernel_state_variables
+
+        for old_state_name in old_kernel_state_variables:
+            if not ASTUtils.declaration_in_state_block(synapse, old_state_name):
+                ASTUtils.add_declaration_to_state_block(synapse, old_state_name, "0")
+
+        for convolution_info in synapse_info.get("convolutions", {}).values():
+            for state_variable_info in convolution_info["analytic_solution"]["kernel_states"].values():
+                simultaneous_update_expression = state_variable_info["update_expression"].clone()
+                ASTKernelStateVariableRenamer(
+                    simultaneous_update_expression,
+                    kernel_state_names,
+                    "old_")
+                simultaneous_update_expression.update_scope(synapse.get_equations_blocks()[0].get_scope())
+                simultaneous_update_expression.accept(ASTSymbolTableVisitor())
+                state_variable_info["simultaneous_update_expression"] = simultaneous_update_expression
+
+        return synapse_info
 
     @classmethod
     def add_propagators_to_internals(cls, neuron, mechs_info):
@@ -530,6 +574,18 @@ class ASTVariableNameReplacerVisitor(ASTVisitor):
 
     def endvisit_variable(self, node):
         self.inside_variable = False
+
+
+class ASTKernelStateVariableRenamer(ASTVisitor):
+    def __init__(self, node, kernel_state_names, prefix):
+        super(ASTKernelStateVariableRenamer, self).__init__()
+        self.kernel_state_names = kernel_state_names
+        self.prefix = prefix
+        node.accept(self)
+
+    def visit_variable(self, node: ASTVariable):
+        if node.get_name() in self.kernel_state_names:
+            node.name = self.prefix + node.get_name()
 
 
 class SynsInfoEnricherVisitor(ASTVisitor):

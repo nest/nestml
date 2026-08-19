@@ -154,7 +154,7 @@ class TestSelfSpikeConvolutions:
             "chan_primary0": 0.5945205479701962,
             "chan_secondary0": 0.5945205479701962,
             "concentration0": 0.3589924428735023,
-            "v_comp0": 3.0631281139481406,
+            "v_comp0": 3.132492545007508,
             "rec_primary0": 2.4651862560098405,
             "rec_secondary1": 2.4651862560098405,
             "con_in_primary2": 1.1890410959403923,
