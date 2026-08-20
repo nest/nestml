@@ -74,11 +74,15 @@ class ASTNodeFactory:
     """
 
     @classmethod
-    def create_ast_arithmetic_operator(cls, is_times_op=False, is_div_op=False, is_modulo_op=False, is_plus_op=False,
-                                       is_minus_op=False, is_pow_op=False, source_position=None):
-        # type:(bool,bool,bool,bool,bool,bool,ASTSourceLocation) -> ASTArithmeticOperator
-        return ASTArithmeticOperator(is_times_op, is_div_op, is_modulo_op, is_plus_op, is_minus_op, is_pow_op,
-                                     source_position=source_position)
+    def create_ast_arithmetic_operator(cls, is_times_op: bool = False,
+                                       is_integer_div_op: bool = False,
+                                       is_div_op: bool = False,
+                                       is_modulo_op: bool = False,
+                                       is_plus_op: bool = False,
+                                       is_minus_op: bool = False,
+                                       is_pow_op: bool = False,
+                                       source_position: Optional[ASTSourceLocation] = None):
+        return ASTArithmeticOperator(is_times_op, is_integer_div_op, is_div_op, is_modulo_op, is_plus_op, is_minus_op, is_pow_op, source_position=source_position)
 
     @classmethod
     def create_ast_assignment(cls, lhs=None,  # type: ASTVariable
@@ -86,12 +90,13 @@ class ASTNodeFactory:
                               is_compound_sum=False,  # type: bool
                               is_compound_minus=False,  # type: bool
                               is_compound_product=False,  # type: bool
+                              is_compound_integer_quotient=False,  # type: bool
                               is_compound_quotient=False,  # type: bool
                               expression=None,  # type: Union(ASTSimpleExpression,ASTExpression)
                               source_position=None  # type: ASTSourceLocation
                               ):  # type: (...) -> ASTAssignment
         return ASTAssignment(lhs, is_direct_assignment, is_compound_sum, is_compound_minus, is_compound_product,
-                             is_compound_quotient, expression, source_position=source_position)
+                             is_compound_integer_quotient, is_compound_quotient, expression, source_position=source_position)
 
     @classmethod
     def create_ast_bit_operator(cls, is_bit_and=False, is_bit_xor=False, is_bit_or=False, is_bit_shift_left=False,

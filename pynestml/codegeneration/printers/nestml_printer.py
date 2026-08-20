@@ -129,6 +129,8 @@ class NESTMLPrinter(ModelPrinter):
         ret += print_n_spaces(self.indent) + self.print(node.lhs) + " "
         if node.is_compound_quotient:
             ret += "/="
+        elif node.is_compound_integer_quotient:
+            ret += "//="
         elif node.is_compound_product:
             ret += "*="
         elif node.is_compound_minus:

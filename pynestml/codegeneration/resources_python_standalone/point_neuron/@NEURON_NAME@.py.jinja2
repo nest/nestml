@@ -68,6 +68,9 @@ class Neuron_{{neuronName}}(Neuron):
 {%-         include 'directives_py/MemberDeclaration.jinja2' %}
 {%-     endfor %}
 {%- endfilter %}
+{%- if neuron.get_parameter_symbols() | length == 0 %}   {# in case of no defined parameters #}
+        pass
+{%- endif %}
 
   class State_:
 {%- if numeric_state_variables|length > 0 %}
@@ -97,16 +100,19 @@ class Neuron_{{neuronName}}(Neuron):
   class Buffers_:
 {%- if neuron.get_spike_input_ports() | length > 0 %}
     # spiking input ports
-{%- endif %}
-{%- for port in neuron.get_spike_input_ports() %}
-{%-     if port.has_vector_parameter() %}
+{%-     for port in neuron.get_spike_input_ports() %}
+{%-         if port.has_vector_parameter() %}
     {{ port.get_symbol_name() }}: List[float] = []
     spike_received_{{ port.get_symbol_name() }}: List[bool] = []
-{%-     else %}
+{%-         else %}
     {{ port.get_symbol_name() }}: float = 0.
     spike_received_{{ port.get_symbol_name() }}: bool = False
-{%-     endif %}
-{%- endfor %}
+{%-         endif %}
+{%-     endfor %}
+{%- else %}    {#- in case of no defined spiking input ports #}
+        pass
+{%- endif %}
+
 
 {%- if neuron.get_continuous_input_ports() | length > 0 %}
     # continuous input ports
@@ -360,6 +366,7 @@ class Neuron_{{neuronName}}(Neuron):
       return
 {%-     endfor %}
     raise Exception("Received a spike on unknown input port \"" + port_name + "\" at t = " + "{0:E}".format(t_spike))
+{%- endif %}
 
   def get_spiking_input_ports(self) -> List[str]:
     return [
@@ -367,7 +374,6 @@ class Neuron_{{neuronName}}(Neuron):
             "{{port.name}}",
 {%-     endfor %}
     ]
-{%- endif %}
 
   # -------------------------------------------------------------------------
   #   Methods corresponding to event handlers

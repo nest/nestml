@@ -8,4 +8,11 @@ inline {{ declarations.print_variable_type(variable_symbol) }} get_{{ printer_no
 {
   return {{ nest_codegen_utils.print_symbol_origin(variable_symbol, variable) % printer_no_origin.print(variable) }};
 }
+{%-    if isinstance(variable_symbol.get_type_symbol(), IntegerTypeSymbol) %}
+{#-        in case the user wants to record an integer-typed variable using the multimeter/recordablesmap, a getter is required that returns the ``double`` type #}
+inline double integer_get_{{ printer_no_origin.print(variable) }}() const
+{
+  return {{ nest_codegen_utils.print_symbol_origin(variable_symbol, variable) % printer_no_origin.print(variable) }};
+}
+{%-     endif %}
 {%- endif %}
