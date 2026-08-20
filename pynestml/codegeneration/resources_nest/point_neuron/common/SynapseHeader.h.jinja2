@@ -1479,6 +1479,26 @@ inline void
     recompute_internal_variables();
 
     /**
+     * subthreshold updates of the convolution variables
+     *
+     * step 1: regardless of whether and how integrate_odes() will be called, update variables due to convolutions
+    **/
+{% if uses_analytic_solver %}
+{%-     for variable_name in analytic_state_variables: %}
+{%-         if "__X__" in variable_name %}
+{%-             set update_expr = update_expressions[variable_name] %}
+{%-             set var_ast = utils.get_variable_by_name(astnode, variable_name)%}
+{%-             set var_symbol = var_ast.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE) %}
+{%-             if use_gap_junctions %}
+    const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp_ = {{ printer.print(update_expr) | replace("B_.continuous_inputs_grid_sum_[" + gap_junction_port.upper() + "]", "(B_.continuous_inputs_grid_sum_[" + gap_junction_port.upper() + "] + __I_gap)") }};
+{%-             else %}
+    const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp_ = {{ printer.print(update_expr) }};
+{%-             endif %}
+{%-         endif %}
+{%-     endfor %}
+{%- endif %}
+
+    /**
      * Begin NESTML generated code for the update block
     **/
 
@@ -1500,6 +1520,21 @@ inline void
      * End NESTML generated code for the update block
     **/
 
+    /**
+     * subthreshold updates of the convolution variables
+     *
+     * step 2: regardless of whether and how integrate_odes() was called, update variables due to convolutions. Set to the updated values at the end of the timestep.
+    **/
+{%  if uses_analytic_solver %}
+{%-     for variable_name in analytic_state_variables: %}
+{%-         if "__X__" in variable_name %}
+{%-             set update_expr = update_expressions[variable_name] %}
+{%-             set var_ast = utils.get_variable_by_name(astnode, variable_name)%}
+{%-             set var_symbol = var_ast.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE) %}
+    {{ printer.print(var_ast) }} = {{variable_name}}__tmp_;
+{%-         endif %}
+{%-     endfor %}
+{%- endif %}
 {%- if vt_ports is defined and vt_ports|length > 0  %}
     t_last_update_ = t_start + timestep;
 {%- endif %}
