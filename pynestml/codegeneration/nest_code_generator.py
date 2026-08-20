@@ -55,6 +55,8 @@ from pynestml.codegeneration.printers.nest_gsl_function_call_printer import NEST
 from pynestml.codegeneration.printers.nest2_gsl_function_call_printer import NEST2GSLFunctionCallPrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
+from pynestml.meta_model.ast_input_port import ASTInputPort
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
@@ -395,7 +397,12 @@ class NESTCodeGenerator(CodeGenerator):
         ASTUtils.replace_convolution_aliasing_inlines(neuron)
 
         if metadata[neuron.name]["analytic_solver"] is not None:
-            ASTUtils.add_declarations_to_internals(neuron, metadata[neuron.name]["analytic_solver"]["propagators"])
+            if "conditions" in metadata[neuron.name]["analytic_solver"].keys():
+                propagators = metadata[neuron.name]["analytic_solver"]["conditions"]["default"]["propagators"]
+            else:
+                propagators = metadata[neuron.name]["analytic_solver"]["propagators"]
+
+            ASTUtils.add_declarations_to_internals(neuron, propagators)
 
         self.update_symbol_table(neuron)
 
@@ -440,7 +447,12 @@ class NESTCodeGenerator(CodeGenerator):
                         pre_spike_updates.extend(spike_updates[port_name])
 
             if not metadata[synapse.get_name()]["analytic_solver"] is None:
-                ASTUtils.add_declarations_to_internals(synapse, metadata[synapse.get_name()]["analytic_solver"]["propagators"])
+                if "conditions" in metadata[synapse.name]["analytic_solver"].keys():
+                    propagators = metadata[synapse.name]["analytic_solver"]["conditions"]["default"]["propagators"]
+                else:
+                    propagators = metadata[synapse.name]["analytic_solver"]["propagators"]
+
+                ASTUtils.add_declarations_to_internals(synapse, propagators)
 
         self.update_symbol_table(synapse)
 
@@ -764,8 +776,11 @@ class NESTCodeGenerator(CodeGenerator):
 
             namespace["update_expressions"] = {}
             for sym in namespace["analytic_state_variables"] + namespace["analytic_state_variables_moved"]:
-                expr_str = metadata[neuron.get_name()]["analytic_solver"]["update_expressions"][sym]
-                expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr_str)
+                if "conditions" in metadata[neuron.name]["analytic_solver"].keys():
+                    update_expressions = metadata[neuron.name]["analytic_solver"]["conditions"]["default"]["update_expressions"][sym]
+                else:
+                    update_expressions = metadata[neuron.name]["analytic_solver"]["update_expressions"][sym]
+                expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(update_expressions)
                 expr_ast = ModelParser.parse_expression(expr_str)
                 # pretend that update expressions are in "equations" block, which should always be present, as differential equations must have been defined to get here
                 expr_ast.update_scope(neuron.get_equations_blocks()[0].get_scope())
@@ -783,7 +798,10 @@ class NESTCodeGenerator(CodeGenerator):
                         sets_vector_param_in_update_expr_visitor = ASTSetVectorParameterInUpdateExpressionVisitor(var)
                         expr_ast.accept(sets_vector_param_in_update_expr_visitor)
 
-            namespace["propagators"] = metadata[neuron.get_name()]["analytic_solver"]["propagators"]
+            if "conditions" in metadata[neuron.name]["analytic_solver"].keys():
+                namespace["propagators"] = metadata[neuron.name]["analytic_solver"]["conditions"]["default"]["propagators"]
+            else:
+                namespace["propagators"] = metadata[neuron.name]["analytic_solver"]["propagators"]
 
             namespace["propagators_are_state_dependent"] = False
             for prop_name, prop_expr in namespace["propagators"].items():

@@ -21,6 +21,7 @@
 
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
+from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import MessageCode, Messages
@@ -57,6 +58,14 @@ class ASTVariableVisitor(ASTVisitor):
         var_resolve = scope.resolve_to_symbol(var_name, SymbolKind.TYPE)
         if var_resolve is not None:
             node.type = var_resolve
+            node.type.referenced_object = node
+            return
+
+        # check if it's a first-order derivative of a variable defined as ODE (e.g. "x'")
+        var_name = node.get_variable().get_name()
+        var_resolve = node.get_variable().get_scope().resolve_to_symbol(var_name, SymbolKind.VARIABLE)
+        if var_resolve is not None and node.get_variable().differential_order == 1:
+            node.type = var_resolve.get_type_symbol() / PredefinedTypes.get_type("ms")
             node.type.referenced_object = node
             return
 

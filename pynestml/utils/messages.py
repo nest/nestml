@@ -390,6 +390,7 @@ class Messages:
         :param variable_name: a variable name
         :return: a message
         """
+        import pdb;pdb.set_trace()
         message = "Variable \"%s\" not defined!" % variable_name
         return MessageCode.NO_VARIABLE_FOUND, message
 

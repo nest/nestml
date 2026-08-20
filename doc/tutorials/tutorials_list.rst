@@ -3,7 +3,11 @@ Creating neuron models
 
 * :doc:`Izhikevich tutorial </tutorials/izhikevich/nestml_izhikevich_tutorial>`
 
-  Learn how to write the Izhikevich spiking neuron model in NESTML.
+  Learn how to write the Izhikevich spiking neuron model.
+
+* :doc:`AMAT tutorial </tutorials/amat_model/nestml_amat_neuron_model>`
+
+  Learn how to write the versatile and numerically efficient AMAT spiking neuron model.
 
 * :doc:`Spike-frequency adaptation </tutorials/spike_frequency_adaptation/nestml_spike_frequency_adaptation_tutorial>`
 
