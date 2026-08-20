@@ -42,9 +42,6 @@ class CSimpleExpressionPrinter(SimpleExpressionPrinter):
             return "INFINITY"
 
         if node.is_numeric_literal():
-            # if node.unitType is not None:
-            #     return self._constant_printer.print_constant(node.get_numeric_literal()) + " " +
-
             return self._constant_printer.print_constant(node.get_numeric_literal())
 
         if node.is_string():
