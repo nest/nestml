@@ -200,7 +200,7 @@ With this rule, we can guarantee that during code generation, we can extract sep
 Applications
 ~~~~~~~~~~~~
 
-This feature has been implemented with the implementation of IAF behaviour or backpropagation in mind. For an example, see this model file: `cm_iaf_psc_exp_dend_neuron.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/cm_iaf_psc_exp_dend_neuron.nestml>`_
+This feature has been implemented with the implementation of IAF behaviour or backpropagation in mind. For an example, see this model file: `cm_iaf_psc_exp_dend_neuron.nestml <https://github.com/nest/nestml/blob/main/tests/nest_compartmental_tests/resources/cm_iaf_psc_exp_dend_neuron.nestml>`_
 
 Synapses
 --------
@@ -209,7 +209,7 @@ We have also changed the way synapses may interact with the neuron. The backgrou
 
 Another consequence of this merge is that all ODE equations in the synapse model are implicitly continuously integrated at each timestep, making calls to ``integrate_odes()`` unnecessary.
 
-An example of such a model is implemented here: `third_factor_stdp_synapse.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/third_factor_stdp_synapse.nestml>`_
+An example of such a model is implemented here: `third_factor_stdp_synapse.nestml <https://github.com/nest/nestml/blob/main/tests/nest_compartmental_tests/resources/third_factor_stdp_synapse.nestml>`_
 
 Technical Notes
 ---------------
