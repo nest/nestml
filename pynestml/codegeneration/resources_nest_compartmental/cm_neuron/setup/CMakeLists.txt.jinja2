@@ -120,6 +120,59 @@ set( CMAKE_CXX_COMPILER "${NEST_COMPILER}" )
 
 project( ${MODULE_NAME} CXX )
 
+set( CM_EXTRA_COMPILE_FLAGS "" )
+set( CM_EXTRA_LINK_FLAGS "" )
+{%- if fp_precision == "single" %}
+include( CheckCXXCompilerFlag )
+check_cxx_compiler_flag( "-fdenormal-fp-math=positive-zero" CM_HAS_DENORMALS_TO_ZERO )
+if ( CM_HAS_DENORMALS_TO_ZERO )
+    set( CM_EXTRA_COMPILE_FLAGS "${CM_EXTRA_COMPILE_FLAGS} -fdenormal-fp-math=positive-zero" )
+    message( STATUS "single precision enabled: using -fdenormal-fp-math=positive-zero" )
+endif ()
+{%- endif %}
+{%- if use_fastexp %}
+include( CheckCXXCompilerFlag )
+include( CheckLibraryExists )
+if ( CMAKE_CXX_COMPILER_ID MATCHES "Clang" )
+    if ( APPLE )
+        check_cxx_compiler_flag( "-fveclib=Accelerate" CM_HAS_VECLIB_ACCELERATE )
+        if ( CM_HAS_VECLIB_ACCELERATE )
+            set( CM_EXTRA_COMPILE_FLAGS "${CM_EXTRA_COMPILE_FLAGS} -fveclib=Accelerate" )
+            set( CM_EXTRA_LINK_FLAGS "${CM_EXTRA_LINK_FLAGS} -framework Accelerate" )
+            message( STATUS "use_fastexp enabled: using -fveclib=Accelerate" )
+        endif ()
+    else ()
+        check_cxx_compiler_flag( "-fveclib=SVML" CM_HAS_VECLIB_SVML )
+        if ( CM_HAS_VECLIB_SVML )
+            set( CM_EXTRA_COMPILE_FLAGS "${CM_EXTRA_COMPILE_FLAGS} -fveclib=SVML" )
+            message( STATUS "use_fastexp enabled: using -fveclib=SVML" )
+        endif ()
+    endif ()
+endif ()
+if ( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
+    # Encourage vectorized libm lowering for scalar exp/expf in SIMD loops.
+    check_cxx_compiler_flag( "-fno-math-errno" CM_HAS_NO_MATH_ERRNO )
+    if ( CM_HAS_NO_MATH_ERRNO )
+        set( CM_EXTRA_COMPILE_FLAGS "${CM_EXTRA_COMPILE_FLAGS} -fno-math-errno" )
+    endif ()
+    # Use SVML ABI only when both compiler flag and libsvml are available.
+    check_cxx_compiler_flag( "-mveclibabi=svml" CM_HAS_MVECLIBABI_SVML )
+    check_library_exists( svml vmlsExp4 "" CM_HAS_LIB_SVML )
+    if ( CM_HAS_MVECLIBABI_SVML AND CM_HAS_LIB_SVML )
+        set( CM_EXTRA_COMPILE_FLAGS "${CM_EXTRA_COMPILE_FLAGS} -mveclibabi=svml" )
+        set( CM_EXTRA_LINK_FLAGS "${CM_EXTRA_LINK_FLAGS} -lsvml" )
+        message( STATUS "use_fastexp enabled: using GCC SVML ABI + libsvml" )
+    else ()
+        # Portable fallback on glibc systems.
+        check_library_exists( mvec expf "" CM_HAS_LIB_MVEC )
+        if ( CM_HAS_LIB_MVEC )
+            set( CM_EXTRA_LINK_FLAGS "${CM_EXTRA_LINK_FLAGS} -lmvec" )
+            message( STATUS "use_fastexp enabled: linking libmvec" )
+        endif ()
+    endif ()
+endif ()
+{%- endif %}
+
 # Get the install prefix.
 execute_process(
     COMMAND ${NEST_CONFIG} --prefix
@@ -257,8 +310,8 @@ if ( BUILD_SHARED_LIBS )
     add_library( ${MODULE_NAME}_module MODULE ${MODULE_SOURCES} )
     set_target_properties( ${MODULE_NAME}_module
         PROPERTIES
-        COMPILE_FLAGS "${NEST_CXXFLAGS} -DLTX_MODULE -march=native -ffast-math"
-        LINK_FLAGS "${NEST_LIBS}"
+        COMPILE_FLAGS "${NEST_CXXFLAGS} -DLTX_MODULE -march=native -ffast-math${CM_EXTRA_COMPILE_FLAGS}"
+        LINK_FLAGS "${NEST_LIBS}${CM_EXTRA_LINK_FLAGS}"
         PREFIX ""
         OUTPUT_NAME ${MODULE_NAME} )
     install( TARGETS ${MODULE_NAME}_module
