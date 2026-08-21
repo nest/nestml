@@ -34,6 +34,7 @@ class ConstantPrinter:
         :param node: a constant.
         :return: the corresponding string representation
         """
+
         if isinstance(node, int):
             return str(node)
 

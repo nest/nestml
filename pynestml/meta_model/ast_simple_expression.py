@@ -146,13 +146,19 @@ class ASTSimpleExpression(ASTExpressionNode):
             ret.append(self.get_function_call())
         return ret
 
-    def is_numeric_literal(self):
+    def is_numeric_literal(self) -> bool:
         """
         Returns whether it is a numeric literal or not.
         :return: True if numeric literal, otherwise False.
-        :rtype: bool
         """
         return self.numeric_literal is not None
+
+    def is_numeric_literal_with_unit(self) -> bool:
+        """
+        Returns whether this is a numeric literal with a defined unit.
+        :return: True if numeric literal with unit, otherwise False.
+        """
+        return self.variable is not None and self.numeric_literal is not None
 
     def get_boolean_literal(self) -> Optional[bool]:
         """
@@ -161,24 +167,23 @@ class ASTSimpleExpression(ASTExpressionNode):
         """
         if self.is_boolean_true:
             return True
-        elif self.is_boolean_false:
+
+        if self.is_boolean_false:
             return False
-        else:
-            return None
+
+        return None
 
     def get_numeric_literal(self) -> Union[int, float]:
         """
         Returns the value of the numeric literal.
         :return: the value of the numeric literal.
-        :rtype: int/float
         """
         return self.numeric_literal
 
-    def set_numeric_literal(self, numeric_literal):
+    def set_numeric_literal(self, numeric_literal: Union[int, float]):
         """
         Updates the numeric literal attribute of this node.
         :param numeric_literal: a single numeric literal
-        :type numeric_literal: int or float
         """
         self.numeric_literal = numeric_literal
 
@@ -215,25 +220,6 @@ class ASTSimpleExpression(ASTExpressionNode):
         """
         ret = list()
         if self.is_variable():
-            ret.append(self.get_variable())
-        return ret
-
-    def has_unit(self):
-        """
-        Returns whether this is a numeric literal with a defined unit.
-        :return: True if numeric literal with unit, otherwise False.
-        :rtype: bool
-        """
-        return self.variable is not None and self.numeric_literal is not None
-
-    def get_units(self):
-        """
-        This function is used for better interactions with the general rhs meta_model class.
-        :return: returns a single list with unit if such an exists, otherwise an empty list
-        :rtype: list(ASTVariable)
-        """
-        ret = list()
-        if self.has_unit():
             ret.append(self.get_variable())
         return ret
 

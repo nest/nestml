@@ -456,7 +456,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         if node.is_function_call():
             node.get_function_call().update_scope(node.get_scope())
-        elif node.is_variable() or node.has_unit():
+        elif node.is_variable() or node.is_numeric_literal_with_unit():
             assert node.get_scope() is not None
             node.get_variable().update_scope(node.get_scope())
             if node.get_variable().has_vector_parameter():
