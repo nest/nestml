@@ -47,7 +47,7 @@ class SympySimpleExpressionPrinter(CppSimpleExpressionPrinter):
                 # case for a literal unit, e.g. "ms"
                 return str(NESTUnitConverter.get_factor(PredefinedUnits.get_unit(node.variable.get_complete_name()).get_unit()))
 
-        if node.has_unit():
+        if node.is_numeric_literal_with_unit():
             if self._variable_printer.print(node.get_variable()) in ["1", "1.", "1.0"]:
                 return str(node.get_numeric_literal())
 

@@ -195,7 +195,7 @@ class ASTUnitType(ASTNode):
         if self.is_arithmetic_expression() + other.is_arithmetic_expression() == 1:
             return False
         if self.is_arithmetic_expression() and other.is_arithmetic_expression() and \
-                not (self.get_lhs().equals(other.lhs) and self.rhs.equals(other.rhs)
+                not ((self.get_lhs() == other.lhs or self.get_lhs().equals(other.lhs)) and (self.rhs == other.rhs or self.rhs.equals(other.rhs))
                      and self.is_times == other.is_times and self.is_div == other.is_div):
             return False
         if self.is_simple_unit() + other.is_simple_unit() == 1:

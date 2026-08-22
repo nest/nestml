@@ -1,0 +1,39 @@
+# test_unit_type_fixer_visitor.nestml
+# ###################################
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+model test_unit_type_fixer_visitor:
+
+    state:
+        s0 real = foo / 1 pA * bar
+        s1 real = foo / 1 pA / bar
+        s2 real = foo * 1 pA * bar
+        s3 real = foo * 1 pA / bar
+
+        s4 real = (2 * foo) / 1 pA * (bar * 2)
+        s5 real = (2 * foo) / 1 pA / (bar * 2)
+        s6 real = (2 * foo) * 1 pA * (bar * 2)
+        s7 real = (2 * foo) * 1 pA / (bar * 2)
+
+    parameters:
+        foo real = 42
+        bar pA = 42 pA

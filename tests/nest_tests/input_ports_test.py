@@ -18,6 +18,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+import numpy as np
 import os
 import pytest
 
@@ -87,18 +89,23 @@ class TestInputPorts:
         connections = nest.GetConnections(target=neuron)
 
         # corresponds to ``bar += NMDA_spikes + 2 * AMPA_spikes - 3 * GABA_spikes`` in the update block
-        assert events["bar"][-1] == len(spike_times[0]) * connections.get("weight")[0] \
-               + 2 * len(spike_times[1]) * abs(connections.get("weight")[1]) \
-               - 3 * len(spike_times[2]) * abs(connections.get("weight")[2])
+        np.testing.assert_allclose(events["bar"][-1],
+                                   len(spike_times[0]) * connections.get("weight")[0]
+                                   + 2 * len(spike_times[1]) * abs(connections.get("weight")[1])
+                                   - 3 * len(spike_times[2]) * abs(connections.get("weight")[2]))
 
         # corresponds to ``foo_spikes += foo[0] + 5.5 * foo[1]`` in the update block
-        assert events["foo_spikes"][-1] == len(spike_times[3]) * connections.get("weight")[3] \
-               + 5.5 * len(spike_times[4]) * abs(connections.get("weight")[4])
+        np.testing.assert_allclose(events["foo_spikes"][-1],
+                                   len(spike_times[3]) * connections.get("weight")[3]
+                                   + 5.5 * len(spike_times[4]) * abs(connections.get("weight")[4]))
 
         # corresponds to ``my_spikes_ip += my_spikes[0] + my_spikes[1] - my_spikes2[1]`` in the update block
-        assert events["my_spikes_ip"][-1] == len(spike_times[5]) * connections.get("weight")[5] \
-               + len(spike_times[6]) * abs(connections.get("weight")[6]) \
-               - len(spike_times[7]) * abs(connections.get("weight")[7])
+        np.testing.assert_allclose(events["my_spikes_ip"][-1],
+                                   len(spike_times[5]) * connections.get("weight")[5]
+                                   + len(spike_times[6]) * abs(connections.get("weight")[6])
+                                   - len(spike_times[7]) * abs(connections.get("weight")[7]),
+                                   rtol=0,
+                                   atol=1E-15)    # manual rtol, atol due to comparison to desired number of 0
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
@@ -158,8 +165,9 @@ class TestInputPorts:
         nest.Simulate(41.)
 
         events = mm.get("events")
-        assert events["bar"][-1] == 2.0
-        assert events["foo_spikes"][-1] == 25.0
-        assert events["MY_SPIKES_IP_2"][-1] == 2.0
-        assert events["MY_SPIKES_IP_5"][-1] == 4.0
-        assert events["MY_SPIKES_IP_6"][-1] == 6.0
+
+        np.testing.assert_allclose(events["bar"][-1], 2)
+        np.testing.assert_allclose(events["foo_spikes"][-1], 25)
+        np.testing.assert_allclose(events["MY_SPIKES_IP_2"][-1], 2)
+        np.testing.assert_allclose(events["MY_SPIKES_IP_5"][-1], 4)
+        np.testing.assert_allclose(events["MY_SPIKES_IP_6"][-1], 6)

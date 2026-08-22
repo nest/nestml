@@ -450,30 +450,7 @@ class NESTMLPrinter(ModelPrinter):
         return self.print(node.compound_stmt)
 
     def print_unit_type(self, node: ASTUnitType) -> str:
-        if node.is_encapsulated:
-            return "(" + self.print(node.compound_unit) + ")"
-
-        if node.is_pow:
-            s = self.print(node.base) + "**"
-            if node.exponent is not None:
-                # ``node.exponent`` is either a float or an int
-                s += str(node.exponent)
-            else:
-                assert node.exponent_num is not None and node.exponent_den is not None
-                if node.exponent_num < 0:
-                    s += "-"
-                s += "(" + str(int(abs(node.exponent_num))) + "/" + str(int(node.exponent_den)) + ")"
-
-            return s
-
-        if node.is_arithmetic_expression():
-            t_lhs = self.print(node.get_lhs()) if isinstance(node.get_lhs(), ASTUnitType) else str(node.get_lhs())
-            if node.is_times:
-                return t_lhs + "*" + self.print(node.get_rhs())
-
-            return t_lhs + "/" + self.print(node.get_rhs())
-
-        return node.unit
+        return self._simple_expression_printer.print_unit_type(node)
 
     def print_on_receive_block(self, node: ASTOnReceiveBlock) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)

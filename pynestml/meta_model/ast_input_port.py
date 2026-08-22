@@ -228,7 +228,7 @@ class ASTInputPort(ASTNode):
             return False
 
         if (self.has_size_parameter() and other.has_size_parameter()
-                and self.get_input_qualifiers() != other.get_size_parameter()):
+                and self.get_size_parameter() != other.get_size_parameter()):
             return False
 
         if self.has_datatype() + other.has_datatype() == 1:

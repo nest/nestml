@@ -33,4 +33,4 @@ model CoCoValueAssignedToInputPort:
         spikeInh <- inhibitory spike
 
     update:
-        spikeInh = 10 / s
+        spikeInh = 1 s**-1

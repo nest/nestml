@@ -29,7 +29,7 @@ model random_functions_illegal_neuron:
     parameters:
         rate ms**-1 = 15.5 s**-1
         sigma_noise real = 16.
-        u real = random_uniform(0,1)
+        u real = random_uniform(0, 1)
 
     internals:
         poisson_input integer = random_poisson(rate * resolution() * 1E-3)
@@ -38,6 +38,6 @@ model random_functions_illegal_neuron:
         if u < 0.5:
             noise = 0.
         else:
-            noise = random_normal(0,sigma_noise)
+            noise = random_normal(0, sigma_noise)
 
-        v += (poisson_input + noise) * mV
+        v += (poisson_input + noise) * 1 mV

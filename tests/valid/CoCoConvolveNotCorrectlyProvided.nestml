@@ -31,7 +31,7 @@
 model CoCoConvolveNotCorrectlyProvided:
     equations:
         kernel test = 10
-        inline testB pA = convolve(test, spikeExc) * pA # convolve provided with a kernel and a spike input port, thus correct
+        inline testB pA = convolve(test, spikeExc) * 1 pA # convolve provided with a kernel and a spike input port, thus correct
 
     input:
         spikeExc <- excitatory spike

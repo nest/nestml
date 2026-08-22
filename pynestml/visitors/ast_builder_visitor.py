@@ -233,10 +233,12 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             numeric_literal = None
         is_inf = (True if ctx.isInf is not None else False)
         variable = (self.visit(ctx.variable()) if ctx.variable() is not None else None)
+        unitType = (self.visit(ctx.unitType()) if ctx.unitType() is not None else None)
         string = (str(ctx.string.text) if ctx.string is not None else None)
         node = ASTNodeFactory.create_ast_simple_expression(function_call=function_call,
                                                            boolean_literal=boolean_literal,
                                                            numeric_literal=numeric_literal,
+                                                           unitType=unitType,
                                                            is_inf=is_inf, variable=variable,
                                                            string=string,
                                                            source_position=create_source_pos(ctx))

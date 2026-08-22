@@ -47,7 +47,7 @@ model beta_function_with_inline_expression_neuron:
     recordable inline z pA = x
 
   input:
-    weighted_input_spikes  <- spike
+    weighted_input_spikes <- spike
 
   output:
     spike
@@ -56,4 +56,4 @@ model beta_function_with_inline_expression_neuron:
     integrate_odes()
 
   onReceive(weighted_input_spikes):
-    x_ += unit_psc * alpha * (1 / tau2 - 1 / tau1) * weighted_input_spikes * s
+    x_ += unit_psc * alpha * (1 / tau2 - 1 / tau1) * weighted_input_spikes * 1E3 s    # XXX: TODO: factor 1E3 should be removed; see https://github.com/nest/nestml/issues/984

@@ -46,14 +46,14 @@ model iaf_cond_exp_Istep_neuron:
         refr_t ms = 0 ms    # Refractory period timer
         is_refractory boolean = false
         k_step integer = 0       # iterator for step current
-        I_step_now pA = 0. pA  # momentaneous value of step current
+        I_step_now pA = 0 pA  # momentaneous value of step current
 
     equations:
         kernel g_in = exp(-t / tau_syn_in) # inputs from the inh conductance
         kernel g_ex = exp(-t / tau_syn_ex) # inputs from the exc conductance
 
-        inline I_syn_ex pA = convolve(g_ex, exc_spikes) * nS * (V_m - E_ex)
-        inline I_syn_in pA = convolve(g_in, inh_spikes) * nS * (V_m - E_in)
+        inline I_syn_ex pA = convolve(g_ex, exc_spikes) * unit_psg * (V_m - E_ex)
+        inline I_syn_in pA = convolve(g_in, inh_spikes) * unit_psg * (V_m - E_in)
         inline I_leak pA = g_L * (V_m - E_L)
         V_m' = (-I_leak - I_syn_ex - I_syn_in + I_e + I_stim + I_step_now) / C_m
 
@@ -72,9 +72,12 @@ model iaf_cond_exp_Istep_neuron:
         # constant external input current
         I_e pA = 0 pA
 
-        n_step integer = 1  # length of step current
-        I_step[n_step] pA = 0. pA  # injected current
-        t_step[n_step] ms = 0. ms  # times of step current changes
+        n_step integer = 1        # length of step current
+        I_step[n_step] pA = 0 pA  # injected current
+        t_step[n_step] ms = 0 ms  # times of step current changes
+
+    internals:
+        unit_psg nS = 1 nS        # Unitary postsynaptic conductance amplitude
 
     input:
         inh_spikes <- inhibitory spike

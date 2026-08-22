@@ -148,12 +148,15 @@ class MessageCode(Enum):
     WEIGHT_VARIABLE_NOT_SPECIFIED = 119
     DELAY_VARIABLE_NOT_FOUND = 120
     WEIGHT_VARIABLE_NOT_FOUND = 121
-    CM_VAR_MULTIUSE = 122
-    CM_INVALID_CONVOLUTION_BUFFER = 123
-    UNKNOWN_NEURON_SYNAPSE_PAIR_MODEL = 124
-    CM_UNRESOLVED_FUNCTION_DEPENDENCY = 125
-    CM_UNRESOLVED_VARIABLE_DEPENDENCY = 126
-    CONVOLVE_NEEDS_BUFFER_PARAMETER = 127
+    NOT_ALLOWED_TO_ASSIGN_TO_A_UNIT_TYPE = 122
+    VARIABLE_USED_AS_A_UNIT = 123
+    CM_VAR_MULTIUSE = 124
+    CM_INVALID_CONVOLUTION_BUFFER = 125
+    UNKNOWN_NEURON_SYNAPSE_PAIR_MODEL = 126
+    CM_UNRESOLVED_FUNCTION_DEPENDENCY = 127
+    CM_UNRESOLVED_VARIABLE_DEPENDENCY = 128
+    CONVOLVE_NEEDS_BUFFER_PARAMETER = 129
+    NO_SOLITARY_PHYSICAL_UNITS = 130
 
 
 class Messages:
@@ -819,8 +822,7 @@ class Messages:
     @classmethod
     def astdatatype_type_symbol_could_not_be_derived(cls) -> Tuple[MessageCode, str]:
         """
-        Unknown type or unit literal.
-        :param provided_type_str: the provided type as a string
+        Type symbol could not be derived.
         """
         message = "ASTDataType type symbol could not be derived"
         return MessageCode.ASTDATATYPE_TYPE_SYMBOL_COULD_NOT_BE_DERIVED, message
@@ -1194,6 +1196,11 @@ class Messages:
         return MessageCode.WEIGHT_VARIABLE_NOT_FOUND, message
 
     @classmethod
+    def get_not_allowed_to_assign_to_a_unit_type(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "Not allowed to assign to unit type '" + variable_name + "'!"
+
+        return MessageCode.NOT_ALLOWED_TO_ASSIGN_TO_A_UNIT_TYPE, message
+
     def get_unknown_neuron_synapse_pair_model(cls, model_type: str, model_name: str) -> Tuple[MessageCode, str]:
         message = "Unknown " + model_type + " model \"" + model_name + "\" in neuron_synapse_pairs."
 
@@ -1210,3 +1217,9 @@ class Messages:
         message = "Could not resolve variable dependency \"" + variable_name + "\" while collecting " + context + "."
 
         return MessageCode.CM_UNRESOLVED_VARIABLE_DEPENDENCY, message
+
+    @classmethod
+    def get_no_solitary_physical_units_allowed(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "No free-standing physical units allowed (" + variable_name + ")"
+
+        return MessageCode.NO_SOLITARY_PHYSICAL_UNITS, message

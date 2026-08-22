@@ -44,7 +44,7 @@ model fir_filter:
 
     update:
         # circular buffer for input spike count per timestep
-        x[i] = spike_in * s
+        x[i] = spike_in * 1E3 s    # XXX: TODO: remove factor 1E3 (see https://github.com/nest/nestml/issues/984)
 
         # compute the new value of y
         j integer = 0
