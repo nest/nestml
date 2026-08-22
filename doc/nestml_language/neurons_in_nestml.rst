@@ -224,7 +224,7 @@ The disadvantage of this method is that it requires a call to the ``resolution()
 .. code-block:: nestml
 
    equations:
-       refr_t' = -1 / s    # a timer counting back down to zero
+       refr_t' = -1 s**-1    # a timer counting back down to zero
 
 Typically, the membrane potential should remain clamped to the reset or leak potential during the refractory period. It depends on the intended behavior of the model whether the synaptic currents and conductances also continue to be integrated or whether they are reset, and whether incoming spikes during the refractory period are taken into account or ignored.
 
@@ -235,7 +235,7 @@ In order to hold the membrane potential at the reset voltage during refractorine
    equations:
        I_syn' = ...
        V_m' = ...
-       refr_t' = -1 / s    # Count down towards zero
+       refr_t' = -1 s**-1    # Count down towards zero
 
    update:
        if refr_t > 0 ms:
