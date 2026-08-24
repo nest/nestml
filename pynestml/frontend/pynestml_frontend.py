@@ -123,6 +123,13 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         options = transformer.set_options(options)
         transformers.append(transformer)
 
+    if target_name.upper() in ["NEST", "PYTHON_STANDALONE"]:
+        from pynestml.transformers.non_dimensionalisation_transformer import NonDimensionalisationTransformer
+
+        non_dimensionalisation_transformer = NonDimensionalisationTransformer()
+        options = non_dimensionalisation_transformer.set_options(options)
+        transformers.append(non_dimensionalisation_transformer)
+
     return transformers, options
 
 

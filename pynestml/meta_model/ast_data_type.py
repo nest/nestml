@@ -99,8 +99,7 @@ class ASTDataType(ASTNode):
                           scope=self.scope,
                           comment=self.comment,
                           pre_comments=[s for s in self.pre_comments],
-                          in_comment=self.in_comment,
-                          implicit_conversion_factor=self.implicit_conversion_factor)
+                          in_comment=self.in_comment)
 
         return dup
 

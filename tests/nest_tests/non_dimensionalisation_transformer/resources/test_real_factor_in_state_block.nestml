@@ -1,0 +1,7 @@
+model test_real_factor_in_state_block_transformation_neuron:
+    state:
+        U_m real = bbb * V_m_init # Membrane potential recovery variable
+
+    parameters:
+        V_m_init mV = -65 mV    # Initial membrane potential
+        bbb real = 0.2            # sensitivity of recovery variable

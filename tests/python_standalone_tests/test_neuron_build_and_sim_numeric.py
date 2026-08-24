@@ -35,10 +35,18 @@ class TestPythonStandaloneNeuronBuildAndSimNumeric(unittest.TestCase):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, "models", "neurons", "aeif_cond_exp_neuron.nestml"))))
         target_path = "nestmlmodule"
-        logging_level = "INFO"
+        logging_level = "DEBUG"
         suffix = ""
         module_name = "nestmlmodule"
-        codegen_opts = {}
+        codegen_opts = {        "quantity_to_preferred_prefix": {
+            "electrical potential": "m",
+            "electrical current": "p",
+            "electrical capacitance": "p",
+            "electrical resistance": "M",
+            "electrical conductance": "n",
+            "time": "m",
+        },
+}
 
         generate_python_standalone_target(input_path, target_path,
                                           module_name=module_name,

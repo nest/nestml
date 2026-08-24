@@ -21,7 +21,6 @@
 
 from __future__ import annotations
 
-from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.codegeneration.printers.variable_printer import VariablePrinter
 from pynestml.codegeneration.python_code_generator_utils import PythonCodeGeneratorUtils
@@ -93,7 +92,7 @@ class PythonVariablePrinter(VariablePrinter):
         if symbol is None:
             # test if variable name can be resolved to a type
             if PredefinedUnits.is_unit(variable.get_complete_name()):
-                return str(NESTUnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
+                return str(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit())
 
             code, message = Messages.get_could_not_resolve(variable.get_name())
             Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
@@ -105,17 +104,9 @@ class PythonVariablePrinter(VariablePrinter):
             vector_param = "[" + self._expression_printer.print(variable.get_vector_parameter()) + "]"
 
         if symbol.is_buffer():
-            if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
-                units_conversion_factor = NESTUnitConverter.get_factor(symbol.get_type_symbol().unit.unit)
-            else:
-                units_conversion_factor = 1
             s = ""
-            if not units_conversion_factor == 1:
-                s += "(" + str(units_conversion_factor) + " * "
             s += self._print(variable, symbol, with_origin=self.with_origin) + vector_param
             s += vector_param
-            if not units_conversion_factor == 1:
-                s += ")"
             return s
 
         if symbol.is_inline_expression:
