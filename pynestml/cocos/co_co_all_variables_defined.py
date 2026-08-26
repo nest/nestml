@@ -35,6 +35,7 @@ from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
+from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -74,22 +75,28 @@ class CoCoAllVariablesDefined(CoCo):
 
                 # test if the symbol has been defined at least
                 if symbol is None:
-                    # for inline expressions, also allow derivatives of that kernel to appear
-                    inline_expr_names = []
-                    inline_exprs = []
-                    for equations_block in node.get_equations_blocks():
-                        inline_expr_names.extend([inline_expr.variable_name for inline_expr in equations_block.get_inline_expressions()])
-                        inline_exprs.extend(equations_block.get_inline_expressions())
+                    # test if it refers to another ODE variable definition (like "x'") -- needs to be a defined ODE and needs to be first order
+                    symbol = var.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
+                    if symbol and ASTUtils.get_ode_by_name(node, var.name) and var.differential_order == 1:
+                        continue
 
-                    # check if this symbol is actually a type, e.g. "mV" in the expression "(1 + 2) * mV"
-                    symbol2 = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.TYPE)
-                    if symbol2 is not None:
-                        continue  # symbol is a type symbol
+                    if symbol is None:
+                        # for inline expressions, also allow derivatives of that kernel to appear
+                        inline_expr_names = []
+                        inline_exprs = []
+                        for equations_block in node.get_equations_blocks():
+                            inline_expr_names.extend([inline_expr.variable_name for inline_expr in equations_block.get_inline_expressions()])
+                            inline_exprs.extend(equations_block.get_inline_expressions())
 
-                    code, message = Messages.get_variable_not_defined(var.get_complete_name())
-                    Logger.log_message(code=code, message=message, error_position=var.get_source_position(),
-                                       log_level=LoggingLevel.ERROR, node=node)
-                    continue
+                        # check if this symbol is actually a type, e.g. "mV" in the expression "(1 + 2) * mV"
+                        symbol2 = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.TYPE)
+                        if symbol2 is not None:
+                            continue  # symbol is a type symbol
+
+                        code, message = Messages.get_variable_not_defined(var.get_complete_name())
+                        Logger.log_message(code=code, message=message, error_position=var.get_source_position(),
+                                        log_level=LoggingLevel.ERROR, node=node)
+                        continue
 
                 # check if it is part of an invariant
                 # if it is the case, there is no "recursive" declaration

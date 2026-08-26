@@ -689,24 +689,6 @@ class ASTUtils:
         astnode.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))
 
     @classmethod
-    def get_inline_expression_by_name(cls, node: ASTModel, name: str) -> Optional[ASTInlineExpression]:
-        for equations_block in node.get_equations_blocks():
-            for inline_expr in equations_block.get_inline_expressions():
-                if name == inline_expr.variable_name:
-                    return inline_expr
-
-        return None
-
-    @classmethod
-    def get_kernel_by_name(cls, node, name: str) -> Optional[ASTKernel]:
-        for equations_block in node.get_equations_blocks():
-            for kernel in equations_block.get_kernels():
-                if name in kernel.get_variable_names():
-                    return kernel
-
-        return None
-
-    @classmethod
     def print_alternate_var_name(cls, var_name, continuous_post_ports):
         for pair in continuous_post_ports:
             if pair[0] == var_name:
@@ -1655,6 +1637,33 @@ class ASTUtils:
                 for var in decl.get_variables():
                     if var.get_name() == var_name:
                         return decl
+        return None
+
+    @classmethod
+    def get_inline_expression_by_name(cls, node: ASTModel, name: str) -> Optional[ASTInlineExpression]:
+        for equations_block in node.get_equations_blocks():
+            for inline_expr in equations_block.get_inline_expressions():
+                if name == inline_expr.variable_name:
+                    return inline_expr
+
+        return None
+
+    @classmethod
+    def get_kernel_by_name(cls, node, name: str) -> Optional[ASTKernel]:
+        for equations_block in node.get_equations_blocks():
+            for kernel in equations_block.get_kernels():
+                if name in kernel.get_variable_names():
+                    return kernel
+
+        return None
+
+    @classmethod
+    def get_ode_by_name(cls, node, name: str) -> Optional[ASTOdeEquation]:
+        for equations_block in node.get_equations_blocks():
+            for ode in equations_block.get_ode_equations():
+                if name == ode.lhs.name:
+                    return ode
+
         return None
 
     @classmethod

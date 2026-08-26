@@ -24,8 +24,6 @@ from collections import defaultdict
 
 from sympy.printing.str import StrPrinter
 
-from odetoolbox import analysis
-
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
 from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
@@ -45,6 +43,8 @@ from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.model_parser import ModelParser
 from pynestml.visitors.ast_visitor import ASTVisitor
+
+import odetoolbox
 
 
 class LowerMinMaxPrinter(StrPrinter):
@@ -159,7 +159,7 @@ class MechsInfoEnricher:
         """calls ode-toolbox for each ode individually and collects the raw output"""
         for mechanism_name, mechanism_info in mechs_info.items():
             for ode_variable_name, ode_info in mechanism_info["ODEs"].items():
-                solver_result = analysis(ode_info["ode_toolbox_input"], disable_stiffness_check=True)
+                solver_result = odetoolbox.analysis(ode_info["ode_toolbox_input"], disable_stiffness_check=True, disable_singularity_detection=True)
                 mechs_info[mechanism_name]["ODEs"][ode_variable_name]["ode_toolbox_output"] = solver_result
 
         return mechs_info

@@ -21,8 +21,6 @@
 
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
 
-from pynestml.transformers.convolutions_to_buffers_transformer import ConvolutionsToBuffersTransformer
-
 try:
     # Available in the standard library starting with Python 3.12
     from typing import override
@@ -35,8 +33,8 @@ import os
 
 from jinja2 import TemplateRuntimeError
 
-from odetoolbox import analysis
-from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
+import odetoolbox
+from pynestml.utils.ode_toolbox_utils import ODEToolboxUtils
 
 import pynestml
 from pynestml.cocos.co_cos_manager import CoCosManager
@@ -58,6 +56,7 @@ from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
 from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
 from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
 from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
+from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
@@ -68,9 +67,10 @@ from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.transformers.convolutions_to_buffers_transformer import ConvolutionsToBuffersTransformer
+from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
 from pynestml.utils.global_info_enricher import GlobalInfoEnricher
 from pynestml.utils.global_processing import GlobalProcessing
-from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
 from pynestml.utils.ast_vector_parameter_setter_and_printer_factory import ASTVectorParameterSetterAndPrinterFactory
 from pynestml.utils.mechanism_processing import MechanismProcessing
 from pynestml.utils.channel_processing import ChannelProcessing
@@ -104,6 +104,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
       XXX: TODO: support explicit continuous synapse-port to neuron-variable mappings for compartmental co-generation, analogous to the point-neuron ``post_ports`` tuple/list associations.
     - **synapse_models**: List of synapse model names. Instructs the code generator that models with these names are synapse models.
     - **preserve_expressions**: Set to True, or a list of strings corresponding to individual variable names, to disable internal rewriting of expressions, and return same output as input expression where possible. Only applies to variables specified as first-order differential equations. (This parameter is passed to ODE-toolbox.)
+    - **use_alternative_expM**: If :python:`False`, use the sympy function ``sympy.exp`` to compute the matrix exponential. If :python:`True`, use an alternative function (see :py:func:`odetoolbox.sympy_helpers.expMt` for details). This can be useful as calls to ``sympy.exp`` can sometimes take a very large amount of time. (This parameter is directly passed to ODE-toolbox.)
     - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
     - **templates**: Path containing jinja templates used to generate code for NEST simulator.
         - **path**: Path containing jinja templates used to generate code for NEST simulator.
@@ -121,6 +122,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         "neuron_parent_class": "ArchivingNode",
         "neuron_parent_class_include": "archiving_node.h",
         "preserve_expressions": True,
+        "use_alternative_expM": False,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "templates": {
             "path": "resources_nest_compartmental/cm_neuron",
@@ -402,11 +404,20 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         odetoolbox_indict = self.create_ode_indict(
             neuron, parameters_block, kernel_buffers)
 
-        full_solver_result = analysis(
+        extra_kws = {}
+        if ODEToolboxUtils.is_ode_toolbox_v3_or_higher(odetoolbox):
+            extra_kws["disable_singularity_mitigation"] = True    # multiple conditional solvers returned from ODE-toolbox not yet supported by NESTML
+        else:
+            Logger.log_message(None, None, "Old version of ODE-toolbox used; consider upgrading. ``use_alternative_expM`` flags will be ignored.", None, LoggingLevel.WARNING)
+
+        full_solver_result = odetoolbox.analysis(
             odetoolbox_indict,
             disable_stiffness_check=True,
+            disable_singularity_detection=True,
             preserve_expressions=self.get_option("preserve_expressions"),
-            log_level=FrontendConfiguration.logging_level)
+            use_alternative_expM=self.get_option("use_alternative_expM"),
+            log_level=FrontendConfiguration.logging_level,
+            **extra_kws)
 
         analytic_solver = None
         analytic_solvers = [
@@ -449,12 +460,21 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         if numeric_solvers:
             odetoolbox_indict = self.create_ode_indict(
                 neuron, parameters_block, kernel_buffers)
-            solver_result = analysis(
+            extra_kws = {}
+            if ODEToolboxUtils.is_ode_toolbox_v3_or_higher(odetoolbox):
+                extra_kws["disable_singularity_mitigation"] = True    # multiple conditional solvers returned from ODE-toolbox not yet supported by NESTML
+            else:
+                Logger.log_message(None, None, "Old version of ODE-toolbox used; consider upgrading. ``use_alternative_expM`` flags will be ignored.", None, LoggingLevel.WARNING)
+
+            solver_result = odetoolbox.analysis(
                 odetoolbox_indict,
                 disable_stiffness_check=True,
+                disable_singularity_detection=True,
+                use_alternative_expM=self.get_option("use_alternative_expM"),
                 disable_analytic_solver=True,
                 preserve_expressions=self.get_option("preserve_expressions"),
-                log_level=FrontendConfiguration.logging_level)
+                log_level=FrontendConfiguration.logging_level,
+                **extra_kws)
             numeric_solvers = [
                 x for x in solver_result if x["solver"].startswith("numeric")]
             assert len(

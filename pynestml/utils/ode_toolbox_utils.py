@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+import inspect
 import sympy
 from sympy.printing.str import StrPrinter
 
@@ -58,3 +59,7 @@ class ODEToolboxUtils:
         s_reformatted = MySympyPrinter().doprint(sympy_expr)
 
         return s_reformatted
+
+    @classmethod
+    def is_ode_toolbox_v3_or_higher(cls, odetoolbox):
+        return "use_alternative_expM" in inspect.signature(odetoolbox.analysis).parameters.keys()
