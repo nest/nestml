@@ -19,8 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from spinn_front_end_common.interface.ds import DataType
-
 from pynestml.codegeneration.printers.simple_expression_printer import SimpleExpressionPrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_node import ASTNode
@@ -48,6 +46,7 @@ class SpinnakerPythonSimpleExpressionPrinter(SimpleExpressionPrinter):
             return str(node.get_numeric_literal())
 
         if node.is_inf_literal:
+            from spinn_front_end_common.interface.ds import DataType
             return str(DataType.S1615.max)  # Max value of s1615 datatype
 
         if node.is_string():

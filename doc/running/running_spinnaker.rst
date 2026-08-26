@@ -1,13 +1,16 @@
 SpiNNaker target
 ----------------
 
-*NESTML features supported:* :doc:`neurons </nestml_language/neurons_in_nestml>`
+*NESTML features supported:* :doc:`neurons </nestml_language/neurons_in_nestml>`, :doc:`synapses </nestml_language/synapses_in_nestml>`
+
+.. warning::
+
+   SpiNNaker support is in an early stage of development. Expect missing features and bugs. If you want to use or contribute to this target, please reach out to the developers via GitHub or the NEST-users mailing list.
 
 Introduction
 ~~~~~~~~~~~~
 
-SpiNNaker [FB20]_ was first publicly mentioned in 1998. It is a neuromorphic architecture based on ARM microprocessors connected into a network. The project emerged from the research question of efficiently integrating associative memory in Very Large Scale Integration (VLSI) architectures. After some research, it was clear that the architecture would come down to a neuromorphic architecture. Earlier implementations mainly focused on analog implementations of neurons and synapses combined with digital communication, However, Furber's previous involvement with ARM and asynchronous digital circuits led to a design based on ARM microprocessors implementing the model and network details in software. As mentioned in the introduction to neuromorphic computing, handling many communication messages is a challenge. Following the biological example is hard to achieve, as to be generally applicable would mean building a physical connection between each neuron, which apart from spatial problems also hinders scalability. This was previously solved by using a bus system with, compared to biological spikes, short digital messages encoding a unique address of the source neuron as the spike. Because of the short pulse, spikes generated simultaneously can be serialized without breaking the concepts found in nature. This protocol is called Address Event Representation (AER [Mah92]_). Each spike is a broadcast message on the bus, where
-each neuron determines if it should receive the spike through the address of the source neuron [Mah92]_.
+SpiNNaker [FB20]_ was first publicly mentioned in 1998. It is a neuromorphic architecture based on ARM microprocessors connected into a network. The project emerged from the research question of efficiently integrating associative memory in Very Large Scale Integration (VLSI) architectures. After some research, it was clear that the architecture would come down to a neuromorphic architecture. Earlier implementations mainly focused on analog implementations of neurons and synapses combined with digital communication, However, Furber's previous involvement with ARM and asynchronous digital circuits led to a design based on ARM microprocessors implementing the model and network details in software. As mentioned in the introduction to neuromorphic computing, handling many communication messages is a challenge. Following the biological example is hard to achieve, as to be generally applicable would mean building a physical connection between each neuron, which apart from spatial problems also hinders scalability. This was previously solved by using a bus system with, compared to biological spikes, short digital messages encoding a unique address of the source neuron as the spike. Because of the short pulse, spikes generated simultaneously can be serialized without breaking the concepts found in nature. This protocol is called Address Event Representation (AER [Mah92]_). Each spike is a broadcast message on the bus, where each neuron determines if it should receive the spike through the address of the source neuron [Mah92]_.
 
 As this solution uses a single bus, the scalability of the system is dependent on the bus throughput. This let the team around SpiNNaker to switch from a bus system to a packet-switched network, where packets can be routed to specified targets. Instead of being bound to the fixed specification of bus throughput, this now also allows scaling the network capacity by adding more routers. They call this Multicast Packet-Switched AER. With this architecture, they were able to achieve a system with 1 million processors called SpiNNaker1M. All information about SpiNNaker presented in this chapter comes from the book "SpiNNaker: A Spiking Neural Network Architecture" [FB20]_.
 
@@ -21,8 +24,45 @@ Generating code
 
    .. code-block:: bash
 
-      apptainer build spinnaker-apptainer.sif spinnaker-apptainer.def 
+      apptainer build spinnaker-apptainer.sif spinnaker-apptainer.def
       apptainer overlay create --size 4096 spinnaker-overlay.img
+
+   Note that for now, the sPyNNaker codebase needs to be manually edited to remove the checks in ``/home/spinnaker/source/sPyNNaker/neural_modelling/makefiles/synapse_only/synapse_build.mk`` on lines 99-104 (see https://github.com/SpiNNakerManchester/sPyNNaker/pull/1679):
+
+   .. code-block::
+
+      diff --git a/neural_modelling/makefiles/synapse_only/synapse_build.mk b/neural_modelling/makefiles/synapse_only/synapse_build.mk
+      index b6bfaffa29..004250ecff 100644
+      --- a/neural_modelling/makefiles/synapse_only/synapse_build.mk
+      +++ b/neural_modelling/makefiles/synapse_only/synapse_build.mk
+      @@ -96,12 +96,6 @@ else
+         ifneq ($(SYNAPSE_DYNAMICS), $(SYNAPSE_DYNAMICS_STATIC))
+               STDP_ENABLED = 1
+
+      -        ifndef TIMING_DEPENDENCE_H
+      -            $(error TIMING_DEPENDENCE_H is not set which is required when SYNAPSE_DYNAMICS ($(SYNAPSE_DYNAMICS_C)) != $(SYNAPSE_DYNAMICS_STATIC))
+      -        endif
+      -        ifndef WEIGHT_DEPENDENCE_H
+      -            $(error WEIGHT_DEPENDENCE_H is not set which is required when SYNAPSE_DYNAMICS ($(SYNAPSE_DYNAMICS_C)) != $(SYNAPSE_DYNAMICS_STATIC))
+      -        endif
+         endif
+      endif
+
+      @@ -205,8 +199,10 @@ endif
+
+      #STDP Build rules If and only if STDP used
+      ifeq ($(STDP_ENABLED), 1)
+      -    STDP_INCLUDES:= -include $(WEIGHT_DEPENDENCE_H) -include $(TIMING_DEPENDENCE_H)
+      -    STDP_COMPILE = $(CC) -DLOG_LEVEL=$(PLASTIC_DEBUG) $(CFLAGS) -DSTDP_ENABLED=$(STDP_ENABLED) -DSYNGEN_ENABLED=$(SYNGEN_ENABLED) $(STDP_INCLUDES)
+
+      +    #STDP_INCLUDES:= -include $(WEIGHT_DEPENDENCE_H) -include $(TIMING_DEPENDENCE_H)
+      +    #STDP_INCLUDES:= -include $(WEIGHT_DEPENDENCE_H) -include $(TIMING_DEPENDENCE_H)
+      +    #STDP_COMPILE = $(CC) -DLOG_LEVEL=$(PLASTIC_DEBUG) $(CFLAGS) -DSTDP_ENABLED=$(STDP_ENABLED) -DSYNGEN_ENABLED=$(SYNGEN_ENABLED) $(STDP_INC
+      LUDES)
+      +    STDP_COMPILE = $(CC) -DLOG_LEVEL=$(PLASTIC_DEBUG) $(CFLAGS) -DSTDP_ENABLED=$(STDP_ENABLED) -DSYNGEN_ENABLED=$(SYNGEN_ENABLED)
+
+         $(SYNAPSE_DYNAMICS_O): $(SYNAPSE_DYNAMICS_C)
+            # SYNAPSE_DYNAMICS_O stdp
 
 3. Run the Apptainer image:
 
@@ -61,12 +101,75 @@ Generating code
 
       PYTHONPATH=$HOME/nestml/spinnaker-install python3 -m pytest -s --pdb ./tests/spinnaker_tests/test_spinnaker_iaf_psc_exp.py
 
+Optionally, create a little helper script to run the test anew (replace ``USERNAME`` with your username):
+
+.. code-block:: bash
+
+   #!/bin/bash
+
+   cd $HOME/nestml
+
+   mv -v /users/USERNAME/nestml/spinnaker-target /users/USERNAME/nestml/spinnaker-target-$(date +%Y-%m-%d_%H-%M-%S.%N | cut -b1-23)
+   mv -v /users/USERNAME/nestml/spinnaker-install /users/USERNAME/nestml/spinnaker-install-$(date +%Y-%m-%d_%H-%M-%S.%N | cut -b1-23)
+
+   # need to create this directory first, otherwise it gets ignored in the PYTHONPATH!
+   mkdir /users/USERNAME/nestml/spinnaker-install
+
+   PATH=$PATH:/users/USERNAME/.local/bin PYTHONPATH=/users/USERNAME/nestml/spinnaker-install:$PYTHONPATH python3 -m pytest  -o log_cli=true -o log_cli_level="DEBUG" -s --pdb /home/nestml/tests/spinnaker_tests/test_spinnaker_iaf_psc_exp.py
+
 
 Data types
 ^^^^^^^^^^
 
 - The NESTML data type ``real`` will be rendered as a 32-bit fixed point number, which consists of a 16-bit integer part and a 15-bit fractional part. Additionally, one bit is used for the sign of the number, where negative numbers are stored with two's complement notation.
 - The NESTML data type ``integer`` will be rendered as ``int32_t``.
+
+
+Code generation for synapses
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Synaptic and neuronal models should ideally be formulated independently of each other, so that each neuron can be combined with each synapse for maximum flexibility. When a synaptic plasticity rule (such as STDP) is formulated as a computational model, the plasticity rule is often expressed as a function of the timing of pre- and postsynaptic spikes, which are used in the dynamics of the weight update for that particular rule. Note that as each neuron is typically connected to hundreds or thousands of other neurons via synapses on its axon, each of those synapses will observe the same presynaptic spike times, and store and numerically integrate them in exactly the same way, causing a very large redundancy in memory and computation.
+
+To prevent this redundancy, these values should only be stored and computed once. To achieve this, during code generation, state variables that depend only on presynaptic spike timing are automatically identified and moved from the NESTML synapse model into a header section in the synaptic row by the toolchain. In the generated code, at the points where the respective variables are used by the synapse (for instance, where they are used in calculating the change in synaptic strength), the variable references are replaced by function calls into the necessary memory space (more precisely, the header words at the start of each row). All parameters that are only used by these presynaptic dynamics (for instance, time constants) are also moved to reduce the memory requirements for the synapse. Detecting and moving the state, parameters, and dynamics (ODEs) from synapse to neuron is carried out fully autonomously. We refer to this feature as the "co-generation" of neuron and synapse. It enables flexibility and separation of concerns in the model formalisations without compromising on performance.
+
+When NESTML is invoked to generate code for plastic synapses, the (neuron, synapse) pairs can be specified as a list of two-element dictionaries of the form :code:`{"neuron": "neuron_model_name", "synapse": "synapse_model_name"}`. Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to connect the postsynaptic spiking input port on the synapse with the postsynaptic neuron. For example:
+
+.. code-block:: python
+
+   generate_target(...,
+                   codegen_opts={...,
+                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
+                                                           "synapse": "stdp_synapse"
+                                                           "post_ports": ["post_spikes"]}]})
+
+
+Use cases/examples
+~~~~~~~~~~~~~~~~~~
+
+Ignore-and-fire neuron
+^^^^^^^^^^^^^^^^^^^^^^
+
+...
+
+
+STDP synapse
+^^^^^^^^^^^^
+
+Additive STDP model.
+
+.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/running/running_spinnaker_figs/stdp_window.png
+   :alt: Comparison between STDP window functions based on SpiNNaker simulation (orange crosses) and hand-coded Python "ground truth" simulation.
+
+
+Troubleshooting
+~~~~~~~~~~~~~~~
+
+The build process and simulation produce many log messages, so it can be hard to find the reason for a failing build.
+
+::
+   /home/dev/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/bin/ld: /users/.../nestml/spinnaker-install/c_models/build/iaf_psc_exp_neuron_nestml_impl/iaf_psc_exp_neuron_nestml_impl.elf section `RO_DATA' will not fit in region `ITCM'
+
+This error means that the compiled code does not fit into the ITCM memory. Typically this is due to too many logging statements; try commenting out logging statements.
 
 
 Further reading
@@ -78,6 +181,6 @@ Levin Schmidt, "Extension of the NEST Modelling Language to the SpiNNaker Archit
 References
 ~~~~~~~~~~
 
-.. [Mah92] M. Mahowald. VLSI analogs of neuronal visual processing: a synthesis of form and function. 1992
+.. [Mah92] M. Mahowald. VLSI analogs of neuronal visual processing: a synthesis of form and function. California Institute of Technology, 1992
 
-.. [FB20] S. Furber and P. Bogdan. SpiNNaker: A Spiking Neural Network Architecture. Boston-Delft: now publishers, 2020
+.. [FB20] S. Furber and P. Bogdan. SpiNNaker: A Spiking Neural Network Architecture. Emerald Publishing Limited, 2020
