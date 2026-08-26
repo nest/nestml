@@ -57,18 +57,25 @@ class ASTMechanismInformationCollector(object):
         if not FrontendConfiguration.get_target_platform().upper() == "NEST_COMPARTMENTAL":
             return mechs_info
 
+        # A gap-junction mechanism (@mechanism::gap) is a continuous input that is
+        # additionally interpreted as an electrical port. Collect it alongside the
+        # ordinary continuous inputs so it reuses the same receptor/port plumbing.
+        accepted_types = {mech_type}
+        if mech_type == "continuous_input":
+            accepted_types.add("gap")
+
         mechanism_expressions = cls.collector_visitor.inlinesInEquationsBlock
         for mechanism_expression in mechanism_expressions:
-            if "mechanism::" + mech_type in [(e.namespace + "::" + e.name) for e in
-                                             mechanism_expression.get_decorators()]:
+            decorators = [(e.namespace + "::" + e.name) for e in mechanism_expression.get_decorators()]
+            if any("mechanism::" + t in decorators for t in accepted_types):
                 mechanism_name = mechanism_expression.variable_name
                 mechs_info[mechanism_name] = defaultdict()
                 mechs_info[mechanism_name]["root_expression"] = mechanism_expression
 
         mechanism_expressions = cls.collector_visitor.odes
         for mechanism_expression in mechanism_expressions:
-            if "mechanism::" + mech_type in [(e.namespace + "::" + e.name) for e in
-                                             mechanism_expression.get_decorators()]:
+            decorators = [(e.namespace + "::" + e.name) for e in mechanism_expression.get_decorators()]
+            if any("mechanism::" + t in decorators for t in accepted_types):
                 mechanism_name = mechanism_expression.lhs.name
                 mechs_info[mechanism_name] = defaultdict()
                 mechs_info[mechanism_name]["root_expression"] = mechanism_expression
@@ -445,7 +452,6 @@ class ASTMechanismInformationCollector(object):
             owned = list()
             updated_owned = mechanism_info["States"] + mechanism_info["Parameters"] + mechanism_info["Internals"]
 
-            loop_counter = 0
             while set([v.get_name() for v in owned]) != set([v.get_name() for v in updated_owned]) or set(
                     [v.get_name() for v in dependencies]) != set([v.get_name() for v in updated_dependencies]):
                 owned = updated_owned
@@ -454,7 +460,6 @@ class ASTMechanismInformationCollector(object):
                 block.accept(collector)
                 updated_owned = collector.owned
                 updated_dependencies = collector.dependencies
-                loop_counter += 1
 
             mechanism_info["Blocks"] = dict()
             mechanism_info["Blocks"]["dependencies"] = dependencies

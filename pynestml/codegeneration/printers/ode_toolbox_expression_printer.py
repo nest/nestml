@@ -59,7 +59,7 @@ class ODEToolboxExpressionPrinter(CppExpressionPrinter):
             if isinstance(node.get_lhs(), ASTSimpleExpression) and node.get_lhs().get_variable() is not None \
                     and node.get_lhs().get_variable().get_name() == node.get_lhs().type.get_symbol_name():
                 return lhs
-            return lhs + "**" + rhs
+            return "(" + lhs + ")" + "**" + rhs
 
         if op.is_plus_op:
             return lhs + " + " + rhs

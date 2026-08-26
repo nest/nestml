@@ -1,22 +1,21 @@
-{%- macro FunctionDeclaration(ast_function, namespace_prefix, pass_by_reference = false) -%}
+{%- macro LambdaDeclaration(ast_function) -%}
 {%- with function_symbol = ast_function.get_scope().resolve_to_symbol(ast_function.get_name(), SymbolKind.FUNCTION) -%}
 {%-     if function_symbol is none -%}
 {{ raise('Cannot resolve the method ' + ast_function.get_name()) }}
 {%-     endif %}
-{%-     set ret_t = type_symbol_printer.print(function_symbol.get_return_type()) | replace('.', '::') -%}
 {{ ast_function.print_comment('//') }}
-{{ cm_scalar_t if cm_scalar_t is defined and ret_t == "double" else ret_t }} {{ namespace_prefix }}{{ ast_function.get_name() }} (
+auto {{ namespace_prefix }}{{ ast_function.get_name() }} = [](
 {%-     for param in ast_function.get_parameters() %}
 {%-         with typeSym = param.get_data_type().get_type_symbol() -%}
 {%-             set p_t = type_symbol_printer.print(typeSym) -%}
 {%-             filter indent(1, True) -%}
-const {{ cm_scalar_t if cm_scalar_t is defined and p_t == "double" else p_t }}{% if pass_by_reference %}&{% endif %} {{ param.get_name() }}
+{{ cm_scalar_t if cm_scalar_t is defined and p_t == "double" else p_t }} {{ param.get_name() }}
 {%-                 if not loop.last -%}
 ,
 {%-                 endif -%}
 {%-             endfilter -%}
 {%-         endwith -%}
 {%-     endfor -%}
-) const
+)
 {%- endwith -%}
 {%- endmacro -%}
