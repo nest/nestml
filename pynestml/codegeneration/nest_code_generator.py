@@ -76,6 +76,7 @@ from pynestml.visitors.ast_mark_delay_vars_visitor import ASTMarkDelayVarsVisito
 from pynestml.visitors.ast_set_vector_parameter_in_update_expressions import ASTSetVectorParameterInUpdateExpressionVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
+from pynestml.symbols.variable_symbol import (BlockType, VariableSymbol, VariableType)
 
 
 def find_spiking_post_port(synapse, namespace, metadata):
@@ -396,27 +397,13 @@ class NESTCodeGenerator(CodeGenerator):
         ASTUtils.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
         ASTUtils.replace_convolution_aliasing_inlines(neuron)
 
-        if metadata[neuron.name]["analytic_solver"] is not None:
-            ASTUtils.add_declarations_to_internals(neuron, metadata[neuron.name]["analytic_solver"]["cse"]["propagators"])
-            ASTUtils.add_declarations_to_internals(neuron, metadata[neuron.name]["analytic_solver"]["propagators"])
-            # ASTUtils.add_declarations_to_internals(neuron, metadata[neuron.name]["analytic_solver"]["cse"]["update_expressions"])     # XXX: THESE SHOULD NOT BE ADDED TO INTERNALS. Just put this here to suppress the error message for now!
-
-            metadata[neuron.name]["analytic_solver"]["cse"]["update_expressions_ast"] = {}
-
-            for cse_sym, cse_expr in metadata[neuron.name]["analytic_solver"]["cse"]["update_expressions"].items():
-                cse_expr_ast = ModelParser.parse_expression(cse_expr)
-                # pretend that update expressions are in "equations" block, which should always be present,
-                # as differential equations must have been defined to get here
-                cse_expr_ast.update_scope(neuron.get_equations_blocks()[0].get_scope())
-                cse_expr_ast.accept(ASTSymbolTableVisitor())
-                metadata[neuron.name]["analytic_solver"]["cse"]["update_expressions_ast"][cse_sym] = cse_expr_ast
-
-            neuron.accept(ASTSymbolTableVisitor())
-
-
-
-        self.update_symbol_table(neuron)
-
+        if metadata[neuron.name]["analytic_solver"] is not None: # add propagators to internal states (init once)
+        
+            # explicit mapping
+            cse_propagators = {cse["symbol"]: cse["expression"] for cse in analytic_solver.get("cse", {}).get("propagators", [])}
+            ASTUtils.add_declarations_to_internals(neuron, cse_propagators) # define tmp prop before being called 
+            ASTUtils.add_declarations_to_internals(neuron, analytic_solver["propagators"]) # define reduced propagators 
+            
         # Update the delay parameter parameters after symbol table update
         ASTUtils.update_delay_parameter_in_state_vars(neuron, state_vars_before_update)
 
@@ -457,9 +444,12 @@ class NESTCodeGenerator(CodeGenerator):
                     elif not CodeGeneratorUtils.is_vt_port(port_name, base_neuron_name, base_synapse_name, neuron_synapse_pairs=self._options["neuron_synapse_pairs"]):
                         pre_spike_updates.extend(spike_updates[port_name])
 
-            if not metadata[synapse.get_name()]["analytic_solver"] is None:
-                ASTUtils.add_declarations_to_internals(synapse, metadata[synapse.get_name()]["analytic_solver"]["propagators"])
-                ASTUtils.add_declarations_to_internals(synapse, metadata[synapse.name]["analytic_solver"]["cse"]["propagators"])
+            if not metadata[synapse.get_name()]["analytic_solver"] is None: # defining synapse analytical solver 
+                
+                # explicit mapping
+                cse_propagators = {cse["symbol"]: cse["expression"] for cse in analytic_solver.get("cse", {}).get("propagators", [])}
+                ASTUtils.add_declarations_to_internals(synapse, cse_propagators) # define tmp variables
+                ASTUtils.add_declarations_to_internals(synapse, analytic_solver["propagators"]) # defining reduced eq's 
 
         self.update_symbol_table(synapse)
 
@@ -548,9 +538,38 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace["remove_vector_index"] = lambda s: re.sub(r"\[\d+\]$", "", s)
 
-        # ODE solving
+        # ODE solving metadata contains instructions on how to solve the eq
         namespace["uses_analytic_solver"] = astnode.get_name() in metadata.keys() and "analytic_solver" in metadata[astnode.name].keys() and metadata[astnode.name]["analytic_solver"] is not None
         namespace["uses_numeric_solver"] = astnode.get_name() in metadata.keys() and "numeric_solver" in metadata[astnode.name].keys() and metadata[astnode.name]["numeric_solver"] is not None
+
+        # optimised update expressions
+        namespace["cse_update_expressions"] = {}
+
+        if namespace["uses_analytic_solver"]:
+            scope = astnode.get_equations_blocks()[0].get_scope()
+
+            for cse in metadata[astnode.name]["analytic_solver"].get("cse", {}).get("update_expressions", []):
+                
+                cse_sym = cse["symbol"]
+                cse_expr = ODEToolboxUtils._rewrite_piecewise_into_ternary(cse["expression"])
+
+                # CSE temporaries are generated local variables
+                if scope.resolve_to_symbol(cse_sym, SymbolKind.VARIABLE) is None: # by passing ast printer checks 
+                    scope.add_symbol(
+                        VariableSymbol(
+                            scope=scope,
+                            name=cse_sym,
+                            block_type=BlockType.LOCAL, # defining local variable for update 
+                            type_symbol=RealTypeSymbol(),
+                            variable_type=VariableType.VARIABLE))
+
+                cse_expr_ast = ModelParser.parse_expression(cse_expr) # parse expression, symbols 
+                cse_expr_ast.update_scope(scope) # update model scope 
+                cse_expr_ast.accept(ASTSymbolTableVisitor()) 
+
+                namespace["cse_update_expressions"][cse_sym] = cse_expr_ast
+
+
 
         if namespace["uses_numeric_solver"]:
             namespace["numeric_solver"] = self.get_option("numeric_solver")
@@ -873,6 +892,28 @@ class NESTCodeGenerator(CodeGenerator):
                 expr_ast.update_scope(neuron.get_equations_blocks()[0].get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["numeric_update_expressions"][sym] = expr_ast
+
+
+                # what .jinja file is being called by numerical solver?? can't find it. 
+                # # implement cse handing for numerical update expressions   
+                # metadata[neuron.name]["numerical_solver"]["cse"]["update_expressions_ast"] = {}
+
+                # for cse_sym, cse_expr in metadata[neuron.name]["analytic_solver"]["cse"]["update_expressions"].items():
+            
+                #     cse_expr_ast = ModelParser.parse_expression(cse_expr)   # reinstiates new ast nodes in memory for each cse exp
+
+                #     # pretend that update expressions are in "equations" block, which should always be present,
+                #     # as differential equations must have been defined to get here
+                #     cse_expr_ast.update_scope(neuron.get_equations_blocks()[0].get_scope())   # context enrichment for new ast nodes 
+                #     cse_expr_ast.accept(ASTSymbolTableVisitor())
+
+                #     # save a reference to this newly built ast node inside .jinja to be called during c++ creation 
+                #     metadata[neuron.name]["numerical_solver"]["cse"]["update_expressions_ast"][cse_sym] = cse_expr_ast  
+
+                # # updating global ast with these new cse's exp 
+                # neuron.accept(ASTSymbolTableVisitor())
+
+                
 
                 # Check if the update expression has delay variables
                 if ASTUtils.has_equation_with_delay_variable(metadata[neuron.name]["equations_with_delay_vars"], sym):
