@@ -61,6 +61,7 @@ class ODEToolboxTransformer(Transformer):
     - **solver**: A string identifying the preferred ODE solver. ``"analytic"`` for propagator solver preferred; fallback to numeric solver in case ODEs are not analytically solvable. Use ``"numeric"`` to disable analytic solver.
     - **ode_toolbox_json_options**: An optional extra dictionary; key-value pairs are passed to ODE-toolbox indict "options" key.
     - **disable_singularity_detection**: Set to True to disable detection of conditions under which numerical singularities (division by zero) could occur in the generated analytic solver. This can be useful for analytic solvers containing a large amount of conditions, which could take a long time to compute. (This parameter is directly passed to ODE-toolbox.)
+    - **enable_cse**: Set to True to enable common subexpression elimination (CSE) in the analytic (propagator) solver's update expressions. ODE-toolbox will then return a set of auxiliary "helper" expressions that are each computed once and reused, rather than being recomputed inline every time they occur. (This parameter is directly passed to ODE-toolbox
     """
 
     _default_options = {
@@ -69,7 +70,8 @@ class ODEToolboxTransformer(Transformer):
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "solver": "analytic",
         "ode_toolbox_json_options": None,
-        "disable_singularity_detection": False
+        "disable_singularity_detection": False,
+        "enable_cse": False 
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
@@ -122,7 +124,7 @@ class ODEToolboxTransformer(Transformer):
         disable_analytic_solver = self.get_option("solver") != "analytic"
 
         solver_result = odetoolbox.analysis(odetoolbox_indict,
-                                            enable_cse=True,  
+                                            enable_cse=self.get_option("enable_cse"),  
                                             disable_stiffness_check=True,
                                             disable_analytic_solver=disable_analytic_solver,
                                             disable_singularity_detection=self.get_option("disable_singularity_detection"),
@@ -144,6 +146,7 @@ class ODEToolboxTransformer(Transformer):
             if analytic_solver:
                 # previous solver_result contains both analytic and numeric solver; re-run ODE-toolbox generating only numeric solver
                 solver_result = odetoolbox.analysis(odetoolbox_indict,
+                                                    enable_cse=self.get_option("enable_cse"), 
                                                     disable_stiffness_check=True,
                                                     disable_analytic_solver=True,
                                                     disable_singularity_detection=True,

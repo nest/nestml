@@ -398,9 +398,11 @@ class NESTCodeGenerator(CodeGenerator):
         ASTUtils.replace_convolution_aliasing_inlines(neuron)
 
         if metadata[neuron.name]["analytic_solver"] is not None: # add propagators to internal states (init once)
-        
-            ASTUtils.add_declarations_to_internals(neuron, metadata[neuron.name]["analytic_solver"]["cse"]["propagators"]) # define tmp prop before being called 
-            ASTUtils.add_declarations_to_internals(neuron, metadata[neuron.name]["analytic_solver"]["propagators"]) # define reduced propagators 
+            
+            cse_propagators = (analytic_solver.get("cse", {}).get("propagators", [])) # safely gather propagators regardless of cse on/off 
+
+            ASTUtils.add_declarations_to_internals(neuron, cse_propagators) # define tmp prop before being called 
+            ASTUtils.add_declarations_to_internals(neuron, analytic_solver["propagators"]) # define reduced propagators 
 
         self.update_symbol_table(neuron)
 
@@ -446,9 +448,10 @@ class NESTCodeGenerator(CodeGenerator):
                         pre_spike_updates.extend(spike_updates[port_name])
 
         if not metadata[synapse.get_name()]["analytic_solver"] is None: # defining synapse analytical solver 
-                           
-            ASTUtils.add_declarations_to_internals(synapse, metadata[neuron.name]["analytic_solver"]["cse"]["propagators"]) # define tmp prop before being called 
-            ASTUtils.add_declarations_to_internals(synapse, metadata[neuron.name]["analytic_solver"]["propagators"]) # define reduced propagators 
+
+            cse_propagators = (analytic_solver.get("cse", {}).get("propagators", [])) # safely gather propagators regardless of cse on/off 
+            ASTUtils.add_declarations_to_internals(synapse, cse_propagators) # define tmp prop before being called 
+            ASTUtils.add_declarations_to_internals(synapse, analytic_solver["propagators"]) # define reduced propagators 
 
         self.update_symbol_table(synapse)
 
