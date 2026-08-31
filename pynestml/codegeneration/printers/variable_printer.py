@@ -41,7 +41,7 @@ class VariablePrinter(ASTPrinter, metaclass=ABCMeta):
 
     def print(self, node: ASTNode) -> str:
         assert isinstance(node, ASTVariable)
-                
+
         return self.print_variable(node)
 
     @abstractmethod
