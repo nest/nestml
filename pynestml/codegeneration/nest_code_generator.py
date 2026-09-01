@@ -486,6 +486,10 @@ class NESTCodeGenerator(CodeGenerator):
             return
 
     def _get_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
+        """
+        Function builds python dict (namespace) that is handed to jinja2 as the template context for generating the c++ script 
+        """
+
         namespace = {}
 
         namespace["metadata"] = metadata
@@ -544,19 +548,20 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["uses_analytic_solver"] = astnode.get_name() in metadata.keys() and "analytic_solver" in metadata[astnode.name].keys() and metadata[astnode.name]["analytic_solver"] is not None
         namespace["uses_numeric_solver"] = astnode.get_name() in metadata.keys() and "numeric_solver" in metadata[astnode.name].keys() and metadata[astnode.name]["numeric_solver"] is not None
 
-        # namespace acting as a backend between py and jinja2
-        namespace["analytical_cse_update_expressions"] = {} # declare internal dicts for analytical and numeric update exp
+        # declare internal dicts for analytical and numeric update exp cse 
+        namespace["analytical_cse_update_expressions"] = {} 
         namespace["numeric_cse_update_expressions"] = {}
 
         if namespace["uses_analytic_solver"]: # if analytical solver is activated 
             scope = astnode.get_equations_blocks()[0].get_scope()
 
-            # Get the dictionary directly. If it doesn't exist, default to an empty dict.
+            # Pull out CSE symbol/expression pairs from metadata directly 
             cse_dict = metadata[astnode.name]["analytic_solver"].get("cse", {}).get("update_expressions", {})
             
             # Iterate over key-value pairs (symbol and expression string) directly
             for cse_sym, cse_expr_str in cse_dict.items():
                 
+                # rewrite piecewise sympy into ternary (if/else)
                 cse_expr = ODEToolboxUtils._rewrite_piecewise_into_ternary(cse_expr_str)
 
                 #if temporararies are generated local variables
@@ -564,26 +569,30 @@ class NESTCodeGenerator(CodeGenerator):
                     scope.add_symbol(VariableSymbol(scope=scope, name=cse_sym, block_type=BlockType.LOCAL, type_symbol=RealTypeSymbol(), variable_type=VariableType.VARIABLE))
 
                 cse_expr_ast = ModelParser.parse_expression(cse_expr)
-                cse_expr_ast .update_scope(scope)
+                cse_expr_ast.update_scope(scope)
                 cse_expr_ast.accept(ASTSymbolTableVisitor())
-                namespace["analytical_cse_update_expressions"][cse_sym] = cse_expr_ast
+                namespace["analytical_cse_update_expressions"][cse_sym] = cse_expr_ast # stash result expression before being called 
 
 
         if namespace["uses_numeric_solver"]: # if numerical solver is activated
             scope = astnode.get_equations_blocks()[0].get_scope()
 
-            for cse in metadata[astnode.name]["numeric_solver"].get("cse", {}).get("update_expressions", []):
-                cse_sym = cse["symbol"]
+            # Pull out CSE symbol/expression pairs from metadata directly - TO DO test CSE on numerical solver
+            cse_dict = metadata[astnode.name]["numerical_solver"].get("cse", {}).get("update_expressions", {})
+
+            for cse_sym, cse_expr_str in cse_dict.items():
+          
+                # rewrite piecewise sympy into ternary (if/else)
                 cse_expr = ODEToolboxUtils._rewrite_piecewise_into_ternary(cse["expression"])
 
                 #if temporararies are generated local variables
                 if scope.resolve_to_symbol(cse_sym, SymbolKind.VARIABLE) is None: #  register analytical update as local so no check needs to be done in variable_printer.py 
                     scope.add_symbol(VariableSymbol(scope=scope, name=cse_sym, block_type=BlockType.LOCAL, type_symbol=RealTypeSymbol(), variable_type=VariableType.VARIABLE))
 
-                cse_expr_ast = ModelParser.parse_expression(cse_expr)
-                cse_expr_ast .update_scope(scope)
-                cse_expr_ast.accept(ASTSymbolTableVisitor())
-                namespace["numeric_cse_update_expressions"][cse_sym] = cse_expr_ast
+                cse_expr_ast = ModelParser.parse_expression(cse_expr) # parse the expression string into an AST node
+                cse_expr_ast.update_scope(scope) # attach models scope 
+                cse_expr_ast.accept(ASTSymbolTableVisitor()) # run the symbol table visitor so all identifiers inside the expression are resolved 
+                namespace["numeric_cse_update_expressions"][cse_sym] = cse_expr_ast 
             
 
         if namespace["uses_numeric_solver"]:

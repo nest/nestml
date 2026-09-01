@@ -61,9 +61,10 @@ class ODEToolboxTransformer(Transformer):
     - **solver**: A string identifying the preferred ODE solver. ``"analytic"`` for propagator solver preferred; fallback to numeric solver in case ODEs are not analytically solvable. Use ``"numeric"`` to disable analytic solver.
     - **ode_toolbox_json_options**: An optional extra dictionary; key-value pairs are passed to ODE-toolbox indict "options" key.
     - **disable_singularity_detection**: Set to True to disable detection of conditions under which numerical singularities (division by zero) could occur in the generated analytic solver. This can be useful for analytic solvers containing a large amount of conditions, which could take a long time to compute. (This parameter is directly passed to ODE-toolbox.)
-    - **enable_cse**: Set to True to enable common subexpression elimination (CSE) in the analytic (propagator) solver's update expressions. ODE-toolbox will then return a set of auxiliary "helper" expressions that are each computed once and reused, rather than being recomputed inline every time they occur. (This parameter is directly passed to ODE-toolbox
+    - **enable_cse**: Set to True to enable common subexpression elimination (CSE) in the analytical and propagator solver's expressions. ODE-toolbox will then return a set of auxiliary "helper" expressions that are each computed once and reused, rather than being recomputed inline every time they occur. (This parameter is directly passed to ODE-toolbox.)
     """
 
+    # default flags if nothing is passed 
     _default_options = {
         "use_alternative_expM": False,
         "preserve_expressions": True,
