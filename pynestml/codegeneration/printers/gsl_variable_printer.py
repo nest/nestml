@@ -45,6 +45,9 @@ class GSLVariablePrinter(CppVariablePrinter):
         :return: a gsl processable format of the variable
         """
         assert isinstance(variable, ASTVariable)
+        if variable.name.startswith("__ode_cse_update"):
+            return variable.name   # XXX this is a terrible hack!
+
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
 
         if symbol is None:

@@ -21,6 +21,11 @@ extern "C" inline int {{modelName}}_dynamics{% if ast.get_args() | length > 0 %}
   assert( pnode );
   const Parameters_& node = *( reinterpret_cast< Parameters_* >( pnode ) );
 {%- endif %}
+
+{%- for cse_sym, cse_expr in numeric_cse_update_expressions.items() %}
+const double {{ cse_sym }} = {{ gsl_printer.print(cse_expr) }};
+{%- endfor %}
+
   // ode_state[] here is---and must be---the state vector supplied by the integrator,
   // not the state vector in the node, node.S_.ode_state[].
 

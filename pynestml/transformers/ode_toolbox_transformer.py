@@ -64,7 +64,7 @@ class ODEToolboxTransformer(Transformer):
     - **enable_cse**: Set to True to enable common subexpression elimination (CSE) in the analytical and propagator solver's expressions. ODE-toolbox will then return a set of auxiliary "helper" expressions that are each computed once and reused, rather than being recomputed inline every time they occur. (This parameter is directly passed to ODE-toolbox.)
     """
 
-    # default flags if nothing is passed 
+    # default flags if nothing is passed
     _default_options = {
         "use_alternative_expM": False,
         "preserve_expressions": True,
@@ -72,7 +72,7 @@ class ODEToolboxTransformer(Transformer):
         "solver": "analytic",
         "ode_toolbox_json_options": None,
         "disable_singularity_detection": False,
-        "enable_cse": False 
+        "enable_cse": True
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
@@ -125,7 +125,7 @@ class ODEToolboxTransformer(Transformer):
         disable_analytic_solver = self.get_option("solver") != "analytic"
 
         solver_result = odetoolbox.analysis(odetoolbox_indict,
-                                            enable_cse=self.get_option("enable_cse"),  
+                                            enable_cse=self.get_option("enable_cse"),
                                             disable_stiffness_check=True,
                                             disable_analytic_solver=True, # TEMP !!
                                             #disable_analytic_solver=disable_analytic_solver,
@@ -148,7 +148,7 @@ class ODEToolboxTransformer(Transformer):
             if analytic_solver:
                 # previous solver_result contains both analytic and numeric solver; re-run ODE-toolbox generating only numeric solver
                 solver_result = odetoolbox.analysis(odetoolbox_indict,
-                                                    enable_cse=self.get_option("enable_cse"), 
+                                                    enable_cse=self.get_option("enable_cse"),
                                                     disable_stiffness_check=True,
                                                     disable_analytic_solver=True,
                                                     disable_singularity_detection=True,
@@ -165,7 +165,7 @@ class ODEToolboxTransformer(Transformer):
         #   save the results to metadata
         #
 
-        metadata[model.name]["analytic_solver"] = analytic_solver     
+        metadata[model.name]["analytic_solver"] = analytic_solver
         metadata[model.name]["numeric_solver"] = numeric_solver
 
     @override

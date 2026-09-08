@@ -58,4 +58,6 @@ class VariablePrinter(ASTPrinter, metaclass=ABCMeta):
         s
             The string representation.
         """
+        if node.name.startswith("__ode_cse_update"):
+            return node.name   # XXX this is a terrible hack!
         raise
