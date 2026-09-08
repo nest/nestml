@@ -127,7 +127,8 @@ class ODEToolboxTransformer(Transformer):
         solver_result = odetoolbox.analysis(odetoolbox_indict,
                                             enable_cse=self.get_option("enable_cse"),  
                                             disable_stiffness_check=True,
-                                            disable_analytic_solver=disable_analytic_solver,
+                                            disable_analytic_solver=True, # TEMP !!
+                                            #disable_analytic_solver=disable_analytic_solver,
                                             disable_singularity_detection=self.get_option("disable_singularity_detection"),
                                             disable_singularity_mitigation=True,    # multiple conditional solvers returned from ODE-toolbox not yet supported by NESTML
                                             use_alternative_expM=self.get_option("use_alternative_expM"),

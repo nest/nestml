@@ -548,9 +548,10 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["uses_analytic_solver"] = astnode.get_name() in metadata.keys() and "analytic_solver" in metadata[astnode.name].keys() and metadata[astnode.name]["analytic_solver"] is not None
         namespace["uses_numeric_solver"] = astnode.get_name() in metadata.keys() and "numeric_solver" in metadata[astnode.name].keys() and metadata[astnode.name]["numeric_solver"] is not None
 
-        # declare internal dicts for analytical and numeric update exp cse 
+        # declare internal dicts for analytical and numeric update exp CSE
         namespace["analytical_cse_update_expressions"] = {} 
         namespace["numeric_cse_update_expressions"] = {}
+
 
         if namespace["uses_analytic_solver"]: # if analytical solver is activated 
             scope = astnode.get_equations_blocks()[0].get_scope()
@@ -578,12 +579,12 @@ class NESTCodeGenerator(CodeGenerator):
             scope = astnode.get_equations_blocks()[0].get_scope()
 
             # Pull out CSE symbol/expression pairs from metadata directly - TO DO test CSE on numerical solver
-            cse_dict = metadata[astnode.name]["numerical_solver"].get("cse", {}).get("update_expressions", {})
+            cse_dict = metadata[astnode.name]["numeric_solver"].get("cse", {}).get("update_expressions", {})
 
             for cse_sym, cse_expr_str in cse_dict.items():
           
                 # rewrite piecewise sympy into ternary (if/else)
-                cse_expr = ODEToolboxUtils._rewrite_piecewise_into_ternary(cse["expression"])
+                cse_expr = ODEToolboxUtils._rewrite_piecewise_into_ternary(cse_expr_str)
 
                 #if temporararies are generated local variables
                 if scope.resolve_to_symbol(cse_sym, SymbolKind.VARIABLE) is None: #  register analytical update as local so no check needs to be done in variable_printer.py 
