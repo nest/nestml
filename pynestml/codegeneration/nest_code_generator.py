@@ -397,7 +397,23 @@ class NESTCodeGenerator(CodeGenerator):
         ASTUtils.replace_convolution_aliasing_inlines(neuron)
 
         if metadata[neuron.name]["analytic_solver"] is not None:
+            ASTUtils.add_declarations_to_internals(neuron, metadata[neuron.name]["analytic_solver"]["cse"]["propagators"])
             ASTUtils.add_declarations_to_internals(neuron, metadata[neuron.name]["analytic_solver"]["propagators"])
+            # ASTUtils.add_declarations_to_internals(neuron, metadata[neuron.name]["analytic_solver"]["cse"]["update_expressions"])     # XXX: THESE SHOULD NOT BE ADDED TO INTERNALS. Just put this here to suppress the error message for now!
+
+            metadata[neuron.name]["analytic_solver"]["cse"]["update_expressions_ast"] = {}
+
+            for cse_sym, cse_expr in metadata[neuron.name]["analytic_solver"]["cse"]["update_expressions"].items():
+                cse_expr_ast = ModelParser.parse_expression(cse_expr)
+                # pretend that update expressions are in "equations" block, which should always be present,
+                # as differential equations must have been defined to get here
+                cse_expr_ast.update_scope(neuron.get_equations_blocks()[0].get_scope())
+                cse_expr_ast.accept(ASTSymbolTableVisitor())
+                metadata[neuron.name]["analytic_solver"]["cse"]["update_expressions_ast"][cse_sym] = cse_expr_ast
+
+            neuron.accept(ASTSymbolTableVisitor())
+
+
 
         self.update_symbol_table(neuron)
 
@@ -443,6 +459,7 @@ class NESTCodeGenerator(CodeGenerator):
 
             if not metadata[synapse.get_name()]["analytic_solver"] is None:
                 ASTUtils.add_declarations_to_internals(synapse, metadata[synapse.get_name()]["analytic_solver"]["propagators"])
+                ASTUtils.add_declarations_to_internals(synapse, metadata[synapse.name]["analytic_solver"]["cse"]["propagators"])
 
         self.update_symbol_table(synapse)
 
