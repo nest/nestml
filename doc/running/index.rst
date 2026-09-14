@@ -116,9 +116,14 @@ Currently, the following target platforms are supported for code generation. Cli
    :target: running_nest_desktop.html
 
 .. |nest_gpu_logo| image:: ../fig/nest-gpu.svg
-   :width: 95
+   :width: 95px
    :height: 40px
    :target: running_nest_gpu.html
+
+.. |ebrains_logo| image:: ../fig/ebrains-logo.jpeg
+   :width: 95px
+   :height: 37px
+   :target: running_ebrains.html
 
 .. warning::
 
