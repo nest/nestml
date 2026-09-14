@@ -119,11 +119,6 @@ else()
     set(NEST_STATIC_FLAG "--static-libraries")
 endif()
 
-# If there is a hyphenated/alpha suffix, replace the hyphen with .1 to fix the 3.10 version check
-if(NEST_VERSION MATCHES "-")
-    string(REGEX REPLACE "^([0-9]+(\\.[0-9]+)*)-.*$" "\\1.1" NEST_VERSION "${NEST_VERSION}")
-endif()
-
 # Get the compiler that was used for NEST.
 execute_process(
     COMMAND ${NEST_CONFIG} --compiler
