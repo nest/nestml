@@ -92,8 +92,26 @@ else ()
     set( NEST_CONFIG ${with-nest} )
 endif ()
 
-# Use `nest-config` to get the compile and installation options used with the
-# NEST installation.
+# Use `nest-config` to get the compile and installation options used with the NEST installation.
+
+# Retrieve the NEST version
+execute_process(
+    COMMAND ${NEST_CONFIG} --version
+    OUTPUT_VARIABLE NEST_VERSION
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+# One check on first execution, if `nest-config` is working.
+if ( NOT RES_VAR EQUAL 0 )
+    message( FATAL_ERROR "Cannot run `${NEST_CONFIG}`. Please specify correct `nest-config` via -Dwith-nest=... " )
+endif ()
+
+# Determine the appropriate flag based on semantic versioning
+if(NEST_VERSION VERSION_GREATER "3.10")
+    set(NEST_STATIC_FLAG "--static-linking")
+else()
+    set(NEST_STATIC_FLAG "--static-libraries")
+endif()
 
 # Get the compiler that was used for NEST.
 execute_process(
@@ -102,11 +120,6 @@ execute_process(
     OUTPUT_VARIABLE NEST_COMPILER
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
-
-# One check on first execution, if `nest-config` is working.
-if ( NOT RES_VAR EQUAL 0 )
-    message( FATAL_ERROR "Cannot run `${NEST_CONFIG}`. Please specify correct `nest-config` via -Dwith-nest=... " )
-endif ()
 
 # Setting the compiler has to happen before the call to "project(...)" function.
 set( CMAKE_CXX_COMPILER "${NEST_COMPILER}" )
@@ -152,10 +165,9 @@ if ( NEST_INCLUDES )
     endforeach ()
 endif ()
 
-# Get, if NEST is build as a (mostly) static application. If yes, also only build
-# static library.
+# Get, if NEST is build as a (mostly) static application. If yes, also only build static library.
 execute_process(
-    COMMAND ${NEST_CONFIG} --static-linking
+    COMMAND ${NEST_CONFIG} ${NEST_STATIC_FLAG}
     RESULT_VARIABLE RES_VAR
     OUTPUT_VARIABLE NEST_STATIC_LIB
     OUTPUT_STRIP_TRAILING_WHITESPACE
