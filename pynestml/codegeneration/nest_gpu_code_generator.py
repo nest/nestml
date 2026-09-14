@@ -18,12 +18,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from typing import Dict, Sequence, Optional, Mapping, Any, List
+from typing import Dict, Sequence, Optional, Mapping, Any, List, override, Iterable
 
 import glob
 import os
 import shutil
 
+from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.codegeneration.nest_gpu_code_generator_utils import NESTGPUCodeGeneratorUtils
 from pynestml.codegeneration.printers.c_simple_expression_printer import CSimpleExpressionPrinter
 from pynestml.codegeneration.printers.cpp_printer import CppPrinter
@@ -55,7 +56,7 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
             "path": "resources_nest_gpu/point_neuron",
             "model_templates": {
                 "neuron": ["@NEURON_NAME@.cu.jinja2", "@NEURON_NAME@.h.jinja2"],
-                "synapse": ["@SYNAPSE_NAME@.h.jinja2"]
+                "synapse": ["@SYNAPSE_NAME@.cu.jinja2", "@SYNAPSE_NAME@.h.jinja2"]
             },
             "module_templates": []
         },
@@ -94,7 +95,7 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
 
         # Printer with origin
         self._nest_variable_printer = NESTGPUVariablePrinter(expression_printer=None, with_origin=True,
-                                                             with_vector_parameter=False)
+                                                             is_synapse=False)
         self._nest_function_call_printer = NESTGPUFunctionCallPrinter(None)
         self._printer = CppExpressionPrinter(simple_expression_printer=CSimpleExpressionPrinter(
             variable_printer=self._nest_variable_printer,
@@ -106,7 +107,7 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
 
         # Printer without origin
         self._nest_variable_printer_no_origin = NESTGPUVariablePrinter(None, with_origin=False,
-                                                                       with_vector_parameter=False)
+                                                                       is_synapse=False)
         self._nest_function_call_printer_no_origin = NESTGPUFunctionCallPrinter(None)
         self._printer_no_origin = CppExpressionPrinter(simple_expression_printer=CSimpleExpressionPrinter(
             variable_printer=self._nest_variable_printer_no_origin,
@@ -124,15 +125,58 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
             function_call_printer=self._gsl_function_call_printer))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
 
+    @override
+    def generate_code(self,
+                      models: Iterable[ASTModel],
+                      metadata: Dict[str, Dict[str, Any]]) -> None:
+        models = list(models)
+        # remove the co-generated neuron model from the list of neurons
+        for neuron_synapse_pair in self.get_option("neuron_synapse_pairs"):
+            neuron_name = neuron_synapse_pair["neuron"]
+
+            for synapse_name in neuron_synapse_pair["synapses"].keys():
+                cogen_neuron_name = neuron_name + FrontendConfiguration.suffix + "__with_" + synapse_name + FrontendConfiguration.suffix
+                cogen_neuron = ASTUtils.find_model_by_name(cogen_neuron_name, models)
+                if cogen_neuron:
+                    model_index = models.index(cogen_neuron)
+                    models.pop(model_index)
+
+        # neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
+        # for synapse in synapses:
+        #     synapse_name_stripped = synapse.get_name().split("__with_")[0]
+        #     synapse.set_name(synapse_name_stripped)
+
+        super().generate_code(models, metadata)
+
+    @override
+    def generate_neuron_code(self, neuron: ASTModel,
+                             metadata: Dict[str, Dict[str, Any]]) -> None:
+        self._nest_variable_printer.is_synapse = False
+        self._nest_variable_printer_no_origin.is_synapse = False
+
+        super().generate_neuron_code(neuron, metadata)
+
+    @override
+    def generate_synapse_code(self, synapse: ASTModel,
+                              metadata: Dict[str, Dict[str, Any]]) -> None:
+        self._nest_variable_printer.is_synapse = True
+        self._nest_variable_printer_no_origin.is_synapse = True
+
+        # synapse_name_stripped = synapse.get_name().split("__with_")[0]
+        # synapse.set_name(synapse_name_stripped)
+
+        super().generate_synapse_code(synapse, metadata)
+
+    @override
     def generate_module_code(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel],
                              metadata: Dict[str, Dict[str, Any]]):
         """
-        Modify some header and CUDA files for the new models to be recognized
+        Modify header and CUDA files for the new models to be recognized
         """
         self.copy_models_from_target_path()
         self.add_model_name_to_neuron_header(neurons)
         self.add_model_to_neuron_class(neurons)
-        self.add_files_to_makefile(neurons, synapses)
+        self.add_files_to_cmakelists(neurons, synapses)
         if synapses:
             self.add_model_to_synapse_header(synapses)
             self.add_model_to_synapse_class(synapses)
@@ -195,26 +239,16 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         syn_model_h_path = str(os.path.join(self.nest_gpu_path, "src", "syn_model.h"))
         shutil.copy(syn_model_h_path, syn_model_h_path + ".bak")
 
-        include_files = []
         synapse_indexes = []
-        code_blocks = []
-
+        synapse_names = []
         for synapse in synapses:
-            synapse_name = synapse.get_name()
-            synapse_index = "i_" + synapse.get_name() + "_model"
+            synapse_indexes.append("\ni_" + synapse.get_name() + "_model,")
+            synapse_names.append("\n, \"" + synapse.get_name() + "\"")
 
-            synapse_indexes.append("i_" + synapse.get_name() + "_model,")
-            include_files.append("\n#include \"" + synapse_name + ".h\"")
-            code_blocks.append("\n"
-                               f"case {synapse_index}:\n"
-                               f"  {synapse_name}::{synapse_name}Update( w, Dt, param);\n"
-                               f"  break;")
-        include_files = "".join(include_files) + "\n"
         synapse_indexes = "".join(synapse_indexes) + "\n"
-        code_blocks = "".join(code_blocks) + "\n"
-        NESTGPUCodeGeneratorUtils.replace_text_between_tags(syn_model_h_path, include_files)
-        NESTGPUCodeGeneratorUtils.replace_text_between_tags(syn_model_h_path, synapse_indexes, n=2)
-        NESTGPUCodeGeneratorUtils.replace_text_between_tags(syn_model_h_path, code_blocks, n=3)
+        synapse_names = "".join(synapse_names) + "\n"
+        NESTGPUCodeGeneratorUtils.replace_text_between_tags(syn_model_h_path, synapse_indexes)
+        NESTGPUCodeGeneratorUtils.replace_text_between_tags(syn_model_h_path, synapse_names, n=2)
 
     def add_model_to_synapse_class(self, synapses: Sequence[ASTModel]):
         """
@@ -223,22 +257,49 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         syn_model_cu_path = str(os.path.join(self.nest_gpu_path, "src", "syn_model.cu"))
         shutil.copy(syn_model_cu_path, syn_model_cu_path + ".bak")
 
-        code_blocks = []
+        include_files = []
+        synapse_create_block = []
+        synapse_update_block = []
+        pre_trace_update_block = []
+        post_trace_update_block = []
+
         for synapse in synapses:
             synapse_name = synapse.get_name()
             synapse_index = "i_" + synapse.get_name() + "_model"
-            code_blocks.append("\n"
-                               f" else if ( model_name == syn_model_name[ {synapse_index} ] )\n"
-                               f" {{\n"
-                               f" {synapse_name}* {synapse_name}_group = new {synapse_name};\n"
-                               f" syn_group_vect_.push_back( {synapse_name}_group );\n"
-                               f" }}")
-        code_blocks = "".join(code_blocks) + "\n"
-        NESTGPUCodeGeneratorUtils.replace_text_between_tags(syn_model_cu_path, code_blocks)
+            include_files.append("\n#include \"" + synapse_name + ".h\"")
+            synapse_create_block.append("\n"
+                                        f" else if ( model_name == syn_model_name[ {synapse_index} ] )\n"
+                                        f" {{\n"
+                                        f" {synapse_name}* {synapse_name}_group = new {synapse_name};\n"
+                                        f" syn_group_vect_.push_back( {synapse_name}_group );\n"
+                                        f" }}")
+            pre_trace_update_block.append("\n"
+                                          f"case {synapse_index}:\n"
+                                          f"  {synapse_name}_ns::{synapse_name}_PreTraceUpdate(i_conn);\n"
+                                          f"  break;\n")
+            post_trace_update_block.append("\n"
+                                           f"case {synapse_index}:\n"
+                                           f"  {synapse_name}_ns::{synapse_name}_PostTraceUpdate(i_conn);\n"
+                                           f"  break;\n")
+            synapse_update_block.append("\n"
+                                        f"case {synapse_index}:\n"
+                                        f"  {synapse_name}_ns::{synapse_name}_Update( w, Dt, param, i_conn );\n"
+                                        f"  break;")
+        include_files = "".join(include_files) + "\n"
+        synapse_create_block = "".join(synapse_create_block) + "\n"
+        pre_trace_update_block = "".join(pre_trace_update_block) + "\n"
+        post_trace_update_block = "".join(post_trace_update_block) + "\n"
+        synapse_update_block = "".join(synapse_update_block) + "\n"
 
-    def add_files_to_makefile(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
+        NESTGPUCodeGeneratorUtils.replace_text_between_tags(syn_model_cu_path, include_files)
+        NESTGPUCodeGeneratorUtils.replace_text_between_tags(syn_model_cu_path, synapse_update_block, n=2)
+        NESTGPUCodeGeneratorUtils.replace_text_between_tags(syn_model_cu_path, pre_trace_update_block, n=3)
+        NESTGPUCodeGeneratorUtils.replace_text_between_tags(syn_model_cu_path, post_trace_update_block, n=4)
+        NESTGPUCodeGeneratorUtils.replace_text_between_tags(syn_model_cu_path, synapse_create_block, n=5)
+
+    def add_files_to_cmakelists(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
         """
-        Modifies the Makefile in NEST GPU repository to compile the newly generated models.
+        Modifies the CMakeLists file in NEST GPU repository to compile the newly generated models.
         """
         cmakelists_path = str(os.path.join(self.nest_gpu_path, "src", "CMakeLists.txt"))
         shutil.copy(cmakelists_path, cmakelists_path + ".bak")
@@ -250,7 +311,8 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
                              f"    {neuron.get_name()}.cu\n")
         for synapse in synapses:
             gen_files.append("\n"
-                             f"    {synapse.get_name()}.h\n")
+                             f"    {synapse.get_name()}.h\n"
+                             f"    {synapse.get_name()}.cu\n")
         gen_files = "".join(gen_files) + "\n"
         NESTGPUCodeGeneratorUtils.replace_text_between_tags(cmakelists_path, gen_files,
                                                             begin_tag="# <<BEGIN_NESTML_GENERATED>>",
@@ -258,6 +320,8 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
 
     def _get_neuron_model_namespace(self, neuron: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
         namespace = super()._get_neuron_model_namespace(neuron, metadata)
+        # neuron_name_stripped = neuron.get_name().split("__with_")[0]
+        # namespace["neuronName"] = neuron_name_stripped
         if namespace["uses_numeric_solver"]:
             namespace["printer"] = self._gsl_printer
             namespace["uses_analytic_solver"] = False
@@ -268,12 +332,16 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
                                      synapse: ASTModel,
                                      metadata: Dict[str, Dict[str, Any]]) -> Dict:
         namespace = super()._get_synapse_model_namespace(synapse, metadata)
-        synapse_name_stripped = synapse.get_name().split("__with_")[0]
-        namespace["synapseName"] = synapse_name_stripped
+        # synapse_name_stripped = synapse.get_name().split("__with_")[0]
+        # namespace["synapseName"] = synapse_name_stripped
+        #
+        # synapse.set_name(synapse_name_stripped)
 
         # Get pre- and post- onReceive block statements
-        pre_spike_weight_stmts, pre_spike_block_stmts = ASTUtils.separate_stmts_with_weight_var_from_on_receive_block(synapse, namespace["pre_ports"], namespace["synapse_weight_variable"])
-        post_spike_weight_stmts, post_spike_block_stmts = ASTUtils.separate_stmts_with_weight_var_from_on_receive_block(synapse, namespace["post_ports"], namespace["synapse_weight_variable"])
+        pre_spike_weight_stmts, pre_spike_block_stmts = ASTUtils.separate_stmts_with_weight_var_from_on_receive_block(
+            synapse, namespace["pre_ports"], namespace["synapse_weight_variable"])
+        post_spike_weight_stmts, post_spike_block_stmts = ASTUtils.separate_stmts_with_weight_var_from_on_receive_block(
+            synapse, namespace["post_ports"], namespace["synapse_weight_variable"])
 
         namespace["pre_spike_weight_stmts"] = pre_spike_weight_stmts
         namespace["pre_spike_block_stmts"] = pre_spike_block_stmts

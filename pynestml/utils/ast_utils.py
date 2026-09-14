@@ -2745,18 +2745,49 @@ class ASTUtils:
     @classmethod
     def separate_stmts_with_weight_var_from_on_receive_block(cls, synapse: ASTModel, port_names: Sequence[str],
                                                              weight_var_name: str) -> tuple[List[Any], List[Any]]:
+
+        class ASTStatementsWithAndWithoutWeightVarVisitor(ASTVisitor):
+            def __init__(self):
+                super().__init__()
+                self.stmts_without_weight_var = []
+                self.stmts_with_weight_var = []
+
+            def visit_assignment(self, node):
+                stmt = cls.find_parent_node_by_type(node, ASTStmt)
+                if node.get_variable().get_complete_name() == weight_var_name:
+                    self.stmts_with_weight_var.append(stmt)
+                else:
+                    self.stmts_without_weight_var.append(stmt)
+
+            def visit_declaration(self, node):
+                stmt = cls.find_parent_node_by_type(node, ASTStmt)
+                has_weight_var = False
+                for var in node.get_variables() + node.get_expression().get_variables():
+                    if var.get_name() == weight_var_name:
+                        has_weight_var = True
+                        break
+                if has_weight_var:
+                    self.stmts_with_weight_var.append(stmt)
+                else:
+                    self.stmts_without_weight_var.append(stmt)
+
+
         stmts_without_weight_var = []
         stmts_with_weight_var = []
         for port_name in port_names:
             blocks = cls.get_on_receive_blocks_by_input_port_name(synapse, port_name)
             for block in blocks:
-                stmts = block.get_stmts_body().get_stmts()
-                for stmt in stmts:
-                    if stmt.is_small_stmt() \
-                       and stmt.small_stmt.is_assignment():
-                        if stmt.small_stmt.get_assignment().get_variable().get_complete_name() != weight_var_name:
-                            stmts_without_weight_var.append(stmt)
-                        else:
-                            stmts_with_weight_var.append(stmt)
+                visitor = ASTStatementsWithAndWithoutWeightVarVisitor()
+                block.accept(visitor)
+                stmts_with_weight_var.extend(visitor.stmts_with_weight_var)
+                stmts_without_weight_var.extend(visitor.stmts_without_weight_var)
+                # stmts = block.get_stmts_body().get_stmts()
+                # for stmt in stmts:
+                #     if stmt.is_small_stmt() \
+                #        and stmt.small_stmt.is_assignment():
+                #         if stmt.small_stmt.get_assignment().get_variable().get_complete_name() != weight_var_name:
+                #             stmts_without_weight_var.append(stmt)
+                #         else:
+                #             stmts_with_weight_var.append(stmt)
 
         return stmts_with_weight_var, stmts_without_weight_var

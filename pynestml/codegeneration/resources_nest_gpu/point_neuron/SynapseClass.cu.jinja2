@@ -96,9 +96,10 @@ __device__ void
 {%- endfilter %}
 }
 
-__device__ __forceinline__ void
-{{ synapseName }}_Update( float* weight_pt, float Dt, float* param )
+__device__ void
+{{ synapseName }}_Update( float* weight_pt, float Dt, float* param, int i_conn )
 {
+  int base_idx = N_STATE_VARS * i_conn;
 {%- for variable_symbol in synapse.get_state_symbols() %}
 {#{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}#}
 {#    SetParam("{{ printer_no_origin.print(variable) }}", {{variable_symbol.get_declaring_expression()}});  // as {{variable_symbol.get_type_symbol().print_symbol()}}#}
@@ -106,11 +107,9 @@ __device__ __forceinline__ void
     {{ type_symbol_printer.print(variable_symbol.type_symbol) }} {{ synapse_weight_variable }} = *weight_pt;
 {%-     endif  %}
 {%- endfor %}
-
+  update_internal_state( Dt, param, i_conn );
   if ( Dt >= 0 ) // post spikes block
   {
-{#    double fact = lambda * exp( -( double ) Dt / tau_plus );#}
-{#    w1 = w + fact * Wmax * pow( 1.0 - w / Wmax, mu_plus );#}
 {%- filter indent(4, True) %}
 {%- if post_ports is defined %}
 {%-     for stmt in post_spike_weight_stmts %}

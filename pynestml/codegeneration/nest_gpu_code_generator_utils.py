@@ -27,16 +27,19 @@ from pynestml.meta_model.ast_variable import ASTVariable
 class NESTGPUCodeGeneratorUtils:
 
     @classmethod
-    def print_symbol_origin(cls, variable_symbol: VariableSymbol, variable: ASTVariable) -> str:
+    def print_symbol_origin(cls, variable_symbol: VariableSymbol, variable: ASTVariable, is_synapse:bool = True) -> str:
         """
         Returns a prefix corresponding to the origin of the variable symbol.
         :param variable_symbol: a single variable symbol.
         :return: the corresponding prefix
         """
         if variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
-            if "_is_numeric" in dir(variable) and variable._is_numeric:
-                return "y[%s]"
-            return "var[%s]"
+            if not is_synapse:
+                if "_is_numeric" in dir(variable) and variable._is_numeric:
+                    return "y[%s]"
+                return "var[%s]"
+            else:
+                return "ConnectionStateVars[base_idx + %s]"
 
         if variable_symbol.is_spike_input_port():
             return "var[N_SCAL_VAR + %s]"

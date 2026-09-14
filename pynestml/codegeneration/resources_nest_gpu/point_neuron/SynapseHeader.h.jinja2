@@ -66,6 +66,22 @@ const std::string {{ synapseName }}_param_name[ N_PARAM ] = {
 {%- endfor %}
 };
 
+enum StateIndexes
+{
+{%- for variable_symbol in synapse.get_state_symbols() %}
+{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+  i_{{ printer_no_origin.print(variable) }},
+{%- endfor %}
+  N_STATE_VARS
+};
+
+const std::string {{ synapseName }}_state_name[ N_STATE_VARS ] = {
+{%- for variable_symbol in synapse.get_state_symbols() %}
+{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+  "{{ printer_no_origin.print(variable) }}",
+{%- endfor %}
+};
+
 // Definitions of the device functions below are in stdp_synapse.cu
 __device__ void {{ synapseName }}_PreTraceUpdate( int i_conn );
 
