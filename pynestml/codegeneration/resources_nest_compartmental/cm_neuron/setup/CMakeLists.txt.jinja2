@@ -104,9 +104,15 @@ endif ()
 # Retrieve the NEST version
 execute_process(
     COMMAND ${NEST_CONFIG} --version
+    RESULT_VARIABLE RES_VAR
     OUTPUT_VARIABLE NEST_VERSION
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
+
+# If there is a hyphenated/alpha suffix, replace the hyphen with .1 to fix the 3.10 version check
+if(NEST_VERSION MATCHES "-")
+    string(REGEX REPLACE "^([0-9]+(\\.[0-9]+)*)-.*$" "\\1.1" NEST_VERSION "${NEST_VERSION}")
+endif()
 
 # One check on first execution, if `nest-config` is working.
 if ( NOT RES_VAR EQUAL 0 )
