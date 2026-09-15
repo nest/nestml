@@ -29,10 +29,10 @@ model convolve_spiking_neuron:
 
     equations:
         kernel K = delta(t)
-        x' = convolve(K, spikes_in) / s
+        x' = convolve(K, spikes_in) / 1 s
 
         kernel K_ = (e / tau_syn) * t * exp(-t / tau_syn)
-        y' = convolve(K, spikes_in) / s
+        y' = convolve(K, spikes_in) / 1 s
 
     parameters:
         tau_syn ms = 2 ms
