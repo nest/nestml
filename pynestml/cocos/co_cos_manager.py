@@ -538,5 +538,6 @@ class CoCosManager:
         cls.check_resolution_func_legally_used(model)
         cls.check_input_port_size_type(model)
         cls.check_timestep_func_legally_used(model)
+        cls.check_co_co_nest_random_functions_legally_used(model)
 
         Logger.set_current_node(None)

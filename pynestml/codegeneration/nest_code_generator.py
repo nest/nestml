@@ -164,9 +164,6 @@ class NESTCodeGenerator(CodeGenerator):
 
     def run_nest_target_specific_cocos(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
         for model in neurons + synapses:
-            # Check if the random number functions are used in the right blocks
-            CoCosManager.check_co_co_nest_random_functions_legally_used(model)
-
             if Logger.has_errors(model.name):
                 raise CodeGenerationException("Error(s) occurred during code generation")
 

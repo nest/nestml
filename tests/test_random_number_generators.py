@@ -23,26 +23,18 @@ import os
 
 from pynestml.exceptions.code_generation_exception import CodeGenerationException
 from pynestml.frontend.pynestml_frontend import generate_nest_target
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import MessageCode
+from pynestml.utils.model_parser import ModelParser
+from tests.test_utils import parse_and_validate_model
 
 
 class TestRandomNumberGeneratorsInODEs:
     """Test that random number sample functions may not appear on the right-hand side of ODEs and as state initialisers."""
 
     def test_random_number_generators_in_ODEs(self):
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "random_number_generators_test.nestml")))
-        target_path = "target"
-        logging_level = "DEBUG"
-        module_name = "nestmlmodule"
-        suffix = "_nestml"
-        try:
-            generate_nest_target(input_path,
-                                 target_path=target_path,
-                                 logging_level=logging_level,
-                                 module_name=module_name,
-                                 suffix=suffix)
-        except CodeGenerationException:
-            pass
+        from tests.test_cocos import TestCoCos
+        model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "random_number_generators_test.nestml"))))
 
-        assert len(Logger.get_messages("test_random_nestml", LoggingLevel.ERROR, message_code=MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED)) == 6
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR, message_code=MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED)) == 6
