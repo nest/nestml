@@ -9,10 +9,12 @@ To access the EBRAINS Lab, you need an EBRAINS account. For information about ob
 Running tutorials
 ~~~~~~~~~~~~~~~~~
 
-A convenient way to get started with NESTML is to run through the Jupyter Notebook tutorials. To load these into the EBRAINS lab environment, please use the JupyterLab control panel to launch a shell. There, type the command:
+A convenient way to get started with NESTML is to run through the Jupyter Notebook tutorials. To load these into the EBRAINS lab environment, first open the lab by navigating to https://lab.ebrains.eu/.
 
-   .. code-block:: bash
+Then, please use the JupyterLab control panel to launch a shell and run the command:
 
-      git clone https://github.com/nest/nestml
+.. code-block:: bash
+
+   git clone https://github.com/nest/nestml
 
 A directory named ``nestml`` should then appear in the directory listing on the left-hand side of the browser window. The tutorials can be found in the directory ``nestml/doc/tutorials``.
