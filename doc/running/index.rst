@@ -85,7 +85,7 @@ Currently, the following target platforms are supported for code generation. Cli
 
       |nest_gpu_logo|
 
-.. grid:: 1
+.. grid:: 2
 
    .. grid-item-card::
       :text-align: center
