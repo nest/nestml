@@ -81,8 +81,8 @@ class AutoDocCodeGenerator(CodeGenerator):
         neurons = [model for model in models if not "synapse" in model.name.split("_with_")[0]]
         synapses = [model for model in models if "synapse" in model.name.split("_with_")[0]]
         self.generate_index(neurons, synapses)
-        self.generate_neurons(neurons)
-        self.generate_synapses(synapses)
+        self.generate_neurons(neurons, metadata)
+        self.generate_synapses(synapses, metadata)
 
         for astnode in neurons + synapses:
             if Logger.has_errors(astnode):
@@ -96,7 +96,9 @@ class AutoDocCodeGenerator(CodeGenerator):
         with open(str(os.path.join(FrontendConfiguration.get_target_path(), "index.rst")), "w+") as f:
             f.write(str(nestml_models_index))
 
-    def generate_neuron_code(self, neuron: ASTModel):
+    @override
+    def generate_neuron_code(self, neuron: ASTModel,
+                             metadata: Dict[str, Dict[str, Any]]) -> None:
         """
         Generate model documentation for neuron model.
         :param neuron: a single neuron object.
@@ -107,7 +109,9 @@ class AutoDocCodeGenerator(CodeGenerator):
                   "w+") as f:
             f.write(str(nestml_model_doc))
 
-    def generate_synapse_code(self, synapse: ASTModel):
+    @override
+    def generate_synapse_code(self, synapse: ASTModel,
+                              metadata: Dict[str, Dict[str, Any]]) -> None:
         """
         Generate model documentation for synapse model.
         :param synapse: a single synapse object.
