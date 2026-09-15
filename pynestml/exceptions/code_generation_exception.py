@@ -1,8 +1,6 @@
-# random_number_generators_test.nestml
-# ####################################
+# -*- coding: utf-8 -*-
 #
-# Copyright statement
-# +++++++++++++++++++
+# code_generation_exception.py
 #
 # This file is part of NEST.
 #
@@ -20,17 +18,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-#
-model test_random:
-    state:
-        p mV = random_normal(500 mV, 25 mV)
-        q real = random_normal(500, 25)
-        r real = random_uniform(0, 1)
 
-    equations:
-        p' = random_normal(500 mV, 25 mV) / 1 s
-        q' = random_normal(500, 25) / 1 s
-        r' = random_uniform(42, 123) / 1 s
 
-    update:
-        integrate_odes()
+class CodeGenerationException(Exception):
+    """
+    This exception is thrown whenever a failure occurs while generating code.
+    """
+    pass

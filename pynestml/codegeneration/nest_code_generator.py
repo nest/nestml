@@ -55,6 +55,7 @@ from pynestml.codegeneration.printers.nest_variable_printer import NESTVariableP
 from pynestml.codegeneration.printers.nest2_cpp_function_call_printer import NEST2CppFunctionCallPrinter
 from pynestml.codegeneration.printers.nest_gsl_function_call_printer import NESTGSLFunctionCallPrinter
 from pynestml.codegeneration.printers.nest2_gsl_function_call_printer import NEST2GSLFunctionCallPrinter
+from pynestml.exceptions.code_generation_exception import CodeGenerationException
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_model import ASTModel
@@ -167,7 +168,7 @@ class NESTCodeGenerator(CodeGenerator):
             CoCosManager.check_co_co_nest_random_functions_legally_used(model)
 
             if Logger.has_errors(model.name):
-                raise Exception("Error(s) occurred during code generation")
+                raise CodeGenerationException("Error(s) occurred during code generation")
 
         if self.get_option("neuron_synapse_pairs"):
             for model in synapses:
@@ -182,7 +183,7 @@ class NESTCodeGenerator(CodeGenerator):
                     CoCoNESTSynapseDelayNotAssignedTo.check_co_co(model, {model.name: {"delay_variable": delay_variable}})
 
                 if Logger.has_errors(model.name):
-                    raise Exception("Error(s) occurred during code generation")
+                    raise CodeGenerationException("Error(s) occurred during code generation")
 
     def setup_printers(self):
         self._constant_printer = ConstantPrinter()
@@ -283,7 +284,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         for astnode in neurons + synapses:
             if Logger.has_errors(astnode):
-                raise Exception("Error(s) occurred during code generation")
+                raise CodeGenerationException("Error(s) occurred during code generation")
 
     def _get_module_namespace(self,
                               neurons: List[ASTModel],
