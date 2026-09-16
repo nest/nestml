@@ -91,7 +91,7 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         transformer = InlineExpressionExpansionTransformer()
         transformers.append(transformer)
 
-    if target_name.upper() in ["NEST"]:
+    if target_name.upper() in ["NEST", "NEST_GPU"]:
         # co-generate neuron and synapse
         from pynestml.transformers.synapse_post_neuron_transformer import SynapsePostNeuronTransformer
         transformer = SynapsePostNeuronTransformer()

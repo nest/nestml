@@ -30,25 +30,26 @@ from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
 
 class NESTGPUVariablePrinter(CppVariablePrinter):
     r"""
-    Variable printer for the NEST-GPU API.
+    Variable printer for NEST GPU target.
     """
 
-    def __init__(self, expression_printer: ExpressionPrinter, with_origin: bool = True, with_vector_parameter: bool = True) -> None:
+    def __init__(self, expression_printer: ExpressionPrinter, with_origin: bool = True, is_synapse: bool = True) -> None:
         super().__init__(expression_printer)
         self.with_origin = with_origin
-        self.with_vector_parameter = with_vector_parameter
+        self.is_synapse = is_synapse
 
     def print_variable(self, variable: ASTVariable) -> str:
         """
-        Converts a single variable to nest processable format.
+        Converts a single variable to NEST GPU processable format.
         :param variable: a single variable.
-        :return: a nest processable format.
+        :return: a NEST GPU processable format.
         """
         assert isinstance(variable, ASTVariable)
 
@@ -84,12 +85,14 @@ class NESTGPUVariablePrinter(CppVariablePrinter):
 
         return self._print(variable, symbol, with_origin=self.with_origin)
 
-    def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:
+    def _print(self, variable: ASTVariable, symbol: VariableSymbol, with_origin: bool = True) -> str:
         variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
 
         if symbol.is_local():
             return variable_name
+        if self.is_synapse and symbol.is_internals():
+            return variable_name
         if with_origin:
-            return NESTGPUCodeGeneratorUtils.print_symbol_origin(symbol, variable) % ("i_" + variable_name)
+            return NESTGPUCodeGeneratorUtils.print_symbol_origin(symbol, variable, self.is_synapse) % ("i_" + variable_name)
 
         return variable_name

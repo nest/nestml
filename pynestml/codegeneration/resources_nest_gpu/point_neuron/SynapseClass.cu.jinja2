@@ -1,0 +1,156 @@
+{#
+SynapseClass.cu.jinja2
+
+This file is part of NEST GPU.
+
+Copyright (C) 2021 The NEST Initiative
+
+NEST GPU is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST GPU is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST GPU.  If not, see <http://www.gnu.org/licenses/>.
+#}
+/*
+ *  {{ synapseName }}.cu
+ *
+ *  This file is part of NEST GPU.
+ *
+ *  Copyright (C) 2021 The NEST Initiative
+ *
+ *  NEST GPU is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST GPU is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST GPU.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Generated from NESTML {{ nestml_version }} at time: {{ now }}
+ */
+
+#include <config.h>
+#ifdef HAVE_SYN_STATE_VARS
+#include "cuda_error.h"
+#include "ngpu_exception.h"
+#include "{{ synapseName }}.h"
+#include <iostream>
+#include <stdio.h>
+
+namespace {{ synapseName }}_ns
+{
+
+__device__ void
+update_internal_state( float Dt, float* param, int i_conn )
+{
+  // Update the trace values
+  int base_idx = N_STATE_VARS * i_conn;
+  {% if uses_analytic_solver %}
+{%- for variable_symbol in synapse.get_internal_symbols() %}
+{%-     if variable_symbol.get_symbol_name() == "__h" %}
+  const double {{ variable_symbol.get_symbol_name() }} = (double) abs(Dt);
+{%-     else %}
+  const double {{ variable_symbol.get_symbol_name() }} = {{printer.print(variable_symbol.get_declaring_expression())}};
+{%-     endif %}
+{%- endfor %}
+{%-     for variable_name in analytic_state_variables %}
+{%-             set update_expr = update_expressions[variable_name] %}
+{%-             set var_ast = utils.get_variable_by_name(astnode, variable_name)%}
+{%-             set var_symbol = var_ast.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE) %}
+  const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp_ = {{ printer.print(update_expr) }};
+  {{ printer.print(var_ast) }} = {{variable_name}}__tmp_;
+{%-     endfor %}
+{%- endif %}
+}
+
+__device__ void
+{{ synapseName }}_PreTraceUpdate( int i_conn )
+{
+  int base_idx = N_STATE_VARS * i_conn;
+{%- filter indent(2, True) %}
+{%- if pre_ports is defined %}
+{%-     for stmt in pre_spike_block_stmts %}
+{%-         include "directives/Statement.jinja2" %}
+{%-     endfor %}
+{%- endif %}
+{%- endfilter %}
+}
+
+__device__ void
+{{ synapseName }}_PostTraceUpdate( int i_conn )
+{
+  int base_idx = N_STATE_VARS * i_conn;
+{%- filter indent(2, True) %}
+{%- if post_ports is defined %}
+{%-     for stmt in post_spike_block_stmts %}
+{%-         include "directives/Statement.jinja2" %}
+{%-     endfor %}
+{%- endif %}
+{%- endfilter %}
+}
+
+__device__ void
+{{ synapseName }}_Update( float* weight_pt, float Dt, float* param, int i_conn )
+{
+  int base_idx = N_STATE_VARS * i_conn;
+  ConnectionStateVars[ base_idx + i_{{ synapse_weight_variable }} ] = *weight_pt;
+  update_internal_state( Dt, param, i_conn );
+  if ( Dt >= 0 ) // post spikes block
+  {
+{%- filter indent(4, True) %}
+{%- if post_ports is defined %}
+{%-     for stmt in post_spike_weight_stmts %}
+{%-         include "directives/Statement.jinja2" %}
+{%-     endfor %}
+{%- endif %}
+{%- endfilter %}
+
+  }
+  else // pre-spikes block
+  {
+{%- filter indent(4, True) %}
+{%- if pre_ports is defined %}
+{%-     for stmt in pre_spike_weight_stmts %}
+{%-         include "directives/Statement.jinja2" %}
+{%-     endfor %}
+{%- endif %}
+{%- endfilter %}
+  }
+  *weight_pt = ConnectionStateVars[ base_idx + i_{{ synapse_weight_variable }} ];
+}
+} // namespace {{ synapseName }}_ns
+
+using namespace {{ synapseName }}_ns;
+
+int
+{{ synapseName }}::_Init()
+{
+  type_ = i_{{ synapseName }}_model;
+  n_param_ = N_PARAM;
+  param_name_ = {{ synapseName }}_param_name;
+
+  // state vars
+  n_state_vars_ = N_STATE_VARS;
+  state_name_ = {{ synapseName }}_state_name;
+
+  CUDAMALLOCCTRL( "&d_param_arr_", &d_param_arr_, n_param_ * sizeof( float ) );
+{%- for variable_symbol in synapse.get_parameter_symbols() %}
+{%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+    SetParam("{{ printer_no_origin.print(variable) }}", {{printer_no_origin.print(variable_symbol.get_declaring_expression())}});  // as {{variable_symbol.get_type_symbol().print_symbol()}}
+{%- endfor %}
+  return 0;
+}
+
+#endif

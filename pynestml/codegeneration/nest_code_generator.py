@@ -591,11 +591,10 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["vt_ports"] = metadata[synapse.name]["vt_port_names"]
             namespace["pre_ports"] = list(set(all_input_port_names)
                                           - set(namespace["post_ports"]) - set(namespace["vt_ports"]))
+            assert len(namespace["pre_ports"]) <= 1, "Synapses only support one spiking input port"
         else:
             # separate (not neuron+synapse co-generated)
             namespace["pre_ports"] = all_input_port_names
-
-        assert len(namespace["pre_ports"]) <= 1, "Synapses only support one spiking input port"
 
         namespace["synapseName"] = synapse.get_name()
         namespace["synapse"] = synapse

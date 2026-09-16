@@ -27,16 +27,21 @@ from pynestml.meta_model.ast_variable import ASTVariable
 class NESTGPUCodeGeneratorUtils:
 
     @classmethod
-    def print_symbol_origin(cls, variable_symbol: VariableSymbol, variable: ASTVariable) -> str:
+    def print_symbol_origin(cls, variable_symbol: VariableSymbol, variable: ASTVariable, is_synapse: bool = True) -> str:
         """
         Returns a prefix corresponding to the origin of the variable symbol.
         :param variable_symbol: a single variable symbol.
+        :param variable: a single AST variable.
+        :param is_synapse: whether the variable symbol belongs to a synapse or not.
         :return: the corresponding prefix
         """
         if variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
-            if "_is_numeric" in dir(variable) and variable._is_numeric:
-                return "y[%s]"
-            return "var[%s]"
+            if not is_synapse:
+                if "_is_numeric" in dir(variable) and variable._is_numeric:
+                    return "y[%s]"
+                return "var[%s]"
+            else:
+                return "ConnectionStateVars[base_idx + %s]"
 
         if variable_symbol.is_spike_input_port():
             return "var[N_SCAL_VAR + %s]"
@@ -48,20 +53,21 @@ class NESTGPUCodeGeneratorUtils:
 
     @classmethod
     def replace_text_between_tags(cls, filepath, replace_str, begin_tag="// <<BEGIN_NESTML_GENERATED>>",
-                                  end_tag="// <<END_NESTML_GENERATED>>", rfind=False):
+                                  end_tag="// <<END_NESTML_GENERATED>>", n=1):
+        import re
+
         with open(filepath, "r") as f:
             file_str = f.read()
 
-        # Find the start and end positions of the tags
-        if rfind:
-            start_pos = file_str.rfind(begin_tag) + len(begin_tag)
-            end_pos = file_str.rfind(end_tag)
-        else:
-            start_pos = file_str.find(begin_tag) + len(begin_tag)
-            end_pos = file_str.find(end_tag)
+        begin_matches = list(re.finditer(re.escape(begin_tag), file_str))
+        end_matches = list(re.finditer(re.escape(end_tag), file_str))
 
-        # Concatenate the new string between the start and end tags and write it back to the file
+        try:
+            start_pos = begin_matches[n - 1].end() if n > 0 else begin_matches[n].end()
+            end_pos = end_matches[n - 1].start() if n > 0 else end_matches[n].start()
+        except IndexError:
+            raise ValueError(f"Could not find occurrence {n} of begin_tag/end_tag in {filepath}")
+
         file_str = file_str[:start_pos] + replace_str + file_str[end_pos:]
         with open(filepath, "w") as f:
             f.write(file_str)
-        f.close()
