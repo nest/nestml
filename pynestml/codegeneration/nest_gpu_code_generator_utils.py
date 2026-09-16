@@ -27,10 +27,12 @@ from pynestml.meta_model.ast_variable import ASTVariable
 class NESTGPUCodeGeneratorUtils:
 
     @classmethod
-    def print_symbol_origin(cls, variable_symbol: VariableSymbol, variable: ASTVariable, is_synapse:bool = True) -> str:
+    def print_symbol_origin(cls, variable_symbol: VariableSymbol, variable: ASTVariable, is_synapse: bool = True) -> str:
         """
         Returns a prefix corresponding to the origin of the variable symbol.
         :param variable_symbol: a single variable symbol.
+        :param variable: a single AST variable.
+        :param is_synapse: whether the variable symbol belongs to a synapse or not.
         :return: the corresponding prefix
         """
         if variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:

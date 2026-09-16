@@ -58,14 +58,19 @@ update_internal_state( float Dt, float* param, int i_conn )
   // Update the trace values
   int base_idx = N_STATE_VARS * i_conn;
   {% if uses_analytic_solver %}
+{%- for variable_symbol in synapse.get_internal_symbols() %}
+{%-     if variable_symbol.get_symbol_name() == "__h" %}
+  const double {{ variable_symbol.get_symbol_name() }} = (double) abs(Dt);
+{%-     else %}
+  const double {{ variable_symbol.get_symbol_name() }} = {{printer.print(variable_symbol.get_declaring_expression())}};
+{%-     endif %}
+{%- endfor %}
 {%-     for variable_name in analytic_state_variables %}
-{%-         if "__X__" in variable_name %}
 {%-             set update_expr = update_expressions[variable_name] %}
 {%-             set var_ast = utils.get_variable_by_name(astnode, variable_name)%}
 {%-             set var_symbol = var_ast.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE) %}
   const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp_ = {{ printer.print(update_expr) }};
   {{ printer.print(var_ast) }} = {{variable_name}}__tmp_;
-{%-         endif %}
 {%-     endfor %}
 {%- endif %}
 }
@@ -100,13 +105,7 @@ __device__ void
 {{ synapseName }}_Update( float* weight_pt, float Dt, float* param, int i_conn )
 {
   int base_idx = N_STATE_VARS * i_conn;
-{%- for variable_symbol in synapse.get_state_symbols() %}
-{#{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}#}
-{#    SetParam("{{ printer_no_origin.print(variable) }}", {{variable_symbol.get_declaring_expression()}});  // as {{variable_symbol.get_type_symbol().print_symbol()}}#}
-{%-     if variable_symbol.get_symbol_name() == synapse_weight_variable %}
-    {{ type_symbol_printer.print(variable_symbol.type_symbol) }} {{ synapse_weight_variable }} = *weight_pt;
-{%-     endif  %}
-{%- endfor %}
+  ConnectionStateVars[ base_idx + i_{{ synapse_weight_variable }} ] = *weight_pt;
   update_internal_state( Dt, param, i_conn );
   if ( Dt >= 0 ) // post spikes block
   {
@@ -121,8 +120,6 @@ __device__ void
   }
   else // pre-spikes block
   {
-{#    double fact = -alpha * lambda * exp( ( double ) Dt / tau_minus );#}
-{#    w1 = w + fact * Wmax * pow( w / Wmax, mu_minus );#}
 {%- filter indent(4, True) %}
 {%- if pre_ports is defined %}
 {%-     for stmt in pre_spike_weight_stmts %}
@@ -131,8 +128,7 @@ __device__ void
 {%- endif %}
 {%- endfilter %}
   }
-  *weight_pt = ( float ) {{ synapse_weight_variable }};
-  ConnectionStateVars[ base_idx + i_{{ synapse_weight_variable }} ] = ( float ) {{ synapse_weight_variable }};
+  *weight_pt = ConnectionStateVars[ base_idx + i_{{ synapse_weight_variable }} ];
 }
 } // namespace {{ synapseName }}_ns
 
@@ -154,7 +150,6 @@ int
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
     SetParam("{{ printer_no_origin.print(variable) }}", {{printer_no_origin.print(variable_symbol.get_declaring_expression())}});  // as {{variable_symbol.get_type_symbol().print_symbol()}}
 {%- endfor %}
-
   return 0;
 }
 

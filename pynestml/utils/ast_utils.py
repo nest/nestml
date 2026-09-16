@@ -2745,6 +2745,9 @@ class ASTUtils:
     @classmethod
     def separate_stmts_with_weight_var_from_on_receive_block(cls, synapse: ASTModel, port_names: Sequence[str],
                                                              weight_var_name: str) -> tuple[List[Any], List[Any]]:
+        """
+        Separates the statements with weight variable in onReceive block and returns statements with and without the weight variable.
+        """
 
         class ASTStatementsWithAndWithoutWeightVarVisitor(ASTVisitor):
             def __init__(self):
@@ -2771,7 +2774,6 @@ class ASTUtils:
                 else:
                     self.stmts_without_weight_var.append(stmt)
 
-
         stmts_without_weight_var = []
         stmts_with_weight_var = []
         for port_name in port_names:
@@ -2781,13 +2783,5 @@ class ASTUtils:
                 block.accept(visitor)
                 stmts_with_weight_var.extend(visitor.stmts_with_weight_var)
                 stmts_without_weight_var.extend(visitor.stmts_without_weight_var)
-                # stmts = block.get_stmts_body().get_stmts()
-                # for stmt in stmts:
-                #     if stmt.is_small_stmt() \
-                #        and stmt.small_stmt.is_assignment():
-                #         if stmt.small_stmt.get_assignment().get_variable().get_complete_name() != weight_var_name:
-                #             stmts_without_weight_var.append(stmt)
-                #         else:
-                #             stmts_with_weight_var.append(stmt)
 
         return stmts_with_weight_var, stmts_without_weight_var

@@ -141,11 +141,6 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
                     model_index = models.index(cogen_neuron)
                     models.pop(model_index)
 
-        # neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
-        # for synapse in synapses:
-        #     synapse_name_stripped = synapse.get_name().split("__with_")[0]
-        #     synapse.set_name(synapse_name_stripped)
-
         super().generate_code(models, metadata)
 
     @override
@@ -320,8 +315,6 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
 
     def _get_neuron_model_namespace(self, neuron: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
         namespace = super()._get_neuron_model_namespace(neuron, metadata)
-        # neuron_name_stripped = neuron.get_name().split("__with_")[0]
-        # namespace["neuronName"] = neuron_name_stripped
         if namespace["uses_numeric_solver"]:
             namespace["printer"] = self._gsl_printer
             namespace["uses_analytic_solver"] = False
@@ -332,10 +325,6 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
                                      synapse: ASTModel,
                                      metadata: Dict[str, Dict[str, Any]]) -> Dict:
         namespace = super()._get_synapse_model_namespace(synapse, metadata)
-        # synapse_name_stripped = synapse.get_name().split("__with_")[0]
-        # namespace["synapseName"] = synapse_name_stripped
-        #
-        # synapse.set_name(synapse_name_stripped)
 
         # Get pre- and post- onReceive block statements
         pre_spike_weight_stmts, pre_spike_block_stmts = ASTUtils.separate_stmts_with_weight_var_from_on_receive_block(
