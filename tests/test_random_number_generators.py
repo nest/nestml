@@ -22,19 +22,25 @@
 import os
 
 from pynestml.exceptions.code_generation_exception import CodeGenerationException
-from pynestml.frontend.pynestml_frontend import generate_nest_target
-from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import MessageCode
-from pynestml.utils.model_parser import ModelParser
 from tests.test_utils import parse_and_validate_model
 
 
 class TestRandomNumberGeneratorsInODEs:
-    """Test that random number sample functions may not appear on the right-hand side of ODEs and as state initialisers."""
+    """Tests that random number functions are called only in ``update``, ``onReceive``, and ``onCondition`` block"""
 
     def test_random_number_generators_in_ODEs(self):
-        from tests.test_cocos import TestCoCos
         model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "random_number_generators_test.nestml"))))
 
         assert len(Logger.get_messages(model, LoggingLevel.ERROR, message_code=MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED)) == 6
+
+    def test_random_number_generators_in_neuron(self):
+        model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "random_functions_illegal_neuron.nestml"))))
+
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR, message_code=MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED)) == 3
+
+    def test_random_number_generators_in_synapse(self):
+        model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "random_functions_illegal_synapse.nestml"))))
+
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR, message_code=MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED)) == 2
