@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages

@@ -58,8 +58,8 @@ model test_continuous_third_factor_in_modulatory_spikes_handler_neuron:
         unit_psc pA = 1 pA       # Unitary postsynaptic current amplitude
 
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:

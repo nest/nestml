@@ -70,19 +70,20 @@ model iaf_psc_delta_fixed_timestep_neuron:
 
     internals:
         refr_counts integer = steps(refr_T)
-        unit_psp mV = 1 mV    # Unitary postsynaptic potential amplitude
+
+        unit_psp mV = 1 mV        # Unitary postsynaptic potential amplitude
 
     input:
-        spikes <- spike
+        input_spikes <- spike
         I_stim pA <- continuous
 
     output:
         spike
 
-    onReceive(spikes):
-        # discard spikes if neuron is refractory
+    onReceive(input_spikes):
+        # process spike only if neuron is not refractory
         if refr_counter == 0:
-            V_m += unit_psp * spikes * 1 s
+            V_m += unit_psp * get_weight(input_spikes, t)
 
     update:
         if refr_counter > 0:

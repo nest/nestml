@@ -88,6 +88,7 @@ from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.string_utils import removesuffix
 from pynestml.utils.synapse_processing import SynapseProcessing
 from pynestml.utils.syns_info_enricher import SynsInfoEnricher
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.utils.recs_info_enricher import RecsInfoEnricher
 from pynestml.utils.receptor_processing import ReceptorProcessing
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
@@ -478,7 +479,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             disable_singularity_mitigation=True,
             preserve_expressions=self.get_option("preserve_expressions"),
             use_alternative_expM=self.get_option("use_alternative_expM"),
-            log_level=FrontendConfiguration.logging_level)
+            log_level=FrontendConfiguration.logging_level,
+            **extra_kws)
 
         analytic_solver = None
         analytic_solvers = [
@@ -530,7 +532,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 use_alternative_expM=self.get_option("use_alternative_expM"),
                 disable_analytic_solver=True,
                 preserve_expressions=self.get_option("preserve_expressions"),
-                log_level=FrontendConfiguration.logging_level)
+                log_level=FrontendConfiguration.logging_level,
+                **extra_kws)
             numeric_solvers = [
                 x for x in solver_result if x["solver"].startswith("numeric")]
             assert len(
@@ -586,6 +589,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         assert len(neuron.get_equations_blocks()) <= 1, "Only one equations block supported for now"
         assert len(neuron.get_state_blocks()) <= 1, "Only one state block supported for now"
+        neuron.accept(ASTParentVisitor())
 
         equations_block = neuron.get_equations_blocks()[0]
 

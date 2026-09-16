@@ -118,7 +118,7 @@ class PythonFunctionCallPrinter(FunctionCallPrinter):
             fun_right = (lambda rhs: " + " + self.__convert_print_statement_str(rhs, scope) if rhs else "")
             ast_var = ASTVariable(var_name, scope=scope)
             right = " " + ASTUtils.get_unit_name(ast_var) + right  # concatenate unit separated by a space with the right part of the string
-            return fun_left(left) + self._expression_printer.print(ast_var) + fun_right(right)
+            return fun_left(left) + "str(" + self._expression_printer.print(ast_var) + ")" + fun_right(right)
 
         return "\"" + stmt + "\""  # format bare string in Python (add double quotes)
 
@@ -136,6 +136,9 @@ class PythonFunctionCallPrinter(FunctionCallPrinter):
         s
             The function call string in Python syntax.
         """
+        if function_call.get_name() in [PredefinedFunctions.PRINT, PredefinedFunctions.PRINTLN]:
+            return "print({!s})"
+
         if function_call.get_name() == PredefinedFunctions.TIME_STEPS:
             return "steps({!s}, self._timestep)"
 

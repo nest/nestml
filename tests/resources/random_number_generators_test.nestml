@@ -28,14 +28,8 @@ model test_random:
         r real = random_uniform(0, 1)
 
     equations:
-        p' = random_normal(500 mV, 25 mV) / s
-        q' = random_normal(500, 25) / s
-        r' = random_uniform(42, 123) / s
-
-    input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
-        currents pA <- continuous
-
+        p' = random_normal(500 mV, 25 mV) / 1 s
+        q' = random_normal(500, 25) / 1 s
+        r' = random_uniform(42, 123) / 1 s
     update:
         integrate_odes()

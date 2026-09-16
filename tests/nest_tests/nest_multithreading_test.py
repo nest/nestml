@@ -89,7 +89,8 @@ class TestNestMultithreading:
                          params={"spike_times": spike_times})
 
         n = nest.Create(self.neuron_model, 5)
-        nest.Connect(sg, n)
+        receptor_types = nest.GetStatus(n, "receptor_types")[0]
+        nest.Connect(sg, n, syn_spec={"receptor_type": receptor_types["EXC_SPIKES"]})
 
         multimeter = nest.Create("multimeter", params={"record_from": ["V_m"]})
         nest.Connect(multimeter, n)
@@ -137,13 +138,14 @@ class TestNestMultithreading:
 
         pre_neuron = nest.Create(self.neuron_synapse_neuron_model, 2)
         post_neuron = nest.Create(self.neuron_synapse_neuron_model, 2)
+        receptor_types = nest.GetStatus(pre_neuron, "receptor_types")[0]
         sr_pre = nest.Create("spike_recorder")
         sr_post = nest.Create("spike_recorder")
         mm = nest.Create("multimeter", params={"record_from": ["V_m"]})
 
-        nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
-        nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
-        nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "stdp_nestml_rec"})
+        nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1., "receptor_type": receptor_types["EXC_SPIKES"]})
+        nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999., "receptor_type": receptor_types["EXC_SPIKES"]})
+        nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "stdp_nestml_rec", "receptor_type": receptor_types["EXC_SPIKES"]})
         nest.Connect(mm, post_neuron)
         nest.Connect(pre_neuron, sr_pre)
         nest.Connect(post_neuron, sr_post)

@@ -422,4 +422,31 @@ def _test_stdp_triplet_synapse(delay, spike_times_len):
 @pytest.mark.parametrize("delay", [1., 5., 10.])
 @pytest.mark.parametrize("spike_times_len", [10])
 def test_stdp_triplet_synapse_delay_1(spike_times_len, delay):
+    """
+    Some synaptic plasticity rules require access to a postsynaptic value that cannot be specified as part of the synapse model, but is a part of the (postsynaptic) neuron model. An example would be the postsynaptic dendritic current, especially if the dendrite is able to generate localised action potentials. (For more details about this neuron model, please see the tutorial https://nestml.readthedocs.io/en/latest/tutorials/active_dendrite/nestml_active_dendrite_tutorial.html.) The synapse could thus need access to the numeric value of the postsynaptic dendritic current when a weight update needs to be computed.
+
+    To make this "third factor" value available in the synapse model, begin by defining an appropriate input port:
+
+    .. code-block:: nestml
+
+       input:
+           I_post_dend pA <- continuous
+
+    In the synapse, the value will be referred to as ``I_post_dend`` and can be used in equations and expressions. In this example, we will use it as a simple gating variable between 0 and 1, that can disable or enable weight updates in a graded manner:
+
+    .. code-block:: nestml
+
+       onReceive(post_spikes):
+           w_ real = # [...] normal STDP update rule
+           w_ = (I_post_dend / I_post_dend_peak) * w_ \
+                + (1 - I_post_dend / I_post_dend_peak) * w    # "gating" of the weight update
+
+    NESTML needs to be invoked so that it generates code for neuron and synapse together. Additionally, specify the ``"post_ports"`` entry to connect the input port on the synapse with the right variable of the neuron (see :ref:`Generating code`). Passing this as a code generator option facilitates combining models from different sources, where the naming conventions can be different between the neuron and synapse model.
+
+    In this example, the ``I_dend`` state variable of the neuron will be simply an exponentially decaying function of time, which can be clamped at predefined times in the simulation script. By inspecting the magnitude of the weight updates, we see that the synaptic plasticity is indeed being gated by the neuronal state variable ("third factor") ``I_dend``.
+
+    .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/fig/stdp_triplet_synapse_test.png
+
+    For a full example, please see :doc:`Third-factor modulated STDP </tutorials/stdp_third_factor_active_dendrite/stdp_third_factor_active_dendrite>`.
+    """
     _test_stdp_triplet_synapse(delay, spike_times_len)

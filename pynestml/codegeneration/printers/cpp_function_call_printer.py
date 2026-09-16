@@ -63,9 +63,12 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         """
         assert isinstance(function_call, ASTFunctionCall)
         function_name = self._print_function_call_format_string(function_call)
+
         if ASTUtils.needs_arguments(function_call):
             if function_call.get_name() == PredefinedFunctions.PRINT or function_call.get_name() == PredefinedFunctions.PRINTLN:
                 return function_name.format(self._print_print_statement(function_call))
+            elif function_call.get_name() == PredefinedFunctions.GET_WEIGHT:
+                return self._expression_printer.print(function_call.get_args()[0])
 
             return function_name.format(*self._print_function_call_argument_list(function_call))
 

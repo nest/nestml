@@ -48,8 +48,7 @@ class TestNestSetWithDistribution:
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,
-                             target_path="/tmp/nestml-jit",
-                             logging_level="INFO",
+                             logging_level="DEBUG",
                              module_name="nestmlmodule",
                              suffix="_nestml",
                              codegen_opts=codegen_opts)
@@ -62,6 +61,7 @@ class TestNestSetWithDistribution:
         nest.Install("nestmlmodule")
 
         neur = nest.Create("iaf_psc_exp_neuron_nestml__with_stdp_synapse_nestml", 100)
+        receptor_types = nest.GetStatus(neur, "receptor_types")[0]
         neur.V_m = nest.random.uniform(0., 1.)    # test setting a state variable
         neur.V_reset = nest.random.normal(0., 1.)    # test setting a parameter
 
@@ -69,6 +69,7 @@ class TestNestSetWithDistribution:
         assert len(np.unique(neur.V_reset)) > 1
 
         nest.Connect(neur, neur, syn_spec={"synapse_model": "stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml",
+                                           "receptor_type": receptor_types["EXC_SPIKES"],
                                            "weight": nest.random.normal(0., 1.),    # test setting a state variable
                                            "alpha": nest.random.uniform(0., 1.)})    # test setting a parameter
         syn = nest.GetConnections(source=neur)

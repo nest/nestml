@@ -1,15 +1,6 @@
-# CoCoInputPortWithRedundantTypes.nestml
-# ######################################
+# -*- coding: utf-8 -*-
 #
-# Description
-# +++++++++++
-#
-# This model is used to test if broken CoCos are identified correctly. Here, if each input port is defined uniquely, i.e., no redundant keywords are used.
-#
-# Positive case.
-#
-# Copyright statement
-# +++++++++++++++++++
+# code_generation_exception.py
 #
 # This file is part of NEST.
 #
@@ -27,7 +18,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-#
-model CoCoInputPortWithRedundantTypes:
-    input:
-        spikeInh <- inhibitory spike # no redundant keywords used, thus correct
+
+
+class CodeGenerationException(Exception):
+    """
+    This exception is thrown whenever a failure occurs while generating code.
+    """
+    pass
