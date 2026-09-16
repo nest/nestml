@@ -61,7 +61,7 @@ class ODEToolboxTransformer(Transformer):
     - **solver**: A string identifying the preferred ODE solver. ``"analytic"`` for propagator solver preferred; fallback to numeric solver in case ODEs are not analytically solvable. Use ``"numeric"`` to disable analytic solver.
     - **ode_toolbox_json_options**: An optional extra dictionary; key-value pairs are passed to ODE-toolbox indict "options" key.
     - **disable_singularity_detection**: Set to True to disable detection of conditions under which numerical singularities (division by zero) could occur in the generated analytic solver. This can be useful for analytic solvers containing a large amount of conditions, which could take a long time to compute. (This parameter is directly passed to ODE-toolbox.)
-    - **enable_cse**: Set to True to enable common subexpression elimination (CSE) in the analytical and propagator solver's expressions. ODE-toolbox will then return a set of auxiliary "helper" expressions that are each computed once and reused, rather than being recomputed inline every time they occur. (This parameter is directly passed to ODE-toolbox.)
+    - **enable_cse**: Set to True to enable common subexpression elimination (CSE) in the analytical and propagator solver's expressions. ODE-toolbox will then return a set of auxiliary "helper" expressions that are each computed once and reused, rather than being recomputed inline every time they occur. 
     """
 
     # default flags if nothing is passed
@@ -72,7 +72,7 @@ class ODEToolboxTransformer(Transformer):
         "solver": "analytic",
         "ode_toolbox_json_options": None,
         "disable_singularity_detection": False,
-        "enable_cse": True
+        "enable_cse": True,
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
@@ -126,9 +126,8 @@ class ODEToolboxTransformer(Transformer):
 
         solver_result = odetoolbox.analysis(odetoolbox_indict,
                                             enable_cse=self.get_option("enable_cse"),
-                                            disable_stiffness_check=True,
-                                            disable_analytic_solver=True, # TEMP !!
-                                            #disable_analytic_solver=disable_analytic_solver,
+                                            disable_stiffness_check=True,  
+                                            disable_analytic_solver=disable_analytic_solver,
                                             disable_singularity_detection=self.get_option("disable_singularity_detection"),
                                             disable_singularity_mitigation=True,    # multiple conditional solvers returned from ODE-toolbox not yet supported by NESTML
                                             use_alternative_expM=self.get_option("use_alternative_expM"),
