@@ -87,6 +87,7 @@ class MessageCode(Enum):
     TYPE_MISMATCH = 50
     NEURON_SOLVED_BY_GSL = 52
     NO_UNIT = 53
+    NOT_NEUROSCIENCE_UNIT = 54
     INTERNAL_WARNING = 55
     OPERATION_NOT_DEFINED = 56
     INPUT_PATH_NOT_FOUND = 58
@@ -137,25 +138,27 @@ class MessageCode(Enum):
     NON_CONSTANT_EXPONENT = 111
     RESOLUTION_FUNC_USED = 112
     TIMESTEP_FUNCTION_LEGALLY_USED = 113
-    RANDOM_FUNCTIONS_LEGALLY_USED = 113
-    EXPONENT_MUST_BE_INTEGER = 114
-    EMIT_SPIKE_OUTPUT_PORT_TYPE_DIFFERS = 115
-    SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED = 116
-    INTEGRATE_ODES_ARG_HIGHER_ORDER = 117
-    CONVOLVE_NEEDS_BUFFER_PARAMETER = 119
-    SPIKE_INPUT_PORT_IN_EQUATION_RHS_OUTSIDE_CONVOLVE = 120
-    DELAY_VARIABLE_NOT_SPECIFIED = 121
-    WEIGHT_VARIABLE_NOT_SPECIFIED = 122
+    RANDOM_FUNCTIONS_LEGALLY_USED = 114
+    EXPONENT_MUST_BE_INTEGER = 115
+    EMIT_SPIKE_OUTPUT_PORT_TYPE_DIFFERS = 116
+    CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES = 117
+    INTEGRATE_ODES_ARG_HIGHER_ORDER = 118
+    DELAY_VARIABLE_NOT_SPECIFIED = 119
+    WEIGHT_VARIABLE_NOT_SPECIFIED = 120
+    DELAY_VARIABLE_NOT_FOUND = 121
+    WEIGHT_VARIABLE_NOT_FOUND = 122
     CM_VAR_MULTIUSE = 123
     CM_INVALID_CONVOLUTION_BUFFER = 124
     UNKNOWN_NEURON_SYNAPSE_PAIR_MODEL = 125
     CM_UNRESOLVED_FUNCTION_DEPENDENCY = 126
     CM_UNRESOLVED_VARIABLE_DEPENDENCY = 127
-    CM_INTEGRATE_ODES_IGNORED = 128
-    CM_FASTEXP_ACCURACY_WARNING = 129
-    NOT_ALLOWED_TO_ASSIGN_TO_A_UNIT_TYPE = 130
-    VARIABLE_USED_AS_A_UNIT = 131
-    NO_SOLITARY_PHYSICAL_UNITS = 132
+    CONVOLVE_NEEDS_BUFFER_PARAMETER = 128
+    CM_INTEGRATE_ODES_IGNORED = 129
+    CM_FASTEXP_ACCURACY_WARNING = 130
+    NOT_ALLOWED_TO_ASSIGN_TO_A_UNIT_TYPE = 131
+    VARIABLE_USED_AS_A_UNIT = 132
+    NO_SOLITARY_PHYSICAL_UNITS = 133
+    SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED = 134
 
 
 class Messages:
@@ -1189,19 +1192,9 @@ class Messages:
         return MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED, message
 
     @classmethod
-    def get_spike_input_port_appears_outside_equation_rhs_and_event_handler(cls, name):
-        message = "Spiking input port names (in this case '" + name + "') can only be used in the right-hand side of equations or in an onReceive block!"
-        return MessageCode.SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED, message
-
-    @classmethod
-    def get_vector_input_ports_should_be_of_constant_size(cls):
-        message = "Vector input ports should be of constant size (this is a limitation of NEST Simulator)"
-        return MessageCode.VECTOR_INPUT_PORTS_SHOULD_BE_OF_CONSTANT_SIZE, message
-
-    @classmethod
-    def get_spike_input_port_in_equation_rhs_outside_convolve(cls):
-        message = "Spike input port appears in right-hand side of equation outside of convolve(). This is a known issue (see https://github.com/nest/nestml/pull/1050)."
-        return MessageCode.SPIKE_INPUT_PORT_IN_EQUATION_RHS_OUTSIDE_CONVOLVE, message
+    def get_continuous_output_port_cannot_have_attributes(cls) -> Tuple[MessageCode, str]:
+        message = "continuous time output port may not have attributes."
+        return MessageCode.CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES, message
 
     @classmethod
     def get_weight_variable_not_specified(cls) -> Tuple[MessageCode, str]:
@@ -1250,3 +1243,13 @@ class Messages:
         message = "No free-standing physical units allowed (" + variable_name + ")"
 
         return MessageCode.NO_SOLITARY_PHYSICAL_UNITS, message
+
+    @classmethod
+    def get_spike_input_port_appears_outside_equation_rhs_and_event_handler(cls, name):
+        message = "Spiking input port names (in this case '" + name + "') can only be used in the right-hand side of equations or in an onReceive block!"
+        return MessageCode.SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED, message
+
+    @classmethod
+    def get_vector_input_ports_should_be_of_constant_size(cls):
+        message = "Vector input ports should be of constant size (this is a limitation of NEST Simulator)"
+        return MessageCode.VECTOR_INPUT_PORTS_SHOULD_BE_OF_CONSTANT_SIZE, message
