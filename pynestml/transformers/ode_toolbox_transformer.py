@@ -72,7 +72,7 @@ class ODEToolboxTransformer(Transformer):
         "solver": "analytic",
         "ode_toolbox_json_options": None,
         "disable_singularity_detection": False,
-        "enable_cse": True,
+        "disable_cse": False,
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
@@ -125,7 +125,7 @@ class ODEToolboxTransformer(Transformer):
         disable_analytic_solver = self.get_option("solver") != "analytic"
 
         solver_result = odetoolbox.analysis(odetoolbox_indict,
-                                            enable_cse=self.get_option("enable_cse"),
+                                            disable_cse=self.get_option("disable_cse"),
                                             disable_stiffness_check=True,  
                                             disable_analytic_solver=disable_analytic_solver,
                                             disable_singularity_detection=self.get_option("disable_singularity_detection"),
@@ -147,7 +147,7 @@ class ODEToolboxTransformer(Transformer):
             if analytic_solver:
                 # previous solver_result contains both analytic and numeric solver; re-run ODE-toolbox generating only numeric solver
                 solver_result = odetoolbox.analysis(odetoolbox_indict,
-                                                    enable_cse=self.get_option("enable_cse"),
+                                                    disable_cse=self.get_option("disable_cse"),
                                                     disable_stiffness_check=True,
                                                     disable_analytic_solver=True,
                                                     disable_singularity_detection=True,
