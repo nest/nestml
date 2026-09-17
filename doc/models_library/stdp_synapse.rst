@@ -7,7 +7,30 @@ stdp - Synapse model for spike-timing dependent plasticity
 Description
 +++++++++++
 
-stdp_synapse is a synapse with spike-timing dependent plasticity (as defined in [1]_). Here the weight dependence exponent can be set separately for potentiation and depression. Examples:
+Experiments have shown that synaptic strength changes as a function of the precise spike timing of the presynaptic and postsynaptic neurons. If the pre neuron fires an action potential strictly before the post neuron, the synapse connecting them will be strengthened ("facilitated"). If the pre neuron fires after the post neuron, the synapse will be weakened ("depressed"). The depression and facilitation effects become stronger when the spikes occur closer together in time. This is illustrated by empirical results (open circles), fitted by exponential curves (solid lines).
+
+.. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/fig/Asymmetric-STDP-learning-window-Spike-timing-window-of-STDP-for-the-induction-of.png
+
+   Asymmetric STDP learning window. Spike-timing window of STDP for the induction of synaptic potentiation and depression characterized in hippocampal cultures. Data points from Bi and Poo (1998), represent the relative change in the amplitude of EPSC after repetitive correlated activity of pre-post spike pairs. The potentiation window (right of the vertical axis) and depression window (left of the vertical axis) are fitted by an exponential function :math:`A^\pm\exp(-|\Delta t|/\tau^\pm)`, with parameters :math:`A^+ = 0.86`, :math:`A^- = -0.25`, :math:`\tau^+ = 19 \text{ms}`, and :math:`\tau^- = 34 \text{ms}`. Adopted from Bi and Wang (2002).
+
+We will define the theoretical model following [3]_.
+
+A pair of spikes in the input and the output cell, at times :math:`t_i` and :math:`t_j` respectively, induces a change :math:`\Delta w` in the weight :math:`w`:
+
+.. math::
+
+   \Delta^\pm w = \pm \lambda \cdot f_\pm(w) \cdot K(|t_o - t_i|)
+
+The weight is increased by :math:`\Delta^+ w` when :math:`t_o>t_i` and decreased by :math:`\Delta^- w` when :math:`t_i>t_o`. The temporal dependence of the update is defined by the filter kernel :math:`K` which is taken to be :math:`K(t) = \exp(-t/\tau)`. The coefficient :math:`\lambda\in\mathbb{R}` sets the magnitude of the update. The functions :math:`f_\pm(w)` determine the relative magnitude of the changes in the positive and negative direction. These are here taken as
+
+.. math::
+
+   \begin{align}
+   f_+(w) &= (1 - w)^{\mu_+}\\
+   f_-(w) &= \alpha w^{\mu_-}
+   \end{align}
+
+with the parameter :math:`\alpha\in\mathbb{R}, \alpha>0` allowing to set an asymmetry between increasing and decreasing the synaptic efficacy, and :math:`\mu_\pm\in\{0,1\}` allowing to choose between four different kinds of STDP:
 
 =================== ==== =============================
 Multiplicative STDP [2]_ mu_plus = mu_minus = 1
@@ -15,6 +38,85 @@ Additive STDP       [3]_ mu_plus = mu_minus = 0
 Guetig STDP         [1]_ mu_plus, mu_minus in [0, 1]
 Van Rossum STDP     [4]_ mu_plus = 0 mu_minus = 1
 =================== ==== =============================
+
+To implement the kernel, we use two extra state variables, one presynaptic so-called *trace value* and another postsynaptic trace value. These could correspond to calcium concentration in biology, maintaing a history of recent neuron spiking activity. They are incremented by 1 whenever a spike is generated, and decay back to zero exponentially. Mathematically, this can be formulated as a convolution between the exponentially decaying kernel and the emitted spike train:
+
+.. math::
+
+   \text{tr_pre} = K \ast \sum_i \delta_{pre,i}
+
+and
+
+.. math::
+
+   \text{tr_post} = K \ast \sum_i \delta_{post,i}
+
+These are implemented in the NESTML model as follows:
+
+.. code-block:: nestml
+
+   equations:
+        all-to-all trace of presynaptic neuron
+       kernel tr_pre_kernel = exp(-t / tau_tr_pre)
+       inline tr_pre real = convolve(tr_pre_kernel, pre_spikes)
+
+        all-to-all trace of postsynaptic neuron
+       kernel tr_post_kernel = exp(-t / tau_tr_post)
+       inline tr_post real = convolve(tr_post_kernel, post_spikes)
+
+with time constants defined as parameters:
+
+.. code-block:: nestml
+
+   parameters:
+       tau_tr_pre ms = 20 ms
+       tau_tr_post ms = 20 ms
+
+With the traces in place, the weight updates can then be expressed closely following the mathematical definitions. Begin by defining the weight state variable and its initial value:
+
+.. code-block:: nestml
+
+   state:
+       w real = 1.
+
+Our update rule for facilitation is:
+
+.. math::
+
+   \Delta^+ w = \lambda \cdot (1 - w)^{\mu_+} \cdot \text{tr_pre}
+
+In NESTML, this expression can be entered almost verbatim. Note that the only difference is that scaling with an absolute maximum weight ``Wmax`` was added:
+
+.. code-block:: nestml
+
+   onReceive(post_spikes):
+        potentiate synapse
+       w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * tr_pre ))
+       w = min(Wmax, w_)
+
+Our update rule for depression is:
+
+.. math::
+
+   \Delta^- w = -\alpha \cdot \lambda \cdot w^{\mu_-} \cdot \text{tr_post}
+
+.. code-block:: nestml
+
+   onReceive(pre_spikes):
+        depress synapse
+       w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * tr_post ))
+       w = max(Wmin, w_)
+
+        send spike to postsynaptic partner
+       emit_spike(w)
+
+The NESTML STDP synapse integration test (``tests/nest_tests/stdp_window_test.py``) runs the model for a variety of pre/post spike timings, and measures the weight change numerically. We can use this to verify that our model approximates the correct STDP window. Note that the dendritic delay in this example has been set to 10 ms, to make its effect on the STDP window more clear: it is not centered around zero, but shifted to the left by the dendritic delay.
+
+.. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/fig/stdp_test_window.png
+
+   STDP window, obtained from numerical simulation, for purely additive STDP (mu_minus = mu_plus = 0) and a dendritic delay of 10 ms.
+
+Note that in this particular STDP synapse model, the weight is not allowed to be negative. In case an inhibitory STDP synapse needs to be modeled, this model (with weight >= 0 at all times) can be connected to a postsynaptic neuron at its appropriate (inhibitory) input port. The sign of the postsynaptic response is thus handled in the postsynaptic neuron. In principle, an STDP synapse model can be defined that allows for negative weights, but in this case, care should be taken to prevent the sign of the weight from changing during learning, as a biological synapse cannot simply switch from one type to another, say, from glutamatergic to GABAergic.
 
 
 References
@@ -46,15 +148,14 @@ Parameters
     :widths: auto
 
     
-    "d", "ms", "1ms", "Synaptic transmission delay"    
-    "lambda", "real", "0.01", ""    
-    "tau_tr_pre", "ms", "20ms", ""    
-    "tau_tr_post", "ms", "20ms", ""    
-    "alpha", "real", "1", ""    
-    "mu_plus", "real", "1", ""    
-    "mu_minus", "real", "1", ""    
-    "Wmax", "real", "100.0", ""    
-    "Wmin", "real", "0.0", ""
+    "lambda", "real", "0.01", "(dimensionless) learning rate for causal updates"    
+    "alpha", "real", "1", "relative learning rate for acausal firing"    
+    "tau_tr_pre", "ms", "20 ms", "time constant of presynaptic trace"    
+    "tau_tr_post", "ms", "20 ms", "time constant of postsynaptic trace"    
+    "mu_plus", "real", "1", "weight dependence exponent for causal updates"    
+    "mu_minus", "real", "1", "weight dependence exponent for acausal updates"    
+    "Wmin", "real", "0.0", "minimum absolute value of synaptic weight"    
+    "Wmax", "real", "100.0", "maximum absolute value of synaptic weight"
 
 
 State variables
@@ -65,7 +166,7 @@ State variables
     :widths: auto
 
     
-    "w", "real", "1.0", "Synaptic weight"    
+    "w", "real", "1", "Synaptic weight"    
     "pre_trace", "real", "0.0", ""    
     "post_trace", "real", "0.0", ""
 Source code
@@ -79,4 +180,4 @@ The model source code can be found in the NESTML models repository here: `stdp_s
 
 .. footer::
 
-   Generated at 2024-05-22 14:51:14.671094
+   Generated at 2026-09-07 17:58:04.407947
