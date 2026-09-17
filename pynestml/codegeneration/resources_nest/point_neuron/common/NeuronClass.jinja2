@@ -114,9 +114,9 @@ namespace nest
 {
   // Override the create() method with one call to RecordablesMap::insert_() for each quantity to be recorded.
 {%- if has_state_vectors %}
-template <> void DynamicRecordablesMap<{{ neuronName }}>::create({{ neuronName }}& host)
+  template <> void DynamicRecordablesMap<{{ neuronName }}>::create({{ neuronName }}& host)
 {%- else %}
-template <> void RecordablesMap<{{ neuronName }}>::create()
+  template <> void RecordablesMap<{{ neuronName }}>::create()
 {%- endif %}
   {
 

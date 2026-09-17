@@ -71,11 +71,11 @@ model aeif_cond_alpha_neuron:
         refr_t ms = 0 ms    # Refractory period timer
 
     equations:
-        inline V_bounded mV = min(V_m, V_peak) # prevent exponential divergence
         kernel g_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
         kernel g_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
 
         # Add inlines to simplify the equation definition of V_m
+        inline V_bounded mV = min(V_m, V_peak) # prevent exponential divergence
         inline exp_arg real = (V_bounded - V_th) / Delta_T
         inline I_spike pA = g_L * Delta_T * exp(exp_arg)
         inline I_syn_exc pA = unit_psg * convolve(g_exc, exc_spikes) * (V_bounded - E_exc)
