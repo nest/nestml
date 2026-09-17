@@ -22,7 +22,6 @@
 #
 # Note that the membrane potential can diverge to positive infinity due to the exponential term. To avoid numerical instabilities, instead of :math:`V_m`, the value :math:`\min(V_m,V_{peak})` is used in the dynamical equations.
 #
-#
 # References
 # ++++++++++
 #
@@ -30,7 +29,6 @@
 #        integrate-and-fire model as an effective description of neuronal
 #        activity. Journal of Neurophysiology. 943637-3642
 #        DOI: https://doi.org/10.1152/jn.00686.2005
-#
 #
 # See also
 # ++++++++

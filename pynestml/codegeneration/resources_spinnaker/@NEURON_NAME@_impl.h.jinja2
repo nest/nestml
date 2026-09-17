@@ -73,7 +73,6 @@ enum input_indices
 
 typedef struct {
 {# Make sure count is |spike_input_ports| + |continous_input_ports| #}
-// 0: exc, 1: inh, 2: Istim
 {%- if ns.count > 0 %}
     REAL inputs[{{ ns.count }}];
 {%- endif %}

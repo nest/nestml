@@ -33,8 +33,7 @@ from pynestml.utils.port_signal_type import PortSignalType
 
 class ASTInputPort(ASTNode):
     r"""
-    This class is used to store a declaration of an input port.
-    ASTInputPort represents a single input port, e.g.:
+    This class is used to store a declaration of an input port, e.g.:
 
     .. code-block:: nestml
 
