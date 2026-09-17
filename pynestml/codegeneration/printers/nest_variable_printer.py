@@ -121,8 +121,8 @@ class NESTVariablePrinter(CppVariablePrinter):
                 s += "(" + str(units_conversion_factor) + " * "
             if self.cpp_variable_suffix == "":
                 if self.buffers_are_zero and symbol.is_spike_input_port():
-                    # XXX: TODO: do this in a derived class
-                    return "0.0"
+                    # XXX: TODO: instead of ``self.buffers_are_zero`` flag, do this in a derived class
+                    return self.__print_buffer_value(variable)
 
                 s += "B_."
             s += self._print_buffer_value(variable)

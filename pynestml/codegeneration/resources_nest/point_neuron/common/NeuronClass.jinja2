@@ -949,11 +949,6 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%- endif %}
 
     /**
-
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_buffers_to_zero(False) }}
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_cpp_variable_suffix(" ") }}  {# prevent printing origin #}
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_cpp_variable_suffix("") }}
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_buffers_to_zero(True) }}
      * Begin NESTML generated code for the onCondition block(s)
     **/
 {% if neuron.get_on_condition_blocks() %}
