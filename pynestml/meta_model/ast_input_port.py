@@ -33,12 +33,11 @@ from pynestml.utils.port_signal_type import PortSignalType
 
 class ASTInputPort(ASTNode):
     r"""
-    This class is used to store a declaration of an input port.
-    ASTInputPort represents a single input port, e.g.:
+    This class is used to store a declaration of an input port, e.g.:
 
     .. code-block:: nestml
 
-       spike_in pA <- excitatory spike
+       spike_in <- excitatory spike
 
     @attribute name: The name of the input port.
     @attribute sizeParameter: Optional size parameter for multisynapse neuron.
@@ -46,15 +45,6 @@ class ASTInputPort(ASTNode):
     @attribute inputQualifier: The qualifier keyword of the input port, to indicate e.g. inhibitory-only or excitatory-only spiking inputs on this port.
     @attribute isSpike: Indicates that this input port accepts spikes.
     @attribute isContinuous: Indicates that this input port accepts continuous time input.
-
-    Grammar:
-        inputPort:
-            name=NAME
-            (LEFT_SQUARE_BRACKET sizeParameter=NAME RIGHT_SQUARE_BRACKET)?
-            (dataType)?
-            LEFT_ANGLE_MINUS inputQualifier*
-            (isContinuous = CONTINUOUS_KEYWORD | isSpike = SPIKE_KEYWORD);
-
     """
 
     def __init__(self,
@@ -70,6 +60,7 @@ class ASTInputPort(ASTNode):
         Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
 
         :param name: the name of the port
+        :param signal_type: type of signal received, i.e., spikes or continuous
         :param size_parameter: a parameter indicating the index in an array.
         :param data_type: the data type of this input port
         :param input_qualifiers: a list of input qualifiers for this port.
