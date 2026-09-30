@@ -122,6 +122,7 @@ class ODEToolboxTransformer(Transformer):
         disable_analytic_solver = self.get_option("solver") != "analytic"
 
         solver_result = odetoolbox.analysis(odetoolbox_indict,
+                                                enable_cse=True,
                                             disable_stiffness_check=True,
                                             disable_analytic_solver=disable_analytic_solver,
                                             disable_singularity_detection=self.get_option("disable_singularity_detection"),
