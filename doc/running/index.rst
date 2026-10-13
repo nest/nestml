@@ -139,7 +139,7 @@ Currently, the following target platforms are supported for code generation. Cli
 
    To ensure correct and reproducible results, always inspect the generated code by hand. Run comprehensive numerical testing of the model(s).
 
-   In case of doubt, please create a `GitHub Issue <https://github.com/nest/nestml/issues>`_ or write in on the `NEST mailing list <https://nest-simulator.readthedocs.io/en/latest/developer_space/guidelines/mailing_list_guidelines.html#mail-guidelines>`_.
+   In case of doubt, please create a `GitHub Issue <https://github.com/nest/nestml/issues>`_ or write in on the `NEST mailing list <https://nest-simulator.readthedocs.io/en/stable/developer_space/guidelines/mailing_list_guidelines.html#mail-guidelines>`_.
 
 
 Running NESTML from Python
