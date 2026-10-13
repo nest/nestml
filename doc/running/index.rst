@@ -85,6 +85,16 @@ Currently, the following target platforms are supported for code generation. Cli
 
       |nest_gpu_logo|
 
+.. grid:: 2
+
+   .. grid-item-card::
+      :text-align: center
+      :class-title: sd-d-flex-row sd-align-minor-center
+
+      :doc:`EBRAINS </running/running_ebrains>`
+
+      |ebrains_logo|
+
 .. |nest_logo| image:: ../fig/nest-simulator-logo.png
    :width: 95px
    :height: 40px
@@ -116,9 +126,14 @@ Currently, the following target platforms are supported for code generation. Cli
    :target: running_nest_desktop.html
 
 .. |nest_gpu_logo| image:: ../fig/nest-gpu.svg
-   :width: 95
+   :width: 95px
    :height: 40px
    :target: running_nest_gpu.html
+
+.. |ebrains_logo| image:: ../fig/ebrains-logo.png
+   :width: 95px
+   :height: 37px
+   :target: running_ebrains.html
 
 .. warning::
 
