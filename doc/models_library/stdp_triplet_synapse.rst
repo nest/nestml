@@ -22,10 +22,10 @@ Two traces, with different time constants, are defined for both pre- and postsyn
 .. code-block:: nestml
 
    parameters:
-       tau_plus ms = 16.8 ms    time constant for tr_r1
-       tau_x ms = 101 ms        time constant for tr_r2
-       tau_minus ms = 33.7 ms   time constant for tr_o1
-       tau_y ms = 125 ms        time constant for tr_o2
+       tau_plus ms = 16.8 ms    # time constant for tr_r1
+       tau_x ms = 101 ms        # time constant for tr_r2
+       tau_minus ms = 33.7 ms   # time constant for tr_o1
+       tau_y ms = 125 ms        # time constant for tr_o2
 
    equations:
        kernel tr_r1_kernel = exp(-t / tau_plus)
@@ -54,12 +54,12 @@ The weight update rules can then be expressed in terms of the traces and paramet
        Wmin real = 0.
 
    onReceive(post_spikes):
-        potentiate synapse
+       # potentiate synapse
        w_ real = w + tr_r1 * (A2_plus + A3_plus * tr_o2)
        w = min(Wmax, w_)
 
    onReceive(pre_spikes):
-        depress synapse
+       # depress synapse
        w_ real = w  -  tr_o1 * (A2_minus + A3_minus * tr_r2)
        w = max(Wmin, w_)
 

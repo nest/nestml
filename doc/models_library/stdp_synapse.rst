@@ -56,11 +56,11 @@ These are implemented in the NESTML model as follows:
 .. code-block:: nestml
 
    equations:
-        all-to-all trace of presynaptic neuron
+       # all-to-all trace of presynaptic neuron
        kernel tr_pre_kernel = exp(-t / tau_tr_pre)
        inline tr_pre real = convolve(tr_pre_kernel, pre_spikes)
 
-        all-to-all trace of postsynaptic neuron
+       # all-to-all trace of postsynaptic neuron
        kernel tr_post_kernel = exp(-t / tau_tr_post)
        inline tr_post real = convolve(tr_post_kernel, post_spikes)
 
@@ -147,14 +147,14 @@ Parameters
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-    
-    "lambda", "real", "0.01", "(dimensionless) learning rate for causal updates"    
-    "alpha", "real", "1", "relative learning rate for acausal firing"    
-    "tau_tr_pre", "ms", "20 ms", "time constant of presynaptic trace"    
-    "tau_tr_post", "ms", "20 ms", "time constant of postsynaptic trace"    
-    "mu_plus", "real", "1", "weight dependence exponent for causal updates"    
-    "mu_minus", "real", "1", "weight dependence exponent for acausal updates"    
-    "Wmin", "real", "0.0", "minimum absolute value of synaptic weight"    
+
+    "lambda", "real", "0.01", "(dimensionless) learning rate for causal updates"
+    "alpha", "real", "1", "relative learning rate for acausal firing"
+    "tau_tr_pre", "ms", "20 ms", "time constant of presynaptic trace"
+    "tau_tr_post", "ms", "20 ms", "time constant of postsynaptic trace"
+    "mu_plus", "real", "1", "weight dependence exponent for causal updates"
+    "mu_minus", "real", "1", "weight dependence exponent for acausal updates"
+    "Wmin", "real", "0.0", "minimum absolute value of synaptic weight"
     "Wmax", "real", "100.0", "maximum absolute value of synaptic weight"
 
 
@@ -165,9 +165,9 @@ State variables
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-    
-    "w", "real", "1", "Synaptic weight"    
-    "pre_trace", "real", "0.0", ""    
+
+    "w", "real", "1", "Synaptic weight"
+    "pre_trace", "real", "0.0", ""
     "post_trace", "real", "0.0", ""
 Source code
 +++++++++++
