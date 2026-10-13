@@ -39,7 +39,7 @@ Guetig STDP         [1]_ mu_plus, mu_minus in [0, 1]
 Van Rossum STDP     [4]_ mu_plus = 0 mu_minus = 1
 =================== ==== =============================
 
-To implement the kernel, we use two extra state variables, one presynaptic so-called *trace value* and another postsynaptic trace value. These could correspond to calcium concentration in biology, maintaing a history of recent neuron spiking activity. They are incremented by 1 whenever a spike is generated, and decay back to zero exponentially. Mathematically, this can be formulated as a convolution between the exponentially decaying kernel and the emitted spike train:
+To implement the kernel, we use two extra state variables, one presynaptic so-called *trace value* and another postsynaptic trace value. These could correspond to calcium concentration in biology, maintaining a history of recent neuron spiking activity. They are incremented by 1 whenever a spike is generated, and decay back to zero exponentially. Mathematically, this can be formulated as a convolution between the exponentially decaying kernel and the emitted spike train:
 
 .. math::
 
@@ -63,7 +63,14 @@ These are implemented in the NESTML model as follows:
        # all-to-all trace of postsynaptic neuron
        kernel tr_post_kernel = exp(-t / tau_tr_post)
        inline tr_post real = convolve(tr_post_kernel, post_spikes)
+   equations:
+       # all-to-all trace of presynaptic neuron
+       kernel tr_pre_kernel = exp(-t / tau_tr_pre)
+       inline tr_pre real = convolve(tr_pre_kernel, pre_spikes)
 
+       # all-to-all trace of postsynaptic neuron
+       kernel tr_post_kernel = exp(-t / tau_tr_post)
+       inline tr_post real = convolve(tr_post_kernel, post_spikes)
 with time constants defined as parameters:
 
 .. code-block:: nestml
@@ -90,7 +97,7 @@ In NESTML, this expression can be entered almost verbatim. Note that the only di
 .. code-block:: nestml
 
    onReceive(post_spikes):
-        potentiate synapse
+       # potentiate synapse
        w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * tr_pre ))
        w = min(Wmax, w_)
 
@@ -103,11 +110,11 @@ Our update rule for depression is:
 .. code-block:: nestml
 
    onReceive(pre_spikes):
-        depress synapse
+       # depress synapse
        w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * tr_post ))
        w = max(Wmin, w_)
 
-        send spike to postsynaptic partner
+       # send spike to postsynaptic partner
        emit_spike(w)
 
 The NESTML STDP synapse integration test (``tests/nest_tests/stdp_window_test.py``) runs the model for a variety of pre/post spike timings, and measures the weight change numerically. We can use this to verify that our model approximates the correct STDP window. Note that the dendritic delay in this example has been set to 10 ms, to make its effect on the STDP window more clear: it is not centered around zero, but shifted to the left by the dendritic delay.
