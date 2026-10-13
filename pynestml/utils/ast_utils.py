@@ -2785,3 +2785,28 @@ class ASTUtils:
                 stmts_without_weight_var.extend(visitor.stmts_without_weight_var)
 
         return stmts_with_weight_var, stmts_without_weight_var
+
+    @classmethod
+    def is_variable_parameter(cls, var: ASTVariable) -> bool:
+        """
+        Returns if the AST variable is a parameter
+        """
+        symbol = var.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
+        if symbol and symbol.is_parameters():
+            return True
+
+        return False
+
+    @classmethod
+    def get_all_parameters_from_expressions(cls, expressions: Sequence[ASTExpression]) -> Set[ASTVariable]:
+        """
+        Returns all the parameter variables from the handed over expressions.
+        """
+        parameters = set()
+
+        for expr in expressions:
+            variables = cls.get_all_variables_in_expression(expr)
+            parameters |= {var.get_name() for var in variables if cls.is_variable_parameter(var)}
+
+        return parameters
+

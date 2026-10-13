@@ -47,7 +47,8 @@ class NESTGPUCodeGeneratorUtils:
             return "var[N_SCAL_VAR + %s]"
 
         if variable_symbol.block_type in [BlockType.PARAMETERS, BlockType.INTERNALS] or variable_symbol.is_continuous_input_port():
-            return "param[%s]"
+            if not is_synapse:
+                return "param[%s]"
 
         return ""
 

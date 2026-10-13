@@ -57,7 +57,10 @@ update_internal_state( float Dt, float* param, int i_conn )
 {
   // Update the trace values
   int base_idx = N_STATE_VARS * i_conn;
-  {% if uses_analytic_solver %}
+{%- if uses_analytic_solver %}
+{%- for param in utils.get_all_parameters_from_expressions(propagator_expressions.values()|list + update_expressions.values()|list) %}
+  double {{ param }} = param[i_{{ param }}];
+{%- endfor %}
 {%- for variable_symbol in synapse.get_internal_symbols() %}
 {%-     if variable_symbol.get_symbol_name() == "__h" %}
   const double {{ variable_symbol.get_symbol_name() }} = (double) abs(Dt);
@@ -106,6 +109,12 @@ __device__ void
 {
   int base_idx = N_STATE_VARS * i_conn;
   ConnectionStateVars[ base_idx + i_{{ synapse_weight_variable }} ] = *weight_pt;
+
+  // Parameters
+{%- for variable_symbol in synapse.get_parameter_symbols() %}
+  double {{ variable_symbol.get_symbol_name() }} = param[i_{{ variable_symbol.get_symbol_name() }}];
+{%- endfor %}
+
   update_internal_state( Dt, param, i_conn );
   if ( Dt >= 0 ) // post spikes block
   {

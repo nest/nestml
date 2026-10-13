@@ -18,7 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from typing import Dict, Sequence, Optional, Mapping, Any, List, override, Iterable
+from typing import Dict, Sequence, Optional, Mapping, Any, List, override, Iterable, Tuple
 
 import glob
 import os
@@ -33,11 +33,14 @@ from pynestml.codegeneration.printers.nest_gpu_numeric_function_call_printer imp
 from pynestml.codegeneration.printers.nest_gpu_numeric_variable_printer import NESTGPUNumericVariablePrinter
 from pynestml.codegeneration.printers.nest_gpu_variable_printer import NESTGPUVariablePrinter
 from pynestml.codegeneration.printers.unitless_c_simple_expression_printer import UnitlessCSimpleExpressionPrinter
+from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.utils.model_parser import ModelParser
 
 
 class NESTGPUCodeGenerator(NESTCodeGenerator):
@@ -124,6 +127,11 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
             function_call_printer=self._gsl_function_call_printer))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
 
+    def analyse_neuron(self, neuron: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment], List[ASTOdeEquation], List[ASTOdeEquation]]:
+        # add "den_delay" parameter to the model. This is by default added to all neurons
+        neuron.add_to_internals_block(ModelParser.parse_declaration("den_delay ms = 0.0"), index=0)
+        return super().analyse_neuron(neuron, metadata)
+
     @override
     def generate_code(self,
                       models: Iterable[ASTModel],
@@ -155,9 +163,6 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
                               metadata: Dict[str, Dict[str, Any]]) -> None:
         self._nest_variable_printer.is_synapse = True
         self._nest_variable_printer_no_origin.is_synapse = True
-
-        # synapse_name_stripped = synapse.get_name().split("__with_")[0]
-        # synapse.set_name(synapse_name_stripped)
 
         super().generate_synapse_code(synapse, metadata)
 
@@ -237,7 +242,7 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         synapse_names = []
         for synapse in synapses:
             synapse_indexes.append("\ni_" + synapse.get_name() + "_model,")
-            synapse_names.append("\n, \"" + synapse.get_name() + "\"")
+            synapse_names.append("\n\"" + synapse.get_name() + "\"")
 
         synapse_indexes = "".join(synapse_indexes) + "\n"
         synapse_names = "".join(synapse_names) + "\n"
@@ -324,6 +329,11 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
                                      synapse: ASTModel,
                                      metadata: Dict[str, Dict[str, Any]]) -> Dict:
         namespace = super()._get_synapse_model_namespace(synapse, metadata)
+
+        namespace["propagator_expressions"] = {}
+        for prop_name in namespace["propagators"].keys():
+            decl = ASTUtils.get_internal_decl_by_name(synapse, prop_name)
+            namespace["propagator_expressions"][prop_name] = decl.get_expression()
 
         # Get pre- and post- onReceive block statements
         pre_spike_weight_stmts, pre_spike_block_stmts = ASTUtils.separate_stmts_with_weight_var_from_on_receive_block(

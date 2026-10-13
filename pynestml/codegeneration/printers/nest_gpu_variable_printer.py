@@ -30,7 +30,7 @@ from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
-from pynestml.symbols.variable_symbol import VariableSymbol
+from pynestml.symbols.variable_symbol import VariableSymbol, BlockType
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
@@ -90,7 +90,7 @@ class NESTGPUVariablePrinter(CppVariablePrinter):
 
         if symbol.is_local():
             return variable_name
-        if self.is_synapse and symbol.is_internals():
+        if self.is_synapse and symbol.block_type in [BlockType.PARAMETERS, BlockType.INTERNALS]:
             return variable_name
         if with_origin:
             return NESTGPUCodeGeneratorUtils.print_symbol_origin(symbol, variable, self.is_synapse) % ("i_" + variable_name)

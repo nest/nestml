@@ -57,3 +57,19 @@ class TestNESTGPUSynapseCodeGeneration:
                                  logging_level=logging_level,
                                  suffix=suffix,
                                  codegen_opts=codegen_opts)
+
+    def test_nest_gpu_p_stdp_synapse(self):
+        input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))),
+                      os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "p_stdp_synapse.nestml"))]
+        target_path = "target_gpu_p_stdp"
+        logging_level = "INFO"
+        suffix = "_nestml"
+        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
+                                                  "synapses": {
+                                                      "p_stdp_synapse": {"post_ports": ["post_spikes"]}}}],
+                        "weight_variable": {"p_stdp_synapse": "w"},
+                        "strictly_synaptic_vars": {"p_stdp_synapse": ["pre_trace", "post_trace", "pre_traceP", "post_traceP"]}}
+        generate_nest_gpu_target(input_path, target_path,
+                                 logging_level=logging_level,
+                                 suffix=suffix,
+                                 codegen_opts=codegen_opts)
