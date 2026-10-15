@@ -21,8 +21,6 @@
 
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
-from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
-
 try:
     # Available in the standard library starting with Python 3.12
     from typing import override
@@ -35,6 +33,7 @@ import re
 
 import pynestml
 
+from pynestml.cocos.co_co_nest_random_functions_legally_used import CoCoNestRandomFunctionsLegallyUsed
 from pynestml.cocos.co_co_nest_synapse_delay_not_assigned_to import CoCoNESTSynapseDelayNotAssignedTo
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.code_generator import CodeGenerator
@@ -62,6 +61,7 @@ from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.symbol_table.symbol_table import SymbolTable
+from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
@@ -169,6 +169,8 @@ class NESTCodeGenerator(CodeGenerator):
             CoCosManager.check_on_receive_vectors_should_be_constant_size(model)
             if Logger.has_errors(model.name):
                 raise CodeGenerationException("Error(s) occurred during code generation")
+
+            CoCoNestRandomFunctionsLegallyUsed.check_co_co(model)
 
         if self.get_option("neuron_synapse_pairs"):
             for model in synapses:
