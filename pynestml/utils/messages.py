@@ -159,6 +159,7 @@ class MessageCode(Enum):
     NOT_ALLOWED_TO_ASSIGN_TO_A_UNIT_TYPE = 131
     VARIABLE_USED_AS_A_UNIT = 132
     NO_SOLITARY_PHYSICAL_UNITS = 133
+    NEST_RANDOM_FUNCTIONS_LEGALLY_USED = 114
 
 
 class Messages:
@@ -1188,8 +1189,13 @@ class Messages:
 
     @classmethod
     def get_random_functions_legally_used(cls, name: str) -> Tuple[MessageCode, str]:
-        message = "The function \"" + name + "\" can only be used in the update, onReceive, or onCondition blocks."
+        message = "The function \"" + name + "\" can only be used in the update, onReceive, or onCondition blocks, or as part of initialisation expressions of state, parameters or internals."
         return MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED, message
+
+    @classmethod
+    def get_nest_random_functions_legally_used(cls, name: str) -> Tuple[MessageCode, str]:
+        message = "When generating code for NEST Simulator, the function \"" + name + "\" can only be used in the update, onReceive, or onCondition blocks."
+        return MessageCode.NEST_RANDOM_FUNCTIONS_LEGALLY_USED, message
 
     @classmethod
     def get_continuous_output_port_cannot_have_attributes(cls) -> Tuple[MessageCode, str]:

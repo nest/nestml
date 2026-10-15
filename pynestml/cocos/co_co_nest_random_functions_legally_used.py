@@ -21,6 +21,8 @@
 
 from typing import Any, Dict, Optional
 
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
+
 try:
     # Available in the standard library starting with Python 3.12
     from typing import override
@@ -29,6 +31,7 @@ except ImportError:
     from typing_extensions import override
 
 from pynestml.cocos.co_co import CoCo
+from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_on_condition_block import ASTOnConditionBlock
@@ -42,8 +45,7 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 class CoCoNestRandomFunctionsLegallyUsed(CoCo):
     """
-    This CoCo ensure that the random functions are used only in the ``update``, ``onReceive``, and ``onCondition`` blocks.
-    This CoCo is only checked for the NEST Simulator target.
+    This CoCo ensure that the random functions are used only in the ``update``, ``onReceive``, and ``onCondition`` blocks, or as part of initialisation expressions of state, parameters or internals.
     """
 
     @classmethod
@@ -56,12 +58,13 @@ class CoCoNestRandomFunctionsLegallyUsed(CoCo):
         assert isinstance(node, ASTModel), "This coco can only be called on ASTModels!"
 
         visitor = CoCoNestRandomFunctionsLegallyUsedVisitor()
-        visitor.neuron = node
+        visitor.model = node
         node.accept(visitor)
 
 
 class CoCoNestRandomFunctionsLegallyUsedVisitor(ASTVisitor):
-    def visit_function_call(self, node):
+    @override
+    def visit_function_call(self, node: ASTFunctionCall):
         """
         Visits a function call
         :param node: a function call
@@ -73,13 +76,14 @@ class CoCoNestRandomFunctionsLegallyUsedVisitor(ASTVisitor):
             while parent:
                 parent = parent.get_parent()
 
-                if isinstance(parent, ASTUpdateBlock) or isinstance(parent, ASTOnReceiveBlock) \
-                        or isinstance(parent, ASTOnConditionBlock):
-                    # the random function is correctly defined, hence return
+                if isinstance(parent, ASTUpdateBlock) \
+                   or isinstance(parent, ASTOnReceiveBlock) \
+                   or isinstance(parent, ASTOnConditionBlock):
+                    # the random function is used in a correct block, hence return
                     return
 
                 if isinstance(parent, ASTModel):
                     # the random function is defined in other blocks (parameters, state, internals). Hence, an error.
-                    code, message = Messages.get_random_functions_legally_used(function_name)
-                    Logger.log_message(node=self.neuron, code=code, message=message, error_position=node.get_source_position(),
+                    code, message = Messages.get_nest_random_functions_legally_used(function_name)
+                    Logger.log_message(node=self.model, code=code, message=message, error_position=node.get_source_position(),
                                        log_level=LoggingLevel.ERROR)

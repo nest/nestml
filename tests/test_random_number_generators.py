@@ -27,20 +27,20 @@ from pynestml.utils.messages import MessageCode
 from tests.test_utils import parse_and_validate_model
 
 
-class TestRandomNumberGeneratorsInODEs:
-    """Tests that random number functions are called only in ``update``, ``onReceive``, and ``onCondition`` block"""
+class TestRandomNumberGenerator:
+    """Tests that random number functions are called only in ``update``, ``onReceive``, and ``onCondition`` blocks, or as part of initialisation expressions of state, parameters or internals."""
 
     def test_random_number_generators_in_ODEs(self):
         model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "random_number_generators_test.nestml"))))
 
-        assert len(Logger.get_messages(model, LoggingLevel.ERROR, message_code=MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED)) == 6
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR, message_code=MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED)) == 3
 
     def test_random_number_generators_in_neuron(self):
         model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "random_functions_illegal_neuron.nestml"))))
 
-        assert len(Logger.get_messages(model, LoggingLevel.ERROR, message_code=MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED)) == 3
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR, message_code=MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED)) == 0
 
     def test_random_number_generators_in_synapse(self):
         model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "random_functions_illegal_synapse.nestml"))))
 
-        assert len(Logger.get_messages(model, LoggingLevel.ERROR, message_code=MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED)) == 2
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR, message_code=MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED)) == 0
