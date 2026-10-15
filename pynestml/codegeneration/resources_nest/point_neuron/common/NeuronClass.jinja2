@@ -918,6 +918,8 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%-     endfor %}
 {%- endif %}
 
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_buffers_to_zero(False) }}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_cpp_variable_suffix(" ") }}  {# prevent printing origin #}
 {%- for spike_updates_for_port in spike_updates.values() %}
 {%-     for ast in spike_updates_for_port -%}
 {%-         if "__X__" in ast.get_variable().get_name() %}    {#- convolutions only #}
@@ -925,6 +927,8 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%-         endif %}
 {%-     endfor %}
 {%- endfor %}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_cpp_variable_suffix("") }}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_buffers_to_zero(True) }}
 
 
 {%  if paired_synapses is defined %}
@@ -1235,12 +1239,12 @@ void {{ neuronName }}::handle(nest::SpikeEvent &e)
 {#-     linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
     B_.spike_input_{{ input_spikes_name }}_.add_value(
       e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
-      1E3 * e.get_weight() * e.get_multiplicity() ); // XXX: TODO: factor 1E3 should be removed; see https://github.com/nest/nestml/issues/984
+      e.get_weight() * e.get_multiplicity() );
 {%-         else %}
 {#-             generic input port: use lists of spike events for each buffer slot #}
     B_.spike_input_{{ input_spikes_name }}_.append_value(
       e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
-      1E3 * e.get_weight() * e.get_multiplicity() ); // XXX: TODO: factor 1E3 should be removed; see https://github.com/nest/nestml/issues/984
+      e.get_weight() * e.get_multiplicity() );
 {%-         endif %}
 
     // increment the number of spikes received
