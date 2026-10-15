@@ -31,7 +31,6 @@ except ImportError:
     from typing_extensions import override
 
 from pynestml.cocos.co_co import CoCo
-from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_on_condition_block import ASTOnConditionBlock

@@ -25,7 +25,6 @@ from pynestml.exceptions.code_generation_exception import CodeGenerationExceptio
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import MessageCode
-from tests.test_utils import parse_and_validate_model
 
 
 class TestNESTRandomNumberGenerators:
