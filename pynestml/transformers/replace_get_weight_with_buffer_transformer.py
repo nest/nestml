@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from typing import Callable, Dict, Iterable, List, Optional, Mapping, Any, Union, Sequence
+from typing import Any, Dict, Iterable, Optional, Mapping
 
 try:
     # Available in the standard library starting with Python 3.12
@@ -30,11 +30,8 @@ except ImportError:
     # Fallback for Python 3.8 - 3.11
     from typing_extensions import override
 
-from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_model import ASTModel
-from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.transformers.transformer import Transformer
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -52,6 +49,8 @@ class ReplaceGetWeightWithBufferTransformer(Transformer):
                 parent.function_call = None
                 parent.variable = node.args[0].variable
                 parent.variable.parent = parent
+                # parent.implicit_conversion_factor = 1E3
+                parent.variable.implicit_conversion_factor = 1E3
                 parent.implicit_conversion_factor = node.args[0].get_implicit_conversion_factor()
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):

@@ -213,24 +213,26 @@ class TestNestSTDPSynapse:
             mm_ref = nest.Create("multimeter", params={"record_from": ["V_m"]})
 
         if sim_mdl:
+            receptor_types = nest.GetStatus(post_neuron, "receptor_types")[0]
             nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
-            nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 99999.})
+            nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 99999., "receptor_type": receptor_types["EXC_SPIKES"]})
             if NESTTools.detect_nest_version().startswith("v2"):
-                nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"model": "stdp_nestml_rec"})
+                nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"model": "stdp_nestml_rec", "receptor_type": receptor_types["EXC_SPIKES"]})
             else:
-                nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "stdp_nestml_rec"})
+                nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "stdp_nestml_rec", "receptor_type": receptor_types["EXC_SPIKES"]})
             nest.Connect(mm, post_neuron)
             nest.Connect(pre_neuron, spikedet_pre)
             nest.Connect(post_neuron, spikedet_post)
         if sim_ref:
+            receptor_types = nest.GetStatus(post_neuron_ref, "receptor_types")[0]
             nest.Connect(pre_sg, pre_neuron_ref, "one_to_one", syn_spec={"delay": 1.})
-            nest.Connect(post_sg, post_neuron_ref, "one_to_one", syn_spec={"delay": 1., "weight": 99999.})
+            nest.Connect(post_sg, post_neuron_ref, "one_to_one", syn_spec={"delay": 1., "weight": 99999., "receptor_type": receptor_types["EXC_SPIKES"]})
             if NESTTools.detect_nest_version().startswith("v2"):
                 nest.Connect(pre_neuron_ref, post_neuron_ref, "all_to_all",
-                             syn_spec={"model": ref_synapse_model_name})
+                             syn_spec={"model": ref_synapse_model_name, "receptor_type": receptor_types["EXC_SPIKES"]})
             else:
                 nest.Connect(pre_neuron_ref, post_neuron_ref, "all_to_all",
-                             syn_spec={"synapse_model": ref_synapse_model_name})
+                             syn_spec={"synapse_model": ref_synapse_model_name, "receptor_type": receptor_types["EXC_SPIKES"]})
             nest.Connect(mm_ref, post_neuron_ref)
             nest.Connect(pre_neuron_ref, spikedet_pre_ref)
             nest.Connect(post_neuron_ref, spikedet_post_ref)

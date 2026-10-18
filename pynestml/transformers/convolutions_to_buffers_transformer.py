@@ -158,6 +158,7 @@ class ConvolutionsToBuffersTransformer(Transformer):
         from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
         from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
         from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
+        from pynestml.codegeneration.printers.nestml_expression_printer import NESTMLExpressionPrinter
 
         printer = NESTMLPrinter()
         printer._expression_printer = ODEToolboxExpressionPrinter(simple_expression_printer=None)

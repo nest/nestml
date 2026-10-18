@@ -38,7 +38,7 @@ from pynestml.utils.messages import Messages
 
 class GeNNCVariablePrinter(CppVariablePrinter):
     r"""
-    Variable printer for C syntax and the Spinnaker API.
+    Variable printer for C syntax and the GeNN API.
     """
 
     def __init__(self, expression_printer: ExpressionPrinter, with_origin: bool = True, with_vector_parameter: bool = True) -> None:
@@ -49,9 +49,9 @@ class GeNNCVariablePrinter(CppVariablePrinter):
 
     def print_variable(self, variable: ASTVariable) -> str:
         """
-        Converts a single variable to Spinnaker processable format.
+        Converts a single variable to GeNN processable format.
         :param variable: a single variable.
-        :return: a Spinnaker processable format.
+        :return: a GeNN processable format.
         """
         assert isinstance(variable, ASTVariable)
 
@@ -105,7 +105,7 @@ class GeNNCVariablePrinter(CppVariablePrinter):
 
     def _print_delay_variable(self, variable: ASTVariable) -> str:
         """
-        Converts a delay variable to SPINNAKER processable format
+        Converts a delay variable to GeNN processable format
         :param variable:
         :return:
         """
@@ -117,7 +117,7 @@ class GeNNCVariablePrinter(CppVariablePrinter):
 
     def _print_buffer_value(self, variable: ASTVariable) -> str:
         """
-        Converts for a handed over symbol the corresponding name of the buffer to a SPINNAKER processable format.
+        Converts for a handed over symbol the corresponding name of the buffer to a GeNN processable format.
         :param variable: a single variable symbol.
         :return: the corresponding representation as a string
         """
