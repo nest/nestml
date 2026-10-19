@@ -35,8 +35,8 @@ model non_linear_synapse:
         d ms = 1.0 ms
 
     equations:
-        x' = (alpha * x - beta * x * y) / ms
-        y' = (-gamma * y + delta * x * y) / ms
+        x' = (alpha * x - beta * x * y) / 1 ms
+        y' = (-gamma * y + delta * x * y) / 1 ms
 
     parameters:
         alpha real = 0.1

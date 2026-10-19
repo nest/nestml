@@ -56,19 +56,19 @@ Physical units
 
 A physical unit in NESTML can be either a base physical unit or a derived physical unit. The following table lists the seven base units as defined in `the SI standard <https://en.wikipedia.org/wiki/International_System_of_Units>`__.
 
-+-----------+--------+---------------------+
-| Name      | Symbol | Quantity            |
-|===========|========|=====================|
-| meter     | m      | length              |
-| kilogram  | kg     | mass                |
-| second    | s      | time                |
-| Ampère    | A      | electric current    |
-| Kelvin    | K      | temperature         |
-| mole      | mol    | amount of substance |
-| candela   | cd     | luminous intensity  |
-+-----------+--------+---------------------+
+========  ======  ===================
+Name      Symbol  Quantity
+========  ======  ===================
+meter     m       length
+kilogram  kg      mass
+second    s       time
+Ampère    A       electric current
+Kelvin    K       temperature
+mole      mol     amount of substance
+candela   cd      luminous intensity
+========  ======  ===================
 
-Any other physical unit can be expressed as a combination of these seven units. For this, the operators ``*`` (multiplication), ``/`` (division), ``**`` (power) and ``()`` (parentheses) can be used (see below for examples).
+Any other physical unit can be expressed as a combination of these seven units. For this, the operators ``*`` (multiplication), ``/`` (division of real numbers), ``//`` (integer division), ``**`` (power) and ``()`` (parentheses) can be used (see below for examples).
 
 NESTML also supports the usage of many named derived units such as Newton, Henry or lux. The following units are defined:
 
@@ -220,23 +220,35 @@ Physical units can have at most one of the following magnitude prefixes:
 | 10^-24   | yocto     | y               | 10^24    | yotta     | Y               |
 +----------+-----------+-----------------+----------+-----------+-----------------+
 
-For example, the following defines a possible unit:
+For example, the following is a possible unit:
 
 .. code-block:: nestml
 
-   mV*mV*nS**2/(mS*pA)
+   mV*nS**2*MOhm**-1*pA
 
-Units of the form ``<unit>**-1`` can also be expressed as ``1/<unit>``. For example
+Units of the form ``1/<unit>`` should be expressed as ``<unit>**-1``. For example
 
 .. code-block:: nestml
 
    (ms*mV)**-1
 
-is equivalent to
+or, equivalently
 
 .. code-block:: nestml
 
-   1/(ms*mV)
+   ms**-1*mV**-1
+
+both define the unit of :math:`\mathrm{ms}^{-1}\mathrm{mV}^{-1}`.
+
+
+Numeric literals with a physical unit
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Numeric literals with a physical unit can appear as constants in any expression, in the form of a number, followed by a physical unit. For example:
+
+.. code-block:: nestml
+
+   V_m mV = I_syn * 55 MOhm
 
 
 Type and unit checks
@@ -366,6 +378,7 @@ Examples for valid assignments for a numeric variable ``n`` are
 * compound difference: ``n -= 10`` which corresponds to ``n = n - 10``
 * compound product: ``n *= 10`` which corresponds to ``n = n * 10``
 * compound quotient: ``n /= 10`` which corresponds to ``n = n / 10``
+* compound integer quotient: ``n //= 10`` which corresponds to ``n = n // 10``
 
 Vectors
 ~~~~~~~
@@ -765,31 +778,33 @@ List of operators
 
 For any two valid numeric expressions ``x``, ``y``, boolean expressions ``b``,\ ``b1``,\ ``b2``, and integer expressions ``n``,\ ``i`` the following operators produce valid expressions.
 
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| Operator                                       | Description                                                        | Examples                  |
-+================================================+====================================================================+===========================+
-| ``()``                                         | Expressions with parentheses                                       | ``(x)``                   |
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``**``                                         | Power operator                                                     | ``x**y``                  |
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``+``, ``-``, ``~``                            | Unary plus, unary minus                                            | ``-x``                    |
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``*``, ``/``, ``%``                            | Multiplication, division and modulo operator                       | ``x * y``, ``x % y``      |
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``+``, ``-``                                   | Addition and subtraction                                           | ``x + y``, ``x - y``      |
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``<<``, ``>>``                                 | Left and right bit shifts                                          | ``n << i``, ``n >> i``    |
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``~``                                          | Bitwise negation                                                   | ``~b``                    |
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``&``, ``|``, ``^``                            | Bitwise ``and``, ``or`` and ``xor``                                | ``b1 & b2``, ``b1 ^ b2``  |
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``<``, ``<=``, ``==``, ``!=``, ``>=``, ``>``   | Comparison operators                                               | ``x <= y``, ``x != y``    |
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``not``, ``and``, ``or``                       | Logical conjunction, disjunction and negation                      | ``not b``, ``b1 or b2``   |
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``?:``                                         | Ternary operator (return ``x`` if ``b`` is true, ``y`` otherwise)  | ``b ? x : y``             |
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
+| Operator                                     | Description                                                       | Examples                 |
++==============================================+===================================================================+==========================+
+| ``()``                                       | Expressions with parentheses                                      | ``(x)``                  |
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
+| ``**``                                       | Power operator                                                    | ``x**y``                 |
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
+| ``+``, ``-``, ``~``                          | Unary plus, unary minus                                           | ``-x``                   |
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
+| ``*``, ``/``, ``%``                          | Multiplication, real number division and modulo operator          | ``x * y``, ``x % y``     |
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
+| ``//``                                       | C-style truncated integer division, i.e. -5 // 2 = -2             | ``x // y``               |
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
+| ``+``, ``-``                                 | Addition and subtraction                                          | ``x + y``, ``x - y``     |
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
+| ``<<``, ``>>``                               | Left and right bit shifts                                         | ``n << i``, ``n >> i``   |
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
+| ``~``                                        | Bitwise negation                                                  | ``~b``                   |
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
+| ``&``, ``|``, ``^``                          | Bitwise ``and``, ``or`` and ``xor``                               | ``b1 & b2``, ``b1 ^ b2`` |
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
+| ``<``, ``<=``, ``==``, ``!=``, ``>=``, ``>`` | Comparison operators                                              | ``x <= y``, ``x != y``   |
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
+| ``not``, ``and``, ``or``                     | Logical conjunction, disjunction and negation                     | ``not b``, ``b1 or b2``  |
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
+| ``?:``                                       | Ternary operator (return ``x`` if ``b`` is true, ``y`` otherwise) | ``b ? x : y``            |
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
 
 
 Blocks
@@ -1090,10 +1105,10 @@ In case of higher-order ODEs of the form ``F(x'', x', x) = 0``, the solution ``x
 
    state:
      x  real    = 0
-     x' ms**-1  = 0 * ms**-1
+     x' ms**-1  = 0 ms**-1
 
    equations:
-     x'' = - 2 * x' / ms - x / ms**2
+     x'' = - 2 * x' / 1 ms - x / 1 ms**2
 
    update:
      integrate_odes(x)

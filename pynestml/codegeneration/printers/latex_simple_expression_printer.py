@@ -38,7 +38,7 @@ class LatexSimpleExpressionPrinter(SimpleExpressionPrinter):
     def print_simple_expression(self, node: ASTSimpleExpression) -> str:
         assert isinstance(node, ASTSimpleExpression)
 
-        if node.has_unit():
+        if node.is_numeric_literal_with_unit():
             s = ""
             if node.get_numeric_literal() != 1:
                 s += "{0:E}".format(node.get_numeric_literal())

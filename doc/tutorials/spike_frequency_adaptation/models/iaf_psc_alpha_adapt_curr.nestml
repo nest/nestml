@@ -17,15 +17,6 @@
 # neuron like dynamics interacting by point events is described in
 # [1]_. A flow chart can be found in [2]_.
 #
-# Critical tests for the formulation of the neuron model are the
-# comparisons of simulation results for different computation step
-# sizes.
-#
-# The iaf_psc_alpha is the standard model used to check the consistency
-# of the nest simulation kernel because it is at the same time complex
-# enough to exhibit non-trivial dynamics and simple enough compute
-# relevant measures analytically.
-#
 # References
 # ++++++++++
 #
@@ -75,14 +66,14 @@ model iaf_psc_alpha_adapt_curr_neuron:
         V_m mV = E_L        # Membrane potential
         I_sfa pA = 0 pA     # Adaptation current
         refr_t ms = 0 ms    # Refractory period timer
-        is_refractory boolean = false
 
     equations:
         kernel I_kernel_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
         kernel I_kernel_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
-        inline I pA = (convolve(I_kernel_exc, exc_spikes) - convolve(I_kernel_inh, inh_spikes)) * pA - I_sfa + I_e + I_stim
+        inline I pA = unit_psc * (convolve(I_kernel_exc, exc_spikes) - convolve(I_kernel_inh, inh_spikes)) - I_sfa + I_e + I_stim
         V_m' = -(V_m - E_L) / tau_m + I / C_m
         I_sfa' = -I_sfa / tau_sfa
+        refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero at a rate of one second per second
 
     parameters:
         C_m pF = 250 pF           # Capacitance of the membrane
@@ -92,13 +83,16 @@ model iaf_psc_alpha_adapt_curr_neuron:
         refr_T ms = 2 ms          # Duration of refractory period
         E_L mV = -70 mV           # Resting potential
         V_reset mV = -70 mV       # Reset potential of the membrane
-        V_th mV = -55 mV          # Spike threshold
+        V_th mV = -55 mV          # Spike threshold potential
 
         tau_sfa ms = 100 ms       # Adaptation current time constant
         Delta_I_sfa pA = 100 pA   # Adaptation current increment upon spiking
 
         # constant external input current
         I_e pA = 0 pA
+
+    internals:
+        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
 
     input:
         exc_spikes <- excitatory spike
@@ -109,25 +103,17 @@ model iaf_psc_alpha_adapt_curr_neuron:
         spike
 
     update:
-        if is_refractory:
-            # neuron is absolute refractory, do not evolve ODEs
-            refr_t -= resolution()
+        if refr_t > 0 ms:
+            # neuron is absolute refractory, do not evolve V_m
+            integrate_odes(refr_t)
         else:
             # neuron not refractory
-            integrate_odes()
+            integrate_odes(V_m, I_sfa)
 
-    onCondition(V_m >= V_th): # threshold crossing
-        # A supra-threshold membrane potential should never be observable.
-        # The reset at the time of threshold crossing enables accurate
-        # integration independent of the computation step size, see [2,3] for
-        # details.
+    onCondition(refr_t <= 0 ms and V_m >= V_th):
+        # threshold crossing
         refr_t = refr_T    # start of the refractory period
-        is_refractory = true
         V_m = V_reset
         I_sfa += Delta_I_sfa
         emit_spike()
 
-    onCondition(is_refractory and refr_t <= resolution() / 2):
-        # end of refractory period
-        refr_t = 0 ms
-        is_refractory = false

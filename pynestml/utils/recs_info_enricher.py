@@ -23,6 +23,7 @@
 import copy
 import sympy
 
+from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.mechs_info_enricher import MechsInfoEnricher
@@ -206,11 +207,17 @@ class RecsInfoEnricher(MechsInfoEnricher):
                 "ASTVariable": variable,
                 "init_expression": expression,
             }
-            if expression.is_function_call() and expression.get_function_call(
-            ).callee_name == PredefinedFunctions.TIME_RESOLUTION:
-                result[variable_name]["is_time_resolution"] = True
-            else:
+            if isinstance(expression, ASTExpression):
                 result[variable_name]["is_time_resolution"] = False
+                for func in expression.get_function_calls():
+                    if func.callee_name == PredefinedFunctions.TIME_RESOLUTION:
+                        result[variable_name]["is_time_resolution"] = True
+            else:
+                if expression.is_function_call() and expression.get_function_call(
+                ).callee_name == PredefinedFunctions.TIME_RESOLUTION:
+                    result[variable_name]["is_time_resolution"] = True
+                else:
+                    result[variable_name]["is_time_resolution"] = False
 
         return result
 

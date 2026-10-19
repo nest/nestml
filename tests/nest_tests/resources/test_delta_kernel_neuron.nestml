@@ -35,7 +35,7 @@ model test_delta_kernel_neuron:
     equations:
         kernel delta_kernel = delta(t)
         recordable inline psp mV = unit_psp * convolve(delta_kernel, spikes_in)
-        x' = -x / tau_m + psp / ms
+        x' = -x / tau_m + psp / 1 ms
         y' = -y / tau_m + unit_psp * spikes_in
         z' = -z / tau_m
 
@@ -55,4 +55,4 @@ model test_delta_kernel_neuron:
         integrate_odes()
 
     onReceive(spikes_in):
-        z += unit_psp * spikes_in * s
+        z += unit_psp * spikes_in * 1 s

@@ -30,12 +30,15 @@ model izhikevich_tutorial_neuron:
         # NESTML syntax for variables: variable_name type = initial_value
 
     equations:
-        v' = (.04 * v * v / mV + 5 * v + (140 - u) * mV + (I_e * GOhm)) / ms
+        v' = (.04 * v * v / 1 mV + 5 * v + (140 - u) * 1 mV + (I_e * 1 GOhm)) / 1 ms
         # TODO: add an ODE for u
 
     parameters:
         a real = .02    # describes time scale of recovery variable
         # TODO: add remaining variables
+
+    internals:
+        unit_psp mV = 1 mV        # Unitary postsynaptic potential amplitude
 
     input:
         spikes <- spike
@@ -49,9 +52,9 @@ model izhikevich_tutorial_neuron:
 
     onReceive(spikes):
         # add synaptic current
-        v += spikes * mV * s
+        v += unit_psp * spikes * 1 s
 
-    onCondition(v >= 30mV):
+    onCondition(v >= 30 mV):
         # TODO: implement threshold crossing check
 
         # use an if-condition block. The NESTML syntax looks like:

@@ -71,14 +71,14 @@ model izhikevich_psc_alpha_neuron:
 
         V_m' = (k * (V_m - V_r) * (V_m - V_t) - U_m + I_e + I_stim + I_syn_exc - I_syn_inh) / C_m
         U_m' = a * (b * (V_m - V_r) - U_m)
-        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
+        refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero, at a rate of one (milli)second per (milli)second
 
     parameters:
         C_m pF = 200 pF           # Membrane capacitance
         k pF/mV/ms = 8 pF/mV/ms   # Spiking slope
         V_r mV = -65 mV           # Resting potential
         V_t mV = -45 mV           # Threshold potential
-        a 1/ms = 0.01/ms          # Time scale of recovery variable
+        a 1/ms = 0.01 ms**-1      # Time scale of recovery variable
         b nS = 9 nS               # Sensitivity of recovery variable
         c mV = -65 mV             # After-spike reset value of V_m
         d pA = 60 pA              # After-spike reset value of U_m

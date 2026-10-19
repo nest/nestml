@@ -116,8 +116,9 @@ class ReceptorProcessing(MechanismProcessing):
         full_solver_result = odetoolbox.analysis(
             odetoolbox_indict,
             disable_stiffness_check=True,
-            disable_singularity_detection=True,
-            log_level=FrontendConfiguration.logging_level)
+            disable_singularity_mitigation=True,
+            log_level=FrontendConfiguration.logging_level)    # multiple conditional solvers returned from ODE-toolbox not yet supported by NESTML
+
         analytic_solver = None
         analytic_solvers = [
             x for x in full_solver_result if x["solver"] == "analytical"]

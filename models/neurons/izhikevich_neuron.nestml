@@ -59,17 +59,17 @@ model izhikevich_neuron:
         U_m real = b * V_m_init   # Membrane potential recovery variable
 
     equations:
-        V_m' = (0.04 * V_m * V_m / mV + 5 * V_m + (140 - U_m) * mV + ((I_e + I_stim) * GOhm)) / ms
-        U_m' = a * (b * V_m - U_m * mV) / (mV * ms)
+        V_m' = (0.04 * V_m * V_m / 1 mV + 5 * V_m + (140 - U_m) * 1 mV + ((I_e + I_stim) * 1 GOhm)) / 1 ms
+        U_m' = a * (b * V_m - U_m * 1 mV) / (1 mV*ms)
 
     parameters:
-        a real = 0.02        # describes time scale of recovery variable
-        b real = 0.2         # sensitivity of recovery variable
-        c mV = -65 mV        # after-spike reset value of V_m
-        d real = 8.0         # after-spike reset value of U_m
-        V_m_init mV = -65 mV # initial membrane potential
-        V_min mV = -inf * mV # Absolute lower value for the membrane potential.
-        V_th mV = 30 mV      # Threshold potential
+        a real = 0.02           # describes time scale of recovery variable
+        b real = 0.2            # sensitivity of recovery variable
+        c mV = -65 mV           # after-spike reset value of V_m
+        d real = 8.0            # after-spike reset value of U_m
+        V_m_init mV = -65 mV    # initial membrane potential
+        V_min mV = -inf * 1 mV  # Absolute lower value for the membrane potential.
+        V_th mV = 30 mV         # Threshold potential
 
         # constant external input current
         I_e pA = 0 pA
@@ -87,8 +87,8 @@ model izhikevich_neuron:
     update:
         integrate_odes()
 
-        # Add synaptic current
-        V_m += unit_psp * spikes * s
+        # Add synaptic input
+        V_m += unit_psp * spikes * 1 s
 
         # lower bound of membrane potential
         V_m = max(V_min, V_m)

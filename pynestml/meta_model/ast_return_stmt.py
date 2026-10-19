@@ -102,4 +102,7 @@ class ASTReturnStmt(ASTNode):
         if not isinstance(other, ASTReturnStmt):
             return False
 
+        if self.get_expression() is None and other.get_expression() is None:
+            return True
+
         return self.get_expression().equals(other.get_expression())

@@ -19,6 +19,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+import astropy
+
+from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_bit_operator import ASTBitOperator
@@ -27,6 +30,7 @@ from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 
 
 class PythonExpressionPrinter(ExpressionPrinter):
@@ -61,7 +65,7 @@ class PythonExpressionPrinter(ExpressionPrinter):
             return self._print_ternary_operator_expression(node)
 
         if node.is_expression():
-            return self.print_expression(node.get_expression())
+            return self._simple_expression_printer.print(node.get_expression())
 
         raise RuntimeError("Tried to print unknown expression: \"%s\"" % str(node))
 

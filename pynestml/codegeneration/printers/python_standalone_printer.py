@@ -67,7 +67,9 @@ class PythonStandalonePrinter(ModelPrinter):
     def print_assignment(self, node: ASTAssignment) -> str:
         ret = self._expression_printer.print(node.lhs)
         ret += " "
-        if node.is_compound_quotient:
+        if node.is_compound_integer_quotient:
+            ret += "//="
+        elif node.is_compound_quotient:
             ret += "/="
         elif node.is_compound_product:
             ret += "*="

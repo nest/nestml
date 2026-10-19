@@ -24,6 +24,7 @@ from collections import defaultdict
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_kernel import ASTKernel
+from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
@@ -444,8 +445,9 @@ class ASTMechanismInformationCollector(object):
             updated_dependencies = list()
             owned = list()
             updated_owned = mechanism_info["States"] + mechanism_info["Parameters"] + mechanism_info["Internals"]
+            if isinstance(mechanism_info["root_expression"], ASTOdeEquation):
+                updated_owned.append(mechanism_info["root_expression"].lhs)
 
-            loop_counter = 0
             while set([v.get_name() for v in owned]) != set([v.get_name() for v in updated_owned]) or set(
                     [v.get_name() for v in dependencies]) != set([v.get_name() for v in updated_dependencies]):
                 owned = updated_owned
@@ -454,7 +456,6 @@ class ASTMechanismInformationCollector(object):
                 block.accept(collector)
                 updated_owned = collector.owned
                 updated_dependencies = collector.dependencies
-                loop_counter += 1
 
             mechanism_info["Blocks"] = dict()
             mechanism_info["Blocks"]["dependencies"] = dependencies
