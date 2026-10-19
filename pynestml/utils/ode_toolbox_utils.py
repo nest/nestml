@@ -58,7 +58,3 @@ class ODEToolboxUtils:
         s_reformatted = MySympyPrinter().doprint(sympy_expr)
 
         return s_reformatted
-
-    @classmethod
-    def is_ode_toolbox_v3_or_higher(cls, odetoolbox):
-        return "use_alternative_expM" in inspect.signature(odetoolbox.analysis).parameters.keys()

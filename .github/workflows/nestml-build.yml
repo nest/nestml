@@ -106,7 +106,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip pytest jupyterlab matplotlib pycodestyle scipy
           python -m pip install -r requirements.txt
-          python -m pip install --upgrade git+https://github.com/nest/ode-toolbox
 
       - name: Install NESTML
         run: |
@@ -141,7 +140,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip pytest jupyterlab matplotlib pycodestyle scipy
           python -m pip install -r requirements.txt
-          python -m pip install --upgrade git+https://github.com/nest/ode-toolbox
 
       - name: Install NESTML
         run: |
@@ -180,7 +178,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip pytest jupyterlab matplotlib pycodestyle scipy
           python -m pip install -r requirements.txt
-          python -m pip install --upgrade git+https://github.com/nest/ode-toolbox
 
       - name: Install NESTML
         run: |
@@ -223,7 +220,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip pytest jupyterlab matplotlib pycodestyle scipy pandas
           python -m pip install -r requirements.txt
-          python -m pip install --upgrade git+https://github.com/nest/ode-toolbox
 
       - name: Install Python dependencies
         # if on "main" NEST branch: also test "main" branch of ODE-toolbox!
@@ -327,7 +323,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip pytest jupyterlab matplotlib pycodestyle scipy pandas
           python -m pip install -r requirements.txt
-          python -m pip install --upgrade git+https://github.com/nest/ode-toolbox
 
       - name: Install NEST simulator
         run: |
@@ -386,7 +381,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip pytest matplotlib scipy pybind11 psutil pkgconfig
           python -m pip install -r requirements.txt
-          python -m pip install --upgrade git+https://github.com/nest/ode-toolbox
 
       - name: Install GeNN
         run: |
