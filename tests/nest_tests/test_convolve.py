@@ -69,4 +69,4 @@ class TestConvolve:
         plt.plot(events["times"], events["x"])
         plt.savefig("/tmp/test_convolve.png")
 
-        assert events["x"][-1] == 2E-3
+        assert events["x"][-1] == 2

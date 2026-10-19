@@ -50,7 +50,7 @@ class TestIntegrateODEs:
         r"""Generate the model code"""
 
         generate_nest_target(input_path=[os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                                       os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))),
+                                                                       os.path.join(os.pardir, os.pardir, "tests", "resources", "iaf_psc_exp_single_input_port_neuron.nestml"))),
                                          os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                        os.path.join("resources", "integrate_odes_test.nestml"))),
                                          os.path.realpath(os.path.join(os.path.dirname(__file__),
@@ -277,7 +277,7 @@ class TestIntegrateODEs:
             fig.savefig("/tmp/test_integrate_odes_spikes.png", dpi=300)
 
         # verify
-        np.testing.assert_allclose(x_actual[-1], .004)    # XXX desired should be 4, this is due to an issue with the scale of the weight, see https://github.com/nest/nestml/issues/984
+        np.testing.assert_allclose(x_actual[-1], 4)
 
     def test_integrate_odes_higher_order(self):
         r"""

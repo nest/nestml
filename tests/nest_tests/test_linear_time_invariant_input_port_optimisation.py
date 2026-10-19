@@ -46,7 +46,8 @@ class TestLinearTimeInvariantInputPortOptimisation:
     @pytest.fixture(scope="module", autouse=True)
     def generate_code(self):
         TestLinearTimeInvariantInputPortOptimisation.module_name = "nestmlmodule"    # unfortunately, pytest only allows us to set static attributes on the class
-        input_path = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, os.pardir, "models", "neurons", neuron_name + "_neuron.nestml")))) for neuron_name in TestLinearTimeInvariantInputPortOptimisation_neuron_types]
+        input_path = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_delta_neuron.nestml")))),
+                      os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, os.pardir, "tests", "resources", "iaf_psc_exp_single_input_port_neuron.nestml"))))]
         target_path = "nestmlmodule"
         logging_level = "DEBUG"
         suffix = "_nestml"

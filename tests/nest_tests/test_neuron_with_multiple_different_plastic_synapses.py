@@ -22,7 +22,6 @@
 import numpy as np
 import os
 import pytest
-import shutil
 import tempfile
 
 import nest
@@ -182,10 +181,11 @@ class TestNeuronWithMultipleDifferentSynapsesVt:
         nest.CopyModel(TestNeuronWithMultipleDifferentSynapsesVt.synapse2_model_name, "synapse2", {"volume_transmitter": vt})
 
         post = nest.Create(TestNeuronWithMultipleDifferentSynapsesVt.neuron_model_name)
+        receptor_types = nest.GetStatus(post, "receptor_types")[0]
         p1 = nest.Create("parrot_neuron")
         p2 = nest.Create("parrot_neuron")
-        nest.Connect(p1, post, syn_spec={"synapse_model": "synapse1"})
-        nest.Connect(p2, post, syn_spec={"synapse_model": "synapse2"})
+        nest.Connect(p1, post, syn_spec={"synapse_model": "synapse1", "receptor_type": receptor_types["EXC_SPIKES"]})
+        nest.Connect(p2, post, syn_spec={"synapse_model": "synapse2", "receptor_type": receptor_types["EXC_SPIKES"]})
 
         # Create spike recorders for Experiment B
         sr_p1_B = nest.Create("spike_recorder")
@@ -201,7 +201,7 @@ class TestNeuronWithMultipleDifferentSynapsesVt:
 
         # Background drive to make post neuron spike
         pg_post = nest.Create("poisson_generator", params={"rate": post_rate, "start": 0.0, "stop": sim_time})
-        nest.Connect(pg_post, post, syn_spec={"weight": 10000.0, "delay": 1.0})
+        nest.Connect(pg_post, post, syn_spec={"weight": 10000.0, "delay": 1.0, "receptor_type": receptor_types["EXC_SPIKES"]})
 
         # Read initial weights
         w1_before = read_weight(p1, post)
