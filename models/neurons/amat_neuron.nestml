@@ -122,8 +122,9 @@ model amat_neuron:
         # membrane potential and refractory timer
         V_m mV = E_L        # Absolute membrane potential; never reset on spike
         refr_t ms = 0 ms    # Refractory period timer; counts down to 0 after a spike
-
+        
     equations:
+
 
         # Exponential-shaped postsynaptic current kernels (unchanged from mat2_psc_exp)
         kernel I_kernel_inh = exp(-t / tau_syn_inh) # inhibitory kernel # inhibitory PSC waveform
@@ -132,7 +133,6 @@ model amat_neuron:
         # decay ODEs for slow and fast adaptation (from mat2_psc_exp)
         V_th_alpha_1' = -V_th_alpha_1 / tau_1
         V_th_alpha_2' = -V_th_alpha_2 / tau_2
-
 
         recordable inline I_syn_ex pA = (unit_psc * convolve(I_kernel_exc, exc_spikes))  # convolving the I_e exp exc kernel and convolved
 
@@ -143,6 +143,7 @@ model amat_neuron:
         # dV/dt, written once and reused below so the voltage-dependent threshold
         # is driven by exactly the same rate-of-change that updates V_m itself.
         inline dV_dt mV/ms = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
+
 
         # Membrane potential ODE: tau_m * dV/dt = -(V-E_L) + R*I  (unchanged from mat2_psc_exp)
         V_m' = dV_dt
@@ -178,7 +179,7 @@ model amat_neuron:
         # voltage-dependent threshold parameters
         tau_v ms = 5 ms          # Timescale of the voltage-dependency kernel K(s)=s*exp(-s/tau_v) [4]
 
-        beta 1/ms = 0 / ms       # Strength/sign of voltage dependency. beta=0 recovers mat2_psc_exp
+        beta 1/ms = 1 / ms       # Strength/sign of voltage dependency. beta=0 recovers mat2_psc_exp
                                  # exactly. Negative beta -> phasic/rebound-type behaviour;
                                  # positive beta -> resonator/subthreshold-oscillation-type behaviour [4]
 
@@ -197,17 +198,21 @@ model amat_neuron:
 
     update:
         if refr_t > 0 ms:
+            
             # Neuron is absolute refractory. To match the NEST AMAT model behaviour, all dynamical equations continue to be integrated, even while the neuron is refractory
             integrate_odes(V_m, V_th_v_aux, V_th_v, V_th_alpha_1, V_th_alpha_2, refr_t)
+        
         else:
+            
             integrate_odes(V_m, V_th_v_aux, V_th_v, V_th_alpha_1, V_th_alpha_2)
 
     onCondition(refr_t <= 0 ms and V_m >= V_th):
-        # Firing threshold was crossed: fire a spike!
+
+        # Firing threshold was crossed: fire a spike instanteously 
+        emit_spike()
 
         refr_t = refr_T    # start of the refractory period
-
         V_th_alpha_1 += alpha_1 # short adaptation time
         V_th_alpha_2 += alpha_2 # long adaptation time
 
-        emit_spike()
+        
