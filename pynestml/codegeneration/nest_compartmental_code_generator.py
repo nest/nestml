@@ -479,8 +479,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             disable_singularity_mitigation=True,
             preserve_expressions=self.get_option("preserve_expressions"),
             use_alternative_expM=self.get_option("use_alternative_expM"),
-            log_level=FrontendConfiguration.logging_level,
-            **extra_kws)
+            log_level=FrontendConfiguration.logging_level)
 
         analytic_solver = None
         analytic_solvers = [
@@ -532,8 +531,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 use_alternative_expM=self.get_option("use_alternative_expM"),
                 disable_analytic_solver=True,
                 preserve_expressions=self.get_option("preserve_expressions"),
-                log_level=FrontendConfiguration.logging_level,
-                **extra_kws)
+                log_level=FrontendConfiguration.logging_level)
             numeric_solvers = [
                 x for x in solver_result if x["solver"].startswith("numeric")]
             assert len(
