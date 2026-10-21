@@ -1129,21 +1129,64 @@ Typically, the statements in the ``onReceive`` block integrate the delta functio
 
    \int_{t}^{t + \Delta t} f(\tau) \delta(\tau - t) d\tau = f(t)
 
-for any :math:`\Delta t > 0`. In NESTML, the sifting property can be expressed by using the name of the spiking input port directly in the expression. To make the units consistent, a multiplication with a normalising constant of :math:`1~\mathrm{s}` is needed, for instance:
+for any :math:`\Delta t > 0`. In NESTML, the sifting property can be expressed by using the ``get_weight()`` function. The function to be sifted is passed as the first argument, and the second argument is the time of the delta pulse which carries out the sifting:
+
+.. math::
+
+    \text{sift}(f(t), t_0) &= \int_{-\infty}^\infty f(u) \delta(u - t_0) du\\
+                           &= f(t_0)
+
+If the input port spike train :math:`\mathrm{spikes\_pre}(t)` is passed as the first argument, then we have
+
+.. math::
+
+    \text{sift}(\mathrm{spikes\_pre}(t), t_0) &= \int_{-\infty}^\infty  \left(\sum_k w_k \delta(u - t_k)\right) \delta(u - t_0) du\\
+                           &= \sum_k w_k \int_{-\infty}^\infty\delta(u - t_k)\,\delta(u - t_0) du\\
+                           &= \left\{
+                                     \begin{array}{ll}
+                                     w_k & \quad \text{if } t_0 = t_k\\
+                                     0 & \quad \text{otherwise}
+                                     \end{array}
+                              \right.
+That is, the NESTML ``get_weight()`` function extracts the weight of the spike occurring at the time of its second argument. The unit of the result of the ``get_weight()`` function is a scalar.
+
+For example, to increment a real number ``x`` by the weight of an incoming spike when a spike is received, one can write:
 
 .. code-block:: nestml
 
    state:
-       I_syn pA = 0 pA
+       x real = 0
 
-   equations:
-       I_syn' = -I_syn / tau_syn
-       V_m' = -V_m / tau_m + I_syn / C_m
+   onReceive(spikes_pre):    # when incoming spike at time t is received, do the following:
+       spike_weight real = get_weight(spikes_pre, t)   # weight of the spike occurring at time t
+       x += spike_weight    # increment x by the weight of the spike
 
-   onReceive(spikes):
-       I_syn += unit_psc * spikes * 1 s
+Integration across time causes the :math:`\text{s}^{-1}` unit of the spike train to drop out, so that what remains is a scalar value (the weight of the spike). If :math:`x` is defined as a real number, the units on the left- and right-hand side are thus consistent.
 
-Note that in this example, the intended physical unit (pA) was assigned by multiplying the type of the input port ``spikes`` (which is 1/s) by ``unit_psc``, which is in pA, and by seconds (s), resulting in an overall unit of pA for ``I_syn``.
+If a particular physical unit is desired for the increment, for example, millivolts (:math:`\text{mV}`), then the weight of the spike can be multiplied by an internal parameter with the desired unit. For example, to increment a membrane potential ``V_m`` (in :math:`\text{mV}`) by :math:`w~\text{mV}` for every incoming spike with weight :math:`w`, one can write:
+
+.. code-block:: nestml
+
+   state:
+       V_m mV = -70 mV
+
+   internals:
+       unit_psp mV = 1 mV
+
+   input:
+       in_spikes <- spike
+
+   onReceive(spikes_pre):
+       V_m += unit_psp * get_weight(spikes_pre, t)
+
+In ``onReceive`` blocks, a spiking input port may not appear outside of a ``get_weight()`` call. For example, the following is not allowed:
+
+.. code-block:: nestml
+
+   onReceive(in_spikes):
+       V_m += unit_psp * in_spikes    # error!
+
+The second parameter of the ``get_weight()`` function is only allowed to be the current time (the time at the spike event) ``t``.
 
 To specify in which sequence the event handlers should be called in case multiple events are received at the exact same time, the ``priority`` parameter can be used, which can be given an integer value, where a larger value means higher priority (handled earlier). For example:
 
@@ -1161,14 +1204,14 @@ Vector input ports of constant size and with a constant numerical value for the 
 
 .. code-block:: nestml
 
-    input:
-        foo[2] <- spike
+   input:
+       foo[2] <- spike
 
-    onReceive(foo[0]):
-        # ... handle foo[0] spikes...
+   onReceive(foo[0]):
+       # ... handle foo[0] spikes...
 
-    onReceive(foo[1]):
-        # ... handle foo[1] spikes...
+   onReceive(foo[1]):
+       # ... handle foo[1] spikes...
 
 
 Output
