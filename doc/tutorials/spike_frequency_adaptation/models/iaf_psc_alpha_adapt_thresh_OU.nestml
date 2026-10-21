@@ -97,8 +97,6 @@ model iaf_psc_alpha_adapt_thresh_OU_neuron:
         I_e pA = 0 pA
 
     internals:
-        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
-
         D_noise pA**2/ms = 2 * sigma_noise**2 / tau_syn_exc
         A_noise pA = ((D_noise * tau_syn_exc / 2) * (1 - exp(-2 * resolution() / tau_syn_exc)))**.5
 
