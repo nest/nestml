@@ -107,7 +107,7 @@ model iaf_psc_exp_neuron:
             integrate_odes(I_syn_exc, I_syn_inh, V_m)
 
     onReceive(input_spikes):
-        psc nS = unit_psc * get_weight(input_spikes, t)    # compute the magnitude of the postsynaptic response
+        psc pA = unit_psc * get_weight(input_spikes, t)    # compute the magnitude of the postsynaptic response
 
         # route the incoming spike on the basis of the weight: less than zero means an inhibitory spike; greater than zero means an excitatory spike
         if psc > 0:
