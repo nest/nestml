@@ -1032,6 +1032,7 @@ The name of the input port can also be used in the ``update`` block, for example
    update:
        I_stim_avg = alpha * I_stim_avg + (1 - alpha) * I_stim
 
+
 Spiking input ports
 ~~~~~~~~~~~~~~~~~~~
 
@@ -1061,6 +1062,7 @@ A corresponding spiking input port can be defined in a NESTML model as follows:
 
    input:
        spikes_pre <- spike
+
 Note that the unit of ``spikes_pre`` is :math:`\text{s}^{-1}`, as ``w`` has been defined as a dimensionless real number.
 
 Spiking input can be processed either by referencing the input port in the right-hand side of an equation (see :ref:`Handling spiking input in equations`) or by means of ``onReceive`` event handlers (see :ref:`Handling spiking input by event handlers`).
@@ -1074,16 +1076,19 @@ The spiking input port name ``spikes_pre`` can be used directly on the right-han
 .. math::
 
    \frac{dx}{dt} = -\frac{x}{\tau} + \mathrm{spikes\_pre}(t)
+
 If ``x`` is a real number, then the units here are consistent (in :math:`\text{s}^{-1}`) on the left- and on the right-hand side of the equation. This can be written in NESTML as:
 
 .. code-block:: nestml
 
    x' = -x / tau + spikes_pre
+
 The name of the input port can also be used inside of a convolution. For instance, if ``K`` is a :doc:`kernel <Kernel functions>`, then:
 
 .. math::
 
    \frac{dx}{dt} = -\frac{x}{\tau} + \frac{1}{C} \left(K \ast \mathrm{spikes\_pre}\right)(t)
+
 Note that applying the convolution means integrating over time, hence dropping the :math:`\text{s}^{-1}` unit, leaving a unitless quantity (the function of time :math:`K \ast \mathrm{spikes\_pre}`). To make the units consistent in this case, an explicit division by time (such as by a constant :math:`C` with units :math:`\mathrm{s}`) is required.
 
 This can be written in NESTML as:
@@ -1124,64 +1129,21 @@ Typically, the statements in the ``onReceive`` block integrate the delta functio
 
    \int_{t}^{t + \Delta t} f(\tau) \delta(\tau - t) d\tau = f(t)
 
-for any :math:`\Delta t > 0`. In NESTML, the sifting property can be expressed by using the ``get_weight()`` function. The function to be sifted is passed as the first argument, and the second argument is the time of the delta pulse which carries out the sifting:
-
-.. math::
-
-    \text{sift}(f(t), t_0) &= \int_{-\infty}^\infty f(u) \delta(u - t_0) du\\
-                           &= f(t_0)
-
-If the input port spike train :math:`\mathrm{spikes\_pre}(t)` is passed as the first argument, then we have
-
-.. math::
-
-    \text{sift}(\mathrm{spikes\_pre}(t), t_0) &= \int_{-\infty}^\infty  \left(\sum_k w_k \delta(u - t_k)\right) \delta(u - t_0) du\\
-                           &= \sum_k w_k \int_{-\infty}^\infty\delta(u - t_k)\,\delta(u - t_0) du\\
-                           &= \left\{
-                                     \begin{array}{ll}
-                                     w_k & \quad \text{if } t_0 = t_k\\
-                                     0 & \quad \text{otherwise}
-                                     \end{array}
-                              \right.
-That is, the NESTML ``get_weight()`` function extracts the weight of the spike occurring at the time of its second argument. The unit of the result of the ``get_weight()`` function is a scalar.
-
-For example, to increment a real number ``x`` by the weight of an incoming spike when a spike is received, one can write:
+for any :math:`\Delta t > 0`. In NESTML, the sifting property can be expressed by using the name of the spiking input port directly in the expression. To make the units consistent, a multiplication with a normalising constant of :math:`1~\mathrm{s}` is needed, for instance:
 
 .. code-block:: nestml
 
    state:
-       x real = 0
+       I_syn pA = 0 pA
 
-   onReceive(spikes_pre):    # when incoming spike at time t is received, do the following:
-       spike_weight real = get_weight(spikes_pre, t)   # weight of the spike occurring at time t
-       x += spike_weight    # increment x by the weight of the spike
+   equations:
+       I_syn' = -I_syn / tau_syn
+       V_m' = -V_m / tau_m + I_syn / C_m
 
-Integration across time causes the :math:`\text{s}^{-1}` unit of the spike train to drop out, so that what remains is a scalar value (the weight of the spike). If :math:`x` is defined as a real number, the units on the left- and right-hand side are thus consistent.
+   onReceive(spikes):
+       I_syn += unit_psc * spikes * 1 s
 
-If a particular physical unit is desired for the increment, for example, millivolts (:math:`\text{mV}`), then the weight of the spike can be multiplied by an internal parameter with the desired unit. For example, to increment a membrane potential ``V_m`` (in :math:`\text{mV}`) by :math:`w~\text{mV}` for every incoming spike with weight :math:`w`, one can write:
-
-.. code-block:: nestml
-
-   state:
-       V_m mV = -70 mV
-
-   internals:
-       unit_psp mV = 1 mV
-
-   input:
-       in_spikes <- spike
-
-   onReceive(spikes_pre):
-       V_m += unit_psp * get_weight(spikes_pre, t)
-
-In ``onReceive`` blocks, a spiking input port may not appear outside of a ``get_weight()`` call. For example, the following is not allowed:
-
-.. code-block:: nestml
-
-   onReceive(in_spikes):
-       V_m += unit_psp * in_spikes    # error!
-
-The second parameter of the ``get_weight()`` function is only allowed to be the current time (the time at the spike event) ``t``.
+Note that in this example, the intended physical unit (pA) was assigned by multiplying the type of the input port ``spikes`` (which is 1/s) by ``unit_psc``, which is in pA, and by seconds (s), resulting in an overall unit of pA for ``I_syn``.
 
 To specify in which sequence the event handlers should be called in case multiple events are received at the exact same time, the ``priority`` parameter can be used, which can be given an integer value, where a larger value means higher priority (handled earlier). For example:
 
@@ -1194,6 +1156,44 @@ To specify in which sequence the event handlers should be called in case multipl
        println("Info: processing a postsynaptic spike at time t = {t}")
 
 In this case, if a pre- and postsynaptic spike are received at the exact same time, the higher-priority ``spikes_post`` handler will be invoked first.
+
+Vector input ports of constant size and with a constant numerical value for the index can be used:
+
+.. code-block:: nestml
+
+    input:
+        foo[2] <- spike
+
+    onReceive(foo[0]):
+        # ... handle foo[0] spikes...
+
+    onReceive(foo[1]):
+        # ... handle foo[1] spikes...
+
+
+Output
+------
+
+Each model can only produce a single output. The type of the event has to be given in the `output` block. Currently, only spike output is supported.
+
+.. code-block:: nestml
+
+   output:
+       spike
+
+Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + timestep()``.
+
+Each spiking output event can optionally be parameterised by using the area-under-the-curve of the Dirac delta function. For example, a synapse could assign a weight (as a real number) to its spike event by including this value in the call to ``emit_spike()``:
+
+.. code-block:: nestml
+
+   parameters:
+       weight real = 10.
+
+   update:
+       emit_spike(weight)
+
+
 
 Vector input ports of constant size and with a constant numerical value for the index can be used:
 
