@@ -74,10 +74,10 @@ model test_continuous_third_factor_in_modulatory_spikes_handler_neuron:
             integrate_odes(I_syn_exc, I_syn_inh, V_m)
 
     onReceive(exc_spikes):
-        I_syn_exc += unit_psc * exc_spikes * 1 s
+        I_syn_exc += unit_psc * get_weight(exc_spikes, t)
 
     onReceive(inh_spikes):
-        I_syn_inh += unit_psc * inh_spikes * 1 s
+        I_syn_inh += unit_psc * get_weight(inh_spikes, t)
 
     onCondition(refr_t <= 0 ms and V_m >= V_th):
         # threshold crossing

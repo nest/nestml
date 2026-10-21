@@ -127,10 +127,10 @@ model aeif_cond_alpha_alt_neuron:
             integrate_odes(g_exc, g_inh, V_m, w)
 
     onReceive(exc_spikes):
-        g_exc' += unit_psg_exc * exc_spikes * 1 s
+        g_exc' += unit_psg_exc * get_weight(exc_spikes, t)
 
     onReceive(inh_spikes):
-        g_inh' += unit_psg_inh * inh_spikes * 1 s
+        g_inh' += unit_psg_inh * get_weight(inh_spikes, t)
 
     onCondition(refr_t <= 0 ms and V_m >= V_peak):
         # threshold crossing
