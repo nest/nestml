@@ -244,7 +244,7 @@ class ASTGlobalInformationCollector(object):
 
             elif len(search_variables) > 0:
                 variable = search_variables[0]
-                variable_found = variable.name == "v_comp" or variable.name in PredefinedUnits.get_units() \
+                variable_found = variable.name == "v_comp" or variable.name == "self_spikes" or variable.name in PredefinedUnits.get_units() \
                     or variable.name in PredefinedVariables.get_variables()
                 if not variable_found:
                     is_dependency = False
