@@ -57,13 +57,13 @@ class ASTGlobalInformationCollector(object):
         from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
         on_receive_collector_visitor = ASTOnReceiveBlockCollectorVisitor()
         neuron.accept(on_receive_collector_visitor)
-        for function in on_receive_collector_visitor.all_on_receive_blocks:
+        for on_receive_block in on_receive_collector_visitor.all_on_receive_blocks:
             if "self_spikes_port" in FrontendConfiguration.get_codegen_opts().keys():
                 self_spikes_port_name = FrontendConfiguration.get_codegen_opts()["self_spikes_port"]
             else:
                 self_spikes_port_name = NESTCompartmentalCodeGenerator._default_options["self_spikes_port"]
-            if function.get_port_name() == self_spikes_port_name:
-                global_info["SelfSpikesFunction"] = function
+            if on_receive_block.get_input_port_variable().get_name() == self_spikes_port_name:
+                global_info["SelfSpikesFunction"] = on_receive_block
 
         return global_info
 

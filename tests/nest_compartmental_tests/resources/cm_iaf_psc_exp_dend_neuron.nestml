@@ -61,8 +61,8 @@ model iaf_psc_exp_cm_dend:
         G_refr real = 0.
 
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:
