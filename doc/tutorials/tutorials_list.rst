@@ -1,9 +1,9 @@
 Creating neuron models
 ----------------------
 
-* :doc:`Izhikevich tutorial </tutorials/izhikevich/nestml_izhikevich_tutorial>`
+* :doc:`Adding refractoriness to the Izhikevich neuron model </tutorials/izhikevich/nestml_izhikevich_tutorial>`
 
-  Learn how to write the Izhikevich spiking neuron model in NESTML.
+  Learn about the versatile Izhikevich neuron model, and how to endow it with an absolute refractory period.
 
 * :doc:`Spike-frequency adaptation </tutorials/spike_frequency_adaptation/nestml_spike_frequency_adaptation_tutorial>`
 
