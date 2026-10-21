@@ -106,12 +106,10 @@ class TestPlasticSynapseWeightSign:
 
         nest.Connect(pre_sg, pre_neuron, syn_spec={"weight": 9999.})
         nest.Connect(post_sg, post_neuron, syn_spec={"weight": 9999.})
-        receptor_types = nest.GetStatus(post_neuron, "receptor_types")[0]
         syn_opts = {"synapse_model": synapse_model_name + "_nestml__with_" + self.neuron_model_name + "_nestml",
                     "w": init_weight,
                     "Wmin": 0,
-                    "Wmax": np.pi,
-                    "receptor_type": receptor_types["EXC_SPIKES"]}
+                    "Wmax": np.pi}
         if synapse_model_name == "stdp_synapse":
             syn_opts.update({"lambda": .1,    # high learning rate
                              "mu_plus": 0.,    # additive STDP

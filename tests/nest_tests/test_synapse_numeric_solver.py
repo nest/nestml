@@ -97,10 +97,9 @@ class TestSynapseNumericSolver:
         synapse_model = "non_linear_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
 
         neuron = nest.Create(neuron_model)
-        receptor_types = nest.GetStatus(neuron, "receptor_types")[0]
         sg = nest.Create("spike_generator", params={"spike_times": spike_times})
 
-        syn_spec = {"synapse_model": synapse_model, "gsl_abs_error_tol": 1E-8, "gsl_rel_error_tol": 1E-8, , "receptor_type": receptor_types["EXC_SPIKES"]}
+        syn_spec = {"synapse_model": synapse_model, "gsl_abs_error_tol": 1E-8, "gsl_rel_error_tol": 1E-8}
         nest.Connect(sg, neuron, syn_spec=syn_spec)
         connections = nest.GetConnections(source=sg, synapse_model=synapse_model)
 

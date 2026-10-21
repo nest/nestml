@@ -114,9 +114,8 @@ class TestSynapseWeightGetSet:
         nest.Install("nestmlmodule")
 
         nrn = nest.Create("iaf_psc_exp_neuron_nestml__with_stdp_synapse_nestml")
-        receptor_types = nest.GetStatus(nrn, "receptor_types")[0]
 
-        nest.Connect(nrn, nrn, syn_spec={"synapse_model": "stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml", "w": 42., "receptor_type": receptor_types["EXC_SPIKES"]})
+        nest.Connect(nrn, nrn, syn_spec={"synapse_model": "stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml", "w": 42.})
         syn = nest.GetConnections(nrn, nrn)
         assert len(syn) == 1
         np.testing.assert_allclose(syn[0].get("w"), 42.)
@@ -135,9 +134,8 @@ class TestSynapseWeightGetSet:
         nest.Install("nestmlmodule")
 
         nrn = nest.Create("iaf_psc_exp")
-        receptor_types = nest.GetStatus(nrn, "receptor_types")[0]
         nrn.I_e = 1000.   # [pA] -- assure there are pre spikes to trigger synapse update
-        nest.Connect(nrn, nrn, syn_spec={"synapse_model": synapse_model_name, "receptor_type": receptor_types["EXC_SPIKES"]})
+        nest.Connect(nrn, nrn, syn_spec={"synapse_model": synapse_model_name})
         syn = nest.GetConnections(nrn, nrn)
         assert len(syn) == 1
         syn[0].weight = 42.
@@ -155,8 +153,7 @@ class TestSynapseWeightGetSet:
         nest.ResetKernel()
         nest.Install("nestmlmodule")
         nrn = nest.Create("iaf_psc_exp")
-        receptor_types = nest.GetStatus(nrn, "receptor_types")[0]
-        nest.Connect(nrn, nrn, syn_spec={"synapse_model": synapse_model_name, "receptor_type": receptor_types["EXC_SPIKES"]})
+        nest.Connect(nrn, nrn, syn_spec={"synapse_model": synapse_model_name})
         syn = nest.GetConnections(nrn, nrn)
         assert len(syn) == 1
         np.testing.assert_allclose(syn[0].get("weight"), 1.)

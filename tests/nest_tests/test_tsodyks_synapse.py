@@ -157,10 +157,9 @@ class TestNESTTsodyksSynapse:
         spikedet_post_ref = nest.Create("spike_recorder")
         mm_ref = nest.Create("multimeter", params={"record_from": ["V_m"]})
 
-        receptor_types = nest.GetStatus(post_neuron, "receptor_types")[0]
         nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
-        nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999., "receptor_type": receptor_types["EXC_SPIKES"]})
-        nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "tsodyks_nestml_rec", "receptor_type": receptor_types["EXC_SPIKES"]})
+        nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
+        nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "tsodyks_nestml_rec"})
         nest.Connect(mm, post_neuron)
         nest.Connect(pre_neuron, spikedet_pre)
         nest.Connect(post_neuron, spikedet_post)

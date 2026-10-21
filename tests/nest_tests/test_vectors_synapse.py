@@ -61,11 +61,10 @@ class TestVectorsSynapse:
         nest.Install("nestmlmodule")
 
         neuron = nest.Create(neuron_model)
-        receptor_types = nest.GetStatus(neuron, "receptor_types")[0]
         par_neuron = nest.Create("parrot_neuron")
         sg = nest.Create("spike_generator", params={"spike_times": spike_times})
         nest.Connect(sg, par_neuron)
-        nest.Connect(par_neuron, neuron, syn_spec={"synapse_model": synapse_model, "delay": delay, "receptor_type": receptor_types["EXC_SPIKES"]})
+        nest.Connect(par_neuron, neuron, syn_spec={"synapse_model": synapse_model, "delay": delay})
 
         nest.Simulate(sim_time)
         conn = nest.GetConnections(par_neuron, neuron)
