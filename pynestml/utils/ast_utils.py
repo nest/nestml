@@ -2809,4 +2809,3 @@ class ASTUtils:
             parameters |= {var.get_name() for var in variables if cls.is_variable_parameter(var)}
 
         return parameters
-
