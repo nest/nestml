@@ -63,7 +63,7 @@ class GeNNFunctionCallPrinter(FunctionCallPrinter):
             if function_call.get_name() == PredefinedFunctions.PRINT or function_call.get_name() == PredefinedFunctions.PRINTLN:
                 return function_name.format(self._print_print_statement(function_call))
             elif function_call.get_name() == PredefinedFunctions.GET_WEIGHT:
-                return self._expression_printer.print(function_call.get_args()[0])
+                return "(1E3 * " + self._expression_printer.print(function_call.get_args()[0]) + ")"
 
             return function_name.format(*self._print_function_call_argument_list(function_call))
 
