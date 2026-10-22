@@ -274,15 +274,15 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
                                         f" }}")
             pre_trace_update_block.append("\n"
                                           f"case {synapse_index}:\n"
-                                          f"  {synapse_name}_ns::{synapse_name}_PreTraceUpdate(i_conn);\n"
+                                          f"  {synapse_name}_ns::{synapse_name}_PreTraceUpdate(i_conn, Dt, param);\n"
                                           f"  break;\n")
             post_trace_update_block.append("\n"
                                            f"case {synapse_index}:\n"
-                                           f"  {synapse_name}_ns::{synapse_name}_PostTraceUpdate(i_conn);\n"
+                                           f"  {synapse_name}_ns::{synapse_name}_PostTraceUpdate(i_conn, Dt, param);\n"
                                            f"  break;\n")
             synapse_update_block.append("\n"
                                         f"case {synapse_index}:\n"
-                                        f"  {synapse_name}_ns::{synapse_name}_Update( w, Dt, param, i_conn );\n"
+                                        f"  {synapse_name}_ns::{synapse_name}_Update(w, Dt, param, i_conn);\n"
                                         f"  break;")
         include_files = "".join(include_files) + "\n"
         synapse_create_block = "".join(synapse_create_block) + "\n"

@@ -83,11 +83,11 @@ const std::string {{ synapseName }}_state_name[ N_STATE_VARS ] = {
 };
 
 // Definitions of the device functions below are in stdp_synapse.cu
-__device__ void {{ synapseName }}_PreTraceUpdate( int i_conn );
+__device__ void {{ synapseName }}_PreTraceUpdate(int i_conn, float Dt, float *param);
 
-__device__ void {{ synapseName }}_PostTraceUpdate( int i_conn );
+__device__ void {{ synapseName }}_PostTraceUpdate(int i_conn, float Dt, float *param);
 
-__device__ void {{ synapseName }}_Update( float* weight_pt, float Dt, float* param, int i_conn );
+__device__ void {{ synapseName }}_Update(float* weight_pt, float Dt, float* param, int i_conn);
 } // namespace {{ synapseName }}_ns
 
 class {{ synapseName }} : public SynModel

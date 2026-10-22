@@ -53,7 +53,7 @@ namespace {{ synapseName }}_ns
 {
 
 __device__ void
-update_internal_state( float Dt, float* param, int i_conn )
+update_internal_state(float Dt, float* param, int i_conn)
 {
   // Update the trace values
   int base_idx = N_STATE_VARS * i_conn;
@@ -79,9 +79,10 @@ update_internal_state( float Dt, float* param, int i_conn )
 }
 
 __device__ void
-{{ synapseName }}_PreTraceUpdate( int i_conn )
+{{ synapseName }}_PreTraceUpdate(int i_conn, float Dt, float *param)
 {
   int base_idx = N_STATE_VARS * i_conn;
+  update_internal_state(Dt, param, i_conn);
 {%- filter indent(2, True) %}
 {%- if pre_ports is defined %}
 {%-     for stmt in pre_spike_block_stmts %}
@@ -92,9 +93,10 @@ __device__ void
 }
 
 __device__ void
-{{ synapseName }}_PostTraceUpdate( int i_conn )
+{{ synapseName }}_PostTraceUpdate(int i_conn, float Dt, float *param)
 {
   int base_idx = N_STATE_VARS * i_conn;
+  update_internal_state(Dt, param, i_conn);
 {%- filter indent(2, True) %}
 {%- if post_ports is defined %}
 {%-     for stmt in post_spike_block_stmts %}
@@ -115,7 +117,6 @@ __device__ void
   double {{ variable_symbol.get_symbol_name() }} = param[i_{{ variable_symbol.get_symbol_name() }}];
 {%- endfor %}
 
-  update_internal_state( Dt, param, i_conn );
   if ( Dt >= 0 ) // post spikes block
   {
 {%- filter indent(4, True) %}
