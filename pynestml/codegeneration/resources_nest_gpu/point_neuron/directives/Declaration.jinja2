@@ -13,7 +13,7 @@ for (long i=0; i < get_{{declarations.print_size_parameter(ast)}}(); i++) {
 {%-     endif %}
 {%-   else %}
 {%-     if ast.has_expression() %}
-{{declarations.print_variable_type(variable)}} {{variable.get_symbol_name()}} = {{printer_no_origin.print(ast.get_expression())}};
+{{declarations.print_variable_type(variable)}} {{variable.get_symbol_name()}} = {{printer.print(ast.get_expression())}};
 {%-     else %}
 {{declarations.print_variable_type(variable)}} {{variable.get_symbol_name()}};
 {%-     endif %}

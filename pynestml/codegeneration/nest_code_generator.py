@@ -64,7 +64,6 @@ from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.transformers.synapse_post_neuron_transformer import SynapsePostNeuronTransformer
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
@@ -591,11 +590,10 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["vt_ports"] = metadata[synapse.name]["vt_port_names"]
             namespace["pre_ports"] = list(set(all_input_port_names)
                                           - set(namespace["post_ports"]) - set(namespace["vt_ports"]))
+            assert len(namespace["pre_ports"]) <= 1, "Synapses only support one spiking input port"
         else:
             # separate (not neuron+synapse co-generated)
             namespace["pre_ports"] = all_input_port_names
-
-        assert len(namespace["pre_ports"]) <= 1, "Synapses only support one spiking input port"
 
         namespace["synapseName"] = synapse.get_name()
         namespace["synapse"] = synapse
