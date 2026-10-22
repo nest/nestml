@@ -5,7 +5,7 @@ Please note that only Python 3.9 (and later versions) are supported. The instruc
 
 .. warning::
 
-   When using NESTML together with `NEST Simulator <https://nest-simulator.readthedocs.org/>`_, NEST must be installed by (`building it from source <https://nest-simulator.readthedocs.io/en/stable/installation/developer.html#dev-install>`_).
+   When using NESTML together with `NEST Simulator <https://nest-simulator.readthedocs.org/>`_, the pip installation of NEST is not supported (see `NEST installation instructions <https://nest-simulator.readthedocs.io/en/stable/installation/developer.html#dev-install>`_).
 
 Installing the latest release from PyPI
 ---------------------------------------
