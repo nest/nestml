@@ -3,6 +3,10 @@ Installing NESTML
 
 Please note that only Python 3.11 (and later versions) are supported [#PythonVersionPolicy]_. The instructions below assume that ``python`` is aliased to or refers to ``python3``, and ``pip`` to ``pip3``.
 
+.. warning::
+
+   When using NESTML together with `NEST Simulator <https://nest-simulator.readthedocs.org/>`_, the pip installation of NEST is not supported (see `NEST installation instructions <https://nest-simulator.readthedocs.io/en/stable/installation/developer.html#dev-install>`_).
+
 Installing the latest release from PyPI
 ---------------------------------------
 
