@@ -92,7 +92,7 @@ model terub_stn_neuron:
         inline phi_r real = 0.5 # Guo 0.5 Terman02 0.2
 
         # Calcium concentration and afterhyperpolarization current
-        inline epsilon 1/ms = 0.00005 / ms # 1/ms Guo 0.00005 Terman02 0.0000375
+        inline epsilon 1/ms = 0.00005 ms**-1 # Guo 0.00005 Terman02 0.0000375
         inline k_Ca real = 22.5
         inline k1 real = 15.0
 
@@ -120,7 +120,7 @@ model terub_stn_neuron:
 
         # V dot -- synaptic input are currents, inhib current is negative
         V_m' = (-(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) + I_e + I_stim + I_exc_mod + I_inh_mod) / C_m
-        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
+        refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero, at a rate of one (milli)second per (milli)second
 
         # channel dynamics
         gate_h' = phi_h *((h_inf - gate_h) / tau_h)  # h-variable
@@ -128,7 +128,7 @@ model terub_stn_neuron:
         gate_r' = phi_r *((r_inf - gate_r) / tau_r)  # r-variable
 
         # Calcium concentration
-        Ca_con' = epsilon * ((-I_Ca - I_T) / pA - k_Ca * Ca_con)
+        Ca_con' = epsilon * ((-I_Ca - I_T) / 1 pA - k_Ca * Ca_con)
 
         # synapses: alpha functions
         ## alpha function for the g_inh

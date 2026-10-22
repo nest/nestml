@@ -81,19 +81,19 @@ model hh_cond_exp_destexhe_neuron:
         inline I_syn_inh pA = unit_psg * convolve(g_inh, inh_spikes) * (V_m - E_inh)
 
         V_m' =(-I_Na - I_K - I_M - I_L - I_syn_exc - I_syn_inh + I_e + I_stim - I_noise) / C_m
-        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
+        refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero, at a rate of one (milli)second per (milli)second
 
         # channel dynamics
         inline V_rel mV = V_m - V_T
-        inline alpha_n 1/ms = 0.032 / (ms * mV) * (15 mV - V_rel) / (exp((15 mV - V_rel) / 5 mV) - 1)
-        inline beta_n 1/ms = 0.5 / ms * exp((10 mV - V_rel) / 40 mV)
-        inline alpha_m 1/ms = 0.32 / (ms * mV) * (13 mV - V_rel) / (exp((13 mV - V_rel) / 4 mV) - 1)
-        inline beta_m 1/ms = 0.28 / (ms * mV) * (V_rel - 40 mV) / (exp((V_rel - 40 mV) / 5 mV) - 1)
-        inline alpha_h 1/ms = 0.128 / ms * exp((17 mV - V_rel) / 18 mV)
-        inline beta_h 1/ms = (4 / (1 + exp((40 mV - V_rel) / 5 mV))) / ms
+        inline alpha_n 1/ms = 0.032 / (1 ms * mV) * (15 mV - V_rel) / (exp((15 mV - V_rel) / 5 mV) - 1)
+        inline beta_n 1/ms = 0.5 / 1 ms * exp((10 mV - V_rel) / 40 mV)
+        inline alpha_m 1/ms = 0.32 / (1 ms * mV) * (13 mV - V_rel) / (exp((13 mV - V_rel) / 4 mV) - 1)
+        inline beta_m 1/ms = 0.28 / (1 ms * mV) * (V_rel - 40 mV) / (exp((V_rel - 40 mV) / 5 mV) - 1)
+        inline alpha_h 1/ms = 0.128 / 1 ms * exp((17 mV - V_rel) / 18 mV)
+        inline beta_h 1/ms = (4 / (1 + exp((40 mV - V_rel) / 5 mV))) / 1 ms
 
-        inline alpha_p 1/ms = 0.0001 / (ms * mV) * (V_m + 30 mV) / (1 - exp(-(V_m + 30 mV) / 9 mV))
-        inline beta_p 1/ms = -0.0001 / (ms * mV) * (V_m + 30 mV) / (1 - exp((V_m + 30 mV) / 9 mV))
+        inline alpha_p 1/ms = 0.0001 / (1 ms * mV) * (V_m + 30 mV) / (1 - exp(-(V_m + 30 mV) / 9 mV))
+        inline beta_p 1/ms = -0.0001 / (1 ms * mV) * (V_m + 30 mV) / (1 - exp((V_m + 30 mV) / 9 mV))
 
         Act_m' = (alpha_m - (alpha_m + beta_m) * Act_m)
         Act_h' = (alpha_h - (alpha_h + beta_h) * Act_h)
@@ -124,15 +124,15 @@ model hh_cond_exp_destexhe_neuron:
         sigma_noise_exc uS = 0.003 uS	# Standard deviation of the excitatory noise conductance
         sigma_noise_inh uS = 0.0066 uS	# Standard deviation of the inhibitory noise conductance
 
-        alpha_n_init 1/ms = 0.032 / (ms * mV) * (15 mV - V_m) / (exp((15 mV - V_m) / 5 mV) - 1)
-        beta_n_init 1/ms = 0.5 / ms * exp((10 mV - V_m) / 40 mV)
-        alpha_m_init 1/ms = 0.32 / (ms * mV) * (13 mV - V_m) / (exp((13 mV - V_m) / 4 mV) - 1)
-        beta_m_init 1/ms = 0.28 / (ms * mV) * (V_m - 40 mV) / (exp((V_m - 40 mV) / 5 mV) - 1)
-        alpha_h_init 1/ms = 0.128 / ms * exp((17 mV - V_m) / 18 mV)
-        beta_h_init 1/ms = (4 / (1 + exp((40 mV - V_m) / 5 mV))) / ms
+        alpha_n_init 1/ms = 0.032 / (1 ms * mV) * (15 mV - V_m) / (exp((15 mV - V_m) / 5 mV) - 1)
+        beta_n_init 1/ms = 0.5 / 1 ms * exp((10 mV - V_m) / 40 mV)
+        alpha_m_init 1/ms = 0.32 / (1 ms * mV) * (13 mV - V_m) / (exp((13 mV - V_m) / 4 mV) - 1)
+        beta_m_init 1/ms = 0.28 / (1 ms * mV) * (V_m - 40 mV) / (exp((V_m - 40 mV) / 5 mV) - 1)
+        alpha_h_init 1/ms = 0.128 / 1 ms * exp((17 mV - V_m) / 18 mV)
+        beta_h_init 1/ms = (4 / (1 + exp((40 mV - V_m) / 5 mV))) / 1 ms
 
-        alpha_p_init 1/ms = 0.0001 / (ms * mV) * (V_m + 30 mV) / (1 - exp(-(V_m + 30 mV) / 9 mV))
-        beta_p_init 1/ms = -0.0001 / (ms * mV) * (V_m + 30 mV) / (1 - exp((V_m + 30 mV) / 9 mV))
+        alpha_p_init 1/ms = 0.0001 / (1 ms * mV) * (V_m + 30 mV) / (1 - exp(-(V_m + 30 mV) / 9 mV))
+        beta_p_init 1/ms = -0.0001 / (1 ms * mV) * (V_m + 30 mV) / (1 - exp((V_m + 30 mV) / 9 mV))
 
         refr_T ms = 2 ms          # Duration of refractory period
 

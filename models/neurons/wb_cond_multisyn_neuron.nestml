@@ -74,10 +74,10 @@ model wb_cond_multisyn_neuron:
         inline I_K   pA = g_K * Act_n**4 * (V_m - E_K)
         inline I_L   pA = g_L * (V_m - E_L)
 
-        Inact_h' = (alpha_h(V_m) * (1 - Inact_h) - beta_h(V_m) * Inact_h) / ms # h-variable
-        Act_n' = (alpha_n(V_m) * (1 - Act_n) - beta_n(V_m) * Act_n) / ms # n-variable
+        Inact_h' = (alpha_h(V_m) * (1 - Inact_h) - beta_h(V_m) * Inact_h) / 1 ms # h-variable
+        Act_n' = (alpha_n(V_m) * (1 - Act_n) - beta_n(V_m) * Act_n) / 1 ms # n-variable
         V_m' = (-(I_Na + I_K + I_L) + I_e + I_stim + I_syn) / C_m
-        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
+        refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero, at a rate of one (milli)second per (milli)second
 
 
         #############
@@ -140,12 +140,12 @@ model wb_cond_multisyn_neuron:
         GABA_AInitialValue real = compute_synapse_constant(GABA_A_Tau_1, GABA_A_Tau_2, GABA_A_g_peak)
         GABA_BInitialValue real = compute_synapse_constant(GABA_B_Tau_1, GABA_B_Tau_2, GABA_B_g_peak)
 
-        alpha_n_init real = -0.05 * (V_m / mV + 34.0) / (exp(-0.1 * (V_m / mV + 34.0)) - 1.0)
-        beta_n_init real = 0.625 * exp(-(V_m / mV + 44.0) / 80.0)
-        alpha_m_init real = 0.1 * (V_m / mV + 35.0) / (1.0 - exp(-0.1 * (V_m / mV + 35.)))
-        beta_m_init  real = 4.0 * exp(-(V_m / mV + 60.0) / 18.0)
-        alpha_h_init real = 0.35 * exp(-(V_m / mV + 58.0) / 20.0)
-        beta_h_init  real = 5.0 / (exp(-0.1 * (V_m / mV + 28.0)) + 1.0)
+        alpha_n_init real = -0.05 * (V_m / 1 mV + 34.0) / (exp(-0.1 * (V_m / 1 mV + 34.0)) - 1.0)
+        beta_n_init real = 0.625 * exp(-(V_m / 1 mV + 44.0) / 80.0)
+        alpha_m_init real = 0.1 * (V_m / 1 mV + 35.0) / (1.0 - exp(-0.1 * (V_m / 1 mV + 35.)))
+        beta_m_init  real = 4.0 * exp(-(V_m / 1 mV + 60.0) / 18.0)
+        alpha_h_init real = 0.35 * exp(-(V_m / 1 mV + 58.0) / 20.0)
+        beta_h_init  real = 5.0 / (exp(-0.1 * (V_m / 1 mV + 28.0)) + 1.0)
 
         unit_psg nS = 1 nS    # Unitary postsynaptic conductance amplitude
 
@@ -173,30 +173,30 @@ model wb_cond_multisyn_neuron:
         # See: Exact digital simulation of time-invariant linear systems
         # with applications to neuronal modeling, Rotter and Diesmann,
         # section 3.1.2.
-        exact_integration_adjustment real = ((1 / Tau_2) - (1 / Tau_1)) * ms
+        exact_integration_adjustment real = ((1 / Tau_2) - (1 / Tau_1)) * 1 ms
 
         t_peak ms = (Tau_2 * Tau_1) * ln(Tau_2 / Tau_1) / (Tau_2 - Tau_1)
         normalisation_factor real = 1 / (exp(-t_peak / Tau_1) - exp(-t_peak / Tau_2))
 
-        return (g_peak / nS) * normalisation_factor * exact_integration_adjustment
+        return (g_peak / 1 nS) * normalisation_factor * exact_integration_adjustment
 
     function Act_m_inf(V_m mV) real:
         return alpha_m(V_m) / (alpha_m(V_m) + beta_m(V_m))
 
     function alpha_m(V_m mV) real:
-        return 0.1 * (V_m / mV + 35.0) / (1.0 - exp(-0.1 * (V_m / mV + 35.)))
+        return 0.1 * (V_m / 1 mV + 35.0) / (1.0 - exp(-0.1 * (V_m / 1 mV + 35.)))
 
     function beta_m(V_m mV) real:
-        return 4.0 * exp(-(V_m / mV + 60.0) / 18.0)
+        return 4.0 * exp(-(V_m / 1 mV + 60.0) / 18.0)
 
     function alpha_n(V_m mV) real:
-        return -0.05 * (V_m / mV + 34.0) / (exp(-0.1 * (V_m / mV + 34.0)) - 1.0)
+        return -0.05 * (V_m / 1 mV + 34.0) / (exp(-0.1 * (V_m / 1 mV + 34.0)) - 1.0)
 
     function beta_n(V_m mV) real:
-        return 0.625 * exp(-(V_m / mV + 44.0) / 80.0)
+        return 0.625 * exp(-(V_m / 1 mV + 44.0) / 80.0)
 
     function alpha_h(V_m mV) real:
-        return 0.35 * exp(-(V_m / mV + 58.0) / 20.0)
+        return 0.35 * exp(-(V_m / 1 mV + 58.0) / 20.0)
 
     function beta_h(V_m mV) real:
-        return 5.0 / (exp(-0.1 * (V_m / mV + 28.0)) + 1.0)
+        return 5.0 / (exp(-0.1 * (V_m / 1 mV + 28.0)) + 1.0)

@@ -90,7 +90,10 @@ class ASTPowerVisitor(ASTVisitor):
                 if op.is_modulo_op:
                     return self.calculate_numeric_value(lhs) % self.calculate_numeric_value(rhs)
 
-            return self.calculate_numeric_value(expr)
+            if expr.get_expression() and expr.get_expression().numeric_literal:
+                return expr.get_expression().numeric_literal
+
+            raise Exception("Unhandled node type!")
 
         if isinstance(expr, ASTSimpleExpression):
             if expr.get_numeric_literal() is not None:

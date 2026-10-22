@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Iterable, Mapping, Optional, Set, Tuple
+from typing import Any, Dict, Iterable, Mapping, Optional
 
 try:
     # Available in the standard library starting with Python 3.12
@@ -43,6 +43,7 @@ from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.transformers.transformer import Transformer
 from pynestml.utils.ast_utils import ASTUtils
+from pynestml.utils.logger import Logger, LoggingLevel
 
 
 class ODEToolboxTransformer(Transformer):
@@ -54,17 +55,21 @@ class ODEToolboxTransformer(Transformer):
     Options
     -------
 
+    - **use_alternative_expM**: If :python:`False`, use the sympy function ``sympy.exp`` to compute the matrix exponential. If :python:`True`, use an alternative function (see :py:func:`odetoolbox.sympy_helpers.expMt` for details). This can be useful as calls to ``sympy.exp`` can sometimes take a very large amount of time. (This parameter is directly passed to ODE-toolbox.)
     - **preserve_expressions**: Set to True, or a list of strings corresponding to individual variable names, to disable internal rewriting of expressions, and return same output as input expression where possible. Only applies to variables specified as first-order differential equations. (This parameter is passed to ODE-toolbox.)
     - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
     - **solver**: A string identifying the preferred ODE solver. ``"analytic"`` for propagator solver preferred; fallback to numeric solver in case ODEs are not analytically solvable. Use ``"numeric"`` to disable analytic solver.
     - **ode_toolbox_json_options**: An optional extra dictionary; key-value pairs are passed to ODE-toolbox indict "options" key.
+    - **disable_singularity_detection**: Set to True to disable detection of conditions under which numerical singularities (division by zero) could occur in the generated analytic solver. This can be useful for analytic solvers containing a large amount of conditions, which could take a long time to compute. (This parameter is directly passed to ODE-toolbox.)
     """
 
     _default_options = {
+        "use_alternative_expM": False,
         "preserve_expressions": True,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "solver": "analytic",
-        "ode_toolbox_json_options": None
+        "ode_toolbox_json_options": None,
+        "disable_singularity_detection": False
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
@@ -100,48 +105,55 @@ class ODEToolboxTransformer(Transformer):
         """
         Prepare data for ODE-toolbox input format, invoke ODE-toolbox analysis via its API, and return the output.
         """
-        assert len(model.get_equations_blocks()) <= 1, "Only one equations block supported for now."
-
         if not model.name in metadata.keys():
             metadata[model.name] = {}
 
-        equations_block = model.get_equations_blocks()[0]
+        metadata[model.name]["analytic_solver"] = None
+        metadata[model.name]["numeric_solver"] = None
 
-        if len(equations_block.get_kernels()) == 0 and len(equations_block.get_ode_equations()) == 0:
-            # no equations defined in this equations block; nothing to analyse
-            analytic_solver = None
-            numeric_solver = None
-        else:
+        if len(model.get_equations_blocks()) > 1:
+            raise Exception("Only one equations block supported for now!")
 
-            odetoolbox_indict = self.create_ode_toolbox_indict(model, kernel_buffers)
+        if len(model.get_equations_blocks()) == 0 or len(model.get_equations_blocks()[0].get_kernels()) + len(model.get_equations_blocks()[0].get_ode_equations()) == 0:
+            # if no equations defined, nothing to analyse
+            return
 
-            disable_analytic_solver = self.get_option("solver") != "analytic"
-            solver_result = odetoolbox.analysis(odetoolbox_indict,
-                                                disable_stiffness_check=True,
-                                                disable_analytic_solver=disable_analytic_solver,
-                                                preserve_expressions=self.get_option("preserve_expressions"),
-                                                log_level=FrontendConfiguration.logging_level)
-            analytic_solver = None
-            analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
-            assert len(analytic_solvers) <= 1, "More than one analytic solver not presently supported"
-            if len(analytic_solvers) > 0:
-                analytic_solver = analytic_solvers[0]
+        odetoolbox_indict = self.create_ode_toolbox_indict(model, kernel_buffers)
+        disable_analytic_solver = self.get_option("solver") != "analytic"
 
-            # if numeric solver is required, generate a stepping function that includes each state variable, including the analytic ones
-            numeric_solver = None
+        solver_result = odetoolbox.analysis(odetoolbox_indict,
+                                            disable_stiffness_check=True,
+                                            disable_analytic_solver=disable_analytic_solver,
+                                            disable_singularity_detection=self.get_option("disable_singularity_detection"),
+                                            disable_singularity_mitigation=True,    # multiple conditional solvers returned from ODE-toolbox not yet supported by NESTML
+                                            use_alternative_expM=self.get_option("use_alternative_expM"),
+                                            preserve_expressions=self.get_option("preserve_expressions"),
+                                            log_level=FrontendConfiguration.logging_level)
+
+        analytic_solver = None
+        analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
+        assert len(analytic_solvers) <= 1, "More than one analytic solver not presently supported"
+        if len(analytic_solvers) > 0:
+            analytic_solver = analytic_solvers[0]
+
+        # if numeric solver is required, generate a stepping function that includes each state variable, including the analytic ones
+        numeric_solver = None
+        numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
+        if numeric_solvers:
+            if analytic_solver:
+                # previous solver_result contains both analytic and numeric solver; re-run ODE-toolbox generating only numeric solver
+                solver_result = odetoolbox.analysis(odetoolbox_indict,
+                                                    disable_stiffness_check=True,
+                                                    disable_analytic_solver=True,
+                                                    disable_singularity_detection=True,
+                                                    disable_singularity_mitigation=True,    # multiple conditional solvers returned from ODE-toolbox not yet supported by NESTML
+                                                    use_alternative_expM=self.get_option("use_alternative_expM"),
+                                                    preserve_expressions=self.get_option("preserve_expressions"),
+                                                    log_level=FrontendConfiguration.logging_level)
             numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
-            if numeric_solvers:
-                if analytic_solver:
-                    # previous solver_result contains both analytic and numeric solver; re-run ODE-toolbox generating only numeric solver
-                    solver_result = odetoolbox.analysis(odetoolbox_indict,
-                                                        disable_stiffness_check=True,
-                                                        disable_analytic_solver=True,
-                                                        preserve_expressions=self.get_option("preserve_expressions"),
-                                                        log_level=FrontendConfiguration.logging_level)
-                numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
-                assert len(numeric_solvers) <= 1, "More than one numeric solver not presently supported"
-                if len(numeric_solvers) > 0:
-                    numeric_solver = numeric_solvers[0]
+            assert len(numeric_solvers) <= 1, "More than one numeric solver not presently supported"
+            if len(numeric_solvers) > 0:
+                numeric_solver = numeric_solvers[0]
 
         #
         #   save the results to metadata

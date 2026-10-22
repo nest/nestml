@@ -80,7 +80,7 @@ model aeif_cond_alpha_alt_neuron:
         V_m' = (-g_L * (V_bounded - E_L) + I_spike - g_exc * (V_bounded - E_exc) - g_inh * (V_bounded - E_inh) - w + I_e + I_stim) / C_m
         w' = (a * (V_bounded - E_L) - w) / tau_w
 
-        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
+        refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero at a rate of one second per second
 
     parameters:
         # membrane parameters
@@ -127,10 +127,10 @@ model aeif_cond_alpha_alt_neuron:
             integrate_odes(g_exc, g_inh, V_m, w)
 
     onReceive(exc_spikes):
-        g_exc' += unit_psg * exc_spikes * (e / tau_syn_exc) * s
+        g_exc' += unit_psg * exc_spikes * (e / tau_syn_exc) * 1 s
 
     onReceive(inh_spikes):
-        g_inh' += unit_psg * inh_spikes * (e / tau_syn_inh) * s
+        g_inh' += unit_psg * inh_spikes * (e / tau_syn_inh) * 1 s
 
     onCondition(refr_t <= 0 ms and V_m >= V_th):
         # threshold crossing

@@ -104,7 +104,7 @@ class ASTInputBlock(ASTNode):
 
         my_input_ports = self.get_input_ports()
         your_input_ports = other.get_input_ports()
-        for i in range(0, len(my_input_ports)):
+        for i in range(len(my_input_ports)):
             if not my_input_ports[i].equals(your_input_ports[i]):
                 return False
 

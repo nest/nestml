@@ -30,10 +30,10 @@
 #
 model CoCoConvolveNotCorrectlyParametrized:
     state:
-        V_m mV = 10mV
+        V_m mV = 10 mV
 
     equations:
-        inline testB pA = convolve(V_m+V_m, spikeExc)
+        inline testB pA = convolve(V_m + V_m, spikeExc)
 
     input:
         spikeExc <- excitatory spike

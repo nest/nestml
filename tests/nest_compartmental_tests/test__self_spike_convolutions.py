@@ -101,7 +101,8 @@ class TestSelfSpikeConvolutions:
         nest.Connect(dcg, cm,
                      syn_spec={"synapse_model": "static_synapse", "weight": 1.0, "delay": 0.1, "receptor_type": 3})
 
-        mm = nest.Create("multimeter", 1, {"record_from": ["v_comp0", "chan_primary0", "chan_secondary0",
+        mm = nest.Create("multimeter", 1, {"record_from": ["v_comp0", "bap0",
+                                                           "chan_primary0", "chan_secondary0",
                                                            "rec_primary0", "rec_secondary1",
                                                            "con_in_primary2", "con_in_secondary3",
                                                            "concentration0"], "interval": .1})
@@ -116,16 +117,17 @@ class TestSelfSpikeConvolutions:
 
         res = nest.GetStatus(mm, "events")[0]
 
-        fig, axs = plt.subplots(8)
+        fig, axs = plt.subplots(9)
 
         axs[0].plot(res["times"], res["v_comp0"], c="r", label="V_m_0")
-        axs[1].plot(res["times"], res["chan_primary0"], c="g", label="chan_primary")
-        axs[2].plot(res["times"], res["chan_secondary0"], c="g", label="chan_secondary")
-        axs[3].plot(res["times"], res["rec_primary0"], c="orange", label="input0")
-        axs[4].plot(res["times"], res["rec_secondary1"], c="orange", label="input1")
-        axs[5].plot(res["times"], res["con_in_primary2"], c="orange", label="input2")
-        axs[6].plot(res["times"], res["con_in_secondary3"], c="orange", label="input3")
-        axs[7].plot(res["times"], res["concentration0"], c="b", label="concentration")
+        axs[1].plot(res["times"], res["bap0"], c="g", label="bap")
+        axs[2].plot(res["times"], res["chan_primary0"], c="g", label="chan_primary")
+        axs[3].plot(res["times"], res["chan_secondary0"], c="g", label="chan_secondary")
+        axs[4].plot(res["times"], res["rec_primary0"], c="orange", label="input0")
+        axs[5].plot(res["times"], res["rec_secondary1"], c="orange", label="input1")
+        axs[6].plot(res["times"], res["con_in_primary2"], c="orange", label="input2")
+        axs[7].plot(res["times"], res["con_in_secondary3"], c="orange", label="input3")
+        axs[8].plot(res["times"], res["concentration0"], c="b", label="concentration")
 
         label_set = False
         for spike in spikes_rec["times"]:
@@ -144,6 +146,7 @@ class TestSelfSpikeConvolutions:
         axs[5].legend()
         axs[6].legend()
         axs[7].legend()
+        axs[8].legend()
 
         plt.savefig("self_spike_convolutions.png")
 
@@ -154,7 +157,8 @@ class TestSelfSpikeConvolutions:
             "chan_primary0": 0.5945205479701962,
             "chan_secondary0": 0.5945205479701962,
             "concentration0": 0.3589924428735023,
-            "v_comp0": 3.0631281139481406,
+            "v_comp0": 3.132492545007508,
+            "bap0": -0.5423489875220872,
             "rec_primary0": 2.4651862560098405,
             "rec_secondary1": 2.4651862560098405,
             "con_in_primary2": 1.1890410959403923,
@@ -163,10 +167,15 @@ class TestSelfSpikeConvolutions:
         fail_entries = dict()
         fail_message = "Some values have evolved significantly different to the expected values at time 58ms. These are the differences: \n"
         fail_message = fail_message + "Mechanism    Expected    Result    Difference \n"
+        print("Self-spike convolution values at time 58ms:")
+        print("Mechanism    Expected    Result    Difference")
         for entry_name, entry in res.items():
             if entry_name != "times" and entry_name != "senders":
-                if abs(entry[data_array_index] - expected_entries[entry_name]) >= 0.0000001:
-                    fail_entries[entry_name] = entry[data_array_index] - expected_entries[entry_name]
-                    fail_message = fail_message + entry_name + ": " + str(expected_entries[entry_name]) + " " + str(entry[data_array_index]) + " " + str(fail_entries[entry_name]) + "\n"
+                difference = entry[data_array_index] - expected_entries[entry_name]
+                value_line = entry_name + ": " + str(expected_entries[entry_name]) + " " + str(entry[data_array_index]) + " " + str(difference)
+                print(value_line)
+                if abs(difference) >= 0.0000001:
+                    fail_entries[entry_name] = difference
+                    fail_message = fail_message + value_line + "\n"
 
         assert len(fail_entries) == 0, fail_message

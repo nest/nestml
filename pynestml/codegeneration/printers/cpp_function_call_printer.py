@@ -23,21 +23,25 @@ from typing import Tuple
 
 import re
 
-from pynestml.symbols.symbol import SymbolKind
-
 from pynestml.codegeneration.printers.function_call_printer import FunctionCallPrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.symbol_table.scope import Scope
-from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.utils.ast_utils import ASTUtils
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.symbol_table.scope import Scope
+from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.symbols.symbol import SymbolKind
+from pynestml.utils.ast_utils import ASTUtils
 
 
 class CppFunctionCallPrinter(FunctionCallPrinter):
     r"""
     Printer for ASTFunctionCall in C++ syntax.
     """
+
+    def __init__(self, expression_printer=None, exp_function: str = "std::exp"):
+        super().__init__(expression_printer)
+        assert exp_function in ["std::exp", "cm_fast_propagator_exp", "bounded_propagator_expf"]
+        self._exp_function = exp_function
 
     def print(self, node: ASTNode) -> str:
         assert isinstance(node, ASTFunctionCall)
@@ -100,7 +104,7 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
             return "std::abs({!s})"
 
         if function_name == PredefinedFunctions.EXP:
-            return "std::exp({!s})"
+            return self._exp_function + "({!s})"
 
         if function_name == PredefinedFunctions.LN:
             return "std::log({!s})"

@@ -72,7 +72,7 @@ model iaf_cond_exp_sfa_rr_neuron:
         inline I_rr pA = g_rr * (V_m - E_rr)
 
         V_m' = (-I_L + I_e + I_stim - I_syn_exc - I_syn_inh - I_sfa - I_rr) / C_m
-        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
+        refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero, at a rate of one (milli)second per (milli)second
 
     parameters:
         V_th mV = -57.0 mV       # Threshold potential

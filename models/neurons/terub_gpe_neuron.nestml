@@ -86,7 +86,7 @@ model terub_gpe_neuron:
 
         # Calcium concentration and afterhyperpolarization current
 
-        inline g_epsilon 1/ms = 0.0001 / ms
+        inline g_epsilon 1/ms = 0.0001 ms**-1
         inline g_k_Ca real = 15.0    # Report: 15, Terman Rubin 2002: 20.0
         inline g_k1 real = 30.0
 
@@ -112,13 +112,13 @@ model terub_gpe_neuron:
         inline I_ahp real = g_ahp * (Ca_con / (Ca_con + g_k1)) * (V_m - E_K)
 
         # V dot -- synaptic input are currents, inhib current is negative
-        V_m' = (-(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) * pA + I_e + I_stim + I_exc_mod * pA + I_inh_mod * pA) / C_m
-        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
+        V_m' = (-(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) * 1 pA + I_e + I_stim + I_exc_mod * 1 pA + I_inh_mod * 1 pA) / C_m
+        refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero, at a rate of one (milli)second per (milli)second
 
         # channel dynamics
-        gate_h' = g_phi_h * ((h_inf - gate_h) / tau_h) / ms # h-variable
-        gate_n' = g_phi_n * ((n_inf - gate_n) / tau_n) / ms # n-variable
-        gate_r' = g_phi_r * ((r_inf - gate_r) / tau_r) / ms # r-variable
+        gate_h' = g_phi_h * ((h_inf - gate_h) / tau_h) / 1 ms # h-variable
+        gate_n' = g_phi_n * ((n_inf - gate_n) / tau_n) / 1 ms # n-variable
+        gate_r' = g_phi_r * ((r_inf - gate_r) / tau_r) / 1 ms # r-variable
 
         # Calcium concentration
         Ca_con' = g_epsilon * (-I_Ca - I_T - g_k_Ca * Ca_con)

@@ -153,7 +153,12 @@ class MessageCode(Enum):
     UNKNOWN_NEURON_SYNAPSE_PAIR_MODEL = 124
     CM_UNRESOLVED_FUNCTION_DEPENDENCY = 125
     CM_UNRESOLVED_VARIABLE_DEPENDENCY = 126
-    CONVOLVE_NEEDS_BUFFER_PARAMETER = 122
+    CONVOLVE_NEEDS_BUFFER_PARAMETER = 127
+    CM_INTEGRATE_ODES_IGNORED = 128
+    CM_FASTEXP_ACCURACY_WARNING = 129
+    NOT_ALLOWED_TO_ASSIGN_TO_A_UNIT_TYPE = 130
+    VARIABLE_USED_AS_A_UNIT = 131
+    NO_SOLITARY_PHYSICAL_UNITS = 132
 
 
 class Messages:
@@ -819,8 +824,7 @@ class Messages:
     @classmethod
     def astdatatype_type_symbol_could_not_be_derived(cls) -> Tuple[MessageCode, str]:
         """
-        Unknown type or unit literal.
-        :param provided_type_str: the provided type as a string
+        Type symbol could not be derived.
         """
         message = "ASTDataType type symbol could not be derived"
         return MessageCode.ASTDATATYPE_TYPE_SYMBOL_COULD_NOT_BE_DERIVED, message
@@ -1064,6 +1068,23 @@ class Messages:
         return MessageCode.INTEGRATE_ODES_ARG_HIGHER_ORDER, message
 
     @classmethod
+    def get_integrate_odes_ignored_in_compartmental(cls) -> Tuple[MessageCode, str]:
+        message = "integrate_odes() has no effect for the NEST compartmental target; " \
+                  "ODEs are integrated implicitly. The call is accepted for model " \
+                  "compatibility and will be ignored."
+        return MessageCode.CM_INTEGRATE_ODES_IGNORED, message
+
+    @classmethod
+    def get_cm_fastexp_accuracy_warning(cls) -> Tuple[MessageCode, str]:
+        message = "The NEST compartmental fast exponential option uses a bounded exponential approximation. " \
+                  "Spike shape is not necessarily preserved; see " \
+                  "tests/nest_compartmental_tests/test__fastexp_accuracy.py \n" \
+                  "For spike-time accuracy, benchmark your own model " \
+                  "against a standard-exponential reference; see " \
+                  "tests/nest_compartmental_tests/test__fastexp_spike_timing_sweep.py for an example."
+        return MessageCode.CM_FASTEXP_ACCURACY_WARNING, message
+
+    @classmethod
     def get_mechs_dictionary_info(cls, chan_info, recs_info, conc_info, con_in_info, syns_info, global_info) -> Tuple[MessageCode, str]:
         message = ""
         message += "chan_info:\n" + chan_info + "\n"
@@ -1194,6 +1215,12 @@ class Messages:
         return MessageCode.WEIGHT_VARIABLE_NOT_FOUND, message
 
     @classmethod
+    def get_not_allowed_to_assign_to_a_unit_type(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "Not allowed to assign to unit type '" + variable_name + "'!"
+
+        return MessageCode.NOT_ALLOWED_TO_ASSIGN_TO_A_UNIT_TYPE, message
+
+    @classmethod
     def get_unknown_neuron_synapse_pair_model(cls, model_type: str, model_name: str) -> Tuple[MessageCode, str]:
         message = "Unknown " + model_type + " model \"" + model_name + "\" in neuron_synapse_pairs."
 
@@ -1210,3 +1237,9 @@ class Messages:
         message = "Could not resolve variable dependency \"" + variable_name + "\" while collecting " + context + "."
 
         return MessageCode.CM_UNRESOLVED_VARIABLE_DEPENDENCY, message
+
+    @classmethod
+    def get_no_solitary_physical_units_allowed(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "No free-standing physical units allowed (" + variable_name + ")"
+
+        return MessageCode.NO_SOLITARY_PHYSICAL_UNITS, message

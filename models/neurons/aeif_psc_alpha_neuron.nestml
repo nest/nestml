@@ -61,7 +61,7 @@ model aeif_psc_alpha_neuron:
         V_m' = (-g_L * (V_bounded - E_L) + I_spike + I_syn_exc - I_syn_inh - w + I_e + I_stim) / C_m
         w' = (a * (V_bounded - E_L) - w) / tau_w
 
-        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
+        refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero, at a rate of one (milli)second per (milli)second
 
     parameters:
         # membrane parameters
@@ -87,7 +87,8 @@ model aeif_psc_alpha_neuron:
         I_e pA = 0 pA
 
     internals:
-        unit_psc pA = 1 pA    # Unitary postsynaptic current amplitude
+        unit_psc_exc pA/ms = 1 pA * (e / tau_exc)    # Unitary postsynaptic current amplitude
+        unit_psc_inh pA/ms = 1 pA * (e / tau_inh)    # Unitary postsynaptic current amplitude
 
     input:
         exc_spikes <- excitatory spike
@@ -113,7 +114,7 @@ model aeif_psc_alpha_neuron:
         emit_spike()
 
     onReceive(exc_spikes): # Spike input
-        I_syn_exc' += unit_psc * exc_spikes * (e / tau_exc) * s
+        I_syn_exc' += unit_psc_exc * exc_spikes * 1 s
 
     onReceive(inh_spikes): # Spike input
-        I_syn_inh' += unit_psc * inh_spikes * (e / tau_inh) * s
+        I_syn_inh' += unit_psc_inh * inh_spikes * 1 s

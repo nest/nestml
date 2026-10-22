@@ -69,7 +69,7 @@ model iaf_cond_alpha_neuron:
         inline I_leak pA = g_L * (V_m - E_L)
 
         V_m' = (-I_leak - I_syn_exc - I_syn_inh + I_e + I_stim) / C_m
-        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
+        refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero, at a rate of one (milli)second per (milli)second
 
     parameters:
         C_m pF = 250 pF          # Membrane capacitance
