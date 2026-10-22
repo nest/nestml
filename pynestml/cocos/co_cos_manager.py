@@ -48,8 +48,10 @@ from pynestml.cocos.co_co_invariant_is_boolean import CoCoInvariantIsBoolean
 from pynestml.cocos.co_co_kernel_type import CoCoKernelType
 from pynestml.cocos.co_co_model_name_unique import CoCoModelNameUnique
 from pynestml.cocos.co_co_nest_random_functions_legally_used import CoCoNestRandomFunctionsLegallyUsed
+from pynestml.cocos.co_co_no_assignment_to_unit import CoCoNoAssignmentToUnit
 from pynestml.cocos.co_co_no_kernels_except_in_convolve import CoCoNoKernelsExceptInConvolve
 from pynestml.cocos.co_co_no_nest_name_space_collision import CoCoNoNestNameSpaceCollision
+from pynestml.cocos.co_co_no_solitary_physical_units import CoCoNoSolitaryPhysicalUnits
 from pynestml.cocos.co_co_odes_have_consistent_units import CoCoOdesHaveConsistentUnits
 from pynestml.cocos.co_co_ode_functions_have_consistent_units import CoCoOdeFunctionsHaveConsistentUnits
 from pynestml.cocos.co_co_output_port_defined_if_emit_call import CoCoOutputPortDefinedIfEmitCall
@@ -139,6 +141,14 @@ class CoCosManager:
         CoCoAllVariablesDefined.check_co_co(model)
 
     @classmethod
+    def check_no_assignment_to_unit(cls, model: ASTModel) -> None:
+        """
+        Checks that physical units are not assigned to.
+        :param model: a single model.
+        """
+        CoCoNoAssignmentToUnit.check_co_co(model)
+
+    @classmethod
     def check_compartmental_neuron_model(cls, neuron: ASTModel) -> None:
         """
         collects all relevant information for the different compartmental mechanism classes for later code-generation
@@ -155,6 +165,14 @@ class CoCosManager:
         CoCoCmReceptorModel.check_co_co(neuron, metadata)
         CoCoCmContinuousInputModel.check_co_co(neuron, metadata)
         CoCoCmMechSharedCode.check_co_co(neuron)
+
+    @classmethod
+    def check_no_solitary_physical_units(cls, model: ASTModel):
+        """
+        Checks that there are no free-standing physical units.
+        :param model: a single model object
+        """
+        CoCoNoSolitaryPhysicalUnits.check_co_co(model)
 
     @classmethod
     def check_inline_expressions_have_rhs(cls, model: ASTModel):
@@ -468,6 +486,7 @@ class CoCosManager:
         cls.check_inline_expression_not_assigned_to(model)
         cls.check_state_variables_initialized(model)
         cls.check_variables_defined_before_usage(model)
+        cls.check_no_assignment_to_unit(model)
         if FrontendConfiguration.get_target_platform().upper() == "NEST_COMPARTMENTAL":
             is_synapse_model = False
             if "neuron_synapse_pairs" in FrontendConfiguration.get_codegen_opts():
@@ -480,6 +499,7 @@ class CoCosManager:
             if not is_synapse_model:
                 cls.check_compartmental_neuron_model(model)
         cls.check_inline_expressions_have_rhs(model)
+        cls.check_no_solitary_physical_units(model)
         cls.check_inline_has_max_one_lhs(model)
         cls.check_input_ports_not_assigned_to(model)
         cls.check_order_of_equations_correct(model)

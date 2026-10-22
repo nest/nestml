@@ -37,7 +37,7 @@ model CoCoIntegrateOdesIgnoredInCompartmental:
         x real = 1.0
 
     equations:
-        x' = -x / ms
+        x' = -x / 1 ms
 
     update:
         integrate_odes()

@@ -114,9 +114,9 @@ namespace nest
 {
   // Override the create() method with one call to RecordablesMap::insert_() for each quantity to be recorded.
 {%- if has_state_vectors %}
-template <> void DynamicRecordablesMap<{{ neuronName }}>::create({{ neuronName }}& host)
+  template <> void DynamicRecordablesMap<{{ neuronName }}>::create({{ neuronName }}& host)
 {%- else %}
-template <> void RecordablesMap<{{ neuronName }}>::create()
+  template <> void RecordablesMap<{{ neuronName }}>::create()
 {%- endif %}
   {
 
@@ -862,6 +862,15 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%-     endfor %}
 {%- endif %}
 
+{%- for spike_updates_for_port in spike_updates.values() %}
+{%-     for ast in spike_updates_for_port -%}
+{%-         if "__X__" in ast.get_variable().get_name() %}    {#- convolutions only #}
+{%-             include "directives_cpp/Assignment.jinja2" %}
+{%-         endif %}
+{%-     endfor %}
+{%- endfor %}
+
+
 {%  if paired_synapses is defined %}
 {%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
 {%-         if uses_numeric_solver and purely_numeric_state_variables_moved %}
@@ -882,13 +891,6 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%-         endif %}
 {%-     endfor %}
 {%- endif %}
-
-    /**
-     * spike updates due to convolutions
-    **/
-{%  filter indent(4) %}
-{%-     include "directives_cpp/ApplySpikesFromBuffers.jinja2" %}
-{%- endfilter %}
 
     /**
      * Begin NESTML generated code for the onCondition block(s)
@@ -1142,7 +1144,7 @@ void {{ neuronName }}::handle(nest::SpikeEvent &e)
 #endif
 
   assert(e.get_delay_steps() > 0);
-  assert( e.get_rport() < B_.spike_inputs_.size() );
+  assert(e.get_rport() < B_.spike_inputs_.size());
 
   double weight = e.get_weight();
   size_t nestml_buffer_idx = 0;

@@ -137,6 +137,9 @@ class TestCoCos:
             model,
             LoggingLevel.WARNING,
             message_code=MessageCode.CM_INTEGRATE_ODES_IGNORED)) == 1
+        assert len(Logger.get_messages(
+            model,
+            LoggingLevel.ERROR)) == 0
 
     def test_no_integrate_odes_ignored_in_compartmental_warning_without_call(self):
         model = self._parse_and_validate_model(

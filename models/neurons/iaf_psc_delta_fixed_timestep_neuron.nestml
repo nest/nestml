@@ -82,7 +82,7 @@ model iaf_psc_delta_fixed_timestep_neuron:
     onReceive(spikes):
         # discard spikes if neuron is refractory
         if refr_counter == 0:
-            V_m += unit_psp * spikes * s
+            V_m += unit_psp * spikes * 1 s
 
     update:
         if refr_counter > 0:

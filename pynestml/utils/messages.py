@@ -156,6 +156,9 @@ class MessageCode(Enum):
     CONVOLVE_NEEDS_BUFFER_PARAMETER = 127
     CM_INTEGRATE_ODES_IGNORED = 128
     CM_FASTEXP_ACCURACY_WARNING = 129
+    NOT_ALLOWED_TO_ASSIGN_TO_A_UNIT_TYPE = 130
+    VARIABLE_USED_AS_A_UNIT = 131
+    NO_SOLITARY_PHYSICAL_UNITS = 132
 
 
 class Messages:
@@ -821,8 +824,7 @@ class Messages:
     @classmethod
     def astdatatype_type_symbol_could_not_be_derived(cls) -> Tuple[MessageCode, str]:
         """
-        Unknown type or unit literal.
-        :param provided_type_str: the provided type as a string
+        Type symbol could not be derived.
         """
         message = "ASTDataType type symbol could not be derived"
         return MessageCode.ASTDATATYPE_TYPE_SYMBOL_COULD_NOT_BE_DERIVED, message
@@ -1213,6 +1215,12 @@ class Messages:
         return MessageCode.WEIGHT_VARIABLE_NOT_FOUND, message
 
     @classmethod
+    def get_not_allowed_to_assign_to_a_unit_type(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "Not allowed to assign to unit type '" + variable_name + "'!"
+
+        return MessageCode.NOT_ALLOWED_TO_ASSIGN_TO_A_UNIT_TYPE, message
+
+    @classmethod
     def get_unknown_neuron_synapse_pair_model(cls, model_type: str, model_name: str) -> Tuple[MessageCode, str]:
         message = "Unknown " + model_type + " model \"" + model_name + "\" in neuron_synapse_pairs."
 
@@ -1229,3 +1237,9 @@ class Messages:
         message = "Could not resolve variable dependency \"" + variable_name + "\" while collecting " + context + "."
 
         return MessageCode.CM_UNRESOLVED_VARIABLE_DEPENDENCY, message
+
+    @classmethod
+    def get_no_solitary_physical_units_allowed(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "No free-standing physical units allowed (" + variable_name + ")"
+
+        return MessageCode.NO_SOLITARY_PHYSICAL_UNITS, message

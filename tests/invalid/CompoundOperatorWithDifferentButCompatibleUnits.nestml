@@ -28,6 +28,6 @@ model CompoundOperatorTest:
     update:
         lhs *= 1 nA
         lhs /= 1 m
-        lhs *= (1. mA) * (1 Ohm)
+        lhs *= 1 mA * 1 Ohm
         lhs += 1 A
         lhs -= 1 nS

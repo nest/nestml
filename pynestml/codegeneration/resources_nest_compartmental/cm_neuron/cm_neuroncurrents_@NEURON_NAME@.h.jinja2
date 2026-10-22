@@ -1222,7 +1222,7 @@ public:
     {% endfor -%}
     {%- for continuous_name, continuous_info in con_in_info.items() %}
       {{continuous_name}}{{ continuous_suffix }}.set_buffer_ptr( buffers );
-    {% endfor -%}
+    {% endfor %}
   };
 
   std::map< Name, {{ cm_scalar_t }}* > get_recordables( const long compartment_idx )

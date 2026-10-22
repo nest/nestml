@@ -69,14 +69,14 @@ model third_factor_stdp_synapse:
         # potentiate synapse
         w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
         if I_post_dend <= 1 pA:
-            w_ = (I_post_dend / pA) * w_ + (1 - I_post_dend / pA) * w   # "gating" of the weight update
+            w_ = (I_post_dend / 1 pA) * w_ + (1 - I_post_dend / 1 pA) * w   # "gating" of the weight update
         w = min(Wmax, w_)
 
     onReceive(pre_spikes):
         # depress synapse
         w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
         if I_post_dend <= 1 pA:
-            w_ = (I_post_dend / pA) * w_ + (1 - I_post_dend / pA) * w   # "gating" of the weight update
+            w_ = (I_post_dend / 1 pA) * w_ + (1 - I_post_dend / 1 pA) * w   # "gating" of the weight update
         w = max(Wmin, w_)
 
         # deliver spike to postsynaptic partner

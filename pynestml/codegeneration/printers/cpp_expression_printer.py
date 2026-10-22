@@ -66,7 +66,7 @@ class CppExpressionPrinter(ExpressionPrinter):
             return self._print_ternary_operator_expression(node)
 
         if node.is_expression():
-            return self.print_expression(node.get_expression())
+            return self.print(node.get_expression())
 
         raise RuntimeError("Tried to print unknown expression: \"%s\"" % str(node))
 
