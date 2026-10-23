@@ -4,24 +4,24 @@
 {% set _tuples = [
     ("nest::RingBuffer", "spike_inputs_", "Buffer containing the incoming spikes"),
     ("double", "spike_inputs_grid_sum_", "Buffer containing the sum of all the incoming spikes"),
-    ("nest::RingBuffer", "spike_input_received_", "Buffer containing a flag whether incoming spikes have been received on a given port"),
-    ("double", "spike_input_received_grid_sum_", "Buffer containing a flag whether incoming spikes have been received on a given port")
+    ("nest::RingBuffer", "n_spikes_received_", "Buffer containing a flag whether incoming spikes have been received on a given port"),
+    ("double", "n_spikes_received_grid_sum_", "Buffer containing a flag whether incoming spikes have been received on a given port")
 ] %}
 {%- for data_type, variable_name, comment_string in _tuples %}
 
 /**
  * {{ comment_string }}
 **/
-inline std::vector< {{data_type}} >& get_{{variable_name}}()
+inline {{ data_type }}& get_{{ variable_name }}_{{ suffix }}()
 {
 {%-     if is_in_struct %}
-    return {{variable_name}};
+    return {{ variable_name }}_{{ suffix }};
 {%-     else %}
-    return B_.get_{{variable_name}}();
+    return B_.get_{{ variable_name }}()_{{ suffix }};
 {%-     endif %}
 }
 {%-     if is_in_struct %}
-std::vector< {{data_type}} > {{variable_name}};
+{{ data_type }} {{ variable_name }}_{{ suffix }};
 {%-     endif %}
 {%- endfor %}
 

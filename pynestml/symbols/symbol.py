@@ -120,11 +120,11 @@ class Symbol:
         self.comment = comment
 
     @abstractmethod
-    def print_symbol(self):
+    def print_symbol(self) -> str:
         """
         Returns a string representation of this symbol.
         """
-        pass
+        raise NotImplementedError()
 
 
 class SymbolKind(Enum):

@@ -55,4 +55,4 @@ model test_delta_kernel_neuron:
         integrate_odes()
 
     onReceive(spikes_in):
-        z += unit_psp * spikes_in * 1 s
+        z += unit_psp * get_weight(spikes_in, t)

@@ -60,6 +60,8 @@ class PythonFunctionCallPrinter(FunctionCallPrinter):
         if ASTUtils.needs_arguments(function_call):
             if function_call.get_name() == PredefinedFunctions.PRINT or function_call.get_name() == PredefinedFunctions.PRINTLN:
                 return function_name.format(self._print_print_statement(function_call))
+            elif function_call.get_name() == PredefinedFunctions.GET_WEIGHT:
+                return self._expression_printer.print(function_call.get_args()[0])
 
             return function_name.format(*self._print_function_call_argument_list(function_call))
 
@@ -118,7 +120,7 @@ class PythonFunctionCallPrinter(FunctionCallPrinter):
             fun_right = (lambda rhs: " + " + self.__convert_print_statement_str(rhs, scope) if rhs else "")
             ast_var = ASTVariable(var_name, scope=scope)
             right = " " + ASTUtils.get_unit_name(ast_var) + right  # concatenate unit separated by a space with the right part of the string
-            return fun_left(left) + self._expression_printer.print(ast_var) + fun_right(right)
+            return fun_left(left) + "str(" + self._expression_printer.print(ast_var) + ")" + fun_right(right)
 
         return "\"" + stmt + "\""  # format bare string in Python (add double quotes)
 
@@ -136,6 +138,9 @@ class PythonFunctionCallPrinter(FunctionCallPrinter):
         s
             The function call string in Python syntax.
         """
+        if function_call.get_name() in [PredefinedFunctions.PRINT, PredefinedFunctions.PRINTLN]:
+            return "print({!s})"
+
         if function_call.get_name() == PredefinedFunctions.TIME_STEPS:
             return "steps({!s}, self._timestep)"
 

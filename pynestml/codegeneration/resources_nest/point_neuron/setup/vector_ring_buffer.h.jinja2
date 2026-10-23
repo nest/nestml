@@ -1,0 +1,142 @@
+{#
+ *  vector_ring_buffer.h.jinja2
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+ *
+#}
+/*
+ *  vector_ring_buffer.h
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+#ifndef VECTOR_RING_BUFFER_H
+#define VECTOR_RING_BUFFER_H
+
+// C++ includes:
+#include <array>
+#include <list>
+#include <vector>
+
+// Includes from nestkernel:
+#include "kernel_manager.h"
+#include "nest_time.h"
+#include "nest_types.h"
+
+namespace nest
+{
+
+class VectorRingBuffer
+{
+public:
+  VectorRingBuffer();
+
+  /**
+   * Append a value to the ring buffer list.
+   *
+   * @param  offs     Arrival time relative to beginning of slice.
+   * @param  double Value to append.
+   */
+  void append_value( const long offs, const double );
+
+  std::vector< double >& get_list( const long offs );
+
+  /**
+   * Initialize the buffer with empty lists.
+   * Also resizes the buffer if necessary.
+   */
+  void clear();
+
+  /**
+   * Resize the buffer according to max_thread and max_delay.
+   *
+   * New elements are filled with empty lists.
+   * @note resize() has no effect if the buffer has the correct size.
+   */
+  void resize();
+
+  /**
+   * Returns buffer size, for memory measurement.
+   */
+  size_t
+  size() const
+  {
+    return buffer_.size();
+  }
+
+private:
+  //! Buffered data
+  std::vector< std::vector< double > > buffer_;
+
+  /**
+   * Obtain buffer index.
+   *
+   * @param delay delivery delay for event
+   * @returns index to buffer element into which event should be
+   * recorded.
+   */
+  size_t get_index_( const long d ) const;
+};
+
+inline void
+VectorRingBuffer::append_value( const long offs, const double v )
+{
+  buffer_[ get_index_( offs ) ].push_back( v );
+}
+
+inline std::vector< double >&
+VectorRingBuffer::get_list( const long offs )
+{
+  assert( 0 <= offs and static_cast< size_t >( offs ) < buffer_.size() );
+  assert( offs < kernel().connection_manager.get_min_delay() );
+
+  // offs == 0 is beginning of slice, but we have to
+  // take modulo into account when indexing
+  long idx = get_index_( offs );
+  return buffer_[ idx ];
+}
+
+inline size_t
+VectorRingBuffer::get_index_( const long d ) const
+{
+  const long idx = kernel().event_delivery_manager.get_modulo( d );
+  assert( 0 <= idx );
+  assert( static_cast< size_t >( idx ) < buffer_.size() );
+  return idx;
+}
+
+} // namespace nest
+
+
+#endif /* #ifndef VECTOR_RING_BUFFER_H */

@@ -88,6 +88,7 @@ from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.string_utils import removesuffix
 from pynestml.utils.synapse_processing import SynapseProcessing
 from pynestml.utils.syns_info_enricher import SynsInfoEnricher
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.utils.recs_info_enricher import RecsInfoEnricher
 from pynestml.utils.receptor_processing import ReceptorProcessing
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
@@ -586,6 +587,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         assert len(neuron.get_equations_blocks()) <= 1, "Only one equations block supported for now"
         assert len(neuron.get_state_blocks()) <= 1, "Only one state block supported for now"
+        neuron.accept(ASTParentVisitor())
 
         equations_block = neuron.get_equations_blocks()[0]
 

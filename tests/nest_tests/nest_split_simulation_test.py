@@ -69,7 +69,6 @@ class NestSplitSimulationTest(unittest.TestCase):
 
         spikegenerator = nest.Create("spike_generator",
                                      params={"spike_times": spike_times, "spike_weights": spike_weights})
-
         nest.Connect(spikegenerator, neuron)
 
         multimeter = nest.Create("multimeter")
