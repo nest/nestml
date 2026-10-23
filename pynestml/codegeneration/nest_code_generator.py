@@ -166,6 +166,7 @@ class NESTCodeGenerator(CodeGenerator):
         for model in neurons + synapses:
             CoCoNestRandomFunctionsLegallyUsed.check_co_co(model)
 
+        for model in neurons + synapses:
             if Logger.has_errors(model.name):
                 raise CodeGenerationException("Error(s) occurred during code generation")
 
