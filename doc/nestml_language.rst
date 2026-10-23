@@ -1237,44 +1237,6 @@ Each spiking output event can optionally be parameterised by using the area-unde
        emit_spike(weight)
 
 
-
-Vector input ports of constant size and with a constant numerical value for the index can be used:
-
-.. code-block:: nestml
-
-   input:
-       foo[2] <- spike
-
-   onReceive(foo[0]):
-       # ... handle foo[0] spikes...
-
-   onReceive(foo[1]):
-       # ... handle foo[1] spikes...
-
-
-Output
-------
-
-Each model can only produce a single output. The type of the event has to be given in the `output` block. Currently, only spike output is supported.
-
-.. code-block:: nestml
-
-   output:
-       spike
-
-Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + timestep()``.
-
-Each spiking output event can optionally be parameterised by using the area-under-the-curve of the Dirac delta function. For example, a synapse could assign a weight (as a real number) to its spike event by including this value in the call to ``emit_spike()``:
-
-.. code-block:: nestml
-
-   parameters:
-       weight real = 10.
-
-   update:
-       emit_spike(weight)
-
-
 Handling of time
 ----------------
 

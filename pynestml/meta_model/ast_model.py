@@ -534,7 +534,7 @@ class ASTModel(ASTNode):
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.INPUT and not "." in symbol.name:
+            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.INPUT:
                 ret.append(symbol)
         return ret
 

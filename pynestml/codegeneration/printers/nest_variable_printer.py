@@ -114,9 +114,6 @@ class NESTVariablePrinter(CppVariablePrinter):
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
                 unit = symbol.get_type_symbol().unit.unit
-                # if unit.physical_type == "time":    # XXX: terrible hack!
-                #     units_conversion_factor = 1
-                # else:
                 units_conversion_factor = NESTUnitConverter.get_factor(unit)
             else:
                 units_conversion_factor = 1

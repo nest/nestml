@@ -40,7 +40,7 @@ class TestNESTRandomNumberGenerators:
         except CodeGenerationException:
             pass
 
-        assert len(Logger.get_messages("random_functions_illegal_neuron", LoggingLevel.ERROR, message_code=MessageCode.NEST_RANDOM_FUNCTIONS_LEGALLY_USED)) == 3
+        assert len(Logger.get_messages("random_functions_illegal_neuron", LoggingLevel.ERROR, message_code=MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED)) == 3
 
     def test_random_number_generators_in_synapse(self):
         input_path = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "..", "..", "models", "neurons", "iaf_psc_delta_neuron.nestml"))),
@@ -57,4 +57,4 @@ class TestNESTRandomNumberGenerators:
         except CodeGenerationException:
             pass
 
-        assert len(Logger.get_messages("random_functions_illegal_synapse__with_iaf_psc_delta_neuron", LoggingLevel.ERROR, message_code=MessageCode.NEST_RANDOM_FUNCTIONS_LEGALLY_USED)) == 2
+        assert len(Logger.get_messages("random_functions_illegal_synapse__with_iaf_psc_delta_neuron", LoggingLevel.ERROR, message_code=MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED)) == 2
