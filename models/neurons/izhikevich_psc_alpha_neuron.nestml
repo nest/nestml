@@ -4,25 +4,26 @@
 # Description
 # +++++++++++
 #
-# Implementation of the simple spiking neuron model introduced by Izhikevich [1]_, with membrane potential in (milli)volt
-# and current-based synapses.
+# Implementation of the simple spiking neuron model introduced by Izhikevich [1]_, extended with current-based synapses with exponentially decaying postsynaptic response kernels.
 #
 # The dynamics are given by:
 #
 # .. math::
 #
-#    C_m \frac{dV_m}{dt} = k (V - V_t)(V - V_t) - u + I + I_{syn,ex} + I_{syn,in}
-#    \frac{dU_m}{dt} = a(b(V_m - E_L) - U_m)
+#    C_\mathrm{m} \frac{dV_\mathrm{m}}{dt} = k (V_\mathrm{m} - V_\mathrm{t})(V - V_\mathrm{t}) - u + I + I_{syn,ex} + I_{syn,in}
+#    \frac{dU_\mathrm{m}}{dt} = a(b(V_\mathrm{m} - E_\mathrm{L}) - U_\mathrm{m})
 #
-#    &\text{if}\;\;\; V_m \geq V_{th}:\\
-#    &\;\;\;\; V_m \text{ is set to } c
-#    &\;\;\;\; U_m \text{ is incremented by } d
+#    &\text{if}\;\;\; V_\mathrm{m} \geq V_\mathrm{th}:\\
+#    &\;\;\;\; V_\mathrm{m} \text{ is set to } c
+#    &\;\;\;\; U_\mathrm{m} \text{ is incremented by } d
 #
 # On each spike arrival, the membrane potential is subject to an alpha-kernel current of the form:
 #
 # .. math::
 #
-#    I_syn = I_0 \cdot t \cdot \exp\left(-t/\tau_{syn}\right) / \tau_{syn}
+#    I_syn = I_0 \cdot s(t) \ast H(t)\exp\left(-t/\tau_\mathrm{syn}\right) / \tau_\mathrm{syn}
+#
+# with :math:`H(t)` the Heaviside (step) function.
 #
 # See also
 # ++++++++

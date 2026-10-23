@@ -1467,6 +1467,12 @@ inline void
         return;
     }
 
+    const size_t tid = kernel().vp_manager.get_thread_id();
+    auto get_thread = [tid]()
+    {
+        return tid;
+    };
+
     const double __timestep = timestep;  // do not remove, this is necessary for the timestep() function
     auto get_t = [t_start](){ return t_start; };   // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
