@@ -347,7 +347,7 @@ Whitelines are therefore used to separate comment targets:
    # I am a comment of the resting potential.
    V_rest mV = -60 mV
 
-The text of each comment is interpreted as `Sphinx reStructuredText format <https://www.sphinx-doc.org/en/main/usage/restructuredtext/index.html>`_.
+The text of each comment is interpreted as `reStructuredText format <https://docutils.sourceforge.io/rst.html>`_.
 
 Documentation for a model may appear directly in front of the model definition, akin to Python "docstrings" (see `PEP 257 "Docstring Conventions" <https://www.python.org/dev/peps/pep-0257/>`_). For example:
 

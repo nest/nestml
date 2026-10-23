@@ -167,10 +167,11 @@ class NESTCodeGenerator(CodeGenerator):
     def run_nest_target_specific_cocos(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
         for model in neurons + synapses:
             CoCosManager.check_on_receive_vectors_should_be_constant_size(model)
+            CoCoNestRandomFunctionsLegallyUsed.check_co_co(model)
+
+        for model in neurons + synapses:
             if Logger.has_errors(model.name):
                 raise CodeGenerationException("Error(s) occurred during code generation")
-
-            CoCoNestRandomFunctionsLegallyUsed.check_co_co(model)
 
         if self.get_option("neuron_synapse_pairs"):
             for model in synapses:
