@@ -163,11 +163,10 @@ class ASTVisitor:
         """
         return
 
-    def visit_function_call(self, node):
+    def visit_function_call(self, node: ASTFunctionCall):
         """
         Private method: Used to visit a single function call and update its corresponding scope.
         :param node: a function call object.
-        :type node: ASTFunctionCall
         """
         return
 

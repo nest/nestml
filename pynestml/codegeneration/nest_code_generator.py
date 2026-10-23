@@ -21,8 +21,6 @@
 
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
-from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
-
 try:
     # Available in the standard library starting with Python 3.12
     from typing import override
@@ -35,6 +33,7 @@ import re
 
 import pynestml
 
+from pynestml.cocos.co_co_nest_random_functions_legally_used import CoCoNestRandomFunctionsLegallyUsed
 from pynestml.cocos.co_co_nest_synapse_delay_not_assigned_to import CoCoNESTSynapseDelayNotAssignedTo
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.code_generator import CodeGenerator
@@ -55,12 +54,14 @@ from pynestml.codegeneration.printers.nest_variable_printer import NESTVariableP
 from pynestml.codegeneration.printers.nest2_cpp_function_call_printer import NEST2CppFunctionCallPrinter
 from pynestml.codegeneration.printers.nest_gsl_function_call_printer import NESTGSLFunctionCallPrinter
 from pynestml.codegeneration.printers.nest2_gsl_function_call_printer import NEST2GSLFunctionCallPrinter
+from pynestml.exceptions.code_generation_exception import CodeGenerationException
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.symbol_table.symbol_table import SymbolTable
+from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
@@ -163,11 +164,11 @@ class NESTCodeGenerator(CodeGenerator):
 
     def run_nest_target_specific_cocos(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
         for model in neurons + synapses:
-            # Check if the random number functions are used in the right blocks
-            CoCosManager.check_co_co_nest_random_functions_legally_used(model)
+            CoCoNestRandomFunctionsLegallyUsed.check_co_co(model)
 
+        for model in neurons + synapses:
             if Logger.has_errors(model.name):
-                raise Exception("Error(s) occurred during code generation")
+                raise CodeGenerationException("Error(s) occurred during code generation")
 
         if self.get_option("neuron_synapse_pairs"):
             for model in synapses:
@@ -182,7 +183,7 @@ class NESTCodeGenerator(CodeGenerator):
                     CoCoNESTSynapseDelayNotAssignedTo.check_co_co(model, {model.name: {"delay_variable": delay_variable}})
 
                 if Logger.has_errors(model.name):
-                    raise Exception("Error(s) occurred during code generation")
+                    raise CodeGenerationException("Error(s) occurred during code generation")
 
     def setup_printers(self):
         self._constant_printer = ConstantPrinter()
@@ -283,7 +284,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         for astnode in neurons + synapses:
             if Logger.has_errors(astnode):
-                raise Exception("Error(s) occurred during code generation")
+                raise CodeGenerationException("Error(s) occurred during code generation")
 
     def _get_module_namespace(self,
                               neurons: List[ASTModel],

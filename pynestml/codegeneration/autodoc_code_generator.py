@@ -41,6 +41,7 @@ from pynestml.codegeneration.printers.latex_function_call_printer import LatexFu
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.latex_simple_expression_printer import LatexSimpleExpressionPrinter
 from pynestml.codegeneration.printers.latex_variable_printer import LatexVariablePrinter
+from pynestml.exceptions.code_generation_exception import CodeGenerationException
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.ast_utils import ASTUtils
@@ -86,7 +87,7 @@ class AutoDocCodeGenerator(CodeGenerator):
 
         for astnode in neurons + synapses:
             if Logger.has_errors(astnode):
-                raise Exception("Error(s) occurred during code generation")
+                raise CodeGenerationException("Error(s) occurred during code generation")
 
     def generate_index(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
         """
