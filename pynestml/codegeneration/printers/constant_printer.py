@@ -38,6 +38,7 @@ class ConstantPrinter:
             return str(node)
 
         if isinstance(node, float):
-            return f"{node:#.{ConstantPrinter.n_float_digits}g}".rstrip("0")    # make sure decimal point is always included
+            printed = f"{node:#.{ConstantPrinter.n_float_digits}g}"    # make sure decimal point is always included
+            return printed if "e" in printed else printed.rstrip("0")    # do not strip zeros from an exponent
 
         raise Exception("Cannot print constant (" + str(node) + ") of unknown type")
