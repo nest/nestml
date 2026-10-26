@@ -66,7 +66,7 @@ class ODEToolboxTransformer(Transformer):
     _default_options = {
         "use_alternative_expM": False,
         "preserve_expressions": True,
-        "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
+        "simplify_expression": "sympy.nsimplify(sympy.logcombine(sympy.powsimp(sympy.expand(expr))), rational=True)",
         "solver": "analytic",
         "ode_toolbox_json_options": None,
         "disable_singularity_detection": False
@@ -122,6 +122,7 @@ class ODEToolboxTransformer(Transformer):
         disable_analytic_solver = self.get_option("solver") != "analytic"
 
         solver_result = odetoolbox.analysis(odetoolbox_indict,
+                                                enable_cse=True,
                                             disable_stiffness_check=True,
                                             disable_analytic_solver=disable_analytic_solver,
                                             disable_singularity_detection=self.get_option("disable_singularity_detection"),
