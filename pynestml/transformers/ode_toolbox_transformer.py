@@ -66,7 +66,7 @@ class ODEToolboxTransformer(Transformer):
     _default_options = {
         "use_alternative_expM": False,
         "preserve_expressions": True,
-        "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
+        "simplify_expression": "sympy.nsimplify(sympy.logcombine(sympy.powsimp(sympy.expand(expr))), rational=True)",
         "solver": "analytic",
         "ode_toolbox_json_options": None,
         "disable_singularity_detection": False
