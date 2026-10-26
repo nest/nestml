@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Iterable, Mapping, Optional, Set, Tuple
+from typing import Any, Dict, Iterable, Mapping, Optional
 
 try:
     # Available in the standard library starting with Python 3.12
@@ -42,10 +42,8 @@ from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.transformers.transformer import Transformer
-from pynestml.utils.model_parser import ModelParser
-from pynestml.utils.ode_toolbox_utils import ODEToolboxUtils
-from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.utils.ast_utils import ASTUtils
+from pynestml.utils.logger import Logger, LoggingLevel
 
 
 class ODEToolboxTransformer(Transformer):
@@ -57,17 +55,21 @@ class ODEToolboxTransformer(Transformer):
     Options
     -------
 
+    - **use_alternative_expM**: If :python:`False`, use the sympy function ``sympy.exp`` to compute the matrix exponential. If :python:`True`, use an alternative function (see :py:func:`odetoolbox.sympy_helpers.expMt` for details). This can be useful as calls to ``sympy.exp`` can sometimes take a very large amount of time. (This parameter is directly passed to ODE-toolbox.)
     - **preserve_expressions**: Set to True, or a list of strings corresponding to individual variable names, to disable internal rewriting of expressions, and return same output as input expression where possible. Only applies to variables specified as first-order differential equations. (This parameter is passed to ODE-toolbox.)
     - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
     - **solver**: A string identifying the preferred ODE solver. ``"analytic"`` for propagator solver preferred; fallback to numeric solver in case ODEs are not analytically solvable. Use ``"numeric"`` to disable analytic solver.
     - **ode_toolbox_json_options**: An optional extra dictionary; key-value pairs are passed to ODE-toolbox indict "options" key.
+    - **disable_singularity_detection**: Set to True to disable detection of conditions under which numerical singularities (division by zero) could occur in the generated analytic solver. This can be useful for analytic solvers containing a large amount of conditions, which could take a long time to compute. (This parameter is directly passed to ODE-toolbox.)
     """
 
     _default_options = {
+        "use_alternative_expM": False,
         "preserve_expressions": True,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "solver": "analytic",
-        "ode_toolbox_json_options": None
+        "ode_toolbox_json_options": None,
+        "disable_singularity_detection": False
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
@@ -103,48 +105,36 @@ class ODEToolboxTransformer(Transformer):
         """
         Prepare data for ODE-toolbox input format, invoke ODE-toolbox analysis via its API, and return the output.
         """
-        assert len(model.get_equations_blocks()) <= 1, "Only one equations block supported for now."
-        assert len(model.get_parameters_blocks()) <= 1, "Only one parameters block supported for now."
-
         if not model.name in metadata.keys():
             metadata[model.name] = {}
 
-        analytic_solver = None
-        numeric_solver = None
+        metadata[model.name]["analytic_solver"] = None
+        metadata[model.name]["numeric_solver"] = None
 
-        if len(model.get_equations_blocks()) == 0:
-            # no equations, no need to call ODE-toolbox
-            return
+        if len(model.get_equations_blocks()) > 1:
+            raise Exception("Only one equations block supported for now!")
 
-        equations_block = model.get_equations_blocks()[0]
-
-        if len(equations_block.get_kernels()) == 0 and len(equations_block.get_ode_equations()) == 0:
-            # no equations defined in this equations block; nothing to analyse
+        if len(model.get_equations_blocks()) == 0 or len(model.get_equations_blocks()[0].get_kernels()) + len(model.get_equations_blocks()[0].get_ode_equations()) == 0:
+            # if no equations defined, nothing to analyse
             return
 
         odetoolbox_indict = self.create_ode_toolbox_indict(model, kernel_buffers)
-
         disable_analytic_solver = self.get_option("solver") != "analytic"
+
         solver_result = odetoolbox.analysis(odetoolbox_indict,
                                             disable_stiffness_check=True,
                                             disable_analytic_solver=disable_analytic_solver,
+                                            disable_singularity_detection=self.get_option("disable_singularity_detection"),
+                                            disable_singularity_mitigation=True,    # multiple conditional solvers returned from ODE-toolbox not yet supported by NESTML
+                                            use_alternative_expM=self.get_option("use_alternative_expM"),
                                             preserve_expressions=self.get_option("preserve_expressions"),
                                             log_level=FrontendConfiguration.logging_level)
+
         analytic_solver = None
         analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
         assert len(analytic_solvers) <= 1, "More than one analytic solver not presently supported"
         if len(analytic_solvers) > 0:
             analytic_solver = analytic_solvers[0]
-
-        # parse update expressions into an AST
-        analytic_solver["update_expressions_ast"] = {}
-        for state_variable_name in analytic_solver["state_variables"]:
-            expr_str = analytic_solver["update_expressions"][state_variable_name]
-            expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr_str)
-            expr_ast = ModelParser.parse_expression(expr_str)
-            expr_ast.update_scope(model.get_scope())
-            expr_ast.accept(ASTSymbolTableVisitor())
-            analytic_solver["update_expressions_ast"][state_variable_name] = expr_ast
 
         # if numeric solver is required, generate a stepping function that includes each state variable, including the analytic ones
         numeric_solver = None
@@ -155,23 +145,15 @@ class ODEToolboxTransformer(Transformer):
                 solver_result = odetoolbox.analysis(odetoolbox_indict,
                                                     disable_stiffness_check=True,
                                                     disable_analytic_solver=True,
+                                                    disable_singularity_detection=True,
+                                                    disable_singularity_mitigation=True,    # multiple conditional solvers returned from ODE-toolbox not yet supported by NESTML
+                                                    use_alternative_expM=self.get_option("use_alternative_expM"),
                                                     preserve_expressions=self.get_option("preserve_expressions"),
                                                     log_level=FrontendConfiguration.logging_level)
             numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
             assert len(numeric_solvers) <= 1, "More than one numeric solver not presently supported"
             if len(numeric_solvers) > 0:
                 numeric_solver = numeric_solvers[0]
-
-            # parse update expressions into an AST
-            numeric_solver["update_expressions_ast"] = {}
-            for state_variable_name in numeric_solver["state_variables"]:
-                expr_str = numeric_solver["update_expressions"][state_variable_name]
-                expr_str = ODEToolboxUtils._rewrite_piecewise_into_ternary(expr_str)
-                expr_ast = ModelParser.parse_expression(expr_str)
-                expr_ast.update_scope(model.get_scope())
-                expr_ast.accept(ASTSymbolTableVisitor())
-                numeric_solver["update_expressions_ast"][state_variable_name] = expr_ast
-
 
         #
         #   save the results to metadata
@@ -184,20 +166,13 @@ class ODEToolboxTransformer(Transformer):
     def transform(self,
                   models: Iterable[ASTModel],
                   metadata: Dict[str, Dict[str, Any]]) -> Iterable[ASTModel]:
+
         for model in models:
-            if not model.get_equations_blocks():
+            if len(model.get_equations_blocks()) == 0:
+                # no equations, no need to call ODE-toolbox
                 continue
 
-            if len(model.get_equations_blocks()) > 1:
-                raise Exception("Only one equations block per model supported for now")
-
-            equations_block = model.get_equations_blocks()[0]
-
-            if not model.name in metadata.keys():
-                metadata[model.name] = {}
-
             assert "kernel_buffers" in metadata[model.name].keys(), "ConvolutionsToBuffersTransformer should have been run first on the model!"
-
             self.ode_toolbox_analysis(model, metadata[model.name]["kernel_buffers"], metadata)
 
         return models

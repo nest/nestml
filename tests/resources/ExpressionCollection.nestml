@@ -89,12 +89,12 @@ model ExpressionCollection:
                                   # parameters, V_T = -63mV results in a threshold around -50mV.
         tau_syn_ex ms = 5.0ms     # Synaptic Time Constant Excitatory Synapse in ms
         tau_syn_in ms = 10.0ms    # Synaptic Time Constant for Inhibitory Synapse in ms
-        I_e pA = 0pA              # Constant Current in pA
-        E_exc mV = 0.0 mV          # Excitatory synaptic reversal potential
-        E_inh mV = -80.0mV         # Inhibitory synaptic reversal potential
-        V_m mV = E_L #  Membrane potential
-        g_in nS = 0nS # Inhibitory synaptic conductance
-        g_ex nS = 0nS # Excitatory synaptic conductance
+        I_e pA = 0 pA             # Constant Current in pA
+        E_exc mV = 0.0 mV         # Excitatory synaptic reversal potential
+        E_inh mV = -80.0mV        # Inhibitory synaptic reversal potential
+        V_m mV = E_L              #  Membrane potential
+        g_in nS = 0nS             # Inhibitory synaptic conductance
+        g_ex nS = 0nS             # Excitatory synaptic conductance
 
         # Act-h'
         t_ref ms = 2.0 ms      # Refractory period

@@ -28,6 +28,8 @@ from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSi
 from pynestml.codegeneration.printers.cpp_type_symbol_printer import CppTypeSymbolPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.nest_cpp_function_call_printer import NESTCppFunctionCallPrinter
+from pynestml.codegeneration.printers.nestml_expression_printer import NESTMLExpressionPrinter
+from pynestml.codegeneration.printers.nestml_simple_expression_printer import NESTMLSimpleExpressionPrinter
 from pynestml.codegeneration.printers.nestml_variable_printer import NESTMLVariablePrinter
 from pynestml.frontend.pynestml_frontend import generate_target
 from pynestml.symbol_table.symbol_table import SymbolTable
@@ -61,9 +63,9 @@ class TestUnitSystem:
         variable_printer = NESTMLVariablePrinter(None)
         function_call_printer = NESTCppFunctionCallPrinter(None)
         cpp_variable_printer = CppVariablePrinter(None)
-        self.printer = CppExpressionPrinter(CppSimpleExpressionPrinter(cpp_variable_printer,
-                                                                       ConstantPrinter(),
-                                                                       function_call_printer))
+        self.printer = NESTMLExpressionPrinter(NESTMLSimpleExpressionPrinter(cpp_variable_printer,
+                                                                             ConstantPrinter(),
+                                                                             function_call_printer))
         cpp_variable_printer._expression_printer = self.printer
         variable_printer._expression_printer = self.printer
         function_call_printer._expression_printer = self.printer
@@ -110,25 +112,25 @@ class TestUnitSystem:
         model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "DirectAssignmentWithDifferentButCompatibleUnits.nestml"))
         printed_rhs_expression = self.print_rhs_of_first_assignment_in_update_block(model)
 
-        assert printed_rhs_expression == "(1000.0 * (10 * V))"
+        assert printed_rhs_expression == "(1000.0 * (10 V))"
 
     def test_expression_after_nested_magnitude_conversion_in_direct_assignment(self):
         model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "DirectAssignmentWithDifferentButCompatibleNestedUnits.nestml"))
         printed_rhs_expression = self.print_rhs_of_first_assignment_in_update_block(model)
 
-        assert printed_rhs_expression == "(1000.0 * (10 * V + (0.001 * (5 * mV)) + 20 * V + (1000.0 * (1 * kV))))"
+        assert printed_rhs_expression == "(1000.0 * (10 V + 5 mV + 20 V + 1 kV))"
 
     def test_expression_after_magnitude_conversion_in_compound_assignment(self):
         model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "CompoundAssignmentWithDifferentButCompatibleUnits.nestml"))
         printed_rhs_expression = self.print_rhs_of_first_assignment_in_update_block(model)
 
-        assert printed_rhs_expression == "(0.001 * (1200 * mV))"
+        assert printed_rhs_expression == "(0.001 * (1200 mV))"
 
     def test_expression_after_magnitude_conversion_in_declaration(self):
         model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "DeclarationWithDifferentButCompatibleUnitMagnitude.nestml"))
         printed_rhs_expression = self.print_rhs_of_first_declaration_in_state_block(model)
 
-        assert printed_rhs_expression == "(1000.0 * (10 * V))"
+        assert printed_rhs_expression == "(1000.0 * (10 V))"
 
     def test_expression_after_type_conversion_in_declaration(self):
         model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "DeclarationWithDifferentButCompatibleUnits.nestml"))
@@ -149,13 +151,13 @@ class TestUnitSystem:
         model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "FunctionCallWithDifferentButCompatibleUnits.nestml"))
         printed_function_call = self.print_first_function_call_in_update_block(model)
 
-        assert printed_function_call == "foo((1000.0 * (10 * V)))"
+        assert printed_function_call == "foo((1000.0 * (10 V)))"
 
     def test_expression_after_magnitude_conversion_in_rhs_function_call(self):
         model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "RhsFunctionCallWithDifferentButCompatibleUnits.nestml"))
         printed_function_call = self.print_rhs_of_first_assignment_in_update_block(model)
 
-        assert printed_function_call == "foo((1000.0 * (10 * V)))"
+        assert printed_function_call == "foo((1000.0 * (10 V)))"
 
     def test_return_stmt_after_magnitude_conversion_in_function_body(self):
         model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "FunctionBodyReturnStatementWithDifferentButCompatibleUnits.nestml"))

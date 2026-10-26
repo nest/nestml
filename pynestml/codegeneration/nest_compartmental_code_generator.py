@@ -21,8 +21,6 @@
 
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
 
-from pynestml.transformers.convolutions_to_buffers_transformer import ConvolutionsToBuffersTransformer
-
 try:
     # Available in the standard library starting with Python 3.12
     from typing import override
@@ -32,11 +30,11 @@ except ImportError:
 
 import datetime
 import os
+import re
 
 from jinja2 import TemplateRuntimeError
 
-from odetoolbox import analysis
-from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
+import odetoolbox
 
 import pynestml
 from pynestml.cocos.co_cos_manager import CoCosManager
@@ -45,6 +43,7 @@ from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
 from pynestml.codegeneration.printers.cpp_printer import CppPrinter
@@ -58,6 +57,7 @@ from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
 from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
 from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
 from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
+from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
@@ -68,9 +68,10 @@ from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.transformers.convolutions_to_buffers_transformer import ConvolutionsToBuffersTransformer
+from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
 from pynestml.utils.global_info_enricher import GlobalInfoEnricher
 from pynestml.utils.global_processing import GlobalProcessing
-from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
 from pynestml.utils.ast_vector_parameter_setter_and_printer_factory import ASTVectorParameterSetterAndPrinterFactory
 from pynestml.utils.mechanism_processing import MechanismProcessing
 from pynestml.utils.channel_processing import ChannelProcessing
@@ -104,6 +105,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
       XXX: TODO: support explicit continuous synapse-port to neuron-variable mappings for compartmental co-generation, analogous to the point-neuron ``post_ports`` tuple/list associations.
     - **synapse_models**: List of synapse model names. Instructs the code generator that models with these names are synapse models.
     - **preserve_expressions**: Set to True, or a list of strings corresponding to individual variable names, to disable internal rewriting of expressions, and return same output as input expression where possible. Only applies to variables specified as first-order differential equations. (This parameter is passed to ODE-toolbox.)
+    - **use_alternative_expM**: If :python:`False`, use the sympy function ``sympy.exp`` to compute the matrix exponential. If :python:`True`, use an alternative function (see :py:func:`odetoolbox.sympy_helpers.expMt` for details). This can be useful as calls to ``sympy.exp`` can sometimes take a very large amount of time. (This parameter is directly passed to ODE-toolbox.)
     - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
     - **templates**: Path containing jinja templates used to generate code for NEST simulator.
         - **path**: Path containing jinja templates used to generate code for NEST simulator.
@@ -112,15 +114,23 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
     - **nest_version**: A string identifying the version of NEST Simulator to generate code for. The string corresponds to the NEST Simulator git repository tag or git branch name, for instance, ``"v2.20.2"`` or ``"main"``. The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
     - **delay_variable**: A mapping identifying, for each synapse (the name of which is given as a key), the variable or parameter in the model that corresponds with the NEST ``Connection`` class delay property. (Optional.)
     - **weight_variable**: Like ``delay_variable``, but for synaptic weight.
+    - **use_fastexp**: Use a bounded polynomial approximation for exponential propagators in generated compartmental mechanism updates. Default: ``False``. This can improve performance, but spike shape is not necessarily preserved; benchmark spike-time accuracy for the concrete model, for example see ``tests/nest_compartmental_tests/test__fastexp_spike_timing_sweep.py``.
+    - **use_fast_math**: Select floating-point compiler relaxations for generated compartmental code. Supported values are ``"None"`` for no additional relaxations, ``"soft-fast"`` for conservative relaxations, and ``"fast"`` for ``-ffast-math``. Default: ``"fast"``.
+    - **enable_cse**: If ``True``, run common subexpression elimination for compartmental mechanism expressions. Default: ``True``.
+    - **fp_precision**: Floating-point precision for compartmental state and helper variables. Supported values: ``"double"``. ``"single"`` is reserved for upcoming single-precision support and currently raises an error.
     """
 
     _default_options = {
         "neuron_synapse_pairs": [],
         "neuron_models": [],
         "synapse_models": [],
+        "use_fastexp": False,
+        "use_fast_math": "fast",
+        "enable_cse": True,
         "neuron_parent_class": "ArchivingNode",
         "neuron_parent_class_include": "archiving_node.h",
         "preserve_expressions": True,
+        "use_alternative_expM": False,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "templates": {
             "path": "resources_nest_compartmental/cm_neuron",
@@ -128,6 +138,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 "neuron": [
                     "cm_neuroncurrents_@NEURON_NAME@.cpp.jinja2",
                     "cm_neuroncurrents_@NEURON_NAME@.h.jinja2",
+                    "fastexp_v4_@NEURON_NAME@.h.jinja2",
                     "@NEURON_NAME@.cpp.jinja2",
                     "@NEURON_NAME@.h.jinja2",
                     "cm_tree_@NEURON_NAME@.cpp.jinja2",
@@ -136,6 +147,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         "nest_version": "",
         "compartmental_variable_name": "v_comp",
         "self_spikes_port": "self_spikes",
+        "fp_precision": "double",
         "delay_variable": {},
         "weight_variable": {}
     }
@@ -145,9 +157,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
     _module_templates = list()
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
-        super().__init__(options)
-
         self._nest_code_generator = NESTCodeGenerator(options)
+        super().__init__(options)
 
         # auto-detect NEST Simulator installed version
         if not self.option_exists("nest_version") or not self.get_option("nest_version"):
@@ -160,6 +171,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         # those state variables not defined as an ODE in the equations block
         self.non_equations_state_variables = {}
 
+        self._fp_precision = self.get_option("fp_precision")
         self.setup_template_env()
 
         self.setup_printers()
@@ -170,13 +182,20 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
     def setup_printers(self):
         self._constant_printer = ConstantPrinter()
+        exp_function = "std::exp"
+        if self.get_option("use_fastexp"):
+            propagator_exp_function = "cm_fast_propagator_exp"
+        elif self._fp_precision == "single":
+            propagator_exp_function = "bounded_propagator_expf"
+        else:
+            propagator_exp_function = exp_function
 
         # C++/NEST API printers
         self._type_symbol_printer = NESTCppTypeSymbolPrinter()
         self._nest_variable_printer = NESTVariablePrinter(expression_printer=None, with_origin=True,
                                                           with_vector_parameter=True)
-        self._nest_function_call_printer = NESTCppFunctionCallPrinter(None)
-        self._nest_function_call_printer_no_origin = NESTCppFunctionCallPrinter(None)
+        self._nest_function_call_printer = NESTCppFunctionCallPrinter(None, exp_function=exp_function)
+        self._nest_function_call_printer_no_origin = NESTCppFunctionCallPrinter(None, exp_function=exp_function)
 
         self._printer = CppExpressionPrinter(
             simple_expression_printer=CppSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
@@ -195,6 +214,22 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                                                                  function_call_printer=self._nest_function_call_printer_no_origin))
         self._nest_variable_printer_no_origin._expression_printer = self._printer_no_origin
         self._nest_function_call_printer_no_origin._expression_printer = self._printer_no_origin
+
+        self._nest_variable_printer_no_origin_propagator = NESTVariablePrinter(
+            None,
+            with_origin=False,
+            with_vector_parameter=True,
+            enforce_getter=False)
+        self._nest_function_call_printer_no_origin_propagator = NESTCppFunctionCallPrinter(
+            None,
+            exp_function=propagator_exp_function)
+        self._printer_no_origin_propagator = CppExpressionPrinter(
+            simple_expression_printer=CppSimpleExpressionPrinter(
+                variable_printer=self._nest_variable_printer_no_origin_propagator,
+                constant_printer=self._constant_printer,
+                function_call_printer=self._nest_function_call_printer_no_origin_propagator))
+        self._nest_variable_printer_no_origin_propagator._expression_printer = self._printer_no_origin_propagator
+        self._nest_function_call_printer_no_origin_propagator._expression_printer = self._printer_no_origin_propagator
 
         # GSL printers
         self._gsl_variable_printer = GSLVariablePrinter(None)
@@ -221,9 +256,28 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         raise TemplateRuntimeError(msg)
 
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
+        if not options:
+            return {}
+        if "use_fastexp" in options and not isinstance(options["use_fastexp"], bool):
+            raise ValueError("`use_fastexp` must be a bool.")
+        if "use_fast_math" in options:
+            if not isinstance(options["use_fast_math"], str):
+                raise ValueError("`use_fast_math` must be a string.")
+            if options["use_fast_math"] not in ["None", "soft-fast", "fast"]:
+                raise ValueError("`use_fast_math` must be one of 'None', 'soft-fast', or 'fast'.")
+        if "enable_cse" in options and not isinstance(options["enable_cse"], bool):
+            raise ValueError("`enable_cse` must be a bool.")
+        if "fp_precision" in options:
+            if options["fp_precision"] != "double":
+                raise ValueError("Single precision for the NEST compartmental code generator is not supported yet; this is coming in the future.")
+        if options.get("use_fastexp"):
+            code, message = Messages.get_cm_fastexp_accuracy_warning()
+            Logger.log_message(code=code, message=message, log_level=LoggingLevel.WARNING)
         self._nest_code_generator.set_options(options)
         ret = super().set_options(options)
+        self._fp_precision = self.get_option("fp_precision")
         self.setup_template_env()
+        self.setup_printers()
 
         return ret
 
@@ -268,6 +322,17 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             FrontendConfiguration.get_target_path())
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
 
+    def _get_nest_version_namespace(self) -> Dict:
+        if not self.option_exists("nest_version") or not self.get_option("nest_version"):
+            nest_version = NESTTools.detect_nest_version()
+            self.set_options({"nest_version": nest_version})
+
+        nest_version = self.get_option("nest_version")
+        return {
+            "nest_version": nest_version,
+            "nest_version_dict": NESTTools.get_version_dict_from_version_string(nest_version)
+        }
+
     def _get_module_namespace(self, neurons: List[ASTModel]) -> Dict:
         """
         Creates a namespace for generating NEST extension module code
@@ -275,16 +340,13 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         :return: a context dictionary for rendering templates
         """
         namespace = {"neurons": neurons,
-                     "nest_version": self.get_option("nest_version"),
                      "moduleName": FrontendConfiguration.get_module_name(),
+                     "fp_precision": self._fp_precision,
+                     "use_fastexp": self.get_option("use_fastexp"),
+                     "use_fast_math": self.get_option("use_fast_math"),
                      "nestml_version": pynestml.__version__,
                      "now": datetime.datetime.utcnow()}
-
-        # auto-detect NEST Simulator installed version
-        if not self.option_exists("nest_version") or not self.get_option("nest_version"):
-            from pynestml.codegeneration.nest_tools import NESTTools
-            nest_version = NESTTools.detect_nest_version()
-            self.set_options({"nest_version": nest_version})
+        namespace.update(self._get_nest_version_namespace())
 
         # neuron specific file names in compartmental case
         neuron_name_to_filename = dict()
@@ -292,7 +354,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             neuron_name_to_filename[neuron.get_name()] = {
                 "neuroncurrents": self.get_cm_syns_neuroncurrents_file_prefix(neuron),
                 "main": self.get_cm_syns_main_file_prefix(neuron),
-                "tree": self.get_cm_syns_tree_file_prefix(neuron)
+                "tree": self.get_cm_syns_tree_file_prefix(neuron),
+                "fastexp": self.get_cm_syns_fastexp_file_prefix(neuron)
             }
         namespace["perNeuronFileNamesCm"] = neuron_name_to_filename
 
@@ -314,6 +377,12 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
     def get_cm_syns_tree_file_prefix(self, neuron):
         return "cm_tree_" + neuron.get_name()
+
+    def get_cm_syns_fastexp_file_prefix(self, neuron):
+        return "fastexp_v4_" + neuron.get_name()
+
+    def get_stdp_synapse_main_file_prefix(self, synapse):
+        return synapse.get_name()
 
     def analyse_transform_neurons(self, neurons: List[ASTModel], metadata: Dict[str, Dict[str, Any]]) -> None:
         """
@@ -402,10 +471,13 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         odetoolbox_indict = self.create_ode_indict(
             neuron, parameters_block, kernel_buffers)
 
-        full_solver_result = analysis(
+        full_solver_result = odetoolbox.analysis(
             odetoolbox_indict,
             disable_stiffness_check=True,
+            disable_singularity_detection=True,
+            disable_singularity_mitigation=True,
             preserve_expressions=self.get_option("preserve_expressions"),
+            use_alternative_expM=self.get_option("use_alternative_expM"),
             log_level=FrontendConfiguration.logging_level)
 
         analytic_solver = None
@@ -449,9 +521,13 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         if numeric_solvers:
             odetoolbox_indict = self.create_ode_indict(
                 neuron, parameters_block, kernel_buffers)
-            solver_result = analysis(
+
+            solver_result = odetoolbox.analysis(
                 odetoolbox_indict,
                 disable_stiffness_check=True,
+                disable_singularity_detection=True,
+                disable_singularity_mitigation=True,
+                use_alternative_expM=self.get_option("use_alternative_expM"),
                 disable_analytic_solver=True,
                 preserve_expressions=self.get_option("preserve_expressions"),
                 log_level=FrontendConfiguration.logging_level)
@@ -610,6 +686,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             "NeuronCurrents": self.get_cm_syns_neuroncurrents_file_prefix,
             "Tree": self.get_cm_syns_tree_file_prefix,
             "Main": self.get_cm_syns_main_file_prefix,
+            "fastexp": self.get_cm_syns_fastexp_file_prefix,
         }
 
         def compute_prefix(file_name):
@@ -666,30 +743,75 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         neuron.accept(rng_visitor)
         namespace["norm_rng"] = rng_visitor._norm_rng_is_used
 
+        def _suffix_float_literals(expr: str) -> str:
+            if self._fp_precision != "single":
+                return expr
+            # Suffix decimal/scientific literals at final C++ rendering time only.
+            # Keep integers untouched.
+            float_lit_re = re.compile(
+                r"(?<![A-Za-z0-9_])"
+                r"("
+                r"(?:\d+\.\d*|\.\d+)(?:[eE][+-]?\d+)?"
+                r"|"
+                r"\d+[eE][+-]?\d+"
+                r")"
+                r"(?![A-Za-z0-9_])"
+            )
+            return float_lit_re.sub(lambda m: m.group(1) + "f", expr)
+
+        class FinalFloatSuffixPrinter:
+            """
+            Adds ``f`` suffixes after final C++ rendering in single precision.
+
+            Doing this only in ``ConstantPrinter`` would miss float literals
+            introduced directly by C++ printers, such as hard-coded ``1.0``
+            results from expression rewrites. Keeping the suffix pass here
+            makes those generated literals follow the same precision mode.
+            """
+
+            def __init__(self, base_printer):
+                self._base_printer = base_printer
+
+            def print(self, node):
+                return _suffix_float_literals(self._base_printer.print(node))
+
+            def __getattr__(self, attr):
+                return getattr(self._base_printer, attr)
+
+        render_printer = FinalFloatSuffixPrinter(self._nest_printer)
+        render_printer_no_origin = FinalFloatSuffixPrinter(self._printer_no_origin)
+        render_printer_no_origin_propagator = FinalFloatSuffixPrinter(self._printer_no_origin_propagator)
+
         # printers
-        namespace["printer"] = self._nest_printer
-        namespace["printer_no_origin"] = self._printer_no_origin
+        namespace["printer"] = render_printer
+        namespace["printer_no_origin"] = render_printer_no_origin
         namespace["gsl_printer"] = self._gsl_printer
-        namespace["nest_printer"] = self._nest_printer
+        namespace["nest_printer"] = render_printer
         namespace["nestml_printer"] = NESTMLPrinter()
         namespace["type_symbol_printer"] = self._type_symbol_printer
 
         class VectorPrinter():
             def __init__(self, neuron, printer):
-                self.printer = ASTVectorParameterSetterAndPrinterFactory(neuron, printer)
+                self.printer_factory = ASTVectorParameterSetterAndPrinterFactory(neuron, printer)
                 self.std_vector_parameter = None
 
             def set_std_vector_parameter(self, index):
                 self.std_vector_parameter = index
 
-            def print(self, expression, index="i"):
-                index_printer = self.printer.create_ast_vector_parameter_setter_and_printer(index)
+            def print(self, expression, index="i", black_list=[]):
+                index_printer = self.printer_factory.create_ast_vector_parameter_setter_and_printer(index, black_list)
                 return index_printer.print(expression)
+
+            def printer(self, index="i", black_list=[]):
+                return self.printer_factory.create_ast_vector_parameter_setter_and_printer(index, black_list)
 
         vector_printer = VectorPrinter(neuron, self._printer_no_origin)
         vector_printer.set_std_vector_parameter("i")
+        vector_printer_propagator = VectorPrinter(neuron, render_printer_no_origin_propagator)
+        vector_printer_propagator.set_std_vector_parameter("i")
 
         namespace["vector_printer"] = vector_printer
+        namespace["vector_printer_propagator"] = vector_printer_propagator
 
         namespace["self_spikes_name"] = self.get_option("self_spikes_port")
 
@@ -700,7 +822,9 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             if kw.isupper():
                 namespace["PyNestMLLexer"][kw] = eval("PyNestMLLexer." + kw)
 
-        namespace["nest_version"] = self.get_option("nest_version")
+        namespace.update(self._get_nest_version_namespace())
+        namespace["fp_precision"] = self._fp_precision
+        namespace["use_fastexp"] = self.get_option("use_fastexp")
 
         namespace["neuronName"] = neuron.get_name()
         namespace["neuron"] = neuron
@@ -797,17 +921,28 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["cm_unique_suffix"] = self.getUniqueSuffix(neuron)
 
         # get the mechanisms info dictionaries and enrich them.
+        enable_cse = self.get_option("enable_cse")
+        exclude_propagator_init_from_cse = self.get_option("use_fastexp")
+
         namespace["chan_info"] = ChannelProcessing.get_mechs_info(neuron)
-        namespace["chan_info"] = ChanInfoEnricher.enrich_with_additional_info(neuron, namespace["chan_info"])
+        namespace["chan_info"] = ChanInfoEnricher.enrich_with_additional_info(
+            neuron, namespace["chan_info"], enable_cse=enable_cse,
+            exclude_propagator_init_from_cse=exclude_propagator_init_from_cse)
 
         namespace["recs_info"] = ReceptorProcessing.get_mechs_info(neuron)
-        namespace["recs_info"] = RecsInfoEnricher.enrich_with_additional_info(neuron, namespace["recs_info"])
+        namespace["recs_info"] = RecsInfoEnricher.enrich_with_additional_info(
+            neuron, namespace["recs_info"], enable_cse=enable_cse,
+            exclude_propagator_init_from_cse=exclude_propagator_init_from_cse)
 
         namespace["conc_info"] = ConcentrationProcessing.get_mechs_info(neuron)
-        namespace["conc_info"] = ConcInfoEnricher.enrich_with_additional_info(neuron, namespace["conc_info"])
+        namespace["conc_info"] = ConcInfoEnricher.enrich_with_additional_info(
+            neuron, namespace["conc_info"], enable_cse=enable_cse,
+            exclude_propagator_init_from_cse=exclude_propagator_init_from_cse)
 
         namespace["con_in_info"] = ContinuousInputProcessing.get_mechs_info(neuron)
-        namespace["con_in_info"] = ConInInfoEnricher.enrich_with_additional_info(neuron, namespace["con_in_info"])
+        namespace["con_in_info"] = ConInInfoEnricher.enrich_with_additional_info(
+            neuron, namespace["con_in_info"], enable_cse=enable_cse,
+            exclude_propagator_init_from_cse=exclude_propagator_init_from_cse)
 
         namespace["syns_info"] = SynsInfoEnricher.confirm_dependencies_for_synapses(paired_synapses,
                                                                                     SynapseProcessing.get_syn_info(),
@@ -836,7 +971,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         neuron_specific_filenames = {
             "neuroncurrents": self.get_cm_syns_neuroncurrents_file_prefix(neuron),
             "main": self.get_cm_syns_main_file_prefix(neuron),
-            "tree": self.get_cm_syns_tree_file_prefix(neuron)}
+            "tree": self.get_cm_syns_tree_file_prefix(neuron),
+            "fastexp": self.get_cm_syns_fastexp_file_prefix(neuron)}
 
         namespace["neuronSpecificFileNamesCmSyns"] = neuron_specific_filenames
 

@@ -139,21 +139,27 @@ class MessageCode(Enum):
     NON_CONSTANT_EXPONENT = 111
     RESOLUTION_FUNC_USED = 112
     TIMESTEP_FUNCTION_LEGALLY_USED = 113
-    RANDOM_FUNCTIONS_LEGALLY_USED = 113
-    EXPONENT_MUST_BE_INTEGER = 114
-    EMIT_SPIKE_OUTPUT_PORT_TYPE_DIFFERS = 115
-    CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES = 116
-    INTEGRATE_ODES_ARG_HIGHER_ORDER = 117
-    DELAY_VARIABLE_NOT_SPECIFIED = 118
-    WEIGHT_VARIABLE_NOT_SPECIFIED = 119
-    DELAY_VARIABLE_NOT_FOUND = 120
-    WEIGHT_VARIABLE_NOT_FOUND = 121
-    CM_VAR_MULTIUSE = 122
-    CM_INVALID_CONVOLUTION_BUFFER = 123
-    UNKNOWN_NEURON_SYNAPSE_PAIR_MODEL = 124
-    CM_UNRESOLVED_FUNCTION_DEPENDENCY = 125
-    CM_UNRESOLVED_VARIABLE_DEPENDENCY = 126
-    CONVOLVE_NEEDS_BUFFER_PARAMETER = 127
+    RANDOM_FUNCTIONS_LEGALLY_USED = 114
+    EXPONENT_MUST_BE_INTEGER = 115
+    EMIT_SPIKE_OUTPUT_PORT_TYPE_DIFFERS = 116
+    CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES = 117
+    INTEGRATE_ODES_ARG_HIGHER_ORDER = 118
+    DELAY_VARIABLE_NOT_SPECIFIED = 119
+    WEIGHT_VARIABLE_NOT_SPECIFIED = 120
+    DELAY_VARIABLE_NOT_FOUND = 121
+    WEIGHT_VARIABLE_NOT_FOUND = 122
+    CM_VAR_MULTIUSE = 123
+    CM_INVALID_CONVOLUTION_BUFFER = 124
+    UNKNOWN_NEURON_SYNAPSE_PAIR_MODEL = 125
+    CM_UNRESOLVED_FUNCTION_DEPENDENCY = 126
+    CM_UNRESOLVED_VARIABLE_DEPENDENCY = 127
+    CONVOLVE_NEEDS_BUFFER_PARAMETER = 128
+    CM_INTEGRATE_ODES_IGNORED = 129
+    CM_FASTEXP_ACCURACY_WARNING = 130
+    NOT_ALLOWED_TO_ASSIGN_TO_A_UNIT_TYPE = 131
+    VARIABLE_USED_AS_A_UNIT = 132
+    NO_SOLITARY_PHYSICAL_UNITS = 133
+    NEST_RANDOM_FUNCTIONS_LEGALLY_USED = 114
 
 
 class Messages:
@@ -819,8 +825,7 @@ class Messages:
     @classmethod
     def astdatatype_type_symbol_could_not_be_derived(cls) -> Tuple[MessageCode, str]:
         """
-        Unknown type or unit literal.
-        :param provided_type_str: the provided type as a string
+        Type symbol could not be derived.
         """
         message = "ASTDataType type symbol could not be derived"
         return MessageCode.ASTDATATYPE_TYPE_SYMBOL_COULD_NOT_BE_DERIVED, message
@@ -1064,6 +1069,23 @@ class Messages:
         return MessageCode.INTEGRATE_ODES_ARG_HIGHER_ORDER, message
 
     @classmethod
+    def get_integrate_odes_ignored_in_compartmental(cls) -> Tuple[MessageCode, str]:
+        message = "integrate_odes() has no effect for the NEST compartmental target; " \
+                  "ODEs are integrated implicitly. The call is accepted for model " \
+                  "compatibility and will be ignored."
+        return MessageCode.CM_INTEGRATE_ODES_IGNORED, message
+
+    @classmethod
+    def get_cm_fastexp_accuracy_warning(cls) -> Tuple[MessageCode, str]:
+        message = "The NEST compartmental fast exponential option uses a bounded exponential approximation. " \
+                  "Spike shape is not necessarily preserved; see " \
+                  "tests/nest_compartmental_tests/test__fastexp_accuracy.py \n" \
+                  "For spike-time accuracy, benchmark your own model " \
+                  "against a standard-exponential reference; see " \
+                  "tests/nest_compartmental_tests/test__fastexp_spike_timing_sweep.py for an example."
+        return MessageCode.CM_FASTEXP_ACCURACY_WARNING, message
+
+    @classmethod
     def get_mechs_dictionary_info(cls, chan_info, recs_info, conc_info, con_in_info, syns_info, global_info) -> Tuple[MessageCode, str]:
         message = ""
         message += "chan_info:\n" + chan_info + "\n"
@@ -1167,8 +1189,13 @@ class Messages:
 
     @classmethod
     def get_random_functions_legally_used(cls, name: str) -> Tuple[MessageCode, str]:
-        message = "The function \"" + name + "\" can only be used in the update, onReceive, or onCondition blocks."
+        message = "The function \"" + name + "\" can only be used in the update, onReceive, or onCondition blocks, or as part of initialisation expressions of state, parameters or internals."
         return MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED, message
+
+    @classmethod
+    def get_nest_random_functions_legally_used(cls, name: str) -> Tuple[MessageCode, str]:
+        message = "When generating code for NEST Simulator, the function \"" + name + "\" can only be used in the update, onReceive, or onCondition blocks."
+        return MessageCode.NEST_RANDOM_FUNCTIONS_LEGALLY_USED, message
 
     @classmethod
     def get_continuous_output_port_cannot_have_attributes(cls) -> Tuple[MessageCode, str]:
@@ -1194,6 +1221,12 @@ class Messages:
         return MessageCode.WEIGHT_VARIABLE_NOT_FOUND, message
 
     @classmethod
+    def get_not_allowed_to_assign_to_a_unit_type(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "Not allowed to assign to unit type '" + variable_name + "'!"
+
+        return MessageCode.NOT_ALLOWED_TO_ASSIGN_TO_A_UNIT_TYPE, message
+
+    @classmethod
     def get_unknown_neuron_synapse_pair_model(cls, model_type: str, model_name: str) -> Tuple[MessageCode, str]:
         message = "Unknown " + model_type + " model \"" + model_name + "\" in neuron_synapse_pairs."
 
@@ -1210,3 +1243,9 @@ class Messages:
         message = "Could not resolve variable dependency \"" + variable_name + "\" while collecting " + context + "."
 
         return MessageCode.CM_UNRESOLVED_VARIABLE_DEPENDENCY, message
+
+    @classmethod
+    def get_no_solitary_physical_units_allowed(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "No free-standing physical units allowed (" + variable_name + ")"
+
+        return MessageCode.NO_SOLITARY_PHYSICAL_UNITS, message

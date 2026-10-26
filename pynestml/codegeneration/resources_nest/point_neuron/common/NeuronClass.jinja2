@@ -114,9 +114,9 @@ namespace nest
 {
   // Override the create() method with one call to RecordablesMap::insert_() for each quantity to be recorded.
 {%- if has_state_vectors %}
-template <> void DynamicRecordablesMap<{{ neuronName }}>::create({{ neuronName }}& host)
+  template <> void DynamicRecordablesMap<{{ neuronName }}>::create({{ neuronName }}& host)
 {%- else %}
-template <> void RecordablesMap<{{ neuronName }}>::create()
+  template <> void RecordablesMap<{{ neuronName }}>::create()
 {%- endif %}
   {
 
@@ -124,13 +124,23 @@ template <> void RecordablesMap<{{ neuronName }}>::create()
     // add state variables to recordables map
 {%-     if has_state_vectors %}
 {%-         for variable in recordable_state_variables %}
-{%-             if not variable.has_vector_parameter() %}
+{%-             set variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
+{%-             if not variable.has_vector_parameter() and not isinstance(variable_symbol.get_type_symbol(), IntegerTypeSymbol) %}
     insert("{{variable.get_complete_name()}}", host.get_data_access_functor( {{ neuronName }}::State_::{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable.get_complete_name())).upper() }} ));
 {%-             endif %}
 {%-         endfor %}
 {%-     else %}
 {%-         for variable in recordable_state_variables %}
+
+
+{%-     set variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
+
+{%-    if isinstance(variable_symbol.get_type_symbol(), IntegerTypeSymbol) %}
+    insert_({{names_namespace}}::_{{ variable.get_complete_name() }}, &{{ neuronName }}::integer_get_{{ printer_no_origin.print(variable) }});
+{%- else %}
     insert_({{names_namespace}}::_{{ variable.get_complete_name() }}, &{{ neuronName }}::get_{{ printer_no_origin.print(variable) }});
+{%-     endif %}
+
 {%-         endfor %}
 {%-     endif %}
 {%- endif %}
@@ -852,6 +862,15 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%-     endfor %}
 {%- endif %}
 
+{%- for spike_updates_for_port in spike_updates.values() %}
+{%-     for ast in spike_updates_for_port -%}
+{%-         if "__X__" in ast.get_variable().get_name() %}    {#- convolutions only #}
+{%-             include "directives_cpp/Assignment.jinja2" %}
+{%-         endif %}
+{%-     endfor %}
+{%- endfor %}
+
+
 {%  if paired_synapses is defined %}
 {%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
 {%-         if uses_numeric_solver and purely_numeric_state_variables_moved %}
@@ -872,13 +891,6 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%-         endif %}
 {%-     endfor %}
 {%- endif %}
-
-    /**
-     * spike updates due to convolutions
-    **/
-{%  filter indent(4) %}
-{%-     include "directives_cpp/ApplySpikesFromBuffers.jinja2" %}
-{%- endfilter %}
 
     /**
      * Begin NESTML generated code for the onCondition block(s)
@@ -1132,7 +1144,7 @@ void {{ neuronName }}::handle(nest::SpikeEvent &e)
 #endif
 
   assert(e.get_delay_steps() > 0);
-  assert( e.get_rport() < B_.spike_inputs_.size() );
+  assert(e.get_rport() < B_.spike_inputs_.size());
 
   double weight = e.get_weight();
   size_t nestml_buffer_idx = 0;

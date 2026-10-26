@@ -52,7 +52,6 @@ class SpecialBlockParserBuilderTest(unittest.TestCase):
     """
 
     def test(self):
-        # print('Start special block parsing and AST-building test...'),
         input_file = FileStream(
             os.path.join(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")),
                                       "BlockTest.nestml")))

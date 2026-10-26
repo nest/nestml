@@ -1059,8 +1059,7 @@ private:
 inline nest_port_t {{neuronName}}::send_test_event(nest::Node& target, nest_rport_t receptor_type, nest::synindex, bool)
 {
   // You should usually not change the code in this function.
-  // It confirms that the target of connection @c c accepts @c {{ output_event.OutputEvent() }} on
-  // the given @c receptor_type.
+  // It confirms that the target of a connection accepts {{ output_event.OutputEvent() }} on the given receptor_type.
   {{ output_event.OutputEvent() }} e;
   e.set_sender(*this);
   return target.handles_test_event(e, receptor_type);
@@ -1108,10 +1107,8 @@ inline nest_port_t {{neuronName}}::handles_test_event(nest::CurrentEvent&, nest_
 inline nest_port_t {{neuronName}}::handles_test_event(nest::DataLoggingRequest& dlr, nest_port_t receptor_type)
 {
   // You should usually not change the code in this function.
-  // It confirms to the connection management system that we are able
-  // to handle @c DataLoggingRequest on port 0.
-  // The function also tells the built-in UniversalDataLogger that this node
-  // is recorded from and that it thus needs to collect data during simulation.
+  // It confirms to the connection management system that we are able to handle a DataLoggingRequest on port 0.
+  // The function also tells the built-in UniversalDataLogger that this node is recorded from and that it thus needs to collect data during simulation.
   if (receptor_type != 0)
   {
     throw nest::UnknownReceptorType(receptor_type, get_name());

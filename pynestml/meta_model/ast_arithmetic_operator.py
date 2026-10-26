@@ -28,21 +28,14 @@ class ASTArithmeticOperator(ASTNode):
     This class is used to store a single arithmetic operator, e.g. +.
 
     No grammar. This part is defined outside the grammar to make processing and storing of models easier and comprehensible.
-
-    Attributes:
-        is_times_op = False  # type: bool
-        is_div_op = False  # type:bool
-        is_modulo_op = False  # type:bool
-        is_plus_op = False  # type:bool
-        is_minus_op = False  # type: bool
-        is_pow_op = False  # type:bool
     """
 
-    def __init__(self, is_times_op: bool, is_div_op: bool, is_modulo_op: bool, is_plus_op: bool, is_minus_op: bool, is_pow_op: bool, *args, **kwargs):
+    def __init__(self, is_times_op: bool, is_integer_div_op: bool, is_div_op: bool, is_modulo_op: bool, is_plus_op: bool, is_minus_op: bool, is_pow_op: bool, *args, **kwargs):
         super(ASTArithmeticOperator, self).__init__(*args, **kwargs)
-        assert ((is_times_op + is_div_op + is_modulo_op + is_plus_op + is_minus_op + is_pow_op) == 1), \
+        assert ((is_times_op + is_integer_div_op + is_div_op + is_modulo_op + is_plus_op + is_minus_op + is_pow_op) == 1), \
             "(PyNESTML.AST.ArithmeticOperator) Type of arithmetic operator not specified!"
         self.is_times_op = is_times_op
+        self.is_integer_div_op = is_integer_div_op
         self.is_div_op = is_div_op
         self.is_modulo_op = is_modulo_op
         self.is_plus_op = is_plus_op
@@ -57,6 +50,7 @@ class ASTArithmeticOperator(ASTNode):
         :rtype: ASTArithmeticOperator
         """
         dup = ASTArithmeticOperator(is_times_op=self.is_times_op,
+                                    is_integer_div_op=self.is_integer_div_op,
                                     is_div_op=self.is_div_op,
                                     is_modulo_op=self.is_modulo_op,
                                     is_plus_op=self.is_plus_op,
@@ -86,6 +80,10 @@ class ASTArithmeticOperator(ASTNode):
         if not isinstance(other, ASTArithmeticOperator):
             return False
 
-        return (self.is_times_op == other.is_times_op and self.is_div_op == other.is_div_op
-                and self.is_modulo_op == other.is_modulo_op and self.is_plus_op == other.is_plus_op
-                and self.is_minus_op == other.is_minus_op and self.is_pow_op == other.is_pow_op)
+        return (self.is_times_op == other.is_times_op
+                and self.is_integer_div_op == other.is_integer_div_op
+                and self.is_div_op == other.is_div_op
+                and self.is_modulo_op == other.is_modulo_op
+                and self.is_plus_op == other.is_plus_op
+                and self.is_minus_op == other.is_minus_op
+                and self.is_pow_op == other.is_pow_op)

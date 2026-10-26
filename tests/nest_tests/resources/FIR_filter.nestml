@@ -44,7 +44,7 @@ model fir_filter:
 
     update:
         # circular buffer for input spike count per timestep
-        x[i] = spike_in * s
+        x[i] = spike_in * 1 s
 
         # compute the new value of y
         j integer = 0

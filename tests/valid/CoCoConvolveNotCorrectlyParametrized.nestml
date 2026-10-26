@@ -37,7 +37,7 @@ model CoCoConvolveNotCorrectlyParametrized:
 
     equations:
         kernel G' = -G / tau
-        inline testB pA = convolve(G, spikeExc) * pA   # convolve is now correctly parametrized
+        inline testB pA = convolve(G, spikeExc) * 1 pA   # convolve is now correctly parametrized
 
     input:
         spikeExc <- excitatory spike

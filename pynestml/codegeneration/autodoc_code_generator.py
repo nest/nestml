@@ -41,6 +41,7 @@ from pynestml.codegeneration.printers.latex_function_call_printer import LatexFu
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.latex_simple_expression_printer import LatexSimpleExpressionPrinter
 from pynestml.codegeneration.printers.latex_variable_printer import LatexVariablePrinter
+from pynestml.exceptions.code_generation_exception import CodeGenerationException
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.ast_utils import ASTUtils
@@ -81,12 +82,12 @@ class AutoDocCodeGenerator(CodeGenerator):
         neurons = [model for model in models if not "synapse" in model.name.split("_with_")[0]]
         synapses = [model for model in models if "synapse" in model.name.split("_with_")[0]]
         self.generate_index(neurons, synapses)
-        self.generate_neurons(neurons)
-        self.generate_synapses(synapses)
+        self.generate_neurons(neurons, metadata)
+        self.generate_synapses(synapses, metadata)
 
         for astnode in neurons + synapses:
             if Logger.has_errors(astnode):
-                raise Exception("Error(s) occurred during code generation")
+                raise CodeGenerationException("Error(s) occurred during code generation")
 
     def generate_index(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
         """
@@ -111,7 +112,7 @@ class AutoDocCodeGenerator(CodeGenerator):
 
     @override
     def generate_synapse_code(self, synapse: ASTModel,
-                              metadata: Mapping[str, Mapping[str, Any]]) -> None:
+                              metadata: Dict[str, Dict[str, Any]]) -> None:
         """
         Generate model documentation for synapse model.
         :param synapse: a single synapse object.

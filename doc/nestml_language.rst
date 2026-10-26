@@ -1,5 +1,9 @@
-NESTML language concepts
-========================
+The NESTML language
+===================
+
+NESTML is a domain-specific language for the specification of hybrid dynamical systems: those that combine continuous-time dynamics, often expressed as ordinary differential equations (ODEs), with discrete-time dynamics, which model instantaneous events such as neuronal spikes. NESTML was originally developed as a modelling language for the individual neurons and synapses that constitute a neural network, but is a completely generic language for any hybrid dynamical system. The language is agnostic about the numerical methods used for simulating the model, such as which numerical (ODE) solver is used; this is instead determined when code is generated for the model (see the section :ref:`Running NESTML`).
+
+NESTML has a concise syntax based on that of Python, and is indentation-based, which avoids clutter in the form of semicolons, curly braces or tags. NESTML model files are expected to have the filename extension ``.nestml``. Each file may contain one or more models. This means that there is not necessarily a direct correspondence between model and file name; however, this is often done by convention.
 
 
 Structure and indentation
@@ -56,19 +60,19 @@ Physical units
 
 A physical unit in NESTML can be either a base physical unit or a derived physical unit. The following table lists the seven base units as defined in `the SI standard <https://en.wikipedia.org/wiki/International_System_of_Units>`__.
 
-+-----------+--------+---------------------+
-| Name      | Symbol | Quantity            |
-|===========|========|=====================|
-| meter     | m      | length              |
-| kilogram  | kg     | mass                |
-| second    | s      | time                |
-| Ampère    | A      | electric current    |
-| Kelvin    | K      | temperature         |
-| mole      | mol    | amount of substance |
-| candela   | cd     | luminous intensity  |
-+-----------+--------+---------------------+
+========  ======  ===================
+Name      Symbol  Quantity
+========  ======  ===================
+meter     m       length
+kilogram  kg      mass
+second    s       time
+Ampère    A       electric current
+Kelvin    K       temperature
+mole      mol     amount of substance
+candela   cd      luminous intensity
+========  ======  ===================
 
-Any other physical unit can be expressed as a combination of these seven units. For this, the operators ``*`` (multiplication), ``/`` (division), ``**`` (power) and ``()`` (parentheses) can be used (see below for examples).
+Any other physical unit can be expressed as a combination of these seven units. For this, the operators ``*`` (multiplication), ``/`` (division of real numbers), ``//`` (integer division), ``**`` (power) and ``()`` (parentheses) can be used (see below for examples).
 
 NESTML also supports the usage of many named derived units such as Newton, Henry or lux. The following units are defined:
 
@@ -220,23 +224,35 @@ Physical units can have at most one of the following magnitude prefixes:
 | 10^-24   | yocto     | y               | 10^24    | yotta     | Y               |
 +----------+-----------+-----------------+----------+-----------+-----------------+
 
-For example, the following defines a possible unit:
+For example, the following is a possible unit:
 
 .. code-block:: nestml
 
-   mV*mV*nS**2/(mS*pA)
+   mV*nS**2*MOhm**-1*pA
 
-Units of the form ``<unit>**-1`` can also be expressed as ``1/<unit>``. For example
+Units of the form ``1/<unit>`` should be expressed as ``<unit>**-1``. For example
 
 .. code-block:: nestml
 
    (ms*mV)**-1
 
-is equivalent to
+or, equivalently
 
 .. code-block:: nestml
 
-   1/(ms*mV)
+   ms**-1*mV**-1
+
+both define the unit of :math:`\mathrm{ms}^{-1}\mathrm{mV}^{-1}`.
+
+
+Numeric literals with a physical unit
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Numeric literals with a physical unit can appear as constants in any expression, in the form of a number, followed by a physical unit. For example:
+
+.. code-block:: nestml
+
+   V_m mV = I_syn * 55 MOhm
 
 
 Type and unit checks
@@ -331,7 +347,7 @@ Whitelines are therefore used to separate comment targets:
    # I am a comment of the resting potential.
    V_rest mV = -60 mV
 
-The text of each comment is interpreted as `Sphinx reStructuredText format <https://www.sphinx-doc.org/en/main/usage/restructuredtext/index.html>`_.
+The text of each comment is interpreted as `reStructuredText format <https://docutils.sourceforge.io/rst.html>`_.
 
 Documentation for a model may appear directly in front of the model definition, akin to Python "docstrings" (see `PEP 257 "Docstring Conventions" <https://www.python.org/dev/peps/pep-0257/>`_). For example:
 
@@ -366,6 +382,7 @@ Examples for valid assignments for a numeric variable ``n`` are
 * compound difference: ``n -= 10`` which corresponds to ``n = n - 10``
 * compound product: ``n *= 10`` which corresponds to ``n = n * 10``
 * compound quotient: ``n /= 10`` which corresponds to ``n = n / 10``
+* compound integer quotient: ``n //= 10`` which corresponds to ``n = n // 10``
 
 Vectors
 ~~~~~~~
@@ -765,31 +782,33 @@ List of operators
 
 For any two valid numeric expressions ``x``, ``y``, boolean expressions ``b``,\ ``b1``,\ ``b2``, and integer expressions ``n``,\ ``i`` the following operators produce valid expressions.
 
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| Operator                                       | Description                                                        | Examples                  |
-+================================================+====================================================================+===========================+
-| ``()``                                         | Expressions with parentheses                                       | ``(x)``                   |
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``**``                                         | Power operator                                                     | ``x**y``                  |
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``+``, ``-``, ``~``                            | Unary plus, unary minus                                            | ``-x``                    |
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``*``, ``/``, ``%``                            | Multiplication, division and modulo operator                       | ``x * y``, ``x % y``      |
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``+``, ``-``                                   | Addition and subtraction                                           | ``x + y``, ``x - y``      |
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``<<``, ``>>``                                 | Left and right bit shifts                                          | ``n << i``, ``n >> i``    |
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``~``                                          | Bitwise negation                                                   | ``~b``                    |
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``&``, ``|``, ``^``                            | Bitwise ``and``, ``or`` and ``xor``                                | ``b1 & b2``, ``b1 ^ b2``  |
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``<``, ``<=``, ``==``, ``!=``, ``>=``, ``>``   | Comparison operators                                               | ``x <= y``, ``x != y``    |
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``not``, ``and``, ``or``                       | Logical conjunction, disjunction and negation                      | ``not b``, ``b1 or b2``   |
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``?:``                                         | Ternary operator (return ``x`` if ``b`` is true, ``y`` otherwise)  | ``b ? x : y``             |
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
+| Operator                                     | Description                                                       | Examples                 |
++==============================================+===================================================================+==========================+
+| ``()``                                       | Expressions with parentheses                                      | ``(x)``                  |
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
+| ``**``                                       | Power operator                                                    | ``x**y``                 |
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
+| ``+``, ``-``, ``~``                          | Unary plus, unary minus                                           | ``-x``                   |
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
+| ``*``, ``/``, ``%``                          | Multiplication, real number division and modulo operator          | ``x * y``, ``x % y``     |
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
+| ``//``                                       | C-style truncated integer division, i.e. -5 // 2 = -2             | ``x // y``               |
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
+| ``+``, ``-``                                 | Addition and subtraction                                          | ``x + y``, ``x - y``     |
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
+| ``<<``, ``>>``                               | Left and right bit shifts                                         | ``n << i``, ``n >> i``   |
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
+| ``~``                                        | Bitwise negation                                                  | ``~b``                   |
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
+| ``&``, ``|``, ``^``                          | Bitwise ``and``, ``or`` and ``xor``                               | ``b1 & b2``, ``b1 ^ b2`` |
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
+| ``<``, ``<=``, ``==``, ``!=``, ``>=``, ``>`` | Comparison operators                                              | ``x <= y``, ``x != y``   |
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
+| ``not``, ``and``, ``or``                     | Logical conjunction, disjunction and negation                     | ``not b``, ``b1 or b2``  |
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
+| ``?:``                                       | Ternary operator (return ``x`` if ``b`` is true, ``y`` otherwise) | ``b ? x : y``            |
++----------------------------------------------+-------------------------------------------------------------------+--------------------------+
 
 
 Blocks
@@ -816,98 +835,6 @@ Block types
 -  ``update`` - Contains statements that are executed once every simulation timestep (on a fixed grid or from event to event).
 - ``onReceive`` - Can be defined for each spiking input port; contains statements that are executed whenever an incoming spike event arrives. Optional event parameters, such as the weight, can be accessed by referencing the input port name. Priorities can optionally be defined for each ``onReceive`` block; these resolve ambiguity in the model specification of which event handler should be called after which, in case multiple events occur at the exact same moment in time on several input ports, triggering multiple event handlers.
 - ``onCondition`` - Contains statements that are executed when a particular condition holds. The condition is expressed as a (boolean typed) expression. The advantage of having conditions separate from the ``update`` block is that a root-finding algorithm can be used to find the precise time at which a condition holds (with a higher resolution than the simulation timestep). This makes the model more generic with respect to the simulator that is used.
-
-
-Input
------
-
-A model written in NESTML can be configured to receive two distinct types of input: spikes and continuous-time values.
-
-
-Continuous-time input ports
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Continuous-time input ports receive a time-varying signal :math:`f(t)` (possibly, a vector :math:`\mathbf{f}(t)`) that is defined for all :math:`t` (but that could, in practice, be implemented as a stepwise-continuous function of time).
-
-
-Spiking input ports
-~~~~~~~~~~~~~~~~~~~
-
-The incoming spikes at the spiking input port are modelled as Dirac delta functions. The Dirac Delta function :math:`\delta(x)` is an impulsive function defined as zero at every value of :math:`x`, except for :math:`x=u`, and whose integral is equal to 1:
-
-.. math::
-
-   \int \delta(x - u) dx = 1
-
-The unit of the Dirac delta function follows from its definition:
-
-.. math::
-
-   f(0) = \int \delta(x) f(x) dx
-
-Here :math:`f(x)` is a continuous function of x. As the unit of the :math:`f()` is the same on both left- and right-hand side, the unit of :math:`dx \delta(x)` must be equal to 1.
-Therefore, the unit of :math:`\delta(x)` must be equal to the inverse of the unit of :math:`x`.
-
-In the context of neuroscience, the spikes are represented as events in time with a unit of :math:`\text{s}`. Consequently, the delta pulses will have a unit of inverse of time, :math:`\text{1/s}`.
-Therefore, all the incoming spikes defined in the input block will have an implicit unit of :math:`\text{1/s}`.
-
-Physical units such as millivolts (:math:`\text{mV}`) and nanoamperes (:math:`\text{nA}`) can be directly combined with the Dirac delta function to model an impulse with a physical quantity such as voltage or current.
-In such cases, the Dirac delta function is multiplied by the appropriate unit of the physical quantity, such as :math:`\text{mV}` or :math:`\text{nA}`, to obtain a quantity with units of volts or amperes, respectively.
-For example, the product of a Dirac delta function and millivolt (:math:`\text{mV}`) unit can be written as :math:`\delta(t) \text{mV}`. This can be interpreted as an impulse in voltage with a magnitude of one millivolt.
-
-
-Handling spiking input
-~~~~~~~~~~~~~~~~~~~~~~
-
-Spiking input can be handled by convolutions with kernels (see :ref:`Integrating spiking input`) or by means of ``onReceive`` event handler blocks. An ``onReceive`` block can be defined for every spiking input port, for example, if a port named ``pre_spikes`` is defined, the corresponding event handler has the general structure:
-
-.. code-block:: nestml
-
-   onReceive(pre_spikes):
-       println("Info: processing a presynaptic spike at time t = {t}")
-       # ... further statements go here ...
-
-The statements in the event handler will be executed when the event occurs.
-
-To specify in which sequence the event handlers should be called in case multiple events are received at the exact same time, the ``priority`` parameter can be used, which can be given an integer value, where a larger value means higher priority. For example:
-
-.. code-block:: nestml
-
-   onReceive(pre_spikes, priority=1):
-       println("Info: processing a presynaptic spike at time t = {t}")
-
-   onReceive(post_spikes, priority=2):
-       println("Info: processing a postsynaptic spike at time t = {t}")
-
-In this case, if a pre- and postsynaptic spike are received at the exact same time, the higher-priority ``post_spikes`` handler will be invoked first.
-
-
-Output
-------
-
-Each model can only send a single type of event. The type of the event has to be given in the `output` block. Currently, however, only spike output is supported.
-
-.. code-block:: nestml
-
-   output:
-       spike
-
-Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + timestep()``.
-
-Event attributes
-~~~~~~~~~~~~~~~~
-
-Each spiking output event corresponds to a Dirac delta pulse and can be parameterised by one attribute (the area of the pulse). For example, a synapse could assign a weight (as a real number) to its spike events by including this value in the call to ``emit_spike()``:
-
-.. code-block:: nestml
-
-   parameters:
-       weight real = 10.
-
-   update:
-       emit_spike(weight)
-
-If the parameter is not specified, the delta function will have an area of 1.
 
 
 Equations
@@ -1071,6 +998,202 @@ A Dirac delta impulse kernel can be defined by using the predefined function ``d
    kernel g = delta(t)
 
 
+Input
+-----
+
+External input to the model is received through *input ports*. A NESTML model may contain none, or any number of input ports. Models can receive two distinct types of input: spikes and time-continuous functions, and each input port is marked as such.
+
+
+Continuous-time input ports
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Continuous-time input ports receive a time-varying signal :math:`f(t)` (possibly, a vector :math:`\mathbf{f}(t)`) that is defined for all :math:`t\geq 0`. The physical type of the signal is determined by the units specified in the input port definition.
+
+In the following example, this is used to provide an external input current ``I_stim`` (with units :math:`\text{pA}`) to a neuron:
+
+.. code-block:: nestml
+
+   input:
+       I_stim pA <- continuous
+
+   equations:
+       V_m' = -V_m / tau_m + ... + I_stim / C_m
+
+The name of the input port can also be used in the ``update`` block, for example, to implement a simple moving average filter that grabs the value of :math:`I_\mathrm{stim}(t)` at the start of the integration interval:
+
+.. code-block:: nestml
+
+   state:
+       I_stim_avg pA = 0 pA
+
+   parameters:
+       alpha real = 0.99
+
+   update:
+       I_stim_avg = alpha * I_stim_avg + (1 - alpha) * I_stim
+
+
+Spiking input ports
+~~~~~~~~~~~~~~~~~~~
+
+The incoming spikes at a spiking input port are modelled as Dirac delta functions. The Dirac delta function :math:`\delta(t)` is an "impulse" function, defined as zero at every value of :math:`t\neq 0`, and whose integral is equal to 1:
+
+.. math::
+
+   \int \delta(t) dt = 1
+
+The unit of the Dirac delta function follows from its definition. Consider the sifting property of the delta function:
+
+.. math::
+
+   f(T) = \int f(t) \delta(t - T) dt
+
+Here :math:`f(t)` is a continuous function of :math:`t`, the value of which is selected at time :math:`t = T`. As the unit of :math:`f()` must be the same on both the left and the right-hand side, the unit of :math:`\delta(t) dt` must be equal to 1. Therefore, the unit of :math:`\delta(t)` must be equal to the inverse of the unit of :math:`t`, that is, the delta function has units :math:`\text{s}^{-1}`. Therefore, all the incoming spikes defined in the input block will implicitly have the unit :math:`\text{s}^{-1}`.
+
+In the more general case, a delta function can be weighted by a real number :math:`w`. This weights the area under the delta function. Additionally, spikes can occur at different times :math:`t_k` for :math:`k=0,1,2,\ldots`. A spiking input port can therefore be represented as a sum of weighted delta functions occurring at times :math:`t_k`:
+
+.. math::
+
+   \mathrm{spikes\_pre}(t) = \sum_k w_k \delta(t - t_k)
+
+A corresponding spiking input port can be defined in a NESTML model as follows:
+
+.. code-block:: nestml
+
+   input:
+       spikes_pre <- spike
+
+Note that the unit of ``spikes_pre`` is :math:`\text{s}^{-1}`, as ``w`` has been defined as a dimensionless real number.
+
+Spiking input can be processed either by referencing the input port in the right-hand side of an equation (see :ref:`Handling spiking input in equations`) or by means of ``onReceive`` event handlers (see :ref:`Handling spiking input by event handlers`).
+
+
+Handling spiking input in equations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The spiking input port name ``spikes_pre`` can be used directly on the right-hand side of an ODE, for instance as follows:
+
+.. math::
+
+   \frac{dx}{dt} = -\frac{x}{\tau} + \mathrm{spikes\_pre}(t)
+
+If ``x`` is a real number, then the units here are consistent (in :math:`\text{s}^{-1}`) on the left- and on the right-hand side of the equation. This can be written in NESTML as:
+
+.. code-block:: nestml
+
+   x' = -x / tau + spikes_pre
+
+The name of the input port can also be used inside of a convolution. For instance, if ``K`` is a :doc:`kernel <Kernel functions>`, then:
+
+.. math::
+
+   \frac{dx}{dt} = -\frac{x}{\tau} + \frac{1}{C} \left(K \ast \mathrm{spikes\_pre}\right)(t)
+
+Note that applying the convolution means integrating over time, hence dropping the :math:`\text{s}^{-1}` unit, leaving a unitless quantity (the function of time :math:`K \ast \mathrm{spikes\_pre}`). To make the units consistent in this case, an explicit division by time (such as by a constant :math:`C` with units :math:`\mathrm{s}`) is required.
+
+This can be written in NESTML as:
+
+.. code-block:: nestml
+
+   x' = -x / tau + convolve(K, spikes_pre) / C
+
+Physical units such as millivolts (:math:`\text{mV}`) and picoamperes (:math:`\text{pA}`) can be directly combined with the Dirac delta function to model an impulse with a physical quantity such as voltage or current. In such cases, the Dirac delta function is multiplied by the appropriate unit of the physical quantity to obtain a quantity with units of volts or amperes. For instance, if :math:`I` is in :math:`\mathrm{pA}`, then we can write:
+
+.. code-block:: nestml
+
+   internals:
+       unit_psc pA = 1 pA
+
+   equations:
+       I' = -I / tau + unit_psc * spikes_pre
+
+Here, the incoming spike train (``spikes_pre``) is, as before, in units of :math:`\text{s}^{-1}`, and ``unit_psc`` has been defined as an internal parameter having units :math:`\text{pA}`, so that the units match those on the left-hand side, namely, :math:`\text{pA/s}`.
+
+
+Handling spiking input by event handlers
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+An ``onReceive`` block can be defined for every spiking input port. The statements in the block will then be executed whenever a spike arrives on the corresponding port. For example, if a port named ``spikes_pre`` is defined, the corresponding event handler has the general structure:
+
+.. code-block:: nestml
+
+   onReceive(spikes_pre):
+       println("Info: processing a presynaptic spike at time t = {t}")
+       # ... further statements go here ...
+
+The statements in the event handler will be executed when the event occurs and integrate the state of the system from "just before" the event (at :math:`t-\epsilon`, for :math:`\epsilon\rightarrow 0`) to "just after" the event (at :math:`t=t+\epsilon`). Analogous to the ``update`` block, the predefined variable ``t`` indicates the time :math:`t` at the start of the interval (the function ``timestep()`` may not be used inside an ``onReceive`` block to prevent confusion).
+
+Typically, the statements in the ``onReceive`` block integrate the delta function across time, yielding the surface area under the curve, the value of which corresponds to the weight of the spike. To perform this integration in a concise way, we use the sifting property of the delta function. The sifting property states that for any continuous function :math:`f(t)`:
+
+.. math::
+
+   \int_{t}^{t + \Delta t} f(\tau) \delta(\tau - t) d\tau = f(t)
+
+for any :math:`\Delta t > 0`. In NESTML, the sifting property can be expressed by using the name of the spiking input port directly in the expression. To make the units consistent, a multiplication with a normalising constant of :math:`1~\mathrm{s}` is needed, for instance:
+
+.. code-block:: nestml
+
+   state:
+       I_syn pA = 0 pA
+
+   equations:
+       I_syn' = -I_syn / tau_syn
+       V_m' = -V_m / tau_m + I_syn / C_m
+
+   onReceive(spikes):
+       I_syn += unit_psc * spikes * 1 s
+
+Note that in this example, the intended physical unit (pA) was assigned by multiplying the type of the input port ``spikes`` (which is 1/s) by ``unit_psc``, which is in pA, and by seconds (s), resulting in an overall unit of pA for ``I_syn``.
+
+To specify in which sequence the event handlers should be called in case multiple events are received at the exact same time, the ``priority`` parameter can be used, which can be given an integer value, where a larger value means higher priority (handled earlier). For example:
+
+.. code-block:: nestml
+
+   onReceive(spikes_pre, priority=1):
+       println("Info: processing a presynaptic spike at time t = {t}")
+
+   onReceive(spikes_post, priority=2):
+       println("Info: processing a postsynaptic spike at time t = {t}")
+
+In this case, if a pre- and postsynaptic spike are received at the exact same time, the higher-priority ``spikes_post`` handler will be invoked first.
+
+Vector input ports of constant size and with a constant numerical value for the index can be used:
+
+.. code-block:: nestml
+
+    input:
+        foo[2] <- spike
+
+    onReceive(foo[0]):
+        # ... handle foo[0] spikes...
+
+    onReceive(foo[1]):
+        # ... handle foo[1] spikes...
+
+
+Output
+------
+
+Each model can only produce a single output. The type of the event has to be given in the `output` block. Currently, only spike output is supported.
+
+.. code-block:: nestml
+
+   output:
+       spike
+
+Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + timestep()``.
+
+Each spiking output event can optionally be parameterised by using the area-under-the-curve of the Dirac delta function. For example, a synapse could assign a weight (as a real number) to its spike event by including this value in the call to ``emit_spike()``:
+
+.. code-block:: nestml
+
+   parameters:
+       weight real = 10.
+
+   update:
+       emit_spike(weight)
+
+
 Handling of time
 ----------------
 
@@ -1090,15 +1213,17 @@ In case of higher-order ODEs of the form ``F(x'', x', x) = 0``, the solution ``x
 
    state:
      x  real    = 0
-     x' ms**-1  = 0 * ms**-1
+     x' ms**-1  = 0 ms**-1
 
    equations:
-     x'' = - 2 * x' / ms - x / ms**2
+     x'' = - 2 * x' / 1 ms - x / 1 ms**2
 
    update:
      integrate_odes(x)
 
 Here, ``integrate_odes(x)`` integrates the entire dynamics of ``x(t)``, in this case, ``x`` and ``x'``.
+
+Note that the dynamical equations that correspond to convolutions are always updated, regardless of whether ``integrate_odes()`` is called. The state variables affected by incoming events are updated at the end of each timestep, that is, within one timestep, the state as observed by statements in the ``update`` block will be those at :math:`t^-`, i.e. "just before" it has been updated due to the events. See also :ref:`Integrating spiking input` and :ref:`Integration order`.
 
 Note that the dynamical equations that correspond to convolutions are always updated, regardless of whether ``integrate_odes()`` is called. The state variables affected by incoming events are updated at the end of each timestep, that is, within one timestep, the state as observed by statements in the ``update`` block will be those at :math:`t^-`, i.e. "just before" it has been updated due to the events. See also :ref:`Integrating spiking input` and :ref:`Integration order`.
 

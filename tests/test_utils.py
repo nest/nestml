@@ -19,7 +19,19 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional
+
 import numpy as np
+
+from pynestml.meta_model.ast_model import ASTModel
+from pynestml.symbol_table.symbol_table import SymbolTable
+from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.symbols.predefined_types import PredefinedTypes
+from pynestml.symbols.predefined_units import PredefinedUnits
+from pynestml.symbols.predefined_variables import PredefinedVariables
+from pynestml.utils.ast_source_location import ASTSourceLocation
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.model_parser import ModelParser
 
 
 def get_trace_at(t, t_spikes, tau, initial=0., increment=1., before_increment=False, extra_debug=False):
@@ -56,3 +68,31 @@ def get_trace_at(t, t_spikes, tau, initial=0., increment=1., before_increment=Fa
         print("\t   [&] prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev) + ", decayed by dt = "
               + str(t - t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr))
     return tr
+
+
+def parse_and_validate_model(fname: str) -> Optional[str]:
+    from pynestml.frontend.pynestml_frontend import generate_target
+
+    SymbolTable.initialize_symbol_table(
+        ASTSourceLocation(
+            start_line=0,
+            start_column=0,
+            end_line=0,
+            end_column=0))
+    PredefinedUnits.register_units()
+    PredefinedTypes.register_types()
+    PredefinedVariables.register_variables()
+    PredefinedFunctions.register_functions()
+
+    Logger.init_logger(LoggingLevel.DEBUG)
+
+    generate_target(input_path=fname, target_platform="NONE", logging_level="DEBUG")
+
+    ast_compilation_unit = ModelParser.parse_file(fname)
+    if ast_compilation_unit is None or len(ast_compilation_unit.get_model_list()) == 0:
+        return None
+
+    model: ASTModel = ast_compilation_unit.get_model_list()[0]
+    model_name = model.get_name()
+
+    return model_name
