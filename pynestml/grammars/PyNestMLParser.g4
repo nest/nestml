@@ -121,11 +121,11 @@ parser grammar PyNestMLParser;
                     | logicalOr=OR_KEYWORD;
 
   /**
-   * ASTVariable: A variable used in expressions. Can optionally be a vector, have a differential order, and attributes.
+   * ASTVariable: A variable used in expressions. Can optionally be a vector, and have a differential order associated with it.
    * If it is a vector, the square brackets contain a variable declaration (used for example as in ``onReceive(my_vector_input_port[i integer])``).
-   * @attribute name: The name of the variable without the differential order, e.g. V_m
-   * @attribute vectorParameter: An optional array parameter, e.g., 'tau_syn ms[n_receptors]'.
-   * @attribute differentialOrder: The corresponding differential order, e.g. 2
+   * @attribute name: The name of the variable without the differential order, e.g. ``"V_m"``
+   * @attribute vectorParameter: An optional array parameter, e.g., ``tau_syn ms[n_receptors integer]``.
+   * @attribute DIFFERENTIAL_ORDER: The corresponding differential order.
   **/
   variable : name=NAME
              (LEFT_SQUARE_BRACKET vectorParameter=expressionOrParameter RIGHT_SQUARE_BRACKET)?
