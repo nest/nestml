@@ -58,16 +58,6 @@ class NESTGPUVariablePrinter(CppVariablePrinter):
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         assert symbol is not None
 
-        # if symbol is None:
-        #     # test if variable name can be resolved to a type
-        #     if PredefinedUnits.is_unit(variable.get_complete_name()):
-        #         return str(NESTUnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
-        #
-        #     code, message = Messages.get_could_not_resolve(variable.get_name())
-        #     Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
-        #                        error_position=variable.get_source_position())
-        #     return ""
-
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
                 units_conversion_factor = NESTUnitConverter.get_factor(symbol.get_type_symbol().unit.unit)
