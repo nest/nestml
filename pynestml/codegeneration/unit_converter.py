@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest_unit_converter.py
+# unit_converter.py
 #
 # This file is part of NEST.
 #
@@ -22,7 +22,7 @@
 from astropy import units
 
 
-class NESTUnitConverter:
+class UnitConverter:
     r"""
     NEST Simulator uses a set of default physical units internally. This class calculates the factor needed to convert any given physical unit to its NEST counterpart.
     """

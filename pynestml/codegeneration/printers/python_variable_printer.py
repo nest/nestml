@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
+from pynestml.codegeneration.unit_converter import UnitConverter
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.codegeneration.printers.variable_printer import VariablePrinter
 from pynestml.codegeneration.python_code_generator_utils import PythonCodeGeneratorUtils
@@ -98,7 +98,7 @@ class PythonVariablePrinter(VariablePrinter):
 
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
-                units_conversion_factor = NESTUnitConverter.get_factor(symbol.get_type_symbol().unit.unit)
+                units_conversion_factor = UnitConverter.get_factor(symbol.get_type_symbol().unit.unit)
             else:
                 units_conversion_factor = 1
             s = ""
