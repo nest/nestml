@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.unit_converter import UnitConverter
+from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.meta_model.ast_variable import ASTVariable
@@ -54,7 +54,7 @@ class NESTGPUNumericVariablePrinter(CppVariablePrinter):
 
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
-                units_conversion_factor = UnitConverter.get_factor(symbol.get_type_symbol().unit.unit)
+                units_conversion_factor = NESTUnitConverter.get_factor(symbol.get_type_symbol().unit.unit)
             else:
                 units_conversion_factor = 1
             s = ""

@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.codegeneration.nest_code_generator_utils import NESTCodeGeneratorUtils
-from pynestml.codegeneration.unit_converter import UnitConverter
+from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.meta_model.ast_variable import ASTVariable

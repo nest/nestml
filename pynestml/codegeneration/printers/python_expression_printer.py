@@ -21,7 +21,7 @@
 
 import astropy
 
-from pynestml.codegeneration.unit_converter import UnitConverter
+from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_bit_operator import ASTBitOperator

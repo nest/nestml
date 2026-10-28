@@ -27,4 +27,4 @@ __all__ = ["autodoc_code_generator",
            "nest_code_generator",
            "nest_declarations_helper",
            "nest_tools",
-           "unit_converter.py"]
+           "nest_unit_converter"]

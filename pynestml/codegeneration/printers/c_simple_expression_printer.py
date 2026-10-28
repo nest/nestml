@@ -21,7 +21,7 @@
 
 import astropy
 
-from pynestml.codegeneration.unit_converter import UnitConverter
+from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.codegeneration.printers.simple_expression_printer import SimpleExpressionPrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_node import ASTNode
@@ -40,12 +40,12 @@ class CSimpleExpressionPrinter(SimpleExpressionPrinter):
             factor = 1
             try:
                 variable = node.get_variable()
-                factor = UnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit())
+                factor = NESTUnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit())
             except BaseException:
                 pass
 
             try:
-                factor = UnitConverter.get_factor(astropy.units.Unit(str(node.unitType)))
+                factor = NESTUnitConverter.get_factor(astropy.units.Unit(str(node.unitType)))
             except BaseException:
                 pass
 
