@@ -40,4 +40,5 @@ model alpha_function_2nd_order_ode_neuron:
         integrate_odes(x, y)
 
     onReceive(fX):
-        x' += e * fX * 1 s / 1 ms
+        spike_weight real = get_weight(fX, t)
+        x' += e * spike_weight / 1 ms

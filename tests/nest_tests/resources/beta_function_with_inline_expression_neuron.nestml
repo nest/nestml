@@ -56,4 +56,4 @@ model beta_function_with_inline_expression_neuron:
     integrate_odes()
 
   onReceive(input_spikes):
-    x_ += unit_psc * alpha * (1 / tau2 - 1 / tau1) * input_spikes * 1 s
+    x_ += unit_psc * (1 / tau2 - 1 / tau1) * get_weight(input_spikes, t)

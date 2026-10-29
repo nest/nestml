@@ -87,8 +87,8 @@ model aeif_psc_exp_neuron:
         unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
 
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:
@@ -103,10 +103,10 @@ model aeif_psc_exp_neuron:
             integrate_odes(I_syn_exc, I_syn_inh, w, V_m)
 
     onReceive(exc_spikes):
-        I_syn_exc += unit_psc * exc_spikes * 1 s
+        I_syn_exc += unit_psc * get_weight(exc_spikes, t)
 
     onReceive(inh_spikes):
-        I_syn_inh += unit_psc * inh_spikes * 1 s
+        I_syn_inh += unit_psc * get_weight(inh_spikes, t)
 
     onCondition(V_m >= V_th):
         # threshold crossing

@@ -70,6 +70,8 @@ const double {{ variable_name }}__orig = {{ printer.print(utils.get_state_variab
 {%- endif %}
 
 // spike updates due to convolutions
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_buffers_to_zero(False) }}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_cpp_variable_suffix(" ") }}  {# prevent printing origin #}
 {%- for spike_updates_for_port in spike_updates.values() %}
 {%-     for ast in spike_updates_for_port -%}
 
@@ -88,5 +90,7 @@ const double {{ variable_name }}__orig = {{ printer.print(utils.get_state_variab
 {%-         endif %}
 {%-     endfor %}
 {%- endfor %}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_cpp_variable_suffix("") }}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_buffers_to_zero(True) }}
 // end rendered code for ``integrate_odes({{ ", ".join(utils.integrate_odes_args_strs_from_function_call(ast)) }})``
 

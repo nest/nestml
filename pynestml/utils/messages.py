@@ -58,7 +58,6 @@ class MessageCode(Enum):
     ARG_NOT_SPIKE_INPUT = 20
     NUMERATOR_NOT_ONE = 21
     ORDER_NOT_DECLARED = 22
-    CONTINUOUS_INPUT_PORT_WITH_QUALIFIERS = 23
     BLOCK_NOT_CORRECT = 24
     VARIABLE_NOT_IN_STATE_BLOCK = 25
     WRONG_NUMBER_OF_ARGS = 26
@@ -159,7 +158,8 @@ class MessageCode(Enum):
     NOT_ALLOWED_TO_ASSIGN_TO_A_UNIT_TYPE = 131
     VARIABLE_USED_AS_A_UNIT = 132
     NO_SOLITARY_PHYSICAL_UNITS = 133
-    NEST_RANDOM_FUNCTIONS_LEGALLY_USED = 114
+    SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED = 134
+    NEST_RANDOM_FUNCTIONS_LEGALLY_USED = 135
 
 
 class Messages:
@@ -1198,6 +1198,11 @@ class Messages:
         return MessageCode.NEST_RANDOM_FUNCTIONS_LEGALLY_USED, message
 
     @classmethod
+    def get_nest_random_functions_legally_used(cls, name: str) -> Tuple[MessageCode, str]:
+        message = "When generating code for NEST Simulator, the function \"" + name + "\" can only be used in the update, onReceive, or onCondition blocks."
+        return MessageCode.NEST_RANDOM_FUNCTIONS_LEGALLY_USED, message
+
+    @classmethod
     def get_continuous_output_port_cannot_have_attributes(cls) -> Tuple[MessageCode, str]:
         message = "continuous time output port may not have attributes."
         return MessageCode.CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES, message
@@ -1249,3 +1254,13 @@ class Messages:
         message = "No free-standing physical units allowed (" + variable_name + ")"
 
         return MessageCode.NO_SOLITARY_PHYSICAL_UNITS, message
+
+    @classmethod
+    def get_spike_input_port_appears_outside_equation_rhs_and_event_handler(cls, name):
+        message = "Spiking input port names (in this case '" + name + "') can only be used in the right-hand side of equations or in an onReceive block!"
+        return MessageCode.SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED, message
+
+    @classmethod
+    def get_vector_input_ports_should_be_of_constant_size(cls):
+        message = "Vector input ports should be of constant size (this is a limitation of NEST Simulator)"
+        return MessageCode.VECTOR_INPUT_PORTS_SHOULD_BE_OF_CONSTANT_SIZE, message

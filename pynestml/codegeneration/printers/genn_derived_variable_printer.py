@@ -39,7 +39,7 @@ from pynestml.utils.messages import Messages
 
 class GeNNDerivedVariablePrinter(PythonVariablePrinter):
     r"""
-    Variable printer for Python syntax.
+    Variable printer for GeNN syntax.
     """
 
     def __init__(self, expression_printer: ExpressionPrinter, with_origin: bool = False, with_vector_parameter: bool = True) -> None:
@@ -49,7 +49,7 @@ class GeNNDerivedVariablePrinter(PythonVariablePrinter):
 
     def print_variable(self, variable: ASTVariable) -> str:
         """
-        Converts a single variable to nest processable format.
+        Converts a single variable to GeNN processable format.
         :param variable: a single variable.
         :return: a string representation
         """
@@ -110,7 +110,7 @@ class GeNNDerivedVariablePrinter(PythonVariablePrinter):
 
     def _print_delay_variable(self, variable: ASTVariable):
         """
-        Converts a delay variable to NEST processable format
+        Converts a delay variable to GeNN processable format
         :param variable:
         :return:
         """
