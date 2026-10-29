@@ -33,11 +33,19 @@ class SpinnakerPythonSimpleExpressionPrinter(SimpleExpressionPrinter):
 
     def print_simple_expression(self, node: ASTSimpleExpression) -> str:
         if node.is_numeric_literal_with_unit():
-            if self._variable_printer.print(node.get_variable()) in ["1", "1.", "1.0"]:
-                return str(node.get_numeric_literal())
+            factor = 1
+            try:
+                variable = node.get_variable()
+                factor = NESTUnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit())
+            except BaseException:
+                pass
 
-            return str(node.get_numeric_literal()) + " * " + \
-                self._variable_printer.print(node.get_variable())
+            try:
+                factor = NESTUnitConverter.get_factor(astropy.units.Unit(str(node.unitType)))
+            except BaseException:
+                pass
+
+            return self._constant_printer.print_constant(factor * node.get_numeric_literal())
 
         if isinstance(node, ASTVariable):
             return self._variable_printer.print(node.get_variable())
