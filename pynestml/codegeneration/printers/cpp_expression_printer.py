@@ -40,8 +40,9 @@ class CppExpressionPrinter(ExpressionPrinter):
 
     def print(self, node: ASTNode) -> str:
         if isinstance(node, ASTExpression):
-            if node.get_implicit_conversion_factor() and not node.get_implicit_conversion_factor() == 1:
-                return "(" + str(node.get_implicit_conversion_factor()) + " * (" + self.print_expression(node) + "))"
+            factor = self._simple_expression_printer.get_implicit_conversion_factor(node)
+            if factor and not factor == 1:
+                return "(" + str(factor) + " * (" + self.print_expression(node) + "))"
 
             return self.print_expression(node)
 

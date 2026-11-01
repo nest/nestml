@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional
+
 import astropy
 
 from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
@@ -28,6 +30,7 @@ from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_units import PredefinedUnits
+from pynestml.utils.implicit_conversion_factor import ImplicitConversionFactor
 
 
 class PythonSimpleExpressionPrinter(SimpleExpressionPrinter):
@@ -86,8 +89,15 @@ class PythonSimpleExpressionPrinter(SimpleExpressionPrinter):
 
         return self.print_simple_expression(node)
 
+    def get_implicit_conversion_factor(self, node: ASTNode) -> Optional[float]:
+        r"""
+        This printer prints numeric literals in NEST units, so the factor for values in NEST units applies (see ImplicitConversionFactor).
+        """
+        return ImplicitConversionFactor.get_nest_factor(node.get_implicit_conversion_factor())
+
     def print(self, node: ASTNode) -> str:
-        if node.get_implicit_conversion_factor() and not node.get_implicit_conversion_factor() == 1:
-            return "(" + str(node.get_implicit_conversion_factor()) + " * (" + self._print(node) + "))"
+        factor = self.get_implicit_conversion_factor(node)
+        if factor and not factor == 1:
+            return "(" + str(factor) + " * (" + self._print(node) + "))"
 
         return self._print(node)

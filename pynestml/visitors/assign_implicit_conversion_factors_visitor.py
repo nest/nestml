@@ -123,7 +123,8 @@ class AssignImplicitConversionFactorsVisitor(ASTVisitor):
             if self.__types_do_not_match(lhs_type_symbol, lhs_type_symbol * rhs_type_symbol):
                 TypeCaster.try_to_recover_or_error(lhs_type_symbol, lhs_type_symbol * rhs_type_symbol,
                                                    node.get_expression(),
-                                                   set_implicit_conversion_factor_on_lhs=True)
+                                                   set_implicit_conversion_factor_on_lhs=True,
+                                                   is_compound_product_or_quotient=True)
                 return
             return
 
@@ -131,7 +132,8 @@ class AssignImplicitConversionFactorsVisitor(ASTVisitor):
             if self.__types_do_not_match(lhs_type_symbol, lhs_type_symbol / rhs_type_symbol):
                 TypeCaster.try_to_recover_or_error(lhs_type_symbol, lhs_type_symbol / rhs_type_symbol,
                                                    node.get_expression(),
-                                                   set_implicit_conversion_factor_on_lhs=True)
+                                                   set_implicit_conversion_factor_on_lhs=True,
+                                                   is_compound_product_or_quotient=True)
                 return
             return
 

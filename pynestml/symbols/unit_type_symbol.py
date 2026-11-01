@@ -21,6 +21,7 @@
 
 from typing import Optional
 from pynestml.symbols.type_symbol import TypeSymbol
+from pynestml.utils.implicit_conversion_factor import ImplicitConversionFactor
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.unit_type import UnitType
@@ -137,7 +138,14 @@ class UnitTypeSymbol(TypeSymbol):
 
     def attempt_magnitude_cast(self, other):
         if self.differs_only_in_magnitude(other):
+            from pynestml.utils.ast_utils import ASTUtils    # importing at module level would cause a circular import
+
             factor = UnitTypeSymbol.get_conversion_factor(other.astropy_unit, self.astropy_unit)
+            if factor is not None:
+                other_scale = ASTUtils.get_held_unit_scale(other.referenced_object)
+                self_scale = ASTUtils.get_held_unit_scale(self.referenced_object, with_implicit_conversion_factor=True)
+                factor = ImplicitConversionFactor.from_held_unit_scales(factor, other_scale, self_scale)
+
             other.referenced_object.set_implicit_conversion_factor(factor)
             code, message = Messages.get_implicit_magnitude_conversion(self, other, factor)
             Logger.log_message(code=code, message=message,
