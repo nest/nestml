@@ -23,6 +23,7 @@ from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import MessageCode, Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -60,6 +61,9 @@ class ASTConditionVisitor(ASTVisitor):
                 or if_true.differs_only_in_magnitude(if_not) \
                 or if_true.is_castable_to(if_not):
             node.type = if_true
+
+            # the expression has the unit of ``if_true``, so generated code must hold the value of ``if_not`` in the same unit
+            ASTUtils.convert_to_held_unit_of(node.get_if_not(), node.get_if_true(), dimensionless=False)
             return
 
         # Both are units but not matching-> real WARN

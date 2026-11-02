@@ -2509,6 +2509,34 @@ class ASTUtils:
         return lhs if math.isclose(lhs, rhs) else None
 
     @classmethod
+    def convert_to_held_unit_of(cls, node: ASTExpressionNode, reference: ASTExpressionNode, dimensionless: bool = True) -> None:
+        r"""
+        Make generated code for NEST and for Python hold the value of ``node`` in the unit in which it holds the value of ``reference``.
+
+        NESTML does not convert the operands of a comparison, the branches of a conditional expression or the arguments of a function with template parameters, such as ``max()``, because each value keeps its unit. Generated code holds plain numbers, so it must convert ``node`` if it holds the two values in units with different scales. For instance, it holds a variable that is declared in Hz in Hz, ``1 kHz`` in kHz and ``1 s**-1`` in 1/ms.
+
+        The value of the factor is 1, so the output of the NESTML and LaTeX printers and the input of ODE-toolbox do not change. If the unit of one of the values is not known, nothing changes.
+
+        :param node: the value to convert
+        :param reference: the value in whose unit generated code must hold ``node``
+        :param dimensionless: False to leave values without a physical dimension unchanged. Generated code can hold such a value with a scale: it holds ``rate * t``, with ``rate`` in Hz and ``t`` in ms, with the scale 1E-3. Where it assigns the value to a variable of type ``real``, it uses the number without a conversion. The result of a conditional expression or of a function can reach such an assignment, so a conversion of its branches or arguments to the scale of the first one would change that number.
+        """
+        node_type = node.type
+        reference_type = reference.type
+        if not isinstance(node_type, UnitTypeSymbol) or not isinstance(reference_type, UnitTypeSymbol) \
+                or not node_type.differs_only_in_magnitude(reference_type):
+            return
+
+        if not dimensionless and reference_type.astropy_unit.physical_type == "dimensionless":
+            return
+
+        source_scale = cls.get_held_unit_scale(node)
+        target_scale = cls.get_held_unit_scale(reference, with_implicit_conversion_factor=True)
+        factor = ImplicitConversionFactor.from_held_unit_scales(1., source_scale, target_scale)
+        if factor.nest_factor != 1.:
+            node.set_implicit_conversion_factor(factor)
+
+    @classmethod
     def _get_constant_exponent(cls, node: ASTExpressionNode) -> Optional[float]:
         r"""
         Gives the value of an exponent that contains only numeric literals without a physical unit, parentheses, unary signs and the operators ``+``, ``-``, ``*`` and ``/``, or None for every other exponent.

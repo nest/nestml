@@ -222,7 +222,7 @@ model hill_tononi_neuron:
             # neuron not refractory
             integrate_odes(V_m, Theta, IKNa_D, IT_m, IT_h, Ih_m)
 
-    onCondition(potassium_refr_t <= 0):
+    onCondition(potassium_refr_t <= 0 ms):
         # Deactivate potassium current after spike time have expired
         g_spike = false # Deactivate potassium current.
 
