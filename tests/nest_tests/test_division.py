@@ -51,7 +51,7 @@ class TestDivision:
         nrn = nest.Create("integer_division_test_nestml")
         mm = nest.Create("multimeter")
 
-        nest.SetStatus(mm, {"record_from": ["x", "y", "z", "p", "q", "r", "neg1", "neg2", "neg3"]})
+        nest.SetStatus(mm, {"record_from": ["x", "y", "z", "p", "q", "r", "neg1", "neg2", "neg3", "s"]})
 
         nest.Connect(mm, nrn)
 
@@ -66,6 +66,7 @@ class TestDivision:
         np.testing.assert_allclose(mm.get("events")["neg1"], -2)    # N.B. Python would give -3 here, but we want C-style integer division
         np.testing.assert_allclose(mm.get("events")["neg2"], -2)    # N.B. Python would give -3 here, but we want C-style integer division
         np.testing.assert_allclose(mm.get("events")["neg3"], 2)
+        np.testing.assert_allclose(mm.get("events")["s"], 2)    # 7 // (2 + 1)
 
     def test_division_function_python(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "integer_division.nestml")))
@@ -91,3 +92,4 @@ class TestDivision:
         np.testing.assert_allclose(neuron_log["neg1"][0], -2)    # N.B. Python would give -3 here, but we want C-style integer division
         np.testing.assert_allclose(neuron_log["neg2"][0], -2)    # N.B. Python would give -3 here, but we want C-style integer division
         np.testing.assert_allclose(neuron_log["neg3"][0], 2)
+        np.testing.assert_allclose(neuron_log["s"][0], 2)    # 7 // (2 + 1)

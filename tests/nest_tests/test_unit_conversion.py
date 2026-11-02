@@ -63,4 +63,5 @@ class TestUnitConversion:
         np.testing.assert_allclose(nrn.f_pow, 10.)    # (0.1 s)**-1 = 10 Hz
         np.testing.assert_allclose(nrn.V_product, 2000.)    # 1 mV * (2 V / (1 mV)) = 2000 mV
         np.testing.assert_allclose(nrn.V_quotient, 500.)    # 1 mV / (2 mV / (1 V)) = 500 mV
+        np.testing.assert_allclose(nrn.V_floor, 500.)    # 1 mV // (2 mV / (1 V)) = 500 mV
         np.testing.assert_allclose(nrn.I_ode, 2001. * (1. - np.exp(-1.)))    # 1 pA + 2 nA = 2001 pA

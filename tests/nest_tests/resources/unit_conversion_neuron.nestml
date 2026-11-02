@@ -46,6 +46,7 @@ model unit_conversion_neuron:
         f_pow Hz = (0.1 s)**-1
         V_product mV = 0 mV
         V_quotient mV = 0 mV
+        V_floor mV = 0 mV
         I_ode pA = 0 pA
 
     equations:
@@ -72,3 +73,5 @@ model unit_conversion_neuron:
         V_product *= 2 V / (1 mV)    # compound product
         V_quotient = 1 mV
         V_quotient /= 2 mV / (1 V)    # compound quotient
+        V_floor = 1 mV
+        V_floor //= 2 mV / (1 V)    # compound integer quotient

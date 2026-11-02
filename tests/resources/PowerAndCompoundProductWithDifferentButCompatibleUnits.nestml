@@ -33,6 +33,7 @@ model BlockTest:
         V_product mV = 1 mV
         V_quotient mV = 1 mV
         V_volt V = 1 V
+        V_floor mV = 1 mV
 
     parameters:
         p real = 1
@@ -42,3 +43,4 @@ model BlockTest:
         V_quotient /= 2 mV / (1 V)
         V_volt *= 1 mA * 1 Ohm * V**-1
         V_volt /= 1 mA * 1 Ohm * V**-1
+        V_floor //= 2 mV / (1 V)

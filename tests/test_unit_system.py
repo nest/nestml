@@ -26,6 +26,7 @@ import pytest
 
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
+from pynestml.codegeneration.printers.cpp_printer import CppPrinter
 from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.cpp_type_symbol_printer import CppTypeSymbolPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
@@ -233,6 +234,15 @@ class TestUnitSystem:
 
         assert self.cpp_printer.print(expression) == expected_cpp
         assert self.python_printer.print(expression) == expected_python
+
+    def test_cpp_printer_parenthesizes_divisor_of_integer_quotient(self):
+        r"""
+        ``x //= a / b`` must divide ``x`` by the quotient ``a / b``, not by ``a`` and then by ``b``.
+        """
+        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "PowerAndCompoundProductWithDifferentButCompatibleUnits.nestml"))
+        assignment = model.get_model_list()[0].get_update_blocks()[0].get_stmts_body().get_stmts()[4].small_stmt.get_assignment()
+
+        assert CppPrinter(self.cpp_printer).print_assignment(assignment) == "V_floor = (int)(V_floor / (2. / (1000.)))"
 
     @pytest.mark.parametrize("variable_name, expected", [("V_max", 1E-3), ("V_pow", None)])
     def test_held_unit_scale_of_function_call(self, variable_name, expected):
