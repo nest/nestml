@@ -67,7 +67,7 @@ class ASTVariableVisitor(ASTVisitor):
                     u = astropy.units.Unit("1/ms")
                     node.type = UnitTypeSymbol(UnitType("1/ms", u))
                 else:
-                    # it appears in an equations block; units are [units of attribute]
+                    # it appears outside an equations block; units are [units of attribute]
                     node.type = var_resolve.get_type_symbol()
             else:
                 # variable does not represent a spiking input port

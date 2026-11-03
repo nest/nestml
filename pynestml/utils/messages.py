@@ -1198,6 +1198,11 @@ class Messages:
         return MessageCode.NEST_RANDOM_FUNCTIONS_LEGALLY_USED, message
 
     @classmethod
+    def get_nest_random_functions_legally_used(cls, name: str) -> Tuple[MessageCode, str]:
+        message = "When generating code for NEST Simulator, the function \"" + name + "\" can only be used in the update, onReceive, or onCondition blocks."
+        return MessageCode.NEST_RANDOM_FUNCTIONS_LEGALLY_USED, message
+
+    @classmethod
     def get_continuous_output_port_cannot_have_attributes(cls) -> Tuple[MessageCode, str]:
         message = "continuous time output port may not have attributes."
         return MessageCode.CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES, message
