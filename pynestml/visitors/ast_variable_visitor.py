@@ -66,8 +66,6 @@ class ASTVariableVisitor(ASTVisitor):
                     import astropy
                     u = astropy.units.Unit("1/ms")
                     node.type = UnitTypeSymbol(UnitType("1/ms", u))
-                    # var_resolve.get_type_symbol()    # the type of the base port is [1/ms]
-                    # import pdb;pdb.set_trace()
                 else:
                     # it appears in an equations block; units are [units of attribute]
                     node.type = var_resolve.get_type_symbol()

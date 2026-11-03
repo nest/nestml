@@ -22,12 +22,14 @@
 from typing import Optional
 
 from pynestml.cocos.co_co import CoCo
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
@@ -56,44 +58,60 @@ class SpikeInputPortsAppearOnlyInEquationRHSAndEventHandlersVisitor(ASTVisitor):
     def visit_variable(self, node: ASTVariable):
         in_port: Optional[ASTInputPort] = ASTUtils.get_input_port_by_name(self.model_.get_input_blocks(), node.get_name())
 
+        node_name = node.get_name()
+        if node.get_vector_parameter():
+            node_name += "[" + str(node.get_vector_parameter()) + "]"
+
         # only check spiking input ports
-        if in_port is not None and in_port.is_spike():
-            if isinstance(node.get_parent(), ASTOnReceiveBlock) and node.get_parent().get_input_port_variable() == node:
-                # input port appears inside the declaration of an onReceive block; everything is OK
+        if in_port is None:
+            return
+
+        if not in_port.is_spike():
+            return
+
+        if isinstance(node.get_parent(), ASTOnReceiveBlock) and node.get_parent().get_input_port_variable() == node:
+            # input port appears inside the declaration of an onReceive block; everything is OK
+            return
+
+        if ASTUtils.find_parent_node_by_type(node, ASTOnReceiveBlock) is not None:
+            function_call = ASTUtils.find_parent_node_by_type(node, ASTFunctionCall)
+            if function_call and function_call.get_name() == PredefinedFunctions.GET_WEIGHT:
+                # it can be used anywhere else in the body of an ``onReceive`` block inside a ``get_weight()`` function call
                 return
 
-            _node = node
-            while _node:
-                _node = _node.get_parent()
+            # it cannot be used anywhere else in the body of an ``onReceive`` block
+            code, message = Messages.get_spike_input_port_appears_outside_equation_rhs_and_event_handler(node_name)
+            Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.ERROR)
+            return
 
-                if isinstance(_node, ASTOnReceiveBlock) and _node.input_port_variable.name == in_port.name:
-                    if not node.get_vector_parameter():
-                        # non-vector spike input port was used inside an ``onReceive`` block for this spike port; everything is OK
+        _node = node
+        while _node:
+            _node = _node.get_parent()
+
+            if isinstance(_node, ASTOnReceiveBlock) and _node.input_port_variable.name == in_port.name:
+                if not node.get_vector_parameter():
+                    # non-vector spike input port was used inside an ``onReceive`` block for this spike port; everything is OK
+                    return
+
+                try:
+                    if int(str(node.get_vector_parameter())) == int(str(_node.get_input_port_variable().get_vector_parameter())):
+                        # vector spike input port was used inside an ``onReceive`` block for this spike port and numerical index is correct; everything is OK
                         return
+                except ValueError:
+                    # in case vector parameter was not an integer numeral
+                    return    # XXX: DO MORE CHECKS!
 
-                    try:
-                        if int(str(node.get_vector_parameter())) == int(str(_node.get_input_port_variable().get_vector_parameter())):
-                            # vector spike input port was used inside an ``onReceive`` block for this spike port and numerical index is correct; everything is OK
-                            return
-                    except ValueError:
-                        # in case vector parameter was not an integer numeral
-                        return    # XXX: DO MORE CHECKS!
+            if isinstance(_node, ASTOdeEquation):
+                # spike input port was used inside the rhs of an equation; everything is OK
+                return
 
-                if isinstance(_node, ASTOdeEquation):
-                    # spike input port was used inside the rhs of an equation; everything is OK
-                    return
+            if isinstance(_node, ASTInlineExpression):
+                # spike input port was used inside the rhs of an inline expression; everything is OK
+                return
 
-                if isinstance(_node, ASTInlineExpression):
-                    # spike input port was used inside the rhs of an inline expression; everything is OK
-                    return
+            if isinstance(_node, ASTModel):
+                # we reached the top-level block without running into an ``update`` block on the way --> incorrect usage of the function
 
-                if isinstance(_node, ASTModel):
-                    # we reached the top-level block without running into an ``update`` block on the way --> incorrect usage of the function
-
-                    node_name = node.get_name()
-                    if node.get_vector_parameter():
-                        node_name += "[" + str(node.get_vector_parameter()) + "]"
-
-                    code, message = Messages.get_spike_input_port_appears_outside_equation_rhs_and_event_handler(node_name)
-                    Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                                       log_level=LoggingLevel.ERROR)
+                code, message = Messages.get_spike_input_port_appears_outside_equation_rhs_and_event_handler(node_name)
+                Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                                    log_level=LoggingLevel.ERROR)

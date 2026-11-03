@@ -1252,7 +1252,7 @@ class Messages:
 
     @classmethod
     def get_spike_input_port_appears_outside_equation_rhs_and_event_handler(cls, name):
-        message = "Spiking input port names (in this case '" + name + "') can only be used in the right-hand side of equations or in an onReceive block!"
+        message = "Spiking input port names (in this case '" + name + "') can only be used in the right-hand side of equations or in the ``get_weight()`` function inside an onReceive block!"
         return MessageCode.SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED, message
 
     @classmethod

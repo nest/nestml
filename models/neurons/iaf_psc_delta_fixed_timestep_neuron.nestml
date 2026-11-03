@@ -55,7 +55,6 @@ model iaf_psc_delta_fixed_timestep_neuron:
         refr_counter integer = 0    # Refractory period timer
 
     equations:
-        kernel K_delta = delta(t)
         V_m' = -(V_m - E_L) / tau_m + (I_e + I_stim) / C_m
 
     parameters:

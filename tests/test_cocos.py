@@ -21,17 +21,8 @@
 
 from __future__ import print_function
 
-from typing import Optional
-
 import os
-import pytest
 
-from pynestml.symbol_table.symbol_table import SymbolTable
-from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.symbols.predefined_types import PredefinedTypes
-from pynestml.symbols.predefined_units import PredefinedUnits
-from pynestml.symbols.predefined_variables import PredefinedVariables
-from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import MessageCode
 from tests.test_utils import parse_and_validate_model
@@ -431,4 +422,16 @@ class TestCoCos:
         model = parse_and_validate_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")),
                          "CoCoAssignmentToUnitTypeAlt.nestml"))
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) > 0
+
+    def test_input_ports_appear_only_in_equation_rhs_and_event_handlers_valid(self):
+        model = parse_and_validate_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "valid")),
+                         "CoCoSpikeInputPortsAppearOnlyInEquationRHSAndEventHandlers.nestml"))
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 0
+
+    def test_input_ports_appear_only_in_equation_rhs_and_event_handlers_invalid(self):
+        model = parse_and_validate_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")),
+                         "CoCoSpikeInputPortsAppearOnlyInEquationRHSAndEventHandlers.nestml"))
         assert len(Logger.get_messages(model, LoggingLevel.ERROR)) > 0

@@ -55,6 +55,10 @@ class NESTVariablePrinter(CppVariablePrinter):
         self.buffers_are_zero = True
 
     def set_buffers_to_zero(self, buffers_are_zero: bool):
+        r"""Input spikes that appear on the right-hand side of an ODE are not necessarily processed when the the ODE is solved, but in an event-based manner. The flag ``buffers_are_zero`` can be used to print spiking input port names as zeros when printing the right-hand side of ODEs. (N.B.: instead of a ``self.buffers_are_zero`` flag, this could alternatively also be done by subclassing the NESTVariablePrinter class.)
+
+        Returns the empty string, because this method can be called from inside the Jinja template.
+        """
         self.buffers_are_zero = buffers_are_zero
         return ""
 
@@ -126,7 +130,6 @@ class NESTVariablePrinter(CppVariablePrinter):
                 s += "(" + str(units_conversion_factor) + " * "
             if self.cpp_variable_suffix == "":
                 if self.buffers_are_zero and symbol.is_spike_input_port():
-                    # XXX: TODO: instead of ``self.buffers_are_zero`` flag, do this in a derived class
                     return self.__print_buffer_value(variable)
 
                 s += "B_."

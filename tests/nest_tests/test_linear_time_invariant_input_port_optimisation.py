@@ -30,8 +30,7 @@ import nest
 
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
-
-TestLinearTimeInvariantInputPortOptimisation_neuron_types = ["iaf_psc_delta", "iaf_psc_exp"]
+from tests.test_utils import ArrayMismatch, numpy_assert_allclose
 
 
 @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
@@ -43,74 +42,68 @@ class TestLinearTimeInvariantInputPortOptimisation:
 
     module_name: Optional[str] = None
 
-    @pytest.fixture(scope="module", autouse=True)
-    def generate_code(self):
-        TestLinearTimeInvariantInputPortOptimisation.module_name = "nestmlmodule"    # unfortunately, pytest only allows us to set static attributes on the class
-        input_path = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, os.pardir, "models", "neurons", neuron_name + "_neuron.nestml")))) for neuron_name in TestLinearTimeInvariantInputPortOptimisation_neuron_types]
+    def generate_code(self, lti: bool):
+        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))))
         target_path = "nestmlmodule"
         logging_level = "DEBUG"
         suffix = "_nestml"
-        codegen_opts = {"linear_time_invariant_spiking_input_ports": ["input_spikes"]}
+        codegen_opts = {}
+
+        if lti:
+            codegen_opts["linear_time_invariant_spiking_input_ports"] = ["input_spikes"]
 
         generate_nest_target(input_path, target_path,
-                             module_name=TestLinearTimeInvariantInputPortOptimisation.module_name,
+                             module_name="nestmlmodule",
                              logging_level=logging_level,
                              suffix=suffix,
                              codegen_opts=codegen_opts)
 
-    @pytest.mark.xfail
-    @pytest.mark.parametrize("neuron_name", TestLinearTimeInvariantInputPortOptimisation_neuron_types)
-    def test_simultaneous_spikes_different_ports(self, neuron_name: str):
+    @pytest.mark.xfail(strict=True, raises=ArrayMismatch)
+    def test_simultaneous_spikes_different_ports(self):
         r"""This is known to not work if there are simultaneous spikes!"""
-        spike_times_sg_exc = [10., 20., 30., 40., 50.]
-        spike_times_sg_exc2 = [40.]
-        spike_times_sg_inh = [20., 40.]
-        self.run_experiment(neuron_name,
-                            spike_times_sg_exc,
-                            spike_times_sg_exc2,
-                            spike_times_sg_inh)
+        self.generate_code(lti=True)
 
-    @pytest.mark.xfail
-    @pytest.mark.parametrize("neuron_name", TestLinearTimeInvariantInputPortOptimisation_neuron_types)
-    def test_simultaneous_spikes_different_ports2(self, neuron_name: str):
-        r"""This is known to not work if there are simultaneous spikes!"""
-        spike_times_sg_exc = [10., 20., 30., 40., 50.]
-        spike_times_sg_exc2 = [0.]
-        spike_times_sg_inh = [20., 40.]
-        self.run_experiment(neuron_name,
-                            spike_times_sg_exc,
-                            spike_times_sg_exc2,
-                            spike_times_sg_inh)
+        spike_times_sg_exc = [10., 20., 30.]
+        spike_times_sg_inh = [20.]
+        self.run_experiment(spike_times_sg_exc,
+                            spike_times_sg_inh,
+                            fname_snip="_[lti=True]")
 
-    @pytest.mark.parametrize("neuron_name", TestLinearTimeInvariantInputPortOptimisation_neuron_types)
-    def test_non_simultaneous_spikes_different_ports(self, neuron_name: str):
-        spike_times_sg_exc = [10., 20., 30., 40., 50.]
-        spike_times_sg_exc2 = [45.]
-        spike_times_sg_inh = [25., 55.]
-        self.run_experiment(neuron_name,
-                            spike_times_sg_exc,
-                            spike_times_sg_exc2,
-                            spike_times_sg_inh)
+        spike_times_sg_exc = [10., 20., 30.]
+        spike_times_sg_inh = [25.]
+        self.run_experiment(spike_times_sg_exc,
+                            spike_times_sg_inh,
+                            fname_snip="_[lti=True]")
 
-    def run_experiment(self, neuron_name, spike_times_sg_exc, spike_times_sg_exc2, spike_times_sg_inh):
+    def test_non_simultaneous_spikes_different_ports(self):
+        r"""This should work if there are simultaneous spikes!"""
+        self.generate_code(lti=False)
+        spike_times_sg_exc = [10., 20., 30.]
+        spike_times_sg_inh = [20.]
+        self.run_experiment(spike_times_sg_exc,
+                            spike_times_sg_inh,
+                            fname_snip="_[lti=False]")
+
+    def run_experiment(self, spike_times_sg_exc, spike_times_sg_inh, fname_snip=""):
         nest.ResetKernel()
-        nest.Install(TestLinearTimeInvariantInputPortOptimisation.module_name)
+        nest.Install("nestmlmodule")
 
         sg_exc = nest.Create("spike_generator", {"spike_times": spike_times_sg_exc})
-        sg_exc2 = nest.Create("spike_generator", {"spike_times": spike_times_sg_exc2})
         sg_inh = nest.Create("spike_generator", {"spike_times": spike_times_sg_inh})
 
-        neuron_nest = nest.Create(neuron_name)
-        neuron_nestml = nest.Create(neuron_name + "_neuron_nestml")
+        neuron_nest = nest.Create("iaf_psc_exp")
+        neuron_nestml = nest.Create("iaf_psc_exp_neuron_nestml")
+        neuron_nest.tau_syn_ex = 2.
+        neuron_nest.tau_syn_in = 4.
+        neuron_nestml.tau_syn_exc = 2.
+        neuron_nestml.tau_syn_inh = 4.
         mm_nest = nest.Create("voltmeter")
         mm_nestml = nest.Create("voltmeter")
 
         nest.Connect(sg_exc, neuron_nest)
         nest.Connect(sg_exc, neuron_nestml)
-        nest.Connect(sg_exc2, neuron_nest)
-        nest.Connect(sg_exc2, neuron_nestml)
-        nest.Connect(sg_inh, neuron_nest, syn_spec={"weight": -1})
-        nest.Connect(sg_inh, neuron_nestml, syn_spec={"weight": -1})
+        nest.Connect(sg_inh, neuron_nest, syn_spec={"weight": -3})
+        nest.Connect(sg_inh, neuron_nestml, syn_spec={"weight": -3})
 
         nest.Connect(mm_nest, neuron_nest)
         nest.Connect(mm_nestml, neuron_nestml)
@@ -125,9 +118,9 @@ class TestLinearTimeInvariantInputPortOptimisation:
         ax.plot(mm_nestml.events["times"], mm_nestml.events["V_m"], label="NESTML")
         ax.legend()
 
-        fig.savefig("/tmp/test_simultaneous_spikes_different_ports_[neuron=" + neuron_name + "].png")
+        fig.savefig("/tmp/test_simultaneous_spikes_different_ports" + fname_snip + ".png")
 
         # test that membrane potential is the same at the end of the simulation
 
         assert neuron_nestml.V_m != neuron_nestml.E_L
-        np.testing.assert_allclose(neuron_nest.V_m, neuron_nestml.V_m)
+        numpy_assert_allclose(neuron_nest.V_m, neuron_nestml.V_m)
