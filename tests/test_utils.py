@@ -97,8 +97,10 @@ def parse_and_validate_model(fname: str) -> Optional[str]:
 
     return model_name
 
+
 class ArrayMismatch(AssertionError):
     pass
+
 
 def numpy_assert_allclose(a, b, **kw):
     try:

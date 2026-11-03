@@ -113,5 +113,4 @@ class SpikeInputPortsAppearOnlyInEquationRHSAndEventHandlersVisitor(ASTVisitor):
                 # we reached the top-level block without running into an ``update`` block on the way --> incorrect usage of the function
 
                 code, message = Messages.get_spike_input_port_appears_outside_equation_rhs_and_event_handler(node_name)
-                Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                                    log_level=LoggingLevel.ERROR)
+                Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.ERROR)
