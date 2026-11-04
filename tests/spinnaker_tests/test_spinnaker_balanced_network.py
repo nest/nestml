@@ -403,7 +403,7 @@ class TestSpiNNakerBalancedNetwork:
                    # try 10 for asynchronous irregular activity. Try 1 for population-wide activity bursts
 
         # synaptic weights
-        weight_exc = 1E3 * .4
+        weight_exc = 1E3 * .3
         weight_inh = -g * weight_exc
         weight_input = weight_exc   # balance between the external and recurrent drive
 
