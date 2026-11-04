@@ -25,6 +25,7 @@ from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.string_type_symbol import StringTypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import MessageCode, Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -45,6 +46,9 @@ class ASTComparisonOperatorVisitor(ASTVisitor):
 
         lhs_type.referenced_object = expr.get_lhs()
         rhs_type.referenced_object = expr.get_rhs()
+
+        # generated code compares plain numbers, so it must hold both operands in the same unit
+        ASTUtils.convert_to_held_unit_of(expr.get_rhs(), expr.get_lhs())
 
         # both are string types
         if lhs_type.is_primitive() and rhs_type.is_primitive() and isinstance(lhs_type, StringTypeSymbol) and isinstance(rhs_type, StringTypeSymbol):

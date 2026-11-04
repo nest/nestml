@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional
+
 from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.simple_expression_printer import SimpleExpressionPrinter
@@ -86,8 +88,15 @@ class SympySimpleExpressionPrinter(CppSimpleExpressionPrinter):
 
         return self.print_simple_expression(node)
 
+    def get_implicit_conversion_factor(self, node: ASTNode) -> Optional[float]:
+        r"""
+        This printer prints numeric literals in the units in which they are written, so the factor for values in these units applies.
+        """
+        return node.get_implicit_conversion_factor()
+
     def print(self, node: ASTNode) -> str:
-        if node.get_implicit_conversion_factor() and not node.get_implicit_conversion_factor() == 1:
-            return "(" + str(node.get_implicit_conversion_factor()) + " * (" + self._print(node) + "))"
+        factor = self.get_implicit_conversion_factor(node)
+        if factor and not factor == 1:
+            return "(" + str(factor) + " * (" + self._print(node) + "))"
 
         return self._print(node)

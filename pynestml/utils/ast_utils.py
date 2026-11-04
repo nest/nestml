@@ -22,13 +22,16 @@
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Set, Union
 
 import copy
+import math
 import re
 import sympy
 
+from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
+from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_else_clause import ASTElseClause
 from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
@@ -37,6 +40,7 @@ from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_elif_clause import ASTElifClause
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_if_clause import ASTIfClause
@@ -60,10 +64,12 @@ from pynestml.symbol_table.scope import Scope
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.template_type_symbol import TemplateTypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.symbols.variable_symbol import VariableSymbol, VariableType
 from pynestml.utils.ast_source_location import ASTSourceLocation
+from pynestml.utils.implicit_conversion_factor import ImplicitConversionFactor
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.utils.string_utils import removesuffix
@@ -2401,6 +2407,187 @@ class ASTUtils:
             return symbol.get_type_symbol().unit.unit.to_string()
 
         return ""
+
+    @classmethod
+    def get_held_unit_scale(cls, node: ASTExpressionNode, with_implicit_conversion_factor: bool = False) -> Optional[float]:
+        r"""
+        Gives the scale (in SI units) of the unit in which generated code for NEST and for Python holds the value of the given expression, or None if this unit is not known (see NESTUnitConverter.get_held_unit_scale()).
+
+        For instance, generated code holds ``I_syn * 55 MOhm``, with ``I_syn`` in pA, in ``pA*GOhm``, that is, in mV, with scale 1E-3. It holds ``(2 V)**2`` in ``mV**2``, with scale 1E-6. If the expression reads a variable that is declared in V, or if it is a power whose exponent is not a constant, the unit is not known.
+
+        :param node: an expression
+        :param with_implicit_conversion_factor: True to apply the implicit conversion factor of the expression itself (see ImplicitConversionFactor.get_nest_factor())
+        :return: the scale, or None if it is not known
+        """
+        if with_implicit_conversion_factor:
+            scale = cls.get_held_unit_scale(node)
+            factor = ImplicitConversionFactor.get_nest_factor(node.get_implicit_conversion_factor())
+            if scale is None or factor is None:
+                return scale
+
+            return scale / factor    # generated code multiplies the value by the factor
+
+        if isinstance(node, ASTSimpleExpression):
+            if node.type is None:
+                return None
+
+            if node.is_function_call():
+                symbol = node.get_scope().resolve_to_symbol(node.get_function_call().get_name(), SymbolKind.FUNCTION)
+                if symbol is not None and isinstance(symbol.get_return_type(), TemplateTypeSymbol) \
+                        and all(param_type == symbol.get_return_type() for param_type in symbol.get_parameter_types()):
+                    # the function returns a value in the unit of its arguments, for instance max(), but not pow()
+                    scales = [cls.get_held_unit_scale(arg, True) for arg in node.get_function_call().get_args()]
+                    if None in scales or not all(math.isclose(scale, scales[0]) for scale in scales):
+                        return None
+
+                    return scales[0]
+
+            if isinstance(node.type, UnitTypeSymbol):
+                return NESTUnitConverter.get_held_unit_scale(node.type.astropy_unit, is_literal=node.is_numeric_literal())
+
+            if node.is_numeric_literal_with_unit():
+                return None
+
+            return 1.    # a value without a physical unit, such as a real number
+
+        if node.is_logical_not:
+            return 1.
+
+        if node.is_expression():
+            # parentheses or a unary operator
+            return cls.get_held_unit_scale(node.get_expression(), True)
+
+        if node.is_ternary_operator():
+            if_true = cls.get_held_unit_scale(node.get_if_true(), True)
+            if_not = cls.get_held_unit_scale(node.get_if_not(), True)
+            if if_true is None or if_not is None or not math.isclose(if_true, if_not):
+                return None
+
+            return if_true
+
+        if not node.is_compound_expression():
+            return None
+
+        operator = node.get_binary_operator()
+        if not isinstance(operator, ASTArithmeticOperator):
+            return 1.    # a comparison, a logical or a bitwise operation
+
+        lhs = cls.get_held_unit_scale(node.get_lhs(), True)
+        rhs = cls.get_held_unit_scale(node.get_rhs(), True)
+        if lhs is None or rhs is None:
+            return None
+
+        if operator.is_times_op:
+            return lhs * rhs
+
+        if operator.is_div_op:
+            return lhs / rhs
+
+        if operator.is_pow_op:
+            if not math.isclose(rhs, 1.):
+                return None
+
+            if math.isclose(lhs, 1.):
+                return 1.
+
+            # the base has a physical unit, for instance ``(2 V)**2``: the scale is known if the exponent is a constant
+            exponent = cls._get_constant_exponent(node.get_rhs())
+            if exponent is None:
+                return None
+
+            try:
+                scale = lhs ** exponent
+            except (OverflowError, ZeroDivisionError):
+                return None
+
+            if not math.isfinite(scale) or scale <= 0.:
+                return None    # the scale is too large or too small for a float
+
+            return scale
+
+        # a sum, a difference or a remainder: generated code must hold both operands in the same unit
+        return lhs if math.isclose(lhs, rhs) else None
+
+    @classmethod
+    def convert_to_held_unit_of(cls, node: ASTExpressionNode, reference: ASTExpressionNode, dimensionless: bool = True) -> None:
+        r"""
+        Make generated code for NEST and for Python hold the value of ``node`` in the unit in which it holds the value of ``reference``.
+
+        NESTML does not convert the operands of a comparison, the branches of a conditional expression or the arguments of a function with template parameters, such as ``max()``, because each value keeps its unit. Generated code holds plain numbers, so it must convert ``node`` if it holds the two values in units with different scales. For instance, it holds a variable that is declared in Hz in Hz, ``1 kHz`` in kHz and ``1 s**-1`` in 1/ms.
+
+        The value of the factor is 1, so the output of the NESTML and LaTeX printers and the input of ODE-toolbox do not change. If the unit of one of the values is not known, nothing changes.
+
+        :param node: the value to convert
+        :param reference: the value in whose unit generated code must hold ``node``
+        :param dimensionless: False to leave values without a physical dimension unchanged. Generated code can hold such a value with a scale: it holds ``rate * t``, with ``rate`` in Hz and ``t`` in ms, with the scale 1E-3. Where it assigns the value to a variable of type ``real``, it uses the number without a conversion. The result of a conditional expression or of a function can reach such an assignment, so a conversion of its branches or arguments to the scale of the first one would change that number.
+        """
+        node_type = node.type
+        reference_type = reference.type
+        if not isinstance(node_type, UnitTypeSymbol) or not isinstance(reference_type, UnitTypeSymbol) \
+                or not node_type.differs_only_in_magnitude(reference_type):
+            return
+
+        if not dimensionless and reference_type.astropy_unit.physical_type == "dimensionless":
+            return
+
+        source_scale = cls.get_held_unit_scale(node)
+        target_scale = cls.get_held_unit_scale(reference, with_implicit_conversion_factor=True)
+        factor = ImplicitConversionFactor.from_held_unit_scales(1., source_scale, target_scale)
+        if factor.nest_factor != 1.:
+            node.set_implicit_conversion_factor(factor)
+
+    @classmethod
+    def _get_constant_exponent(cls, node: ASTExpressionNode) -> Optional[float]:
+        r"""
+        Gives the value of an exponent that contains only numeric literals without a physical unit, parentheses, unary signs and the operators ``+``, ``-``, ``*`` and ``/``, or None for every other exponent.
+
+        Generated code evaluates an exponent that reads a variable or a parameter at run time, so its value is not known during code generation.
+
+        :param node: the exponent of a power expression
+        :return: the value of the exponent, or None if it is not such a constant
+        """
+        if isinstance(node, ASTSimpleExpression):
+            if node.is_numeric_literal() and not node.is_numeric_literal_with_unit() \
+                    and isinstance(node.get_numeric_literal(), (int, float)):
+                return float(node.get_numeric_literal())
+
+            return None
+
+        if node.is_logical_not:
+            return None
+
+        if node.is_encapsulated:
+            return cls._get_constant_exponent(node.get_expression())
+
+        if node.is_unary_operator():
+            value = cls._get_constant_exponent(node.get_expression())
+            if value is None or node.get_unary_operator().is_unary_tilde:
+                return None
+
+            return -value if node.get_unary_operator().is_unary_minus else value
+
+        if not node.is_compound_expression() or not isinstance(node.get_binary_operator(), ASTArithmeticOperator):
+            return None
+
+        lhs = cls._get_constant_exponent(node.get_lhs())
+        rhs = cls._get_constant_exponent(node.get_rhs())
+        if lhs is None or rhs is None:
+            return None
+
+        operator = node.get_binary_operator()
+        if operator.is_plus_op:
+            return lhs + rhs
+
+        if operator.is_minus_op:
+            return lhs - rhs
+
+        if operator.is_times_op:
+            return lhs * rhs
+
+        if operator.is_div_op and rhs != 0.:
+            return lhs / rhs
+
+        return None
 
     @classmethod
     def _find_port_in_dict(cls, rport_to_port_map: Dict[int, List[VariableSymbol]], port: VariableSymbol) -> int:

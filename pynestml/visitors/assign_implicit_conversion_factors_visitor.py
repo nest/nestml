@@ -123,7 +123,8 @@ class AssignImplicitConversionFactorsVisitor(ASTVisitor):
             if self.__types_do_not_match(lhs_type_symbol, lhs_type_symbol * rhs_type_symbol):
                 TypeCaster.try_to_recover_or_error(lhs_type_symbol, lhs_type_symbol * rhs_type_symbol,
                                                    node.get_expression(),
-                                                   set_implicit_conversion_factor_on_lhs=True)
+                                                   set_implicit_conversion_factor_on_lhs=True,
+                                                   is_compound_product_or_quotient=True)
                 return
             return
 
@@ -131,7 +132,8 @@ class AssignImplicitConversionFactorsVisitor(ASTVisitor):
             if self.__types_do_not_match(lhs_type_symbol, lhs_type_symbol / rhs_type_symbol):
                 TypeCaster.try_to_recover_or_error(lhs_type_symbol, lhs_type_symbol / rhs_type_symbol,
                                                    node.get_expression(),
-                                                   set_implicit_conversion_factor_on_lhs=True)
+                                                   set_implicit_conversion_factor_on_lhs=True,
+                                                   is_compound_product_or_quotient=True)
                 return
             return
 
@@ -163,6 +165,49 @@ class AssignImplicitConversionFactorsVisitor(ASTVisitor):
             TypeCaster.try_to_recover_or_error(lhs_variable_symbol.get_type_symbol(), rhs_type_symbol,
                                                node.get_expression(),
                                                set_implicit_conversion_factor_on_lhs=True)
+
+    def visit_if_clause(self, node):
+        """
+        Visits the condition of an if clause (see __derive_condition_type()).
+        :param node: a single if clause
+        :type node: ASTIfClause
+        """
+        self.__derive_condition_type(node.get_condition())
+
+    def visit_elif_clause(self, node):
+        """
+        Visits the condition of an elif clause (see __derive_condition_type()).
+        :param node: a single elif clause
+        :type node: ASTElifClause
+        """
+        self.__derive_condition_type(node.get_condition())
+
+    def visit_while_stmt(self, node):
+        """
+        Visits the condition of a while statement (see __derive_condition_type()).
+        :param node: a single while statement
+        :type node: ASTWhileStmt
+        """
+        self.__derive_condition_type(node.get_condition())
+
+    def visit_on_condition_block(self, node):
+        """
+        Visits the condition of an onCondition block (see __derive_condition_type()).
+        :param node: a single onCondition block
+        :type node: ASTOnConditionBlock
+        """
+        self.__derive_condition_type(node.get_cond_expr())
+
+    @staticmethod
+    def __derive_condition_type(condition) -> None:
+        r"""
+        Derive the type of a condition, as the other methods of this visitor derive the type of each right-hand side. Type derivation assigns the implicit conversion factors of the comparisons and sums in the condition (see ASTUtils.convert_to_held_unit_of() and UnitTypeSymbol.attempt_magnitude_cast()).
+
+        Without this, the factors would depend on the CoCos: these derive the types of ``if``, ``elif`` and ``while`` conditions only in the frontend, after ModelParser.parse_file(), and they do not derive the type of an ``onCondition`` condition at all.
+
+        :param condition: the condition
+        """
+        condition.type    # the getter derives the type once and stores it
 
     def visit_function_call(self, node):
         """

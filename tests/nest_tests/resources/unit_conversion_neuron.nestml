@@ -1,0 +1,83 @@
+# unit_conversion_neuron.nestml
+# #############################
+#
+# Description
+# +++++++++++
+#
+# This model is used to check that values with a physical unit are converted once when they are assigned, added, multiplied, raised to a power, compared or passed in a different unit.
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+model unit_conversion_neuron:
+    state:
+        V_decl mV = 1 V    # declaration
+        V_sum mV = 0 mV
+        V_sum_rev mV = 0 mV
+        V_doc mV = 0 mV
+        V_comp mV = 0 mV
+        V_ret mV = 0 mV
+        V_tern mV = true ? 1 V : 1 mV    # conditional expression
+        V_max mV = max(1 V, 0 mV)    # function with template parameters
+        n_steps integer = 0
+        f Hz = 10 s**-1    # same scale, but generated code holds 10 s**-1 as 0.01 (in 1/ms)
+        f_sum Hz = 0 Hz
+        V_squared mV**2 = (2 V)**2    # power
+        V_root mV = (4 V**2)**0.5    # power with a real exponent
+        g nS = (50 MOhm)**-1    # power with a negative exponent
+        f_pow Hz = (0.1 s)**-1
+        V_product mV = 0 mV
+        V_quotient mV = 0 mV
+        V_floor mV = 0 mV
+        f_tern Hz = false ? 1 kHz : 1 Hz    # generated code holds 1 kHz in kHz, but 1 Hz in Hz
+        f_min kHz = min(1 kHz, 2 * 1 Hz)
+        f_less integer = 0
+        I_ode pA = 0 pA
+
+    equations:
+        I_ode' = (1 pA + 2 * 1 nA - I_ode) / (1 ms)    # ODE
+
+    parameters:
+        I_e pA = 1 nA    # parameter
+        I_syn pA = 100 pA
+        f_ref Hz = 10 Hz
+
+    function to_mV() mV:
+        return 1 V    # return statement
+
+    update:
+        integrate_odes()
+        V_sum = 1 mV + 1 V    # sum
+        V_sum_rev = 1 V + 1 mV
+        V_doc = I_syn * 55 MOhm    # example from the NESTML language documentation
+        V_comp = 1 mV
+        V_comp += 1 V    # compound assignment
+        V_ret = to_mV()
+        n_steps = steps(1 s)    # function argument
+        f_sum = 1 Hz + 10 s**-1
+        V_product = 1 mV
+        V_product *= 2 V / (1 mV)    # compound product
+        V_quotient = 1 mV
+        V_quotient /= 2 mV / (1 V)    # compound quotient
+        V_floor = 1 mV
+        V_floor //= 2 mV / (1 V)    # compound integer quotient
+        if f_ref < 50 s**-1:    # comparison
+            f_less = 1

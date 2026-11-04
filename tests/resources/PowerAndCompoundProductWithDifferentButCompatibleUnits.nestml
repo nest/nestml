@@ -1,0 +1,46 @@
+# PowerAndCompoundProductWithDifferentButCompatibleUnits.nestml
+# #############################################################
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+model BlockTest:
+    state:
+        V_squared mV**2 = (2 V)**2
+        V_root mV = (4 V**2)**0.5
+        g nS = (50 MOhm)**-1
+        f Hz = (0.1 s)**-1
+        V_param mV = (2 V)**p
+        V_max mV = max(1 V, 2 mV)
+        V_pow V = pow(2 V, 1 ms * 1 Hz)
+        V_product mV = 1 mV
+        V_quotient mV = 1 mV
+        V_volt V = 1 V
+        V_floor mV = 1 mV
+
+    parameters:
+        p real = 1
+
+    update:
+        V_product *= 2 V / (1 mV)
+        V_quotient /= 2 mV / (1 V)
+        V_volt *= 1 mA * 1 Ohm * V**-1
+        V_volt /= 1 mA * 1 Ohm * V**-1
+        V_floor //= 2 mV / (1 V)

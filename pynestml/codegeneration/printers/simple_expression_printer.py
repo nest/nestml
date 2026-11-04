@@ -21,13 +21,14 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from abc import ABCMeta, abstractmethod
 
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.function_call_printer import FunctionCallPrinter
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 
 
@@ -49,6 +50,15 @@ class SimpleExpressionPrinter(ASTPrinter, metaclass=ABCMeta):
         self._variable_printer = variable_printer
         self._constant_printer = constant_printer
         self._function_call_printer = function_call_printer
+
+    def get_implicit_conversion_factor(self, node: ASTNode) -> Optional[float]:
+        r"""
+        Gives the implicit conversion factor of the given node (see ASTNode.set_implicit_conversion_factor()) that applies to the values as this printer prints them.
+
+        :param node: an expression node
+        :return: the factor, or None if the node has no factor
+        """
+        return node.get_implicit_conversion_factor()
 
     @abstractmethod
     def print_simple_expression(self, node: ASTSimpleExpression) -> str:

@@ -1,0 +1,53 @@
+# OperandsWithDifferentButCompatibleUnits.nestml
+# ##############################################
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+model BlockTest:
+    state:
+        f Hz = 10 Hz
+        V_volt V = 1 V
+        f_tern Hz = false ? 1 kHz : 1 Hz
+        V_tern mV = true ? 1 V : 1 mV
+        f_min kHz = min(1 kHz, 2 * 1 Hz)
+        f_clip Hz = clip(1 kHz, 1 s**-1, 2 kHz)
+        x_tern real = false ? f * 1 ms : 1 ms / (1 s)
+        x_min real = min(f * 1 ms, 1 ms / (1 s))
+        flag integer = 0
+
+    update:
+        if f < 50 s**-1:
+            flag = 1
+        if f > 1 kHz:
+            flag = 2
+        if 1 V > 999 mV:
+            flag = 3
+        if V_volt > 1 mV:
+            flag = 4
+        if f > 5:
+            flag = 5
+        elif f > 2 kHz:
+            flag = 6
+        while f > 1 kHz:
+            f -= 1 Hz
+
+    onCondition(f < 2 kHz):
+        flag = 7

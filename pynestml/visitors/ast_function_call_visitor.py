@@ -89,6 +89,14 @@ class ASTFunctionCallVisitor(ASTVisitor):
             node.accept(correctTemplatedArgumentTypesVisitor)
             if correctTemplatedArgumentTypesVisitor._failure_occurred:
                 return_type = ErrorTypeSymbol()
+            else:
+                # generated code must hold all arguments of a template parameter in the same unit, for instance in ``max(1 kHz, 2 Hz)``
+                args = node.get_function_call().get_args()
+                for arg, param_type in zip(args, method_symbol.param_types):
+                    if isinstance(param_type, TemplateTypeSymbol):
+                        first_arg = args[method_symbol.param_types.index(param_type)]
+                        if first_arg is not arg:
+                            ASTUtils.convert_to_held_unit_of(arg, first_arg, dimensionless=False)
 
         return_type.referenced_object = node
 

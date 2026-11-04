@@ -19,6 +19,10 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional
+
+import math
+
 from astropy import units
 
 
@@ -77,3 +81,26 @@ class NESTUnitConverter:
         for i in range(0, len(unit.bases)):
             factor *= cls.get_factor(unit.bases[i]) ** unit.powers[i]
         return factor
+
+    @classmethod
+    def get_held_unit_scale(cls, unit: units.UnitBase, is_literal: bool = False) -> Optional[float]:
+        """
+        Gives the scale (in SI units) of the unit in which generated code holds a value in the given unit, or None if this unit is not known.
+
+        Generated code holds a numeric literal with a physical unit in the unit that get_factor() converts it to: for instance, it holds ``1 V`` as ``1000.``, that is, in mV, with scale 1E-3. If get_factor() gives 1 for a unit, generated code holds a variable that is declared in this unit as its value in this unit. A variable that is declared in another unit, such as V, can hold its value in its declared unit or in mV, depending on how the value was assigned; then the unit is not known.
+
+        :param unit: an astropy unit
+        :param is_literal: True if the value is a numeric literal with this unit, False if it is a variable or a function call
+        :return: the scale, or None if it is not known
+        """
+        factor = cls.get_factor(unit)
+        if isinstance(factor, units.UnitBase):
+            factor = factor.scale    # get_factor() gives a dimensionless unit, such as V/mV, as a unit
+
+        if is_literal:
+            return unit.si.scale / factor
+
+        if math.isclose(factor, 1.):
+            return unit.si.scale
+
+        return None
