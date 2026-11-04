@@ -201,11 +201,7 @@ class NESTVariablePrinter(CppVariablePrinter):
         if variable.is_delay_variable():
             return self._print_delay_variable(variable)
 
-        with_origin_ = with_origin
-        if symbol.is_spike_input_port():
-            with_origin_ = False
-
-        if with_origin_ and NESTCodeGeneratorUtils.print_symbol_origin(symbol, variable):
+        if with_origin:
             return NESTCodeGeneratorUtils.print_symbol_origin(symbol, variable) % variable_name
 
         return variable_name
