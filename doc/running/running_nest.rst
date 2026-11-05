@@ -430,7 +430,7 @@ To generate code that is compatible with particular versions of NEST Simulator, 
 
 - The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
 - ``"main"``: Latest NEST GitHub main branch version (https://github.com/nest/nest-simulator/).
-- ``"v2.20.2"``: Latest NEST 2 release. (**Will be deprecated in the next NESTML release.**)
+- ``"v2.20.2"``: Latest NEST 2 release. (**Be advised that support for NEST 2 will be deprecated in the next NESTML release.**)
 - ``"v3.0"``, ``"v3.1"``, ``"v3.2"``, etc.: NEST 3 release versions.
 
 For a list of the corresponding NEST Simulator repository tags, please see https://github.com/nest/nest-simulator/tags.
