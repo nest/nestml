@@ -390,25 +390,39 @@ class TestSpiNNakerBalancedNetwork:
         from python_models8.neuron.implementations.stdp_synapse_nestml_impl import stdp_synapse_nestmlDynamics as stdp_synapse_nestml
         from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml
 
-        eta = 2.    # the ratio between external rate and threshold rate
+        # network parameters
+        eta = .5    # the ratio between external rate and threshold rate
         g = 10.    # the ratio between excitation and inhibition
                    # try 10 for asynchronous irregular activity. Try 1 for population-wide activity bursts
 
+        # simulation parameters
         t_sim = 1000    # total time to simulator for [ms]
 
-        nu_thr = 1e3 * (V_th - E_L) * C_m / (weight_input * tau_syn * tau_m * K_ext)   # Hz, ≈ 15.6 Hz here
-        rate_ext_input = eta * nu_thr    # external input rate (eta parameter) [s⁻¹]
+        # neuron parameters
+        V_th = -55
+        E_L = -70
+        C_m = 250
+        tau_syn = 2
+        tau_m = 10
+
+        # population sizes
         n_exc = int(round(n_neurons * 0.8))
         n_inh = int(round(n_neurons * 0.2))
-        # p_conn = 0.1
+
+        # connectivity parameters
         K_exc = 40    # fixed
         K_inh = K_exc // 4    # fixed 4:1 E:I ratio
-        n_poisson = n_exc + n_inh
+        K_ext = K_exc    # balance between external and recurrent drive
 
         # synaptic weights
         weight_exc = 1E3 * .3
         weight_inh = -g * weight_exc
         weight_input = weight_exc   # balance between the external and recurrent drive
+
+        nu_thr = 1e3 * (V_th - E_L) * C_m / (weight_input * tau_syn * tau_m * K_ext)   # Hz, ≈ 15.6 Hz here
+        print("nu_thr = " + str(nu_thr) + " Hz")
+        rate_ext_input = eta * K_ext * nu_thr    # external input rate (eta parameter) [s⁻¹]
+
 
         if use_nestml_neuron:
             neuron_model = iaf_psc_exp_neuron_nestml
@@ -418,14 +432,14 @@ class TestSpiNNakerBalancedNetwork:
             membranePot = "V_m"
 
             neuron_parameters = {
-                "C_m": 250,
-                "tau_m": 10,
-                "tau_syn_inh": 2,
-                "tau_syn_exc": 2,
+                "C_m": C_m,
+                "tau_m": tau_m,
+                "tau_syn_inh": tau_syn,
+                "tau_syn_exc": tau_syn,
                 "refr_T": 2,
-                "E_L": -70,
-                "V_reset": -70,
-                "V_th": -55
+                "E_L": E_L,
+                "V_reset": E_L,
+                "V_th": V_th
             }
         else:
             neuron_model = p.IF_curr_exp
@@ -435,13 +449,13 @@ class TestSpiNNakerBalancedNetwork:
             membranePot = "v"
 
             neuron_parameters = {
-                "tau_m": 10,
-                "cm": 1E-3 * 250,
-                "v_rest": -70,
-                "v_reset": -70,
-                "v_thresh": -55,
-                "tau_syn_E": 2,
-                "tau_syn_I": 2,
+                "tau_m": tau_m,
+                "cm": 1E-3 * C_m,
+                "v_rest": E_L,
+                "v_reset": E_L,
+                "v_thresh": V_th,
+                "tau_syn_E": tau_syn,
+                "tau_syn_I": tau_syn,
                 "tau_refrac": 2
             }
 
@@ -480,16 +494,17 @@ class TestSpiNNakerBalancedNetwork:
         seed = 123
 
         # excitatory and inhibitory populations
-        pop_exc = p.Population(n_exc, neuron_model, label="Excitatory", seed=seed, additional_parameters={"max_atoms_per_core": neurons_per_core})
-        pop_inh = p.Population(n_inh, neuron_model, label="Inhibitory", seed=seed + 1, additional_parameters={"max_atoms_per_core": neurons_per_core})
+        pop_exc = p.Population(n_exc, neuron_model, label="Excitatory", seed=seed)
+        pop_inh = p.Population(n_inh, neuron_model, label="Inhibitory", seed=seed + 1)
 
         pop_exc.set(**neuron_parameters)
         pop_inh.set(**neuron_parameters)
 
-
         # external stimulus to exc and inh populations
-        pop_stim = p.Population(n_poisson, p.SpikeSourcePoisson(rate=rate_ext_input), label="Stim_Exc", additional_parameters={"seed": seed + 2})
-        p.Projection(pop_stim, pop_exc + pop_inh, p.OneToOneConnector(), p.StaticSynapse(weight=weights_input, delay=1.), receptor_type=receptor_name_exc)
+        pop_stim_exc = p.Population(n_exc, p.SpikeSourcePoisson(rate=rate_ext_input), label="Stim_Exc", additional_parameters={"seed": seed + 2})
+        p.Projection(pop_stim_exc, pop_exc, p.OneToOneConnector(), p.StaticSynapse(weight=weights_input, delay=1.), receptor_type=receptor_name_exc)
+        pop_stim_inh = p.Population(n_inh, p.SpikeSourcePoisson(rate=rate_ext_input), label="Stim_inh", additional_parameters={"seed": seed + 2})
+        p.Projection(pop_stim_inh, pop_inh, p.OneToOneConnector(), p.StaticSynapse(weight=weights_input, delay=1.), receptor_type=receptor_name_inh)
 
         # recurrent connections
         if (
@@ -598,7 +613,31 @@ class TestSpiNNakerBalancedNetwork:
                     w_max=Wmax_inh
                 )
 
-                synapse_exc = p.STDPMechanism(
+                syn_ee = p.STDPMechanism(
+                    timing_dependence=timing_rule,
+                    weight_dependence=weight_rule_exc,
+                    weight=weights_exc,
+                    delay=delays_exc
+                )
+
+                timing_rule = p.SpikePairRule(
+                    tau_plus=tau_pre_trace,
+                    tau_minus=tau_post_trace,
+                    A_plus=learning_rate,
+                    A_minus=learning_rate
+                )
+
+                weight_rule_exc = p.AdditiveWeightDependence(
+                    w_min=Wmin_exc,
+                    w_max=Wmax_exc
+                )
+
+                weight_rule_inh = p.AdditiveWeightDependence(
+                    w_min=Wmin_inh,
+                    w_max=Wmax_inh
+                )
+
+                syn_ei = p.STDPMechanism(
                     timing_dependence=timing_rule,
                     weight_dependence=weight_rule_exc,
                     weight=weights_exc,
@@ -610,6 +649,7 @@ class TestSpiNNakerBalancedNetwork:
         projection_ei = p.Projection(pop_exc, pop_inh, connector_ei, synapse_type=syn_ei, receptor_type=receptor_name_exc)
         projection_ii = p.Projection(pop_inh, pop_inh, connector_ii, synapse_type=syn_ii, receptor_type=receptor_name_inh)
         projection_ie = p.Projection(pop_inh, pop_exc, connector_ie, synapse_type=syn_ie, receptor_type=receptor_name_inh)
+
         # Initial membrane potentials
         if use_nestml_neuron:
             pop_exc.initialize(V_m=-60.0)
@@ -618,12 +658,14 @@ class TestSpiNNakerBalancedNetwork:
         else:
             pop_exc.initialize(v=-60.0)
             pop_inh.initialize(v=-60.0)
+
         # Recording
         pop_exc[:5].record([membranePot])    # record only from the first 5 neurons
         pop_inh.record("spikes")
         pop_exc.record("spikes")
 
-        pop_stim.record("spikes")
+        pop_stim_exc.record("spikes")
+        pop_stim_inh.record("spikes")
 
         w_ref = projection_ee.get("weight", format="float")
 
@@ -693,7 +735,8 @@ class TestSpiNNakerBalancedNetwork:
 
         pop_exc_spikes = pop_exc.get_data("spikes")
         pop_inh_spikes = pop_inh.get_data("spikes")
-        pop_stim_spikes = pop_stim.get_data("spikes")
+        pop_stim_exc_spikes = pop_stim_exc.get_data("spikes")
+        pop_stim_inh_spikes = pop_stim_inh.get_data("spikes")
 
         v_neuron = pop_exc.get_data(membranePot)
 
@@ -798,7 +841,7 @@ class TestSpiNNakerBalancedNetwork:
     @pytest.mark.parametrize("generate_code", [True, False], indirect=True)
     @pytest.mark.parametrize("n_neurons", [256, 512, 1024, 2048])
     @pytest.mark.parametrize("neurons_per_core", [128])
-    @pytest.mark.parametrize("poisson_generators_per_core", [64])
+    @pytest.mark.parametrize("poisson_generators_per_core", [128])  # was: 64
     def test_spinnaker_balanced_network(self, generate_code, n_neurons, neurons_per_core, poisson_generators_per_core):
         use_exp_luts = generate_code
         assert use_exp_luts in [True, False]
