@@ -191,7 +191,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         :type pad_to_length: int or None
         :param bool backprop_delay:
         """
-        print("Initialising the synapse with weight = " + str(weight))
+        #print("[NESTML synapse] Initialising the synapse with weight = " + str(weight))
         if voltage_dependence is not None:
             raise NotImplementedError(
                 "Voltage dependence has not been implemented")
@@ -211,7 +211,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         ts = SpynnakerDataView.get_simulation_time_step_ms()
 
 {%-     for exp_lut in exp_luts %}
-        print("Creating exp look-up table for variable {{ exp_lut.removeprefix("lut_").split("__for__")[0] }} with time constant: " + str(self._nestml_model_variables["{{ exp_lut.removeprefix("lut_").split("__for__")[0] }}"]))
+        #print("[NESTML synapse] Creating exp look-up table for variable {{ exp_lut.removeprefix("lut_").split("__for__")[0] }} with time constant: " + str(self._nestml_model_variables["{{ exp_lut.removeprefix("lut_").split("__for__")[0] }}"]))
         self.__{{ exp_lut }} = get_exp_lut_array(ts, self._nestml_model_variables["{{ exp_lut.removeprefix("lut_").split("__for__")[0] }}"])
 {%-     endfor %}
 {%- endif %}
@@ -219,7 +219,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
 
     @overrides(AbstractPlasticSynapseDynamics.merge)
     def merge(self, synapse_dynamics: AbstractSynapseDynamics) -> AbstractSynapseDynamics:
-        print("[NESTML synapse] trying to merge with: " + str(type(synapse_dynamics)))
+        #print("[NESTML synapse] trying to merge with: " + str(type(synapse_dynamics)))
 
         if isinstance(synapse_dynamics, SynapseDynamicsNeuromodulation):
             raise NotImplementedError("Neuromodulation not supported!")
@@ -332,7 +332,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         size += BYTES_PER_WORD * len(self.__{{ exp_lut }})  # length will be returned by counting the number of uint32 words
 {%-     endfor %}
 {%- endif %}
-        print("[NESTML synapse] get_parameters_sdram_usage_in_bytes(n_neurons = " + str(n_neurons) + ", n_synapse_types = " + str(n_synapse_types) + ") = " + str(size) + " bytes")
+        #print("[NESTML synapse] get_parameters_sdram_usage_in_bytes(n_neurons = " + str(n_neurons) + ", n_synapse_types = " + str(n_synapse_types) + ") = " + str(size) + " bytes")
 
         return size
 
@@ -353,7 +353,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
 {%- for sym in synapse.get_parameter_symbols() + synapse.get_internal_symbols() %}
 {%-     if sym.get_symbol_name() != "__h" %}
         # write value for parameter "{{ sym.get_symbol_name() }}"
-            print("[NESTML synapse] synapse type = " + str(syn_type_idx) + ": writing value for parameter {{ sym.get_symbol_name() }}: " + str(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]) + " ==== encoded --> " + str(hex(float_to_s16_15(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]))))
+            #print("[NESTML synapse] synapse type = " + str(syn_type_idx) + ": writing value for parameter {{ sym.get_symbol_name() }}: " + str(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]) + " ==== encoded --> " + str(hex(float_to_s16_15(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]))))
             spec.write_value(
                     data=float_to_s16_15(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]),
                     data_type=DataType.INT32)
@@ -364,7 +364,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         # exponential look-up tables
 {%-     for exp_lut in exp_luts %}
         spec.write_array(self.__{{ exp_lut }})
-        print("[NESTML synapse] writing LUT: " + str(self.__{{ exp_lut }}))
+        #print("[NESTML synapse] writing LUT: " + str(self.__{{ exp_lut }}))
 {%-     endfor %}
 {%- endif %}
 
@@ -376,13 +376,13 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         :param n_connections:
         """
         n_header_words_per_row = 1{% if pre_header is defined %} + {{ metadata[astnode.name]["pre_header"].get_state_variables() | length }}{% endif %}   # 1 for timestamp of last pre spike
-        print("[NESTML synapse] synapse has " + str(n_header_words_per_row) + " header words")
+        #print("[NESTML synapse] synapse has " + str(n_header_words_per_row) + " header words")
 
         n_state_variables = {{ synapse.get_state_symbols() | length }}    # number of state variables per connection (i.e. for a single synapse model)
 
         pp_size_words = n_state_variables * n_connections
         fp_size_words = n_connections
-        print("[NESTML synapse] get_n_words_for_plastic_connections(n_connections = " + str(n_connections) + "): returning " + str(n_header_words_per_row + pp_size_words + fp_size_words))
+        #print("[NESTML synapse] get_n_words_for_plastic_connections(n_connections = " + str(n_connections) + "): returning " + str(n_header_words_per_row + pp_size_words + fp_size_words))
 
         return n_header_words_per_row + pp_size_words + fp_size_words
 
@@ -423,7 +423,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         """
         n_connections = len(connections)
 
-        print("[NESTML synapse] get_plastic_synaptic_data(n_connections = " + str(n_connections) + ")")
+        #print("[NESTML synapse] get_plastic_synaptic_data(n_connections = " + str(n_connections) + ")")
 
         n_synapse_type_bits = get_n_bits(n_synapse_types)
         n_neuron_id_bits = get_n_bits(max_atoms_per_core)
@@ -465,7 +465,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
 {%-     if state_var_sym.name == "w" %}  {# XXXX use codegen opts for "w" instead #}
             plastic_plastic[connection_idx * n_state_variables + {{ state_var_idx }}] = float_to_s16_15(connections["weight"][connection_idx])    # note that we are not applying the weight scale here! This is intentional; NESTML weights are always stored as an S16.15 (note that they are still scaled when written to the postsynaptic neuron's input buffers)
             # plastic_plastic[connection_idx * n_state_variables + {{ state_var_idx }}] = float_to_s16_15(connections["weight"][connection_idx] * numpy.array(ring_buffer_weight_scales)[connections["synapse_type"]][connection_idx])
-            print("[NESTML synapse] XXXX: ring_buffer_weight_scales = " + str(numpy.array(ring_buffer_weight_scales)[connections["synapse_type"]][connection_idx]))
+            #print("[NESTML synapse] XXXX: ring_buffer_weight_scales = " + str(numpy.array(ring_buffer_weight_scales)[connections["synapse_type"]][connection_idx]))
 {%-     else %}
             # XXX: what about other initial values, can they be put into/extracted from ConnectionsArray? Otherwise, do we use printing initial values directly from the NESTML model?
             plastic_plastic[connection_idx * n_state_variables + {{ state_var_idx }}] = 0
@@ -479,7 +479,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         # pp_size = fp_size in words => fp_size * no_bytes / 4 (bytes)
         if self.__pad_to_length is not None:
             # Pad the data
-            print("[NESTML synapse] Exception: padding rows not supported!")
+            #print("[NESTML synapse] Exception: padding rows not supported!")
             raise Exception("Padding rows not supported!") # XXX can we get away with this?
             #plastic_plastic_row_data = self._pad_row(
             #    plastic_plastic_row_data, bytes_per_connection=4 * n_state_variables)
@@ -490,7 +490,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         pp_size = self.get_n_items(plastic_plastic_rows, BYTES_PER_WORD)
         pp_data = self.get_words(plastic_plastic_rows)
 
-        print("[NESTML synapse] \treturning fp_data = " + str(fp_data) + ", pp_data = " + str(pp_data) + ", fp_size = " + str(fp_size) + ", pp_size = " + str(pp_size))
+        #print("[NESTML synapse] \treturning fp_data = " + str(fp_data) + ", pp_data = " + str(pp_data) + ", fp_size = " + str(fp_size) + ", pp_size = " + str(pp_size))
 
         return fp_data, pp_data, fp_size, pp_size
 
@@ -545,7 +545,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         """
         Convert from raw memory (``pp_data`` and ``fp_data``) into a list of tuples (source, target, weight, delay).
         """
-        print("[NESTML synapse] read_plastic_synaptic_data")
+        #print("[NESTML synapse] read_plastic_synaptic_data")
 
         n_rows = len(fp_size)
         n_synapse_type_bits = get_n_bits(n_synapse_types)
@@ -580,10 +580,10 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         # connections["weight"] = s16_15_to_float(numpy.concatenate([pp[:size * 4 * n_state_variables].view(uint32)[::n_state_variables] for pp, size in zip(pp_without_headers, fp_size)]).astype(uint32)) / numpy.array(ring_buffer_weight_scales)[synapse_type]
 
 
-        print("[NESTML synapse] XXXX: ring_buffer_weight_scales = " + str(numpy.array(ring_buffer_weight_scales)[synapse_type]))
+        #print("[NESTML synapse] XXXX: ring_buffer_weight_scales = " + str(numpy.array(ring_buffer_weight_scales)[synapse_type]))
         connections["delay"] = data_fixed >> (n_neuron_id_bits + n_synapse_type_bits)
 
-        print("[NESTML synapse] Returning connections: " + str(connections))
+        #print("[NESTML synapse] Returning connections: " + str(connections))
 
         return connections
 

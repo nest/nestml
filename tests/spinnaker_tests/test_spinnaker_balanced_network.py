@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List
 
 import argparse
 import csv
@@ -265,7 +266,7 @@ def save_results_to_csv(results, filename):
                 "implementation": result["implementation"],
                 "seed": result["seed"],
                 "use_static_synapses": result["use_static_synapses"],
-                "use_exp_luts": result["use_exp_luts"],
+                "use_exp_luts": str(result["use_exp_luts"]) if "use_exp_luts" in result.keys() else "",
                 "N": result["n_neurons"],
                 "g": result["g"],
                 "rate_ext_input": result["rate_ext_input"],
@@ -357,10 +358,10 @@ def plot_results(results):
 class TestSpiNNakerBalancedNetwork:
     """SpiNNaker code generation tests"""
 
-    @pytest.fixture(autouse=True,
-                    scope="module")
-    def generate_code(self):
-        use_exp_luts = os.environ.get("USE_EXP_LUTS", "true").lower() == "true"
+    @pytest.fixture
+    def generate_code(self, request):
+        use_exp_luts: bool = request.param
+        print(f"\nGenerating code with use_exp_luts = {use_exp_luts}")
 
         codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                   "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}}],
@@ -384,8 +385,10 @@ class TestSpiNNakerBalancedNetwork:
                                   suffix=suffix,
                                   codegen_opts=codegen_opts)
 
+        yield use_exp_luts
 
-    def run_balanced_network(self, n_neurons, neurons_per_core, poisson_generators_per_core, use_nestml_neuron, use_nestml_synapse, use_static_synapses: bool, use_exp_luts):
+
+    def run_balanced_network(self, n_neurons, neurons_per_core, poisson_generators_per_core, use_nestml_neuron, use_nestml_synapse, use_static_synapses: bool):
         from python_models8.neuron.implementations.stdp_synapse_nestml_impl import stdp_synapse_nestmlDynamics as stdp_synapse_nestml
         from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml
 
@@ -777,7 +780,6 @@ class TestSpiNNakerBalancedNetwork:
             "timestamp": timestamp,
             "seed": seed,
             "use_static_synapses": use_static_synapses,
-            "use_exp_luts": use_exp_luts,
 
             "t_sim": t_sim,
 
@@ -804,7 +806,7 @@ class TestSpiNNakerBalancedNetwork:
         }
 
 
-    def run_experiment(self, implementations, use_exp_luts: bool, n_neurons, neurons_per_core, poisson_generators_per_core):
+    def run_experiment(self, implementations: List[str], n_neurons: int, neurons_per_core: int, poisson_generators_per_core: int, use_exp_luts: bool):
         """
         Run reference and NESTML, compare their results,
         save results and generate plots.
@@ -822,8 +824,7 @@ class TestSpiNNakerBalancedNetwork:
                     poisson_generators_per_core=poisson_generators_per_core,
                     use_nestml_neuron=False,
                     use_nestml_synapse=False,
-                    use_static_synapses=use_static_synapses,
-                    use_exp_luts=None)
+                    use_static_synapses=use_static_synapses)
 
                 analyze_run(results["builtin"])
 
@@ -834,9 +835,8 @@ class TestSpiNNakerBalancedNetwork:
                     poisson_generators_per_core=poisson_generators_per_core,
                     use_nestml_neuron=True,
                     use_nestml_synapse=True,
-                    use_static_synapses=use_static_synapses,
-                    use_exp_luts=use_exp_luts)
-
+                    use_static_synapses=use_static_synapses)
+                results[implementation]["use_exp_luts"] = use_exp_luts
                 analyze_run(results["nestml"])
 
             else:
@@ -851,23 +851,28 @@ class TestSpiNNakerBalancedNetwork:
             except:
                 pass
 
-        print_results(results, comparisons)
-        save_results_to_csv(results, csv_results_filename)
-        plot_results(results)
-
         return results, comparisons
 
 
+    @pytest.mark.parametrize("generate_code", [True, False], indirect=True)
+#    @pytest.mark.parametrize("use_exp_luts": [True, False])
     #@pytest.mark.parametrize("n_neurons", [2048, 1024, 512])
     @pytest.mark.parametrize("n_neurons", [256, 512, 1024, 2048])
     @pytest.mark.parametrize("neurons_per_core", [128])
     #@pytest.mark.parametrize("neurons_per_core", [16, 32])
     @pytest.mark.parametrize("poisson_generators_per_core", [64])
-    @pytest.mark.parametrize("use_exp_luts", [True])
     #@pytest.mark.parametrize("poisson_generators_per_core", [16, 32])
     #@pytest.mark.parametrize("poisson_generators_per_core", [16, 32])
-    def test_spinnaker_balanced_network(self, n_neurons, neurons_per_core, poisson_generators_per_core, use_exp_luts):
-        results, comparisons = self.run_experiment(["builtin", "nestml"], use_exp_luts=use_exp_luts, n_neurons=n_neurons, neurons_per_core=neurons_per_core, poisson_generators_per_core=poisson_generators_per_core)
+    def test_spinnaker_balanced_network(self, generate_code, n_neurons, neurons_per_core, poisson_generators_per_core):
+        use_exp_luts = generate_code
+        assert use_exp_luts in [True, False]
+
+        results, comparisons = self.run_experiment(["builtin", "nestml"], n_neurons=n_neurons, neurons_per_core=neurons_per_core, poisson_generators_per_core=poisson_generators_per_core, use_exp_luts=use_exp_luts)
+
+        print_results(results, comparisons)
+        save_results_to_csv(results, csv_results_filename)
+        plot_results(results)
+
         return
 
         FIRING_RATE_ATOL = .4    # [spikes/s]
