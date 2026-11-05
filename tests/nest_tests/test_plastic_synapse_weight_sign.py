@@ -106,7 +106,6 @@ class TestPlasticSynapseWeightSign:
 
         nest.Connect(pre_sg, pre_neuron, syn_spec={"weight": 9999.})
         nest.Connect(post_sg, post_neuron, syn_spec={"weight": 9999.})
-
         syn_opts = {"synapse_model": synapse_model_name + "_nestml__with_" + self.neuron_model_name + "_nestml",
                     "w": init_weight,
                     "Wmin": 0,

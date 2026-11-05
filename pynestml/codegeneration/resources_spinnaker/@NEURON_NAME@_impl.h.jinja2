@@ -57,19 +57,6 @@
 extern "C" inline int {{neuronName}}_dynamics( double, const double ode_state[], double f[], void* pnode );
 {% endif %}
 
-{% if has_multiple_synapses -%}
-  /**
-   * Synapse types to connect to
-   * @note Excluded lower and upper bounds are defined as MIN_, MAX_.
-   *       Excluding port 0 avoids accidental connections.
-  **/
-const long MIN_SPIKE_RECEPTOR = 1;
-{%-   set ns = namespace(count=1) %}
-{%- else %}
-const long MIN_SPIKE_RECEPTOR = 0;
-{%-   set ns = namespace(count=0) %}
-{%- endif %}
-
 enum input_indices
 {
 {%- set ns = namespace(count=0) %}
@@ -192,10 +179,10 @@ static void neuron_impl_store_neuron_parameters(
 
 {%-     for blk in neuron.get_on_receive_blocks() %}
 {%-         set ast = blk.get_stmts_body() %}
-void on_receive_block_{{ blk.port_name }}(neuron_state_t *state, neuron_input_t *input, neuron_parameter_t *parameter)
+void on_receive_block_{{ blk.get_input_port_variable().get_name() }}(neuron_state_t *state, neuron_input_t *input, neuron_parameter_t *parameter)
 {
 #ifdef DEBUG
-    log_info("on_receive_block_{{ blk.port_name }}()\n");
+    log_info("on_receive_block_{{ blk.get_input_port_variable().get_name() }}()\n");
 #endif
 
 {%          filter indent(4, True) -%}
@@ -263,9 +250,9 @@ static void neuron_impl_do_timestep_update(
 // Begin NESTML generated code for invoking the onReceive block(s)
 // -------------------------------------------------------------------------
 {%           for blk in neuron.get_on_receive_blocks() %}
-if (input->inputs[{{ blk.port_name.upper() }}])
+if (input->inputs[{{ blk.get_input_port_variable().get_name().upper() }}])
 {
-    on_receive_block_{{ blk.port_name }}(state, input, parameter);
+    on_receive_block_{{ blk.get_input_port_variable().get_name() }}(state, input, parameter);
 }
 {%-          endfor %}
 {%-   endfilter %}

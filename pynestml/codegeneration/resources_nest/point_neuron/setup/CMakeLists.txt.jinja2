@@ -59,10 +59,11 @@ set( MODULE_NAME ${SHORT_NAME} )
 
 # 2) Add all your sources here
 set( MODULE_SOURCES
-    {{moduleName}}.h {{moduleName}}.cpp
-    {% for neuron in neurons %}
-      {{neuron.get_name()}}.cpp {{neuron.get_name()}}.h
-    {% endfor %}
+    {{ moduleName }}.h {{ moduleName }}.cpp
+{%- for neuron in neurons %}
+      {{ neuron.get_name() }}.cpp {{ neuron.get_name() }}.h
+{%- endfor %}
+    vector_ring_buffer.h vector_ring_buffer.cpp
     )
 
 # 3) We require a header name like this:

@@ -30,7 +30,7 @@
 #
 model CoCoValueAssignedToInputPort:
     input:
-        spikeInh <- inhibitory spike
+        input_spikes <- spike
 
     update:
-        spikeInh = 1 s**-1
+        input_spikes = 1 s**-1

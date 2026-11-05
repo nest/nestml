@@ -87,7 +87,7 @@ model iaf_psc_exp_nonlineardendrite_neuron:
         spike
 
     onReceive(I_2):
-        I_dend$ += unit_psr * I_2 * 1 s
+        I_dend$ += unit_psr * get_weight(I_2, t)
 
     update:
         # solve ODEs
@@ -138,4 +138,3 @@ model iaf_psc_exp_nonlineardendrite_neuron:
             dAP_counts = 0
             I_dend = 0 pA
             I_dend$ = 0 pA/s
-

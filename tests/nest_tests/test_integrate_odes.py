@@ -277,7 +277,7 @@ class TestIntegrateODEs:
             fig.savefig("/tmp/test_integrate_odes_spikes.png", dpi=300)
 
         # verify
-        np.testing.assert_allclose(x_actual[-1], .004)    # XXX desired should be 4, this is due to an issue with the scale of the weight, see https://github.com/nest/nestml/issues/984
+        np.testing.assert_allclose(x_actual[-1], 4)
 
     def test_integrate_odes_higher_order(self):
         r"""

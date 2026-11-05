@@ -96,3 +96,14 @@ def parse_and_validate_model(fname: str) -> Optional[str]:
     model_name = model.get_name()
 
     return model_name
+
+
+class ArrayMismatch(AssertionError):
+    pass
+
+
+def numpy_assert_allclose(a, b, **kw):
+    try:
+        np.testing.assert_allclose(a, b, **kw)
+    except AssertionError as e:
+        raise ArrayMismatch(str(e)) from e

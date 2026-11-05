@@ -135,8 +135,8 @@ model hh_cond_exp_traub_neuron:
         unit_psg nS = 1 nS        # Unitary postsynaptic conductance amplitude
 
     input:
-        inh_spikes <- inhibitory spike
-        exc_spikes <- excitatory spike
+        inh_spikes <- spike
+        exc_spikes <- spike
         I_stim pA <- continuous
 
     output:

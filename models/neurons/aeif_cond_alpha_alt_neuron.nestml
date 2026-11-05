@@ -11,16 +11,14 @@
 #
 # .. math::
 #
-#    C_m \frac{dV_m}{dt} =
-#    -g_L(V_m-E_L)+g_L\Delta_T\exp\left(\frac{V_m-V_{th}}{\Delta_T}\right) -
-#  g_e(t)(V_m-E_e) \\
-#                                                     -g_i(t)(V_m-E_i)-w + I_e
+#    C_m \frac{dV_m}{dt} = -g_L(V_m-E_L)+g_L\Delta_T\exp\left(\frac{V_m-V_{th}}{\Delta_T}\right) - g_e(t)(V_m-E_e) \\
+#                          -g_i(t)(V_m-E_i)-w + I_e
 #
 # and
 #
 # .. math::
 #
-#  \tau_w \frac{dw}{dt} = a(V_m-E_L) - w
+#    \tau_w \frac{dw}{dt} = a(V_m-E_L) - w
 #
 # Note that the membrane potential can diverge to positive infinity due to the exponential term. To avoid numerical instabilities, instead of :math:`V_m`, the value :math:`\min(V_m,V_{peak})` is used in the dynamical equations.
 #
@@ -113,8 +111,8 @@ model aeif_cond_alpha_alt_neuron:
         unit_psg_inh nS/ms =  1 nS * e / tau_syn_inh         # Unitary postsynaptic conductance amplitude
 
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:
@@ -129,10 +127,10 @@ model aeif_cond_alpha_alt_neuron:
             integrate_odes(g_exc, g_inh, V_m, w)
 
     onReceive(exc_spikes):
-        g_exc' += unit_psg_exc * exc_spikes * 1 s
+        g_exc' += unit_psg_exc * get_weight(exc_spikes, t)
 
     onReceive(inh_spikes):
-        g_inh' += unit_psg_inh * inh_spikes * 1 s
+        g_inh' += unit_psg_inh * get_weight(inh_spikes, t)
 
     onCondition(refr_t <= 0 ms and V_m >= V_peak):
         # threshold crossing

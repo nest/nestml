@@ -1,12 +1,13 @@
-# CoCoInputPortWithRedundantTypes.nestml
-# ######################################
+# CoCoSpikeInputPortsAppearOnlyInEquationRHSAndEventHandlers_neuron.nestml
+# ########################################################################
 #
 # Description
 # +++++++++++
 #
-# This model is used to test if broken CoCos are identified correctly. Here, if each input port is defined uniquely, i.e., no redundant keywords are used.
+# This model is used to check if all cocos work correctly by detecting corresponding broken context.
 #
-# Positive case.
+# Negative case.
+#
 #
 # Copyright statement
 # +++++++++++++++++++
@@ -28,6 +29,12 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
-model CoCoInputPortWithRedundantTypes:
+model CoCoSpikeInputPortsAppearOnlyInEquationRHSAndEventHandlers_neuron:
+    state:
+        x real = 0
+
+    onReceive(in_spikes):
+        x += 1 s * in_spikes    # not allowed! should be inside ``get_weight()``
+
     input:
-        spikeInh <- inhibitory spike # no redundant keywords used, thus correct
+        in_spikes <- spike
