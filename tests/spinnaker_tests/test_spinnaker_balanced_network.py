@@ -390,18 +390,20 @@ class TestSpiNNakerBalancedNetwork:
         from python_models8.neuron.implementations.stdp_synapse_nestml_impl import stdp_synapse_nestmlDynamics as stdp_synapse_nestml
         from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml
 
+        eta = 2.    # the ratio between external rate and threshold rate
+        g = 10.    # the ratio between excitation and inhibition
+                   # try 10 for asynchronous irregular activity. Try 1 for population-wide activity bursts
+
         t_sim = 1000    # total time to simulator for [ms]
 
-        rate_ext_input = 10.    # external input rate (eta parameter) [s⁻¹]
+        nu_thr = 1e3 * (V_th - E_L) * C_m / (weight_input * tau_syn * tau_m * K_ext)   # Hz, ≈ 15.6 Hz here
+        rate_ext_input = eta * nu_thr    # external input rate (eta parameter) [s⁻¹]
         n_exc = int(round(n_neurons * 0.8))
         n_inh = int(round(n_neurons * 0.2))
         # p_conn = 0.1
         K_exc = 40    # fixed
         K_inh = K_exc // 4    # fixed 4:1 E:I ratio
-        n_poisson = 5 * K_exc   # including a margin to prevent introducing too much statistical correlations
-        K_poisson = K_exc   # number of stimulation population synaptic connections for each target neuron (in-degree) -- set to K_exc to balance external and recurrent drive
-        g = 10.    # the ratio between excitation and inhibition
-                   # try 10 for asynchronous irregular activity. Try 1 for population-wide activity bursts
+        n_poisson = n_exc + n_inh
 
         # synaptic weights
         weight_exc = 1E3 * .3
@@ -487,9 +489,7 @@ class TestSpiNNakerBalancedNetwork:
 
         # external stimulus to exc and inh populations
         pop_stim = p.Population(n_poisson, p.SpikeSourcePoisson(rate=rate_ext_input), label="Stim_Exc", additional_parameters={"seed": seed + 2})
-
-        p.Projection(pop_stim, pop_exc, p.FixedNumberPreConnector(K_poisson, allow_self_connections=False, with_replacement=False), p.StaticSynapse(weight=weights_input, delay=1.), receptor_type=receptor_name_exc)
-        p.Projection(pop_stim, pop_inh, p.FixedNumberPreConnector(K_poisson, allow_self_connections=False, with_replacement=False), p.StaticSynapse(weight=weights_input, delay=1.), receptor_type=receptor_name_exc)
+        p.Projection(pop_stim, pop_exc + pop_inh, p.OneToOneConnector(), p.StaticSynapse(weight=weights_input, delay=1.), receptor_type=receptor_name_exc)
 
         # recurrent connections
         if (
