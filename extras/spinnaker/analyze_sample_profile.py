@@ -32,7 +32,7 @@ Usage:
 
 
 
-To use this script, make sure that 
+To use this script, make sure that
 
 .. code::
 
@@ -61,12 +61,22 @@ plt.rcParams['grid.linewidth'] = 0.8
 
 
 
+BASE_DIR = Path(__file__).resolve().parents[2]
+REPORT_DIR = BASE_DIR / "reports"
+PROFILE2_CSV = BASE_DIR / "benchmark_balanced_networks_profiling.csv"
+PROFILE_CSV = BASE_DIR / "balanced_networks_profiling.csv"
+ENERGY_CSV = BASE_DIR / "balanced_networks_energy.csv"
 
-REPORT_DIR = Path(__file__).resolve().parents[2] / "reports"
 PROFILE_NAME = "sample_profile.json"
 ENERGY_NAME = "energy_report.rpt"
-PROFILE_CSV = Path(__file__).resolve().parents[2] / "balanced_networks_profiling.csv"
-ENERGY_CSV = Path(__file__).resolve().parents[2] / "balanced_networks_energy.csv"
+
+
+IMPLEMENTATION_LABELS = {
+    "builtin": "Built-in",
+    "nestml_exp_lut": "NESTML + exp LUT",
+    "nestml_not_exp_lut": "NESTML + no exp LUT"
+}
+
 
 
 def find_latest_profiles():
@@ -187,8 +197,6 @@ def analyze_profiles(reference_path, nestml_path):
     save_comparison_to_csv(reference_path, nestml_path, reference_summary, nestml_summary, mean_difference, mean_relative_difference)
 
 
-
-
 def plot_core_activity(cores, profile_path, implementation):
     if not cores:
         print(f"No core profiling data found for {implementation}.")
@@ -200,7 +208,7 @@ def plot_core_activity(cores, profile_path, implementation):
     plt.figure(figsize=(12, 6))
     plt.bar(labels, values)
     plt.xlabel("Core")
-    plt.ylabel("Mean active time [%]")
+    plt.ylabel("Core active fraction [%]")
     plt.title(f"{implementation} SpiNNaker Core Activity")
     plt.xticks(rotation=90)
     plt.tight_layout()
@@ -210,6 +218,7 @@ def plot_core_activity(cores, profile_path, implementation):
     plt.close()
 
     print(f"{implementation} core activity plot saved to: {output_path}")
+
 
 def plot_comparison(reference, nestml, profile_path):
     """Plot summary activity metrics for reference and NESTML."""
@@ -238,14 +247,46 @@ def plot_comparison(reference, nestml, profile_path):
 
 
 def plot_distribution(reference_cores, nestml_cores, profile_path):
-    """Plot the distribution of mean core activity."""
+    """Plot transparent histograms with identical binning for both activity distributions."""
     reference_values = [core["mean_percent_active"] for core in reference_cores]
     nestml_values = [core["mean_percent_active"] for core in nestml_cores]
 
+    if not reference_values or not nestml_values:
+        print("No data available for histogram comparison.")
+        return
+
+    combined = reference_values + nestml_values
+    bin_count = min(20, max(5, int(np.sqrt(len(combined)))))
+    min_value = min(combined)
+    max_value = max(combined)
+    if np.isclose(min_value, max_value):
+        min_value -= 0.5
+        max_value += 0.5
+
+    bins = np.linspace(min_value, max_value, bin_count + 1)
+
     plt.figure(figsize=(8, 6))
-    plt.boxplot([reference_values, nestml_values], tick_labels=["Reference", "NESTML"])
-    plt.ylabel("Mean active time [%]")
+    plt.hist(
+        reference_values,
+        bins=bins,
+        alpha=0.6,
+        color="blue",
+        label="Reference",
+        edgecolor="black",
+    )
+    plt.hist(
+        nestml_values,
+        bins=bins,
+        alpha=0.6,
+        color="orange",
+        label="NESTML",
+        edgecolor="black",
+    )
+
+    plt.xlabel("Mean active time [%]")
+    plt.ylabel("Number of cores")
     plt.title("Distribution of Core Activity")
+    plt.legend()
     plt.tight_layout()
 
     output_path = Path(profile_path).parent / "sample_profile_activity_distribution.png"
@@ -446,6 +487,201 @@ def save_energy_comparison_to_csv(
 
     print(f"Energy CSV saved to: {ENERGY_CSV}")
 
+def load_profiling_data():
+    """Load profiling data from CSV."""
+    if not PROFILE2_CSV.exists():
+        raise FileNotFoundError(f"Profiling CSV not found: {PROFILE2_CSV}")
+
+    with open(PROFILE2_CSV, "r", newline="", encoding="utf-8") as f:
+        return list(csv.DictReader(f))
+
+
+def load_profile(path):
+    """Load a sample profile JSON file."""
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def get_experiment_label(row):
+    """Determine the experiment label from implementation and LUT setting."""
+
+    implementation = row.get("implementation")
+    use_exp_luts = row.get("use_exp_luts", "").lower() == "true"
+
+    if implementation == "builtin":
+        return "builtin"
+
+    if implementation == "nestml":
+        if use_exp_luts:
+            return "nestml_exp_lut"
+
+        return "nestml_not_exp_lut"
+
+    return None
+
+
+def plot_sum_core_activity(rows):
+    """Plot sum of core activity against number of neurons."""
+
+    data = {}
+
+    for row in rows:
+        implementation = get_experiment_label(row)
+
+        if implementation not in IMPLEMENTATION_LABELS:
+            continue
+
+        try:
+            neurons = int(row["N"])
+            activity = float(row["sum_core_activity_percent"])
+        except (ValueError, TypeError, KeyError):
+            continue
+
+        data.setdefault(implementation, []).append((neurons, activity))
+
+    if not data:
+        raise Exception("No profiling data available for plotting.")
+
+    plt.figure(figsize=(9, 6))
+
+    for implementation, values in data.items():
+        grouped = {}
+        for neurons, activity in values:
+            grouped.setdefault(neurons, []).append(activity)
+
+        neurons = []
+        means = []
+        stds = []
+
+        for neurons_count in sorted(grouped):
+            activities = grouped[neurons_count]
+            neurons.append(neurons_count)
+            means.append(float(np.mean(activities)))
+            stds.append(float(np.std(activities, ddof=1)) if len(activities) > 1 else 0.0)
+
+        plt.errorbar(
+            neurons,
+            means,
+            yerr=stds,
+            fmt="o-",
+            capsize=4,
+            label=IMPLEMENTATION_LABELS[implementation],
+        )
+
+    plt.xlabel("Number of neurons")
+    plt.ylabel("Sum core activity [percentage-points]")
+    plt.title("SpiNNaker Core Activity vs Number of Neurons")
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+
+    output_path = BASE_DIR / "sample_profile_sum_core_activity.png"
+    plt.savefig(output_path, dpi=300)
+    plt.close()
+
+    print(f"Sum core activity plot saved to: {output_path}")
+
+# def plot_core_activity_by_neurons(rows):
+#     """Plot core activity for different neuron counts."""
+
+#     experiments = {}
+
+#     for row in rows:
+#         implementation = get_experiment_label(row)
+
+#         if implementation not in IMPLEMENTATION_LABELS:
+#             continue
+
+#         timestamp = row.get("timestamp")
+
+#         try:
+#             neurons = int(row["N"])
+#         except (ValueError, TypeError, KeyError):
+#             continue
+
+#         profile_path = (
+#             BASE_DIR
+#             / "reports_archive"
+#             / timestamp
+#             / "sample_profile.json"
+#         )
+
+#         if not profile_path.exists():
+#             print(f"Profile file not found: {profile_path}")
+#             continue
+
+#         data = load_profile(profile_path)
+#         cores = extract_core_activity(data)
+
+#         experiments.setdefault(implementation, []).append(
+#             (neurons, cores)
+#         )
+
+#     for implementation, runs in experiments.items():
+
+#         core_data = {}
+
+#         for neurons, cores in runs:
+#             for core in cores:
+#                 core_name = f"{core['chip']}:{core['core']}"
+
+#                 core_data.setdefault(core_name, []).append(
+#                     (neurons, core["mean_percent_active"])
+#                 )
+
+#         if not core_data:
+#             continue
+
+#         core_names = sorted(core_data.keys())
+
+#         plt.figure(figsize=(14, 7))
+
+#         for x, core_name in enumerate(core_names):
+
+#             values = sorted(
+#                 core_data[core_name],
+#                 key=lambda value: value[0]
+#             )
+
+#             for neurons, activity in values:
+#                 plt.scatter(
+#                     x,
+#                     activity,
+#                     s=45
+#                 )
+
+#                 plt.annotate(
+#                     f"N={neurons}",
+#                     (x, activity),
+#                     xytext=(5, 5),
+#                     textcoords="offset points",
+#                     fontsize=8
+#                 )
+
+#         plt.xticks(
+#             range(len(core_names)),
+#             core_names,
+#             rotation=90
+#         )
+
+#         plt.xlabel("Core")
+#         plt.ylabel("Mean active time [%]")
+#         plt.title(
+#             f"{IMPLEMENTATION_LABELS[implementation]} "
+#             "Core Activity vs Number of Neurons"
+#         )
+
+#         plt.tight_layout()
+
+#         output_path = (
+#             BASE_DIR
+#             / f"sample_profile_core_activity_vs_N_{implementation}.png"
+#         )
+
+#         plt.savefig(output_path, dpi=300)
+#         plt.close()
+
+#         print(f"Core activity vs N plot saved to: {output_path}")
 
 def analyze_latest_profiles():
     """Analyze the two latest profiles: reference first, NESTML second."""
@@ -467,6 +703,10 @@ def main():
             "  python analyze_profiling_data.py\n"
             "  python analyze_profiling_data.py <reference.json> <nestml.json>"
         )
+
+    rows = load_profiling_data()
+    plot_sum_core_activity(rows)
+    # plot_core_activity_by_neurons(rows)
 
 
 if __name__ == "__main__":
