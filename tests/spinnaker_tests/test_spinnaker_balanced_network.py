@@ -556,45 +556,38 @@ class TestSpiNNakerBalancedNetwork:
             #connector_ie = p.FixedProbabilityConnector(p_conn)
             print("Generated connections")
 
-        # STDP synapses
+        # inhibitory projections (always static)
+        syn_ie = p.StaticSynapse(weight=np.abs(weights_inh), delay=delays_inh)
+        syn_ii = p.StaticSynapse(weight=np.abs(weights_inh), delay=delays_inh)
+
+        # excitatory projections (static or STDP)
         if use_nestml_synapse:
-            stdp_ie = p.StaticSynapse(weight=np.abs(weights_inh), delay=delays_inh)
-            stdp_ii = p.StaticSynapse(weight=np.abs(weights_inh), delay=delays_inh)
             if use_static_synapses:
-                stdp_ee = p.StaticSynapse(weight=weights_exc, delay=delays_exc)
-                stdp_ei = p.StaticSynapse(weight=weights_exc, delay=delays_exc)
+                syn_ee = p.StaticSynapse(weight=weights_exc, delay=delays_exc)
+                syn_ei = p.StaticSynapse(weight=weights_exc, delay=delays_exc)
             else:
-                stdp_ee = stdp_synapse_nestml(weight=weights_exc, delay=delays_exc)
-                stdp_ei = stdp_synapse_nestml(weight=weights_exc, delay=delays_exc)
+                syn_ee = stdp_synapse_nestml(weight=weights_exc, delay=delays_exc)
+                syn_ei = stdp_synapse_nestml(weight=weights_exc, delay=delays_exc)
 
                 print("STDP VARIABLES:")
-                print(stdp_ee._nestml_model_variables)
-                print(stdp_ei._nestml_model_variables)
+                print(syn_ee._nestml_model_variables)
+                print(syn_ei._nestml_model_variables)
 
-                stdp_ee._nestml_model_variables["lambda"] = learning_rate
-                stdp_ei._nestml_model_variables["lambda"] = learning_rate
+                syn_ee._nestml_model_variables["lambda"] = learning_rate
+                syn_ei._nestml_model_variables["lambda"] = learning_rate
 
-                # for stdp_model in [stdp_ee, stdp_ei, stdp_ie, stdp_ii]:
+                # for stdp_model in [syn_ee, syn_ei, stdp_ie, stdp_ii]:
                 #     stdp_model._nestml_model_variables["lambda"] = learning_rate
                 #     stdp_model._nestml_model_variables["tau_tr_pre"] = tau_pre_trace
                 #     stdp_model._nestml_model_variables["tau_tr_post"] = tau_post_trace
                 #     stdp_model._nestml_model_variables["Wmin"] = Wmin_exc
                 #     stdp_model._nestml_model_variables["Wmax"] = Wmax_exc
-                print("STDP lambda:", stdp_ee._nestml_model_variables["lambda"])
-                print("STDP lambda:", stdp_ei._nestml_model_variables["lambda"])
-
-            # Recurrent projections
-            projection_ee=p.Projection(pop_exc, pop_exc, connector_ee, synapse_type=stdp_ee, receptor_type=receptor_name_exc)
-            projection_ei=p.Projection(pop_exc, pop_inh, connector_ei, synapse_type=stdp_ei, receptor_type=receptor_name_exc)
-            projection_ii=p.Projection(pop_inh, pop_inh, connector_ii, synapse_type=stdp_ii, receptor_type=receptor_name_inh)
-            projection_ie=p.Projection(pop_inh, pop_exc, connector_ie, synapse_type=stdp_ie, receptor_type=receptor_name_inh)
-
         else:
             # Built-in additive STDP
             if use_static_synapses:
-               synapse_exc = p.StaticSynapse(weight=weights_exc, delay=delays_exc)
+               syn_ee = p.StaticSynapse(weight=weights_exc, delay=delays_exc)
+               syn_ei = p.StaticSynapse(weight=weights_exc, delay=delays_exc)
             else:
-
                 timing_rule = p.SpikePairRule(
                     tau_plus=tau_pre_trace,
                     tau_minus=tau_post_trace,
@@ -619,13 +612,11 @@ class TestSpiNNakerBalancedNetwork:
                     delay=delays_exc
                 )
 
-            synapse_inh = p.StaticSynapse(weight=np.abs(weights_inh), delay=delays_inh)
-
-            projection_ee=p.Projection(pop_exc, pop_exc, connector_ee, synapse_type=synapse_exc, receptor_type=receptor_name_exc)
-            projection_ei=p.Projection(pop_exc, pop_inh, connector_ei, synapse_type=synapse_exc, receptor_type=receptor_name_exc)
-            projection_ii=p.Projection(pop_inh, pop_inh, connector_ii, synapse_type=synapse_inh, receptor_type=receptor_name_inh)
-            projection_ie=p.Projection(pop_inh, pop_exc, connector_ie, synapse_type=synapse_inh, receptor_type=receptor_name_inh)
-
+        # Recurrent projections
+        projection_ee = p.Projection(pop_exc, pop_exc, connector_ee, synapse_type=syn_ee, receptor_type=receptor_name_exc)
+        projection_ei = p.Projection(pop_exc, pop_inh, connector_ei, synapse_type=syn_ei, receptor_type=receptor_name_exc)
+        projection_ii = p.Projection(pop_inh, pop_inh, connector_ii, synapse_type=syn_ii, receptor_type=receptor_name_inh)
+        projection_ie = p.Projection(pop_inh, pop_exc, connector_ie, synapse_type=syn_ie, receptor_type=receptor_name_inh)
 
         # Initial membrane potentials
         if use_nestml_neuron:
@@ -635,15 +626,6 @@ class TestSpiNNakerBalancedNetwork:
         else:
             pop_exc.initialize(v=-60.0)
             pop_inh.initialize(v=-60.0)
-
-        # print("\n=== CHECK INITIAL V ===")
-
-        # if use_nestml_neuron:
-            # print("Exc V:", pop_exc.get("V_m")[:10])
-            # print("Inh V:", pop_inh.get("V_m")[:10])
-        # else:
-            # print("Exc v:", pop_exc.get("v")[:10])
-            # print("Inh v:", pop_inh.get("v")[:10])
 
         # Recording
         pop_exc[:5].record([membranePot])    # record only from the first 5 neurons
