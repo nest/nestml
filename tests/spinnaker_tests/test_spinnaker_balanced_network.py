@@ -487,15 +487,11 @@ class TestSpiNNakerBalancedNetwork:
 
         # external stimulus to exc and inh populations
         pop_stim = p.Population(n_poisson, p.SpikeSourcePoisson(rate=rate_ext_input), label="Stim_Exc", additional_parameters={"seed": seed + 2})
-        #stim_inh = p.Population(n_inh, p.SpikeSourcePoisson(rate=rate_ext_input), label="Stim_Inh", additional_parameters={"seed": seed + 3})
 
         p.Projection(pop_stim, pop_exc, p.FixedNumberPreConnector(K_poisson, allow_self_connections=False, with_replacement=False), p.StaticSynapse(weight=weights_input, delay=1.), receptor_type=receptor_name_exc)
         p.Projection(pop_stim, pop_inh, p.FixedNumberPreConnector(K_poisson, allow_self_connections=False, with_replacement=False), p.StaticSynapse(weight=weights_input, delay=1.), receptor_type=receptor_name_exc)
-        #p.Projection(stim_exc, pop_exc, p.OneToOneConnector(), p.StaticSynapse(weight=weight_input, delay=1.), receptor_type=receptor_name_exc)
-        #p.Projection(stim_inh, pop_inh, p.OneToOneConnector(), p.StaticSynapse(weight=weight_input, delay=1.), receptor_type=receptor_name_exc)
 
-        # Exc and Inh Connections
-
+        # recurrent connections
         if (
             USE_SAVED_CONNECTIONS
             and os.path.exists(EE_CONNECTION_FILE)
