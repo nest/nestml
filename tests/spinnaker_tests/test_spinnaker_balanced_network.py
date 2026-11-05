@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# test_spinnaker_stdp_window.py
+# test_spinnaker_balanced_network.py
 
 # This file is part of NEST.
 
@@ -41,8 +41,6 @@ from pynestml.frontend.pynestml_frontend import generate_spinnaker_target
 from spinnaker_test_utils import analyze_run
 
 
-
-
 #
 #   options for saving benchmark results to file
 #
@@ -62,6 +60,7 @@ EE_CONNECTION_FILE = os.path.join(CONNECTION_DIR, "ee.csv")
 EI_CONNECTION_FILE = os.path.join(CONNECTION_DIR, "ei.csv")
 II_CONNECTION_FILE = os.path.join(CONNECTION_DIR, "ii.csv")
 IE_CONNECTION_FILE = os.path.join(CONNECTION_DIR, "ie.csv")
+
 
 def spike_fingerprint(spike_trains):
     data = []
@@ -116,6 +115,7 @@ def load_projection_connections(filename):
         connections,
         dtype=np.float64
     )
+
 
 def compute_cv(spike_train):
     """
@@ -255,7 +255,6 @@ def save_results_to_csv(results, filename):
         if not file_exists:
             writer.writeheader()
 
-
         for name, result in results.items():
 
             if result is None:
@@ -387,7 +386,6 @@ class TestSpiNNakerBalancedNetwork:
 
         yield use_exp_luts
 
-
     def run_balanced_network(self, n_neurons, neurons_per_core, poisson_generators_per_core, use_nestml_neuron, use_nestml_synapse, use_static_synapses: bool):
         from python_models8.neuron.implementations.stdp_synapse_nestml_impl import stdp_synapse_nestmlDynamics as stdp_synapse_nestml
         from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml
@@ -409,7 +407,6 @@ class TestSpiNNakerBalancedNetwork:
         weight_exc = 1E3 * .3
         weight_inh = -g * weight_exc
         weight_input = weight_exc   # balance between the external and recurrent drive
-
 
         if use_nestml_neuron:
             neuron_model = iaf_psc_exp_neuron_nestml
@@ -626,7 +623,6 @@ class TestSpiNNakerBalancedNetwork:
             projection_ii=p.Projection(pop_inh, pop_inh, connector_ii, synapse_type=synapse_inh, receptor_type=receptor_name_inh)
             projection_ie=p.Projection(pop_inh, pop_exc, connector_ie, synapse_type=synapse_inh, receptor_type=receptor_name_inh)
 
-
         # Initial membrane potentials
         if use_nestml_neuron:
             pop_exc.initialize(V_m=-60.0)
@@ -636,24 +632,12 @@ class TestSpiNNakerBalancedNetwork:
             pop_exc.initialize(v=-60.0)
             pop_inh.initialize(v=-60.0)
 
-        # print("\n=== CHECK INITIAL V ===")
-
-        # if use_nestml_neuron:
-            # print("Exc V:", pop_exc.get("V_m")[:10])
-            # print("Inh V:", pop_inh.get("V_m")[:10])
-        # else:
-            # print("Exc v:", pop_exc.get("v")[:10])
-            # print("Inh v:", pop_inh.get("v")[:10])
-
         # Recording
         pop_exc[:5].record([membranePot])    # record only from the first 5 neurons
         pop_inh.record("spikes")
         pop_exc.record("spikes")
 
         pop_stim.record("spikes")
-        #stim_exc.record("spikes")
-        #stim_inh.record("spikes")
-
 
         w_ref = projection_ee.get("weight", format="float")
 
@@ -723,36 +707,7 @@ class TestSpiNNakerBalancedNetwork:
 
         pop_exc_spikes = pop_exc.get_data("spikes")
         pop_inh_spikes = pop_inh.get_data("spikes")
-
-        #stim_exc_spikes = stim_exc.get_data("spikes")
-        #stim_inh_spikes = stim_inh.get_data("spikes")
         pop_stim_spikes = pop_stim.get_data("spikes")
-
-        # print("\n=== CHECK POISSON SPIKES ===")
-
-        # for i, train in enumerate(
-        #     stim_exc_spikes.segments[0].spiketrains[:3]
-        # ):
-        #     print(f"Stim Exc neuron {i}:", np.asarray(train)[:20])
-
-        # for i, train in enumerate(
-        #     stim_inh_spikes.segments[0].spiketrains[:3]
-        # ):
-        #     print(f"Stim Inh neuron {i}:", np.asarray(train)[:20])
-
-
-        print("\n=== CHECK NETWORK SPIKES ===")
-
-        for i, train in enumerate(
-            pop_exc_spikes.segments[0].spiketrains[:3]
-        ):
-            print(f"Exc neuron {i}:", np.asarray(train)[:20])
-
-        for i, train in enumerate(
-            pop_inh_spikes.segments[0].spiketrains[:3]
-        ):
-            print(f"Inh neuron {i}:", np.asarray(train)[:20])
-
 
         v_neuron = pop_exc.get_data(membranePot)
 
@@ -855,14 +810,9 @@ class TestSpiNNakerBalancedNetwork:
 
 
     @pytest.mark.parametrize("generate_code", [True, False], indirect=True)
-#    @pytest.mark.parametrize("use_exp_luts": [True, False])
-    #@pytest.mark.parametrize("n_neurons", [2048, 1024, 512])
     @pytest.mark.parametrize("n_neurons", [256, 512, 1024, 2048])
     @pytest.mark.parametrize("neurons_per_core", [128])
-    #@pytest.mark.parametrize("neurons_per_core", [16, 32])
     @pytest.mark.parametrize("poisson_generators_per_core", [64])
-    #@pytest.mark.parametrize("poisson_generators_per_core", [16, 32])
-    #@pytest.mark.parametrize("poisson_generators_per_core", [16, 32])
     def test_spinnaker_balanced_network(self, generate_code, n_neurons, neurons_per_core, poisson_generators_per_core):
         use_exp_luts = generate_code
         assert use_exp_luts in [True, False]
