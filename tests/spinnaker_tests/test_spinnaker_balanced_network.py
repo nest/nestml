@@ -391,9 +391,8 @@ class TestSpiNNakerBalancedNetwork:
         from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml
 
         # network parameters
-        eta = .5    # the ratio between external rate and threshold rate
+        eta = 1.2    # the ratio between external rate and threshold rate
         g = 10.    # the ratio between excitation and inhibition
-                   # try 10 for asynchronous irregular activity. Try 1 for population-wide activity bursts
 
         # simulation parameters
         t_sim = 1000    # total time to simulator for [ms]
@@ -415,7 +414,7 @@ class TestSpiNNakerBalancedNetwork:
         K_ext = K_exc    # balance between external and recurrent drive
 
         # synaptic weights
-        weight_exc = 1E3 * .3
+        weight_exc = 1E3 * .1
         weight_inh = -g * weight_exc
         weight_input = weight_exc   # balance between the external and recurrent drive
 
@@ -503,8 +502,8 @@ class TestSpiNNakerBalancedNetwork:
         # external stimulus to exc and inh populations
         pop_stim_exc = p.Population(n_exc, p.SpikeSourcePoisson(rate=rate_ext_input), label="Stim_Exc", additional_parameters={"seed": seed + 2})
         p.Projection(pop_stim_exc, pop_exc, p.OneToOneConnector(), p.StaticSynapse(weight=weights_input, delay=1.), receptor_type=receptor_name_exc)
-        pop_stim_inh = p.Population(n_inh, p.SpikeSourcePoisson(rate=rate_ext_input), label="Stim_inh", additional_parameters={"seed": seed + 2})
-        p.Projection(pop_stim_inh, pop_inh, p.OneToOneConnector(), p.StaticSynapse(weight=weights_input, delay=1.), receptor_type=receptor_name_inh)
+        pop_stim_inh = p.Population(n_inh, p.SpikeSourcePoisson(rate=rate_ext_input), label="Stim_inh", additional_parameters={"seed": seed + 3})
+        p.Projection(pop_stim_inh, pop_inh, p.OneToOneConnector(), p.StaticSynapse(weight=weights_input, delay=1.), receptor_type=receptor_name_exc)
 
         # recurrent connections
         if (
@@ -564,7 +563,7 @@ class TestSpiNNakerBalancedNetwork:
             #connector_ie = p.FixedProbabilityConnector(p_conn)
             print("Generated connections")
 
-        # inhibitory projections (always static)
+        # inhibitory projections: always static and always with positive weight (because they go to a dedicated input port ``receptor_name_inh``)
         syn_ie = p.StaticSynapse(weight=np.abs(weights_inh), delay=delays_inh)
         syn_ii = p.StaticSynapse(weight=np.abs(weights_inh), delay=delays_inh)
 
