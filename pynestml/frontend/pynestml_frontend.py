@@ -98,6 +98,22 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         options = transformer.set_options(options)
         transformers.append(transformer)
 
+    if target_name.upper() in ["PYTHON_STANDALONE"]:
+        from pynestml.transformers.illegal_variable_name_transformer import IllegalVariableNameTransformer
+
+        # rewrite all Python keywords
+        # from: ``import keyword; print(keyword.kwlist)``
+        transformer = IllegalVariableNameTransformer({"forbidden_names": ["False", "None", "True", "and", "as", "assert", "async", "await", "break", "class", "continue", "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with", "yield"]})
+        transformers.append(transformer)
+
+    if target_name.upper() in ["SPINNAKER"]:
+        from pynestml.transformers.synapse_pre_post_submodels_transformer import SynapsePrePostSubmodelsTransformer
+
+        # extract pre- and postsynaptic components of synapse model into separate sub-models
+        transformer = SynapsePrePostSubmodelsTransformer()
+        options = transformer.set_options(options)
+        transformers.append(transformer)
+
     if target_name.upper() not in ["NEST_COMPARTMENTAL"]:
         # ConvolutionsToBuffersTransformer
         from pynestml.transformers.convolutions_to_buffers_transformer import ConvolutionsToBuffersTransformer
