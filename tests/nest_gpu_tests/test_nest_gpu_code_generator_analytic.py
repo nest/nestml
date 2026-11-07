@@ -72,13 +72,12 @@ class TestNESTGPUAnalyticCodeGenerator:
         V_m = [row[1] for row in data_list]
 
         np.savetxt("test.out", data_list, delimiter="\t")
-        nest_data_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources/iaf_ps_exp_nest_data.txt")
+        nest_data_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources/iaf_psc_exp_nest_data.txt")
         data = np.loadtxt(nest_data_file, delimiter="\t")
         t1 = [x[0] for x in data]
         V_m1 = [x[1] for x in data]
 
-        # np.testing.assert_allclose(V_m, V_m1)
-        dV = [V_m[i * 10 + 20] - V_m1[i] for i in range(len(t1))]
+        dV = [V_m[i] - V_m1[i] for i in range(len(t1))]
         rmse = np.std(dV) / abs(np.mean(V_m))
         print("rmse : ", rmse, " tolerance: ", tolerance)
         if rmse > tolerance:

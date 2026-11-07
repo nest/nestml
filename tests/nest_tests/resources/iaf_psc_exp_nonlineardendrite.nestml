@@ -84,7 +84,7 @@ model iaf_psc_exp_nonlineardendrite:
         integrate_odes()
 
     onReceive(I_2):
-        I_dend$ += unit_psr * I_2 * 1 s
+        I_dend$ += unit_psr * get_weight(I_2, t)
 
     onCondition(t_dend_ap > 0 ms):
         # we are in the middle of emitting a dendritic action potential

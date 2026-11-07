@@ -21,6 +21,7 @@ Follow this checklist to successfully perform a NESTML release. Let's say that 5
 
 - Go back to GitHub and create a new release from the web interface.
   - Select the right branch, e.g. `release-v5.0.1`
+  - Add the new citation under ``doc/citing.rst`` and push directly to the ``main`` branch (so the new citation is included in the release).
   - Under version tag, enter the new version number. Since v3.0.0 we're adding the "v" prefix (e.g. "v5.0.1").
   - For release title, use "NESTML" + version number, e.g. "NESTML 5.0.0".
   - For release notes, write something starting with "\[NESTML 5.0.0\](https://dx.doi.org/10.5281/zenodo.3697733)" so that the Zenodo publication is linked. Look at the previous release note for further inspiration.
@@ -48,7 +49,7 @@ Follow this checklist to successfully perform a NESTML release. Let's say that 5
   twine upload dist/*
   ```
 
-- Update version number on main branch: edit `setup.py` and add suffix to version number, e.g. `version='5.0.1-post-dev'`, to distinguish main branch version from release version. Do the same for `pynestml/__init__.py`.
+- Update version number on main branch: edit `setup.py` and add suffix to version number, e.g. `version='5.0.1-post-dev'`, to distinguish main branch version from release version. Do the same for `pynestml/__init__.py` and `codemeta.json`.
 
   ```bash
   git add setup.py
@@ -57,8 +58,7 @@ Follow this checklist to successfully perform a NESTML release. Let's say that 5
   ```
 
 - Delete the release branch (in this example, `release-v5.0.1`).
-- Add the new tag ("v5.0.0") as an _active version_ in ReadTheDocs, and then change the _default version_ to this tag.
-- Create a PR updating ``doc/citing.rst``.
+- Add the new tag ("v5.0.1") as an _active version_ in ReadTheDocs, and then change the _default version_ to this tag.
 
 Release candidate checklist
 ---------------------------

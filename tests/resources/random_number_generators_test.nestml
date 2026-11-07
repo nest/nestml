@@ -31,6 +31,5 @@ model test_random:
         p' = random_normal(500 mV, 25 mV) / 1 s
         q' = random_normal(500, 25) / 1 s
         r' = random_uniform(42, 123) / 1 s
-
     update:
         integrate_odes()

@@ -21,17 +21,8 @@
 
 from __future__ import print_function
 
-from typing import Optional
-
 import os
-import pytest
 
-from pynestml.symbol_table.symbol_table import SymbolTable
-from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.symbols.predefined_types import PredefinedTypes
-from pynestml.symbols.predefined_units import PredefinedUnits
-from pynestml.symbols.predefined_variables import PredefinedVariables
-from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import MessageCode
 from tests.test_utils import parse_and_validate_model
@@ -117,11 +108,7 @@ class TestCoCos:
 
     def test_invalid_no_values_assigned_to_input_ports(self):
         model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")), "CoCoValueAssignedToInputPort.nestml"))
-        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 1
-
-    def test_valid_no_values_assigned_to_input_ports(self):
-        model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "valid")), "CoCoValueAssignedToInputPort.nestml"))
-        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 0
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 2
 
     def test_invalid_order_of_equations_correct(self):
         model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")), "CoCoNoOrderOfEquations.nestml"))
@@ -193,14 +180,6 @@ class TestCoCos:
 
     def test_valid_no_nest_collision(self):
         model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "valid")), "CoCoNestNamespaceCollision.nestml"))
-        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 0
-
-    def test_invalid_redundant_input_port_keywords_detected(self):
-        model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")), "CoCoInputPortWithRedundantTypes.nestml"))
-        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 1
-
-    def test_valid_redundant_input_port_keywords_detected(self):
-        model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "valid")), "CoCoInputPortWithRedundantTypes.nestml"))
         assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 0
 
     def test_invalid_parameters_assigned_only_in_parameters_block(self):
@@ -350,11 +329,6 @@ class TestCoCos:
         model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "valid")), "CoCoOutputPortDefinedIfEmitCall.nestml"))
         assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 0
 
-    def test_invalid_output_port_type_continuous(self):
-        """test that an error is raised when a continous-time output port is defined as having attributes."""
-        model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")), "CoCoOutputPortTypeContinuous.nestml"))
-        assert model is None    # should result in a parse error
-
     def test_valid_coco_kernel_type(self):
         """
         Test the functionality of CoCoKernelType.
@@ -448,4 +422,16 @@ class TestCoCos:
         model = parse_and_validate_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")),
                          "CoCoAssignmentToUnitTypeAlt.nestml"))
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) > 0
+
+    def test_input_ports_appear_only_in_equation_rhs_and_event_handlers_valid(self):
+        model = parse_and_validate_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "valid")),
+                         "CoCoSpikeInputPortsAppearOnlyInEquationRHSAndEventHandlers.nestml"))
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 0
+
+    def test_input_ports_appear_only_in_equation_rhs_and_event_handlers_invalid(self):
+        model = parse_and_validate_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")),
+                         "CoCoSpikeInputPortsAppearOnlyInEquationRHSAndEventHandlers.nestml"))
         assert len(Logger.get_messages(model, LoggingLevel.ERROR)) > 0

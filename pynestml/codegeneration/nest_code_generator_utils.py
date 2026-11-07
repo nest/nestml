@@ -36,10 +36,14 @@ class NESTCodeGeneratorUtils:
     @classmethod
     def print_symbol_origin(cls, variable_symbol: VariableSymbol, variable: ASTVariable) -> str:
         r"""
-        Returns a prefix corresponding to the origin of the variable symbol.
-        :param variable_symbol: a single variable symbol.
-        :return: the corresponding prefix
+        Returns a format string, that takes in one string, and prefixes it corresponding to the origin of the variable symbol.
+        :param variable_symbol: a single variable symbol
+        :return: the corresponding format string
         """
+        if variable_symbol.is_spike_input_port():
+            # spiking input port names always refer to local variables
+            return "%s"
+
         if variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
             if "_is_numeric" in dir(variable) and variable._is_numeric:
                 return "S_.ode_state[State_::%s]"
@@ -55,7 +59,7 @@ class NESTCodeGeneratorUtils:
         if variable_symbol.block_type == BlockType.INTERNALS:
             return "V_.%s"
 
-        return ""
+        return "%s"
 
     @classmethod
     def generate_code_for(cls,

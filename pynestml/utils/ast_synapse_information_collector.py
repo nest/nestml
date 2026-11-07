@@ -966,7 +966,7 @@ class ASTOnReceiveBlockVisitor(ASTVisitor):
 
     def visit_on_receive_block(self, node):
         self.inside_on_receive = True
-        if node.port_name in self.port_name:
+        if node.get_input_port_variable().get_name() in self.port_name:
             self.on_receive_block = node.clone()
 
     def endvisit_on_receive_block(self, node):

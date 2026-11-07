@@ -120,12 +120,11 @@ model aeif_cond_alpha_neuron:
 
         # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude conductance excursion
         PSConInit_I nS/ms = 1 nS * e / tau_syn_inh
-
-        unit_psg nS = 1 nS    # Unitary postsynaptic conductance amplitude
+        unit_psg nS = 1 nS         # Unitary postsynaptic conductance amplitude
 
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:
