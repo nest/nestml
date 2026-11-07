@@ -104,7 +104,6 @@ model hill_tononi_neuron:
         # The spike current is only activate immediately after a spike.
         inline I_spike mV = (g_spike) ? -(V_m - E_K) / Tau_spike * 1 ms : 0 mV
         V_m' = ((I_Na + I_K + I_syn + I_NaP + I_KNa + I_T + I_h + I_e + I_stim) / Tau_m + I_spike * 1 pA / (1 ms * 1 mV)) * 1 s/nF
-
         potassium_refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero, at a rate of one (milli)second per (milli)second
 
         #############
