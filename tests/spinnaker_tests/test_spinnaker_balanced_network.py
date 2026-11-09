@@ -391,7 +391,7 @@ class TestSpiNNakerBalancedNetwork:
         from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml
 
         # network parameters
-        eta = 1.2    # the ratio between external rate and threshold rate
+        eta = 0.9    # the ratio between external rate and threshold rate
         g = 10.    # the ratio between excitation and inhibition
 
         # simulation parameters

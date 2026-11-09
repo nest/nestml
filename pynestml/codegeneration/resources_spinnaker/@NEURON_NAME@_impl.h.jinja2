@@ -199,9 +199,9 @@ void on_receive_block_{{ blk.get_input_port_variable().get_name() }}(neuron_stat
 {%-             include "directives_cpp/StmtsBody.jinja2" %}
 {%-         endfilter %}
 */
-{%- if "exc" in blk.port_name %}
+{%- if "exc" in blk.input_port_variable.get_name() %}
     state->I_syn_exc += input->inputs[EXC_SPIKES];
-{%- elif "inh" in blk.port_name %}
+{%- elif "inh" in blk.input_port_variable.get_name() %}
     state->I_syn_inh += input->inputs[INH_SPIKES];
 {%- endif %}
 
