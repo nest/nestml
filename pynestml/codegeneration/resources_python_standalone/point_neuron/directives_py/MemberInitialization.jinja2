@@ -7,12 +7,12 @@
 {%-   if variable_symbol.has_vector_parameter() %}
 {{ printer.print_vector_declaration(variable_symbol) }}
 {%-   else %}
-{{ printer.print(variable) }} = {{ printer.print(variable_symbol.get_declaring_expression()) }}  # type: {{variable_symbol.get_type_symbol().print_symbol()}}
+{{ printer.print(variable) }} = {{ printer.print(variable_symbol.get_declaring_expression()) }}  # type: {{ unit_converter.print_unit(variable_symbol.get_type_symbol()) }}
 {%-   endif %}
 {%- else %}
 {%-   if variable_symbol.has_vector_parameter() %}
-{{ printer.print(variable) }} = [] # type: {{ variable_symbol.get_type_symbol().print_symbol() }}
+{{ printer.print(variable) }} = [] # type: {{ unit_converter.print_unit(variable_symbol.get_type_symbol()) }}
 {%-   else %}
-{{ printer.print(variable) }} = 0 # type: {{ variable_symbol.get_type_symbol().print_symbol() }}
+{{ printer.print(variable) }} = 0 # type: {{ unit_converter.print_unit(variable_symbol.get_type_symbol()) }}
 {%-   endif -%}
 {%- endif -%}

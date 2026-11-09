@@ -116,7 +116,11 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
 
         # ODE-toolbox analysis
         from pynestml.transformers.ode_toolbox_transformer import ODEToolboxTransformer
-        transformer = ODEToolboxTransformer()
+        if target_name.upper() == "PYTHON_STANDALONE":
+            from pynestml.codegeneration.python_standalone_unit_converter import PythonStandaloneUnitConverter
+            transformer = ODEToolboxTransformer(unit_converter=PythonStandaloneUnitConverter)
+        else:
+            transformer = ODEToolboxTransformer()
         if target_name.upper() == "GENN":
             options["ode_toolbox_json_options"] = {"propagators_prefix": "P",    # GeNN does not support variable names that start with an underscore; hence, override the default "__P"
                                                    "output_timestep_symbol": "dt"}

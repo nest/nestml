@@ -28,7 +28,6 @@ import uuid
 from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.type_symbol import TypeSymbol
-from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.utils.logger import Logger
@@ -41,10 +40,7 @@ class NESTCodeGeneratorUtils:
         r"""
         Returns the unit in which NEST stores values of the given type; for instance, ``mV`` for the quantity "voltage". For non-physical types, the name of the type is returned (e.g. ``real``).
         """
-        if isinstance(type_symbol, UnitTypeSymbol):
-            return str(NESTUnitConverter.get_preferred_unit(type_symbol.astropy_unit))
-
-        return type_symbol.print_symbol()
+        return NESTUnitConverter.print_unit(type_symbol)
 
     @classmethod
     def print_symbol_origin(cls, variable_symbol: VariableSymbol, variable: ASTVariable) -> str:

@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Iterable, Mapping, Optional
+from typing import Any, Dict, Iterable, Mapping, Optional, Type
 
 try:
     # Available in the standard library starting with Python 3.12
@@ -32,6 +32,7 @@ except ImportError:
 
 import odetoolbox
 
+from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
 from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
@@ -42,6 +43,7 @@ from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.transformers.transformer import Transformer
+from pynestml.codegeneration.unit_converter import UnitConverter
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 
@@ -72,7 +74,10 @@ class ODEToolboxTransformer(Transformer):
         "disable_singularity_detection": False
     }
 
-    def __init__(self, options: Optional[Mapping[str, Any]] = None):
+    def __init__(self, options: Optional[Mapping[str, Any]] = None, unit_converter: Type[UnitConverter] = NESTUnitConverter):
+        r"""
+        :param unit_converter: The system of physical units of the target platform. The expressions passed to ODE-toolbox (and thus the expressions returned by it, which end up in the generated code) are in the preferred units of this unit converter.
+        """
         super(Transformer, self).__init__(options)
 
         # ODE-toolbox printers
@@ -81,7 +86,8 @@ class ODEToolboxTransformer(Transformer):
         self._ode_toolbox_function_call_printer = ODEToolboxFunctionCallPrinter(None)
         self._ode_toolbox_printer = ODEToolboxExpressionPrinter(simple_expression_printer=SympySimpleExpressionPrinter(variable_printer=self._ode_toolbox_variable_printer,
                                                                                                                        constant_printer=self._constant_printer,
-                                                                                                                       function_call_printer=self._ode_toolbox_function_call_printer))
+                                                                                                                       function_call_printer=self._ode_toolbox_function_call_printer,
+                                                                                                                       unit_converter=unit_converter))
         self._ode_toolbox_variable_printer._expression_printer = self._ode_toolbox_printer
         self._ode_toolbox_function_call_printer._expression_printer = self._ode_toolbox_printer
 

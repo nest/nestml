@@ -62,7 +62,7 @@
 model izhikevich_neuron:
     state:
         V_m "voltage" = V_m_init         # Membrane potential
-        U_m real = b * V_m_init   # Membrane potential recovery variable
+        U_m real = b * V_m_init / 1 mV   # Membrane potential recovery variable
 
     equations:
         V_m' = (0.04 * V_m * V_m / 1 mV + 5 * V_m + (140 - U_m) * 1 mV + ((I_e + I_stim) * 1 GOhm)) / 1 ms

@@ -21,12 +21,12 @@
 
 from typing import Any, Dict, Mapping, Optional
 
-from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.python_expression_printer import PythonExpressionPrinter
 from pynestml.codegeneration.printers.python_stepping_function_function_call_printer import PythonSteppingFunctionFunctionCallPrinter
 from pynestml.codegeneration.printers.python_stepping_function_variable_printer import PythonSteppingFunctionVariablePrinter
 from pynestml.codegeneration.python_code_generator_utils import PythonCodeGeneratorUtils
+from pynestml.codegeneration.python_standalone_unit_converter import PythonStandaloneUnitConverter
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.codegeneration.printers.python_type_symbol_printer import PythonTypeSymbolPrinter
@@ -40,6 +40,8 @@ from pynestml.utils.ast_utils import ASTUtils
 class PythonStandaloneCodeGenerator(NESTCodeGenerator):
     r"""
     Code generator for a standalone Python target.
+
+    All physical values are stored as plain numbers in SI units (see :py:class:`PythonStandaloneUnitConverter`): voltages in V, currents in A, times in s, and so on.
 
     Options:
 
@@ -92,21 +94,23 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
         self._constant_printer = ConstantPrinter()
 
         # Python/mini simulation environment API printers
-        self._nest_variable_printer = PythonVariablePrinter(expression_printer=None, with_origin=True, with_vector_parameter=True)
+        self._nest_variable_printer = PythonVariablePrinter(expression_printer=None, with_origin=True, with_vector_parameter=True, unit_converter=PythonStandaloneUnitConverter)
         self._nest_function_call_printer = PythonFunctionCallPrinter(None)
         self._nest_function_call_printer_no_origin = PythonFunctionCallPrinter(None)
 
         self._printer = PythonExpressionPrinter(simple_expression_printer=PythonSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
                                                                                                         constant_printer=self._constant_printer,
-                                                                                                        function_call_printer=self._nest_function_call_printer))
+                                                                                                        function_call_printer=self._nest_function_call_printer,
+                                                                                                        unit_converter=PythonStandaloneUnitConverter))
         self._nest_variable_printer._expression_printer = self._printer
         self._nest_function_call_printer._expression_printer = self._printer
         self._nest_printer = PythonStandalonePrinter(expression_printer=self._printer)
 
-        self._nest_variable_printer_no_origin = PythonVariablePrinter(None, with_origin=False, with_vector_parameter=False)
+        self._nest_variable_printer_no_origin = PythonVariablePrinter(None, with_origin=False, with_vector_parameter=False, unit_converter=PythonStandaloneUnitConverter)
         self._printer_no_origin = PythonExpressionPrinter(simple_expression_printer=PythonSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
                                                                                                                   constant_printer=self._constant_printer,
-                                                                                                                  function_call_printer=self._nest_function_call_printer_no_origin))
+                                                                                                                  function_call_printer=self._nest_function_call_printer_no_origin,
+                                                                                                                  unit_converter=PythonStandaloneUnitConverter))
         self._nest_variable_printer_no_origin._expression_printer = self._printer_no_origin
         self._nest_function_call_printer_no_origin._expression_printer = self._printer_no_origin
 
@@ -115,7 +119,8 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
         self._gsl_function_call_printer = PythonSteppingFunctionFunctionCallPrinter(None)
         self._gsl_printer = PythonExpressionPrinter(simple_expression_printer=PythonSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
                                                                                                             constant_printer=self._constant_printer,
-                                                                                                            function_call_printer=self._gsl_function_call_printer))
+                                                                                                            function_call_printer=self._gsl_function_call_printer,
+                                                                                                            unit_converter=PythonStandaloneUnitConverter))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
         self._gsl_variable_printer._expression_printer = self._gsl_printer
 
@@ -123,7 +128,7 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
         namespace = super()._get_model_namespace(astnode, metadata)
         namespace["python_codegen_utils"] = PythonCodeGeneratorUtils
         namespace["gsl_printer"] = self._gsl_printer
-        namespace["NESTUnitConverter"] = NESTUnitConverter
+        namespace["unit_converter"] = PythonStandaloneUnitConverter
         namespace["ASTUtils"] = ASTUtils
         namespace["ASTModel"] = ASTModel
 
