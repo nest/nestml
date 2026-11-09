@@ -418,7 +418,7 @@ class TestSpiNNakerBalancedNetwork:
         weight_inh = -g * weight_exc
         weight_input = weight_exc   # balance between the external and recurrent drive
 
-        nu_thr = 1e3 * (V_th - E_L) * C_m / (weight_input * tau_syn * tau_m * K_ext)   # Hz, ≈ 15.6 Hz here
+        nu_thr = 1e3 * (V_th - E_L) * C_m / (weight_input * tau_syn * tau_m * K_ext)   # [Hz]
         print("nu_thr = " + str(nu_thr) + " Hz")
         rate_ext_input = eta * K_ext * nu_thr    # external input rate (eta parameter) [s⁻¹]
 

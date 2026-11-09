@@ -56,6 +56,13 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
         self.with_vector_parameter = with_vector_parameter
         self._state_symbols = []
         self.variables_special_cases = variables_special_cases
+        self.buffers_are_zero = True
+        self.cpp_variable_suffix = ""
+
+    def set_cpp_variable_suffix(self, s):
+        r"""Returns the empty string, because this method can be called from inside the Jinja template"""
+        self.cpp_variable_suffix = s
+        return ""
 
     def set_with_origin(self, with_origin):
         self.with_origin = with_origin
@@ -132,6 +139,14 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
         assert not symbol.is_kernel(), "Cannot print kernel; kernel should have been converted during code generation"
 
         return self._print(node, symbol, with_origin=self.with_origin) + vector_param
+
+    def set_buffers_to_zero(self, buffers_are_zero: bool):
+        r"""Input spikes that appear on the right-hand side of an ODE are not necessarily processed when the the ODE is solved, but in an event-based manner. The flag ``buffers_are_zero`` can be used to print spiking input port names as zeros when printing the right-hand side of ODEs. (N.B.: instead of a ``self.buffers_are_zero`` flag, this could alternatively also be done by subclassing the NESTVariablePrinter class.)
+
+        Returns the empty string, because this method can be called from inside the Jinja template.
+        """
+        self.buffers_are_zero = buffers_are_zero
+        return ""
 
     def _print_delay_variable(self, variable: ASTVariable) -> str:
         """
