@@ -33,6 +33,16 @@ After the code has been generated, a simple test can can be run by calling:
    python3 test_python_standalone_module.py
 
 
+Physical units
+~~~~~~~~~~~~~~
+
+The generated Python code represents all physical values as plain numbers in SI units, without prefixes: voltages are in V, currents in A, times in s, conductances in S, capacitances in F, and so on (see :ref:`Physical units in the generated code`). For instance, a parameter declared as ``V_th "voltage" = -55 mV`` has the value ``-0.055`` in the generated code, and the membrane potential is recorded in V. The simulator also works in seconds: the default timestep (``Simulator.timestep``) is :math:`10^{-4}~\text{s}`, and the time passed to ``Simulator.run()`` and the intervals of the ``SpikeGenerator`` are in seconds.
+
+Spike weights are plain numbers; the physical unit of the effect of a spike is determined by the model (for instance, by multiplying the weight by a parameter ``unit_psc "current" = 1 pA``).
+
+The system of units is defined by :class:`pynestml.codegeneration.python_standalone_unit_converter.PythonStandaloneUnitConverter`.
+
+
 Code generation options
 ~~~~~~~~~~~~~~~~~~~~~~~
 
