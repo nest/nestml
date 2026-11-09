@@ -2117,12 +2117,13 @@ class ASTUtils:
                     input_spikes_name = input_spikes_name.split("__d")[0]
                     input_spikes = ASTUtils.get_input_port_by_name(model.get_input_blocks(), input_spikes_name)
                     type_str = "real"
+                    expr = "0"    # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is 0 (property of the convolution)
                     if input_spikes:
                         differential_order: int = len(re.findall("__d", var_name))
                         if differential_order:
-                            type_str = "(s**-" + str(differential_order) + ")"
+                            type_str = "\"time**-" + str(differential_order) + "\""
+                            expr = "0 (s**-" + str(differential_order) + ")"
 
-                    expr = "0 " + type_str    # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is 0 (property of the convolution)
                     if not cls.declaration_in_state_block(model, var_name):
                         cls.add_declaration_to_state_block(model, var_name, expr, type_str)
 

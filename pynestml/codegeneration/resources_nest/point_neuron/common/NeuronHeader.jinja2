@@ -327,14 +327,14 @@ public:
   The following parameters can be set in the status dictionary.
 {% for parameter in neuron.get_parameter_symbols() -%}
 {%     if parameter.has_comment() -%}
-    {{parameter.get_symbol_name()}} [{{parameter.get_type_symbol().print_symbol()}}] {{parameter.print_comment()}}
+    {{parameter.get_symbol_name()}} [{{ nest_codegen_utils.print_nest_unit(parameter.get_type_symbol()) }}] {{parameter.print_comment()}}
 {%     endif -%}
 {% endfor %}
 
   Dynamic state variables:
 {% for state in neuron.get_state_symbols() -%}
 {%     if state.has_comment() -%}
-    {{state.get_symbol_name()}} [{{state.get_type_symbol().print_symbol()}}] {{state.print_comment()}}
+    {{state.get_symbol_name()}} [{{ nest_codegen_utils.print_nest_unit(state.get_type_symbol()) }}] {{state.print_comment()}}
 {%     endif -%}
 {% endfor %}
 

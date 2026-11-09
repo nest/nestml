@@ -29,7 +29,7 @@ from pynestml.codegeneration.nest_tools import NESTTools
 
 
 class TestAssignmentToUnitType:
-    """Sanity test for several predefined maths functions: log10(), ln(), erf(), erfc()"""
+    """Check that assigning a value in a different unit (``V = 1 V``) to a variable of the corresponding quantity (``V "voltage"``) yields the correct value in NEST units."""
 
     def test_math_function(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "CoCoAssignmentToUnitTypeAlt.nestml")))
@@ -59,4 +59,5 @@ class TestAssignmentToUnitType:
 
         V_log = mm.get("events")["V"]
 
-        np.testing.assert_allclose(V_log[-1], 1E6)
+        # the model assigns ``V = 1 V``; NEST stores voltages in mV
+        np.testing.assert_allclose(V_log[-1], 1E3)
