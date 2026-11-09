@@ -53,7 +53,7 @@ class UnitConverter:
     _PREFIXES: List[str] = ["", "Y", "Z", "E", "P", "T", "G", "M", "k", "h", "da", "d", "c", "m", "u", "n", "p", "f", "a", "z", "y"]
 
     @classmethod
-    def _si_exponents(cls, unit: units.UnitBase) -> np.ndarray:
+    def get_si_exponents(cls, unit: units.UnitBase) -> np.ndarray:
         r"""Returns the exponents of the SI base units (in the order of ``_SI_BASE_UNITS``) of the dimension of ``unit``."""
         si_unit = units.Unit(unit).decompose()
         exponents = np.zeros(len(cls._SI_BASE_UNITS))
@@ -77,7 +77,7 @@ class UnitConverter:
         return non_base_part
 
     @classmethod
-    def _get_base_matrix_inverse(cls) -> np.ndarray:
+    def get_base_matrix_inverse(cls) -> np.ndarray:
         r"""
         Returns the inverse of the matrix :math:`B` whose columns are the physical dimensions of the base quantities in ``PREFERRED_UNITS``, expressed in terms of the SI base dimensions. This matrix is used by :py:meth:`get_preferred_unit` to express any physical dimension in terms of the base quantities.
 
@@ -87,7 +87,7 @@ class UnitConverter:
 
            \mathrm{m}^{v_1} \, \mathrm{kg}^{v_2} \, \mathrm{s}^{v_3} \, \mathrm{A}^{v_4} \, \mathrm{K}^{v_5} \, \mathrm{mol}^{v_6} \, \mathrm{cd}^{v_7}
 
-        and can thus be represented by the vector of exponents :math:`\mathbf{v} = (v_1, \ldots, v_7)^T \in \mathbb{Q}^7` (see :py:meth:`_si_exponents`). For example, volt and siemens are
+        and can thus be represented by the vector of exponents :math:`\mathbf{v} = (v_1, \ldots, v_7)^T \in \mathbb{Q}^7` (see :py:meth:`get_si_exponents`). For example, volt and siemens are
 
         .. math::
 
@@ -133,7 +133,7 @@ class UnitConverter:
         if cls not in UnitConverter._base_matrix_inverse_cache:
             from pynestml.symbols.predefined_quantities import PredefinedQuantities
             assert cls.PREFERRED_UNITS, "No preferred units defined for " + cls.__name__
-            base_dimensions = np.array([cls._si_exponents(PredefinedQuantities.get_unit(quantity)) for quantity in cls.PREFERRED_UNITS.keys()]).T
+            base_dimensions = np.array([cls.get_si_exponents(PredefinedQuantities.get_unit(quantity)) for quantity in cls.PREFERRED_UNITS.keys()]).T
             assert base_dimensions.shape == (len(cls._SI_BASE_UNITS), len(cls._SI_BASE_UNITS)) and np.linalg.matrix_rank(base_dimensions) == len(cls._SI_BASE_UNITS), \
                 "Preferred units of " + cls.__name__ + " must be given for a set of independent base quantities that span all SI dimensions"
             UnitConverter._base_matrix_inverse_cache[cls] = np.linalg.inv(base_dimensions)
@@ -148,7 +148,7 @@ class UnitConverter:
         :param unit: an astropy unit
         :return: the preferred unit of the same physical dimension
         """
-        exponents = cls._get_base_matrix_inverse() @ cls._si_exponents(unit)
+        exponents = cls.get_base_matrix_inverse() @ cls.get_si_exponents(unit)
         preferred_unit = cls._non_base_part(unit)
         for preferred_base_unit, exponent in zip(cls.PREFERRED_UNITS.values(), exponents):
             exponent = Fraction(exponent).limit_denominator(1000)

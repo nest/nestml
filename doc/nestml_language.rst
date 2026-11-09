@@ -16,7 +16,7 @@ NESTML uses Python-like indentation to group statements into blocks. Leading whi
    model test:
        state:
            foo integer = 42
-           bar s = 0 s
+           bar "time" = 0 s
 
        update:
            if foo > 42:
@@ -30,8 +30,8 @@ Similar to Python, a single line can be split into multiple lines by using a bac
 
    model test:
        state:
-           tau ms = 42 ms
-           foo s = 0 s
+           tau "time" = 42 ms
+           foo "time" = 0 s
 
        update:
            foo = tau > 0 \
@@ -42,7 +42,7 @@ Similar to Python, a single line can be split into multiple lines by using a bac
 Data types and physical units
 -----------------------------
 
-Data types define types of variables, as well as parameters and return values of functions. NESTML provides the following primitive types and physical data types, which can both be used to indicate types.
+Data types define types of variables, as well as parameters and return values of functions. NESTML provides primitive data types (such as ``real`` and ``integer``) as well as physical quantities (such as ``"voltage"`` and ``"time"``), which can both be used to indicate types. Physical *units* (such as ``mV`` and ``ms``), on the other hand, are used to write down values: they appear in numeric literals such as ``-70 mV``, and in the declaration of continuous-time input ports.
 
 
 Primitive data types
@@ -55,10 +55,102 @@ Primitive data types
 -  ``void`` can only be used in the declaration of a function to indicate that it does not return a value.
 
 
+Physical quantities
+~~~~~~~~~~~~~~~~~~~
+
+The type of a variable that represents a physical value is given by its physical quantity, enclosed in double quotes:
+
+.. code-block:: nestml
+
+   state:
+       V_m "voltage" = -70 mV
+
+   parameters:
+       tau_m "time" = 10 ms
+       g_L "conductance" = 16.7 nS
+       slope "capacitance / voltage / time" = 8 pF/mV/ms
+
+A physical quantity only fixes the *dimension* of a variable, not its unit. For instance, ``V_m`` above can be assigned any voltage: ``V_m = -0.07 V`` and ``V_m = -70 mV`` are equivalent. The magnitude of a value is determined entirely by the unit in the numeric literal (see :ref:`Numeric literals with a physical unit`); when code is generated, all values are converted into the units used by the target platform (see :ref:`Physical units in the generated code`).
+
+The following physical quantities are known. Several quantities can be referred to by alternative names; these are fully equivalent. The coherent SI unit is given for reference.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 10
+
+   * - Quantity (and alternative names)
+     - SI unit
+   * - ``"time"``
+     - s
+   * - ``"length"``
+     - m
+   * - ``"mass"``
+     - kg
+   * - ``"current"``, ``"electrical current"``, ``"electric current"``
+     - A
+   * - ``"temperature"``
+     - K
+   * - ``"amount of substance"``
+     - mol
+   * - ``"luminous intensity"``
+     - cd
+   * - ``"frequency"``
+     - Hz
+   * - ``"voltage"``, ``"electrical potential"``, ``"electric potential"``
+     - V
+   * - ``"charge"``, ``"electrical charge"``, ``"electric charge"``
+     - C
+   * - ``"resistance"``, ``"electrical resistance"``
+     - Ohm
+   * - ``"conductance"``, ``"electrical conductance"``
+     - S
+   * - ``"capacitance"``, ``"electrical capacitance"``
+     - F
+   * - ``"inductance"``
+     - H
+   * - ``"magnetic flux"``
+     - Wb
+   * - ``"magnetic flux density"``
+     - T
+   * - ``"force"``
+     - N
+   * - ``"energy"``
+     - J
+   * - ``"power"``
+     - W
+   * - ``"pressure"``
+     - Pa
+   * - ``"area"``
+     - m\ :sup:`2`
+   * - ``"volume"``
+     - m\ :sup:`3`
+   * - ``"velocity"``, ``"speed"``
+     - m/s
+   * - ``"acceleration"``
+     - m/s\ :sup:`2`
+   * - ``"concentration"``, ``"molar concentration"``
+     - mol/m\ :sup:`3`
+
+Quantities can be combined into expressions, using the same operators as for physical units (see :ref:`Physical units`): ``*`` (multiplication), ``/`` (division), ``**`` (power) and parentheses. For example:
+
+.. code-block:: nestml
+
+   parameters:
+       alpha "1 / time" = 0.02 ms**-1
+       D_noise "conductance**2 / time" = 0.1 nS**2/ms
+       foo "time**-(1/2)" = 42 ns**-(1/2)
+       bar "(amount of substance)**2" = 1.5 mol**2
+       V_th "current * resistance" = -55 mV    # equivalent to "voltage"
+
+Quantity names may consist of several words separated by spaces (such as ``"amount of substance"``); such a name needs to be put in parentheses when it is raised to a power. As for physical units, a numeric factor is only allowed in the numerator of a division if it equals one, as in ``"1 / time"``. Unknown quantities (for instance, a typo as in ``"voltaeg"``) and malformed expressions are reported as errors.
+
+The type of continuous-time input ports is specified as a physical unit rather than a quantity (see :ref:`Continuous-time input ports`).
+
+
 Physical units
 ~~~~~~~~~~~~~~
 
-A physical unit in NESTML can be either a base physical unit or a derived physical unit. The following table lists the seven base units as defined in `the SI standard <https://en.wikipedia.org/wiki/International_System_of_Units>`__.
+Physical units are used in numeric literals (such as ``-70 mV``; see :ref:`Numeric literals with a physical unit`) and in the declaration of continuous-time input ports (such as ``I_stim pA <- continuous``; see :ref:`Continuous-time input ports`). A physical unit in NESTML can be either a base physical unit or a derived physical unit. The following table lists the seven base units as defined in `the SI standard <https://en.wikipedia.org/wiki/International_System_of_Units>`__.
 
 ========  ======  ===================
 Name      Symbol  Quantity
@@ -192,11 +284,11 @@ NESTML also supports the usage of many named derived units such as Newton, Henry
      - mol⋅(s\ :sup:`−1`\ )
 
 
-These unit symbols can be used to define physical quantites, for instance:
+These unit symbols can be used to write down values of physical quantities, for instance:
 
 .. code-block:: nestml
 
-   x N/A = 10 N * 22 Ohm / 0.5 V
+   x "force / current" = 10 N * 22 Ohm / 0.5 V
 
 Physical units can have at most one of the following magnitude prefixes:
 
@@ -252,13 +344,64 @@ Numeric literals with a physical unit can appear as constants in any expression,
 
 .. code-block:: nestml
 
-   V_m mV = I_syn * 55 MOhm
+   V_m "voltage" = I_syn * 55 MOhm
+
+A physical unit always needs to be preceded by a number: a unit may not appear on its own in an expression. To convert a value into a plain number, divide it by a literal; for instance, write ``V_m / 1 mV`` rather than ``V_m / mV``.
 
 
 Type and unit checks
 ~~~~~~~~~~~~~~~~~~~~
 
-NESTML checks type correctness of all expressions. This also applies to assignments, declarations with an initialization, ODEs, and function calls. Conversion of ``integer``\ s to ``real``\ s is allowed. A conversion between ``unit``-typed and ``real``-typed variables is also allowed. However, these conversions are reported as warnings. No conversion is allowed between numeric types and Boolean or string types.
+NESTML checks type correctness of all expressions. This also applies to assignments, declarations with an initialization, ODEs, and function calls.
+
+Physical types are compared by their dimension only. A literal ``-70 mV``, a literal ``-0.07 V`` and a variable declared as ``"voltage"`` all have the same type, so that, for instance, a voltage can be assigned to a variable of quantity ``"voltage"`` irrespective of the unit in which it is written down, and a voltage in mV can be added to a voltage in V. The magnitude of the units is taken into account in the value of each literal, so that no conversion factors are needed anywhere in the model. Values of different dimensions cannot be added, subtracted or assigned to each other; for instance, assigning a current to a variable of quantity ``"voltage"`` is an error. Comparing values of different dimensions results in a warning. The type of the result of a multiplication, division or power follows from the dimensions of its operands; for instance, ``g_L * (V_m - E_L)`` has the dimension of a current if ``g_L`` is a conductance and ``V_m`` and ``E_L`` are voltages. Dimensionless results, such as ``V_m / 1 mV``, are of type ``real``.
+
+Conversion of ``integer``\ s to ``real``\ s is allowed. A conversion between physically-typed and ``real``-typed values is also allowed, but reported as a warning. Such conversions should be avoided, as the resulting number depends on the units used by the target platform: for instance, the value of a voltage converted to a real number is expressed in mV when generating code for NEST, but in V when generating code for the Python-standalone target (see :ref:`Physical units in the generated code`). Instead, make the conversion explicit by dividing by a literal; for instance, rather than
+
+.. code-block:: nestml
+
+   U_m real = b * V_m_init     # not recommended: implicit conversion from voltage to real
+
+write
+
+.. code-block:: nestml
+
+   U_m real = b * V_m_init / 1 mV
+
+No conversion is allowed between numeric types and Boolean or string types.
+
+
+Physical units in the generated code
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As NESTML models are typed by physical quantity, a model does not prescribe in which units its values are stored. When code is generated, all physical values are represented as plain numbers, in a fixed set of units that are preferred by the target platform:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 15 15 15 15 15
+
+   * - Target platform
+     - time
+     - voltage
+     - current
+     - conductance
+     - capacitance
+   * - NEST Simulator (and other NEST-derived targets)
+     - ms
+     - mV
+     - pA
+     - nS
+     - pF
+   * - Python-standalone
+     - s
+     - V
+     - A
+     - S
+     - F
+
+For instance, the declaration ``V_m "voltage" = -70 mV`` results in an initial value of ``-70`` in the code generated for NEST, and ``-0.07`` in the code generated for the Python-standalone target. Hence, parameter values have to be set in these units when the model is instantiated in the simulator, and recorded values are reported in these units.
+
+The preferred units of all other quantities follow from these, such that the system of units is coherent: for NEST, resistance is in GOhm (mV/pA) and charge in fC (pA·ms); for the Python-standalone target, all units are the coherent SI units. Spiking input ports are treated as having the unit 1/ms for NEST and 1/s for the Python-standalone target (see :ref:`Spiking input ports`). For a description of how this is implemented, see :ref:`Physical units and target platforms` in the section :doc:`Extending NESTML <extending>`.
 
 
 Basic elements of the embedded programming language
@@ -289,9 +432,9 @@ Names of functions and input ports must also satisfy this pattern. The type of t
     d integer = 1
     n integer # default value is 0
     e string = "foo"
-    f mV = -2e12 mV
+    f "voltage" = -2e12 mV
 
-It is legal to define a variable (or kernel, or parameter) with the same name as a physical unit, but this could lead to confusion. For example, defining a variable with name ``b`` creates an ambiguity with the physical unit ``b``, a unit of surface area. In these cases, a warning is issued when the model is processed. The variable (or kernel, and parameter) definitions will then take precedence when resolving symbols: all occurrences of the symbol in the model will be resolved to the variable rather than the unit.
+It is legal to define a variable (or kernel, or parameter) with the same name as a physical unit, but this could lead to confusion. For example, defining a variable with name ``b`` creates an ambiguity with the physical unit ``b``, a unit of surface area. In these cases, a warning is issued when the model is processed. The variable (or kernel, and parameter) definitions will then take precedence when resolving symbols, with one exception: a name that directly follows a number as its only unit, as in ``42 ms``, is always interpreted as the physical unit. In all other places, including compound units in numeric literals (such as ``42 pA * ms``), the symbol is resolved to the variable rather than the unit.
 
 For example, the following model will result in one warning and one error:
 
@@ -299,12 +442,13 @@ For example, the following model will result in one warning and one error:
 
    model test:
        state:
-           ms mA = 42 mA   # redefine "ms" (from milliseconds unit to variable name)
-           foo s = 0 s     # foo has units of time (seconds)
+           ms "current" = 42 mA   # WARNING: Variable "ms" has the same name as a physical unit!
+           foo "time" = 0 s       # foo is of physical quantity "time"
 
        update:
-           ms = 1 mA    # WARNING: Variable 'ms' has the same name as a physical unit!
-           foo = 42 ms  # ERROR: Actual type different from expected. Expected: 's', got: 'mA'!
+           ms = 1 mA      # assigns to the variable "ms"
+           foo = 42 ms    # OK: in a numeric literal, "ms" is the unit (milliseconds)
+           foo = 2 * ms   # ERROR: here, "ms" is the variable (a current). Actual type different from expected. Expected: "s", got: "A"!
 
 
 Comments in the model
@@ -327,7 +471,7 @@ To enable NESTML to recognize which element a comment belongs to, the following 
 .. code-block:: nestml
 
    # I am a comment of the membrane potential
-   V_m mV = -55 mV # I am a comment of the membrane potential
+   V_m "voltage" = -55 mV # I am a comment of the membrane potential
 
 If a comment shall be attached to an element, no white lines are allowed.
 
@@ -335,17 +479,17 @@ If a comment shall be attached to an element, no white lines are allowed.
 
    # I am not a comment of the membrane potential.
 
-   V_m mV = -55 mV # I am a comment of the membrane potential
+   V_m "voltage" = -55 mV # I am a comment of the membrane potential
 
 Whitelines are therefore used to separate comment targets:
 
 .. code-block:: nestml
 
    # I am a comment of the membrane potential.
-   V_m mV = -55 mV
+   V_m "voltage" = -55 mV
 
    # I am a comment of the resting potential.
-   V_rest mV = -60 mV
+   V_rest "voltage" = -60 mV
 
 The text of each comment is interpreted as `reStructuredText format <https://docutils.sourceforge.io/rst.html>`_.
 
@@ -880,8 +1024,8 @@ Note that the ``delay`` can be a numeric constant or a constant defined in the `
 .. code-block:: nestml
 
    parameters:
-       tau ms = 3.5 ms
-       delay ms = 5.0 ms
+       tau "time" = 3.5 ms
+       delay "time" = 5.0 ms
 
 For a full example, please refer to the tests at `tests/nest_tests/nest_delay_based_variables_test.py <https://github.com/nest/nestml/blob/main/tests/nest_tests/nest_delay_based_variables_test.py>`_.
 
@@ -905,8 +1049,8 @@ In the ``equations`` block, inline expressions may be used to reduce redundancy,
 
 .. code-block:: nestml
 
-   inline h_inf_T real = 1 / (1 + exp((V_m / mV + 83) / 4))
-   IT_h' = (h_inf_T * nS - IT_h) / tau_h_T / ms
+   inline h_inf_T real = 1 / (1 + exp((V_m / 1 mV + 83) / 4))
+   IT_h' = (h_inf_T * 1 nS - IT_h) / tau_h_T
 
 Because of nested substitutions, inline statements may cause the expressions to grow to large size. In case this becomes a problem, it is recommended to use functions instead.
 
@@ -916,7 +1060,7 @@ The ``recordable`` keyword can be used to make the variable in inline expression
 
    equations:
        ...
-       recordable inline V_m mV = V_rel + E_L
+       recordable inline V_m "voltage" = V_rel + E_L
 
 
 Kernel functions
@@ -933,7 +1077,7 @@ with time constant, for example, equal to 20 ms:
 .. code-block:: nestml
 
    parameters:
-       tau ms = 20 ms
+       tau "time" = 20 ms
 
 All kernels are assumed to start at time :math:`t \geq 0` (that is, the value of a kernel is 0 for :math:`t < 0`; it is not necessary to explicitly enforce this).
 
@@ -1007,9 +1151,9 @@ External input to the model is received through *input ports*. A NESTML model ma
 Continuous-time input ports
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Continuous-time input ports receive a time-varying signal :math:`f(t)` (possibly, a vector :math:`\mathbf{f}(t)`) that is defined for all :math:`t\geq 0`. The physical type of the signal is determined by the units specified in the input port definition.
+Continuous-time input ports receive a time-varying signal :math:`f(t)` (possibly, a vector :math:`\mathbf{f}(t)`) that is defined for all :math:`t\geq 0`.
 
-In the following example, this is used to provide an external input current ``I_stim`` (with units :math:`\text{pA}`) to a neuron:
+In contrast to variables, which are typed by physical quantity (see :ref:`Physical quantities`), the type of a continuous-time input port is given as a physical *unit*. The simulator delivers the signal as a plain number, and the unit specifies how this number is to be interpreted. In the following example, this is used to provide an external input current ``I_stim`` to a neuron, where the incoming numbers are to be interpreted as currents in :math:`\text{pA}`:
 
 .. code-block:: nestml
 
@@ -1019,12 +1163,14 @@ In the following example, this is used to provide an external input current ``I_
    equations:
        V_m' = -V_m / tau_m + ... + I_stim / C_m
 
+In expressions, the input port name can be used as a value of the corresponding physical quantity (in this example, a current). To this end, when the model is processed, every reference to the input port is multiplied by its unit; in the example above, the ODE is processed as ``V_m' = -V_m / tau_m + ... + (I_stim * 1 pA) / C_m``. Continuous-time input ports can also be declared to be of type ``real``, in which case the incoming numbers are used as they are.
+
 The name of the input port can also be used in the ``update`` block, for example, to implement a simple moving average filter that grabs the value of :math:`I_\mathrm{stim}(t)` at the start of the integration interval:
 
 .. code-block:: nestml
 
    state:
-       I_stim_avg pA = 0 pA
+       I_stim_avg "current" = 0 pA
 
    parameters:
        alpha real = 0.99
@@ -1097,17 +1243,17 @@ This can be written in NESTML as:
 
    x' = -x / tau + convolve(K, spikes_pre) / C
 
-Physical units such as millivolts (:math:`\text{mV}`) and picoamperes (:math:`\text{pA}`) can be directly combined with the Dirac delta function to model an impulse with a physical quantity such as voltage or current. In such cases, the Dirac delta function is multiplied by the appropriate unit of the physical quantity to obtain a quantity with units of volts or amperes. For instance, if :math:`I` is in :math:`\mathrm{pA}`, then we can write:
+Physical units such as millivolts (:math:`\text{mV}`) and picoamperes (:math:`\text{pA}`) can be directly combined with the Dirac delta function to model an impulse with a physical quantity such as voltage or current. In such cases, the Dirac delta function is multiplied by a value of the appropriate physical quantity to obtain a quantity with units of volts or amperes. For instance, if :math:`I` is a current, then we can write:
 
 .. code-block:: nestml
 
    internals:
-       unit_psc pA = 1 pA
+       unit_psc "current" = 1 pA
 
    equations:
        I' = -I / tau + unit_psc * spikes_pre
 
-Here, the incoming spike train (``spikes_pre``) is, as before, in units of :math:`\text{s}^{-1}`, and ``unit_psc`` has been defined as an internal parameter having units :math:`\text{pA}`, so that the units match those on the left-hand side, namely, :math:`\text{pA/s}`.
+Here, the incoming spike train (``spikes_pre``) is, as before, in units of :math:`\text{s}^{-1}`, and ``unit_psc`` has been defined as an internal parameter of quantity ``"current"`` (with value :math:`1~\text{pA}`), so that the dimensions match those on the left-hand side, namely, current per time.
 
 
 Handling spiking input by event handlers
@@ -1163,15 +1309,15 @@ For example, to increment a real number ``x`` by the weight of an incoming spike
 
 Integration across time causes the :math:`\text{s}^{-1}` unit of the spike train to drop out, so that what remains is a scalar value (the weight of the spike). If :math:`x` is defined as a real number, the units on the left- and right-hand side are thus consistent.
 
-If a particular physical unit is desired for the increment, for example, millivolts (:math:`\text{mV}`), then the weight of the spike can be multiplied by an internal parameter with the desired unit. For example, to increment a membrane potential ``V_m`` (in :math:`\text{mV}`) by :math:`w~\text{mV}` for every incoming spike with weight :math:`w`, one can write:
+If a particular physical quantity is desired for the increment, for example, a voltage, then the weight of the spike can be multiplied by an internal parameter of that quantity. For example, to increment a membrane potential ``V_m`` (of quantity ``"voltage"``) by :math:`w~\text{mV}` for every incoming spike with weight :math:`w`, one can write:
 
 .. code-block:: nestml
 
    state:
-       V_m mV = -70 mV
+       V_m "voltage" = -70 mV
 
    internals:
-       unit_psp mV = 1 mV
+       unit_psp "voltage" = 1 mV
 
    input:
        in_spikes <- spike
@@ -1280,14 +1426,14 @@ To retrieve timing parameters from the simulator kernel, two special functions a
 
 - ``resolution`` returns the current timestep taken. Can be used only inside the ``update`` block and in intialising expressions. The use of this function assumes that the simulator uses fixed resolution steps, therefore it is recommended to use ``timestep()`` instead in order to make the models more generic.
 - ``timestep`` returns the current timestep taken. Can be used only inside the ``update`` block.
-- ``steps`` takes one parameter of type ``ms`` and returns the number of simulation steps in the current simulation resolution. This only makes sense in case of a fixed simulation resolution (such as in NEST); hence, use of this function is not recommended, because it precludes the models from being compatible with other simulation platforms where a non-constant simulation timestep is used.
+- ``steps`` takes one parameter of physical quantity ``"time"`` and returns the number of simulation steps in the current simulation resolution. This only makes sense in case of a fixed simulation resolution (such as in NEST); hence, use of this function is not recommended, because it precludes the models from being compatible with other simulation platforms where a non-constant simulation timestep is used.
 
 When using ``resolution()``, it is recommended to use the function call directly in the code, rather than defining it as a parameter. This makes the model more robust in case the resolution is changed during the simulation. In some cases, as in the synapse ``update`` block, a step is made between spike events, unconstrained by the simulation resolution. For example:
 
 .. code-block:: nestml
 
    parameters:
-       h ms = resolution()   # !! NOT RECOMMENDED
+       h "time" = resolution()   # !! NOT RECOMMENDED
 
    update:
        # update from t to t + timestep()
@@ -1331,7 +1477,7 @@ e.g.:
 .. code-block:: nestml
 
    parameters:
-       t_ref ms = 5 ms [[t_ref >= 0 ms]] # refractory period cannot be negative
+       t_ref "time" = 5 ms [[t_ref >= 0 ms]] # refractory period cannot be negative
 
 
 References
