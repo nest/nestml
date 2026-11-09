@@ -23,4 +23,4 @@
 #
 model BlockTest:
     state:
-        lhs mV = 10V
+        lhs "voltage" = 10V

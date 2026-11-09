@@ -31,8 +31,8 @@ model dde_analytic:
         foo' = u_bar_plus(t - delay) / tau
 
     parameters:
-        tau ms = 1.5 ms
-        delay ms = 5 ms
+        tau "time" = 1.5 ms
+        delay "time" = 5 ms
         b real = 0
 
     update:

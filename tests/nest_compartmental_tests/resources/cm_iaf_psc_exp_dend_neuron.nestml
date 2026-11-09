@@ -31,7 +31,7 @@ model iaf_psc_exp_cm_dend:
 
     state:
         v_comp real = 0           # Membrane potential
-        refr_t ms = 0 ms          # Refractory period timer
+        refr_t "time" = 0 ms          # Refractory period timer
 
         is_refr real = 0.0
 
@@ -46,17 +46,17 @@ model iaf_psc_exp_cm_dend:
         inline refr real = G_refr * is_refr * (V_reset - v_comp)  @mechanism::channel
 
     parameters:
-        C_m pF = 250 pF           # Capacity of the membrane
-        tau_m ms = 10 ms          # Membrane time constant
-        tau_syn_inh ms = 2 ms     # Time constant of inhibitory synaptic current
-        tau_syn_exc ms = 2 ms     # Time constant of excitatory synaptic current
-        refr_T ms = 5 ms          # Duration of refractory period
-        E_l mV = -70 mV           # Resting potential
-        V_reset mV = -70 mV       # Reset potential of the membrane
-        V_th mV = -55 mV          # Spike threshold potential
+        C_m "capacitance" = 250 pF           # Capacity of the membrane
+        tau_m "time" = 10 ms          # Membrane time constant
+        tau_syn_inh "time" = 2 ms     # Time constant of inhibitory synaptic current
+        tau_syn_exc "time" = 2 ms     # Time constant of excitatory synaptic current
+        refr_T "time" = 5 ms          # Duration of refractory period
+        E_l "voltage" = -70 mV           # Resting potential
+        V_reset "voltage" = -70 mV       # Reset potential of the membrane
+        V_th "voltage" = -55 mV          # Spike threshold potential
 
         # constant external input current
-        I_e pA = 0 pA
+        I_e "current" = 0 pA
 
         G_refr real = 0.
 

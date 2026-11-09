@@ -42,42 +42,42 @@
 #
 model iaf_cond_exp_Istep_neuron:
     state:
-        V_m mV = E_L     # membrane potential
-        refr_t ms = 0 ms    # Refractory period timer
+        V_m "voltage" = E_L     # membrane potential
+        refr_t "time" = 0 ms    # Refractory period timer
         is_refractory boolean = false
         k_step integer = 0       # iterator for step current
-        I_step_now pA = 0 pA  # momentaneous value of step current
+        I_step_now "current" = 0 pA  # momentaneous value of step current
 
     equations:
         kernel g_in = exp(-t / tau_syn_in) # inputs from the inh conductance
         kernel g_ex = exp(-t / tau_syn_ex) # inputs from the exc conductance
 
-        inline I_syn_ex pA = convolve(g_ex, exc_spikes) * unit_psg * (V_m - E_ex)
-        inline I_syn_in pA = convolve(g_in, inh_spikes) * unit_psg * (V_m - E_in)
-        inline I_leak pA = g_L * (V_m - E_L)
+        inline I_syn_ex "current" = convolve(g_ex, exc_spikes) * unit_psg * (V_m - E_ex)
+        inline I_syn_in "current" = convolve(g_in, inh_spikes) * unit_psg * (V_m - E_in)
+        inline I_leak "current" = g_L * (V_m - E_L)
         V_m' = (-I_leak - I_syn_ex - I_syn_in + I_e + I_stim + I_step_now) / C_m
 
     parameters:
-        V_th mV = -55 mV        # Threshold potential
-        V_reset mV = -60 mV     # Reset potential
-        refr_T ms = 2 ms        # Duration of refractory period
-        g_L nS = 16.6667 nS     # Leak conductance
-        C_m pF = 250 pF         # Membrane capacitance
-        E_ex mV = 0 mV          # Excitatory reversal potential
-        E_in mV = -85 mV        # Inhibitory reversal potential
-        E_L mV = -70 mV         # Leak reversal potential (a.k.a. resting potential)
-        tau_syn_ex ms = 0.2 ms  # Synaptic time constant of excitatory synapse
-        tau_syn_in ms = 2 ms    # Synaptic time constant of inhibitory synapse
+        V_th "voltage" = -55 mV        # Threshold potential
+        V_reset "voltage" = -60 mV     # Reset potential
+        refr_T "time" = 2 ms        # Duration of refractory period
+        g_L "conductance" = 16.6667 nS     # Leak conductance
+        C_m "capacitance" = 250 pF         # Membrane capacitance
+        E_ex "voltage" = 0 mV          # Excitatory reversal potential
+        E_in "voltage" = -85 mV        # Inhibitory reversal potential
+        E_L "voltage" = -70 mV         # Leak reversal potential (a.k.a. resting potential)
+        tau_syn_ex "time" = 0.2 ms  # Synaptic time constant of excitatory synapse
+        tau_syn_in "time" = 2 ms    # Synaptic time constant of inhibitory synapse
 
         # constant external input current
-        I_e pA = 0 pA
+        I_e "current" = 0 pA
 
         n_step integer = 1        # length of step current
-        I_step[n_step] pA = 0 pA  # injected current
-        t_step[n_step] ms = 0 ms  # times of step current changes
+        I_step[n_step] "current" = 0 pA  # injected current
+        t_step[n_step] "time" = 0 ms  # times of step current changes
 
     internals:
-        unit_psg nS = 1 nS        # Unitary postsynaptic conductance amplitude
+        unit_psg "conductance" = 1 nS        # Unitary postsynaptic conductance amplitude
 
     input:
         inh_spikes <- spike

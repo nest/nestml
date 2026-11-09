@@ -30,7 +30,7 @@
 #
 model fractional_unit_exponent_neuron:
     parameters:
-        foo ns**(1/2) = 42 ns**(1/2)
+        foo "time**(1/2)" = 42 ns**(1/2)
 
     state:
-        bar ns = foo**3
+        bar "time" = foo**3

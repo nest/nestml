@@ -30,18 +30,31 @@ parser grammar PyNestMLParser;
   // -------------------------------------------------------------------------
 
   /**
-   * ASTDatatype. Represents predefined data types and gives a possibility to use an unit data type.
+   * ASTDatatype. Represents predefined data types, or a physical quantity.
    * @attribute boolean getters for integer, real, ...
-   * @attribute unitType a SI data type
+   * @attribute quantity a physical quantity, enclosed in double quotes, e.g. ``"voltage"``, ``"amount of substance"`` or ``"conductance / time"``
   **/
   dataType : isInt=INTEGER_KEYWORD
            | isReal=REAL_KEYWORD
            | isString=STRING_KEYWORD
            | isBool=BOOLEAN_KEYWORD
            | isVoid=VOID_KEYWORD
-           | unit=unitType;
+           | quantity=STRING_LITERAL;
+
   /**
-   * ASTUnitType. Represents an unit data type. It can be a plain data type as 'mV' or a complex data type as 'mV/s'
+   * ASTDataType for continuous input ports. Here, a physical unit (for instance ``pA``) is given rather than a quantity, as the number arriving at the port has to be interpreted in a specific unit.
+   * @attribute boolean getters for integer, real, ...
+   * @attribute unitType a physical unit, e.g. ``pA``
+  **/
+  inputPortDataType : isInt=INTEGER_KEYWORD
+                    | isReal=REAL_KEYWORD
+                    | isString=STRING_KEYWORD
+                    | isBool=BOOLEAN_KEYWORD
+                    | isVoid=VOID_KEYWORD
+                    | unit=unitType;
+
+  /**
+   * ASTUnitType. Represents a physical unit, as used in numeric literals in expressions. It can be a plain unit such as 'mV' or a compound unit such as 'mV/s'
   **/
   unitTypeExponent : (negative=MINUS?) leftParentheses=LEFT_PAREN num=UNSIGNED_INTEGER divOp=FORWARD_SLASH den=UNSIGNED_INTEGER rightParentheses=RIGHT_PAREN
                    | ( PLUS | MINUS )? (UNSIGNED_INTEGER | FLOAT);
@@ -124,7 +137,7 @@ parser grammar PyNestMLParser;
    * ASTVariable: A variable used in expressions. Can optionally be a vector, and have a differential order associated with it.
    * If it is a vector, the square brackets contain a variable declaration (used for example as in ``onReceive(my_vector_input_port[i integer])``).
    * @attribute name: The name of the variable without the differential order, e.g. ``"V_m"``
-   * @attribute vectorParameter: An optional array parameter, e.g., ``tau_syn ms[n_receptors integer]``.
+   * @attribute vectorParameter: An optional array parameter, e.g., ``tau_syn "time"[n_receptors integer]``.
    * @attribute DIFFERENTIAL_ORDER: The corresponding differential order.
   **/
   variable : name=NAME
@@ -176,7 +189,7 @@ parser grammar PyNestMLParser;
    * @attribute isRecordable: Is true iff. declaration is recordable.
    * @attribute isInlineExpression: Is true iff. declaration is an inline expression.
    * @attribute variable: List with variables.
-   * @attribute datatype: Obligatory data type, e.g., 'real' or 'mV/s'.
+   * @attribute datatype: Obligatory data type, e.g., 'real' or '"voltage / time"'.
    * @attribute rhs: An optional initial expression, e.g., 'a real = 10+10'
    * @attribute invariant: A single, optional invariant expression, e.g., '[a < 21]'
   **/
@@ -314,7 +327,7 @@ parser grammar PyNestMLParser;
 
   continuousInputPort : name = NAME
                         (LEFT_SQUARE_BRACKET sizeParameter=expression RIGHT_SQUARE_BRACKET)?
-                        dataType
+                        inputPortDataType
                         LEFT_ANGLE_MINUS CONTINUOUS_KEYWORD
                         (LEFT_PAREN (parameter (COMMA parameter)*)? RIGHT_PAREN)?
                         NEWLINE;
@@ -332,14 +345,14 @@ parser grammar PyNestMLParser;
    * ASTFunction A single declaration of a user-defined function definition.
    * @attribute name: The name of the function.
    * @attribute parameters: List with function parameters.
-   * @attribute returnType: An arbitrary return type, e.g. string or mV.
+   * @attribute returnType: An arbitrary return type, e.g. string or "voltage".
    * @attribute stmtsBody: Implementation of the function.
   **/
   function: FUNCTION_KEYWORD NAME LEFT_PAREN (parameter (COMMA parameter)*)? RIGHT_PAREN (returnType=dataType)? COLON
             NEWLINE INDENT stmtsBody DEDENT;
 
   /**
-   * ASTParameter represents a single parameter consisting of a name and the corresponding data type, e.g. ``T_in ms``.
+   * ASTParameter represents a single parameter consisting of a name and the corresponding data type, e.g. ``T_in "time"``.
    * @attribute NAME: The name of the parameter.
    * @attribute dataType: The corresponding data type.
   **/

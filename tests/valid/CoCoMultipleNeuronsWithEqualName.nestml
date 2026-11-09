@@ -31,10 +31,10 @@
 #
 model CoCoMultipleNeuronsWithEqualName:
     state:
-        v_m mV = -10 mV
+        v_m "voltage" = -10 mV
 
 
 #
 model CoCoMultipleNeuronsWithEqualNameNot: # names are not equal, thus should not be detected as an error
     state:
-        v_m mV = -10 mV
+        v_m "voltage" = -10 mV

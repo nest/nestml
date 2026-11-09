@@ -26,7 +26,7 @@
 model alpha_function_2nd_order_ode_neuron:
     state:
         x  real = 0
-        x' ms**-1  = 0 ms**-1
+        x' "time**-1"  = 0 ms**-1
         y real = 0
 
     input:

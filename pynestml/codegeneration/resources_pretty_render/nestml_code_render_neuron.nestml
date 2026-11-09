@@ -1,24 +1,24 @@
 model iaf_psc_alpha_neuron:
 
     state:
-        V_m mV = E_L
-        refr_t ms = 0 ms    # Refractory period timer
+        V_m "voltage" = E_L
+        refr_t "time" = 0 ms    # Refractory period timer
         is_refractory boolean = false
 
     equations:
         kernel I_kernel = (e / tau_syn) * t * exp(-t / tau_syn)
-        inline I_syn pA = convolve(I_kernel, spikes) * pA
+        inline I_syn "current" = convolve(I_kernel, spikes) * pA
         V_m' = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
 
     parameters:
-        C_m pF = 250 pF           # Capacitance of the membrane
-        tau_m ms = 10 ms          # Membrane time constant
-        tau_syn ms = 2 ms         # Time constant of synaptic current
-        refr_T  ms = 2 ms         # Duration of refractory period
-        E_L mV = -70 mV           # Resting potential
-        V_reset mV = -70 mV       # Reset potential of the membrane
-        V_th    mV = -55 mV       # Spike threshold potential
-        I_e     pA = 0 pA         # Constant external input current
+        C_m "capacitance" = 250 pF           # Capacitance of the membrane
+        tau_m "time" = 10 ms          # Membrane time constant
+        tau_syn "time" = 2 ms         # Time constant of synaptic current
+        refr_T  "time" = 2 ms         # Duration of refractory period
+        E_L "voltage" = -70 mV           # Resting potential
+        V_reset "voltage" = -70 mV       # Reset potential of the membrane
+        V_th    "voltage" = -55 mV       # Spike threshold potential
+        I_e     "current" = 0 pA         # Constant external input current
 
     input:
         spikes <- spike

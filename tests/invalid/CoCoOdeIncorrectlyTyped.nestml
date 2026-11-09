@@ -32,7 +32,7 @@
 #
 model CoCoOdeIncorrectlyTyped:
     state:
-        V_m mV = 10mV
+        V_m "voltage" = 10mV
 
     equations:
         V_m' = 10 mA

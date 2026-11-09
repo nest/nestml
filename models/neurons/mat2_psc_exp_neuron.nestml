@@ -56,42 +56,42 @@
 #
 model mat2_psc_exp_neuron:
     state:
-        V_th_alpha_1 mV = 0 mV # Two-timescale adaptive threshold
-        V_th_alpha_2 mV = 0 mV # Two-timescale adaptive threshold
+        V_th_alpha_1 "voltage" = 0 mV # Two-timescale adaptive threshold
+        V_th_alpha_2 "voltage" = 0 mV # Two-timescale adaptive threshold
 
-        V_m mV = E_L        # Absolute membrane potential
-        refr_t ms = 0 ms    # Refractory period timer
+        V_m "voltage" = E_L        # Absolute membrane potential
+        refr_t "time" = 0 ms    # Refractory period timer
 
     equations:
         kernel I_kernel_inh = exp(-t / tau_syn_inh)
         kernel I_kernel_exc = exp(-t / tau_syn_exc)
 
-        inline I_syn pA = unit_psc * (convolve(I_kernel_exc, exc_spikes) - convolve(I_kernel_inh, inh_spikes))
+        inline I_syn "current" = unit_psc * (convolve(I_kernel_exc, exc_spikes) - convolve(I_kernel_inh, inh_spikes))
         V_m' = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
         refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero, at a rate of one (milli)second per (milli)second
 
     parameters:
-        tau_m ms = 5 ms          # Membrane time constant
-        C_m pF = 100 pF          # Capacitance of the membrane
-        refr_T ms = 2 ms         # Duration of refractory period
-        E_L mV = -70 mV          # Resting potential
-        tau_syn_exc ms = 1 ms    # Time constant of postsynaptic excitatory currents
-        tau_syn_inh ms = 3 ms    # Time constant of postsynaptic inhibitory currents
-        tau_1 ms = 10 ms         # Short time constant of adaptive threshold
-        tau_2 ms = 200 ms        # Long time constant of adaptive threshold
-        alpha_1 mV = 37 mV       # Amplitude of short time threshold adaptation [3]
-        alpha_2 mV = 2 mV        # Amplitude of long time threshold adaptation [3]
-        omega mV = 19 mV         # Resting spike threshold (absolute value, not relative to E_L)
+        tau_m "time" = 5 ms          # Membrane time constant
+        C_m "capacitance" = 100 pF          # Capacitance of the membrane
+        refr_T "time" = 2 ms         # Duration of refractory period
+        E_L "voltage" = -70 mV          # Resting potential
+        tau_syn_exc "time" = 1 ms    # Time constant of postsynaptic excitatory currents
+        tau_syn_inh "time" = 3 ms    # Time constant of postsynaptic inhibitory currents
+        tau_1 "time" = 10 ms         # Short time constant of adaptive threshold
+        tau_2 "time" = 200 ms        # Long time constant of adaptive threshold
+        alpha_1 "voltage" = 37 mV       # Amplitude of short time threshold adaptation [3]
+        alpha_2 "voltage" = 2 mV        # Amplitude of long time threshold adaptation [3]
+        omega "voltage" = 19 mV         # Resting spike threshold (absolute value, not relative to E_L)
 
         # constant external input current
-        I_e pA = 0 pA
+        I_e "current" = 0 pA
 
     internals:
-        h ms = resolution()
+        h "time" = resolution()
         P11th real = exp(-h / tau_1)
         P22th real = exp(-h / tau_2)
 
-        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+        unit_psc "current" = 1 pA        # Unitary postsynaptic current amplitude
 
     input:
         exc_spikes <- spike

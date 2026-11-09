@@ -32,8 +32,8 @@
 #
 model iaf_psc_exp_multisynapse_neuron:
     state:
-        V_m mV = E_L  # membrane potential
-        refr_t ms = 0 ms    # Refractory period timer
+        V_m "voltage" = E_L  # membrane potential
+        refr_t "time" = 0 ms    # Refractory period timer
         is_refractory boolean = false
 
     equations:
@@ -41,23 +41,23 @@ model iaf_psc_exp_multisynapse_neuron:
         kernel I_kernel2 = (e / tau_syn2) * t * exp(-t / tau_syn2)
         kernel I_kernel3 = -exp(-t / tau_syn3)
 
-        recordable inline I_syn pA = unit_psc * (convolve(I_kernel1, spikes1) + convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3))
+        recordable inline I_syn "current" = unit_psc * (convolve(I_kernel1, spikes1) + convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3))
 
         V_m' = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
 
     parameters:
-        C_m pF = 250 pF           # Capacitance of the membrane
-        tau_m ms = 10 ms          # Membrane time constant
-        tau_syn2 ms = 2ms         # Time constant of synaptic current.
-        tau_syn3 ms = 20ms        # Time constant of synaptic current.
-        refr_T ms = 2 ms          # Duration of refractory period
-        E_L mV = -70 mV           # Resting potential
-        V_reset mV = -70 mV       # Reset value of the membrane potential
-        V_th mV = -55 mV          # Spike threshold potential
-        I_e pA = 0 pA             # External current.
+        C_m "capacitance" = 250 pF           # Capacitance of the membrane
+        tau_m "time" = 10 ms          # Membrane time constant
+        tau_syn2 "time" = 2ms         # Time constant of synaptic current.
+        tau_syn3 "time" = 20ms        # Time constant of synaptic current.
+        refr_T "time" = 2 ms          # Duration of refractory period
+        E_L "voltage" = -70 mV           # Resting potential
+        V_reset "voltage" = -70 mV       # Reset value of the membrane potential
+        V_th "voltage" = -55 mV          # Spike threshold potential
+        I_e "current" = 0 pA             # External current.
 
     internals:
-        unit_psc pA = 1 pA     # Unitary postsynaptic current amplitude
+        unit_psc "current" = 1 pA     # Unitary postsynaptic current amplitude
 
     input:
         spikes1 <- spike

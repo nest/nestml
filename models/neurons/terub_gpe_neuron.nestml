@@ -39,10 +39,10 @@
 #
 model terub_gpe_neuron:
     state:
-        V_m mV = E_L         # Membrane potential
-        V_m_old mV = E_L     # Membrane potential at previous timestep for threshold check
+        V_m "voltage" = E_L         # Membrane potential
+        V_m_old "voltage" = E_L     # Membrane potential at previous timestep for threshold check
 
-        refr_t ms = 0 ms     # Refractory period timer
+        refr_t "time" = 0 ms     # Refractory period timer
 
         gate_h real = 0.0    # gating variable h
         gate_n real = 0.0    # gating variable n
@@ -52,31 +52,31 @@ model terub_gpe_neuron:
     equations:
         # Parameters for Terman Rubin GPe Neuron
 
-        inline g_tau_n_0 ms = 0.05 ms
-        inline g_tau_n_1 ms = 0.27 ms
-        inline g_theta_n_tau mV = -40.0 mV
-        inline g_sigma_n_tau mV = -12.0 mV
+        inline g_tau_n_0 "time" = 0.05 ms
+        inline g_tau_n_1 "time" = 0.27 ms
+        inline g_theta_n_tau "voltage" = -40.0 mV
+        inline g_sigma_n_tau "voltage" = -12.0 mV
 
-        inline g_tau_h_0 ms = 0.05 ms
-        inline g_tau_h_1 ms = 0.27 ms
-        inline g_theta_h_tau mV = -40.0 mV
-        inline g_sigma_h_tau mV = -12.0 mV
-        inline g_tau_r ms = 30.0 ms
+        inline g_tau_h_0 "time" = 0.05 ms
+        inline g_tau_h_1 "time" = 0.27 ms
+        inline g_theta_h_tau "voltage" = -40.0 mV
+        inline g_sigma_h_tau "voltage" = -12.0 mV
+        inline g_tau_r "time" = 30.0 ms
 
         # steady state values for gating variables
 
-        inline g_theta_a mV = -57.0 mV
-        inline g_sigma_a mV = 2.0 mV
-        inline g_theta_h mV = -58.0 mV
-        inline g_sigma_h mV = -12.0 mV
-        inline g_theta_m mV = -37.0 mV
-        inline g_sigma_m mV = 10.0 mV
-        inline g_theta_n mV = -50.0 mV
-        inline g_sigma_n mV = 14.0 mV
-        inline g_theta_r mV = -70.0 mV
-        inline g_sigma_r mV = -2.0 mV
-        inline g_theta_s mV = -35.0 mV
-        inline g_sigma_s mV = 2.0 mV
+        inline g_theta_a "voltage" = -57.0 mV
+        inline g_sigma_a "voltage" = 2.0 mV
+        inline g_theta_h "voltage" = -58.0 mV
+        inline g_sigma_h "voltage" = -12.0 mV
+        inline g_theta_m "voltage" = -37.0 mV
+        inline g_sigma_m "voltage" = 10.0 mV
+        inline g_theta_n "voltage" = -50.0 mV
+        inline g_sigma_n "voltage" = 14.0 mV
+        inline g_theta_r "voltage" = -70.0 mV
+        inline g_sigma_r "voltage" = -2.0 mV
+        inline g_theta_s "voltage" = -35.0 mV
+        inline g_sigma_s "voltage" = 2.0 mV
 
         # time evolvement of gating variables
 
@@ -86,7 +86,7 @@ model terub_gpe_neuron:
 
         # Calcium concentration and afterhyperpolarization current
 
-        inline g_epsilon 1/ms = 0.0001 ms**-1
+        inline g_epsilon "1 / time" = 0.0001 ms**-1
         inline g_k_Ca real = 15.0    # Report: 15, Terman Rubin 2002: 20.0
         inline g_k1 real = 30.0
 
@@ -128,27 +128,27 @@ model terub_gpe_neuron:
         kernel g_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
 
     parameters:
-        E_L mV = -55 mV             # Resting membrane potential
-        g_L nS = 0.1 nS             # Leak conductance
-        C_m pF = 1 pF               # Capacitance of the membrane
-        E_Na mV = 55 mV             # Sodium reversal potential
-        g_Na nS = 120 nS            # Sodium peak conductance
-        E_K mV = -80.0 mV           # Potassium reversal potential
-        g_K nS = 30.0 nS            # Potassium peak conductance
-        E_Ca mV = 120 mV            # Calcium reversal potential
-        g_Ca nS = 0.15 nS           # Calcium peak conductance
-        g_T nS = 0.5 nS             # T-type Calcium channel peak conductance
-        g_ahp nS = 30 nS            # Afterpolarization current peak conductance
-        tau_syn_exc ms = 1 ms       # Rise time of the excitatory synaptic alpha function
-        tau_syn_inh ms = 12.5 ms    # Rise time of the inhibitory synaptic alpha function
-        E_gg mV = -100 mV           # Reversal potential for inhibitory input (from GPe)
-        refr_T ms = 2 ms            # Duration of refractory period
+        E_L "voltage" = -55 mV             # Resting membrane potential
+        g_L "conductance" = 0.1 nS             # Leak conductance
+        C_m "capacitance" = 1 pF               # Capacitance of the membrane
+        E_Na "voltage" = 55 mV             # Sodium reversal potential
+        g_Na "conductance" = 120 nS            # Sodium peak conductance
+        E_K "voltage" = -80.0 mV           # Potassium reversal potential
+        g_K "conductance" = 30.0 nS            # Potassium peak conductance
+        E_Ca "voltage" = 120 mV            # Calcium reversal potential
+        g_Ca "conductance" = 0.15 nS           # Calcium peak conductance
+        g_T "conductance" = 0.5 nS             # T-type Calcium channel peak conductance
+        g_ahp "conductance" = 30 nS            # Afterpolarization current peak conductance
+        tau_syn_exc "time" = 1 ms       # Rise time of the excitatory synaptic alpha function
+        tau_syn_inh "time" = 12.5 ms    # Rise time of the inhibitory synaptic alpha function
+        E_gg "voltage" = -100 mV           # Reversal potential for inhibitory input (from GPe)
+        refr_T "time" = 2 ms            # Duration of refractory period
 
         # constant external input current
-        I_e pA = 0 pA
+        I_e "current" = 0 pA
 
     internals:
-        unit_psg pA = 1 pA        # Unitary postsynaptic conductance amplitude
+        unit_psg "current" = 1 pA        # Unitary postsynaptic conductance amplitude
 
     input:
         exc_spikes <- spike

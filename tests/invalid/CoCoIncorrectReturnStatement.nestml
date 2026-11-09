@@ -30,8 +30,8 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
 model CoCoIncorrectReturnStatement:
-    function foo() mV:
-        test mV = 10mV
+    function foo() "voltage":
+        test "voltage" = 10mV
 
         if test == 10mV:
             return test
@@ -44,11 +44,11 @@ model CoCoIncorrectReturnStatement:
     function noReturn():
         return True # here it should be detected that no return has been specified but a return with a wrong type defined
 
-    function bar() mV:
-        test mV = -5.5 mV
+    function bar() "voltage":
+        test "voltage" = -5.5 mV
         # here it should be detected, that the function has been defined with a type, but no return stmt is present
 
-    function foobar() mV:
+    function foobar() "voltage":
         # here, it should be detected that no return statement has been provided
-        test mV = 10mV
+        test "voltage" = 10mV
         test = test*2

@@ -31,7 +31,7 @@
 #
 model CoCoInternalAssignedOutsideBlock:
     internals:
-        test mV = 10 mV
+        test "voltage" = 10 mV
 
     update:
         test = 20 mV

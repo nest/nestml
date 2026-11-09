@@ -32,7 +32,7 @@
 #
 model CoCoKernelCorrectlyTyped:
     parameters:
-        tau ms = 10 ms
+        tau "time" = 10 ms
 
     state: # variable is now defined in the initial block, thus everything is correct.
         g real = 1

@@ -31,7 +31,7 @@
 #
 model CoCoInitValuesWithoutOde:
     state:
-        V_m mV = 10mV
+        V_m "voltage" = 10mV
 
     equations:
         V_m' = 20mV / s # initial values provided with odes, thus everything is correct

@@ -39,7 +39,7 @@ model dde_numeric:
         n_z integer = 2
 
         # delay parameter
-        delay ms = 5.0 ms
+        delay "time" = 5.0 ms
 
     update:
         integrate_odes()

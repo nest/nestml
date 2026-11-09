@@ -27,7 +27,7 @@ model continuous_post_synaptic_third_factor_neuron:
         alpha real = 0
 
     parameters:
-        tau ms = 20 ms
+        tau "time" = 20 ms
 
     equations:
         kernel K_ampa = exp(-t / tau)

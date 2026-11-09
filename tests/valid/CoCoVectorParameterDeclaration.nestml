@@ -31,7 +31,7 @@
 #
 model CoCoVectorParameterDeclaration:
     state:
-        v_m [size] mV = -55 mV
+        v_m [size] "voltage" = -55 mV
         y [size_y] real = 1.5
 
     parameters:

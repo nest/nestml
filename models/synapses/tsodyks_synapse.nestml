@@ -85,16 +85,16 @@
 model tsodyks_synapse:
     parameters:
         w real = 1          # Synaptic weight
-        tau_psc ms = 3 ms
-        tau_fac ms = 0 ms   # Setting tau_fac = 0 disables facilitation
-        tau_rec ms = 800 ms
+        tau_psc "time" = 3 ms
+        tau_fac "time" = 0 ms   # Setting tau_fac = 0 disables facilitation
+        tau_rec "time" = 800 ms
         U real = .5
 
     state:
         x real = 1
         y real = 0
         u real = U
-        t_last_update ms = 0 ms
+        t_last_update "time" = 0 ms
 
     input:
         pre_spikes <- spike
@@ -103,7 +103,7 @@ model tsodyks_synapse:
         spike
 
     onReceive(pre_spikes):
-        dt ms = t - t_last_update
+        dt "time" = t - t_last_update
         t_last_update = t
 
         Puu real = tau_fac == 0 ? 0 : exp(-dt / tau_fac)

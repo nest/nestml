@@ -29,19 +29,19 @@
 model resolution_legally_used_synapse:
     parameters:
         w real = 1
-        a ms = resolution()
+        a "time" = resolution()
 
     internals:
-        b ms = resolution()
+        b "time" = resolution()
 
     state:
-        q ms = resolution()
+        q "time" = resolution()
 
     input:
         pre_spikes <- spike
 
     onReceive(pre_spikes):
-        x ms = resolution()
+        x "time" = resolution()
 
     update:
-        z ms = resolution()
+        z "time" = resolution()

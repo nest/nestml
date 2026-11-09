@@ -23,7 +23,7 @@
 #
 model for_loop:
     state:
-        V_m mV = -0.20 mV
+        V_m "voltage" = -0.20 mV
 
     parameters:
         N integer = 42

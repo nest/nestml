@@ -30,10 +30,10 @@
 #
 model CoCoOdeVarNotInInitialValues:
     parameters:
-        V_m mV = -50 mV
+        V_m "voltage" = -50 mV
 
     state:
-        V_abs mV = 10 mV
+        V_abs "voltage" = 10 mV
 
     equations:
         V_m' = 10 mV / s

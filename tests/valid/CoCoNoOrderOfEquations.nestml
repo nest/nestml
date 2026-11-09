@@ -30,7 +30,7 @@
 #
 model CoCoNoOrderOfEquations:
     state:
-        V_m mV = 10mV
+        V_m "voltage" = 10mV
 
     equations:
         V_m' = 10 mV / s # rhs is provided with an order > 0, thus everything is correct

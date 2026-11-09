@@ -23,4 +23,4 @@
 #
 model BlockTest:
     state:
-        V mV = -70. mV
+        V "voltage" = -70. mV

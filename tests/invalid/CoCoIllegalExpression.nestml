@@ -32,10 +32,10 @@
 model CoCoIllegalExpression:
     state:
         test boolean = True
-        test2 mV = 10mV
+        test2 "voltage" = 10mV
         test3 integer = 20
         # here type(rhs) != type(lhs) should be detected as well as incorrect type of expression
-        test4 pA = 10mV
+        test4 "current" = 10mV
 
     update:
         # here type(rhs) != type(lhs) should be detected as well as incorrect type of expression
@@ -52,7 +52,7 @@ model CoCoIllegalExpression:
             # not boolean condition
             print("Inside while")
 
-        mlVolt mV = 10mV
+        mlVolt "voltage" = 10mV
 
         # here it should detect that from and to are not primitive numbers
         for i in mlVolt...mlVolt+10mV step 10:

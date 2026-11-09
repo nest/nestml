@@ -14,6 +14,11 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by PyNestMLParser#inputPortDataType.
+    def visitInputPortDataType(self, ctx:PyNestMLParser.InputPortDataTypeContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by PyNestMLParser#unitTypeExponent.
     def visitUnitTypeExponent(self, ctx:PyNestMLParser.UnitTypeExponentContext):
         return self.visitChildren(ctx)

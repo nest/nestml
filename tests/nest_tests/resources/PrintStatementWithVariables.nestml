@@ -23,11 +23,11 @@
 #
 model print_test_variables:
     state:
-        V_m mV = -50 mV
+        V_m "voltage" = -50 mV
 
     parameters:
-        V_thr mV = -55 mV
-        t_ev ms = 10 ms
+        V_thr "voltage" = -55 mV
+        t_ev "time" = 10 ms
 
     update:
         if V_m > V_thr:

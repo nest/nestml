@@ -23,7 +23,7 @@
 #
 model CompoundOperatorTest:
     state:
-        lhs V = 1 V
+        lhs "voltage" = 1 V
 
     update:
         lhs *= 1

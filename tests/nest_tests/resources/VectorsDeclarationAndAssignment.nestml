@@ -31,10 +31,10 @@
 #
 model vector_declaration:
     state:
-        g_in [20] mV = 11mV
-        g_ex [ten] mV = 1mV
+        g_in [20] "voltage" = 11mV
+        g_ex [ten] "voltage" = 1mV
 
     parameters:
-        taus [15] ms = 2 ms
-        V_thr mV = -55 mV
+        taus [15] "time" = 2 ms
+        V_thr "voltage" = -55 mV
         ten integer = 10

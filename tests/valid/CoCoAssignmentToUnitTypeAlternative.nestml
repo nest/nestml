@@ -30,7 +30,7 @@
 #
 model CoCoAssignmentToUnitType:
     state:
-        V mV = 123 mV
+        V "voltage" = 123 mV
 
     update:
         V = 1 V
