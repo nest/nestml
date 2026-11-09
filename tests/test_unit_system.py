@@ -22,6 +22,8 @@
 import os
 import pytest
 
+from astropy import units as u
+
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
 from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
@@ -34,9 +36,12 @@ from pynestml.codegeneration.printers.nestml_variable_printer import NESTMLVaria
 from pynestml.frontend.pynestml_frontend import generate_target
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.symbols.predefined_quantities import PredefinedQuantities
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
+from pynestml.symbols.real_type_symbol import RealTypeSymbol
+from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.model_parser import ModelParser
@@ -108,36 +113,46 @@ class TestUnitSystem:
         return_expression = func.get_stmts_body().get_stmts()[0].small_stmt.get_return_stmt().get_expression()
         return self.printer.print(return_expression)
 
-    def test_expression_after_magnitude_conversion_in_direct_assignment(self):
-        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "DirectAssignmentWithDifferentButCompatibleUnits.nestml"))
+    def _parse(self, fname):
+        Logger.init_logger(LoggingLevel.INFO)
+        Logger.set_current_node(None)
+        return ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), fname))
+
+    # Variables are typed by physical quantity (for instance, "voltage"), which only fixes the physical dimension. Expressions of the same dimension can therefore be used interchangeably, irrespective of the magnitude of their units, and no (implicit) conversion factors are inserted: the magnitude of a unit is part of the value of a literal such as ``10 V``.
+
+    def test_no_conversion_in_direct_assignment(self):
+        model = self._parse("DirectAssignmentWithDifferentButCompatibleUnits.nestml")
         printed_rhs_expression = self.print_rhs_of_first_assignment_in_update_block(model)
 
-        assert printed_rhs_expression == "(1000.0 * (10 V))"
+        assert printed_rhs_expression == "10 V"
 
-    def test_expression_after_nested_magnitude_conversion_in_direct_assignment(self):
-        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "DirectAssignmentWithDifferentButCompatibleNestedUnits.nestml"))
+    def test_no_conversion_in_nested_direct_assignment(self):
+        model = self._parse("DirectAssignmentWithDifferentButCompatibleNestedUnits.nestml")
         printed_rhs_expression = self.print_rhs_of_first_assignment_in_update_block(model)
 
-        assert printed_rhs_expression == "(1000.0 * (10 V + 5 mV + 20 V + 1 kV))"
+        assert printed_rhs_expression == "10 V + 5 mV + 20 V + 1 kV"
 
-    def test_expression_after_magnitude_conversion_in_compound_assignment(self):
-        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "CompoundAssignmentWithDifferentButCompatibleUnits.nestml"))
+    def test_no_conversion_in_compound_assignment(self):
+        model = self._parse("CompoundAssignmentWithDifferentButCompatibleUnits.nestml")
         printed_rhs_expression = self.print_rhs_of_first_assignment_in_update_block(model)
 
-        assert printed_rhs_expression == "(0.001 * (1200 mV))"
+        assert printed_rhs_expression == "1200 mV"
 
-    def test_expression_after_magnitude_conversion_in_declaration(self):
-        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "DeclarationWithDifferentButCompatibleUnitMagnitude.nestml"))
+    def test_no_conversion_in_declaration(self):
+        model = self._parse("DeclarationWithDifferentButCompatibleUnitMagnitude.nestml")
         printed_rhs_expression = self.print_rhs_of_first_declaration_in_state_block(model)
 
-        assert printed_rhs_expression == "(1000.0 * (10 V))"
+        assert printed_rhs_expression == "10 V"
 
-    def test_expression_after_type_conversion_in_declaration(self):
-        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "DeclarationWithDifferentButCompatibleUnits.nestml"))
+    def test_declaration_with_compatible_dimension(self):
+        r"""(10 pA) / (100 pF) * (1 ms) has dimension voltage, so it can initialise a variable of quantity "voltage"."""
+        model = self._parse("DeclarationWithDifferentButCompatibleUnits.nestml")
         declaration = self.get_first_declaration_in_state_block(model)
-        from astropy import units as u
 
-        assert declaration.get_expression().type.unit.unit == u.mV
+        assert declaration.get_data_type().get_quantity() == "voltage"
+        assert declaration.get_data_type().get_type_symbol().equals(declaration.get_expression().type)
+        assert declaration.get_expression().type.equals(PredefinedTypes.get_type("mV"))
+        assert not declaration.get_expression().type.equals(PredefinedTypes.get_type("pA"))
 
     def test_declaration_with_same_variable_name_as_unit(self):
         Logger.init_logger(LoggingLevel.DEBUG)
@@ -147,20 +162,50 @@ class TestUnitSystem:
         assert len(Logger.get_messages("BlockTest", LoggingLevel.ERROR)) == 0
         assert len(Logger.get_messages("BlockTest", LoggingLevel.WARNING)) == 3
 
-    def test_expression_after_magnitude_conversion_in_standalone_function_call(self):
-        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "FunctionCallWithDifferentButCompatibleUnits.nestml"))
+    def test_no_conversion_in_standalone_function_call(self):
+        model = self._parse("FunctionCallWithDifferentButCompatibleUnits.nestml")
         printed_function_call = self.print_first_function_call_in_update_block(model)
 
-        assert printed_function_call == "foo((1000.0 * (10 V)))"
+        assert printed_function_call == "foo(10 V)"
 
-    def test_expression_after_magnitude_conversion_in_rhs_function_call(self):
-        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "RhsFunctionCallWithDifferentButCompatibleUnits.nestml"))
+    def test_no_conversion_in_rhs_function_call(self):
+        model = self._parse("RhsFunctionCallWithDifferentButCompatibleUnits.nestml")
         printed_function_call = self.print_rhs_of_first_assignment_in_update_block(model)
 
-        assert printed_function_call == "foo((1000.0 * (10 V)))"
+        assert printed_function_call == "foo(10 V)"
 
-    def test_return_stmt_after_magnitude_conversion_in_function_body(self):
-        model = ModelParser.parse_file(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "FunctionBodyReturnStatementWithDifferentButCompatibleUnits.nestml"))
+    def test_no_conversion_in_return_stmt_in_function_body(self):
+        model = self._parse("FunctionBodyReturnStatementWithDifferentButCompatibleUnits.nestml")
         printed_return_stmt = self.print_first_return_statement_in_first_declared_function(model)
 
-        assert printed_return_stmt == "(0.001 * (bar))"
+        assert printed_return_stmt == "bar"
+
+    def test_quantity_types_compare_by_dimension(self):
+        voltage = PredefinedTypes.get_type(PredefinedQuantities.parse("voltage"))
+        assert voltage.equals(PredefinedTypes.get_type("mV"))
+        assert voltage.equals(PredefinedTypes.get_type("V"))
+        assert voltage.equals(PredefinedTypes.get_type(PredefinedQuantities.parse("current * resistance")))
+        assert not voltage.equals(PredefinedTypes.get_type("pA"))
+
+        assert PredefinedTypes.get_type(PredefinedQuantities.parse("conductance / time")).equals(PredefinedTypes.get_type(u.nS / u.ms))
+        assert PredefinedTypes.get_type(PredefinedQuantities.parse("1 / time")).equals(PredefinedTypes.get_type("ms")**-1)
+
+        # a dimensionless ratio is real, irrespective of the magnitude of its units
+        assert PredefinedTypes.get_type(u.V / u.mV).equals(PredefinedTypes.get_real_type())
+
+    def test_continuous_input_port_unit_is_inserted(self):
+        r"""A continuous input port declared with a unit yields plain numbers in that unit: references to the port are multiplied by the unit explicitly."""
+        model = self._parse("ContinuousInputPortUnits.nestml")
+        assert len(Logger.get_messages(model.get_model_list()[0], LoggingLevel.ERROR)) == 0
+
+        ode = model.get_model_list()[0].get_equations_blocks()[0].get_ode_equations()[0]
+        assert self.printer.print(ode.get_rhs()) == "-V_m / tau_m + (I_stim * 1 pA) / C_m + I_dimensionless * 1 nA / C_m"
+
+        # the port variable itself is a plain number
+        scope = model.get_model_list()[0].get_scope()
+        assert isinstance(scope.resolve_to_symbol("I_stim", SymbolKind.VARIABLE).get_type_symbol(), RealTypeSymbol)
+
+        # the inserted expression has the dimension of a current
+        inserted_expr = ode.get_rhs().get_lhs().get_rhs().get_lhs()
+        assert str(inserted_expr) == "(I_stim * 1 pA)"
+        assert inserted_expr.type.equals(PredefinedTypes.get_type("pA"))

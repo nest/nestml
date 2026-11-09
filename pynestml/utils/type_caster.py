@@ -19,46 +19,20 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
-from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
 
 class TypeCaster:
-    @staticmethod
-    def do_magnitude_conversion_rhs_to_lhs(_rhs_type_symbol, _lhs_type_symbol, _containing_expression):
-        """
-        Determine conversion factor from rhs to lhs, register it with the relevant expression
-        """
-        _containing_expression.set_implicit_conversion_factor(
-            UnitTypeSymbol.get_conversion_factor(_rhs_type_symbol.astropy_unit,
-                                                 _lhs_type_symbol.astropy_unit))
-        code, message = Messages.get_implicit_magnitude_conversion(_lhs_type_symbol, _rhs_type_symbol,
-                                                                   _containing_expression.get_implicit_conversion_factor())
-        Logger.log_message(code=code, message=message,
-                           error_position=_containing_expression.get_source_position(),
-                           log_level=LoggingLevel.INFO)
+    r"""
+    Checks whether the type of an expression can be used where a different type is expected.
+
+    Physical types are compared by their dimension only (for instance, ``mV`` and ``V`` are the same type), so no magnitude conversion is ever necessary here.
+    """
 
     @staticmethod
-    def try_to_recover_or_error(_lhs_type_symbol, _rhs_type_symbol, _containing_expression, set_implicit_conversion_factor_on_lhs=False):
+    def try_to_recover_or_error(_lhs_type_symbol, _rhs_type_symbol, _containing_expression):
         if _rhs_type_symbol.is_castable_to(_lhs_type_symbol):
-            if isinstance(_lhs_type_symbol, UnitTypeSymbol) \
-                    and isinstance(_rhs_type_symbol, UnitTypeSymbol):
-                conversion_factor = UnitTypeSymbol.get_conversion_factor(_rhs_type_symbol.astropy_unit, _lhs_type_symbol.astropy_unit)
-
-                if conversion_factor is None:
-                    # error during conversion
-                    code, message = Messages.get_type_different_from_expected(_lhs_type_symbol, _rhs_type_symbol)
-                    Logger.log_message(error_position=_containing_expression.get_source_position(),
-                                       code=code, message=message, log_level=LoggingLevel.ERROR)
-                    return
-
-                if set_implicit_conversion_factor_on_lhs and not conversion_factor == 1.:
-                    # the units are mutually convertible, but require a factor unequal to 1 (e.g. mV and A*Ohm)
-                    TypeCaster.do_magnitude_conversion_rhs_to_lhs(_rhs_type_symbol, _lhs_type_symbol, _containing_expression)
-
-            # the units are mutually convertible (e.g. V and A*Ohm)
             code, message = Messages.get_implicit_cast_rhs_to_lhs(_rhs_type_symbol.print_symbol(),
                                                                   _lhs_type_symbol.print_symbol())
             Logger.log_message(error_position=_containing_expression.get_source_position(),

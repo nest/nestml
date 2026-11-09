@@ -29,7 +29,6 @@ from pynestml.generated.PyNestMLParserVisitor import PyNestMLParserVisitor
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_parameter import ASTParameter
-from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import Logger
 from pynestml.utils.port_signal_type import PortSignalType
@@ -72,13 +71,27 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         is_string = (True if ctx.isString is not None else False)
         is_bool = (True if ctx.isBool is not None else False)
         is_void = (True if ctx.isVoid is not None else False)
+        quantity = str(ctx.quantity.text)[1:-1] if ctx.quantity is not None else None    # strip the enclosing double quotes
+        ret = ASTNodeFactory.create_ast_data_type(is_integer=is_int, is_boolean=is_bool,
+                                                  is_real=is_real, is_string=is_string, is_void=is_void,
+                                                  quantity=quantity, source_position=create_source_pos(ctx))
+        # now update the type
+        ret.accept(ASTDataTypeVisitor())
+        return ret
+
+    # Visit a parse tree produced by PyNESTMLParser#inputPortDataType.
+    def visitInputPortDataType(self, ctx):
+        is_int = (True if ctx.isInt is not None else False)
+        is_real = (True if ctx.isReal is not None else False)
+        is_string = (True if ctx.isString is not None else False)
+        is_bool = (True if ctx.isBool is not None else False)
+        is_void = (True if ctx.isVoid is not None else False)
         unit = self.visit(ctx.unitType()) if ctx.unitType() is not None else None
         ret = ASTNodeFactory.create_ast_data_type(is_integer=is_int, is_boolean=is_bool,
                                                   is_real=is_real, is_string=is_string, is_void=is_void,
                                                   is_unit_type=unit, source_position=create_source_pos(ctx))
         # now update the type
         ret.accept(ASTDataTypeVisitor())
-        # self.data_type_visitor.visit_datatype(ret)
         return ret
 
     # Visit a parse tree produced by PyNESTMLParser#unitType.
@@ -309,9 +322,6 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
                 args.append(self.visit(arg))
         elif ctx.expression() is not None:
             args.append(self.visit(ctx.expression()))
-        if name.upper() == PredefinedFunctions.GET_WEIGHT:
-            args[0].set_implicit_conversion_factor(1E3)    # XXX: TODO: the factor 1E3 should be removed; see https://github.com/nest/nestml/issues/984
-
         node = ASTNodeFactory.create_ast_function_call(callee_name=name, args=args,
                                                        source_position=create_source_pos(ctx))
         return node
@@ -669,7 +679,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         size_parameter = None
         if ctx.sizeParameter is not None:
             size_parameter = self.visit(ctx.sizeParameter)
-        data_type = self.visit(ctx.dataType()) if ctx.dataType() is not None else None
+        data_type = self.visit(ctx.inputPortDataType()) if ctx.inputPortDataType() is not None else None
         signal_type = PortSignalType.CONTINUOUS
         ret = ASTNodeFactory.create_ast_input_port(name=name, size_parameter=size_parameter, data_type=data_type,
                                                    signal_type=signal_type,

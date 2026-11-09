@@ -29,6 +29,7 @@ from pynestml.cocos.co_co_cm_continuous_input_model import CoCoCmContinuousInput
 from pynestml.cocos.co_co_convolve_cond_correctly_built import CoCoConvolveCondCorrectlyBuilt
 from pynestml.cocos.co_co_correct_numerator_of_unit import CoCoCorrectNumeratorOfUnit
 from pynestml.cocos.co_co_correct_order_in_equation import CoCoCorrectOrderInEquation
+from pynestml.cocos.co_co_quantities_valid import CoCoQuantitiesValid
 from pynestml.cocos.co_co_each_block_defined_at_most_once import CoCoEachBlockDefinedAtMostOnce
 from pynestml.cocos.co_co_emit_spike_function_arguments import CoCoEmitSpikeFunctionArguments
 from pynestml.cocos.co_co_equations_only_for_init_values import CoCoEquationsOnlyForInitValues
@@ -222,6 +223,14 @@ class CoCosManager:
         :param model: a single model object.
         """
         CoCoCorrectNumeratorOfUnit.check_co_co(model)
+
+    @classmethod
+    def check_quantities_valid(cls, model: ASTModel):
+        """
+        Checks that all physical quantities used as data types are known and well-formed.
+        :param model: a single model object.
+        """
+        CoCoQuantitiesValid.check_co_co(model)
 
     @classmethod
     def check_model_names_unique(cls, compilation_unit: ASTCompilationUnit):
@@ -512,6 +521,7 @@ class CoCosManager:
         cls.check_input_ports_not_assigned_to(model)
         cls.check_order_of_equations_correct(model)
         cls.check_numerator_of_unit_is_one_if_numeric(model)
+        cls.check_quantities_valid(model)
         cls.check_no_nest_namespace_collisions(model)
         cls.check_parameters_not_assigned_outside_parameters_block(model)
         cls.check_internals_not_assigned_outside_internals_block(model)

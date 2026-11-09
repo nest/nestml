@@ -1,6 +1,8 @@
-# -*- coding: utf-8 -*-
+# ContinuousInputPortUnits.nestml
+# ###############################
 #
-# implicit_magnitude_cast_exception.py
+# Copyright statement
+# +++++++++++++++++++
 #
 # This file is part of NEST.
 #
@@ -18,11 +20,21 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+model ContinuousInputPortUnits:
+    state:
+        V_m "voltage" = 0 mV
 
+    parameters:
+        C_m "capacitance" = 250 pF
+        tau_m "time" = 10 ms
 
-class ImplicitMagnitudeCastException(Exception):
+    input:
+        I_stim pA <- continuous
+        I_dimensionless real <- continuous
 
-    def __init__(self, code, message, conversion_factor):
-        self.code = code
-        self.message = message
-        self.conversion_factor = conversion_factor
+    equations:
+        V_m' = -V_m / tau_m + I_stim / C_m + I_dimensionless * 1 nA / C_m
+
+    update:
+        integrate_odes()

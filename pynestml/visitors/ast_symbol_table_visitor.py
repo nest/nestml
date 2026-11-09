@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+import copy
+
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_model_body import ASTModelBody
@@ -611,7 +613,11 @@ class ASTSymbolTableVisitor(ASTVisitor):
     def endvisit_input_port(self, node: ASTInputPort):
         if node.is_continuous():
             assert node.has_datatype()
-            type_symbol = node.get_datatype().get_type_symbol()
+            if node.get_datatype().is_unit_type():
+                # the value arriving at the port is a plain number, to be interpreted in the unit given in the port declaration. References to the port are multiplied by this unit by the InsertContinuousInputPortUnitsVisitor, so the port variable itself is of type real.
+                type_symbol = copy.copy(PredefinedTypes.get_real_type())
+            else:
+                type_symbol = copy.copy(node.get_datatype().get_type_symbol())
             type_symbol.is_buffer = True  # set it as a buffer
             if node.has_size_parameter():
                 if isinstance(node.get_size_parameter(), ASTSimpleExpression) and node.get_size_parameter().is_variable():

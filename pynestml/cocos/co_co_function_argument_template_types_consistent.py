@@ -101,7 +101,7 @@ class CorrectTemplatedArgumentTypesVisitor(ASTVisitor):
             if isinstance(arg_type, TemplateTypeSymbol):
                 actual_symbol = node.get_function_call().get_args()[arg_idx].type
                 if arg_type._i in template_symbol_to_actual_symbol.keys():
-                    if (not template_symbol_to_actual_symbol[arg_type._i].differs_only_in_magnitude(actual_symbol)) \
+                    if (not template_symbol_to_actual_symbol[arg_type._i].equals(actual_symbol)) \
                             and (not template_symbol_to_actual_symbol[arg_type._i].is_castable_to(actual_symbol)):
                         # if the one cannot be cast into the other
                         code, message = Messages.templated_arg_types_inconsistent(function_name, arg_idx, template_symbol_to_parameter_indices[arg_type._i], failing_arg_type_str=actual_symbol.print_nestml_type(

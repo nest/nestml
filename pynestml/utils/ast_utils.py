@@ -25,7 +25,6 @@ import copy
 import re
 import sympy
 
-from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.nestml_simple_expression_printer_units_as_factors import NESTMLSimpleExpressionPrinterUnitsAsFactors
@@ -223,6 +222,9 @@ class ASTUtils:
 
         if data_type.is_unit_type():
             return str(data_type)
+
+        if data_type.is_quantity():
+            return "\"" + data_type.get_quantity() + "\""
 
         Logger.log_message(message="Type could not be derived!", log_level=LoggingLevel.ERROR)
 

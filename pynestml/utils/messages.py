@@ -160,6 +160,8 @@ class MessageCode(Enum):
     NO_SOLITARY_PHYSICAL_UNITS = 133
     SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED = 134
     NEST_RANDOM_FUNCTIONS_LEGALLY_USED = 135
+    UNKNOWN_QUANTITY = 136
+    INVALID_QUANTITY = 137
 
 
 class Messages:
@@ -228,12 +230,6 @@ class Messages:
     def get_convolve_needs_buffer_parameter(cls) -> Tuple[MessageCode, str]:
         message = "Convolve requires a buffer variable as second parameter!"
         return MessageCode.CONVOLVE_NEEDS_BUFFER_PARAMETER, message
-
-    @classmethod
-    def get_implicit_magnitude_conversion(cls, lhs, rhs, conversion_factor) -> Tuple[MessageCode, str]:
-        message = "Implicit magnitude conversion from %s to %s with factor %s " % (
-            lhs.print_symbol(), rhs.print_symbol(), conversion_factor)
-        return MessageCode.IMPLICIT_CAST, message
 
     @classmethod
     def get_function_call_implicit_cast(
@@ -821,6 +817,30 @@ class Messages:
         """
         message = "Unknown type or unit literal: \"" + provided_type_str + "\""
         return MessageCode.UNKNOWN_TYPE, message
+
+    @classmethod
+    def get_unknown_quantity(cls, quantity_name: str, quantity_str: str) -> Tuple[MessageCode, str]:
+        """
+        Indicates that a physical quantity name (such as "voltage") is not known.
+        :param quantity_name: the unknown name
+        :param quantity_str: the complete quantity expression in which the name appears
+        """
+        message = "Unknown physical quantity \"" + quantity_name + "\""
+        if quantity_name != quantity_str:
+            message += " in \"" + quantity_str + "\""
+        from pynestml.symbols.predefined_quantities import PredefinedQuantities
+        message += ". Known quantities are: " + ", ".join(sorted(PredefinedQuantities.get_quantity_names()))
+        return MessageCode.UNKNOWN_QUANTITY, message
+
+    @classmethod
+    def get_invalid_quantity(cls, quantity_str: str, reason: str) -> Tuple[MessageCode, str]:
+        """
+        Indicates that a physical quantity expression (such as "conductance / time") could not be parsed.
+        :param quantity_str: the quantity expression
+        :param reason: why the expression is invalid
+        """
+        message = "Invalid physical quantity \"" + quantity_str + "\": " + reason
+        return MessageCode.INVALID_QUANTITY, message
 
     @classmethod
     def astdatatype_type_symbol_could_not_be_derived(cls) -> Tuple[MessageCode, str]:

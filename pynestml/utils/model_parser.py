@@ -70,11 +70,11 @@ from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.error_listener import NestMLErrorListener
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
-from pynestml.visitors.assign_implicit_conversion_factors_visitor import AssignImplicitConversionFactorsVisitor
 from pynestml.visitors.ast_builder_visitor import ASTBuilderVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+from pynestml.visitors.insert_continuous_input_port_units_visitor import InsertContinuousInputPortUnitsVisitor
 from pynestml.visitors.unit_type_fixer_visitor import UnitTypeFixerVisitor
 
 
@@ -153,9 +153,7 @@ class ModelParser:
             model.accept(ASTSymbolTableVisitor())
             SymbolTable.add_model_scope(model.get_name(), model.get_scope())
             UnitTypeFixerVisitor.fix_model(model)
-            Logger.set_current_node(model)
-            model.accept(AssignImplicitConversionFactorsVisitor())
-            Logger.set_current_node(None)
+            InsertContinuousInputPortUnitsVisitor.insert_units(model)
 
         # store source paths
         for model in ast.get_model_list():

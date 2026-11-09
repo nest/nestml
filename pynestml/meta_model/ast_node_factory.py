@@ -142,9 +142,9 @@ class ASTNodeFactory:
 
     @classmethod
     def create_ast_data_type(cls, is_integer=False, is_real=False, is_string=False, is_boolean=False,
-                             is_void=False, is_unit_type=None, source_position=None):
-        # type: (bool,bool,bool,bool,bool,ASTUnitType,ASTSourceLocation) -> ASTDataType
-        return ASTDataType(is_integer, is_real, is_string, is_boolean, is_void, is_unit_type, source_position=source_position)
+                             is_void=False, is_unit_type=None, quantity=None, source_position=None):
+        # type: (bool,bool,bool,bool,bool,ASTUnitType,str,ASTSourceLocation) -> ASTDataType
+        return ASTDataType(is_integer, is_real, is_string, is_boolean, is_void, is_unit_type, quantity=quantity, source_position=source_position)
 
     @classmethod
     def create_ast_declaration(cls,

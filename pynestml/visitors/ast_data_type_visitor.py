@@ -23,6 +23,7 @@ from astropy import units
 
 from pynestml.meta_model.ast_unit_type import ASTUnitType
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
+from pynestml.symbols.predefined_quantities import InvalidQuantityException, PredefinedQuantities
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
@@ -66,6 +67,13 @@ class ASTDataTypeVisitor(ASTVisitor):
             node.set_type_symbol(self.symbol)
         elif node.is_void:
             self.symbol = PredefinedTypes.get_void_type()
+            node.set_type_symbol(self.symbol)
+        elif node.is_quantity():
+            try:
+                self.symbol = handle_unit(PredefinedQuantities.parse(node.get_quantity()))
+            except InvalidQuantityException:
+                # the error is reported by CoCoQuantitiesValid
+                self.symbol = ErrorTypeSymbol()
             node.set_type_symbol(self.symbol)
 
     def endvisit_data_type(self, node):
