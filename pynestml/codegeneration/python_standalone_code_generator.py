@@ -95,8 +95,8 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
 
         # Python/mini simulation environment API printers
         self._nest_variable_printer = PythonVariablePrinter(expression_printer=None, with_origin=True, with_vector_parameter=True, unit_converter=PythonStandaloneUnitConverter)
-        self._nest_function_call_printer = PythonFunctionCallPrinter(None)
-        self._nest_function_call_printer_no_origin = PythonFunctionCallPrinter(None)
+        self._nest_function_call_printer = PythonFunctionCallPrinter(None, unit_converter=PythonStandaloneUnitConverter)
+        self._nest_function_call_printer_no_origin = PythonFunctionCallPrinter(None, unit_converter=PythonStandaloneUnitConverter)
 
         self._printer = PythonExpressionPrinter(simple_expression_printer=PythonSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
                                                                                                         constant_printer=self._constant_printer,
@@ -116,7 +116,7 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
 
         # GSL printers
         self._gsl_variable_printer = PythonSteppingFunctionVariablePrinter(None)
-        self._gsl_function_call_printer = PythonSteppingFunctionFunctionCallPrinter(None)
+        self._gsl_function_call_printer = PythonSteppingFunctionFunctionCallPrinter(None, unit_converter=PythonStandaloneUnitConverter)
         self._gsl_printer = PythonExpressionPrinter(simple_expression_printer=PythonSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
                                                                                                             constant_printer=self._constant_printer,
                                                                                                             function_call_printer=self._gsl_function_call_printer,

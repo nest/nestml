@@ -2403,13 +2403,19 @@ class ASTUtils:
         return None
 
     @classmethod
-    def get_unit_name(cls, variable: ASTVariable) -> str:
+    def get_unit_name(cls, variable: ASTVariable, unit_converter) -> str:
+        r"""
+        Returns the unit in which the value of the given variable is stored by the target platform (for instance, ``mV`` for a variable of quantity "voltage" in NEST), or the empty string if the variable is not of a physical type.
+
+        :param variable: the variable
+        :param unit_converter: the system of physical units of the target platform (a subclass of ``UnitConverter``)
+        """
         assert variable.get_scope() is not None, "Undeclared variable: " + variable.get_complete_name()
 
         variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
         symbol = variable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
         if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
-            return symbol.get_type_symbol().unit.unit.to_string()
+            return unit_converter.print_unit(symbol.get_type_symbol())
 
         return ""
 

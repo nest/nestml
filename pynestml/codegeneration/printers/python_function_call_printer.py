@@ -119,7 +119,7 @@ class PythonFunctionCallPrinter(FunctionCallPrinter):
             fun_left = (lambda lhs: self.__convert_print_statement_str(lhs, scope) + " + " if lhs else "")
             fun_right = (lambda rhs: " + " + self.__convert_print_statement_str(rhs, scope) if rhs else "")
             ast_var = ASTVariable(var_name, scope=scope)
-            right = " " + ASTUtils.get_unit_name(ast_var) + right  # concatenate unit separated by a space with the right part of the string
+            right = " " + ASTUtils.get_unit_name(ast_var, self._unit_converter) + right  # concatenate unit separated by a space with the right part of the string
             return fun_left(left) + "str(" + self._expression_printer.print(ast_var) + ")" + fun_right(right)
 
         return "\"" + stmt + "\""  # format bare string in Python (add double quotes)
