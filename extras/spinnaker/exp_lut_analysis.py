@@ -398,8 +398,8 @@ def main():
     csv_paths = write_table_csvs(tables)
 
     figures = {
-        "1_anatomy.png": plot_anatomy(),
-        "2_bits_tradeoff.png": plot_bits_tradeoff(),
+        "exp_lut_error_distribution.png": plot_anatomy(),
+        "exp_lut_accuracy_size_vs_bits.png": plot_bits_tradeoff(),
         # "3_natural_length_summary.png": plot_natural_summary(tables),
     }
     for filename, fig in figures.items():
