@@ -399,6 +399,7 @@ class TestSpiNNakerSTDPWindow:
         ax.legend()
 
         ax_err.axhline(0., color="grey", alpha=.4, linewidth=1., zorder=0)
+        ax_err.set_yscale("symlog", linthresh=1.)    # logarithmic for |error| > 1 LSB (keeping the sign), linear within +/- 1 LSB so that zero error can be shown
         ax_err.set_xlabel("Number of pairings")
         ax_err.set_ylabel(r"$w - w_\mathrm{ref}$ [S1516 LSB]")
         ax_err.grid(True)
