@@ -44,6 +44,9 @@ class UnitConverter:
     #: Preferred units for a set of independent base quantities (the keys are names of physical quantities as known to ``PredefinedQuantities``). Together, the base quantities need to span all seven dimensions of the SI; for instance, voltage can take the place of the SI base quantity "mass". To be defined by subclasses.
     PREFERRED_UNITS: Mapping[str, units.UnitBase] = {}
 
+    #: Units in which values are exchanged with the user of the target platform (for instance, when setting a parameter or reading out a recorded state variable), where these differ from the preferred units. Each unit applies to all values of the same physical dimension; for instance, with ``units.Hz`` in this list, rates are set and read in Hz, whereas they are stored and computed with in the preferred unit (e.g. 1/ms). For all other dimensions, the preferred unit is used. To be defined by subclasses (optional).
+    INTERFACE_UNITS: List[units.UnitBase] = []
+
     _SI_BASE_UNITS: List[units.UnitBase] = [units.m, units.kg, units.s, units.A, units.K, units.mol, units.cd]
 
     _base_matrix_inverse_cache: Dict[type, np.ndarray] = {}
@@ -193,6 +196,47 @@ class UnitConverter:
         """
         if isinstance(type_symbol, UnitTypeSymbol):
             return cls._print_unit(cls.get_preferred_unit(type_symbol.astropy_unit))
+
+        return type_symbol.print_symbol()
+
+    @classmethod
+    def get_interface_unit(cls, unit: units.UnitBase) -> units.UnitBase:
+        r"""
+        Returns the unit in which values of the physical dimension of the given unit are exchanged with the user of the target platform: the matching unit from ``INTERFACE_UNITS`` if there is one, and the preferred unit (see :py:meth:`get_preferred_unit`) otherwise.
+
+        :param unit: an astropy unit
+        :return: the interface unit of the same physical dimension
+        """
+        for interface_unit in cls.INTERFACE_UNITS:
+            if interface_unit.is_equivalent(unit) and np.all(cls.get_si_exponents(interface_unit) == cls.get_si_exponents(unit)):
+                return interface_unit
+
+        return cls.get_preferred_unit(unit)
+
+    @classmethod
+    def get_interface_factor(cls, type_symbol: TypeSymbol) -> float:
+        r"""
+        Returns the factor that converts a value of the given type from the preferred unit (in which the generated code stores and computes with it) to the interface unit (see :py:meth:`get_interface_unit`); for instance, 1000 for the quantity "1 / time" if rates are preferred in 1/ms but exchanged with the user in Hz. The value in the interface unit is the factor times the stored value. For non-physical types and for physical types without a separate interface unit, the factor is 1.
+
+        :param type_symbol: the type of a variable
+        :return: the conversion factor
+        """
+        if not isinstance(type_symbol, UnitTypeSymbol):
+            return 1.
+
+        unit = type_symbol.astropy_unit
+        factor = float(cls.get_preferred_unit(unit).to(cls.get_interface_unit(unit)))
+
+        # remove floating-point noise from the unit conversion
+        return float("%.15g" % factor)
+
+    @classmethod
+    def print_interface_unit(cls, type_symbol: TypeSymbol) -> str:
+        r"""
+        Returns the unit in which values of the given type are exchanged with the user of the target platform (see :py:meth:`get_interface_unit`); for instance, ``Hz`` for the quantity "1 / time" if ``units.Hz`` is listed in ``INTERFACE_UNITS``. For non-physical types, the name of the type is returned (e.g. ``real``).
+        """
+        if isinstance(type_symbol, UnitTypeSymbol):
+            return cls._print_unit(cls.get_interface_unit(type_symbol.astropy_unit))
 
         return type_symbol.print_symbol()
 
