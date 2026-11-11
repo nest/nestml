@@ -39,12 +39,25 @@ class UnitConverter:
     In a NESTML model, variables are typed by physical quantity (e.g. ``V_m "voltage"``) and do not imply any particular unit; physical units only appear in literals (``-70 mV``), in continuous input port declarations (``I_stim pA <- continuous``) and implicitly in spiking input ports (1/s, the unit of a Dirac delta function). Generated code stores all physical values as plain numbers, in a fixed set of preferred units of the target platform; every unit in the model is converted to the preferred unit of the same physical dimension by the factor returned by :py:meth:`get_factor`.
 
     The preferred units are specified for a set of independent base quantities only (see ``PREFERRED_UNITS``, to be defined by each subclass); the preferred units of all other quantities follow from these, such that the system of units is coherent: a product or quotient of values in preferred units is again a value in preferred units, without any additional factor. For example, if current is in pA and voltage in mV, conductance (current / voltage) is in nS, capacitance (current * time / voltage) in pF, and resistance in GOhm.
+
+    **Preferred units and interface units.** A unit converter defines two sets of units, which serve different purposes:
+
+    - The *preferred units* (``PREFERRED_UNITS``) are the units in which the generated code stores and computes with all values. They are used throughout the model: the :class:`~pynestml.transformers.unit_conversion_transformer.UnitConversionTransformer` converts every literal into a plain number in the preferred unit (for instance, ``10 Hz`` becomes ``0.01`` if time is preferred in ms), ODE-toolbox works in these units, and all arithmetic in the generated code takes place in these units. Because the system of preferred units is coherent, the generated code never needs a conversion factor inside the model; for instance, a rate in 1/ms times a time in ms is a dimensionless number, without a factor :math:`10^{-3}`.
+    - The *interface units* (see ``INTERFACE_UNITS`` and :py:meth:`get_interface_unit`) are the units in which values are exchanged with the user of the target platform: when a parameter or state variable is set or read (in NEST, by ``SetStatus()`` and ``GetStatus()``), or when a variable is recorded. By default, these are equal to the preferred units. A target platform can list units in ``INTERFACE_UNITS`` to follow its own conventions; for instance, NEST lists ``units.Hz``, as rates are conventionally set and read in Hz by NEST users, whereas the preferred unit of rates (following from the preferred unit of time) is 1/ms.
+
+    Interface units do not affect the values stored in, or the computations performed by, the generated code; they only determine the conversion that takes place at the interface with the user. The generated code converts a stored value into the interface unit by multiplying it by the factor given by :py:meth:`get_interface_factor`, and a value set by the user back into the preferred unit by dividing it by the same factor. If the factor is 1 (that is, for all quantities that have no separate interface unit), no conversion code is generated.
+
+    Note that interface units cannot be obtained by changing the preferred units instead: the preferred unit of a derived quantity, such as a rate, follows from those of the base quantities (here, time), and choosing it independently would make the system of units incoherent, so that conversion factors would be required inside the model (for instance, :math:`10^{-3}` in the product of a rate in Hz and a time in ms).
+
+    **Example.** For a parameter ``firing_rate "1 / time" = 10 Hz``, with NEST, the preferred unit is 1/ms and the interface unit is Hz, so the interface factor is 1000. The generated code stores the default value ``0.01`` and computes with it directly (e.g. ``firing_rate * resolution()``). When the user reads the parameter, ``get_status()`` returns ``1000 * 0.01 = 10``; when the user sets ``neuron.firing_rate = 100.``, ``set_status()`` stores ``100 / 1000 = 0.1``. For a parameter ``V_th "voltage"``, the interface unit is the preferred unit mV, and the value is set, read and stored without conversion.
+
+    **Templates.** For the NEST target, conversion code is printed by ``NESTCodeGeneratorUtils.print_to_interface_units()`` and ``NESTCodeGeneratorUtils.print_from_interface_units()``. The templates call these in ``get_status()`` and ``set_status()`` (of neurons and synapses, including synapse common properties), and in the functions that are used for recording (an additional getter ``get_<variable>__interface()`` for state variables, ``<variable>__interface()`` for inline expressions, and ``get_state_element()`` for models with vector state variables). Comments in the generated code print the stored unit (:py:meth:`print_unit`), whereas the documentation of parameters and state variables in the generated code prints the interface unit (:py:meth:`print_interface_unit`). The ``print()`` and ``println()`` functions of NESTML print the stored value, labelled with the preferred unit.
     """
 
-    #: Preferred units for a set of independent base quantities (the keys are names of physical quantities as known to ``PredefinedQuantities``). Together, the base quantities need to span all seven dimensions of the SI; for instance, voltage can take the place of the SI base quantity "mass". To be defined by subclasses.
+    #: Preferred units for a set of independent base quantities (the keys are names of physical quantities as known to ``PredefinedQuantities``). Together, the base quantities need to span all seven dimensions of the SI; for instance, voltage can take the place of the SI base quantity "mass". These are the units in which the generated code stores and computes with all values; the preferred units of all other (derived) quantities follow from these (see :py:meth:`get_preferred_unit`). To be defined by subclasses.
     PREFERRED_UNITS: Mapping[str, units.UnitBase] = {}
 
-    #: Units in which values are exchanged with the user of the target platform (for instance, when setting a parameter or reading out a recorded state variable), where these differ from the preferred units. Each unit applies to all values of the same physical dimension; for instance, with ``units.Hz`` in this list, rates are set and read in Hz, whereas they are stored and computed with in the preferred unit (e.g. 1/ms). For all other dimensions, the preferred unit is used. To be defined by subclasses (optional).
+    #: Units in which values are exchanged with the user of the target platform (for instance, when setting a parameter or reading out a recorded state variable), where these differ from the preferred units. Unlike ``PREFERRED_UNITS``, this is not a mapping from quantity names, but a list of units, each of which applies to all values of exactly the same physical dimension (all SI exponents equal); for instance, ``units.Hz`` applies to the quantity "1 / time", but not to "voltage / time" or "1 / time**2". With ``units.Hz`` in this list, rates are set and read in Hz, whereas they are stored and computed with in the preferred unit (e.g. 1/ms). For all other dimensions, the interface unit is the preferred unit. Interface units do not enter the computation of the preferred units, and do not affect the coherence of the system of units used inside the generated code (see the class documentation). To be defined by subclasses (optional; by default, empty).
     INTERFACE_UNITS: List[units.UnitBase] = []
 
     _SI_BASE_UNITS: List[units.UnitBase] = [units.m, units.kg, units.s, units.A, units.K, units.mol, units.cd]
@@ -193,6 +206,8 @@ class UnitConverter:
     def print_unit(cls, type_symbol: TypeSymbol) -> str:
         r"""
         Returns the unit in which values of the given type are stored by the target platform; for instance, ``mV`` for the quantity "voltage", if voltage is preferred in mV. For non-physical types, the name of the type is returned (e.g. ``real``).
+
+        This can differ from the unit in which values are set and read by the user (see :py:meth:`print_interface_unit`); for instance, for NEST, the quantity "1 / time" is printed as ``1 / ms`` by this method, but as ``Hz`` by :py:meth:`print_interface_unit`.
         """
         if isinstance(type_symbol, UnitTypeSymbol):
             return cls._print_unit(cls.get_preferred_unit(type_symbol.astropy_unit))
@@ -203,6 +218,8 @@ class UnitConverter:
     def get_interface_unit(cls, unit: units.UnitBase) -> units.UnitBase:
         r"""
         Returns the unit in which values of the physical dimension of the given unit are exchanged with the user of the target platform: the matching unit from ``INTERFACE_UNITS`` if there is one, and the preferred unit (see :py:meth:`get_preferred_unit`) otherwise.
+
+        A unit in ``INTERFACE_UNITS`` matches if it is equivalent to the given unit and has exactly the same exponents of the SI base units. The latter excludes matches that only differ in dimensionless units that are not SI base units; for instance, ``units.Hz`` matches ``1/ms`` and ``Bq``, but not ``rad/ms``. For NEST, ``get_interface_unit(units.ms**-1)`` returns ``Hz``, whereas ``get_interface_unit(units.mV / units.s)`` returns the preferred unit ``mV / ms``.
 
         :param unit: an astropy unit
         :return: the interface unit of the same physical dimension
@@ -217,6 +234,8 @@ class UnitConverter:
     def get_interface_factor(cls, type_symbol: TypeSymbol) -> float:
         r"""
         Returns the factor that converts a value of the given type from the preferred unit (in which the generated code stores and computes with it) to the interface unit (see :py:meth:`get_interface_unit`); for instance, 1000 for the quantity "1 / time" if rates are preferred in 1/ms but exchanged with the user in Hz. The value in the interface unit is the factor times the stored value. For non-physical types and for physical types without a separate interface unit, the factor is 1.
+
+        The generated code applies this factor when a value is passed to the user (for instance, in ``get_status()`` and when recording), and its inverse when a value is received from the user (for instance, in ``set_status()``); see the class documentation. Code generators may check whether the factor equals 1 to omit the conversion code altogether.
 
         :param type_symbol: the type of a variable
         :return: the conversion factor
@@ -234,6 +253,8 @@ class UnitConverter:
     def print_interface_unit(cls, type_symbol: TypeSymbol) -> str:
         r"""
         Returns the unit in which values of the given type are exchanged with the user of the target platform (see :py:meth:`get_interface_unit`); for instance, ``Hz`` for the quantity "1 / time" if ``units.Hz`` is listed in ``INTERFACE_UNITS``. For non-physical types, the name of the type is returned (e.g. ``real``).
+
+        This is to be used in user-facing documentation, such as the documentation of parameters and state variables in the generated code; for the unit in which values are stored, see :py:meth:`print_unit`.
         """
         if isinstance(type_symbol, UnitTypeSymbol):
             return cls._print_unit(cls.get_interface_unit(type_symbol.astropy_unit))
