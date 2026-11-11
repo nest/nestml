@@ -193,6 +193,45 @@ class TestUnitSystem:
         # a dimensionless ratio is real, irrespective of the magnitude of its units
         assert PredefinedTypes.get_type(u.V / u.mV).equals(PredefinedTypes.get_real_type())
 
+    @pytest.mark.parametrize("quantity, expected_unit", [
+        ("(voltage / time)**-(1/2)", (u.V / u.s)**-0.5),
+        ("(time / voltage)**(1/2)", (u.V / u.s)**-0.5),
+        ("time**(1/2) * voltage**-(1/2)", (u.V / u.s)**-0.5),
+        ("(conductance / capacitance)**(1/2)", u.s**-0.5),
+        ("frequency**0.5", u.s**-0.5),
+        ("(current * resistance)**2 / (voltage * time)", u.V / u.s),
+        ("1 / (amount of substance / volume)**(3/2)", (u.mol / u.m**3)**-1.5),
+        ("(electrical potential)**-2 * time**-1", u.V**-2 / u.s),
+        ("(force * length / charge)**-(3/2)", u.V**-1.5),
+        ("((voltage / current)**2 * conductance)**(1/2) / resistance", u.Ohm**-0.5),
+    ])
+    def test_complex_quantity_expressions(self, quantity, expected_unit):
+        r"""Quantity expressions combining products, quotients and (negative, fractional) powers have the expected physical dimension."""
+        unit = PredefinedQuantities.parse(quantity)
+        assert unit.is_equivalent(expected_unit)
+        assert PredefinedTypes.get_type(unit).equals(PredefinedTypes.get_type(expected_unit))
+
+        # the same expression with a different sign of the exponent, a different exponent or a different base has a different dimension
+        assert not unit.is_equivalent(expected_unit**-1)
+        assert not unit.is_equivalent(expected_unit**2)
+        assert not unit.is_equivalent(expected_unit * u.s)
+
+    def test_complex_quantity_spellings(self):
+        r"""Different ways of writing the same physical dimension yield equal types; different dimensions yield different types."""
+        def type_of(quantity):
+            return PredefinedTypes.get_type(PredefinedQuantities.parse(quantity))
+
+        same = ["(voltage / time)**-(1/2)", "(time / voltage)**(1/2)", "time**0.5 / voltage**0.5", "(current * resistance / time)**-(1/2)", "(1 / time)**-(1/2) * (electric potential)**-(1/2)"]
+        for quantity in same:
+            assert type_of(quantity).equals(type_of(same[0])), quantity
+
+        for quantity in ["(voltage / time)**(1/2)", "(voltage / time)**-(1/3)", "(voltage * time)**-(1/2)", "(current / time)**-(1/2)"]:
+            assert not type_of(quantity).equals(type_of(same[0])), quantity
+
+        # numeric literals with complex units have the type of the corresponding quantity
+        assert type_of("(conductance / capacitance)**(1/2)").equals(type_of("time**-(1/2)"))
+        assert type_of("frequency**(1/2)").equals(PredefinedTypes.get_type((u.nS / u.uF)**0.5))
+
     def test_continuous_input_port_unit_is_inserted(self):
         r"""A continuous input port declared with a unit yields plain numbers in that unit: references to the port are multiplied by the unit explicitly."""
         model = self._parse("ContinuousInputPortUnits.nestml")

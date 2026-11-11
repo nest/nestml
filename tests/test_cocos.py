@@ -132,6 +132,15 @@ class TestCoCos:
         model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "valid")), "CoCoQuantitiesValid.nestml"))
         assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 0
 
+    def test_invalid_complex_quantities(self):
+        model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")), "CoCoComplexQuantities.nestml"))
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 4
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR, message_code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED)) == 4
+
+    def test_valid_complex_quantities(self):
+        model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "valid")), "CoCoComplexQuantities.nestml"))
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 0
+
     def test_invalid_divide_by_unit(self):
         model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")), "CoCoDivideByUnit.nestml"))
         assert len(Logger.get_messages(model, LoggingLevel.ERROR, message_code=MessageCode.NO_SOLITARY_PHYSICAL_UNITS)) > 0
