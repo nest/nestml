@@ -20,6 +20,7 @@ of every table; a lookup beyond the end of a table returns 0.
 
 import csv
 import math
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -30,6 +31,13 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
+
+
+# shared figure style, kept with the SpiNNaker tests
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tests" / "spinnaker_tests"))
+from spinnaker_test_utils import apply_publication_style
+
+apply_publication_style()
 
 
 # ============================================================================
@@ -55,28 +63,9 @@ OUTPUT_DIR = Path("lut_output")
 # Plot style (Okabe-Ito colour-blind safe palette)
 # ============================================================================
 
-WORD_COLORS = {8: "#E69F00", 16: "#0072B2", 32: "#009E73"}
 ROUND_COLORS = {"floor": "#D55E00", "round": "#0072B2"}
 ROUND_MARKERS = {"floor": "v", "round": "o"}
 LENGTH_CMAP = plt.get_cmap("viridis")
-
-plt.rcParams.update({
-    "figure.dpi": 110,
-    "savefig.dpi": 200,
-    "savefig.bbox": "tight",
-    "font.size": 10,
-    "axes.titlesize": 11,
-    "axes.titleweight": "bold",
-    "axes.labelsize": 10,
-    "axes.spines.top": False,
-    "axes.spines.right": False,
-    "axes.grid": True,
-    "grid.alpha": 0.3,
-    "grid.linewidth": 0.6,
-    "legend.frameon": False,
-    "legend.fontsize": 9,
-})
-
 
 # ============================================================================
 # Tables
@@ -222,11 +211,6 @@ def write_table_csvs(tables):
 # Figures
 # ============================================================================
 
-def mark_word_sizes(ax):
-    for bits in WORD_SIZES:
-        ax.axvline(bits, color=WORD_COLORS[bits], lw=6, alpha=0.15, zorder=0)
-
-
 def plot_anatomy(widths=(11,)):
     """Quantisation and truncation up close, in units of each table's LSB."""
     fig, axes = plt.subplots(2, len(widths), figsize=(6.5 * len(widths) + 1.5, 7.5),
@@ -282,15 +266,15 @@ def plot_anatomy(widths=(11,)):
 
     handles, labels = axes[0, 0].get_legend_handles_labels()
     fig.legend(handles, labels, loc="outside lower center", ncol=3, markerscale=1.5)
-    fig.suptitle(f"Exponential-decay LUT up close  (τ = {TAU:g} ms, dt = {DT:g} ms, "
-                 f"table starts at k = 1)", fontsize=13, fontweight="bold")
+    # fig.suptitle(f"Exponential-decay LUT up close  (τ = {TAU:g} ms, dt = {DT:g} ms, "
+    #              f"table starts at k = 1)", fontsize=13, fontweight="bold")
     return fig
 
 def plot_bits_tradeoff(roundings=("round", "floor")):
     """Error and table length against bits per entry, for natural-length tables."""
-    fig, (ax_err, ax_len) = plt.subplots(2, 1, figsize=(8, 8.5), sharex=True,
+    fig, (ax_err, ax_len) = plt.subplots(2, 1, figsize=(8, 5), sharex=True,
                                          constrained_layout=True,
-                                         gridspec_kw={"height_ratios": [1.6, 1]})
+                                         gridspec_kw={"height_ratios": [1, 1]})
     bits = np.array(list(SWEEP_BITS))
     metric_styles = {"max_abs_error": ("-", "o", "max |error|"),
                      "rms_error": ("--", "s", "RMS error")}
@@ -307,13 +291,6 @@ def plot_bits_tradeoff(roundings=("round", "floor")):
         lengths = [t.length for t in tables]
         ax_len.plot(bits, lengths, marker=ROUND_MARKERS[rounding], ms=5, lw=1.4,
                     color=color)
-        # label the standard widths: round above-left, floor below-right of its line
-        above = rounding == "round"
-        for b in WORD_SIZES:
-            n = lengths[list(bits).index(b)]
-            ax_len.annotate(f"{n}", (b, n), textcoords="offset points",
-                            xytext=(-7, 5) if above else (7, -12),
-                            ha="right" if above else "left", fontsize=8.5, color=color)
 
     ax_err.set_yscale("log")
     ax_err.set_ylabel("error over window")
@@ -321,19 +298,14 @@ def plot_bits_tradeoff(roundings=("round", "floor")):
     ax_len.set_xticks([4, 8, 12, 16, 20, 24, 28, 32])
     ax_len.set_xlabel("bits per entry (= fractional bits)" if not SIGNED
                       else "bits per entry (fractional bits = bits − 1)")
-    for ax in (ax_err, ax_len):
-        mark_word_sizes(ax)
 
     handles = (
         [Line2D([], [], color=ROUND_COLORS[r], lw=2.5, label=r) for r in roundings]
         + [Line2D([], [], color="grey", ls=ls, marker=m, ms=4.5, label=label)
            for ls, m, label in metric_styles.values()]
-        + [Line2D([], [], color=WORD_COLORS[b], lw=6, alpha=0.3, label=f"{b}-bit")
-           for b in WORD_SIZES]
     )
-    ax_err.legend(handles=handles, loc="upper right", ncol=3)
-    fig.suptitle("Natural-length tables: accuracy and size vs bits per entry",
-                 fontsize=12, fontweight="bold")
+    ax_err.legend(handles=handles, loc="upper right", ncol=2)
+    # fig.suptitle("Natural-length tables: accuracy and size vs bits per entry", fontsize=12, fontweight="bold")
     return fig
 
 def plot_natural_summary(tables):
@@ -371,7 +343,7 @@ def plot_natural_summary(tables):
         ax.set_xticks(x)
         ax.set_xticklabels([f"{b}-bit\nF = {frac_bits_for(b)}" for b in WORD_SIZES])
     axes[0, 0].legend(title="rounding", loc="upper right")
-    fig.suptitle("Natural-length tables: floor vs round", fontsize=13, fontweight="bold")
+    # fig.suptitle("Natural-length tables: floor vs round", fontsize=13, fontweight="bold")
     return fig
 
 

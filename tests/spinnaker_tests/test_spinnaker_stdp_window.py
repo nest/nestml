@@ -43,39 +43,6 @@ _run_styles = {True: {"color": "tab:orange", "marker": "o", "label": "NESTML (ex
 # maximum weight for the sPyNNaker built-in STDP synapse. Just under a power of two, as this determines the weight resolution: the stored weights are 16-bit, scaled such that weights up to 2**ceil(log2(BUILTIN_W_MAX)) can be represented
 BUILTIN_W_MAX = 7.9
 
-# publication-ready figure style
-plt.rcParams.update({
-    # grid lines for all plots
-    "axes.grid": True,
-    "grid.linestyle": "--",
-    "grid.alpha": 0.7,
-    "grid.linewidth": 0.8,
-
-    # font sizes
-    "font.size": 14,
-    "axes.labelsize": 16,
-    "xtick.labelsize": 14,
-    "ytick.labelsize": 14,
-    "legend.fontsize": 13,
-    "axes.titlesize": 16,
-
-    # lines and markers
-    "lines.linewidth": 2.,
-    "lines.markersize": 8.,
-    "errorbar.capsize": 4.,
-    "axes.linewidth": 1.2,
-    "xtick.major.width": 1.2,
-    "ytick.major.width": 1.2,
-    "xtick.major.size": 5.,
-    "ytick.major.size": 5.,
-
-    # output
-    "savefig.dpi": 300,
-    "savefig.bbox": "tight",
-    "pdf.fonttype": 42,    # embed TrueType fonts (rather than Type 3) in PDF/PS output, as required by many publishers
-    "ps.fonttype": 42,
-})
-
 
 def builtin_weight_resolution():
     r"""Weight resolution of the sPyNNaker built-in STDP synapse (see ``PopulationVertex.get_ring_buffer_shifts()`` and ``__get_weight_scale()`` in sPyNNaker)"""
@@ -270,7 +237,7 @@ class TestSpiNNakerSTDPWindow:
 
         fig, (ax, ax_err) = plt.subplots(2, 1, sharex=True, figsize=(6.4, 6.), gridspec_kw={"height_ratios": [3, 1]})
 
-        ax.plot(dt_cont, dw_cont, '-', color="grey", alpha=.4, linewidth=1., zorder=0)
+        ax.plot(dt_cont, dw_cont, '-', color="grey", alpha=.4, zorder=0)
         ax.plot(first_result["spike_time_axis"], first_result["ref_weights"], 'x', color="tab:blue", markersize=8, label="ref")
         for key, result in _stdp_window_results.items():
             style = _run_styles[key]
@@ -278,11 +245,11 @@ class TestSpiNNakerSTDPWindow:
             ax_err.plot(result["spike_time_axis"], result["sim_weights"] - result["ref_weights"], linestyle="none", marker=style["marker"], markerfacecolor="none", color=style["color"], label=style["label"])
 
         ax.set_ylabel(r"$\Delta w$")
-        ax.set_title("STDP-Window")
+        # ax.set_title("STDP-Window")
         ax.grid(True)
         ax.legend()
 
-        ax_err.axhline(0., color="grey", alpha=.4, linewidth=1., zorder=0)
+        ax_err.axhline(0., color="grey", alpha=.4, zorder=0)
         ax_err.set_xlabel(r"$t_\mathrm{post} - t_\mathrm{pre}$ [ms]")
         ax_err.set_ylabel(r"$\Delta w - \Delta w_\mathrm{ref}$")
         ax_err.grid(True)
@@ -430,7 +397,7 @@ class TestSpiNNakerSTDPWindow:
         ax.grid(True)
         ax.legend()
 
-        ax_err.axhline(0., color="grey", alpha=.4, linewidth=1., zorder=0)
+        ax_err.axhline(0., color="grey", alpha=.4, zorder=0)
         ax_err.set_yscale("symlog", linthresh=1.)    # logarithmic for |error| > 1 LSB (keeping the sign), linear within +/- 1 LSB so that zero error can be shown
         ax_err.set_xlabel("Number of pairings")
         ax_err.set_ylabel(r"$w - w_\mathrm{ref}$ [S16.15 LSB]")

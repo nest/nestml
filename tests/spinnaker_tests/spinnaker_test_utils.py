@@ -52,13 +52,44 @@ import shutil
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Enable grid lines globally for all plots
-plt.rcParams['axes.grid'] = True
+# publication-ready figure style
+PUBLICATION_RC_PARAMS = {
+    # grid lines for all plots
+    "axes.grid": True,
+    "grid.linestyle": "--",
+    "grid.alpha": 0.7,
+    "grid.linewidth": 0.8,
 
-# Optional: Set grid aesthetic defaults (style, opacity, line width)
-plt.rcParams['grid.linestyle'] = '--'
-plt.rcParams['grid.alpha'] = 0.7
-plt.rcParams['grid.linewidth'] = 0.8
+    # font sizes
+    "font.size": 14,
+    "axes.labelsize": 16,
+    "xtick.labelsize": 14,
+    "ytick.labelsize": 14,
+    "legend.fontsize": 13,
+    "axes.titlesize": 16,
+
+    # lines and markers
+    "lines.linewidth": 2.,
+    "lines.markersize": 8.,
+    "lines.markeredgewidth": 2.,
+    "errorbar.capsize": 4.,
+    "axes.linewidth": 1.2,
+    "xtick.major.width": 1.2,
+    "ytick.major.width": 1.2,
+    "xtick.major.size": 5.,
+    "ytick.major.size": 5.,
+
+    # output
+    "savefig.dpi": 300,
+    "savefig.bbox": "tight",
+    "pdf.fonttype": 42,    # embed TrueType fonts (rather than Type 3) in PDF/PS output, as required by many publishers
+    "ps.fonttype": 42,
+}
+
+
+def apply_publication_style():
+    r"""Set the matplotlib rcParams to the shared publication-ready figure style"""
+    plt.rcParams.update(PUBLICATION_RC_PARAMS)
 
 
 
