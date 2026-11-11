@@ -141,7 +141,12 @@ project( ${MODULE_NAME} CXX )
 
 set( CM_EXTRA_COMPILE_FLAGS "" )
 set( CM_EXTRA_LINK_FLAGS "" )
-if ( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
+
+
+
+include( CheckCXXCompilerFlag )
+check_cxx_compiler_flag( "-fno-gnu-unique" NESTML_HAS_NO_GNU_UNIQUE )
+if ( NESTML_HAS_NO_GNU_UNIQUE )
     # Avoid STB_GNU_UNIQUE symbols, which prevent the module from being unloaded (GCC only; not supported by e.g. Clang).
     set( CM_EXTRA_COMPILE_FLAGS "${CM_EXTRA_COMPILE_FLAGS} -fno-gnu-unique" )
 endif ()
