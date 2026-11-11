@@ -356,7 +356,7 @@ class TestSpiNNakerSTDPWindow:
                                                               debug=False)
 
     def plot_stdp_drift(self, syn_opts):
-        r"""Plot the weight over time for all runs (exp LUTs on/off) collected so far, together with the reference"""
+        r"""Plot the weight as a function of the number of pairings, for all runs (exp LUTs on/off) collected so far, together with the reference"""
         if not _stdp_drift_results:
             return
 
@@ -368,11 +368,11 @@ class TestSpiNNakerSTDPWindow:
         fig, (ax, ax_err) = plt.subplots(2, 1, sharex=True, figsize=(6.4, 6.), gridspec_kw={"height_ratios": [2, 2]})
 
         first_result = next(iter(_stdp_drift_results.values()))
-        ax.plot(first_result["readout_times"], first_result["ref_weights"], 'x-', color="tab:blue", markersize=8, label="ref")
+        ax.plot(first_result["n_pairings_applied"], first_result["ref_weights"], 'x-', color="tab:blue", markersize=8, label="ref")
         for use_exp_luts, result in _stdp_drift_results.items():
             style = run_styles[use_exp_luts]
-            ax.plot(result["readout_times"], result["sim_weights"], linestyle="none", marker=style["marker"], markerfacecolor="none", color=style["color"], label=style["label"])
-            ax_err.plot(result["readout_times"], (result["sim_weights"] - result["ref_weights"]) / lsb, linestyle="-", marker=style["marker"], markerfacecolor="none", color=style["color"], label=style["label"])
+            ax.plot(result["n_pairings_applied"], result["sim_weights"], linestyle="none", marker=style["marker"], markerfacecolor="none", color=style["color"], label=style["label"])
+            ax_err.plot(result["n_pairings_applied"], (result["sim_weights"] - result["ref_weights"]) / lsb, linestyle="-", marker=style["marker"], markerfacecolor="none", color=style["color"], label=style["label"])
 
         ax.set_ylabel("$w$")
         ax.set_title(r"Repeated pairings ($\lambda$ = " + str(syn_opts["lambda"]) + ")")
@@ -380,7 +380,7 @@ class TestSpiNNakerSTDPWindow:
         ax.legend()
 
         ax_err.axhline(0., color="grey", alpha=.4, linewidth=1., zorder=0)
-        ax_err.set_xlabel("Time [ms]")
+        ax_err.set_xlabel("Number of pairings")
         ax_err.set_ylabel(r"$w - w_\mathrm{ref}$ [S1516 LSB]")
         ax_err.grid(True)
         ax_err.legend()
@@ -410,13 +410,14 @@ class TestSpiNNakerSTDPWindow:
         pairing_period = 250.       # [ms]; should be longer than the LUT (~154 ms for tau = 20 ms)
         pairing_dt = 3.             # post minus pre input spike time [ms]; with dendritic delay, this gives a synaptic perspective dt of 4 ms, where the LUT error is large (~0.76/2048), and also large at +/- 1 ms
         n_pairings = 40
-        pairings_per_readout = 4
+        pairings_per_readout = 1    # increase to reduce the number of ``p.run()`` calls (and hence the run time), at the expense of fewer data points
 
-        pre_spike_times = t_start + pairing_period * np.arange(n_pairings)
-        post_spike_times = pre_spike_times + pairing_dt
+        # one extra presynaptic spike at the end (without a postsynaptic partner) to flush the deferred weight update for the last postsynaptic spike
+        pre_spike_times = t_start + pairing_period * np.arange(n_pairings + 1)
+        post_spike_times = pre_spike_times[:-1] + pairing_dt
 
         # read out halfway between pairings, so that the last presynaptic spike has been processed
-        readout_times = t_start + pairing_period * (pairings_per_readout * np.arange(1, n_pairings // pairings_per_readout + 1) - .5)
+        readout_times = t_start + pairing_period * (np.arange(0, n_pairings + 1, pairings_per_readout) + .5)
 
         sim_weights, actual_pre_spike_times, actual_post_spike_times = self.run_sim_with_weight_readout(list(pre_spike_times),
                                                                                                         list(post_spike_times),
@@ -430,16 +431,20 @@ class TestSpiNNakerSTDPWindow:
                                                                  actual_post_spike_times,
                                                                  initial_weight=initial_weight) for t in readout_times])
 
+        # number of pairings for which the (deferred) weight update has been applied at each readout time, i.e. the number of postsynaptic spikes (in the synaptic perspective) up to the last presynaptic spike before the readout
+        n_pairings_applied = np.array([np.sum(actual_post_spike_times + syn_opts["delay"] <= np.amax(actual_pre_spike_times[actual_pre_spike_times <= t], initial=-np.inf)) for t in readout_times])
+
         print("Simulation results")
         print("------------------")
         print("actual pre spikes: " + str(actual_pre_spike_times))
         print("actual post spikes: " + str(actual_post_spike_times))
         print("readout times = " + str(readout_times))
+        print("number of pairings applied = " + str(n_pairings_applied))
         print("weights after sim = " + str(sim_weights))
         print("weights after ref sim = " + str(ref_weights))
         print("difference [S1516 LSB] = " + str((sim_weights - ref_weights) * 2**16))
 
-        _stdp_drift_results[use_exp_luts] = {"readout_times": readout_times,
+        _stdp_drift_results[use_exp_luts] = {"n_pairings_applied": n_pairings_applied,
                                              "sim_weights": sim_weights,
                                              "ref_weights": ref_weights}
 
