@@ -3,7 +3,7 @@ NEST Simulator target
 
 *NESTML features supported:* :doc:`neurons </nestml_language/neurons_in_nestml>`, :doc:`synapses </nestml_language/synapses_in_nestml>`, :ref:`vectors <Vectors>`, :ref:`delay differential equations <Delay Differential Equations>`, :ref:`guards <Guards>`
 
-Generates code for NEST Simulator. For a list of supported versions, see :ref:`Compatibility with different versions of NEST <nest_versions_compatibility>`.
+Generates code for NEST Simulator. For a list of supported versions and NEST installation instructions, see :ref:`Compatibility with different versions of NEST <nest_versions_compatibility>`.
 
 After NESTML completes, the NEST extension module (by default called ``"nestmlmodule"``) can either be statically linked into NEST (see `Writing an extension module <https://nest-extension-module.readthedocs.io/>`_), or loaded dynamically using the ``Install`` API call in Python.
 
@@ -423,10 +423,14 @@ To generate code that is compatible with particular versions of NEST Simulator, 
 
 - The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
 - ``"main"``: Latest NEST GitHub main branch version (https://github.com/nest/nest-simulator/).
-- ``"v2.20.2"``: Latest NEST 2 release.
+- ``"v2.20.2"``: Latest NEST 2 release. (**Be advised that support for NEST 2 will be deprecated in the next NESTML release.**)
 - ``"v3.0"``, ``"v3.1"``, ``"v3.2"``, etc.: NEST 3 release versions.
 
 For a list of the corresponding NEST Simulator repository tags, please see https://github.com/nest/nest-simulator/tags.
+
+.. warning::
+
+   The pip installation of NEST is not supported. Please use an alternative way to install NEST. See `NEST installation instructions <https://nest-simulator.readthedocs.io/en/stable/installation/developer.html#dev-install>`_.
 
 
 Random numbers

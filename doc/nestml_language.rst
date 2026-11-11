@@ -1211,7 +1211,7 @@ A corresponding spiking input port can be defined in a NESTML model as follows:
    input:
        spikes_pre <- spike
 
-Note that the unit of ``spikes_pre`` is :math:`\text{s}^{-1}`, as ``w`` has been defined as a dimensionless real number.
+Note that the unit of ``spikes_pre`` is :math:`\text{s}^{-1}`, as :math:`w` has been defined as a dimensionless real number.
 
 Spiking input can be processed either by referencing the input port in the right-hand side of an equation (see :ref:`Handling spiking input in equations`) or by means of ``onReceive`` event handlers (see :ref:`Handling spiking input by event handlers`).
 
@@ -1269,7 +1269,7 @@ An ``onReceive`` block can be defined for every spiking input port. The statemen
        println("Info: processing a presynaptic spike at time t = {t}")
        # ... further statements go here ...
 
-The statements in the event handler will be executed when the event occurs and integrate the state of the system from "just before" the event (at :math:`t-\epsilon`, for :math:`\epsilon\rightarrow 0`) to "just after" the event (at :math:`t=t+\epsilon`). Analogous to the ``update`` block, the predefined variable ``t`` indicates the time :math:`t` at the start of the interval (the function ``timestep()`` may not be used inside an ``onReceive`` block to prevent confusion).
+The statements in the event handler will be executed when the event occurs and integrate the state of the system from "just before" the event (at :math:`t-\epsilon`, for :math:`\epsilon\rightarrow 0`) to "just after" the event (at :math:`t=t+\epsilon`). The predefined variable ``t`` can be used and corresponds with the time of the event. The function ``timestep()`` may not be used inside an ``onReceive`` block to prevent confusion, as the timestep is infinitesimally small.
 
 Typically, the statements in the ``onReceive`` block integrate the delta function across time, yielding the surface area under the curve, the value of which corresponds to the weight of the spike. To perform this integration in a concise way, we use the sifting property of the delta function. The sifting property states that for any continuous function :math:`f(t)`:
 
