@@ -28,7 +28,7 @@ from pynestml.frontend.pynestml_frontend import generate_python_standalone_targe
 
 class TestPythonStandaloneNeuronBuildAndSimNumeric(unittest.TestCase):
     """
-    Tests the code generation and running a little simulation. Check that the numerical membrane voltage at the end of the simulation is close to a hard-coded numeric value.
+    Tests the code generation and running a little simulation. Check that the numerical membrane voltage over the course of the simulation is close to a reference timeseries obtained from NEST Simulator.
     """
 
     def test_python_standalone_neuron_build_and_sim_numeric(self):
@@ -48,4 +48,7 @@ class TestPythonStandaloneNeuronBuildAndSimNumeric(unittest.TestCase):
 
         from nestmlmodule.test_python_standalone_module import TestSimulator
         neuron_log = TestSimulator().test_simulator()
-        np.testing.assert_allclose(neuron_log["V_m"][-1], -74.4914813666839)
+        # compare against the reference timeseries obtained by running the same model and simulation in NEST Simulator; see ``resources/generate_nest_reference_values.py``
+        ref_V_m = np.loadtxt(os.path.join(os.path.dirname(__file__), "resources", "aeif_cond_exp_neuron.csv"), delimiter=",", skiprows=1, usecols=1)    # column 0: time [ms], column 1: V_m [mV]
+        # the tolerance accounts for the different numerical ODE solvers used in NEST Simulator and in the Python-standalone target; the largest deviations occur during the exponential upswing of the membrane potential just before a spike
+        np.testing.assert_allclose(neuron_log["V_m"], ref_V_m, atol=1E-1)    # [mV]

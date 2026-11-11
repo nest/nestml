@@ -27,7 +27,7 @@ from pynestml.frontend.pynestml_frontend import generate_python_standalone_targe
 
 class TestPythonStandaloneIzhikevich:
     """
-    Tests the code generation and running a little simulation.
+    Tests the code generation and running a little simulation. Check that the numerical membrane voltage over the course of the simulation is close to a reference timeseries obtained from NEST Simulator.
     """
 
     def test_python_standalone_izhikevich(self):
@@ -47,4 +47,6 @@ class TestPythonStandaloneIzhikevich:
 
         from nestmlmodule.test_python_standalone_module import TestSimulator
         neuron_log = TestSimulator().test_simulator()
-        np.testing.assert_allclose(neuron_log["V_m"][-1], -89.91808123318172)
+        # compare against the reference timeseries obtained by running the same model and simulation in NEST Simulator; see ``resources/generate_nest_reference_values.py``
+        ref_V_m = np.loadtxt(os.path.join(os.path.dirname(__file__), "resources", "izhikevich_neuron.csv"), delimiter=",", skiprows=1, usecols=1)    # column 0: time [ms], column 1: V_m [mV]
+        np.testing.assert_allclose(neuron_log["V_m"], ref_V_m, atol=1E-4)    # [mV]

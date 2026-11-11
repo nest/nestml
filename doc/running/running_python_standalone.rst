@@ -32,6 +32,8 @@ After the code has been generated, a simple test can can be run by calling:
 
    python3 test_python_standalone_module.py
 
+All connections in the Python-standalone simulator have a fixed transmission delay of one simulation timestep; other delays are not supported. A spike emitted by a ``SpikeGenerator`` at time :math:`t` is delivered in the same way as a spike emitted at time :math:`t` by a ``spike_generator`` in NEST Simulator, so that simulation results can be directly compared against NEST Simulator, using connection delays equal to the simulation resolution.
+
 
 Code generation options
 ~~~~~~~~~~~~~~~~~~~~~~~

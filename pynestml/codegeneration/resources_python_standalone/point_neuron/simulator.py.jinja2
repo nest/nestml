@@ -54,6 +54,8 @@ class Simulator:
     A very simple neural network simulator that allows a network to be instantiated and performs time stepping.
 
     Note that multiple connections between neurons are not supported.
+
+    Spikes emitted by a neuron during a timestep are delivered to their targets after all neurons have been updated, and are applied by the targets at the end of the next timestep. This means that all connections have a fixed transmission delay equal to one timestep (this corresponds to a connection with delay equal to the simulation resolution in NEST Simulator). Other delays are not supported.
     """
     neurons: List[Neuron] = []
     connections: Mapping[Neuron, List[Neuron]] = {}       # map from id(source) to list of id(target)
