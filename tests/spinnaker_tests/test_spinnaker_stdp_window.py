@@ -29,11 +29,25 @@ from pynestml.frontend.pynestml_frontend import generate_spinnaker_target
 from tests.test_utils import get_trace_at
 
 
-# results of the STDP window test, keyed by ``use_exp_luts``; collected across the parametrized runs so that they can be plotted together
+# results of the STDP window test, keyed by ``use_exp_luts`` (or "builtin" for the sPyNNaker built-in models); collected across the parametrized runs so that they can be plotted together
 _stdp_window_results = {}
 
-# results of the repeated-pairing drift test, keyed by ``use_exp_luts``
+# results of the repeated-pairing drift test, keyed by ``use_exp_luts`` (or "builtin" for the sPyNNaker built-in models)
 _stdp_drift_results = {}
+
+# plotting styles for each of the result keys
+_run_styles = {True: {"color": "tab:orange", "marker": "o", "label": "NESTML (exp LUTs)"},
+               False: {"color": "tab:green", "marker": "s", "label": "NESTML (no exp LUTs)"},
+               "builtin": {"color": "tab:purple", "marker": "^", "label": "sPyNNaker built-in"}}
+
+# maximum weight for the sPyNNaker built-in STDP synapse. Just under a power of two, as this determines the weight resolution: the stored weights are 16-bit, scaled such that weights up to 2**ceil(log2(BUILTIN_W_MAX)) can be represented
+BUILTIN_W_MAX = 7.9
+
+
+def builtin_weight_resolution():
+    r"""Weight resolution of the sPyNNaker built-in STDP synapse (see ``PopulationVertex.get_ring_buffer_shifts()`` and ``__get_weight_scale()`` in sPyNNaker)"""
+    ring_buffer_shift = int(np.ceil(np.log2(BUILTIN_W_MAX)))
+    return 2.**(ring_buffer_shift + 1 - 16)
 
 
 class TestSpiNNakerSTDPWindow:
@@ -115,54 +129,65 @@ class TestSpiNNakerSTDPWindow:
         return weight_reference[-1] - initial_weight    # return the final weight minus the initial weight
 
 
-    def run_sim(self, pre_spike_times, post_spike_times, syn_opts, sim_time=1100, initial_weight=1., n_pre_neurons=1, n_post_neurons=1):
-        import pyNN.spiNNaker as p
+    def create_network(self, p, pre_spike_times, post_spike_times, syn_opts, initial_weight=1., n_pre_neurons=1, n_post_neurons=1, use_builtin=False):
+        r"""Create the pre- and postsynaptic neurons (each driven to spike at the given times by a spike source), connected by an STDP synapse.
 
-        from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml as iaf_psc_exp_neuron_nestml
-        from python_models8.neuron.implementations.stdp_synapse_nestml_impl import stdp_synapse_nestmlDynamics as stdp_synapse_nestml
-
+        If ``use_builtin`` is True, the sPyNNaker built-in ``IF_curr_exp`` neuron and ``STDPMechanism`` (``SpikePairRule`` with ``AdditiveWeightDependence``) are used instead of the NESTML-generated models; these implement the same additive STDP rule as the reference (``A_plus = A_minus = lambda``)."""
         assert len(pre_spike_times) == n_pre_neurons
         assert len(post_spike_times) == n_post_neurons
-
-        use_NESTML = True
-
-        p.setup(timestep=1.0)
-        if use_NESTML:
-            exc_input = "exc_spikes"
-        else:
-            exc_input = "excitatory"
 
         # inputs for pre and post synaptic neurons
         pre_input = p.Population(n_pre_neurons, p.SpikeSourceArray(pre_spike_times), label="pre_input")
         post_input = p.Population(n_post_neurons, p.SpikeSourceArray(post_spike_times), label="post_input")
 
-        # pre and post synaptic spiking neuron populations
-        if use_NESTML:
+        if use_builtin:
+            # short synaptic time constant and long refractory period so that each input spike elicits exactly one spike
+            neuron_params = {"tau_syn_E": 1., "tau_refrac": 5.}
+            drive_weight = 50.    # [nA]
+            pre_spiking = p.Population(n_pre_neurons, p.IF_curr_exp(**neuron_params), label="pre_spiking")
+            # fix the ring buffer shift of the inhibitory synapse type, which determines the weight resolution of the STDP synapse (``2**(ceil(log2(BUILTIN_W_MAX)) + 1 - 16)``)
+            post_spiking = p.Population(n_post_neurons, p.IF_curr_exp(**neuron_params), label="post_spiking",
+                                        additional_parameters={"max_expected_summed_weight": [drive_weight, BUILTIN_W_MAX]})
+
+            p.Projection(pre_input, pre_spiking, p.OneToOneConnector(), receptor_type="excitatory", synapse_type=p.StaticSynapse(weight=drive_weight))
+            p.Projection(post_input, post_spiking, p.OneToOneConnector(), receptor_type="excitatory", synapse_type=p.StaticSynapse(weight=drive_weight))
+
+            stdp_model = p.STDPMechanism(timing_dependence=p.SpikePairRule(tau_plus=syn_opts["tau_pre_trace"],
+                                                                           tau_minus=syn_opts["tau_post_trace"],
+                                                                           A_plus=syn_opts["lambda"],
+                                                                           A_minus=syn_opts["lambda"]),
+                                         weight_dependence=p.AdditiveWeightDependence(w_min=0., w_max=BUILTIN_W_MAX),
+                                         weight=initial_weight,
+                                         delay=syn_opts["delay"])
+            # connect to the inhibitory port: the strong excitatory drive still determines the postsynaptic spike timing, and the STDP synapse cannot cause additional postsynaptic spikes
+            stdp_projection = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type="inhibitory")
+        else:
+            from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml as iaf_psc_exp_neuron_nestml
+            from python_models8.neuron.implementations.stdp_synapse_nestml_impl import stdp_synapse_nestmlDynamics as stdp_synapse_nestml
+
             pre_spiking = p.Population(n_pre_neurons, iaf_psc_exp_neuron_nestml(), label="pre_spiking")
             post_spiking = p.Population(n_post_neurons, iaf_psc_exp_neuron_nestml(), label="post_spiking")
-        else:
-            pre_spiking = p.Population(n_pre_neurons, p.IF_curr_exp(), label="pre_spiking")
-            post_spiking = p.Population(n_post_neurons, p.IF_curr_exp(), label="post_spiking")
 
-        weight_pre = 5000
-        weight_post = 5000
+            p.Projection(pre_input, pre_spiking, p.OneToOneConnector(), receptor_type="exc_spikes", synapse_type=p.StaticSynapse(weight=5000))
+            p.Projection(post_input, post_spiking, p.OneToOneConnector(), receptor_type="exc_spikes", synapse_type=p.StaticSynapse(weight=5000))
 
-        p.Projection(pre_input, pre_spiking, p.OneToOneConnector(), receptor_type=exc_input, synapse_type=p.StaticSynapse(weight=weight_pre))
-        p.Projection(post_input, post_spiking, p.OneToOneConnector(), receptor_type=exc_input, synapse_type=p.StaticSynapse(weight=weight_post))
-
-        #stdp_model._nestml_model_variables["tau_tr_pre"] = 20.
-        #stdp_model._nestml_model_variables["tau_tr_post"] = 20.
-        if use_NESTML:
             stdp_model = stdp_synapse_nestml(weight=initial_weight)
             stdp_model._nestml_model_variables["lambda"] = syn_opts["lambda"]
             stdp_projection = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type="ignore_spikes")   # connect to a port where incoming spikes are ignored, so the STDP synapse itself does not change the postsynaptic spike timing
-        else:
-            stdp_model = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type="excitatory")   # connect to a port where incoming spikes are ignored, so the STDP synapse itself doe>
-            stdp_projection = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type="excitatory")   # connect to a port where incoming spikes are ignored, so the STDP synapse itself does not change the postsynaptic spike timing
-        print("[NESTML synapse] Synapse parameters: " + str(stdp_model._nestml_model_variables))
-            #for k, v in syn_opts.items():
-            #    stdp_projection[i].set(k, v)
-#        stdp_projection = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type="exc_spikes")   # connect to a port where incoming spikes are ignored, so the STDP synapse itself does not change the postsynaptic spike timing
+            print("[NESTML synapse] Synapse parameters: " + str(stdp_model._nestml_model_variables))
+
+        return pre_spiking, post_spiking, stdp_projection
+
+    def run_sim(self, pre_spike_times, post_spike_times, syn_opts, sim_time=1100, initial_weight=1., n_pre_neurons=1, n_post_neurons=1, use_builtin=False):
+        import pyNN.spiNNaker as p
+
+        p.setup(timestep=1.0)
+
+        pre_spiking, post_spiking, stdp_projection = self.create_network(p, pre_spike_times, post_spike_times, syn_opts,
+                                                                         initial_weight=initial_weight,
+                                                                         n_pre_neurons=n_pre_neurons,
+                                                                         n_post_neurons=n_post_neurons,
+                                                                         use_builtin=use_builtin)
 
         pre_spiking.record(["spikes"])
         post_spiking.record(["spikes"])
@@ -210,15 +235,12 @@ class TestSpiNNakerSTDPWindow:
                                                              dt_max=np.amax(all_dt),
                                                              initial_weight=initial_weight)
 
-        run_styles = {True: {"color": "tab:orange", "marker": "o", "label": "NESTML (exp LUTs)"},
-                      False: {"color": "tab:green", "marker": "s", "label": "NESTML (no exp LUTs)"}}
-
         fig, (ax, ax_err) = plt.subplots(2, 1, sharex=True, figsize=(6.4, 6.), gridspec_kw={"height_ratios": [3, 1]})
 
         ax.plot(dt_cont, dw_cont, '-', color="grey", alpha=.4, linewidth=1., zorder=0)
         ax.plot(first_result["spike_time_axis"], first_result["ref_weights"], 'x', color="tab:blue", markersize=8, label="ref")
-        for use_exp_luts, result in _stdp_window_results.items():
-            style = run_styles[use_exp_luts]
+        for key, result in _stdp_window_results.items():
+            style = _run_styles[key]
             ax.plot(result["spike_time_axis"], result["sim_weights"], linestyle="none", marker=style["marker"], markerfacecolor="none", color=style["color"], label=style["label"])
             ax_err.plot(result["spike_time_axis"], result["sim_weights"] - result["ref_weights"], linestyle="none", marker=style["marker"], markerfacecolor="none", color=style["color"], label=style["label"])
 
@@ -242,6 +264,13 @@ class TestSpiNNakerSTDPWindow:
         use_exp_luts = generate_code
         assert use_exp_luts in [True, False]
 
+        self._run_stdp_window(results_key=use_exp_luts, use_builtin=False)
+
+    def test_stdp_window_builtin(self):
+        r"""Run the STDP window test with the sPyNNaker built-in ``IF_curr_exp`` neuron and ``STDPMechanism``, for comparison"""
+        self._run_stdp_window(results_key="builtin", use_builtin=True)
+
+    def _run_stdp_window(self, results_key, use_builtin: bool):
         syn_opts = {
             "delay": 1.,  # dendritic delay [ms]
             "tau_pre_trace": 20.,
@@ -260,7 +289,8 @@ class TestSpiNNakerSTDPWindow:
                 w_final, actual_pre_spike_times, actual_post_spike_times = self.run_sim([pre_spike_times],
                                                                                         [[t_post]],
                                                                                         syn_opts,
-                                                                                        initial_weight=initial_weight)
+                                                                                        initial_weight=initial_weight,
+                                                                                        use_builtin=use_builtin)
                 dw = w_final[0][0] - initial_weight
 
                 sim_weights.append(dw)
@@ -287,39 +317,31 @@ class TestSpiNNakerSTDPWindow:
         print("delta weights after sim = " + str(sim_weights))
         print("delta weights after ref sim = " + str(ref_weights))
 
-        _stdp_window_results[use_exp_luts] = {"spike_time_axis": np.array(spike_time_axis),
-                                              "sim_weights": sim_weights,
-                                              "ref_weights": ref_weights,
-                                              "pre_spike_times": np.array(actual_pre_spike_times[0]).astype(float)}
+        _stdp_window_results[results_key] = {"spike_time_axis": np.array(spike_time_axis),
+                                             "sim_weights": sim_weights,
+                                             "ref_weights": ref_weights,
+                                             "pre_spike_times": np.array(actual_pre_spike_times[0]).astype(float)}
 
         self.plot_stdp_window(syn_opts, initial_weight=initial_weight)
 
         # testing
 
-        atol = 2 / 2**16    # twice LSB tolerance of S1516 format
+        if use_builtin:
+            # the built-in synapse truncates the weight to its (coarser) resolution after each presynaptic spike, and uses Q11 LUTs and Q11 traces
+            atol = len(pre_spike_times) * builtin_weight_resolution() + 3 * syn_opts["lambda"] / 2048
+        else:
+            atol = 2 / 2**16    # twice LSB tolerance of S1516 format
         np.testing.assert_allclose(sim_weights, ref_weights, atol=atol, rtol=np.inf)
 
-    def run_sim_with_weight_readout(self, pre_spike_times, post_spike_times, syn_opts, readout_times, initial_weight=1.):
+    def run_sim_with_weight_readout(self, pre_spike_times, post_spike_times, syn_opts, readout_times, initial_weight=1., use_builtin=False):
         r"""Run a single pre/post neuron pair, and read out the weight of the STDP synapse at each of the times in ``readout_times`` by running the simulation in chunks"""
         import pyNN.spiNNaker as p
 
-        from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml as iaf_psc_exp_neuron_nestml
-        from python_models8.neuron.implementations.stdp_synapse_nestml_impl import stdp_synapse_nestmlDynamics as stdp_synapse_nestml
-
         p.setup(timestep=1.0)
 
-        pre_input = p.Population(1, p.SpikeSourceArray(pre_spike_times), label="pre_input")
-        post_input = p.Population(1, p.SpikeSourceArray(post_spike_times), label="post_input")
-
-        pre_spiking = p.Population(1, iaf_psc_exp_neuron_nestml(), label="pre_spiking")
-        post_spiking = p.Population(1, iaf_psc_exp_neuron_nestml(), label="post_spiking")
-
-        p.Projection(pre_input, pre_spiking, p.OneToOneConnector(), receptor_type="exc_spikes", synapse_type=p.StaticSynapse(weight=5000))
-        p.Projection(post_input, post_spiking, p.OneToOneConnector(), receptor_type="exc_spikes", synapse_type=p.StaticSynapse(weight=5000))
-
-        stdp_model = stdp_synapse_nestml(weight=initial_weight)
-        stdp_model._nestml_model_variables["lambda"] = syn_opts["lambda"]
-        stdp_projection = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type="ignore_spikes")   # connect to a port where incoming spikes are ignored, so the STDP synapse itself does not change the postsynaptic spike timing
+        pre_spiking, post_spiking, stdp_projection = self.create_network(p, [pre_spike_times], [post_spike_times], syn_opts,
+                                                                         initial_weight=initial_weight,
+                                                                         use_builtin=use_builtin)
 
         pre_spiking.record(["spikes"])
         post_spiking.record(["spikes"])
@@ -362,15 +384,12 @@ class TestSpiNNakerSTDPWindow:
 
         lsb = 2**-16    # LSB of S1516 format
 
-        run_styles = {True: {"color": "tab:orange", "marker": "o", "label": "NESTML (exp LUTs)"},
-                      False: {"color": "tab:green", "marker": "s", "label": "NESTML (no exp LUTs)"}}
-
         fig, (ax, ax_err) = plt.subplots(2, 1, sharex=True, figsize=(6.4, 6.), gridspec_kw={"height_ratios": [2, 2]})
 
         first_result = next(iter(_stdp_drift_results.values()))
         ax.plot(first_result["n_pairings_applied"], first_result["ref_weights"], 'x-', color="tab:blue", markersize=8, label="ref")
-        for use_exp_luts, result in _stdp_drift_results.items():
-            style = run_styles[use_exp_luts]
+        for key, result in _stdp_drift_results.items():
+            style = _run_styles[key]
             ax.plot(result["n_pairings_applied"], result["sim_weights"], linestyle="none", marker=style["marker"], markerfacecolor="none", color=style["color"], label=style["label"])
             ax_err.plot(result["n_pairings_applied"], (result["sim_weights"] - result["ref_weights"]) / lsb, linestyle="-", marker=style["marker"], markerfacecolor="none", color=style["color"], label=style["label"])
 
@@ -399,6 +418,13 @@ class TestSpiNNakerSTDPWindow:
         use_exp_luts = generate_code
         assert use_exp_luts in [True, False]
 
+        self._run_stdp_drift(results_key=use_exp_luts, use_builtin=False, use_exp_luts=use_exp_luts)
+
+    def test_stdp_drift_repeated_pairings_builtin(self):
+        r"""Run the repeated-pairing drift test with the sPyNNaker built-in ``IF_curr_exp`` neuron and ``STDPMechanism``, for comparison. Note that the built-in synapse always uses exp() LUTs."""
+        self._run_stdp_drift(results_key="builtin", use_builtin=True, use_exp_luts=True)
+
+    def _run_stdp_drift(self, results_key, use_builtin: bool, use_exp_luts: bool):
         syn_opts = {
             "delay": 1.,  # dendritic delay [ms]
             "tau_pre_trace": 20.,
@@ -423,7 +449,8 @@ class TestSpiNNakerSTDPWindow:
                                                                                                         list(post_spike_times),
                                                                                                         syn_opts,
                                                                                                         readout_times,
-                                                                                                        initial_weight=initial_weight)
+                                                                                                        initial_weight=initial_weight,
+                                                                                                        use_builtin=use_builtin)
 
         ref_weights = np.array([self.compute_reference_weight_at(syn_opts,
                                                                  t,
@@ -444,16 +471,20 @@ class TestSpiNNakerSTDPWindow:
         print("weights after ref sim = " + str(ref_weights))
         print("difference [S1516 LSB] = " + str((sim_weights - ref_weights) * 2**16))
 
-        _stdp_drift_results[use_exp_luts] = {"n_pairings_applied": n_pairings_applied,
-                                             "sim_weights": sim_weights,
-                                             "ref_weights": ref_weights}
+        _stdp_drift_results[results_key] = {"n_pairings_applied": n_pairings_applied,
+                                            "sim_weights": sim_weights,
+                                            "ref_weights": ref_weights}
 
         self.plot_stdp_drift(syn_opts)
 
         # testing: allow for one LSB of weight rounding per weight update (one potentiation and one depression per pairing), plus (if LUTs are used) the worst-case LUT error per lookup
         lsb = 2**-16    # LSB of S1516 format
         n_pairings_processed = np.array([np.sum(actual_pre_spike_times <= t) for t in readout_times])
-        atol_per_pairing = 2 * lsb
+        if use_builtin:
+            # the built-in synapse truncates the weight to its (coarser) resolution after each presynaptic spike, and additionally stores the traces in Q11 format
+            atol_per_pairing = builtin_weight_resolution() + syn_opts["lambda"] / 2048
+        else:
+            atol_per_pairing = 2 * lsb
         if use_exp_luts:
             atol_per_pairing += 2 * syn_opts["lambda"] / 2048
         atol = 2 * lsb + n_pairings_processed * atol_per_pairing
