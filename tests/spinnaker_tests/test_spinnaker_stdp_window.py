@@ -112,7 +112,7 @@ class TestSpiNNakerSTDPWindow:
         return weight_reference[-1] - initial_weight    # return the final weight minus the initial weight
 
 
-    def run_sim(self, pre_spike_times, post_spike_times, sim_time=1100, initial_weight=1., n_pre_neurons=1, n_post_neurons=1):
+    def run_sim(self, pre_spike_times, post_spike_times, syn_opts, sim_time=1100, initial_weight=1., n_pre_neurons=1, n_post_neurons=1):
         import pyNN.spiNNaker as p
 
         from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml as iaf_psc_exp_neuron_nestml
@@ -151,6 +151,7 @@ class TestSpiNNakerSTDPWindow:
         #stdp_model._nestml_model_variables["tau_tr_post"] = 20.
         if use_NESTML:
             stdp_model = stdp_synapse_nestml(weight=initial_weight)
+            stdp_model._nestml_model_variables["lambda"] = syn_opts["lambda"]
             stdp_projection = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type="ignore_spikes")   # connect to a port where incoming spikes are ignored, so the STDP synapse itself does not change the postsynaptic spike timing
         else:
             stdp_model = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type="excitatory")   # connect to a port where incoming spikes are ignored, so the STDP synapse itself doe>
@@ -255,6 +256,7 @@ class TestSpiNNakerSTDPWindow:
         for t_post in np.linspace(200, 300, 7): #XX: was 19
                 w_final, actual_pre_spike_times, actual_post_spike_times = self.run_sim([pre_spike_times],
                                                                                         [[t_post]],
+                                                                                        syn_opts,
                                                                                         initial_weight=initial_weight)
                 dw = w_final[0][0] - initial_weight
 
