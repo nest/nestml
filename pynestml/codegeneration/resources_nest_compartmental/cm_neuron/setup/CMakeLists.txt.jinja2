@@ -141,6 +141,15 @@ project( ${MODULE_NAME} CXX )
 
 set( CM_EXTRA_COMPILE_FLAGS "" )
 set( CM_EXTRA_LINK_FLAGS "" )
+
+
+
+include( CheckCXXCompilerFlag )
+check_cxx_compiler_flag( "-fno-gnu-unique" NESTML_HAS_NO_GNU_UNIQUE )
+if ( NESTML_HAS_NO_GNU_UNIQUE )
+    # Avoid STB_GNU_UNIQUE symbols, which prevent the module from being unloaded (GCC only; not supported by e.g. Clang).
+    set( CM_EXTRA_COMPILE_FLAGS "${CM_EXTRA_COMPILE_FLAGS} -fno-gnu-unique" )
+endif ()
 {%- if fp_precision == "single" %}
 include( CheckCXXCompilerFlag )
 check_cxx_compiler_flag( "-fdenormal-fp-math=positive-zero" CM_HAS_DENORMALS_TO_ZERO )
