@@ -246,7 +246,7 @@ class TestSpiNNakerSTDPWindow:
             "delay": 1.,  # dendritic delay [ms]
             "tau_pre_trace": 20.,
             "tau_post_trace": 20.,
-            "lambda": .01}
+            "lambda": .1}
 
         ref_weights = []
         sim_weights = []
