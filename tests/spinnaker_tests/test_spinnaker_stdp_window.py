@@ -32,6 +32,9 @@ from tests.test_utils import get_trace_at
 # results of the STDP window test, keyed by ``use_exp_luts``; collected across the parametrized runs so that they can be plotted together
 _stdp_window_results = {}
 
+# results of the repeated-pairing drift test, keyed by ``use_exp_luts``
+_stdp_drift_results = {}
+
 
 class TestSpiNNakerSTDPWindow:
     """Test that STDP synapse produces correct STDP window"""
@@ -295,6 +298,161 @@ class TestSpiNNakerSTDPWindow:
 
         atol = 2 / 2**16    # twice LSB tolerance of S1516 format
         np.testing.assert_allclose(sim_weights, ref_weights, atol=atol, rtol=np.inf)
+
+    def run_sim_with_weight_readout(self, pre_spike_times, post_spike_times, syn_opts, readout_times, initial_weight=1.):
+        r"""Run a single pre/post neuron pair, and read out the weight of the STDP synapse at each of the times in ``readout_times`` by running the simulation in chunks"""
+        import pyNN.spiNNaker as p
+
+        from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml as iaf_psc_exp_neuron_nestml
+        from python_models8.neuron.implementations.stdp_synapse_nestml_impl import stdp_synapse_nestmlDynamics as stdp_synapse_nestml
+
+        p.setup(timestep=1.0)
+
+        pre_input = p.Population(1, p.SpikeSourceArray(pre_spike_times), label="pre_input")
+        post_input = p.Population(1, p.SpikeSourceArray(post_spike_times), label="post_input")
+
+        pre_spiking = p.Population(1, iaf_psc_exp_neuron_nestml(), label="pre_spiking")
+        post_spiking = p.Population(1, iaf_psc_exp_neuron_nestml(), label="post_spiking")
+
+        p.Projection(pre_input, pre_spiking, p.OneToOneConnector(), receptor_type="exc_spikes", synapse_type=p.StaticSynapse(weight=5000))
+        p.Projection(post_input, post_spiking, p.OneToOneConnector(), receptor_type="exc_spikes", synapse_type=p.StaticSynapse(weight=5000))
+
+        stdp_model = stdp_synapse_nestml(weight=initial_weight)
+        stdp_model._nestml_model_variables["lambda"] = syn_opts["lambda"]
+        stdp_projection = p.Projection(pre_spiking, post_spiking, p.AllToAllConnector(), synapse_type=stdp_model, receptor_type="ignore_spikes")   # connect to a port where incoming spikes are ignored, so the STDP synapse itself does not change the postsynaptic spike timing
+
+        pre_spiking.record(["spikes"])
+        post_spiking.record(["spikes"])
+
+        weights = []
+        t = 0.
+        for t_readout in readout_times:
+            p.run(t_readout - t)
+            t = t_readout
+            weights.append(stdp_projection.get("weight", format="float")[0][0])
+
+        actual_pre_spike_times = np.array(pre_spiking.get_data("spikes").segments[0].spiketrains[0]).astype(float)
+        actual_post_spike_times = np.array(post_spiking.get_data("spikes").segments[0].spiketrains[0]).astype(float)
+
+        p.end()
+
+        return np.array(weights), actual_pre_spike_times, actual_post_spike_times
+
+    def compute_reference_weight_at(self, syn_opts, t, pre_spike_times, post_spike_times, initial_weight=1.):
+        r"""Compute the reference weight as it would be read out from SpiNNaker at time ``t``.
+
+        On SpiNNaker, postsynaptic spikes are only buffered when they occur; the corresponding weight updates are deferred until the next presynaptic spike is processed. The weight read out at time ``t`` therefore reflects all presynaptic spikes up to ``t``, but only those postsynaptic spikes that arrived (in the synaptic perspective, i.e. including the dendritic delay) up to the last of those presynaptic spikes."""
+        pre_spike_times = pre_spike_times[pre_spike_times <= t]
+        if len(pre_spike_times) == 0:
+            return initial_weight
+
+        post_spike_times_syn_persp = post_spike_times + syn_opts["delay"]
+        post_spike_times_syn_persp = post_spike_times_syn_persp[post_spike_times_syn_persp <= pre_spike_times[-1]]
+
+        return initial_weight + self.run_reference_simulation(syn_opts,
+                                                              times_spikes_pre=pre_spike_times,
+                                                              times_spikes_post_syn_persp=post_spike_times_syn_persp,
+                                                              initial_weight=initial_weight,
+                                                              debug=False)
+
+    def plot_stdp_drift(self, syn_opts):
+        r"""Plot the weight over time for all runs (exp LUTs on/off) collected so far, together with the reference"""
+        if not _stdp_drift_results:
+            return
+
+        lsb = 2**-16    # LSB of S1516 format
+
+        run_styles = {True: {"color": "tab:orange", "marker": "o", "label": "NESTML (exp LUTs)"},
+                      False: {"color": "tab:green", "marker": "s", "label": "NESTML (no exp LUTs)"}}
+
+        fig, (ax, ax_err) = plt.subplots(2, 1, sharex=True, figsize=(6.4, 6.), gridspec_kw={"height_ratios": [2, 2]})
+
+        first_result = next(iter(_stdp_drift_results.values()))
+        ax.plot(first_result["readout_times"], first_result["ref_weights"], 'x-', color="tab:blue", markersize=8, label="ref")
+        for use_exp_luts, result in _stdp_drift_results.items():
+            style = run_styles[use_exp_luts]
+            ax.plot(result["readout_times"], result["sim_weights"], linestyle="none", marker=style["marker"], markerfacecolor="none", color=style["color"], label=style["label"])
+            ax_err.plot(result["readout_times"], (result["sim_weights"] - result["ref_weights"]) / lsb, linestyle="-", marker=style["marker"], markerfacecolor="none", color=style["color"], label=style["label"])
+
+        ax.set_ylabel("$w$")
+        ax.set_title(r"Repeated pairings ($\lambda$ = " + str(syn_opts["lambda"]) + ")")
+        ax.grid(True)
+        ax.legend()
+
+        ax_err.axhline(0., color="grey", alpha=.4, linewidth=1., zorder=0)
+        ax_err.set_xlabel("Time [ms]")
+        ax_err.set_ylabel(r"$w - w_\mathrm{ref}$ [S1516 LSB]")
+        ax_err.grid(True)
+        ax_err.legend()
+
+        fig.tight_layout()
+        fig.savefig("nestml_stdp_drift.png")
+        plt.close(fig)
+
+    @pytest.mark.parametrize("generate_code", [True, False], indirect=True)
+    def test_stdp_drift_repeated_pairings(self, generate_code):
+        r"""Show the accumulation of weight error over many repeated, identical pre/post spike pairings.
+
+        The exp() look-up table stores ``floor(exp(-k / tau) * 2048)``, so every lookup underestimates the decay factor by up to 1/2048. Because this error is a bias (always of the same sign) rather than noise, it accumulates linearly over repeated pairings.
+
+        The pairing period is chosen much longer than the LUT length (about 7.6 tau), so that each pairing is isolated: the traces are exactly reset between pairings and the depression term from the previous postsynaptic spike is negligible. Each pairing thus contributes the same potentiation error (``lambda`` times the LUT error at the given spike time difference)."""
+        use_exp_luts = generate_code
+        assert use_exp_luts in [True, False]
+
+        syn_opts = {
+            "delay": 1.,  # dendritic delay [ms]
+            "tau_pre_trace": 20.,
+            "tau_post_trace": 20.,
+            "lambda": .1}
+
+        initial_weight = 1.
+        t_start = 50.               # time of the first pairing [ms]
+        pairing_period = 250.       # [ms]; should be longer than the LUT (~154 ms for tau = 20 ms)
+        pairing_dt = 3.             # post minus pre input spike time [ms]; with dendritic delay, this gives a synaptic perspective dt of 4 ms, where the LUT error is large (~0.76/2048), and also large at +/- 1 ms
+        n_pairings = 40
+        pairings_per_readout = 4
+
+        pre_spike_times = t_start + pairing_period * np.arange(n_pairings)
+        post_spike_times = pre_spike_times + pairing_dt
+
+        # read out halfway between pairings, so that the last presynaptic spike has been processed
+        readout_times = t_start + pairing_period * (pairings_per_readout * np.arange(1, n_pairings // pairings_per_readout + 1) - .5)
+
+        sim_weights, actual_pre_spike_times, actual_post_spike_times = self.run_sim_with_weight_readout(list(pre_spike_times),
+                                                                                                        list(post_spike_times),
+                                                                                                        syn_opts,
+                                                                                                        readout_times,
+                                                                                                        initial_weight=initial_weight)
+
+        ref_weights = np.array([self.compute_reference_weight_at(syn_opts,
+                                                                 t,
+                                                                 actual_pre_spike_times,
+                                                                 actual_post_spike_times,
+                                                                 initial_weight=initial_weight) for t in readout_times])
+
+        print("Simulation results")
+        print("------------------")
+        print("actual pre spikes: " + str(actual_pre_spike_times))
+        print("actual post spikes: " + str(actual_post_spike_times))
+        print("readout times = " + str(readout_times))
+        print("weights after sim = " + str(sim_weights))
+        print("weights after ref sim = " + str(ref_weights))
+        print("difference [S1516 LSB] = " + str((sim_weights - ref_weights) * 2**16))
+
+        _stdp_drift_results[use_exp_luts] = {"readout_times": readout_times,
+                                             "sim_weights": sim_weights,
+                                             "ref_weights": ref_weights}
+
+        self.plot_stdp_drift(syn_opts)
+
+        # testing: allow for one LSB of weight rounding per weight update (one potentiation and one depression per pairing), plus (if LUTs are used) the worst-case LUT error per lookup
+        lsb = 2**-16    # LSB of S1516 format
+        n_pairings_processed = np.array([np.sum(actual_pre_spike_times <= t) for t in readout_times])
+        atol_per_pairing = 2 * lsb
+        if use_exp_luts:
+            atol_per_pairing += 2 * syn_opts["lambda"] / 2048
+        atol = 2 * lsb + n_pairings_processed * atol_per_pairing
+        assert np.all(np.abs(sim_weights - ref_weights) <= atol)
 
 
     """def run_reference_simulation(self,syn_opts,
