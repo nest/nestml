@@ -73,6 +73,7 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
     @override
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         self._default_options["use_exp_luts"] = False
+        self._default_options["fixed_point_multiplication"] = "gcc"
         super().__init__(options)
 
     def setup_printers(self, for_neuron: bool = True):
@@ -101,7 +102,8 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
             self._printer = SpiNNakerCppExpressionPrinter(
             simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
                                                                constant_printer=self._constant_printer,
-                                                               function_call_printer=self._nest_function_call_printer))
+                                                               function_call_printer=self._nest_function_call_printer),
+            fixed_point_multiplication=self.get_option("fixed_point_multiplication"))
 
         self._nest_variable_printer._expression_printer = self._printer
         self._nest_function_call_printer._expression_printer = self._printer
@@ -118,7 +120,8 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
             self._printer_no_origin = SpiNNakerCppExpressionPrinter(
                 simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
                                                                    constant_printer=self._constant_printer,
-                                                                   function_call_printer=self._nest_function_call_printer_no_origin))
+                                                                   function_call_printer=self._nest_function_call_printer_no_origin),
+                fixed_point_multiplication=self.get_option("fixed_point_multiplication"))
         self._nest_variable_printer_no_origin._expression_printer = self._printer_no_origin
         self._nest_function_call_printer_no_origin._expression_printer = self._printer_no_origin
 
@@ -143,7 +146,8 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
             self._gsl_printer = SpiNNakerCppExpressionPrinter(
             simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
                                                                constant_printer=self._constant_printer,
-                                                               function_call_printer=self._gsl_function_call_printer))
+                                                               function_call_printer=self._gsl_function_call_printer),
+            fixed_point_multiplication=self.get_option("fixed_point_multiplication"))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
 
         # ODE-toolbox printers
@@ -171,6 +175,7 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         if "post_header" in metadata[astnode.name].keys():
             namespace["post_header"] = metadata[astnode.name]["post_header"]
         namespace["use_exp_luts"] = self.get_option("use_exp_luts")
+        namespace["fixed_point_multiplication"] = self.get_option("fixed_point_multiplication")
 
         exp_exprs = list()
         exp_exprs.append(list(metadata[metadata[astnode.name]["pre_header"].name]["analytic_solver"]["propagators"].values())[0])
@@ -203,6 +208,7 @@ class CustomPythonStandaloneCodeGenerator(PythonStandaloneCodeGenerator):
     @override
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         self._default_options["use_exp_luts"] = False
+        self._default_options["fixed_point_multiplication"] = "gcc"
         super().__init__(options)
 
     def _get_model_namespace(self, astnode: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> Dict:
@@ -303,13 +309,25 @@ class SpiNNakerCodeGenerator(CodeGenerator):
 
     For descriptions of the code generator options, please see the NESTCodeGenerator documentation.
 
-    The supported code generator options for SpiNNaker are: ``delay_variable``, ``weight_variable``, ``synapse_models``, ``neuron_synapse_pairs`` and ``templates``.
+    The supported code generator options for SpiNNaker are: ``delay_variable``, ``weight_variable``, ``synapse_models``, ``neuron_synapse_pairs``, ``templates``, ``use_exp_luts`` and ``fixed_point_multiplication``.
+
+    Options specific to SpiNNaker:
+
+    - **use_exp_luts**: If True, use look-up tables for ``exp()`` in the synapse code (default: False).
+    - **fixed_point_multiplication**: How products of fixed-point (``accum``, S16.15) numbers are computed in the synapse code. One of:
+
+      - ``"gcc"`` (default): the regular ``*`` operator. GCC truncates the result (rounds towards minus infinity), which biases repeated computations downwards.
+      - ``"round_nearest"``: ``MULT_ROUND_NEAREST_ACCUM()`` from spinn_common's ``round.h``; round to nearest.
+      - ``"round_stochastic"``: ``MULT_ROUND_STOCHASTIC_ACCUM()`` from spinn_common's ``round.h``; stochastic rounding, unbiased in expectation even when the same product is computed repeatedly.
+
+      The rounding variants are more expensive (in terms of CPU cycles) than the regular ``*`` operator.
     """
 
     codegen_cpp: Optional[NESTCodeGenerator] = None
 
     _default_options = {
         "use_exp_luts": False,
+        "fixed_point_multiplication": "gcc",
 
         "delay_variable": {},
         "weight_variable": {},
@@ -356,6 +374,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         options_cpp["templates"]["module_templates"] = self._options["templates"]["module_templates"]
         options_cpp["templates"]["path"] = self._options["templates"]["path"]
         options_cpp["use_exp_luts"] = self._options["use_exp_luts"]
+        options_cpp["fixed_point_multiplication"] = self._options["fixed_point_multiplication"]
         self.codegen_cpp = CustomNESTCodeGenerator(options_cpp)
 
         options_py = copy.deepcopy(PythonStandaloneCodeGenerator._default_options)
@@ -369,6 +388,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         options_py["templates"]["module_templates"] = []
         options_py["templates"]["path"] = self._options["templates"]["path"]
         options_py["use_exp_luts"] = self._options["use_exp_luts"]
+        options_py["fixed_point_multiplication"] = self._options["fixed_point_multiplication"]
 
         options_py["delay_variable"] = self._options["delay_variable"]
         options_py["weight_variable"] = self._options["weight_variable"]

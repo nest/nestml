@@ -43,6 +43,39 @@ _run_styles = {True: {"color": "tab:orange", "marker": "o", "label": "NESTML (ex
 # maximum weight for the sPyNNaker built-in STDP synapse. Just under a power of two, as this determines the weight resolution: the stored weights are 16-bit, scaled such that weights up to 2**ceil(log2(BUILTIN_W_MAX)) can be represented
 BUILTIN_W_MAX = 7.9
 
+# publication-ready figure style
+plt.rcParams.update({
+    # grid lines for all plots
+    "axes.grid": True,
+    "grid.linestyle": "--",
+    "grid.alpha": 0.7,
+    "grid.linewidth": 0.8,
+
+    # font sizes
+    "font.size": 14,
+    "axes.labelsize": 16,
+    "xtick.labelsize": 14,
+    "ytick.labelsize": 14,
+    "legend.fontsize": 13,
+    "axes.titlesize": 16,
+
+    # lines and markers
+    "lines.linewidth": 2.,
+    "lines.markersize": 8.,
+    "errorbar.capsize": 4.,
+    "axes.linewidth": 1.2,
+    "xtick.major.width": 1.2,
+    "ytick.major.width": 1.2,
+    "xtick.major.size": 5.,
+    "ytick.major.size": 5.,
+
+    # output
+    "savefig.dpi": 300,
+    "savefig.bbox": "tight",
+    "pdf.fonttype": 42,    # embed TrueType fonts (rather than Type 3) in PDF/PS output, as required by many publishers
+    "ps.fonttype": 42,
+})
+
 
 def builtin_weight_resolution():
     r"""Weight resolution of the sPyNNaker built-in STDP synapse (see ``PopulationVertex.get_ring_buffer_shifts()`` and ``__get_weight_scale()`` in sPyNNaker)"""
@@ -330,7 +363,7 @@ class TestSpiNNakerSTDPWindow:
             # the built-in synapse truncates the weight to its (coarser) resolution after each presynaptic spike, and uses Q11 LUTs and Q11 traces
             atol = len(pre_spike_times) * builtin_weight_resolution() + 3 * syn_opts["lambda"] / 2048
         else:
-            atol = 2 / 2**16    # twice LSB tolerance of S1516 format
+            atol = 2**-15    # one LSB of the S16.15 (accum) format in which NESTML weights are stored
         np.testing.assert_allclose(sim_weights, ref_weights, atol=atol, rtol=np.inf)
 
     def run_sim_with_weight_readout(self, pre_spike_times, post_spike_times, syn_opts, readout_times, initial_weight=1., use_builtin=False):
@@ -382,7 +415,7 @@ class TestSpiNNakerSTDPWindow:
         if not _stdp_drift_results:
             return
 
-        lsb = 2**-16    # LSB of S1516 format
+        lsb = 2**-15    # LSB of the S16.15 (accum) format in which NESTML weights are stored
 
         fig, (ax, ax_err) = plt.subplots(2, 1, sharex=True, figsize=(6.4, 6.), gridspec_kw={"height_ratios": [2, 2]})
 
@@ -401,7 +434,7 @@ class TestSpiNNakerSTDPWindow:
         ax_err.axhline(0., color="grey", alpha=.4, linewidth=1., zorder=0)
         ax_err.set_yscale("symlog", linthresh=1.)    # logarithmic for |error| > 1 LSB (keeping the sign), linear within +/- 1 LSB so that zero error can be shown
         ax_err.set_xlabel("Number of pairings")
-        ax_err.set_ylabel(r"$w - w_\mathrm{ref}$ [S1516 LSB]")
+        ax_err.set_ylabel(r"$w - w_\mathrm{ref}$ [S16.15 LSB]")
         ax_err.grid(True)
         ax_err.legend()
 
@@ -470,7 +503,7 @@ class TestSpiNNakerSTDPWindow:
         print("number of pairings applied = " + str(n_pairings_applied))
         print("weights after sim = " + str(sim_weights))
         print("weights after ref sim = " + str(ref_weights))
-        print("difference [S1516 LSB] = " + str((sim_weights - ref_weights) * 2**16))
+        print("difference [S16.15 LSB] = " + str((sim_weights - ref_weights) * 2**15))
 
         _stdp_drift_results[results_key] = {"n_pairings_applied": n_pairings_applied,
                                             "sim_weights": sim_weights,
@@ -478,17 +511,17 @@ class TestSpiNNakerSTDPWindow:
 
         self.plot_stdp_drift(syn_opts)
 
-        # testing: allow for one LSB of weight rounding per weight update (one potentiation and one depression per pairing), plus (if LUTs are used) the worst-case LUT error per lookup
-        lsb = 2**-16    # LSB of S1516 format
+        # testing: allow for one LSB of weight rounding per pairing, plus (if LUTs are used) the worst-case LUT error per lookup
+        lsb = 2**-15    # LSB of the S16.15 (accum) format in which NESTML weights are stored
         n_pairings_processed = np.array([np.sum(actual_pre_spike_times <= t) for t in readout_times])
         if use_builtin:
             # the built-in synapse truncates the weight to its (coarser) resolution after each presynaptic spike, and additionally stores the traces in Q11 format
             atol_per_pairing = builtin_weight_resolution() + syn_opts["lambda"] / 2048
         else:
-            atol_per_pairing = 2 * lsb
+            atol_per_pairing = lsb
         if use_exp_luts:
             atol_per_pairing += 2 * syn_opts["lambda"] / 2048
-        atol = 2 * lsb + n_pairings_processed * atol_per_pairing
+        atol = lsb + n_pairings_processed * atol_per_pairing
         assert np.all(np.abs(sim_weights - ref_weights) <= atol)
 
 
@@ -572,7 +605,7 @@ class TestSpiNNakerSTDPWindow:
                                                                           n_post_neurons=n_post_neurons,
                                                                           sim_time=sim_time)
 
-        atol = 2 / 2**16    # twice LSB tolerance of S1516 format
+        atol = 2**-15    # one LSB of the S16.15 (accum) format in which NESTML weights are stored
         for pre_idx in range(n_pre_neurons):
             assert len(actual_pre_spike_times[pre_idx]) > n_pre_spike_times // 2
             for post_idx in range(n_post_neurons):

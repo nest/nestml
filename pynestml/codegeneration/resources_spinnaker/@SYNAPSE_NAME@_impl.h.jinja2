@@ -64,6 +64,9 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 // Spinn_common includes
 #include <static-assert.h>
+{%- if fixed_point_multiplication is defined and fixed_point_multiplication != "gcc" %}
+#include <round.h>    // fixed-point multiplication with controlled rounding (MULT_ROUND_NEAREST_ACCUM, MULT_ROUND_STOCHASTIC_ACCUM)
+{%- endif %}
 
 // sPyNNaker neural modelling includes
 #include <neuron/synapses.h>

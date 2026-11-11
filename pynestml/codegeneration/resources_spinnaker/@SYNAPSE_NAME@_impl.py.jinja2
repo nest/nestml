@@ -116,56 +116,44 @@ def get_exp_lut_array(time_step: float, time_constant: float, shift: int = 0) ->
 
 
 def s16_15_to_float(fixp_x: int) -> float:
-    """Converts a Q16.15 fixed-point 32-bit integer back to a float.
+    """Converts an S16.15 fixed-point number (the ``accum`` type on SpiNNaker) back to a float.
 
-    The format assumes:
-    Bit 31: Sign bit
-    Bits 15-30: Integer part
-    Bits 0-14: Fractional part (denominator of 2^15)
+    The S16.15 format is a 32-bit two's complement integer, scaled by 2^-15 (1 sign bit, 16 integer bits, 15 fractional bits).
+
+    Args:
+        fixp_x: The 32-bit integer representation; may be given either as signed (int32) or as unsigned (uint32) integer. If an iterable is passed, a list of floats is returned.
+
+    Returns:
+        The floating-point value.
     """
     # Check if the input is iterable (but ignore strings/bytes)
     if isinstance(fixp_x, Iterable):
         return [s16_15_to_float(x) for x in fixp_x]
 
-    # 1. Extract the sign: bit 31
-    # We shift right by 31 to get the lone bit
-    sign = (fixp_x >> 31) & 0x1
+    fixp_x = int(fixp_x) & 0xFFFFFFFF
+    if fixp_x >= 2**31:
+        # negative number in two's complement
+        fixp_x -= 2**32
 
-    # 2. Extract the integer part: bits 15 through 30
-    # Masking with 0xFFFF (16 ones) after shifting right by 15
-    integer_part = (fixp_x >> 15) & 0xFFFF
-
-    # 3. Extract the fractional part: bits 0 through 14
-    # Masking with 0x7FFF (15 ones)
-    fractional_part = fixp_x & 0x7FFF
-
-    # 4. Reconstruct the absolute magnitude
-    # Fraction is the integer value divided by the scaling factor 2^15
-    float_val = integer_part + (fractional_part / (2**15))
-
-    # 5. Apply the sign
-    return -float_val if sign == 1 else float_val
+    return fixp_x / 2**15
 
 
 
 def float_to_s16_15(x: float) -> int:
-    """Converts a float to a Q16.15 fixed-point 32-bit integer.
+    """Converts a float to an S16.15 fixed-point number (the ``accum`` type on SpiNNaker), rounding to the nearest representable value.
 
-    The S16.15 format uses 1 sign bit, 16 integer bits, and 15
-    fractional bits.
+    The S16.15 format is a 32-bit two's complement integer, scaled by 2^-15 (1 sign bit, 16 integer bits, 15 fractional bits).
 
     Args:
-        float_val: The floating-point number to convert.
+        x: The floating-point number to convert.
 
     Returns:
-        The 32-bit signed integer representing the fixed-point number.
+        The 32-bit signed integer (int32) representing the fixed-point number. To store it in an unsigned (uint32) array, mask it with ``& 0xFFFFFFFF``.
     """
+    fixp_x: int = int(round(float(x) * 2**15))
 
-    sign_bit: int = 1 if np.sign(x) == -1 else 0
-    integer_bits: int = int(np.abs(x))
-    fractional_bits: int = int((np.abs(x) - int(np.abs(x))) * 2**15)
-
-    fixp_x: int = (sign_bit << 31) + (integer_bits << 15) + fractional_bits
+    if fixp_x < -2**31 or fixp_x > 2**31 - 1:
+        raise ValueError("Value " + str(x) + " is out of range for the S16.15 fixed-point format (accum)")
 
     return fixp_x
 
@@ -488,7 +476,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
 {%- for state_var_sym in synapse.get_state_symbols() %}
 {%-     set state_var_idx = loop.index0 %}
 {%-     if state_var_sym.name == "w" %}  {# XXXX use codegen opts for "w" instead #}
-            plastic_plastic[connection_idx * n_state_variables + {{ state_var_idx }}] = float_to_s16_15(connections["weight"][connection_idx])    # note that we are not applying the weight scale here! This is intentional; NESTML weights are always stored as an S16.15 (note that they are still scaled when written to the postsynaptic neuron's input buffers)
+            plastic_plastic[connection_idx * n_state_variables + {{ state_var_idx }}] = float_to_s16_15(connections["weight"][connection_idx]) & 0xFFFFFFFF    # note that we are not applying the weight scale here! This is intentional; NESTML weights are always stored as an S16.15 (note that they are still scaled when written to the postsynaptic neuron's input buffers)
             # plastic_plastic[connection_idx * n_state_variables + {{ state_var_idx }}] = float_to_s16_15(connections["weight"][connection_idx] * numpy.array(ring_buffer_weight_scales)[connections["synapse_type"]][connection_idx])
             #print("[NESTML synapse] XXXX: ring_buffer_weight_scales = " + str(numpy.array(ring_buffer_weight_scales)[connections["synapse_type"]][connection_idx]))
 {%-     else %}

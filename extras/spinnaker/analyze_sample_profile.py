@@ -51,13 +51,47 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Enable grid lines globally for all plots
-plt.rcParams['axes.grid'] = True
+# publication-ready figure style
+plt.rcParams.update({
+    # grid lines for all plots
+    "axes.grid": True,
+    "grid.linestyle": "--",
+    "grid.alpha": 0.7,
+    "grid.linewidth": 0.8,
 
-# Optional: Set grid aesthetic defaults (style, opacity, line width)
-plt.rcParams['grid.linestyle'] = '--'
-plt.rcParams['grid.alpha'] = 0.7
-plt.rcParams['grid.linewidth'] = 0.8
+    # font sizes
+    "font.size": 14,
+    "axes.labelsize": 16,
+    "xtick.labelsize": 14,
+    "ytick.labelsize": 14,
+    "legend.fontsize": 13,
+    "axes.titlesize": 16,
+
+    # lines and markers
+    "lines.linewidth": 2.,
+    "lines.markersize": 8.,
+    "errorbar.capsize": 4.,
+    "axes.linewidth": 1.2,
+    "xtick.major.width": 1.2,
+    "ytick.major.width": 1.2,
+    "xtick.major.size": 5.,
+    "ytick.major.size": 5.,
+
+    # output
+    "savefig.dpi": 300,
+    "savefig.bbox": "tight",
+    "pdf.fonttype": 42,    # embed TrueType fonts (rather than Type 3) in PDF/PS output, as required by many publishers
+    "ps.fonttype": 42,
+})
+
+# whether to draw titles inside the figures; disabled for publication (the caption takes this role)
+SHOW_TITLES = False
+
+
+def set_title(ax, title):
+    """Set the title of the axes ``ax``, if titles are enabled (see ``SHOW_TITLES``)."""
+    if SHOW_TITLES:
+        ax.set_title(title)
 
 
 
@@ -216,7 +250,7 @@ def plot_core_activity_range(cores, title, output_path):
     ax.set_xlim(-0.5, len(cores) - 0.5)
     ax.set_xlabel("Core")
     ax.set_ylabel("Active time [%]")
-    ax.set_title(title)
+    set_title(ax, title)
     ax.grid(axis="y", alpha=0.3)
     ax.legend()
     fig.tight_layout()
@@ -234,7 +268,7 @@ def plot_core_activity_bar(cores, title, output_path, implementation):
     plt.bar(labels, values)
     plt.xlabel("Core")
     plt.ylabel("Mean active time [%]")
-    plt.title(title)
+    set_title(plt.gca(), title)
     plt.xticks(rotation=90)
     plt.tight_layout()
     plt.savefig(output_path, dpi=300)
@@ -297,7 +331,7 @@ def plot_comparison(reference, nestml, profile_path):
     plt.bar(x + width / 2, nestml_values, width, label="NESTML")
     plt.xlabel("Core activity metric")
     plt.ylabel("Active time [%]")
-    plt.title("Reference vs NESTML Core Activity")
+    set_title(plt.gca(), "Reference vs NESTML Core Activity")
     plt.xticks(x, labels)
     plt.legend()
     plt.tight_layout()
@@ -348,7 +382,7 @@ def plot_distribution(reference_cores, nestml_cores, profile_path):
 
     plt.xlabel("Mean active time [%]")
     plt.ylabel("Number of cores")
-    plt.title("Distribution of Core Activity")
+    set_title(plt.gca(), "Distribution of Core Activity")
     plt.legend()
     plt.tight_layout()
 
@@ -605,24 +639,28 @@ def plot_sum_core_activity(rows):
     if not data:
         raise Exception("No profiling data available for plotting.")
 
-    plt.figure(figsize=(9, 6))
-
+    # mean and standard deviation across repeated runs, for each implementation and number of neurons
+    stats = {}
     for implementation, values in data.items():
         grouped = {}
         for neurons, activity in values:
             grouped.setdefault(neurons, []).append(activity)
 
-        neurons = []
-        means = []
-        stds = []
-
+        stats[implementation] = {}
         for neurons_count in sorted(grouped):
             activities = grouped[neurons_count]
-            neurons.append(neurons_count)
-            means.append(float(np.mean(activities)))
-            stds.append(float(np.std(activities, ddof=1)) if len(activities) > 1 else 0.0)
+            stats[implementation][neurons_count] = (float(np.mean(activities)),
+                                                    float(np.std(activities, ddof=1)) if len(activities) > 1 else 0.0)
 
-        plt.errorbar(
+    fig, (ax, ax_rel) = plt.subplots(2, 1, sharex=True, figsize=(9, 9), gridspec_kw={"height_ratios": [2, 1]})
+
+    colors = {}
+    for implementation, implementation_stats in stats.items():
+        neurons = sorted(implementation_stats)
+        means = [implementation_stats[n][0] for n in neurons]
+        stds = [implementation_stats[n][1] for n in neurons]
+
+        errorbar = ax.errorbar(
             neurons,
             means,
             yerr=stds,
@@ -630,17 +668,67 @@ def plot_sum_core_activity(rows):
             capsize=4,
             label=IMPLEMENTATION_LABELS[implementation],
         )
+        colors[implementation] = errorbar[0].get_color()
 
-    plt.xlabel("Number of neurons")
-    plt.ylabel("Sum core activity [percentage-points]")
-    plt.title("SpiNNaker Core Activity vs Number of Neurons")
-    plt.grid(True)
-    plt.legend()
-    plt.tight_layout()
+    ax.set_ylabel("Sum core activity [percentage-points]")
+    set_title(ax, "SpiNNaker Core Activity vs Number of Neurons")
+    ax.grid(True)
+    ax.legend()
+
+    # relative performance: activity of each implementation as a percentage of the built-in activity, at the numbers of neurons for which both are available
+    if "builtin" in stats:
+        baseline = stats["builtin"]
+        # error bars in this panel show the run-to-run standard deviation of each implementation itself, expressed as a percentage of the built-in mean (so the variability of the baseline is shown on the baseline points, and is not also folded into the error bars of the other implementations)
+        baseline_neurons = [n for n in sorted(baseline) if baseline[n][0] != 0.]
+        ax_rel.errorbar(
+            baseline_neurons,
+            [100.] * len(baseline_neurons),
+            yerr=[100. * baseline[n][1] / baseline[n][0] for n in baseline_neurons],
+            fmt="o-",
+            capsize=4,
+            color=colors["builtin"],
+            label=IMPLEMENTATION_LABELS["builtin"] + " (baseline)",
+        )
+
+        for implementation, implementation_stats in stats.items():
+            if implementation == "builtin":
+                continue
+
+            neurons = [n for n in sorted(implementation_stats) if n in baseline and baseline[n][0] != 0.]
+            if not neurons:
+                continue
+
+            ratios = []
+            ratio_stds = []
+            for n in neurons:
+                mean, std = implementation_stats[n]
+                baseline_mean = baseline[n][0]
+                ratios.append(100. * mean / baseline_mean)
+                ratio_stds.append(100. * std / baseline_mean)
+
+            ax_rel.errorbar(
+                neurons,
+                ratios,
+                yerr=ratio_stds,
+                fmt="o-",
+                capsize=4,
+                color=colors[implementation],
+                label=IMPLEMENTATION_LABELS[implementation],
+            )
+
+        # no legend: the colours are the same as in the top panel (whose legend identifies them), and a legend here tends to cover data points
+    else:
+        ax_rel.text(0.5, 0.5, "No built-in data available as baseline", ha="center", va="center", transform=ax_rel.transAxes)
+
+    ax_rel.set_xlabel("Number of neurons")
+    ax_rel.set_ylabel("Relative to built-in [%]")
+    ax_rel.grid(True)
+
+    fig.tight_layout()
 
     output_path = BASE_DIR / "sample_profile_sum_core_activity.png"
-    plt.savefig(output_path, dpi=300)
-    plt.close()
+    fig.savefig(output_path, dpi=300)
+    plt.close(fig)
 
     print(f"Sum core activity plot saved to: {output_path}")
 
