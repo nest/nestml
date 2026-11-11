@@ -228,11 +228,11 @@ def plot_anatomy(widths=(11,)):
 
         ax = axes[0, col]
         t_fine = np.linspace(zoom[0], zoom[-1], 800)
-        ax.plot(t_fine, np.exp(-t_fine * DECAY_PER_STEP) / lsb, color="black", lw=1.4,
+        ax.plot(t_fine, np.exp(-t_fine * DECAY_PER_STEP) / lsb, color="black",
                 label="exact exp(−t/τ)", zorder=1)
         for r in ROUNDINGS:
             ax.plot(zoom, lookup(tables[r], zoom) / lsb, ls="none",
-                    marker=ROUND_MARKERS[r], ms=5 if r == "floor" else 3.5,
+                    marker=ROUND_MARKERS[r],
                     color=ROUND_COLORS[r], label=r)
         ax.set_title(f"{bits}-bit entries (F = {frac_bits_for(bits)}): tail of the table")
         ax.set_ylabel("value (LSBs)")
@@ -242,10 +242,10 @@ def plot_anatomy(widths=(11,)):
         span = STEPS[STEPS <= int(1.3 * max(ends.values()))]
         for r in ROUNDINGS:
             ax.plot(span, errors(tables[r])[: len(span)] / lsb, ls="none",
-                    marker=ROUND_MARKERS[r], ms=3.5 if r == "floor" else 2.5,
+                    marker=ROUND_MARKERS[r],
                     color=ROUND_COLORS[r], label=r)
         for y in (-1, -0.5, 0, 0.5):
-            ax.axhline(y, color="black", lw=0.6, alpha=0.4, zorder=0)
+            ax.axhline(y, color="black", alpha=0.4, zorder=0)
         ax.set_title(f"{bits}-bit entries: error over the window")
         ax.set_ylabel("lookup − exact (LSBs)")
         ax.set_xlabel("time steps k")
@@ -258,14 +258,14 @@ def plot_anatomy(widths=(11,)):
 
         for row, ax in enumerate(axes[:, col]):
             for r in ROUNDINGS:
-                ax.axvline(ends[r], color=ROUND_COLORS[r], ls=":", lw=1.2)
+                ax.axvline(ends[r], color=ROUND_COLORS[r], ls=":")
                 if row == 0:   # label once; the error panel is too busy
                     ax.text(ends[r], 0.98, f" {r} end ({ends[r]})", color=ROUND_COLORS[r],
-                            fontsize=8, va="top", ha="right", rotation=90,
+                            va="top", ha="right", rotation=90,
                             transform=ax.get_xaxis_transform())
 
     handles, labels = axes[0, 0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="outside lower center", ncol=3, markerscale=1.5)
+    fig.legend(handles, labels, loc="outside lower center", ncol=3)
     # fig.suptitle(f"Exponential-decay LUT up close  (τ = {TAU:g} ms, dt = {DT:g} ms, "
     #              f"table starts at k = 1)", fontsize=13, fontweight="bold")
     return fig
@@ -286,10 +286,10 @@ def plot_bits_tradeoff(roundings=("round", "floor")):
 
         for key, (ls, marker, _) in metric_styles.items():
             ax_err.plot(bits, [m[key] for m in table_metrics], ls=ls, marker=marker,
-                        ms=4.5, lw=1.4, color=color)
+                        color=color)
 
         lengths = [t.length for t in tables]
-        ax_len.plot(bits, lengths, marker=ROUND_MARKERS[rounding], ms=5, lw=1.4,
+        ax_len.plot(bits, lengths, marker=ROUND_MARKERS[rounding],
                     color=color)
 
     ax_err.set_yscale("log")
@@ -300,8 +300,8 @@ def plot_bits_tradeoff(roundings=("round", "floor")):
                       else "bits per entry (fractional bits = bits − 1)")
 
     handles = (
-        [Line2D([], [], color=ROUND_COLORS[r], lw=2.5, label=r) for r in roundings]
-        + [Line2D([], [], color="grey", ls=ls, marker=m, ms=4.5, label=label)
+        [Line2D([], [], color=ROUND_COLORS[r], label=r) for r in roundings]
+        + [Line2D([], [], color="grey", ls=ls, marker=m, label=label)
            for ls, m, label in metric_styles.values()]
     )
     ax_err.legend(handles=handles, loc="upper right", ncol=2)
@@ -334,7 +334,7 @@ def plot_natural_summary(tables):
         if log:
             ax.set_yscale("log")
         else:
-            ax.axhline(0, color="black", lw=0.8)
+            ax.axhline(0, color="black")
         ax.set_ylabel(ylabel)
         ax.set_title(title)
         ax.grid(axis="x", visible=False)
