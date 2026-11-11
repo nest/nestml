@@ -29,16 +29,22 @@ from pynestml.frontend.pynestml_frontend import generate_spinnaker_target
 from tests.test_utils import get_trace_at
 
 
+# results of the STDP window test, keyed by ``use_exp_luts``; collected across the parametrized runs so that they can be plotted together
+_stdp_window_results = {}
+
+
 class TestSpiNNakerSTDPWindow:
     """Test that STDP synapse produces correct STDP window"""
 
-    @pytest.fixture(autouse=True,
-                    scope="module")
-    def generate_code(self):
+    @pytest.fixture
+    def generate_code(self, request):
+        use_exp_luts: bool = request.param
+        print(f"\nGenerating code with use_exp_luts = {use_exp_luts}")
+
         codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                   "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}}],
                         "weight_variable": {"stdp_synapse": "w"},
-                        "use_exp_luts": True}
+                        "use_exp_luts": use_exp_luts}
 
         files = [
             os.path.join("models", "neurons", "iaf_psc_exp_with_ignore_neuron.nestml"),
@@ -57,6 +63,7 @@ class TestSpiNNakerSTDPWindow:
                                   suffix=suffix,
                                   codegen_opts=codegen_opts)
 
+        yield use_exp_luts
 
     def run_reference_simulation(self,
                                  syn_opts,
@@ -64,7 +71,8 @@ class TestSpiNNakerSTDPWindow:
                                  times_spikes_pre=None,
                                  times_spikes_post_syn_persp=None,
                                  initial_weight=1.,
-                                 fname_snip=""):
+                                 fname_snip="",
+                                 debug=True):
 
         log = {}
 
@@ -75,20 +83,22 @@ class TestSpiNNakerSTDPWindow:
         weight = initial_weight
         last_t_sp = 0.
         for spk_time in np.unique(np.sort(np.hstack([times_spikes_pre, times_spikes_post_syn_persp]))):
-            pre_trace = get_trace_at(spk_time, times_spikes_pre, syn_opts["tau_pre_trace"], before_increment=False, extra_debug=True)
-            post_trace = get_trace_at(spk_time, times_spikes_post_syn_persp, syn_opts["tau_post_trace"], before_increment=False, extra_debug=True)
+            pre_trace = get_trace_at(spk_time, times_spikes_pre, syn_opts["tau_pre_trace"], before_increment=False, extra_debug=debug)
+            post_trace = get_trace_at(spk_time, times_spikes_post_syn_persp, syn_opts["tau_post_trace"], before_increment=False, extra_debug=debug)
 
             # process post spike?
             if spk_time in times_spikes_post_syn_persp:
                 old_weight = weight
                 weight = old_weight + syn_opts["lambda"] * pre_trace
-                print("[REF] t = " + str(spk_time) + ": facilitating from " + str(old_weight) + " to " + str(weight) + " with pre tr = " + str(pre_trace))
+                if debug:
+                    print("[REF] t = " + str(spk_time) + ": facilitating from " + str(old_weight) + " to " + str(weight) + " with pre tr = " + str(pre_trace))
 
             # process pre spike?
             if spk_time in times_spikes_pre:
                 old_weight = weight
                 weight = old_weight - syn_opts["lambda"] * post_trace
-                print("[REF] t = " + str(spk_time) + ": depressing from " + str(old_weight) + " to " + str(weight) + " with post tr = " + str(post_trace))
+                if debug:
+                    print("[REF] t = " + str(spk_time) + ": depressing from " + str(old_weight) + " to " + str(weight) + " with post tr = " + str(post_trace))
 
             log[spk_time] = {"weight": weight,
                              "pre_trace": pre_trace,
@@ -168,8 +178,66 @@ class TestSpiNNakerSTDPWindow:
         return w_final, actual_pre_spike_times, actual_post_spike_times
 
 
-    def test_stdp_window(self):
+    def compute_continuous_reference(self, syn_opts, pre_spike_times, dt_min, dt_max, initial_weight=1., n_points=501):
+        r"""Evaluate the reference STDP window on a dense grid of (post - pre) spike time differences, for plotting"""
+        pre_spike_times = np.array(pre_spike_times)
+        dt_axis = np.linspace(dt_min, dt_max, n_points)
+        dw_axis = np.empty_like(dt_axis)
+        for i, dt in enumerate(dt_axis):
+            dw_axis[i] = self.run_reference_simulation(syn_opts,
+                                                       times_spikes_pre=pre_spike_times,
+                                                       times_spikes_post_syn_persp=np.array([pre_spike_times[0] + dt]) + syn_opts["delay"],
+                                                       initial_weight=initial_weight,
+                                                       debug=False)
+
+        return dt_axis, dw_axis
+
+    def plot_stdp_window(self, syn_opts, initial_weight=1.):
+        r"""Plot the STDP window for all runs (exp LUTs on/off) collected so far, together with the reference"""
+        if not _stdp_window_results:
+            return
+
+        # the ideal reference is taken from the first available run
+        first_result = next(iter(_stdp_window_results.values()))
+        all_dt = np.hstack([r["spike_time_axis"] for r in _stdp_window_results.values()])
+        dt_cont, dw_cont = self.compute_continuous_reference(syn_opts,
+                                                             first_result["pre_spike_times"],
+                                                             dt_min=np.amin(all_dt),
+                                                             dt_max=np.amax(all_dt),
+                                                             initial_weight=initial_weight)
+
+        run_styles = {True: {"color": "tab:orange", "marker": "o", "label": "NESTML (exp LUTs)"},
+                      False: {"color": "tab:green", "marker": "s", "label": "NESTML (no exp LUTs)"}}
+
+        fig, (ax, ax_err) = plt.subplots(2, 1, sharex=True, figsize=(6.4, 6.), gridspec_kw={"height_ratios": [3, 1]})
+
+        ax.plot(dt_cont, dw_cont, '-', color="grey", alpha=.4, linewidth=1., zorder=0)
+        ax.plot(first_result["spike_time_axis"], first_result["ref_weights"], 'x', color="tab:blue", markersize=8, label="ref")
+        for use_exp_luts, result in _stdp_window_results.items():
+            style = run_styles[use_exp_luts]
+            ax.plot(result["spike_time_axis"], result["sim_weights"], linestyle="none", marker=style["marker"], markerfacecolor="none", color=style["color"], label=style["label"])
+            ax_err.plot(result["spike_time_axis"], result["sim_weights"] - result["ref_weights"], linestyle="none", marker=style["marker"], markerfacecolor="none", color=style["color"], label=style["label"])
+
+        ax.set_ylabel(r"$\Delta w$")
+        ax.set_title("STDP-Window")
+        ax.grid(True)
+        ax.legend()
+
+        ax_err.axhline(0., color="grey", alpha=.4, linewidth=1., zorder=0)
+        ax_err.set_xlabel(r"$t_\mathrm{post} - t_\mathrm{pre}$ [ms]")
+        ax_err.set_ylabel(r"$\Delta w - \Delta w_\mathrm{ref}$")
+        ax_err.grid(True)
+
+        fig.tight_layout()
+        fig.savefig("nestml_stdp_window.png")
+        plt.close(fig)
+
+    @pytest.mark.parametrize("generate_code", [True, False], indirect=True)
+    def test_stdp_window(self, generate_code):
         r"""Test that the STDP window matches that of a reference simulation"""
+        use_exp_luts = generate_code
+        assert use_exp_luts in [True, False]
+
         syn_opts = {
             "delay": 1.,  # dendritic delay [ms]
             "tau_pre_trace": 20.,
@@ -214,17 +282,12 @@ class TestSpiNNakerSTDPWindow:
         print("delta weights after sim = " + str(sim_weights))
         print("delta weights after ref sim = " + str(ref_weights))
 
-        fig, ax = plt.subplots()
-        ax.plot(spike_time_axis, sim_weights, '.', color="orange", label="NESTML")
-        ax.plot(spike_time_axis, ref_weights, 'x', color="blue", label="ref")
-        ax.set_xlabel(r"$t_\mathrm{pre} - t_\mathrm{post} [ms]$")
-        ax.set_ylabel(r"$\Delta w$")
-        ax.set_title("STDP-Window")
-        #ax.set_ylim(-syn_opts["lambda"], syn_opts["lambda"])
-        #ax.set_ylim(-2*syn_opts["lambda"], 2*syn_opts["lambda"])
-        ax.grid(True)
-        ax.legend()
-        fig.savefig("nestml_stdp_window.png")
+        _stdp_window_results[use_exp_luts] = {"spike_time_axis": np.array(spike_time_axis),
+                                              "sim_weights": sim_weights,
+                                              "ref_weights": ref_weights,
+                                              "pre_spike_times": np.array(actual_pre_spike_times[0]).astype(float)}
+
+        self.plot_stdp_window(syn_opts, initial_weight=initial_weight)
 
         # testing
 

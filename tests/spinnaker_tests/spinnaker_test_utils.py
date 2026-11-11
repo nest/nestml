@@ -313,25 +313,39 @@ def save_energy_to_csv(result, energy):
         writer.writerow(row)
 
 
+def plot_core_activity_range(cores, title, output_path):
+    """Plot per-core min/max active time as a vertical range, with the mean as a marker."""
+    labels = [f"{core['chip']}:{core['core']}" for core in cores]
+    means = np.array([core["mean_percent_active"] for core in cores], dtype=float)
+    mins = np.array([core.get("min_percent_active") if core.get("min_percent_active") is not None else core["mean_percent_active"] for core in cores], dtype=float)
+    maxs = np.array([core.get("max_percent_active") if core.get("max_percent_active") is not None else core["mean_percent_active"] for core in cores], dtype=float)
+    x = np.arange(len(cores))
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+    ax.vlines(x, mins, maxs, color="tab:blue", alpha=0.35, linewidth=2, label="Min–max")
+    ax.scatter(x, mins, marker="_", color="tab:blue", s=60)
+    ax.scatter(x, maxs, marker="_", color="tab:blue", s=60)
+    ax.scatter(x, means, marker="o", color="tab:orange", s=20, zorder=3, label="Mean")
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, rotation=90)
+    ax.set_xlim(-0.5, len(cores) - 0.5)
+    ax.set_xlabel("Core")
+    ax.set_ylabel("Active time [%]")
+    ax.set_title(title)
+    ax.grid(axis="y", alpha=0.3)
+    ax.legend()
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=300)
+    plt.close(fig)
+
+
 def plot_core_activity(cores, run_dir, implementation):
     if not cores:
         print(f"No core profiling data found for {implementation}.")
         return
 
-    labels = [f"{core['chip']}:{core['core']}" for core in cores]
-    values = [core["mean_percent_active"] for core in cores]
-
-    plt.figure(figsize=(12, 6))
-    plt.bar(labels, values)
-    plt.xlabel("Core")
-    plt.ylabel("Mean active time [%]")
-    plt.title(f"{implementation} SpiNNaker Core Activity")
-    plt.xticks(rotation=90)
-    plt.tight_layout()
-
     output_path = (run_dir / f"sample_profile_activity_{implementation.lower()}.png")
-    plt.savefig(output_path, dpi=300)
-    plt.close()
+    plot_core_activity_range(cores, f"{implementation} SpiNNaker Core Activity", output_path)
 
     print(f"{implementation} core activity plot saved to: {output_path}")
 

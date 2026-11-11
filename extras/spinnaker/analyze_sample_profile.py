@@ -69,6 +69,7 @@ ENERGY_CSV = BASE_DIR / "balanced_networks_energy.csv"
 
 PROFILE_NAME = "sample_profile.json"
 ENERGY_NAME = "energy_report.rpt"
+METADATA_NAME = "metadata.json"
 
 
 IMPLEMENTATION_LABELS = {
@@ -197,25 +198,87 @@ def analyze_profiles(reference_path, nestml_path):
     save_comparison_to_csv(reference_path, nestml_path, reference_summary, nestml_summary, mean_difference, mean_relative_difference)
 
 
-def plot_core_activity(cores, profile_path, implementation):
-    if not cores:
-        print(f"No core profiling data found for {implementation}.")
-        return
+def plot_core_activity_range(cores, title, output_path):
+    """Plot per-core min/max active time as a vertical range, with the mean as a marker."""
+    labels = [f"{core['chip']}:{core['core']}" for core in cores]
+    means = np.array([core["mean_percent_active"] for core in cores], dtype=float)
+    mins = np.array([core.get("min_percent_active") if core.get("min_percent_active") is not None else core["mean_percent_active"] for core in cores], dtype=float)
+    maxs = np.array([core.get("max_percent_active") if core.get("max_percent_active") is not None else core["mean_percent_active"] for core in cores], dtype=float)
+    x = np.arange(len(cores))
 
+    fig, ax = plt.subplots(figsize=(12, 6))
+    ax.vlines(x, mins, maxs, color="tab:blue", alpha=0.35, linewidth=2, label="Min–max")
+    ax.scatter(x, mins, marker="_", color="tab:blue", s=60)
+    ax.scatter(x, maxs, marker="_", color="tab:blue", s=60)
+    ax.scatter(x, means, marker="o", color="tab:orange", s=20, zorder=3, label="Mean")
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, rotation=90)
+    ax.set_xlim(-0.5, len(cores) - 0.5)
+    ax.set_xlabel("Core")
+    ax.set_ylabel("Active time [%]")
+    ax.set_title(title)
+    ax.grid(axis="y", alpha=0.3)
+    ax.legend()
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=300)
+    plt.close(fig)
+
+
+
+def plot_core_activity_bar(cores, title, output_path, implementation):
+    """Plot per-core mean active time as a bar chart."""
     labels = [f"{core['chip']}:{core['core']}" for core in cores]
     values = [core["mean_percent_active"] for core in cores]
 
     plt.figure(figsize=(12, 6))
     plt.bar(labels, values)
     plt.xlabel("Core")
-    plt.ylabel("Core active fraction [%]")
-    plt.title(f"{implementation} SpiNNaker Core Activity")
+    plt.ylabel("Mean active time [%]")
+    plt.title(title)
     plt.xticks(rotation=90)
     plt.tight_layout()
-
-    output_path = Path(profile_path).parent / f"sample_profile_activity_{implementation.lower()}.png"
     plt.savefig(output_path, dpi=300)
     plt.close()
+
+
+
+def load_metadata(profile_path):
+    """Load the ``metadata.json`` file living next to a sample profile, or return an empty dict if absent."""
+    metadata_path = Path(profile_path).parent / METADATA_NAME
+
+    if not metadata_path.exists():
+        print(f"Warning: no {METADATA_NAME} found at {metadata_path}")
+        return {}
+
+    with open(metadata_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def format_metadata_for_title(metadata):
+    """Format network size and exp LUT usage as a title suffix, e.g. " (N = 256, exp LUTs: True)"."""
+    parts = []
+
+    if metadata.get("N") is not None:
+        parts.append(f"N = {metadata['N']}")
+
+    if metadata.get("use_exp_luts") is not None:
+        parts.append(f"exp LUTs: {metadata['use_exp_luts']}")
+
+    return f" ({', '.join(parts)})" if parts else ""
+
+
+def plot_core_activity(cores, profile_path, implementation):
+    if not cores:
+        print(f"No core profiling data found for {implementation}.")
+        return
+
+    title = f"{implementation} SpiNNaker Core Activity" + format_metadata_for_title(load_metadata(profile_path))
+
+    output_path = Path(profile_path).parent / f"sample_profile_activity_{implementation.lower()}_range.png"
+    plot_core_activity_range(cores, title, output_path)
+
+    output_path = Path(profile_path).parent / f"sample_profile_activity_{implementation.lower()}.png"
+    plot_core_activity_bar(cores, title, output_path, implementation)
 
     print(f"{implementation} core activity plot saved to: {output_path}")
 
