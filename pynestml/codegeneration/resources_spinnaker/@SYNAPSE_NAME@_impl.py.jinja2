@@ -75,7 +75,7 @@ from spynnaker.pyNN.models.neuron.synapse_dynamics.synapse_dynamics_neuromodulat
 from spynnaker.pyNN.models.neuron.synapse_dynamics.synapse_dynamics_weight_changable import SynapseDynamicsWeightChangable
 from spynnaker.pyNN.models.neuron.synapse_dynamics.synapse_dynamics_weight_changer import SynapseDynamicsWeightChanger
 {%- if use_exp_luts %}
-from spynnaker.pyNN.models.neuron.plasticity.stdp.common import get_exp_lut_array
+from spynnaker.pyNN.models.neuron.plasticity.stdp.common import STDP_FIXED_POINT_ONE
 {%- endif %}
 
 if TYPE_CHECKING:
@@ -88,6 +88,31 @@ if TYPE_CHECKING:
 
 # How large are the time-stamps stored with each event
 TIME_STAMP_BYTES = BYTES_PER_WORD
+
+{%- if use_exp_luts %}
+
+
+def get_exp_lut_array(time_step: float, time_constant: float, shift: int = 0) -> numpy.ndarray:
+    """Create a look-up table for ``exp(-t / time_constant)``, in the same format as sPyNNaker's ``get_exp_lut_array()`` (which is read on the C side by ``maths_copy_int16_lut()`` and ``maths_lut_exponential_decay()``), but rounding the entries to the nearest fixed-point value instead of flooring them. This halves the worst-case error per lookup (to 0.5 LSB) and removes its bias (with flooring, every lookup underestimates the true value).
+
+    :param time_step: Simulation time step [ms]
+    :param time_constant: Time constant of the exponential decay [ms]
+    :param shift: Mapping from time (in time steps) to table index: ``index = time >> shift``
+    :returns: Header (number of entries and shift, as two uint16) followed by the table entries (as uint16), padded to and viewed as an array of uint32 words
+    """
+    l_ambda = time_step / float(time_constant)
+
+    # the table extends as long as entries round to a nonzero value, i.e. while exp(-t / tau) * STDP_FIXED_POINT_ONE >= 0.5; past the end of the table, the C code returns zero. The size must be a multiple of 2 so that the uint16 entries fill whole uint32 words
+    size = math.log(2 * STDP_FIXED_POINT_ONE) / l_ambda
+    size, extra = divmod(size / (1 << shift), 2)
+    size = (int(size) + (extra > 0)) * 2
+
+    a = numpy.exp((numpy.arange(size) << shift) * -l_ambda)
+    a = numpy.round(a * STDP_FIXED_POINT_ONE)
+
+    header = numpy.array([len(a), shift], dtype=numpy.uint16)
+    return numpy.concatenate((header, a.astype(numpy.uint16))).view(numpy.uint32)
+{%- endif %}
 
 
 def s16_15_to_float(fixp_x: int) -> float:

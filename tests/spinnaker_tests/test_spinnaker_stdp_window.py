@@ -412,9 +412,9 @@ class TestSpiNNakerSTDPWindow:
     def test_stdp_drift_repeated_pairings(self, generate_code):
         r"""Show the accumulation of weight error over many repeated, identical pre/post spike pairings.
 
-        The exp() look-up table stores ``floor(exp(-k / tau) * 2048)``, so every lookup underestimates the decay factor by up to 1/2048. Because this error is a bias (always of the same sign) rather than noise, it accumulates linearly over repeated pairings.
+        The exp() look-up tables store the decay factor in Q11 fixed-point format. The NESTML-generated LUTs store ``round(exp(-k / tau) * 2048)`` (error up to 0.5/2048 of either sign); the sPyNNaker built-in LUTs store ``floor(exp(-k / tau) * 2048)`` (every lookup underestimates the decay factor by up to 1/2048). As all pairings are identical, each one looks up the same LUT entry, so the error has the same sign for every pairing and accumulates linearly.
 
-        The pairing period is chosen much longer than the LUT length (about 7.6 tau), so that each pairing is isolated: the traces are exactly reset between pairings and the depression term from the previous postsynaptic spike is negligible. Each pairing thus contributes the same potentiation error (``lambda`` times the LUT error at the given spike time difference)."""
+        The pairing period is chosen much longer than the LUT length (about 7.6 tau for sPyNNaker's floored LUTs, 8.3 tau for NESTML's rounded LUTs), so that each pairing is isolated: the traces are exactly reset between pairings and the depression term from the previous postsynaptic spike is negligible. Each pairing thus contributes the same potentiation error (``lambda`` times the LUT error at the given spike time difference)."""
         use_exp_luts = generate_code
         assert use_exp_luts in [True, False]
 
@@ -433,8 +433,8 @@ class TestSpiNNakerSTDPWindow:
 
         initial_weight = 1.
         t_start = 50.               # time of the first pairing [ms]
-        pairing_period = 250.       # [ms]; should be longer than the LUT (~154 ms for tau = 20 ms)
-        pairing_dt = 3.             # post minus pre input spike time [ms]; with dendritic delay, this gives a synaptic perspective dt of 4 ms, where the LUT error is large (~0.76/2048), and also large at +/- 1 ms
+        pairing_period = 250.       # [ms]; should be longer than the LUT (154 entries for sPyNNaker, 168 for NESTML, for tau = 20 ms and 1 ms time step)
+        pairing_dt = 3.             # post minus pre input spike time [ms]; with dendritic delay, this gives a synaptic perspective dt of 4 ms, where the floored (sPyNNaker) LUT error is large (-0.76/2048), and also large at +/- 1 ms; the rounded (NESTML) LUT error there is +0.24/2048
         n_pairings = 40
         pairings_per_readout = 1    # increase to reduce the number of ``p.run()`` calls (and hence the run time), at the expense of fewer data points
 
