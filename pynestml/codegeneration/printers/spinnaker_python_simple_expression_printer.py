@@ -34,7 +34,7 @@ class SpinnakerPythonSimpleExpressionPrinter(SimpleExpressionPrinter):
     """
 
     def print_simple_expression(self, node: ASTSimpleExpression) -> str:
-        if node.has_unit():
+        if node.is_numeric_literal_with_unit():
             if self._variable_printer.print(node.get_variable()) in ["1", "1.", "1.0"]:
                 return str(node.get_numeric_literal())
 

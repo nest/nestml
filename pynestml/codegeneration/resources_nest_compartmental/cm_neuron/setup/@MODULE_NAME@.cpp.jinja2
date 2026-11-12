@@ -20,8 +20,7 @@
 *
 */#}
 
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
-    or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6") %}
+{%- if nest_version_dict and (nest_version_dict["major"] <= 3 and nest_version_dict["minor"] <= 6) %}
 {%- include "common/ModuleClass.jinja2" %}
 {%- else %}
 {%- include "common/ModuleClassMaster.jinja2"  %}

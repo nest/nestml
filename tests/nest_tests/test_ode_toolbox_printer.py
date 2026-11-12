@@ -46,11 +46,9 @@ class TestODEToolboxprinter:
                         reason="This test does not support NEST 2")
     def test_ode_toolbox_printer(self):
         nest.ResetKernel()
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
+        NESTTools.set_nest_verbosity("ALL")
         nest.Install("nestmlmodule")
+        nest.resolution = 0.1
 
         # create spike_generators with these times
         neuron = nest.Create("ode_toolbox_printer_test_nestml")
@@ -62,13 +60,12 @@ class TestODEToolboxprinter:
 
         # Assert all values are as expected before simulation
         np.testing.assert_allclose(I_syn, 0)
-        np.testing.assert_allclose(foo, 4.0)
-        np.testing.assert_allclose(rate, 1e-05)
+        np.testing.assert_allclose(foo, 4)
+        np.testing.assert_allclose(rate, .1)    # this gets converted from s**-1 to ms**-1 when code is generated for NEST
 
         nest.Simulate(35.)
         I_syn = mm.get("events")["I_syn"]
-        foo = mm.get("events")["foo"]
 
         # Assert after simulation
-        np.testing.assert_allclose(I_syn[-1], 5.5493)
-        np.testing.assert_allclose(foo[-1], 7.4)
+        np.testing.assert_allclose(I_syn, 0.1 + (-0.1) * np.exp(-mm.get("events")["times"] / neuron.tau_m))    # exact solution with time in [ms]
+        np.testing.assert_allclose(neuron.foo, 4 + 0.1 * nest.biological_time / nest.resolution)

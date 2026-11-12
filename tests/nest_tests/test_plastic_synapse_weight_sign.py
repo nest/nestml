@@ -56,16 +56,13 @@ class TestPlasticSynapseWeightSign:
         r"""Generate the model code"""
 
         codegen_opts = {"neuron_synapse_pairs": [],
-                        "delay_variable": {},
                         "weight_variable": {}}
 
         files = [os.path.join("models", "neurons", self.neuron_model_name + ".nestml")]
         for synapse_model_name in synapse_model_names:
             files.append(os.path.join("models", "synapses", synapse_model_name + ".nestml"))
             codegen_opts["neuron_synapse_pairs"].append({"neuron": self.neuron_model_name,
-                                                         "synapse": synapse_model_name,
-                                                         "post_ports": ["post_spikes"]})
-            codegen_opts["delay_variable"][synapse_model_name] = "d"
+                                                         "synapses": {synapse_model_name: {"post_ports": ["post_spikes"]}}})
             codegen_opts["weight_variable"][synapse_model_name] = "w"
 
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, os.pardir, s))) for s in files]
@@ -92,10 +89,7 @@ class TestPlasticSynapseWeightSign:
             post_spike_times = pre_spike_times - 10.
 
         nest.ResetKernel()
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ERROR")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ERROR
+        NESTTools.set_nest_verbosity("ERROR")
 
         nest.Install("nestmlmodule")
 
@@ -112,7 +106,6 @@ class TestPlasticSynapseWeightSign:
 
         nest.Connect(pre_sg, pre_neuron, syn_spec={"weight": 9999.})
         nest.Connect(post_sg, post_neuron, syn_spec={"weight": 9999.})
-
         syn_opts = {"synapse_model": synapse_model_name + "_nestml__with_" + self.neuron_model_name + "_nestml",
                     "w": init_weight,
                     "Wmin": 0,

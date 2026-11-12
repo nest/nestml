@@ -58,7 +58,6 @@ class MessageCode(Enum):
     ARG_NOT_SPIKE_INPUT = 20
     NUMERATOR_NOT_ONE = 21
     ORDER_NOT_DECLARED = 22
-    CONTINUOUS_INPUT_PORT_WITH_QUALIFIERS = 23
     BLOCK_NOT_CORRECT = 24
     VARIABLE_NOT_IN_STATE_BLOCK = 25
     WRONG_NUMBER_OF_ARGS = 26
@@ -139,18 +138,31 @@ class MessageCode(Enum):
     NON_CONSTANT_EXPONENT = 111
     RESOLUTION_FUNC_USED = 112
     TIMESTEP_FUNCTION_LEGALLY_USED = 113
-    RANDOM_FUNCTIONS_LEGALLY_USED = 113
-    EXPONENT_MUST_BE_INTEGER = 114
-    EMIT_SPIKE_OUTPUT_PORT_TYPE_DIFFERS = 115
-    CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES = 116
-    INTEGRATE_ODES_ARG_HIGHER_ORDER = 117
-    DELAY_VARIABLE_NOT_SPECIFIED = 118
-    WEIGHT_VARIABLE_NOT_SPECIFIED = 119
-    DELAY_VARIABLE_NOT_FOUND = 120
-    WEIGHT_VARIABLE_NOT_FOUND = 121
-    VARIABLE_DEFINITION_IN_PARAMETERS_BLOCK_NOT_ALLOWED_TO_REFER_TO_STATE_BLOCK = 122
-    VARIABLE_DEFINITION_IN_PARAMETERS_BLOCK_NOT_ALLOWED_TO_REFER_TO_INTERNALS_BLOCK = 123
-    VARIABLE_DEFINITION_IN_INTERNALS_BLOCK_NOT_ALLOWED_TO_REFER_TO_STATE_BLOCK = 124
+    RANDOM_FUNCTIONS_LEGALLY_USED = 114
+    EXPONENT_MUST_BE_INTEGER = 115
+    EMIT_SPIKE_OUTPUT_PORT_TYPE_DIFFERS = 116
+    CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES = 117
+    INTEGRATE_ODES_ARG_HIGHER_ORDER = 118
+    DELAY_VARIABLE_NOT_SPECIFIED = 119
+    WEIGHT_VARIABLE_NOT_SPECIFIED = 120
+    DELAY_VARIABLE_NOT_FOUND = 121
+    WEIGHT_VARIABLE_NOT_FOUND = 122
+    CM_VAR_MULTIUSE = 123
+    CM_INVALID_CONVOLUTION_BUFFER = 124
+    UNKNOWN_NEURON_SYNAPSE_PAIR_MODEL = 125
+    CM_UNRESOLVED_FUNCTION_DEPENDENCY = 126
+    CM_UNRESOLVED_VARIABLE_DEPENDENCY = 127
+    CONVOLVE_NEEDS_BUFFER_PARAMETER = 128
+    CM_INTEGRATE_ODES_IGNORED = 129
+    CM_FASTEXP_ACCURACY_WARNING = 130
+    NOT_ALLOWED_TO_ASSIGN_TO_A_UNIT_TYPE = 131
+    VARIABLE_USED_AS_A_UNIT = 132
+    NO_SOLITARY_PHYSICAL_UNITS = 133
+    SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED = 134
+    NEST_RANDOM_FUNCTIONS_LEGALLY_USED = 135
+    VARIABLE_DEFINITION_IN_PARAMETERS_BLOCK_NOT_ALLOWED_TO_REFER_TO_STATE_BLOCK = 136
+    VARIABLE_DEFINITION_IN_PARAMETERS_BLOCK_NOT_ALLOWED_TO_REFER_TO_INTERNALS_BLOCK = 137
+    VARIABLE_DEFINITION_IN_INTERNALS_BLOCK_NOT_ALLOWED_TO_REFER_TO_STATE_BLOCK = 138
 
 
 class Messages:
@@ -472,7 +484,7 @@ class Messages:
         :param variable_name: the name of the variable of an equation which is not defined in an equations block
         :return: a message
         """
-        message = "Ode equation lhs-variable \"%s\" not defined in state block!" % variable_name
+        message = "ODE left-hand side variable \"%s\" not defined in state block!" % variable_name
         return MessageCode.VARIABLE_NOT_IN_STATE_BLOCK, message
 
     @classmethod
@@ -816,8 +828,7 @@ class Messages:
     @classmethod
     def astdatatype_type_symbol_could_not_be_derived(cls) -> Tuple[MessageCode, str]:
         """
-        Unknown type or unit literal.
-        :param provided_type_str: the provided type as a string
+        Type symbol could not be derived.
         """
         message = "ASTDataType type symbol could not be derived"
         return MessageCode.ASTDATATYPE_TYPE_SYMBOL_COULD_NOT_BE_DERIVED, message
@@ -830,14 +841,6 @@ class Messages:
         """
         message = "emit_spike() function was called, but no spiking output port has been defined!"
         return MessageCode.EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT, message
-
-    @classmethod
-    def get_output_port_type_differs(cls) -> Tuple[MessageCode, str]:
-        """
-        Indicates that an emit_spike() function was called, but with different parameter types than the output port was defined with.
-        """
-        message = "emit_spike() function was called, but with different parameter types than the output port was defined with!"
-        return MessageCode.EMIT_SPIKE_OUTPUT_PORT_TYPE_DIFFERS, message
 
     @classmethod
     def get_kernel_wrong_type(cls,
@@ -1016,8 +1019,7 @@ class Messages:
     def get_v_comp_variable_value_missing(cls, neuron_name: str, missing_variable_name) -> Tuple[MessageCode, str]:
         message = "Missing state variable \"" + missing_variable_name
         message += "\" inside of neuron \"" + neuron_name + "\". "
-        message += "You have passed NEST_COMPARTMENTAL flag to the generator, thereby activating compartmental mode."
-        message += "In this mode, such variable must be declared in the state block.\n"
+        message += "When generating code for the NEST compartmental platform, such variable must be declared in the state block.\n"
         message += "This variable represents the dynamically calculated value of membrane potential "
         message += "and should be utilized in your equations for voltage activated ion channels."
         return MessageCode.CM_NO_V_COMP, message
@@ -1026,7 +1028,7 @@ class Messages:
     def get_syns_bad_buffer_count(cls, buffers: set, synapse_name: str) -> Tuple[MessageCode, str]:
         message = "Synapse `\"%s\" uses the following input buffers: %s" % (
             synapse_name, buffers)
-        message += " However exaxtly one spike input buffer per synapse is allowed."
+        message += " However exactly one spike input buffer aside the self_spikes buffer is allowed per synapse."
         return MessageCode.SYNS_BAD_BUFFER_COUNT, message
 
     @classmethod
@@ -1070,14 +1072,51 @@ class Messages:
         return MessageCode.INTEGRATE_ODES_ARG_HIGHER_ORDER, message
 
     @classmethod
-    def get_mechs_dictionary_info(cls, chan_info, syns_info, conc_info, con_in_info) -> Tuple[MessageCode, str]:
+    def get_integrate_odes_ignored_in_compartmental(cls) -> Tuple[MessageCode, str]:
+        message = "integrate_odes() has no effect for the NEST compartmental target; " \
+                  "ODEs are integrated implicitly. The call is accepted for model " \
+                  "compatibility and will be ignored."
+        return MessageCode.CM_INTEGRATE_ODES_IGNORED, message
+
+    @classmethod
+    def get_cm_fastexp_accuracy_warning(cls) -> Tuple[MessageCode, str]:
+        message = "The NEST compartmental fast exponential option uses a bounded exponential approximation. " \
+                  "Spike shape is not necessarily preserved; see " \
+                  "tests/nest_compartmental_tests/test__fastexp_accuracy.py \n" \
+                  "For spike-time accuracy, benchmark your own model " \
+                  "against a standard-exponential reference; see " \
+                  "tests/nest_compartmental_tests/test__fastexp_spike_timing_sweep.py for an example."
+        return MessageCode.CM_FASTEXP_ACCURACY_WARNING, message
+
+    @classmethod
+    def get_mechs_dictionary_info(cls, chan_info, recs_info, conc_info, con_in_info, syns_info, global_info) -> Tuple[MessageCode, str]:
         message = ""
         message += "chan_info:\n" + chan_info + "\n"
-        message += "syns_info:\n" + syns_info + "\n"
+        message += "recs_info:\n" + recs_info + "\n"
         message += "conc_info:\n" + conc_info + "\n"
         message += "con_in_info:\n" + con_in_info + "\n"
+        message += "syns_info:\n" + syns_info + "\n"
+        message += "global_info:\n" + global_info + "\n"
 
         return MessageCode.MECHS_DICTIONARY_INFO, message
+
+    @classmethod
+    def cm_shared_variables_not_allowed(cls, varname: str, mech_names: list):
+        message = "Multiple mechanisms ("
+        it = iter(mech_names)
+        for mech_name in mech_names:
+            message += mech_name
+            if mech_name == next(it, None):
+                message += ", "
+        message += ") are referencing the same variable: '" + varname + "'"
+
+        return MessageCode.CM_VAR_MULTIUSE, message
+
+    @classmethod
+    def cm_non_self_spike_convolution_in_mech(cls, mech_name: str, mech_type: str):
+        message = ("Only convolutions with buffer self_spikes are allowed in mechanisms of type '" + mech_type + "' but are contained in '" + mech_name + "'.")
+
+        return MessageCode.CM_INVALID_CONVOLUTION_BUFFER, message
 
     @classmethod
     def get_fixed_timestep_func_used(cls) -> Tuple[MessageCode, str]:
@@ -1153,8 +1192,18 @@ class Messages:
 
     @classmethod
     def get_random_functions_legally_used(cls, name: str) -> Tuple[MessageCode, str]:
-        message = "The function \"" + name + "\" can only be used in the update, onReceive, or onCondition blocks."
+        message = "The function \"" + name + "\" can only be used in the update, onReceive, or onCondition blocks, or as part of initialisation expressions of state, parameters or internals."
         return MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED, message
+
+    @classmethod
+    def get_nest_random_functions_legally_used(cls, name: str) -> Tuple[MessageCode, str]:
+        message = "When generating code for NEST Simulator, the function \"" + name + "\" can only be used in the update, onReceive, or onCondition blocks."
+        return MessageCode.NEST_RANDOM_FUNCTIONS_LEGALLY_USED, message
+
+    @classmethod
+    def get_nest_random_functions_legally_used(cls, name: str) -> Tuple[MessageCode, str]:
+        message = "When generating code for NEST Simulator, the function \"" + name + "\" can only be used in the update, onReceive, or onCondition blocks."
+        return MessageCode.NEST_RANDOM_FUNCTIONS_LEGALLY_USED, message
 
     @classmethod
     def get_continuous_output_port_cannot_have_attributes(cls) -> Tuple[MessageCode, str]:
@@ -1162,14 +1211,8 @@ class Messages:
         return MessageCode.CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES, message
 
     @classmethod
-    def get_delay_variable_not_specified(cls) -> Tuple[MessageCode, str]:
-        message = "Delay variable is not specified for synapse model. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
-
-        return MessageCode.DELAY_VARIABLE_NOT_SPECIFIED, message
-
-    @classmethod
     def get_weight_variable_not_specified(cls) -> Tuple[MessageCode, str]:
-        message = "Weight variable is not specified for synapse model. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
+        message = "Weight variable is not specified for synapse model. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delays"
 
         return MessageCode.WEIGHT_VARIABLE_NOT_SPECIFIED, message
 
@@ -1184,6 +1227,46 @@ class Messages:
         message = "Weight variable \"" + variable_name + "\" not found in synapse. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
 
         return MessageCode.WEIGHT_VARIABLE_NOT_FOUND, message
+
+    @classmethod
+    def get_not_allowed_to_assign_to_a_unit_type(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "Not allowed to assign to unit type '" + variable_name + "'!"
+
+        return MessageCode.NOT_ALLOWED_TO_ASSIGN_TO_A_UNIT_TYPE, message
+
+    @classmethod
+    def get_unknown_neuron_synapse_pair_model(cls, model_type: str, model_name: str) -> Tuple[MessageCode, str]:
+        message = "Unknown " + model_type + " model \"" + model_name + "\" in neuron_synapse_pairs."
+
+        return MessageCode.UNKNOWN_NEURON_SYNAPSE_PAIR_MODEL, message
+
+    @classmethod
+    def get_cm_unresolved_function_dependency(cls, function_name: str, context: str) -> Tuple[MessageCode, str]:
+        message = "Could not resolve function dependency \"" + function_name + "\" while collecting " + context + "."
+
+        return MessageCode.CM_UNRESOLVED_FUNCTION_DEPENDENCY, message
+
+    @classmethod
+    def get_cm_unresolved_variable_dependency(cls, variable_name: str, context: str) -> Tuple[MessageCode, str]:
+        message = "Could not resolve variable dependency \"" + variable_name + "\" while collecting " + context + "."
+
+        return MessageCode.CM_UNRESOLVED_VARIABLE_DEPENDENCY, message
+
+    @classmethod
+    def get_no_solitary_physical_units_allowed(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "No free-standing physical units allowed (" + variable_name + ")"
+
+        return MessageCode.NO_SOLITARY_PHYSICAL_UNITS, message
+
+    @classmethod
+    def get_spike_input_port_appears_outside_equation_rhs_and_event_handler(cls, name):
+        message = "Spiking input port names (in this case '" + name + "') can only be used in the right-hand side of equations or in the ``get_weight()`` function inside an onReceive block!"
+        return MessageCode.SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED, message
+
+    @classmethod
+    def get_vector_input_ports_should_be_of_constant_size(cls):
+        message = "Vector input ports should be of constant size (this is a limitation of NEST Simulator)"
+        return MessageCode.VECTOR_INPUT_PORTS_SHOULD_BE_OF_CONSTANT_SIZE, message
 
     @classmethod
     def get_variable_definition_in_parameters_block_not_allowed_to_refer_to_state_block(cls, variable_name: str) -> Tuple[MessageCode, str]:

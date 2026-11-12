@@ -19,7 +19,14 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import List
+from typing import Any, Dict, List, Optional
+
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
 
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_declaration import ASTDeclaration
@@ -28,7 +35,6 @@ from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import Logger, LoggingLevel
@@ -50,15 +56,18 @@ class CoCoNoKernelsExceptInConvolve(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, model: ASTModel):
+    @override
+    def check_co_co(cls, node: ASTNode, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
         """
         Ensures the coco for the handed over model.
         :param node: a single model instance.
         """
+        assert isinstance(node, ASTModel), "This coco can only be called on ASTModels!"
+
         kernel_collector_visitor = KernelCollectingVisitor()
-        kernel_names = kernel_collector_visitor.collect_kernels(model)
+        kernel_names = kernel_collector_visitor.collect_kernels(node)
         kernel_usage_visitor = KernelUsageVisitor(_kernels=kernel_names)
-        kernel_usage_visitor.work_on(model)
+        kernel_usage_visitor.work_on(node)
 
 
 class KernelUsageVisitor(ASTVisitor):

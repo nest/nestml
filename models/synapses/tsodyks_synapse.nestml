@@ -85,7 +85,6 @@
 model tsodyks_synapse:
     parameters:
         w real = 1          # Synaptic weight
-        d ms = 1 ms         # Synaptic transmission delay
         tau_psc ms = 3 ms
         tau_fac ms = 0 ms   # Setting tau_fac = 0 disables facilitation
         tau_rec ms = 800 ms
@@ -101,7 +100,7 @@ model tsodyks_synapse:
         pre_spikes <- spike
 
     output:
-        spike(weight real, delay ms)
+        spike
 
     onReceive(pre_spikes):
         dt ms = t - t_last_update
@@ -125,4 +124,4 @@ model tsodyks_synapse:
         y += delta_y_tsp
 
         # deliver spike to postsynaptic partner
-        emit_spike(delta_y_tsp * w, d)
+        emit_spike(delta_y_tsp * w)

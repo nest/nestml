@@ -25,7 +25,7 @@ import pytest
 
 from antlr4 import *
 
-from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
+from pynestml.meta_model.ast_compilation_unit import ASTCompilationUnit
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.generated.PyNestMLParser import PyNestMLParser
@@ -84,4 +84,4 @@ class TestSymbolTableBuilder:
                 model.accept(symbol_table_visitor)
                 SymbolTable.add_model_scope(name=model.get_name(), scope=model.get_scope())
 
-            assert isinstance(ast, ASTNestMLCompilationUnit)
+            assert isinstance(ast, ASTCompilationUnit)

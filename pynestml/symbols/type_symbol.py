@@ -19,7 +19,11 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import annotations
+
 from abc import ABCMeta, abstractmethod
+
+import astropy
 
 from pynestml.symbols.symbol import Symbol
 
@@ -155,31 +159,40 @@ class TypeSymbol(Symbol):
             return self.is_buffer == other.is_buffer
         return False
 
-    def differs_only_in_magnitude(self, other_type):
+    def differs_only_in_magnitude(self, other_type: TypeSymbol) -> bool:
         """
         Indicates whether both type represent the same unit but with different magnitudes. This
         case is still valid, e.g., mV can be assigned to volt.
         :param other_type: a type
-        :type other_type: TypeSymbol
         :return: True if both elements equal or differ in magnitude, otherwise False.
-        :rtype: bool
         """
+        from astropy import units
+        from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
+        from pynestml.symbols.real_type_symbol import RealTypeSymbol
+        from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+
         if self.equals(other_type):
             return True
-        # in the case that we don't deal with units, there are no magnitudes
-        from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
-        if not (isinstance(self, UnitTypeSymbol) and isinstance(other_type, UnitTypeSymbol)):
+
+        if isinstance(self, UnitTypeSymbol):
+            unit_a = self.astropy_unit
+        elif isinstance(self, RealTypeSymbol) or isinstance(self, IntegerTypeSymbol):
+            unit_a = astropy.units.Unit("1")
+        else:
             return False
-        # if it represents the same unit, if we disregard the prefix and simplify it
-        unit_a = self.astropy_unit
-        unit_b = other_type.astropy_unit
-        # if isinstance(unit_a,)
-        from astropy import units
-        # TODO: consider even more complex cases which can be resolved to the same unit?
+
+        if isinstance(other_type, UnitTypeSymbol):
+            unit_b = other_type.astropy_unit
+        elif isinstance(other_type, RealTypeSymbol) or isinstance(other_type, IntegerTypeSymbol):
+            unit_b = astropy.units.Unit("1")
+        else:
+            return False
+
         if (isinstance(unit_a, units.Unit) or isinstance(unit_a, units.PrefixUnit) or isinstance(unit_a, units.CompositeUnit)) \
             and (isinstance(unit_b, units.Unit) or isinstance(unit_b, units.PrefixUnit)
                  or isinstance(unit_b, units.CompositeUnit)) and unit_a.physical_type == unit_b.physical_type:
             return True
+
         return False
 
     @abstractmethod

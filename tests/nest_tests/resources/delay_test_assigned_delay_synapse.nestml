@@ -30,8 +30,8 @@ model delay_test_assigned_delay_synapse:
     pre_spikes <- spike
 
   output:
-    spike(weight real, delay ms)
+    spike
 
   onReceive(pre_spikes):
     d = 2 ms       # not allowed!
-    emit_spike(w, d)
+    emit_spike(w)

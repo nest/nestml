@@ -80,12 +80,12 @@ model iaf_cond_beta_neuron:
         kernel g_ex' = g_ex$ - g_ex / tau_syn_rise_E,
                g_ex$' = -g_ex$ / tau_syn_decay_E
 
-        inline I_syn_exc pA = (F_E + convolve(g_ex, exc_spikes) * nS) * (V_m - E_ex)
-        inline I_syn_inh pA = (F_I + convolve(g_in, inh_spikes)* nS) * (V_m - E_in)
+        inline I_syn_exc pA = (F_E + unit_psg * convolve(g_ex, exc_spikes)) * (V_m - E_ex)
+        inline I_syn_inh pA = (F_I + unit_psg * convolve(g_in, inh_spikes)) * (V_m - E_in)
         inline I_leak pA = g_L * (V_m - E_L)
 
         V_m' = (-I_leak - I_syn_exc - I_syn_inh + I_e + I_stim) / C_m
-        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
+        refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero, at a rate of one (milli)second per (milli)second
 
     parameters:
         C_m pF = 250 pF              # Capacitance of the membrane
@@ -116,9 +116,11 @@ model iaf_cond_beta_neuron:
         g_E_const real = 1 / (exp(-t_peak_E / tau_syn_decay_E) - exp(-t_peak_E / tau_syn_rise_E))
         g_I_const real = 1 / (exp(-t_peak_I / tau_syn_decay_I) - exp(-t_peak_I / tau_syn_rise_I))
 
+        unit_psg nS = 1 nS        # Unitary postsynaptic conductance amplitude
+
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:

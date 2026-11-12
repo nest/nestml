@@ -3,7 +3,7 @@ NEST Simulator target
 
 *NESTML features supported:* :doc:`neurons </nestml_language/neurons_in_nestml>`, :doc:`synapses </nestml_language/synapses_in_nestml>`, :ref:`vectors <Vectors>`, :ref:`delay differential equations <Delay Differential Equations>`, :ref:`guards <Guards>`
 
-Generates code for NEST Simulator. For a list of supported versions, see :ref:`Compatibility with different versions of NEST <nest_versions_compatibility>`.
+Generates code for NEST Simulator. For a list of supported versions and NEST installation instructions, see :ref:`Compatibility with different versions of NEST <nest_versions_compatibility>`.
 
 After NESTML completes, the NEST extension module (by default called ``"nestmlmodule"``) can either be statically linked into NEST (see `Writing an extension module <https://nest-extension-module.readthedocs.io/>`_), or loaded dynamically using the ``Install`` API call in Python.
 
@@ -77,9 +77,9 @@ If ODE-toolbox is not successful in finding the propagator solver to a system of
 Setting and retrieving model properties
 ---------------------------------------
 
--  All variables in the ``state`` and ``parameters`` blocks are added to the status dictionary of the neuron.
--  Values can be set using the PyNEST API call ``node_collection.<variable> = <value>`` where ``<variable>`` is the name of the corresponding NESTML variable.
--  Values can be read using the PyNEST API call ``node_collection.<variable>``. This will return the value of the corresponding NESTML variable.
+All variables in the ``state`` and ``parameters`` blocks are added to the status dictionary of the neuron. Note that the numerical values given in the NESTML models are defaults, and can be overridden when constructing the network, or even between different simulation runs.
+
+Values can be set using the PyNEST API call ``node_collection.<variable> = <value>`` where ``<variable>`` is the name of the corresponding NESTML variable. Values can be read using the PyNEST API call ``node_collection.<variable>``. This will return the value of the corresponding NESTML variable.
 
 
 Recording values with devices
@@ -180,7 +180,7 @@ Multiple spiking input ports with vectors in NEST
 
 See :ref:`Multiple input ports with vectors` for an example with input ports defined as vectors.
 
-Each connection in NEST is denoted by a receiver port or ``rport`` number which is an integer that starts with 0. All default connections in NEST have the ``rport`` 0. NESTML routes the spikes with ``excitatory`` and ``inhibitory`` qualifiers into separate input buffers, whereas NEST identifies them with the same ``rport`` number.
+Each connection in NEST is denoted by a receiver port or ``rport`` number which is an integer that starts with 0. All default connections in NEST have the ``rport`` 0.
 
 During the code generation for NEST, NESTML maintains an internal mapping between NEST ``rports`` and NESTML input ports. A list of port names defined in a model and their corresponding ``rport`` numbers can be queried from the status dictionary using the NEST API. For neurons with multiple input ports, the ``receptor_type`` values in the ``nest.Connect()`` call start from 1 as the default ``receptor_type`` 0 is excluded to avoid any accidental connections.
 
@@ -191,7 +191,7 @@ For the example mentioned :ref:`here <Multiple input ports with vectors>`, the `
    neuron = nest.Create("multi_synapse_vectors")
    receptor_types = nest.GetStatus(neuron, "receptor_types")
 
-The name of the receptors of the input ports are denoted by suffixing the ``vector index`` to the port name. For instance, the receptor name for ``foo[0]`` would be ``FOO_0``.
+The name of the receptors of the input ports are denoted by suffixing the string ``__VEC_IDX__`` and the vector index (an integer) to the port name. For instance, the receptor name for ``foo[0]`` would be ``FOO__VEC_IDX__0``.
 
 The above code querying for ``receptor_types`` gives a list of port names and NEST ``rport`` numbers as shown below:
 
@@ -206,21 +206,21 @@ The above code querying for ``receptor_types`` gives a list of port names and NE
      - 1
    * - NMDA_spikes
      - 2
-   * - FOO_0
+   * - FOO__VEC_IDX__0
      - 3
-   * - FOO_1
+   * - FOO__VEC_IDX__1
      - 4
-   * - EXC_SPIKES_0
+   * - EXC_SPIKES__VEC_IDX__0
      - 5
-   * - EXC_SPIKES_1
+   * - EXC_SPIKES__VEC_IDX__1
      - 6
-   * - EXC_SPIKES_2
+   * - EXC_SPIKES__VEC_IDX__2
      - 7
-   * - INH_SPIKES_0
+   * - INH_SPIKES__VEC_IDX__0
      - 5
-   * - INH_SPIKES_1
+   * - INH_SPIKES__VEC_IDX__1
      - 6
-   * - INH_SPIKES_2
+   * - INH_SPIKES__VEC_IDX__2
      - 7
 
 For a full example, please see `iaf_psc_exp_multisynapse_vectors.nestml <https://github.com/nest/nestml/blob/main/tests/nest_tests/resources/iaf_psc_exp_multisynapse_vectors.nestml>`_ for the neuron model and ``test_multisynapse_with_vector_input_ports`` in `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/main/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test.
@@ -248,14 +248,6 @@ Note that the receptor ports for continuous input ports are numbered starting fr
 Generating code
 ---------------
 
-Output event attributes
-~~~~~~~~~~~~~~~~~~~~~~~
-
-In neuron models, no spike event attributes are supported.
-
-In synapse models, precisely two spike event attributes are supported: a synaptic weight (as a real number) and a synaptic (dendritic) delay (in milliseconds).
-
-
 Generating code for plastic synapses
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -263,19 +255,19 @@ Synaptic and neuronal models should ideally be formulated independently of each 
 
 To prevent this redundancy, these values should only be stored and computed once; ideally in the instances of the neuron models, where the spike timings are readily available. To achieve this, NESTML has the capability to process a synapse model as a pair together with the (postsynaptic) neuron model that it will connect to when the network is instantiated in the simulation. A list of these (neuron, synapse) pairs can be provided as code generator options when invoking the NESTML toolchain to generate code. During code generation, state variables that depend only on postsynaptic spike timing are then automatically identified and moved from the NESTML synapse model into the neuron model by the toolchain. In the generated code, at the points where the respective variables are used by the synapse (for instance, where they are used in calculating the change in synaptic strength), the variable references are replaced by function calls into the postsynaptic neuron instance. All parameters that are only used by these postsynaptic dynamics (for instance, time constants) are also moved to reduce the memory requirements for the synapse. Detecting and moving the state, parameters, and dynamics (ODEs) from synapse to neuron is carried out fully autonomously. We refer to this feature as the "co-generation" of neuron and synapse. It enables flexibility and separation of concerns in the model formalisations without compromising on performance.
 
-When NESTML is invoked to generate code for plastic synapses, the (neuron, synapse) pairs can be specified as a list of two-element dictionaries of the form :code:`{"neuron": "neuron_model_name", "synapse": "synapse_model_name"}`, for example:
+When NESTML is invoked to generate code for plastic synapses, the synapses that will be co-generated with the postsynaptic neuron can be specified as a list of dictionaries of the form :code:`{"neuron": "neuron_model_name", "synapses": {"synapse_model_name": ...}}`, for example:
 
 .. code-block:: python
 
    generate_target(...,
                    codegen_opts={...,
                                  "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                           "synapse": "stdp_synapse"}]})
+                                                           "synapses": {"stdp_synapse": {}}}]})
 
 
 .. note::
 
-   In NEST, synapses derive from the C++ class ``Connection``, whereas neurons derive from ``Node``. To make it clear to the code generator whether a given NESTML model is a neuron or synapse model, the code generator option ``synapse_models`` can be used. If the model name ends with the string ``"synapse"`` (for instance, ``"stdp_synapse"``), the model is also interpreted as a synapse.
+   In NEST, synapses derive from the C++ class ``Connection``, whereas neurons derive from ``Node``. To make it clear to the code generator whether a given NESTML model is a neuron or synapse model, the code generator option ``synapse_models`` can be used. If the model name ends with the string ``"synapse"`` (for instance, ``"stdp_synapse"``), the model is automatically interpreted as a synapse.
 
 Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to connect the input port on the synapse with the right variable of the postsynaptic neuron:
 
@@ -284,10 +276,9 @@ Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to 
    generate_target(...,
                    codegen_opts={...,
                                  "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                           "synapse": "stdp_synapse",
-                                                           "post_ports": ["post_spikes"]}]})
+                                                           "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}}]})
 
-This specifies that the neuron ``iaf_psc_exp`` has to be generated paired with the synapse ``stdp_synapse``, and that the input ports ``post_spikes`` in the synapse are to be connected to the postsynaptic partner.
+This specifies that the neuron ``iaf_psc_exp`` has to be generated paired with the synapse ``stdp_synapse``, and that the (spiking) input port ``post_spikes`` in the synapse is to be connected to the postsynaptic partner.
 
 Owing to the "co-generation" of neuron and synapse models, NESTML generates the model names with the associated neuron and synapse names. For the example above, the neuron name is changed to ``"iaf_psc_exp__with_stdp_synapse"``, and similarly, the synapse name to ``"stdp_synapse__with_iaf_psc_exp"`` during the code generation. Note that the modified neuron and synapse model names must be used in the simulation script for creating neurons and connections.
 
@@ -308,6 +299,7 @@ Alternatively, the modified model names can also be obtained using ``NESTCodeGen
 
 To prevent the NESTML code generator from moving specific variables from synapse into postsynaptic neuron, the code generation option ``strictly_synaptic_vars`` may be used (see :class:`pynestml.transformers.synapse_post_neuron_transformer.SynapsePostNeuronTransformer`).
 
+
 Third-factor plasticity
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -319,18 +311,16 @@ During code generation, the third-factor variable of the synapse and its corresp
 
    generate_target(...,
                    codegen_opts={...,
-                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                           "synapse": "third_factor_stdp",
-                                                           "post_ports": ["post_spikes",
-                                                                          ["I_post_dend", "I_dend"]]}]})
+                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend_neuron",
+                                                           "synapses": {"third_factor_stdp_synapse": {"post_ports": [["I_post_dend", "I_dend"]]}}}]})
 
-This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``. Note that inline expressions can also be used; in this example in case ``I_dend`` had been an inline expression in the postsynaptic neuron.
+This specifies that the neuron ``iaf_psc_exp_dend_neuron`` has to be generated paired with the synapse ``third_factor_stdp_synapse``, and that the (continuous-time) input port ``I_post_dend`` in the synapse is to be connected to the postsynaptic partner. The corresponding variable in the (postsynaptic) neuron is called ``I_dend``. Note that inline expressions can also be used; in this example ``I_dend`` could equivalently have been an inline expression in the postsynaptic neuron.
 
 When a continuous-time input port is defined in the synapse model which is connected to a postsynaptic neuron, a corresponding buffer is allocated in each neuron which retains the recent history of the needed state variables. Two options are available for how the buffer is implemented: a "continuous-time" based buffer, or a spike-based buffer (see the NEST code generator option ``continuous_state_buffering_method`` on :class:`pynestml.codegeneration.html#pynestml.codegeneration.nest_code_generator.NESTCodeGenerator`).
 
 By default, the "continuous-time" based buffer is selected. This covers the most general case of different synaptic delay values and a discontinuous third-factor signal. The implementation corresponds to the event-based update scheme in Fig. 4b of [Stapmanns2021]_. There, the authors observe that the storage and management of such a buffer can be expensive in terms of memory and runtime. In each time step, the value of the current dendritic current (or membrane potential, or other third factor) is appended to the buffer. The maximum length of the buffer depends on the maximum inter-spike interval of any of the presynaptic neurons.
 
-As a computationally more efficient alternative, a spike-based buffer can be selected. In this case, the third factor is not stored every timestep, but only upon the occurrence of postsynaptic (somatic) spikes. Because of the existence of a nonzero dendritic delay, the time at which the somatic spike is observed at the synapse is delayed, and the time at which the third factor is sampled should match the time of the spike at the synapse, rather than the soma. When the spike-based buffering method is used, the dendritic delay is therefore ignored, because the third factor is sampled instead at the time of the somatic spike.
+As a computationally more efficient alternative, a spike-based buffer can be selected. In this case, the third factor is not stored every timestep, but only upon the occurrence of postsynaptic (somatic) spikes. Because of the existence of a nonzero dendritic delay, the time at which the somatic spike is observed at the synapse is delayed, and the time at which the third factor is sampled should match the time of the spike at the synapse, rather than the soma. When the spike-based buffering method is used, the dendritic delay is therefore ignored, because the third factor is sampled instead at the time of the somatic spike. In the :doc:`Third-factor modulated STDP </tutorials/stdp_third_factor_active_dendrite/stdp_third_factor_active_dendrite>` tutorial, these options are explained in detail.
 
 Simulation of volume-transmitted neuromodulation in NEST can be done using "volume transmitter" devices [5]_. These are event-based and should correspond to a "spike" type input port in NESTML. The code generator options keyword ``"vt_ports"`` can be used here.
 
@@ -338,15 +328,69 @@ Simulation of volume-transmitted neuromodulation in NEST can be done using "volu
 
    generate_target(...,
                    codegen_opts={...,
-                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                           "synapse": "third_factor_stdp",
-                                                            "vt_ports": ["dopa_spikes"]}]})
+                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend_neuron",
+                                                           "synapses": {"third_factor_stdp_synapse": {...}},
+                                                           "vt_ports": ["dopa_spikes"]}]})
+
+Multiple synapses
+~~~~~~~~~~~~~~~~~
+
+Any number of synapse models can be used in combination with one postsynaptic neuron model. Each synapse can be specified individually in the ``neuron_synapse_pairs`` code generator option, and for each synapse, any number of third factors as well as a volume transmitter port can optionally be specified, for instance as follows:
+
+.. code-block:: python
+
+   generate_nest_target(...,
+                        codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
+                                                                "synapses": {"stdp_nn_symm_vt_synapse": {"post_ports": ["post_spikes"],
+                                                                                                         "vt_ports": ["mod_spikes"]},
+                                                                             "stdp_nn_restr_symm_synapse": {"post_ports": ["post_spikes"]}},
+                                                                ...}]})
+
+For a full demonstration of this feature, please see `test_neuron_with_multiple_different_plastic_synapses.py <https://github.com/nest/nestml/blob/main/tests/nest_tests/test_neuron_with_multiple_different_plastic_synapses.py>`_.
 
 
-Dendritic delay and synaptic weight
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Synaptic delay
+~~~~~~~~~~~~~~
 
-In NEST, all synapses are expected to specify a nonzero dendritic delay, that is, the delay between arrival of a spike at the dendritic spine and the time at which its effects are felt at the soma (or conversely, the delay between a somatic action potential and the arrival at the dendritic spine due to dendritic backpropagation). As delays and weights are hard-wired into the NEST C++ base classes for the NESTML synapse classes, special annotations must be made in the NESTML model to indicate which state variables or parameters correspond to weight and delay. To indicate the correspondence, use the code generator options ``delay_variable`` and ``weight_variable``. For example, given the following model:
+In NEST, all synapses are expected to specify a nonzero dendritic delay, that is, the delay between arrival of a spike at the dendritic spine and the time at which its effects are felt at the soma (or conversely, the delay between a somatic action potential and the arrival at the dendritic spine due to dendritic backpropagation). Dendritic delays are managed entirely by NEST and can in principle not be read from or written to from inside the NESTML model. However, in some cases it can be useful to read the delay from inside the synapse. This can be achieved by using the code generator option ``delay_variable``.
+
+For example, given the following model:
+
+.. code:: nestml
+
+   model my_synapse:
+       parameters:
+           d ms = 1 ms
+
+the variable might be specified as:
+
+.. code-block:: python
+
+   generate_target(...,
+                   codegen_opts={...,
+                                 "delay_variable": {"my_synapse": "d"}})
+
+The parameter can then be set in NEST:
+
+.. code-block:: python
+
+   nest.Connect(pre, post, syn_spec={"delay": 2.5})
+
+and subsequently read out from NESTML:
+
+.. code:: nestml
+
+   model my_synapse:
+       onReceive(pre_spikes):
+           print("dendritic delay = {d}")
+
+This will print the string ``dendritic_delay = 2.5``.
+
+
+Synaptic weights
+~~~~~~~~~~~~~~~~~
+
+As synaptic weights are hard-wired into the NEST C++ base class for the NESTML synapse class, a special annotation must be made in the code generation options to indicate which state variable or parameter corresponds to the weight. To indicate the correspondence, use the code generator option ``weight_variable``. For example, given the following model:
 
 .. code:: nestml
 
@@ -354,16 +398,12 @@ In NEST, all synapses are expected to specify a nonzero dendritic delay, that is
        state:
            w real = 1.
 
-       parameters:
-           dend_delay ms = 1 ms
-
-the variables might be specified as:
+the variable might be specified as:
 
 .. code-block:: python
 
    generate_target(...,
                    codegen_opts={...,
-                                 "delay_variable": {"my_synapse": "dend_delay"},
                                  "weight_variable": {"my_synapse": "w"}})
 
 
@@ -382,10 +422,14 @@ To generate code that is compatible with particular versions of NEST Simulator, 
 
 - The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
 - ``"main"``: Latest NEST GitHub main branch version (https://github.com/nest/nest-simulator/).
-- ``"v2.20.2"``: Latest NEST 2 release.
+- ``"v2.20.2"``: Latest NEST 2 release. (**Be advised that support for NEST 2 will be deprecated in the next NESTML release.**)
 - ``"v3.0"``, ``"v3.1"``, ``"v3.2"``, etc.: NEST 3 release versions.
 
 For a list of the corresponding NEST Simulator repository tags, please see https://github.com/nest/nest-simulator/tags.
+
+.. warning::
+
+   The pip installation of NEST is not supported. Please use an alternative way to install NEST. See `NEST installation instructions <https://nest-simulator.readthedocs.io/en/stable/installation/developer.html#dev-install>`_.
 
 
 Random numbers
@@ -398,6 +442,53 @@ Running with MPI
 ----------------
 
 When running NEST simulation scripts via MPI, make sure to run the NESTML code generation step in a separate, single-process script first. This then produces a dynamic library (.so or .dll file) that can be used in the MPI context (using ``nest.Install()``). Running NESTML itself in the MPI context would result in compilation/build errors.
+
+Performance optimisations
+-------------------------
+
+In neuron models, incoming spikes are by default buffered into a queue (a ``std::vector``) before being processed. This implementation is the most generic, allowing, for example, spikes with both positive and negative weights arriving at one and the same input port to be handled differently according to the sign. However, the queue can cause a degradation in runtime performance on the order of 10%. If no conditional processing of the incoming spikes is necessary, and all spikes are treated in the same, linear, time-invariant (LTI) manner, then no queue is necessary as all spike weights can be simply added together into a single floating-point variable. The code generator option ``linear_time_invariant_spiking_input_ports`` can be used to indicate for which ports the spikes can be treated in an LTI-manner.
+
+For instance, if spikes arriving at the same port are handled differently according to sign of the weight:
+
+.. code:: nestml
+
+   internals:
+       unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+
+   input:
+       input_spikes <- spike
+
+   onReceive(input_spikes):
+       psc pA = unit_psc * get_weight(input_spikes, t)    # compute the magnitude of the postsynaptic response
+
+       # route the incoming spike on the basis of the weight: less than zero means an inhibitory spike; greater than zero means an excitatory spike
+       if psc > 0:
+           I_syn_exc += psc
+       else:
+           I_syn_inh -= psc
+
+then the system is not LTI and a queue is necessary.
+
+However, if two separate ports are used (and weights are subsequently processed in an LTI manner), the model can be formulated in a mathematically equivalent way:
+
+.. code:: nestml
+
+   internals:
+       unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+
+   input:
+       input_spikes_exc <- spike
+       input_spikes_inh <- spike
+
+   onReceive(input_spikes_exc):
+        I_syn_exc += unit_psc * get_weight(input_spikes_exc, t)
+
+   onReceive(input_spikes_inh):
+        I_syn_inh += unit_psc * get_weight(input_spikes_inh, t)
+
+In this case, the ``linear_time_invariant_spiking_input_ports`` option can be used to specify that both ``input_spikes_exc`` and ``input_spikes_inh`` are LTI ports, for better runtime performance.
+
+
 
 
 References

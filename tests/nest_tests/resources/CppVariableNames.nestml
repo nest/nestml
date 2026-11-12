@@ -32,7 +32,7 @@ model cpp_variable_names_test:
         using real = 0.
 
     equations:
-        concept' = 1. / s
+        concept' = 1 s**-1
 
     update:
         static = concept + using

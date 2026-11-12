@@ -55,8 +55,7 @@ class TestHomogeneousParametersSynapse:
                              logging_level="DEBUG",
                              module_name="nestmlmodule",
                              suffix="_nestml",
-                             codegen_opts={"delay_variable": {"static_synapse": "d"},
-                                           "weight_variable": {"static_synapse": "w"}})
+                             codegen_opts={"weight_variable": {"static_synapse": "w"}})
 
     def test_homogeneous_parameters_synapse(self):
 
@@ -65,10 +64,7 @@ class TestHomogeneousParametersSynapse:
         neuron_model_name = "iaf_psc_exp_neuron_nestml"
 
         nest.ResetKernel()
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
+        NESTTools.set_nest_verbosity("ALL")
         nest.SetKernelStatus({"resolution": .1})
         nest.Install("nestmlmodule")
 

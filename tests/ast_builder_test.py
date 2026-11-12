@@ -23,7 +23,7 @@ import unittest
 
 from antlr4 import *
 
-from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
+from pynestml.meta_model.ast_compilation_unit import ASTCompilationUnit
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.generated.PyNestMLParser import PyNestMLParser
@@ -71,7 +71,7 @@ class ASTBuildingTest(unittest.TestCase):
                 # now build the meta_model
                 ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
                 ast = ast_builder_visitor.visit(compilation_unit)
-                assert isinstance(ast, ASTNestMLCompilationUnit)
+                assert isinstance(ast, ASTCompilationUnit)
 
 
 if __name__ == "__main__":

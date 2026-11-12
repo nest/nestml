@@ -23,21 +23,25 @@ from typing import Tuple
 
 import re
 
-from pynestml.symbols.symbol import SymbolKind
-
 from pynestml.codegeneration.printers.function_call_printer import FunctionCallPrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.symbol_table.scope import Scope
-from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.utils.ast_utils import ASTUtils
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.symbol_table.scope import Scope
+from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.symbols.symbol import SymbolKind
+from pynestml.utils.ast_utils import ASTUtils
 
 
 class CppFunctionCallPrinter(FunctionCallPrinter):
     r"""
     Printer for ASTFunctionCall in C++ syntax.
     """
+
+    def __init__(self, expression_printer=None, exp_function: str = "std::exp"):
+        super().__init__(expression_printer)
+        assert exp_function in ["std::exp", "cm_fast_propagator_exp", "bounded_propagator_expf"]
+        self._exp_function = exp_function
 
     def print(self, node: ASTNode) -> str:
         assert isinstance(node, ASTFunctionCall)
@@ -59,9 +63,12 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         """
         assert isinstance(function_call, ASTFunctionCall)
         function_name = self._print_function_call_format_string(function_call)
+
         if ASTUtils.needs_arguments(function_call):
             if function_call.get_name() == PredefinedFunctions.PRINT or function_call.get_name() == PredefinedFunctions.PRINTLN:
                 return function_name.format(self._print_print_statement(function_call))
+            elif function_call.get_name() == PredefinedFunctions.GET_WEIGHT:
+                return "(1E3 * " + self._expression_printer.print(function_call.get_args()[0]) + ")"
 
             return function_name.format(*self._print_function_call_argument_list(function_call))
 
@@ -83,6 +90,9 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         """
         function_name = function_call.get_name()
 
+        if function_name == "Heaviside":    # Heaviside function is sometimes returned from sympy -- but is not a NESTML function
+            return "(({0!s} < 0) ? 0.0 : (({0!s} == 0) ? 0.5 : 1.0))"
+
         if function_name == PredefinedFunctions.CLIP:
             # the arguments of this function must be swapped and are therefore [v_max, v_min, v]
             return "std::min({2!s}, std::max({1!s}, {0!s}))"
@@ -97,7 +107,7 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
             return "std::abs({!s})"
 
         if function_name == PredefinedFunctions.EXP:
-            return "std::exp({!s})"
+            return self._exp_function + "({!s})"
 
         if function_name == PredefinedFunctions.LN:
             return "std::log({!s})"

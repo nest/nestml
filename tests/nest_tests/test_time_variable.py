@@ -54,19 +54,13 @@ class TestTimeVariable:
         logging_level = "DEBUG"
         suffix = "_nestml"
 
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
+        NESTTools.set_nest_verbosity("ALL")
         generate_nest_target(input_path,
                              target_path=target_path,
                              logging_level=logging_level,
                              suffix=suffix,
                              codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_neuron",
-                                                                     "synapse": "time_variable_pre_post_synapse",
-                                                                     "post_ports": ["post_spikes"]}],
-                                           "delay_variable": {"time_variable_synapse": "d",
-                                                              "time_variable_pre_post_synapse": "d"},
+                                                                     "synapses": {"time_variable_pre_post_synapse": {"post_ports": ["post_spikes"]}}}],
                                            "weight_variable": {"time_variable_synapse": "w",
                                                                "time_variable_pre_post_synapse": "w"}})
 
@@ -116,10 +110,7 @@ class TestTimeVariable:
         nest.Connect(nrn[0], sr_pre)
         nest.Connect(nrn[1], sr_post)
 
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
+        NESTTools.set_nest_verbosity("ALL")
 
         T_sim = 50.    # [ms]
         sim_interval = nest.resolution    # [ms]

@@ -19,8 +19,18 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Any, Dict, Optional
+
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
+
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -34,11 +44,14 @@ class CoCoOdesHaveConsistentUnits(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node: ASTModel):
+    @override
+    def check_co_co(cls, node: ASTNode, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
         """
         Ensures the coco for the handed over neuron.
-        :param node: a single neuron instance.
+        :param node: a single model instance.
         """
+        assert isinstance(node, ASTModel), "This coco can only be called on ASTModels!"
+
         node.accept(OdeConsistentUnitsVisitor())
 
 
@@ -65,8 +78,14 @@ class OdeConsistentUnitsVisitor(ASTVisitor):
         inv_diff_order_unit_type_symbol = UnitTypeSymbol(inv_diff_order_unit_type)
         lhs_type = variable_type * inv_diff_order_unit_type_symbol
         rhs_type = node.get_rhs().type
-        if not rhs_type.is_castable_to(lhs_type):
-            code, message = Messages.get_ode_needs_consistent_units(
-                variable_name, node.get_lhs().get_differential_order(), lhs_type, rhs_type)
-            Logger.log_message(error_position=node.get_source_position(), code=code,
-                               message=message, log_level=LoggingLevel.ERROR)
+
+        if rhs_type.differs_only_in_magnitude(lhs_type):
+            return
+
+        if rhs_type.is_castable_to(lhs_type):
+            return
+
+        code, message = Messages.get_ode_needs_consistent_units(
+            variable_name, node.get_lhs().get_differential_order(), lhs_type, rhs_type)
+        Logger.log_message(error_position=node.get_source_position(), code=code,
+                           message=message, log_level=LoggingLevel.ERROR)

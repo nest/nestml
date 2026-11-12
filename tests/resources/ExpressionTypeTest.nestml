@@ -63,10 +63,9 @@ model expressionType_test:
         expo2 mmol/pA = 2 mmol/pA
 
     function foo(_mass kg, _dist m, _time s) N :
-        return _mass*_dist/(_time**2)
+        return _mass * _dist / (_time**2)
 
     update:
-        #time = (charge/amps)
         testint = testint % testint2
         testint = 2
         timesquared = time**2
@@ -78,9 +77,9 @@ model expressionType_test:
         volts = volts > resist*amps ? volts : resist* amps
         force = foo(mass,distance,time)
         force = 1 kg * distance/(time**2)
-        force = kg*m/(s**2)
+        force = 1 kg*m/(s**2)
 
         # power operators
-        bar1 = beta ** expo2
-        bar2 = beta ** expo1
-        bar3 = beta ** (expo1 + expo2)
+        bar1 = beta**expo2
+        bar2 = beta**expo1
+        bar3 = beta**(expo1 + expo2)

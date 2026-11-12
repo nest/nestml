@@ -71,11 +71,10 @@ class NestAssignmentsHelper:
         return None
 
     @classmethod
-    def print_assignments_operation(cls, assignment) -> str:
+    def print_assignments_operation(cls, assignment: ASTAssignment) -> str:
         """
         Returns a nest processable format of the assignment operation.
         :param assignment: a single assignment
-        :type assignment: ASTAssignment
         :return: the corresponding string representation
         """
         assert isinstance(assignment, ASTAssignment), \
@@ -88,6 +87,9 @@ class NestAssignmentsHelper:
 
         if assignment.is_compound_product:
             return "*="
+
+        if assignment.is_compound_integer_quotient:
+            return "/="
 
         if assignment.is_compound_quotient:
             return "/="

@@ -49,9 +49,8 @@ from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
-from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
-from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
+from pynestml.meta_model.ast_compilation_unit import ASTCompilationUnit
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
@@ -76,6 +75,7 @@ from pynestml.visitors.ast_builder_visitor import ASTBuilderVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+from pynestml.visitors.unit_type_fixer_visitor import UnitTypeFixerVisitor
 
 
 class ModelParser:
@@ -85,8 +85,8 @@ class ModelParser:
         Parses a handed over model and returns the meta_model representation of it.
         :param file_path: the path to the file which shall be parsed.
         :type file_path: str
-        :return: a new ASTNESTMLCompilationUnit object.
-        :rtype: ASTNestMLCompilationUnit
+        :return: a new ASTCompilationUnit object.
+        :rtype: ASTCompilationUnit
         """
         try:
             input_file = FileStream(file_path, encoding="utf-8")
@@ -152,6 +152,7 @@ class ModelParser:
         for model in ast.get_model_list():
             model.accept(ASTSymbolTableVisitor())
             SymbolTable.add_model_scope(model.get_name(), model.get_scope())
+            UnitTypeFixerVisitor.fix_model(model)
             Logger.set_current_node(model)
             model.accept(AssignImplicitConversionFactorsVisitor())
             Logger.set_current_node(None)
@@ -324,14 +325,6 @@ class ModelParser:
         return ret
 
     @classmethod
-    def parse_input_qualifier(cls, string):
-        # type: (str) -> ASTInputQualifier
-        (builder, parser) = tokenize(string)
-        ret = builder.visit(parser.inputQualifier())
-        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
-        return ret
-
-    @classmethod
     def parse_logic_operator(cls, string):
         # type: (str) -> ASTLogicalOperator
         (builder, parser) = tokenize(string)
@@ -341,7 +334,7 @@ class ModelParser:
 
     @classmethod
     def parse_nestml_compilation_unit(cls, string):
-        # type: (str) -> ASTNestMLCompilationUnit
+        # type: (str) -> ASTCompilationUnit
         (builder, parser) = tokenize(string)
         ret = builder.visit(parser.nestMLCompilationUnit())
         ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))

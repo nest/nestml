@@ -18,6 +18,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+import os
 import subprocess
 import sys
 import tempfile
@@ -93,14 +95,15 @@ except ModuleNotFoundError:
 print(nest_version, file=sys.stderr)
 """
 
-        with tempfile.NamedTemporaryFile() as f:
-            f.write(bytes(script, encoding="UTF-8"))
-            f.seek(0)
-            cmd = [sys.executable, f.name]
-
-            process = subprocess.Popen(cmd, stderr=subprocess.PIPE)
-            stdout, stderr = process.communicate()
-            nest_version = stderr.decode("UTF-8").strip()
+        with tempfile.TemporaryDirectory() as tmp_dir_name:
+            with tempfile.NamedTemporaryFile(dir=tmp_dir_name, delete=True) as f:
+                cwd = os.path.dirname(f.name)
+                f.write(bytes(script, encoding="UTF-8"))
+                f.seek(0)
+                cmd = [sys.executable, f.name]
+                process = subprocess.Popen(cmd, cwd=cwd, stderr=subprocess.PIPE)
+                stdout, stderr = process.communicate()
+                nest_version = stderr.decode("UTF-8").strip()
 
         if nest_version == "":
             Logger.log_message(None, -1,
@@ -115,13 +118,46 @@ print(nest_version, file=sys.stderr)
 
     @classmethod
     def get_version_dict_from_version_string(cls, version_string):
+        """
+        Constructs a version dictionary from version string with major, minor, and patch parts.
+        """
         version_dict = {}
         try:
             if version_string and "main" not in version_string:
                 version = semver.Version.parse(version_string.split("v")[1])
-                version_dict["major"], version_dict["minor"], version_dict["patch"] = version.major, version.minor, version.patch
+                version_dict["major"], version_dict["minor"], version_dict[
+                    "patch"] = version.major, version.minor, version.patch
         except ValueError:
             Logger.log_message(None, -1, "The NEST Simulator version cannot be parsed by semver: " + version_string,
                                None, LoggingLevel.WARNING)
 
         return version_dict
+
+    @classmethod
+    def set_nest_verbosity(cls, verbosity: str) -> None:
+        r"""Set NEST verbosity level; compatible with different versions of NEST.
+
+        Allowed values:
+        - "ALL"
+        - "INFO"
+        - "WARNING"
+        - "ERROR"
+        """
+        import nest
+
+        assert verbosity in ["ALL", "INFO", "WARNING",
+                             "ERROR"], "Verbosity level needs to be one of \"ALL\", \"INFO\", \"WARNING\", \"ERROR\""
+
+        # nest.verbosity is only present in versions >= 3.10
+        if "verbosity" in dir(nest):
+            if verbosity == "ALL":
+                nest.verbosity = nest.VerbosityLevel.ALL
+            elif verbosity == "INFO":
+                nest.verbosity = nest.VerbosityLevel.INFO
+            elif verbosity == "WARNING":
+                nest.verbosity = nest.VerbosityLevel.WARNING
+            else:
+                assert verbosity == "ERROR"
+                nest.verbosity = nest.VerbosityLevel.ERROR
+        else:
+            nest.set_verbosity("M_" + verbosity)

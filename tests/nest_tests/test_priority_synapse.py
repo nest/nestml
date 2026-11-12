@@ -55,13 +55,9 @@ class TestSynapsePriority:
                              codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                            "neuron_parent_class_include": "structural_plasticity_node.h",
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_neuron",
-                                                                     "synapse": "event_priority_test_synapse",
-                                                                     "post_ports": ["post_spikes"]},
+                                                                     "synapses": {"event_priority_test_synapse": {"post_ports": ["post_spikes"]}}},
                                                                     {"neuron": "iaf_psc_delta_neuron",
-                                                                     "synapse": "event_inv_priority_test_synapse",
-                                                                     "post_ports": ["post_spikes"]}],
-                                           "delay_variable": {"event_priority_test_synapse": "d",
-                                                              "event_inv_priority_test_synapse": "d"},
+                                                                     "synapses": {"event_inv_priority_test_synapse": {"post_ports": ["post_spikes"]}}}],
                                            "weight_variable": {"event_priority_test_synapse": "w",
                                                                "event_inv_priority_test_synapse": "w"}})
 
@@ -100,10 +96,7 @@ class TestSynapsePriority:
         if sim_time is None:
             sim_time = max(np.amax(pre_spike_times), np.amax(post_spike_times)) + 5 * delay
 
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
+        NESTTools.set_nest_verbosity("ALL")
         nest.ResetKernel()
         try:
             nest.Install("nestml_module")
@@ -114,10 +107,8 @@ class TestSynapsePriority:
         print("Pre spike times: " + str(pre_spike_times))
         print("Post spike times: " + str(post_spike_times))
 
-        # wr = nest.Create('weight_recorder')
         nest.CopyModel(synapse_model_name, "syn_nestml",
-                       {"d": delay})
-        #    {"weight_recorder": wr[0], "d": delay})
+                       {"delay": delay})
 
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",

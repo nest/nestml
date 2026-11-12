@@ -38,11 +38,8 @@ class TestContinuousThirdFactorInModulatorySpikesHandler:
     def generate_all_models(self):
         codegen_opts = {"continuous_state_buffering_method": "post_spike_based",
                         "neuron_synapse_pairs": [{"neuron": "test_continuous_third_factor_in_modulatory_spikes_handler_neuron",
-                                                  "synapse": "test_continuous_third_factor_in_modulatory_spikes_handler_synapse",
-                                                  "vt_ports": ["mod_spikes"],
-                                                  "post_ports": ["post_spikes",
-                                                                 ["e_trace_d", "e_trace_dend"]]}],
-                        "delay_variable": {"test_continuous_third_factor_in_modulatory_spikes_handler_synapse": "d"},
+                                                  "synapses": {"test_continuous_third_factor_in_modulatory_spikes_handler_synapse": {"vt_ports": ["mod_spikes"],
+                                                                                                                                     "post_ports": ["post_spikes", ["e_trace_d", "e_trace_dend"]]}}}],
                         "weight_variable": {"test_continuous_third_factor_in_modulatory_spikes_handler_synapse": "w"}}
 
         generate_nest_target(input_path=["tests/nest_tests/resources/test_continuous_third_factor_in_modulatory_spikes_handler_neuron.nestml",
@@ -77,7 +74,7 @@ class TestContinuousThirdFactorInModulatorySpikesHandler:
         neuron1 = nest.Create("parrot_neuron")
         neuron2 = nest.Create(nestml_model_name)
         nest.CopyModel(synapse_model_name, "my_nestml_synapse", {"volume_transmitter": vt})
-        nest.Connect(neuron1, neuron2, syn_spec={"synapse_model": "my_nestml_synapse", "weight": 1., "delay": 1.})
+        nest.Connect(neuron1, neuron2, syn_spec={"synapse_model": "my_nestml_synapse", "weight": 1., "delay": 1., "receptor_type": neuron2.get("receptor_types")["EXC_SPIKES"]})
 
         sg = nest.Create("spike_generator",
                          params={"spike_times": [20., 50., 80.]})

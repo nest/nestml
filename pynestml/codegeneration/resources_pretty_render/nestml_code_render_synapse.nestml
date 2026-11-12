@@ -6,7 +6,6 @@ model stdp_synapse:
         post_trace real = 0
 
     parameters:
-        d ms = 1 ms             # Synaptic transmission delay
         lambda real = 0.01      # Learning rate
         tau_tr_pre ms = 20 ms
         tau_tr_post ms = 20 ms
@@ -40,7 +39,7 @@ model stdp_synapse:
         w = max(0, w_)
 
         # deliver spike to postsynaptic partner
-        emit_spike(w, d)
+        emit_spike(w)
 
     update:
         integrate_odes()

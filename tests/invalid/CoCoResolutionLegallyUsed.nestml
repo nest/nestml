@@ -31,7 +31,7 @@ model resolution_legally_used_synapse:
         x real = 0.
 
     equations:
-        x' = -x / tau + (resolution() / ms**2)
+        x' = -x / tau + (resolution() / 1 ms**2)
 
     function test(tau ms) real:
         z ms = resolution()
@@ -40,7 +40,6 @@ model resolution_legally_used_synapse:
     parameters:
         tau ms = 10 ms
         w real = 1    # dummy weight variable
-        d ms = 1 ms   # dummy delay variable
 
     update:
         integrate_odes()

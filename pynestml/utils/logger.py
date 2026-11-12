@@ -114,7 +114,7 @@ class Logger:
         cls.curr_message = counter
 
     @classmethod
-    def log_message(cls, node: ASTNode = None, code: MessageCode = None, message: str = None, error_position: ASTSourceLocation = None, log_level: LoggingLevel = None, allow_duplicates: bool = False):
+    def log_message(cls, node: Optional[ASTNode] = None, code: MessageCode = None, message: str = None, error_position: Optional[ASTSourceLocation] = None, log_level: LoggingLevel = None, allow_duplicates: bool = False):
         """
         Logs the handed over message on the handed over node. If the current logging is appropriate, the message is also printed.
 
@@ -245,7 +245,7 @@ class Logger:
         cls.current_node = node
 
     @classmethod
-    def get_messages(cls, node_or_node_name: Optional[Union[ASTNode, str]] = None, level: Optional[LoggingLevel] = None, message_code: Optional[int] = None, artifact_name: Optional[str] = None) -> List[Tuple[ASTNode, LoggingLevel, str]]:
+    def get_messages(cls, node_or_node_name: Optional[Union[ASTNode, str]] = None, level: Optional[LoggingLevel] = None, message_code: Optional[MessageCode] = None, artifact_name: Optional[str] = None) -> List[Tuple[ASTNode, LoggingLevel, str]]:
         """
         Returns all messages which have a certain logging level, or have been reported for a certain node, or both.
 

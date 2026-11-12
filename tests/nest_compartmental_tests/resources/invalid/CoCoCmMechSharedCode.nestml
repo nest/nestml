@@ -1,0 +1,60 @@
+# CoCoCmMechSharedCode.nestml
+# ###########################
+#
+#
+# Description
+# +++++++++++
+#
+# This model is used to test whether incorrectly shared variables
+# between mechanisms lead to an appropriate error.
+#
+# Negative case.
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+model CoCoCmSharedCode:
+    state:
+        v_comp real = 0.
+
+        shared_state real = 0.
+        exclusive_state1 real = 0.
+        exclusive_state2 real = 0.
+
+        shared_and_global_state real = 0.
+
+    parameters:
+        shared_param real = 0.
+        exclusive_param1 real = 0.
+        exclusive_param2 real = 0.
+
+    internals:
+        shared_int real = 0.
+        exclusive_int1 real = 0.
+        exclusive_int2 real = 0.
+
+    equations:
+        inline channel1 real = (shared_state + shared_param + shared_int) * (exclusive_state1 + exclusive_param1 + exclusive_int1) * shared_and_global_state @mechanism::channel
+        inline channel2 real = (shared_state + shared_param + shared_int) * (exclusive_state2 + exclusive_param2 + exclusive_int2) * shared_and_global_state @mechanism::channel
+
+    update:
+        shared_and_global_state = shared_and_global_state + 1.

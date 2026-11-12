@@ -24,12 +24,12 @@ from typing import List
 import ntpath
 import re
 
-from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.generated.PyNestMLParserVisitor import PyNestMLParserVisitor
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_parameter import ASTParameter
+from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import Logger
 from pynestml.utils.port_signal_type import PortSignalType
@@ -59,9 +59,9 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         else:
             artifact_name = "parsed_from_string"
 
-        compilation_unit = ASTNodeFactory.create_ast_nestml_compilation_unit(list_of_models=models,
-                                                                             source_position=create_source_pos(ctx),
-                                                                             artifact_name=artifact_name)
+        compilation_unit = ASTNodeFactory.create_ast_compilation_unit(list_of_models=models,
+                                                                      source_position=create_source_pos(ctx),
+                                                                      artifact_name=artifact_name)
 
         return compilation_unit
 
@@ -233,10 +233,12 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             numeric_literal = None
         is_inf = (True if ctx.isInf is not None else False)
         variable = (self.visit(ctx.variable()) if ctx.variable() is not None else None)
+        unitType = (self.visit(ctx.unitType()) if ctx.unitType() is not None else None)
         string = (str(ctx.string.text) if ctx.string is not None else None)
         node = ASTNodeFactory.create_ast_simple_expression(function_call=function_call,
                                                            boolean_literal=boolean_literal,
                                                            numeric_literal=numeric_literal,
+                                                           unitType=unitType,
                                                            is_inf=is_inf, variable=variable,
                                                            string=string,
                                                            source_position=create_source_pos(ctx))
@@ -292,6 +294,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             vector_parameter = self.visit(ctx.vectorParameter)
 
         differential_order = (len(ctx.DIFFERENTIAL_ORDER()) if ctx.DIFFERENTIAL_ORDER() is not None else 0)
+
         return ASTNodeFactory.create_ast_variable(name=str(ctx.NAME()),
                                                   differential_order=differential_order,
                                                   vector_parameter=vector_parameter,
@@ -306,6 +309,9 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
                 args.append(self.visit(arg))
         elif ctx.expression() is not None:
             args.append(self.visit(ctx.expression()))
+        if name.upper() == PredefinedFunctions.GET_WEIGHT:
+            args[0].set_implicit_conversion_factor(1E3)    # XXX: TODO: the factor 1E3 should be removed; see https://github.com/nest/nestml/issues/984
+
         node = ASTNodeFactory.create_ast_function_call(callee_name=name, args=args,
                                                        source_position=create_source_pos(ctx))
         return node
@@ -390,19 +396,25 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#assignment.
     def visitAssignment(self, ctx):
+        from pynestml.generated.PyNestMLLexer import PyNestMLLexer
+
         lhs = self.visit(ctx.lhs_variable) if ctx.lhs_variable is not None else None
         is_direct_assignment = True if ctx.directAssignment is not None else False
         is_compound_sum = True if ctx.compoundSum is not None else False
         is_compound_minus = True if ctx.compoundMinus is not None else False
         is_compound_product = True if ctx.compoundProduct is not None else False
-        is_compound_quotient = True if ctx.compoundQuotient is not None else False
+        is_compound_integer_quotient = True if ctx.compoundQuotient is not None and ctx.compoundQuotient.type == PyNestMLLexer.DOUBLE_FORWARD_SLASH_EQUALS else False
+        is_compound_quotient = True if ctx.compoundQuotient is not None and ctx.compoundQuotient.type == PyNestMLLexer.FORWARD_SLASH_EQUALS else False
         expression = self.visit(ctx.expression()) if ctx.expression() is not None else None
-        node = ASTNodeFactory.create_ast_assignment(lhs=lhs, is_direct_assignment=is_direct_assignment,
+        node = ASTNodeFactory.create_ast_assignment(lhs=lhs,
+                                                    is_direct_assignment=is_direct_assignment,
                                                     is_compound_sum=is_compound_sum,
                                                     is_compound_minus=is_compound_minus,
                                                     is_compound_product=is_compound_product,
+                                                    is_compound_integer_quotient=is_compound_integer_quotient,
                                                     is_compound_quotient=is_compound_quotient,
-                                                    expression=expression, source_position=create_source_pos(ctx))
+                                                    expression=expression,
+                                                    source_position=create_source_pos(ctx))
         update_node_comments(node, self.__comments.visit(ctx))
         return node
 
@@ -645,13 +657,9 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         size_parameter = None
         if ctx.sizeParameter is not None:
             size_parameter = self.visit(ctx.sizeParameter)
-        input_qualifiers = []
-        if ctx.inputQualifier() is not None:
-            for qual in ctx.inputQualifier():
-                input_qualifiers.append(self.visit(qual))
         signal_type = PortSignalType.SPIKE
         ret = ASTNodeFactory.create_ast_input_port(name=name, size_parameter=size_parameter, data_type=None,
-                                                   input_qualifiers=input_qualifiers, signal_type=signal_type,
+                                                   signal_type=signal_type,
                                                    source_position=create_source_pos(ctx))
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret
@@ -664,36 +672,22 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         data_type = self.visit(ctx.dataType()) if ctx.dataType() is not None else None
         signal_type = PortSignalType.CONTINUOUS
         ret = ASTNodeFactory.create_ast_input_port(name=name, size_parameter=size_parameter, data_type=data_type,
-                                                   input_qualifiers=None, signal_type=signal_type,
+                                                   signal_type=signal_type,
                                                    source_position=create_source_pos(ctx))
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret
 
-    # Visit a parse tree produced by PyNESTMLParser#inputQualifier.
-    def visitInputQualifier(self, ctx):
-        is_inhibitory = True if ctx.isInhibitory is not None else False
-        is_excitatory = True if ctx.isExcitatory is not None else False
-        return ASTNodeFactory.create_ast_input_qualifier(is_inhibitory=is_inhibitory, is_excitatory=is_excitatory,
-                                                         source_position=create_source_pos(ctx))
-
     # Visit a parse tree produced by PyNESTMLParser#outputBuffer.
     def visitOutputBlock(self, ctx):
         source_pos = create_source_pos(ctx)
-        attributes: List[ASTParameter] = []
-        if ctx.parameter() is not None:
-            if type(ctx.parameter()) is list:
-                for par in ctx.parameter():
-                    attributes.append(self.visit(par))
-            else:
-                attributes.append(self.visit(ctx.parameter()))
 
         if ctx.isSpike is not None:
-            ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.SPIKE, attributes=attributes, source_position=source_pos)
+            ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.SPIKE, source_position=source_pos)
             update_node_comments(ret, self.__comments.visit(ctx))
             return ret
 
         if ctx.isContinuous is not None:
-            ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.CONTINUOUS, attributes=attributes, source_position=source_pos)
+            ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.CONTINUOUS, source_position=source_pos)
             update_node_comments(ret, self.__comments.visit(ctx))
             return ret
 
@@ -729,12 +723,12 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         return ASTNodeFactory.create_ast_stmt(small, compound, create_source_pos(ctx))
 
     def visitOnReceiveBlock(self, ctx):
+        input_port_variable = self.visit(ctx.inputPortVariable)
         block = self.visit(ctx.stmtsBody()) if ctx.stmtsBody() is not None else None
-        port_name = ctx.inputPortName.text
         const_parameters = {}
         for el in ctx.constParameter():
             const_parameters[el.name.text] = el.value.text
-        ret = ASTNodeFactory.create_ast_on_receive_block(block=block, port_name=port_name, const_parameters=const_parameters, source_position=create_source_pos(ctx))
+        ret = ASTNodeFactory.create_ast_on_receive_block(block=block, input_port_variable=input_port_variable, const_parameters=const_parameters, source_position=create_source_pos(ctx))
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret
 

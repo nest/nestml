@@ -18,13 +18,22 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.utils.ast_utils import ASTUtils
 
-from pynestml.meta_model.ast_expression import ASTExpression
+from typing import Any, Dict, Optional
+
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
 
 from pynestml.cocos.co_co import CoCo
+from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_node import ASTNode
+from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -35,7 +44,10 @@ class CoCoVectorInputPortsCorrectSizeType(CoCo):
     This CoCo checks if the size of the vector input port is of the type integer and its value is greater than 0.
     """
     @classmethod
-    def check_co_co(cls, node: ASTModel):
+    @override
+    def check_co_co(cls, node: ASTNode, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
+        assert isinstance(node, ASTModel), "This coco can only be called on ASTModels!"
+
         visitor = InputPortsVisitor()
         node.accept(visitor)
 

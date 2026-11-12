@@ -68,10 +68,8 @@ class NestSTDPNeuromodTest(unittest.TestCase):
                              codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                            "neuron_parent_class_include": "structural_plasticity_node.h",
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                                     "synapse": "neuromodulated_stdp_synapse",
-                                                                     "post_ports": ["post_spikes"],
-                                                                     "vt_ports": ["mod_spikes"]}],
-                                           "delay_variable": {"neuromodulated_stdp_synapse": "d"},
+                                                                     "synapses": {"neuromodulated_stdp_synapse": {"post_ports": ["post_spikes"],
+                                                                                                                  "vt_ports": ["mod_spikes"]}}}],
                                            "weight_variable": {"neuromodulated_stdp_synapse": "w"}})
 
         generate_nest_target(input_path=os.path.realpath(os.path.join(os.path.dirname(__file__),
@@ -131,11 +129,7 @@ class NestSTDPNeuromodTest(unittest.TestCase):
                 post_spike_times, initial=0.), np.amax(vt_spike_times, initial=0.)) + 5 * delay
 
         nest.ResetKernel()
-        # nest.set_verbosity("M_ALL")
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ERROR")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ERROR
+        NESTTools.set_nest_verbosity("ERROR")
         nest.SetKernelStatus({"resolution": resolution})
         nest.Install("nestml_jit_module")
         nest.Install("nestml_non_jit_module")
@@ -166,7 +160,7 @@ class NestSTDPNeuromodTest(unittest.TestCase):
         wr = nest.Create("weight_recorder")
         wr_ref = nest.Create("weight_recorder")
         nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
-                       {"weight_recorder": wr[0], "w": 1., "d": delay, "receptor_type": 0,
+                       {"weight_recorder": wr[0], "w": 1., "delay": delay, "receptor_type": 0,
                         "volume_transmitter": vt})
         nest.CopyModel(ref_synapse_model_name, "stdp_ref_rec",
                        {"weight_recorder": wr_ref[0], "weight": 1., "delay": delay, "receptor_type": 0,

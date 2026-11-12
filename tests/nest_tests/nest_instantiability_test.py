@@ -43,10 +43,7 @@ class NestInstantiabilityTest(unittest.TestCase):
         # N.B. all models are assumed to have been already built (see .travis.yml)
 
         nest.ResetKernel()
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
+        NESTTools.set_nest_verbosity("ALL")
         nest.Install("nestml_allmodels_module")
 
         models = nest.Models(mtype="nodes")

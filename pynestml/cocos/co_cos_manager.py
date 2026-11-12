@@ -19,60 +19,68 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Union
+from typing import List
 
 from pynestml.cocos.co_co_all_variables_defined import CoCoAllVariablesDefined
+from pynestml.cocos.co_co_cm_global import CoCoCmGlobal
+from pynestml.cocos.co_co_cm_mech_shared_code import CoCoCmMechSharedCode
 from pynestml.cocos.co_co_cm_channel_model import CoCoCmChannelModel
-from pynestml.cocos.co_co_cm_concentration_model import CoCoCmConcentrationModel
 from pynestml.cocos.co_co_cm_continuous_input_model import CoCoCmContinuousInputModel
-from pynestml.cocos.co_co_cm_synapse_model import CoCoCmSynapseModel
-from pynestml.cocos.co_co_convolve_has_correct_parameter import CoCoConvolveHasCorrectParameter
 from pynestml.cocos.co_co_convolve_cond_correctly_built import CoCoConvolveCondCorrectlyBuilt
 from pynestml.cocos.co_co_correct_numerator_of_unit import CoCoCorrectNumeratorOfUnit
 from pynestml.cocos.co_co_correct_order_in_equation import CoCoCorrectOrderInEquation
 from pynestml.cocos.co_co_each_block_defined_at_most_once import CoCoEachBlockDefinedAtMostOnce
+from pynestml.cocos.co_co_emit_spike_function_arguments import CoCoEmitSpikeFunctionArguments
 from pynestml.cocos.co_co_equations_only_for_init_values import CoCoEquationsOnlyForInitValues
 from pynestml.cocos.co_co_function_argument_template_types_consistent import CoCoFunctionArgumentTemplateTypesConsistent
 from pynestml.cocos.co_co_function_calls_consistent import CoCoFunctionCallsConsistent
 from pynestml.cocos.co_co_function_unique import CoCoFunctionUnique
 from pynestml.cocos.co_co_illegal_expression import CoCoIllegalExpression
-from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
+from pynestml.cocos.co_co_integrate_odes_ignored_in_compartmental import CoCoIntegrateOdesIgnoredInCompartmental
 from pynestml.cocos.co_co_integrate_odes_params_correct import CoCoIntegrateODEsParamsCorrect
 from pynestml.cocos.co_co_inline_expressions_have_rhs import CoCoInlineExpressionsHaveRhs
 from pynestml.cocos.co_co_inline_expression_not_assigned_to import CoCoInlineExpressionNotAssignedTo
 from pynestml.cocos.co_co_inline_max_one_lhs import CoCoInlineMaxOneLhs
 from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
-from pynestml.cocos.co_co_input_port_qualifier_unique import CoCoInputPortQualifierUnique
 from pynestml.cocos.co_co_internals_assigned_only_in_internals_block import CoCoInternalsAssignedOnlyInInternalsBlock
 from pynestml.cocos.co_co_integrate_odes_called_if_equations_defined import CoCoIntegrateOdesCalledIfEquationsDefined
 from pynestml.cocos.co_co_invariant_is_boolean import CoCoInvariantIsBoolean
 from pynestml.cocos.co_co_kernel_type import CoCoKernelType
 from pynestml.cocos.co_co_model_name_unique import CoCoModelNameUnique
-from pynestml.cocos.co_co_nest_random_functions_legally_used import CoCoNestRandomFunctionsLegallyUsed
+from pynestml.cocos.co_co_no_assignment_to_unit import CoCoNoAssignmentToUnit
 from pynestml.cocos.co_co_no_kernels_except_in_convolve import CoCoNoKernelsExceptInConvolve
 from pynestml.cocos.co_co_no_nest_name_space_collision import CoCoNoNestNameSpaceCollision
-from pynestml.cocos.co_co_no_duplicate_compilation_unit_names import CoCoNoDuplicateCompilationUnitNames
+from pynestml.cocos.co_co_no_solitary_physical_units import CoCoNoSolitaryPhysicalUnits
 from pynestml.cocos.co_co_odes_have_consistent_units import CoCoOdesHaveConsistentUnits
 from pynestml.cocos.co_co_ode_functions_have_consistent_units import CoCoOdeFunctionsHaveConsistentUnits
+from pynestml.cocos.co_co_on_receive_vectors_should_be_constant_size import CoCoOnReceiveVectorsShouldBeConstantSize
 from pynestml.cocos.co_co_output_port_defined_if_emit_call import CoCoOutputPortDefinedIfEmitCall
 from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import CoCoParametersAssignedOnlyInParameterBlock
 from pynestml.cocos.co_co_parameters_internals_state_declaration_order import CoCoParametersInternalsStateDeclarationOrder
 from pynestml.cocos.co_co_priorities_correctly_specified import CoCoPrioritiesCorrectlySpecified
+from pynestml.cocos.co_co_random_functions_legally_used import CoCoRandomFunctionsLegallyUsed
 from pynestml.cocos.co_co_resolution_func_legally_used import CoCoResolutionFuncLegallyUsed
 from pynestml.cocos.co_co_resolution_func_used import CoCoResolutionOrStepsFuncUsed
 from pynestml.cocos.co_co_simple_delta_function import CoCoSimpleDeltaFunction
+from pynestml.cocos.co_co_spike_input_ports_appear_only_in_equation_rhs_and_event_handlers import CoCoSpikeInputPortsAppearOnlyInEquationRHSAndEventHandlers
 from pynestml.cocos.co_co_state_variables_initialized import CoCoStateVariablesInitialized
+from pynestml.cocos.co_co_convolve_has_correct_parameter import CoCoConvolveHasCorrectParameter
+from pynestml.cocos.co_co_cm_receptor_model import CoCoCmReceptorModel
+from pynestml.cocos.co_co_cm_concentration_model import CoCoCmConcentrationModel
 from pynestml.cocos.co_co_timestep_function_legally_used import CoCoTimestepFuncLegallyUsed
 from pynestml.cocos.co_co_user_defined_function_correctly_defined import CoCoUserDefinedFunctionCorrectlyDefined
-from pynestml.cocos.co_co_v_comp_exists import CoCoVCompDefined
+from pynestml.cocos.co_co_v_comp_exists import CoCoVCompExists
 from pynestml.cocos.co_co_variable_once_per_scope import CoCoVariableOncePerScope
 from pynestml.cocos.co_co_vector_declaration_right_size import CoCoVectorDeclarationRightSize
 from pynestml.cocos.co_co_vector_input_port_correct_size_type import CoCoVectorInputPortsCorrectSizeType
 from pynestml.cocos.co_co_vector_parameter_declared_in_right_block import CoCoVectorParameterDeclaredInRightBlock
 from pynestml.cocos.co_co_vector_variable_in_non_vector_declaration import CoCoVectorVariableInNonVectorDeclaration
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.meta_model.ast_compilation_unit import ASTCompilationUnit
+from pynestml.utils.global_processing import GlobalProcessing
 from pynestml.meta_model.ast_model import ASTModel
-from pynestml.utils.logger import Logger
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.messages import Messages
 
 
 class CoCosManager:
@@ -94,12 +102,20 @@ class CoCosManager:
         CoCoInlineExpressionNotAssignedTo.check_co_co(model)
 
     @classmethod
-    def check_each_block_defined_at_most_once(cls, node: ASTModel):
+    def check_each_block_defined_at_most_once(cls, model: ASTModel):
+        """
+        Checks if in the handed over model, each block is defined at most once and mandatory blocks are defined.
+        :param model: a single model instance
+        """
+        CoCoEachBlockDefinedAtMostOnce.check_co_co(model)
+
+    @classmethod
+    def check_input_ports_appear_only_in_equation_rhs_and_event_handlers(cls, node: ASTModel):
         """
         Checks if in the handed over model, each block is defined at most once and mandatory blocks are defined.
         :param node: a single model instance
         """
-        CoCoEachBlockDefinedAtMostOnce.check_co_co(node)
+        CoCoSpikeInputPortsAppearOnlyInEquationRHSAndEventHandlers.check_co_co(node)
 
     @classmethod
     def check_function_declared_and_correctly_typed(cls, model: ASTModel):
@@ -143,25 +159,38 @@ class CoCosManager:
         CoCoAllVariablesDefined.check_co_co(model)
 
     @classmethod
-    def check_v_comp_requirement(cls, neuron: ASTModel):
+    def check_no_assignment_to_unit(cls, model: ASTModel) -> None:
         """
-        In compartmental case, checks if v_comp variable was defined
-        :param neuron: a single neuron object
+        Checks that physical units are not assigned to.
+        :param model: a single model.
         """
-        CoCoVCompDefined.check_co_co(neuron)
+        CoCoNoAssignmentToUnit.check_co_co(model)
 
     @classmethod
-    def check_compartmental_model(cls, neuron: ASTModel) -> None:
+    def check_compartmental_neuron_model(cls, neuron: ASTModel) -> None:
         """
         collects all relevant information for the different compartmental mechanism classes for later code-generation
 
         searches for inlines or odes with decorator @mechanism::<type> and performs a base and, depending on type,
         specific information collection process. See nestml documentation on compartmental code generation.
         """
-        CoCoCmChannelModel.check_co_co(neuron)
-        CoCoCmConcentrationModel.check_co_co(neuron)
-        CoCoCmSynapseModel.check_co_co(neuron)
-        CoCoCmContinuousInputModel.check_co_co(neuron)
+        CoCoVCompExists.check_co_co(neuron)
+        CoCoCmGlobal.check_co_co(neuron)
+        global_info = GlobalProcessing.get_global_info(neuron)
+        metadata = {neuron.name: global_info}
+        CoCoCmChannelModel.check_co_co(neuron, metadata)
+        CoCoCmConcentrationModel.check_co_co(neuron, metadata)
+        CoCoCmReceptorModel.check_co_co(neuron, metadata)
+        CoCoCmContinuousInputModel.check_co_co(neuron, metadata)
+        CoCoCmMechSharedCode.check_co_co(neuron)
+
+    @classmethod
+    def check_no_solitary_physical_units(cls, model: ASTModel):
+        """
+        Checks that there are no free-standing physical units.
+        :param model: a single model object
+        """
+        CoCoNoSolitaryPhysicalUnits.check_co_co(model)
 
     @classmethod
     def check_inline_expressions_have_rhs(cls, model: ASTModel):
@@ -204,11 +233,10 @@ class CoCosManager:
         CoCoCorrectNumeratorOfUnit.check_co_co(model)
 
     @classmethod
-    def check_model_names_unique(cls, compilation_unit):
+    def check_model_names_unique(cls, compilation_unit: ASTCompilationUnit):
         """
         Checks that all declared models in a compilation unit have a unique name.
         :param compilation_unit: a single compilation unit.
-        :type compilation_unit: ASTCompilationUnit
         """
         CoCoModelNameUnique.check_co_co(compilation_unit)
 
@@ -219,14 +247,6 @@ class CoCosManager:
         :param model: a single model object.
         """
         CoCoNoNestNameSpaceCollision.check_co_co(model)
-
-    @classmethod
-    def check_input_port_qualifier_unique(cls, model: ASTModel):
-        """
-        Checks that no spiking input ports are defined with redundant qualifiers.
-        :param model: a single model object.
-        """
-        CoCoInputPortQualifierUnique.check_co_co(model)
 
     @classmethod
     def check_kernel_type(cls, model: ASTModel) -> None:
@@ -283,6 +303,13 @@ class CoCosManager:
         CoCoIntegrateOdesCalledIfEquationsDefined.check_co_co(model)
 
     @classmethod
+    def check_integrate_odes_ignored_in_compartmental(cls, model: ASTModel):
+        """
+        Warns that integrate_odes() calls are ignored for the NEST compartmental target.
+        """
+        CoCoIntegrateOdesIgnoredInCompartmental.check_co_co(model)
+
+    @classmethod
     def check_user_defined_function_correctly_built(cls, model: ASTModel):
         """
         Checks that all user defined functions are correctly constructed, i.e., have a return statement if declared
@@ -324,13 +351,23 @@ class CoCosManager:
         CoCoNoKernelsExceptInConvolve.check_co_co(model)
 
     @classmethod
-    def check_no_duplicate_compilation_unit_names(cls, compilation_units):
+    def check_no_duplicate_compilation_unit_names(cls, list_of_compilation_units: List[ASTCompilationUnit]):
         """
         Checks if in a set of compilation units, two nodes have the same name.
         :param compilation_units: a list of compilation units
-        :type compilation_units: list(ASTNestMLCompilationUnit)
         """
-        CoCoNoDuplicateCompilationUnitNames.check_co_co(compilation_units)
+        conflicting_nodes = list()
+        checked = list()
+        for nodeA in list_of_compilation_units:
+            for nodeB in list_of_compilation_units:
+                if nodeA is not nodeB and nodeA.get_name() == nodeB.get_name():
+                    code, message = Messages.get_compilation_unit_name_collision(nodeA.get_name(),
+                                                                                 nodeA.get_artifact_name(),
+                                                                                 nodeB.get_artifact_name())
+                    Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR)
+                conflicting_nodes.append(nodeB)
+            checked.append(nodeA)
+        return conflicting_nodes
 
     @classmethod
     def check_invariant_type_correct(cls, model: ASTModel):
@@ -368,7 +405,7 @@ class CoCosManager:
     def check_expression_correct(cls, model: ASTModel):
         """
         Checks that all rhs in the model are correctly constructed, e.g. type(lhs)==type(rhs).
-        :param model: a single model
+        :param model: a single model instance
         """
         CoCoIllegalExpression.check_co_co(model)
 
@@ -429,12 +466,27 @@ class CoCosManager:
         CoCoVectorInputPortsCorrectSizeType.check_co_co(model)
 
     @classmethod
-    def check_co_co_nest_random_functions_legally_used(cls, model: ASTModel):
+    def check_on_receive_vectors_should_be_constant_size(cls, model: ASTModel):
         """
-        Checks if the random number functions are used only in the update block.
+        :param model: a single model object
+        """
+        CoCoOnReceiveVectorsShouldBeConstantSize.check_co_co(model)
+
+    @classmethod
+    def check_co_co_random_functions_legally_used(cls, model: ASTModel):
+        """
+        Checks if the random number functions are legally used.
         :param model: a single model object.
         """
-        CoCoNestRandomFunctionsLegallyUsed.check_co_co(model)
+        CoCoRandomFunctionsLegallyUsed.check_co_co(model)
+
+    @classmethod
+    def check_co_co_emit_spike_function_arguments(cls, model: ASTModel):
+        """
+        Checks that all calls to the ``emit_spike()`` function contain zero or one parameter.
+        :param model: a single model object.
+        """
+        CoCoEmitSpikeFunctionArguments.check_co_co(model)
 
     @classmethod
     def check_cocos(cls, model: ASTModel, after_ast_rewrite: bool = False):
@@ -444,6 +496,7 @@ class CoCosManager:
         """
         Logger.set_current_node(model)
 
+        cls.check_co_co_emit_spike_function_arguments(model)
         cls.check_each_block_defined_at_most_once(model)
         cls.check_parameters_internals_state_declaration_order(model)
         cls.check_function_defined(model)
@@ -451,17 +504,25 @@ class CoCosManager:
         cls.check_inline_expression_not_assigned_to(model)
         cls.check_state_variables_initialized(model)
         cls.check_variables_defined_before_usage(model)
+        cls.check_no_assignment_to_unit(model)
         if FrontendConfiguration.get_target_platform().upper() == "NEST_COMPARTMENTAL":
-            # XXX: TODO: refactor this out; define a ``cocos_from_target_name()`` in the frontend instead.
-            cls.check_v_comp_requirement(model)
-            cls.check_compartmental_model(model)
+            is_synapse_model = False
+            if "neuron_synapse_pairs" in FrontendConfiguration.get_codegen_opts():
+                is_synapse_model = any(
+                    model.name in [synapse_name, synapse_name + FrontendConfiguration.suffix]
+                    for pair in FrontendConfiguration.get_codegen_opts()["neuron_synapse_pairs"]
+                    for synapse_name in pair["synapses"].keys()
+                )
+
+            if not is_synapse_model:
+                cls.check_compartmental_neuron_model(model)
         cls.check_inline_expressions_have_rhs(model)
+        cls.check_no_solitary_physical_units(model)
         cls.check_inline_has_max_one_lhs(model)
         cls.check_input_ports_not_assigned_to(model)
         cls.check_order_of_equations_correct(model)
         cls.check_numerator_of_unit_is_one_if_numeric(model)
         cls.check_no_nest_namespace_collisions(model)
-        cls.check_input_port_qualifier_unique(model)
         cls.check_parameters_not_assigned_outside_parameters_block(model)
         cls.check_internals_not_assigned_outside_internals_block(model)
         cls.check_user_defined_function_correctly_built(model)
@@ -478,12 +539,14 @@ class CoCosManager:
             cls.check_ode_functions_have_consistent_units(model)
             cls.check_correct_usage_of_kernels(model)
             cls.check_resolution_func_used(model)    # ``__h = resolution()`` is added after transformations; put this check inside the ``if`` to make sure it's not always triggered
+            cls.check_expression_correct(model)
             if FrontendConfiguration.get_target_platform().upper() != "NEST_COMPARTMENTAL":
                 cls.check_integrate_odes_called_if_equations_defined(model)
+            else:
+                cls.check_integrate_odes_ignored_in_compartmental(model)
         cls.check_invariant_type_correct(model)
         cls.check_vector_in_non_vector_declaration_detected(model)
         cls.check_convolve_has_correct_parameter(model)
-        cls.check_expression_correct(model)
         cls.check_simple_delta_function(model)
         cls.check_function_argument_template_types_consistent(model)
         cls.check_vector_parameter_declaration(model)
@@ -492,5 +555,7 @@ class CoCosManager:
         cls.check_resolution_func_legally_used(model)
         cls.check_input_port_size_type(model)
         cls.check_timestep_func_legally_used(model)
+        cls.check_input_ports_appear_only_in_equation_rhs_and_event_handlers(model)
+        cls.check_co_co_random_functions_legally_used(model)
 
         Logger.set_current_node(None)

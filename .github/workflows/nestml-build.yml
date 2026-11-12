@@ -11,10 +11,10 @@ jobs:
   link_checker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Link Checker
-        uses: lycheeverse/lychee-action@v2.8.0
+        uses: lycheeverse/lychee-action@v2.9.0
         with:
           args: --verbose --no-progress **/*.md **/*.html **/*.rst
           fail: true
@@ -25,12 +25,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository contents
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
-          python-version: 3.9
+          python-version: 3.11
 
       - name: Install Python dependencies
         run: |
@@ -54,10 +54,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository contents
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install Java
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           distribution: 'zulu'
           java-version: '11.0.x'
@@ -89,12 +89,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository contents
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
-          python-version: 3.9
+          python-version: 3.11
 
       - name: Install apt dependencies
         run: |
@@ -109,7 +109,7 @@ jobs:
 
       - name: Install NESTML
         run: |
-          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.9/site-packages
+          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.11/site-packages
           #echo PYTHONPATH=`pwd` >> $GITHUB_ENV
           echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
           python setup.py install
@@ -123,12 +123,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository contents
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
-          python-version: 3.9
+          python-version: 3.11
 
       - name: Install apt dependencies
         run: |
@@ -143,7 +143,7 @@ jobs:
 
       - name: Install NESTML
         run: |
-          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.9/site-packages
+          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.11/site-packages
           #echo PYTHONPATH=`pwd` >> $GITHUB_ENV
           echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
           python setup.py install
@@ -161,12 +161,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository contents
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
-          python-version: 3.9
+          python-version: 3.11
 
       - name: Install apt dependencies
         run: |
@@ -181,7 +181,7 @@ jobs:
 
       - name: Install NESTML
         run: |
-          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.9/site-packages
+          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.11/site-packages
           #echo PYTHONPATH=`pwd` >> $GITHUB_ENV
           echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
           python setup.py install
@@ -199,16 +199,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        nest_branch: ["v3.0", "v3.9", "main"]
+        nest_branch: ["v3.10", "main"]
       fail-fast: false
     steps:
       - name: Checkout repository contents
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
-          python-version: 3.9
+          python-version: 3.11
 
       - name: Install apt dependencies
         run: |
@@ -220,6 +220,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip pytest jupyterlab matplotlib pycodestyle scipy pandas
           python -m pip install -r requirements.txt
+
+      - name: Install Python dependencies
+        # if on "main" NEST branch: also test "main" branch of ODE-toolbox!
+        if: ${{ matrix.nest_branch == 'main' }}
+        run: |
+          python -m pip install --upgrade git+https://github.com/nest/ode-toolbox
 
       - name: Install NEST simulator
         run: |
@@ -241,7 +247,7 @@ jobs:
       # Install NESTML (repeated)
       - name: Install NESTML
         run: |
-          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.9/site-packages
+          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.11/site-packages
           #echo PYTHONPATH=`pwd` >> $GITHUB_ENV
           echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
           python setup.py install
@@ -255,7 +261,7 @@ jobs:
           nestml --input_path $ALL_MODEL_FILENAMES --target_path target --suffix _nestml --logging_level INFO --module_name nestml_allmodels_module
 
       - name: Run integration tests
-        if: ${{ matrix.nest_branch == 'main' || matrix.nest_branch == 'v2.20.2' }}
+        if: ${{ matrix.nest_branch == 'main' }}
         env:
           LD_LIBRARY_PATH: ${{ env.NEST_INSTALL }}/lib/nest
         run: |
@@ -265,13 +271,13 @@ jobs:
           done;
           exit $rc
 
-      # Run only the nest integration tests for NEST versions other than main and 2.20.2
+      # Run only the nest integration tests for NEST versions other than main
       - name: Run integration tests
-        if: ${{ !(matrix.nest_branch == 'main' || matrix.nest_branch == 'v2.20.2') }}
+        if: ${{ !(matrix.nest_branch == 'main') }}
         env:
           LD_LIBRARY_PATH: ${{ env.NEST_INSTALL }}/lib/nest
         run: |
-          pytest -s -o log_cli=true -o log_cli_level="DEBUG" tests/nest_tests/nest_integration_test.py
+          pytest -s -o log_cli=true -o log_cli_level="DEBUG" tests/nest_tests/test_nest_neuron_model_equivalence.py
 
       - name: Run Jupyter notebooks
         if: ${{ matrix.nest_branch == 'main' }}
@@ -300,12 +306,12 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout the repository contents
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
-          python-version: 3.9
+          python-version: 3.11
 
       - name: Install apt dependencies
         run: |
@@ -338,7 +344,7 @@ jobs:
       # Install NESTML (repeated)
       - name: Install NESTML
         run: |
-          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.9/site-packages
+          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.11/site-packages
           #echo PYTHONPATH=`pwd` >> $GITHUB_ENV
           echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
           python setup.py install
@@ -358,12 +364,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository contents
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
-          python-version: 3.9
+          python-version: 3.11
 
       - name: Install apt dependencies
         run: |
@@ -386,7 +392,7 @@ jobs:
 
       - name: Install NESTML
         run: |
-          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.9/site-packages
+          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.11/site-packages
           echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
           python setup.py install
 

@@ -28,13 +28,12 @@
 model static_synapse:
     parameters:
         w real = 1    # Synaptic weight
-        d ms = 1 ms    # Synaptic transmission delay
 
     input:
         pre_spikes <- spike
 
     output:
-        spike(weight real, delay ms)
+        spike
 
     onReceive(pre_spikes):
-        emit_spike(w, d)
+        emit_spike(w)

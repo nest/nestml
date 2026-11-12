@@ -43,13 +43,9 @@ class NestForbiddenVariableNamesTest(unittest.TestCase):
                              logging_level=logging_level,
                              module_name=module_name,
                              suffix=suffix)
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
-
         nest.ResetKernel()
         nest.Install("nestmlmodule")
+        NESTTools.set_nest_verbosity("ALL")
 
         nrn = nest.Create("cpp_variable_names_test_nestml")
         mm = nest.Create("multimeter")

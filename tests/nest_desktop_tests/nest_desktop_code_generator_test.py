@@ -65,8 +65,8 @@ class TestNestDesktopCodeGenerator:
         }
         for recordables_data in json_data["params"]:
             _id = recordables_data["id"]
-            assert recordables_data["value"] == actual_params[_id]
+            assert recordables_data["value"] == actual_params[_id] or recordables_data["value"] == actual_params[_id] + ".0"
 
         for recordables_data in json_data["recordables"]:
             _id = recordables_data["id"]
-            assert recordables_data["value"] == actual_state[_id]
+            assert recordables_data["value"] == actual_state[_id] or recordables_data["value"] == actual_state[_id] + ".0"

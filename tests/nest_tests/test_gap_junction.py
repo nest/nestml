@@ -73,10 +73,7 @@ class TestGapJunction:
         sim_time = 100.   # [ms]
         pre_spike_times = [1., 16., 31.]    # [ms]
 
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
+        NESTTools.set_nest_verbosity("ALL")
         nest.ResetKernel()
         nest.Install("nestml_gap_" + neuron_model + "_module")
 
@@ -91,7 +88,10 @@ class TestGapJunction:
                              params={"spike_times": pre_spike_times})
         pre_parrot = nest.Create("parrot_neuron")
         nest.Connect(pre_sg, pre_parrot)
-        nest.Connect(pre_parrot, pre_neuron, syn_spec={"weight": 999.})
+        try:
+            nest.Connect(pre_parrot, pre_neuron, syn_spec={"weight": 999.})
+        except BaseException:
+            nest.Connect(pre_parrot, pre_neuron, syn_spec={"weight": 999., "receptor_type": pre_neuron.get("receptor_types")["EXC_SPIKES"]})
 
         nest.Connect(pre_neuron,
                      post_neuron,

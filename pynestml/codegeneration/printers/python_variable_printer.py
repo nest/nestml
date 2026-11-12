@@ -90,15 +90,7 @@ class PythonVariablePrinter(VariablePrinter):
             return "math.pi"
 
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
-        if symbol is None:
-            # test if variable name can be resolved to a type
-            if PredefinedUnits.is_unit(variable.get_complete_name()):
-                return str(NESTUnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
-
-            code, message = Messages.get_could_not_resolve(variable.get_name())
-            Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
-                               error_position=variable.get_source_position())
-            return ""
+        assert symbol is not None
 
         vector_param = ""
         if self.with_vector_parameter and symbol.has_vector_parameter():
@@ -112,10 +104,18 @@ class PythonVariablePrinter(VariablePrinter):
             s = ""
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
-            s += self._print(variable, symbol, with_origin=self.with_origin) + vector_param
+
+            if symbol.is_spike_input_port():
+                # spike buffer variables are prefixed with "B__" as the values are grabbed from the buffers one-by-one
+                s += "B__" + self._print(variable, symbol, with_origin=False) + vector_param
+            else:
+                assert symbol.is_continuous_input_port()
+                s += self._print(variable, symbol, with_origin=self.with_origin) + vector_param
+
             s += vector_param
             if not units_conversion_factor == 1:
                 s += ")"
+
             return s
 
         if symbol.is_inline_expression:

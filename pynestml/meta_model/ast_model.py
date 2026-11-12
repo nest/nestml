@@ -301,25 +301,6 @@ class ASTModel(ASTNode):
                 return True
         return False
 
-    def get_multiple_receptors(self) -> List[VariableSymbol]:
-        """
-        Returns a list of all spike input ports which are defined as both inhibitory *and* excitatory at the same time.
-        :return: a list of spike input port variable symbols
-        """
-        ret = list()
-        for port in self.get_spike_input_ports():
-            if port.is_excitatory() and port.is_inhibitory():
-                if port is not None:
-                    ret.append(port)
-                else:
-                    code, message = Messages.get_could_not_resolve(port.get_symbol_name())
-                    Logger.log_message(
-                        message=message,
-                        code=code,
-                        error_position=port.get_source_position(),
-                        log_level=LoggingLevel.ERROR)
-        return ret
-
     def get_kernel_by_name(self, kernel_name: str) -> Optional[ASTKernel]:
         assert type(kernel_name) is str
         kernel_name = kernel_name.split("__X__")[0]
@@ -420,22 +401,21 @@ class ASTModel(ASTNode):
 
     def get_parameter_variables(self) -> List[ASTVariable]:
         """
-        Returns a list of all parameters.
-        :return:
+        Returns a list of all parameter variables.
+        :return: a list of all parameter variables.
         """
         ret = []
-        blocks = set(self.get_parameters_blocks())
-        if not isinstance(blocks, list):
-            blocks = [blocks]
+        blocks = self.get_parameters_blocks()
         for block in blocks:
             for decl in block.get_declarations():
                 ret.extend(decl.get_variables())
+
         return ret
 
     def get_state_variables(self) -> List[ASTVariable]:
         """
         Returns a list of all state variables.
-        :return:
+        :return: a list of all state variables.
         """
         ret = []
         for block in self.get_state_blocks():
@@ -454,7 +434,7 @@ class ASTModel(ASTNode):
         update_block = ASTNodeFactory.create_ast_update_block(block, ASTSourceLocation.get_predefined_source_position())
         self.get_body().get_body_elements().append(update_block)
 
-    def add_to_internals_block(self, declaration: ASTDeclaration, index: int = -1) -> None:
+    def add_to_internals_block(self, declaration: ASTDeclaration, index: int = -1, run_symboltable_visitor: bool = True) -> None:
         """
         Adds the handed over declaration the internals block
         :param declaration: a single declaration
@@ -476,11 +456,11 @@ class ASTModel(ASTNode):
 
         self.get_internals_blocks()[0].get_declarations().insert(index, declaration)
         declaration.update_scope(self.get_internals_blocks()[0].get_scope())
-        symtable_vistor = ASTSymbolTableVisitor()
-        symtable_vistor.block_type_stack.push(BlockType.INTERNALS)
-        self.accept(ASTParentVisitor())
-        self.accept(symtable_vistor)
-        symtable_vistor.block_type_stack.pop()
+
+        if run_symboltable_visitor:
+            symtable_vistor = ASTSymbolTableVisitor()
+            self.accept(ASTParentVisitor())
+            self.accept(symtable_vistor)
 
     def add_to_state_block(self, declaration: ASTDeclaration) -> None:
         """
@@ -619,13 +599,6 @@ class ASTModel(ASTNode):
                 vector_symbols.append(symbol)
 
         return vector_symbols
-
-    def get_single_receptors(self) -> List[VariableSymbol]:
-        """
-        Returns a list of spike input ports that are defined as either excitatory or inhibitory.
-        :return: a list of spike input port variable symbols
-        """
-        return list(set(self.get_spike_input_ports()) - set(self.get_multiple_receptors()))
 
     def has_vector_port(self) -> bool:
         """

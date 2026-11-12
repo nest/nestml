@@ -56,10 +56,7 @@ class RecordableVariablesTest(unittest.TestCase):
                              logging_level=logging_level,
                              module_name=module_name,
                              suffix=suffix)
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
+        NESTTools.set_nest_verbosity("ALL")
 
         nest.ResetKernel()
         nest.Install(module_name)
@@ -68,7 +65,7 @@ class RecordableVariablesTest(unittest.TestCase):
         sg = nest.Create("spike_generator", params={"spike_times": [20., 80.]})
         nest.Connect(sg, neuron)
 
-        mm = nest.Create("multimeter", params={"record_from": ["V_ex", "V_rel", "V_m", "I_kernel__X__spikes"],
+        mm = nest.Create("multimeter", params={"record_from": ["V_ex", "V_rel", "V_m", "I_kernel__X__input_spikes"],
                                                "interval": 0.1})
         nest.Connect(mm, neuron)
 

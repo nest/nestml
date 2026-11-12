@@ -19,33 +19,489 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+import copy
 from collections import defaultdict
 
+import sympy
+from sympy.parsing.sympy_parser import parse_expr
+from sympy.printing.str import StrPrinter
+
+from pynestml.cocos.co_cos_manager import CoCosManager
+from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
+from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
+from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
+from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
+from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
+from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
+from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
+from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.utils.ast_vector_parameter_setter_and_printer_factory import ASTVectorParameterSetterAndPrinterFactory
-from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
-from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.model_parser import ModelParser
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
+
+import odetoolbox
+
+
+class LowerMinMaxPrinter(StrPrinter):
+    """
+    Correcting the case change of min/max functions due to sympy parsing.
+    """
+    def _print_Min(self, expr):
+        return "min(%s)" % ", ".join(self._print(a) for a in expr.args)
+
+    def _print_Max(self, expr):
+        return "max(%s)" % ", ".join(self._print(a) for a in expr.args)
+
+    def _print_Abs(self, expr):
+        return "abs(%s)" % ", ".join(self._print(a) for a in expr.args)
 
 
 class MechsInfoEnricher:
     """
+    This file is part of the compartmental code generation process.
+
     Adds information collection that can't be done in the processing class since that is used in the cocos.
     Here we use the ModelParser which would lead to a cyclic dependency.
     """
 
+    # ODE-toolbox printers
+    _constant_printer = ConstantPrinter()
+    _ode_toolbox_variable_printer = ODEToolboxVariablePrinter(None)
+    _ode_toolbox_function_call_printer = ODEToolboxFunctionCallPrinter(None)
+    _ode_toolbox_printer = ODEToolboxExpressionPrinter(
+        simple_expression_printer=SympySimpleExpressionPrinter(
+            variable_printer=_ode_toolbox_variable_printer,
+            constant_printer=_constant_printer,
+            function_call_printer=_ode_toolbox_function_call_printer))
+
+    _ode_toolbox_variable_printer._expression_printer = _ode_toolbox_printer
+    _ode_toolbox_function_call_printer._expression_printer = _ode_toolbox_printer
+
     def __init__(self):
         pass
 
+    def sympy_compatible_print(expr):
+        return LowerMinMaxPrinter().doprint(expr)
+
     @classmethod
-    def enrich_with_additional_info(cls, neuron: ASTModel, mechs_info: dict):
+    def enrich_with_additional_info(cls, neuron: ASTModel, mechs_info: dict, enable_cse: bool = True,
+                                    exclude_propagator_init_from_cse: bool = False):
+        neuron.accept(SynsInfoEnricherVisitor())
+        mechs_info = cls.get_transformed_ode_equations(mechs_info)
+        mechs_info = cls.ode_toolbox_processing(neuron, mechs_info)
+
+        cls.add_propagators_to_internals(neuron, mechs_info)
+        neuron.accept(SynsInfoEnricherVisitor())
+
         mechs_info = cls.transform_ode_solutions(neuron, mechs_info)
+        mechs_info = cls.transform_convolutions_analytic_solutions_general(neuron, mechs_info)
+        mechs_info = cls.create_convolution_simultaneous_update_expressions(neuron, mechs_info)
         mechs_info = cls.enrich_mechanism_specific(neuron, mechs_info)
+        mechs_info = cls.create_non_vec_variables(mechs_info)
+        if enable_cse:
+            mechs_info = cls.global_common_subexpression_elimination(
+                neuron, mechs_info, exclude_propagator_init_from_cse=exclude_propagator_init_from_cse)
+        else:
+            mechs_info = cls.initialize_empty_cse_replacements(mechs_info)
         return mechs_info
+
+    @classmethod
+    def initialize_empty_cse_replacements(cls, mechs_info: dict):
+        for mechanism_info in mechs_info.values():
+            if isinstance(mechanism_info["root_expression"], ASTInlineExpression):
+                inline_expression_name = mechanism_info["root_expression"].get_variable_name()
+                mechanism_info["root_expression"] = mechanism_info["root_expression"].expression
+                mechanism_info["root_expression"].variable_name = inline_expression_name
+            mechanism_info["cse_body_replacements"] = {}
+            mechanism_info["cse_function_replacements"] = {}
+
+        return mechs_info
+
+    @classmethod
+    def global_common_subexpression_elimination(cls, neuron: ASTModel, mechs_info: dict,
+                                                exclude_propagator_init_from_cse: bool = False):
+        nestml_printer = NESTMLPrinter()
+        for mechanism_name, mechanism_info in mechs_info.items():
+            allowed = ["v_comp", "self_spikes"]
+
+            simd_body_expressions = []
+            inlined_function_expressions = []
+
+            expression_association = []
+            function_expression_association = []
+            function_expression_function_association = []
+
+            invalid_vars = set()
+            function_parameter_vars = set()
+
+            # Collect and parse simd body expressions and associate with the originals
+            for ode_variable, ode_info in mechanism_info["ODEs"].items():
+                for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items():
+                    if not exclude_propagator_init_from_cse:
+                        simd_body_expressions.append(
+                            parse_expr(cls._ode_toolbox_printer.print(propagator_info["init_expression"])))
+                        expression_association.append(
+                            ["ODEs", ode_variable, "transformed_solutions", 0, "propagators", propagator,
+                             "init_expression"])
+                    invalid_vars.add(propagator)
+
+                for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items():
+                    simd_body_expressions.append(parse_expr(cls._ode_toolbox_printer.print(state_solution_info["update_expression"])))
+                    expression_association.append(["ODEs", ode_variable, "transformed_solutions", 0, "states", state, "update_expression"])
+                    invalid_vars.add(state)
+
+            for conv, conv_info in mechanism_info["convolutions"].items():
+                for propagator, propagator_info in conv_info["analytic_solution"]["propagators"].items():
+                    invalid_vars.add(propagator)
+
+                for state, state_solution_info in conv_info["analytic_solution"]["kernel_states"].items():
+                    invalid_vars.add(state)
+
+            if isinstance(mechanism_info["root_expression"], ASTInlineExpression):
+                inline_expression_name = mechanism_info["root_expression"].get_variable_name()
+                simd_body_expressions.append(parse_expr(cls._ode_toolbox_printer.print(mechanism_info["root_expression"].expression)))
+                expression_association.append(["root_expression"])
+
+                simd_body_expressions.append(parse_expr(cls._ode_toolbox_printer.print(mechanism_info["inline_derivative"])))
+                expression_association.append(["inline_derivative"])
+
+            # Collect and parse function expressions and associate with originals
+            for function in mechanism_info["Functions"]:
+                for parameter in function.get_parameters():
+                    function_parameter_vars.add(parameter.name)
+
+                expression_collector = ASTFunctionExpressionExtractor()
+                function.accept(expression_collector)
+                function_expressions = expression_collector.expressions
+                function_expression_association += expression_collector.expressions
+                function_expression_function_association += [function] * len(function_expressions)
+                for function_expression in function_expressions:
+                    inlined_function_expressions.append(parse_expr(cls._ode_toolbox_printer.print(function_expression)))
+
+            # Run actual CSE:
+            symb = sympy.numbered_symbols("simd_cse_tmp_" + mechanism_name)
+
+            replacements, reduced_exprs = sympy.cse(inlined_function_expressions + simd_body_expressions, symbols=symb)
+
+            # Re-substitute CSE replacements if they depend on states or function-local parameters
+            # Find invalid replacements
+            invalid_vars = (invalid_vars | set(mechanism_info["States"].keys()) | function_parameter_vars) - set(allowed)
+            invalid_replacements = list()
+            for replacement in replacements:
+                new_invalids = set()
+                rep_expression_txt = cls.sympy_compatible_print(replacement[1])
+                devalidated = False
+                for state in invalid_vars:
+                    if rep_expression_txt.find(state) >= 0 and not devalidated:
+                        invalid_replacements.append(replacement)
+                        new_invalids.add(cls.sympy_compatible_print(replacement[0]))
+                        devalidated = True
+
+                invalid_vars = invalid_vars | new_invalids
+
+            # Substitute invalid occurrences with originals in valid replacements
+            valid_replacements = [replacement for replacement in replacements if replacement not in invalid_replacements]
+            invalid_replacements = list(reversed(invalid_replacements))
+            new_replacements = list()
+            for replacement in valid_replacements:
+                new_replacement_exp = replacement[1]
+                for invalid in invalid_replacements:
+                    new_replacement_exp = new_replacement_exp.subs(invalid[0], invalid[1])
+
+                new_replacements.append((replacement[0], new_replacement_exp))
+
+            replacements = new_replacements
+
+            # Substitute invalid occurrences with originals in original expressions
+            new_expressions = list()
+            for expression in reduced_exprs:
+                new_expression = expression
+                for invalid in invalid_replacements:
+                    new_expression = new_expression.subs(invalid[0], invalid[1])
+
+                new_expressions.append(new_expression)
+
+            reduced_exprs = new_expressions
+
+            # Parse replacements
+            cse_replacements = dict()
+            parsed_parameters = list()
+            parsed_args = dict()
+            for replacement in replacements:
+                parsed_replacement = ModelParser.parse_expression(cls.sympy_compatible_print(replacement[1]))
+                parsed_replacement.update_scope(neuron.get_equations_blocks()[0].get_scope())
+                parsed_replacement.accept(ASTSymbolTableVisitor())
+
+                replacement_name = cls.sympy_compatible_print(replacement[0])
+                cse_replacements[replacement_name] = parsed_replacement
+                mechanism_info["non_vec_vars"].append(replacement_name)
+
+                ASTUtils.add_declaration_to_state_block(neuron, replacement_name, "0")
+
+                parsed_parameter = ModelParser.parse_parameter(replacement_name + " real")
+                parsed_parameters.append(parsed_parameter)
+
+                parsed_argument = ModelParser.parse_expression(replacement_name)
+                parsed_argument.update_scope(neuron.get_equations_blocks()[0].get_scope())
+                parsed_argument.accept(ASTSymbolTableVisitor())
+
+                parsed_args[replacement_name] = parsed_argument
+
+            # Parse and replace reduced SIMD expressions
+            for reduced_expr, association in zip(reduced_exprs[len(inlined_function_expressions):], expression_association):
+
+                expression = ModelParser.parse_expression(cls.sympy_compatible_print(reduced_expr))
+                expression.update_scope(neuron.get_equations_blocks()[0].get_scope())
+                expression.accept(ASTSymbolTableVisitor())
+
+                original = mechanism_info
+                for key in association[:-1]:
+                    original = original[key]
+
+                original[association[-1]] = expression
+                if association == ["root_expression"]:
+                    expression.variable_name = inline_expression_name
+
+            # Add CSE replacement parameters to functions before parsing reduced function expressions
+            cse_var_names = set(cse_replacements.keys())
+            function_cse_parameters = defaultdict(list)
+            for reduced_expr, function in zip(
+                    reduced_exprs[:len(inlined_function_expressions)], function_expression_function_association):
+                required_cse_vars = {cls.sympy_compatible_print(sym) for sym in reduced_expr.free_symbols} & cse_var_names
+                for parsed_parameter in parsed_parameters:
+                    if parsed_parameter.name in required_cse_vars \
+                            and parsed_parameter.name not in function_cse_parameters[function]:
+                        function_cse_parameters[function].append(parsed_parameter.name)
+
+            for function, parameter_names in function_cse_parameters.items():
+                for parameter_name in parameter_names:
+                    for parsed_parameter in parsed_parameters:
+                        if parsed_parameter.name == parameter_name:
+                            function.parameters.append(parsed_parameter.clone())
+
+            neuron.accept(ASTParentVisitor())
+            SymbolTable.delete_model_scope(neuron.get_name())
+            symbol_table_visitor = ASTSymbolTableVisitor()
+            neuron.accept(symbol_table_visitor)
+            SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
+
+            # Parse reduced function expressions
+            parsed_func_expressions = []
+            for reduced_expr, function in zip(
+                    reduced_exprs[:len(inlined_function_expressions)], function_expression_function_association):
+                function_scope = function.get_stmts_body().get_scope()
+                expression = ModelParser.parse_expression(cls.sympy_compatible_print(reduced_expr))
+                expression.update_scope(function_scope)
+                expression.accept(ASTSymbolTableVisitor())
+
+                parsed_func_expressions.append(expression)
+
+            # Replace function expressions
+            all_function_arguments = set()
+            for function in mechanism_info["Functions"]:
+                ASTFunctionExpressionReplacer(
+                    function, function_expression_association, parsed_func_expressions)
+
+                function_arguments = list()
+                for arg_name in function_cse_parameters[function]:
+                    function_arguments.append(parsed_args[arg_name])
+                    all_function_arguments.add(arg_name)
+
+                cls.add_function_call_args(mechanism_info, function.name, function_arguments)
+                for replacement_name, replacement in cse_replacements.items():
+                    cls.add_function_call_args(replacement, function.name, function_arguments)
+
+                function.accept(ASTSymbolTableVisitor())
+
+            # Save final replacements to mech dict
+            body_cse_replacements = dict()
+            function_cse_replacements = dict()
+
+            rev_cse_rep = dict(reversed(list(cse_replacements.items())))
+
+            f_found = False
+            for replacement_name, replacement in rev_cse_rep.items():
+                if f_found:
+                    function_cse_replacements[replacement_name] = replacement
+                elif replacement_name in all_function_arguments:
+                    function_cse_replacements[replacement_name] = replacement
+                    f_found = True
+                else:
+                    body_cse_replacements[replacement_name] = replacement
+
+            mechanism_info["cse_body_replacements"] = dict(reversed(list(body_cse_replacements.items())))
+            mechanism_info["cse_function_replacements"] = dict(reversed(list(function_cse_replacements.items())))
+
+            SymbolTable.delete_model_scope(neuron.get_name())
+            symbol_table_visitor = ASTSymbolTableVisitor()
+            neuron.accept(symbol_table_visitor)
+            CoCosManager.check_cocos(neuron, after_ast_rewrite=True)
+            SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
+
+        return mechs_info
+
+    @classmethod
+    def add_function_call_args(cls, obj, function_name, function_arguments):
+        if isinstance(obj, dict):
+            for v in obj.values():
+                cls.add_function_call_args(v, function_name, function_arguments)
+
+        elif isinstance(obj, (list, tuple, set)):
+            for item in obj:
+                cls.add_function_call_args(item, function_name, function_arguments)
+
+        elif isinstance(obj, ASTNode):
+            ASTFunctionCallParameterAdder(obj, function_name, function_arguments)
+
+    @classmethod
+    def create_non_vec_variables(cls, mechs_info: dict):
+        enriched_mechs_info = copy.copy(mechs_info)
+        for mechanism_name, mechanism_info in mechs_info.items():
+            non_vec_vars = ["self_spikes", "v_comp"]
+            non_vec_vars.extend(mechanism_info.get("old_kernel_state_variables", []))
+            if "time_resolution_var" in mechanism_info:
+                non_vec_vars.append(mechanism_info["time_resolution_var"].name)
+
+            for ode_variable, ode_info in mechanism_info["ODEs"].items():
+                for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items():
+                    non_vec_vars.append(propagator)
+
+            for ode in mechanism_info["Dependencies"]["concentrations"]:
+                non_vec_vars.append(ode.lhs.name)
+            for inline in mechanism_info["Dependencies"]["receptors"]:
+                non_vec_vars.append(inline.variable_name)
+            for inline in mechanism_info["Dependencies"]["channels"]:
+                non_vec_vars.append(inline.variable_name)
+            for inline in mechanism_info["Dependencies"]["continuous"]:
+                non_vec_vars.append(inline.variable_name)
+
+            enriched_mechs_info[mechanism_name]["non_vec_vars"] = non_vec_vars
+
+        return enriched_mechs_info
+
+    @classmethod
+    def create_convolution_simultaneous_update_expressions(cls, neuron: ASTModel, mechs_info: dict):
+        enriched_mechs_info = copy.copy(mechs_info)
+
+        for mechanism_info in enriched_mechs_info.values():
+            kernel_state_names = set()
+            for convolution_info in mechanism_info.get("convolutions", {}).values():
+                kernel_state_names.update(convolution_info["analytic_solution"]["kernel_states"].keys())
+
+            old_kernel_state_variables = sorted("old_" + state_name for state_name in kernel_state_names)
+            mechanism_info["old_kernel_state_variables"] = old_kernel_state_variables
+
+            for old_state_name in old_kernel_state_variables:
+                if not ASTUtils.declaration_in_state_block(neuron, old_state_name):
+                    ASTUtils.add_declaration_to_state_block(neuron, old_state_name, "0")
+
+            for convolution_info in mechanism_info.get("convolutions", {}).values():
+                for state_variable_info in convolution_info["analytic_solution"]["kernel_states"].values():
+                    simultaneous_update_expression = state_variable_info["update_expression"].clone()
+                    ASTKernelStateVariableRenamer(
+                        simultaneous_update_expression,
+                        kernel_state_names,
+                        "old_")
+                    simultaneous_update_expression.update_scope(neuron.get_equations_blocks()[0].get_scope())
+                    simultaneous_update_expression.accept(ASTSymbolTableVisitor())
+                    state_variable_info["simultaneous_update_expression"] = simultaneous_update_expression
+
+        return enriched_mechs_info
+
+    @classmethod
+    def get_transformed_ode_equations(cls, mechs_info: dict):
+        enriched_mechs_info = copy.copy(mechs_info)
+        for mechanism_name, mechanism_info in mechs_info.items():
+            transformed_odes = list()
+            for ode in mechs_info[mechanism_name]["ODEs"]:
+                ode_name = ode.lhs.name
+                transformed_odes.append(
+                    SynsInfoEnricherVisitor.ode_name_to_transformed_ode[ode_name])
+            enriched_mechs_info[mechanism_name]["ODEs"] = transformed_odes
+
+        return enriched_mechs_info
+
+    @classmethod
+    def ode_toolbox_processing(cls, neuron, mechs_info):
+        mechs_info = cls.prepare_equations_for_ode_toolbox(neuron, mechs_info)
+        mechs_info = cls.collect_raw_odetoolbox_output(mechs_info)
+        return mechs_info
+
+    @classmethod
+    def prepare_equations_for_ode_toolbox(cls, neuron, mechs_info):
+        """Transforms the collected ode equations to the required input format of ode-toolbox and adds it to the
+        mechs_info dictionary"""
+        for mechanism_name, mechanism_info in mechs_info.items():
+            mechanism_odes = defaultdict()
+            for ode in mechanism_info["ODEs"]:
+                nestml_printer = NESTMLPrinter()
+                ode_nestml_expression = nestml_printer.print_ode_equation(ode)
+                mechanism_odes[ode.lhs.name] = defaultdict()
+                mechanism_odes[ode.lhs.name]["ASTOdeEquation"] = ode
+                mechanism_odes[ode.lhs.name]["ODENestmlExpression"] = ode_nestml_expression
+            mechs_info[mechanism_name]["ODEs"] = mechanism_odes
+
+        for mechanism_name, mechanism_info in mechs_info.items():
+            for ode_variable_name, ode_info in mechanism_info["ODEs"].items():
+                # Expression:
+                odetoolbox_indict = {"dynamics": []}
+                lhs = ASTUtils.to_ode_toolbox_name(ode_info["ASTOdeEquation"].get_lhs().get_complete_name())
+                rhs = cls._ode_toolbox_printer.print(ode_info["ASTOdeEquation"].get_rhs())
+                entry = {"expression": lhs + " = " + rhs, "initial_values": {}}
+
+                # Initial values:
+                symbol_order = ode_info["ASTOdeEquation"].get_lhs().get_differential_order()
+                for order in range(symbol_order):
+                    iv_symbol_name = ode_info["ASTOdeEquation"].get_lhs().get_name() + "'" * order
+                    initial_value_expr = neuron.get_initial_value(iv_symbol_name)
+                    entry["initial_values"][
+                        ASTUtils.to_ode_toolbox_name(iv_symbol_name)] = cls._ode_toolbox_printer.print(
+                        initial_value_expr)
+
+                odetoolbox_indict["dynamics"].append(entry)
+                mechs_info[mechanism_name]["ODEs"][ode_variable_name]["ode_toolbox_input"] = odetoolbox_indict
+
+        return mechs_info
+
+    @classmethod
+    def collect_raw_odetoolbox_output(cls, mechs_info):
+        """calls ode-toolbox for each ode individually and collects the raw output"""
+        for mechanism_name, mechanism_info in mechs_info.items():
+            for ode_variable_name, ode_info in mechanism_info["ODEs"].items():
+                solver_result = odetoolbox.analysis(ode_info["ode_toolbox_input"], disable_stiffness_check=True, disable_singularity_mitigation=True)    # multiple conditional solvers returned from ODE-toolbox not yet supported by NESTML
+                mechs_info[mechanism_name]["ODEs"][ode_variable_name]["ode_toolbox_output"] = solver_result
+
+        return mechs_info
+
+    @classmethod
+    def add_propagators_to_internals(cls, neuron, mechs_info):
+        for mechanism_name, mechanism_info in mechs_info.items():
+            for ode_var_name, ode_info in mechanism_info["ODEs"].items():
+                for ode_solution_index in range(len(ode_info["ode_toolbox_output"])):
+                    for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index]["propagators"].items():
+                        ASTUtils.add_declaration_to_internals(neuron, variable_name, rhs_str)
+
+            if "convolutions" in mechanism_info:
+                for convolution_name, convolution_info in mechanism_info["convolutions"].items():
+                    for variable_name, rhs_str in convolution_info["analytic_solution"]["propagators"].items():
+                        ASTUtils.add_declaration_to_internals(neuron, variable_name, rhs_str)
+
+        SymbolTable.delete_model_scope(neuron.get_name())
+        symbol_table_visitor = ASTSymbolTableVisitor()
+        neuron.accept(symbol_table_visitor)
+        CoCosManager.check_cocos(neuron, after_ast_rewrite=True)
+        SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
 
     @classmethod
     def transform_ode_solutions(cls, neuron, mechs_info):
@@ -58,9 +514,37 @@ class MechsInfoEnricher:
                     solution_transformed["states"] = defaultdict()
                     solution_transformed["propagators"] = defaultdict()
 
+                    for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index]["initial_values"].items():
+                        variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
+                                                                                                  SymbolKind.VARIABLE)
+
+                        expression = ModelParser.parse_expression(rhs_str)
+                        # pretend that update expressions are in "equations" block,
+                        # which should always be present, as synapses have been
+                        # defined to get here
+                        expression.update_scope(neuron.get_equations_blocks()[0].get_scope())
+                        expression.accept(ASTSymbolTableVisitor())
+
+                        update_expr_str = ode_info["ode_toolbox_output"][ode_solution_index]["update_expressions"][
+                            variable_name]
+                        update_expr_ast = ModelParser.parse_expression(
+                            update_expr_str)
+                        # pretend that update expressions are in "equations" block,
+                        # which should always be present, as differential equations
+                        # must have been defined to get here
+                        update_expr_ast.update_scope(
+                            neuron.get_equations_blocks()[0].get_scope())
+                        update_expr_ast.accept(ASTSymbolTableVisitor())
+
+                        solution_transformed["states"][variable_name] = {
+                            "ASTVariable": variable,
+                            "init_expression": expression,
+                            "update_expression": update_expr_ast,
+                        }
                     for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index]["propagators"].items():
                         prop_variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
                                                                                                        SymbolKind.VARIABLE)
+
                         if prop_variable is None:
                             ASTUtils.add_declarations_to_internals(
                                 neuron, ode_info["ode_toolbox_output"][ode_solution_index]["propagators"])
@@ -86,47 +570,212 @@ class MechsInfoEnricher:
 
                         for variable in expression_variable_collector.all_variables:
                             for internal_declaration in neuron_internal_declaration_collector.internal_declarations:
-                                if variable.get_name() == internal_declaration.get_variables()[0].get_name() \
-                                        and internal_declaration.get_expression().is_function_call() \
-                                        and internal_declaration.get_expression().get_function_call().callee_name == \
+                                if variable.get_name() == internal_declaration.get_variables()[0].get_name()\
+                                        and internal_declaration.get_expression().is_function_call()\
+                                        and internal_declaration.get_expression().get_function_call().callee_name ==\
                                         PredefinedFunctions.TIME_RESOLUTION:
                                     mechanism_info["time_resolution_var"] = variable
-
-                    for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index]["initial_values"].items():
-                        variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
-                                                                                                  SymbolKind.VARIABLE)
-
-                        expression = ModelParser.parse_expression(rhs_str)
-                        # pretend that update expressions are in "equations" block,
-                        # which should always be present, as synapses have been
-                        # defined to get here
-                        expression.update_scope(neuron.get_equations_blocks()[0].get_scope())
-                        expression.accept(ASTSymbolTableVisitor())
-
-                        update_expr_str = ode_info["ode_toolbox_output"][ode_solution_index]["update_expressions"][
-                            variable_name]
-                        update_expr_ast = ModelParser.parse_expression(
-                            update_expr_str)
-                        # pretend that update expressions are in "equations" block,
-                        # which should always be present, as differential equations
-                        # must have been defined to get here
-                        update_expr_ast.update_scope(
-                            neuron.get_scope())
-                        update_expr_ast.accept(ASTParentVisitor())
-                        update_expr_ast.accept(ASTSymbolTableVisitor())
-                        neuron.accept(ASTSymbolTableVisitor())
-
-                        solution_transformed["states"][variable_name] = {
-                            "ASTVariable": variable,
-                            "init_expression": expression,
-                            "update_expression": update_expr_ast,
-                        }
 
                     mechanism_info["ODEs"][ode_var_name]["transformed_solutions"].append(solution_transformed)
 
         neuron.accept(ASTParentVisitor())
 
         return mechs_info
+
+    @classmethod
+    def transform_convolutions_analytic_solutions_general(cls, neuron: ASTModel, cm_mechs_info: dict):
+        enriched_syns_info = copy.copy(cm_mechs_info)
+        for mechanism_name, mechanism_info in cm_mechs_info.items():
+            for convolution_name in mechanism_info["convolutions"].keys():
+                analytic_solution = enriched_syns_info[mechanism_name][
+                    "convolutions"][convolution_name]["analytic_solution"]
+                analytic_solution_transformed = defaultdict(
+                    lambda: defaultdict())
+
+                for variable_name, expression_str in analytic_solution["initial_values"].items():
+                    variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
+                                                                                              SymbolKind.VARIABLE)
+
+                    expression = ModelParser.parse_expression(expression_str)
+                    # pretend that update expressions are in "equations" block,
+                    # which should always be present, as synapses have been
+                    # defined to get here
+                    expression.update_scope(neuron.get_equations_blocks()[0].get_scope())
+                    expression.accept(ASTSymbolTableVisitor())
+
+                    update_expr_str = analytic_solution["update_expressions"][variable_name]
+                    update_expr_ast = ModelParser.parse_expression(
+                        update_expr_str)
+                    # pretend that update expressions are in "equations" block,
+                    # which should always be present, as differential equations
+                    # must have been defined to get here
+                    update_expr_ast.update_scope(
+                        neuron.get_equations_blocks()[0].get_scope())
+                    update_expr_ast.accept(ASTSymbolTableVisitor())
+
+                    analytic_solution_transformed["kernel_states"][variable_name] = {
+                        "ASTVariable": variable,
+                        "init_expression": expression,
+                        "update_expression": update_expr_ast,
+                    }
+
+                    mechanism_info = cls.get_time_res_var_conv_declaration(neuron, mechanism_info, expression)
+
+                for variable_name, expression_string in analytic_solution["propagators"].items(
+                ):
+                    variable = SynsInfoEnricherVisitor.internal_variable_name_to_variable[variable_name]
+                    expression = ModelParser.parse_expression(
+                        expression_string)
+                    # pretend that update expressions are in "equations" block,
+                    # which should always be present, as synapses have been
+                    # defined to get here
+                    expression.update_scope(
+                        neuron.get_equations_blocks()[0].get_scope())
+                    expression.accept(ASTSymbolTableVisitor())
+                    analytic_solution_transformed["propagators"][variable_name] = {
+                        "ASTVariable": variable, "init_expression": expression, }
+
+                    mechanism_info = cls.get_time_res_var_conv_declaration(neuron, mechanism_info, expression)
+
+                enriched_syns_info[mechanism_name]["convolutions"][convolution_name]["analytic_solution"] =\
+                    analytic_solution_transformed
+
+            if isinstance(enriched_syns_info[mechanism_name]["root_expression"], ASTInlineExpression):
+                inline_expression_name = enriched_syns_info[mechanism_name]["root_expression"].variable_name
+                enriched_syns_info[mechanism_name]["root_expression"] =\
+                    SynsInfoEnricherVisitor.inline_name_to_transformed_inline[inline_expression_name]
+                enriched_syns_info[mechanism_name]["root_expression"].variable_name = inline_expression_name
+
+            transformed_inlines = list()
+            for inline in cm_mechs_info[mechanism_name]["SecondaryInlineExpressions"]:
+                inline_expression_name = inline.variable_name
+                transformed_inlines.append(
+                    SynsInfoEnricherVisitor.inline_name_to_transformed_inline[inline_expression_name])
+            enriched_syns_info[mechanism_name]["secondary_inline_expressions"] = transformed_inlines
+
+        return enriched_syns_info
+
+    @classmethod
+    def get_analytic_helper_variable_declarations(cls, single_synapse_info):
+        variable_names = cls.get_analytic_helper_variable_names(
+            single_synapse_info)
+        result = dict()
+        for variable_name in variable_names:
+            if variable_name not in SynsInfoEnricherVisitor.internal_variable_name_to_variable:
+                continue
+            variable = SynsInfoEnricherVisitor.internal_variable_name_to_variable[variable_name]
+            expression = SynsInfoEnricherVisitor.variables_to_internal_declarations[variable]
+            result[variable_name] = {
+                "ASTVariable": variable,
+                "init_expression": expression,
+            }
+            if expression.is_function_call() and expression.get_function_call(
+            ).callee_name == PredefinedFunctions.TIME_RESOLUTION:
+                result[variable_name]["is_time_resolution"] = True
+            else:
+                result[variable_name]["is_time_resolution"] = False
+
+        return result
+
+    @classmethod
+    def get_analytic_helper_variable_names(cls, single_synapse_info):
+        """get new variables that only occur on the right hand side of analytic solution Expressions
+        but for wich analytic solution does not offer any values
+        this can isolate out additional variables that suddenly appear such as __h
+        whose initial values are not inlcuded in the output of analytic solver"""
+
+        analytic_lhs_vars = set()
+
+        for convolution_name, convolution_info in single_synapse_info["convolutions"].items(
+        ):
+            analytic_sol = convolution_info["analytic_solution"]
+
+            # get variables representing convolutions by kernel
+            for kernel_var_name, kernel_info in analytic_sol["kernel_states"].items(
+            ):
+                analytic_lhs_vars.add(kernel_var_name)
+
+            # get propagator variable names
+            for propagator_var_name, propagator_info in analytic_sol["propagators"].items(
+            ):
+                analytic_lhs_vars.add(propagator_var_name)
+
+        return cls.get_new_variables_after_transformation(
+            single_synapse_info).symmetric_difference(analytic_lhs_vars)
+
+    @classmethod
+    def get_new_variables_after_transformation(cls, single_synapse_info):
+        return cls.get_all_synapse_variables(single_synapse_info).difference(
+            single_synapse_info["total_used_declared"])
+
+    @classmethod
+    def get_all_synapse_variables(cls, single_synapse_info):
+        """returns all variable names referenced by the synapse inline
+        and by the analytical solution
+        assumes that the model has already been transformed"""
+
+        # get all variables from transformed inline
+        inline_variables = cls.get_variable_names_used(
+            single_synapse_info["root_expression"])
+
+        analytic_solution_vars = set()
+        # get all variables from transformed analytic solution
+        for convolution_name, convolution_info in single_synapse_info["convolutions"].items(
+        ):
+            analytic_sol = convolution_info["analytic_solution"]
+            # get variables from init and update expressions
+            # for each kernel
+            for kernel_var_name, kernel_info in analytic_sol["kernel_states"].items(
+            ):
+                analytic_solution_vars.add(kernel_var_name)
+
+                update_vars = cls.get_variable_names_used(
+                    kernel_info["update_expression"])
+                init_vars = cls.get_variable_names_used(
+                    kernel_info["init_expression"])
+
+                analytic_solution_vars.update(update_vars)
+                analytic_solution_vars.update(init_vars)
+
+            # get variables from init expressions
+            # for each propagator
+            # include propagator variable itself
+            for propagator_var_name, propagator_info in analytic_sol["propagators"].items(
+            ):
+                analytic_solution_vars.add(propagator_var_name)
+
+                init_vars = cls.get_variable_names_used(
+                    propagator_info["init_expression"])
+
+                analytic_solution_vars.update(init_vars)
+
+        return analytic_solution_vars.union(inline_variables)
+
+    @classmethod
+    def get_variable_names_used(cls, node) -> set:
+        variable_names_extractor = ASTUsedVariableNamesExtractor(node)
+        return variable_names_extractor.variable_names
+
+    @classmethod
+    def get_time_res_var_conv_declaration(cls, neuron, mechanism_info, expression):
+        expression_variable_collector = ASTEnricherInfoCollectorVisitor()
+        expression.accept(expression_variable_collector)
+
+        # now also identify analytic helper variables such as __h
+        neuron_internal_declaration_collector = ASTEnricherInfoCollectorVisitor()
+        neuron.accept(neuron_internal_declaration_collector)
+
+        for variable in expression_variable_collector.all_variables:
+            for internal_declaration in neuron_internal_declaration_collector.internal_declarations:
+                if variable.get_name() == internal_declaration.get_variables()[0].get_name()\
+                        and (isinstance(internal_declaration.get_expression(), ASTSmallStmt)
+                             or isinstance(internal_declaration.get_expression(), ASTSimpleExpression))\
+                        and internal_declaration.get_expression().is_function_call()\
+                        and internal_declaration.get_expression().get_function_call().callee_name ==\
+                        PredefinedFunctions.TIME_RESOLUTION:
+                    mechanism_info["time_resolution_var"] = variable
+
+        return mechanism_info
 
     @classmethod
     def enrich_mechanism_specific(cls, neuron, mechs_info):
@@ -181,3 +830,204 @@ class ASTEnricherInfoCollectorVisitor(ASTVisitor):
 
     def endvisit_declaration(self, node):
         self.inside_declaration = False
+
+
+class SynsInfoEnricherVisitor(ASTVisitor):
+    variables_to_internal_declarations = {}
+    internal_variable_name_to_variable = {}
+    inline_name_to_transformed_inline = {}
+    ode_name_to_transformed_ode = {}
+
+    # assuming depth first traversal
+    # collect declaratins in the order
+    # in which they were present in the neuron
+    declarations_ordered = []
+
+    def __init__(self):
+        super(SynsInfoEnricherVisitor, self).__init__()
+
+        self.inside_parameter_block = False
+        self.inside_state_block = False
+        self.inside_internals_block = False
+        self.inside_inline_expression = False
+        self.inside_inline_expression = False
+        self.inside_declaration = False
+        self.inside_simple_expression = False
+        self.inside_ode_equation = False
+
+    def visit_inline_expression(self, node):
+        self.inside_inline_expression = True
+        inline_name = node.variable_name
+        SynsInfoEnricherVisitor.inline_name_to_transformed_inline[inline_name] = node
+
+    def endvisit_inline_expression(self, node):
+        self.inside_inline_expression = False
+
+    def visit_ode_equation(self, node):
+        self.inside_ode_equation = True
+        ode_name = node.lhs.name
+        SynsInfoEnricherVisitor.ode_name_to_transformed_ode[ode_name] = node
+
+    def endvisit_ode_equation(self, node):
+        self.inside_ode_equation = False
+
+    def visit_block_with_variables(self, node):
+        if node.is_state:
+            self.inside_state_block = True
+        if node.is_parameters:
+            self.inside_parameter_block = True
+        if node.is_internals:
+            self.inside_internals_block = True
+
+    def endvisit_block_with_variables(self, node):
+        if node.is_state:
+            self.inside_state_block = False
+        if node.is_parameters:
+            self.inside_parameter_block = False
+        if node.is_internals:
+            self.inside_internals_block = False
+
+    def visit_simple_expression(self, node):
+        self.inside_simple_expression = True
+
+    def endvisit_simple_expression(self, node):
+        self.inside_simple_expression = False
+
+    def visit_declaration(self, node):
+        self.declarations_ordered.append(node)
+        self.inside_declaration = True
+        if self.inside_internals_block:
+            variable = node.get_variables()[0]
+            expression = node.get_expression()
+            SynsInfoEnricherVisitor.variables_to_internal_declarations[variable] = expression
+            SynsInfoEnricherVisitor.internal_variable_name_to_variable[variable.get_name(
+            )] = variable
+
+    def endvisit_declaration(self, node):
+        self.inside_declaration = False
+
+
+class ASTUsedVariableNamesExtractor(ASTVisitor):
+    def __init__(self, node):
+        super(ASTUsedVariableNamesExtractor, self).__init__()
+        self.variable_names = set()
+        node.accept(self)
+
+    def visit_variable(self, node):
+        self.variable_names.add(node.get_name())
+
+
+class ASTContainsLogic(ASTVisitor):
+    def __init__(self, node):
+        super(ASTContainsLogic, self).__init__()
+        self.contains_logic = False
+        self.inside_logical_operator = False
+        node.accept(self)
+
+    def visit_logical_operator(self, node):
+        self.inside_logical_operator = True
+        self.contains_logic = True
+
+    def endvisit_logical_operator(self, node):
+        self.inside_logical_operator = False
+
+
+class ASTFunctionExpressionExtractor(ASTVisitor):
+    def __init__(self):
+        super(ASTFunctionExpressionExtractor, self).__init__()
+        self.expressions = []
+        self.inside_expression = False
+        self.inside_if_clause = False
+        self.recursion_depth = 0
+
+    def visit_expression(self, node):
+        self.recursion_depth += 1
+        if not self.inside_expression:
+            self.inside_expression = True
+            if not ASTContainsLogic(node).contains_logic:
+                self.expressions.append(node)
+
+    def endvisit_expression(self, node):
+        self.recursion_depth -= 1
+        if self.recursion_depth == 0:
+            self.inside_expression = False
+
+    def visit_if_clause(self, node):
+        self.inside_if_clause = True
+
+    def endvisit_if_clause(self, node):
+        self.inside_if_clause = False
+
+
+class ASTFunctionExpressionReplacer(ASTVisitor):
+    def __init__(self, node, originals, replacements):
+        super(ASTFunctionExpressionReplacer, self).__init__()
+        self.originals = originals
+        self.replacements = replacements
+
+        self.inside_expression = False
+        self.recursion_depth = 0
+        node.accept(ASTParentVisitor())
+        node.accept(self)
+
+    def visit_expression(self, node):
+        self.recursion_depth += 1
+        self.inside_expression = True
+
+    def endvisit_expression(self, node):
+        self.recursion_depth -= 1
+        if self.recursion_depth == 0:
+            for original, replacement in zip(self.originals, self.replacements):
+                if node.equals(original):
+                    try:
+                        parent = node.get_parent()
+                    except AssertionError:
+                        # The visitor can still finish an expression node that was
+                        # detached by replacing an ancestor earlier in the traversal.
+                        # In that case the current tree already contains the
+                        # replacement, so there is nothing left to update here.
+                        continue
+                    for name, value in vars(parent).items():
+                        if isinstance(value, ASTExpression) or isinstance(value, ASTSimpleExpression):
+                            if value.equals(original):
+                                replacement_clone = replacement.clone()
+                                replacement_clone.update_scope(parent.get_scope())
+                                replacement_clone.accept(ASTSymbolTableVisitor())
+                                setattr(parent, name, replacement_clone)
+                                parent.accept(ASTParentVisitor())
+                    node.accept(ASTParentVisitor())
+
+            self.inside_expression = False
+
+
+class ASTKernelStateVariableRenamer(ASTVisitor):
+    def __init__(self, node, kernel_state_names, prefix):
+        super(ASTKernelStateVariableRenamer, self).__init__()
+        self.kernel_state_names = kernel_state_names
+        self.prefix = prefix
+        node.accept(self)
+
+    def visit_variable(self, node: ASTVariable):
+        if node.get_name() in self.kernel_state_names:
+            node.name = self.prefix + node.get_name()
+
+
+class ASTFunctionCallParameterAdder(ASTVisitor):
+    def __init__(self, node, function_name, parameters):
+        super(ASTFunctionCallParameterAdder, self).__init__()
+        self.parameters = parameters
+        self.function_name = function_name
+        self.inside_function_call = False
+        self.recursion = 0
+        node.accept(self)
+
+    def visit_function_call(self, node):
+        self.inside_function_call = True
+        self.recursion += 1
+        if node.callee_name == self.function_name:
+            node.args += self.parameters
+
+    def endvisit_function_call(self, node):
+        self.recursion -= 1
+        if self.recursion == 0:
+            self.inside_function_call = False

@@ -59,10 +59,11 @@ set( MODULE_NAME ${SHORT_NAME} )
 
 # 2) Add all your sources here
 set( MODULE_SOURCES
-    {{moduleName}}.h {{moduleName}}.cpp
-    {% for neuron in neurons %}
-      {{neuron.get_name()}}.cpp {{neuron.get_name()}}.h
-    {% endfor %}
+    {{ moduleName }}.h {{ moduleName }}.cpp
+{%- for neuron in neurons %}
+      {{ neuron.get_name() }}.cpp {{ neuron.get_name() }}.h
+{%- endfor %}
+    vector_ring_buffer.h vector_ring_buffer.cpp
     )
 
 # 3) We require a header name like this:
@@ -92,8 +93,32 @@ else ()
     set( NEST_CONFIG ${with-nest} )
 endif ()
 
-# Use `nest-config` to get the compile and installation options used with the
-# NEST installation.
+# Use `nest-config` to get the compile and installation options used with the NEST installation.
+
+# Retrieve the NEST version
+execute_process(
+    COMMAND ${NEST_CONFIG} --version
+    RESULT_VARIABLE RES_VAR
+    OUTPUT_VARIABLE NEST_VERSION
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+# If there is a hyphenated/alpha suffix, replace the hyphen with .1 to fix the 3.10 version check
+if(NEST_VERSION MATCHES "-")
+    string(REGEX REPLACE "^([0-9]+(\\.[0-9]+)*)-.*$" "\\1.1" NEST_VERSION "${NEST_VERSION}")
+endif()
+
+# One check on first execution, if `nest-config` is working.
+if ( NOT RES_VAR EQUAL 0 )
+    message( FATAL_ERROR "Cannot run `${NEST_CONFIG}`. Please specify correct `nest-config` via -Dwith-nest=... " )
+endif ()
+
+# Determine the appropriate flag based on semantic versioning
+if(NEST_VERSION VERSION_GREATER "3.10")
+    set(NEST_STATIC_FLAG "--static-linking")
+else()
+    set(NEST_STATIC_FLAG "--static-libraries")
+endif()
 
 # Get the compiler that was used for NEST.
 execute_process(
@@ -103,15 +128,18 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-# One check on first execution, if `nest-config` is working.
-if ( NOT RES_VAR EQUAL 0 )
-    message( FATAL_ERROR "Cannot run `${NEST_CONFIG}`. Please specify correct `nest-config` via -Dwith-nest=... " )
-endif ()
-
 # Setting the compiler has to happen before the call to "project(...)" function.
 set( CMAKE_CXX_COMPILER "${NEST_COMPILER}" )
 
 project( ${MODULE_NAME} CXX )
+
+set( NESTML_EXTRA_COMPILE_FLAGS "" )
+include( CheckCXXCompilerFlag )
+check_cxx_compiler_flag( "-fno-gnu-unique" NESTML_HAS_NO_GNU_UNIQUE )
+if ( NESTML_HAS_NO_GNU_UNIQUE )
+    # Avoid STB_GNU_UNIQUE symbols, which prevent the module from being unloaded (GCC only; not supported by e.g. Clang).
+    set( NESTML_EXTRA_COMPILE_FLAGS "-fno-gnu-unique" )
+endif ()
 
 # Get the install prefix.
 execute_process(
@@ -152,10 +180,9 @@ if ( NEST_INCLUDES )
     endforeach ()
 endif ()
 
-# Get, if NEST is build as a (mostly) static application. If yes, also only build
-# static library.
+# Get, if NEST is build as a (mostly) static application. If yes, also only build static library.
 execute_process(
-    COMMAND ${NEST_CONFIG} --static-libraries
+    COMMAND ${NEST_CONFIG} ${NEST_STATIC_FLAG}
     RESULT_VARIABLE RES_VAR
     OUTPUT_VARIABLE NEST_STATIC_LIB
     OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -254,7 +281,7 @@ if ( BUILD_SHARED_LIBS )
     endif ()
     set_target_properties( ${MODULE_NAME}_module
         PROPERTIES
-        COMPILE_FLAGS "${NEST_CXXFLAGS} -DLTX_MODULE"
+        COMPILE_FLAGS "${NEST_CXXFLAGS} -DLTX_MODULE ${NESTML_EXTRA_COMPILE_FLAGS}"
         LINK_FLAGS "${LINKER_FLAGS}"
         PREFIX ""
         OUTPUT_NAME ${MODULE_NAME} )

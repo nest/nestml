@@ -68,13 +68,9 @@ class NestFirFilterTest(unittest.TestCase):
         t_sim = 101.
         resolution = 0.1
 
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
-
         nest.ResetKernel()
         nest.Install(module_name)
+        NESTTools.set_nest_verbosity("ALL")
 
         # Create a fir_filter node
         neuron = nest.Create(nestml_model_name, {"N": 256})
@@ -115,7 +111,7 @@ class NestFirFilterTest(unittest.TestCase):
         spike_times = nest.GetStatus(sr, keys="events")[0]["times"]
 
         # Scipy filtering
-        spikes, bin_edges = np.histogram(spike_times, np.arange(0, t_sim, resolution))
+        spikes, bin_edges = np.histogram(spike_times + resolution * 1.5, np.arange(0, t_sim, resolution))
         output = scipy.signal.lfilter(h, 1, spikes)
 
         # Plots

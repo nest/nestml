@@ -76,12 +76,9 @@ class NestInstallExistingModule(unittest.TestCase):
         self.assertEqual(actual_found_module[0], expected_found_module)
 
         # install module
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
         nest.ResetKernel()
         nest.Install(module_name)
+        NESTTools.set_nest_verbosity("ALL")
 
         # check model existence
         has_model = f"{model_name}{suffix}" in nest.Models()

@@ -36,7 +36,6 @@ from pynestml.meta_model.ast_function import ASTFunction
 from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_input_block import ASTInputBlock
-from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_model import ASTModel
@@ -60,7 +59,7 @@ from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
 from pynestml.meta_model.ast_input_port import ASTInputPort
-from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
+from pynestml.meta_model.ast_compilation_unit import ASTCompilationUnit
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 
 
@@ -123,13 +122,10 @@ class ModelPrinter(ASTPrinter):
     def print_input_port(self, node: ASTInputPort) -> str:
         raise Exception("Printer does not support printing this node type")
 
-    def print_input_qualifier(self, node: ASTInputQualifier) -> str:
-        raise Exception("Printer does not support printing this node type")
-
     def print_logical_operator(self, node: ASTLogicalOperator) -> str:
         raise Exception("Printer does not support printing this node type")
 
-    def print_compilation_unit(self, node: ASTNestMLCompilationUnit) -> str:
+    def print_compilation_unit(self, node: ASTCompilationUnit) -> str:
         raise Exception("Printer does not support printing this node type")
 
     def print_neuron(self, node: ASTModel) -> str:
@@ -250,16 +246,13 @@ class ModelPrinter(ASTPrinter):
         if isinstance(node, ASTInputPort):
             return self.print_input_port(node)
 
-        if isinstance(node, ASTInputQualifier):
-            return self.print_input_qualifier(node)
-
         if isinstance(node, ASTKernel):
             return self.print_kernel(node)
 
         if isinstance(node, ASTLogicalOperator):
             return self.print_logical_operator(node)
 
-        if isinstance(node, ASTNestMLCompilationUnit):
+        if isinstance(node, ASTCompilationUnit):
             return self.print_compilation_unit(node)
 
         if isinstance(node, ASTModel):

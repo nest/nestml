@@ -35,9 +35,9 @@ model equations_log_neuron:
         foo real = 42
 
     equations:
-        x' = alpha_x / ((1 + x**n_x) * ln(tau_d / tau_r) * ms) - beta_x * x
-        z' = alpha_z / ((1 + x**n_z) * ms) - beta_z * z
-        foo' = -foo + log10(tau_d / tau_r) / ms
+        x' = alpha_x / ((1 + x**n_x) * ln(tau_d / tau_r) * 1 ms) - beta_x * x
+        z' = alpha_z / ((1 + x**n_z) * 1 ms) - beta_z * z
+        foo' = -foo + log10(tau_d / tau_r) / 1 ms
 
     parameters:
         alpha_x real = 0.5

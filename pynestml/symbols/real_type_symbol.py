@@ -114,5 +114,12 @@ class RealTypeSymbol(TypeSymbol):
                 or _other_type.is_instance_of(IntegerTypeSymbol) \
                 or _other_type.is_instance_of(RealTypeSymbol):
             return True
-        else:
+
+        try:
+            # check if real number is being assigned to something with physical units that is equivalent to a real number (e.g. ``ms/s``)
+            _other_type.unit.get_unit().to("1")
+            return True
+        except BaseException:
             return False
+
+        return False

@@ -54,6 +54,8 @@ class TestIntegrateODEs:
                                          os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                        os.path.join("resources", "integrate_odes_test.nestml"))),
                                          os.path.realpath(os.path.join(os.path.dirname(__file__),
+                                                                       os.path.join("resources", "integrate_odes_test_spikes.nestml"))),
+                                         os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                        os.path.join("resources", "integrate_odes_nonlinear_test.nestml"))),
                                          os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                        os.path.join("resources", "alpha_function_2nd_order_ode_neuron.nestml"))),
@@ -69,10 +71,7 @@ class TestIntegrateODEs:
         resolution: float = .1  # [ms]
         spike_interval = 5.  # [ms]
 
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
+        NESTTools.set_nest_verbosity("ALL")
         nest.ResetKernel()
         nest.SetKernelStatus({"resolution": resolution})
         try:
@@ -128,10 +127,7 @@ class TestIntegrateODEs:
         sim_time: float = 100.  # [ms]
         resolution: float = .1  # [ms]
 
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
+        NESTTools.set_nest_verbosity("ALL")
         nest.ResetKernel()
         nest.SetKernelStatus({"resolution": resolution})
         try:
@@ -180,10 +176,7 @@ class TestIntegrateODEs:
         sim_time: float = 100.  # [ms]
         resolution: float = .1  # [ms]
 
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
+        NESTTools.set_nest_verbosity("ALL")
         nest.ResetKernel()
         nest.SetKernelStatus({"resolution": resolution})
         try:
@@ -243,16 +236,56 @@ class TestIntegrateODEs:
 
         assert len(Logger.get_messages("integrate_odes_test", LoggingLevel.ERROR)) == 2
 
+    def test_integrate_odes_spikes(self):
+        r"""
+        Tests that spikes appearing on the right-hand side of ODEs are only integrated when integrate_odes() on that variable was called.
+        """
+        resolution = 0.1
+        NESTTools.set_nest_verbosity("ALL")
+        nest.ResetKernel()
+        nest.SetKernelStatus({"resolution": resolution})
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
+
+        n = nest.Create("integrate_odes_test_spikes_nestml")
+        sgX = nest.Create("spike_generator", params={"spike_times": np.linspace(10, 100, 10)})
+        nest.Connect(sgX, n, syn_spec={"weight": 1., "delay": resolution})
+
+        mm = nest.Create("multimeter", params={"interval": resolution, "record_from": ["x"]})
+        nest.Connect(mm, n)
+
+        n.do_integrate_odes = True
+        nest.Simulate(25)   # integrate two spikes
+        n.do_integrate_odes = False
+        nest.Simulate(20)   # skip two spikes
+        n.do_integrate_odes = True
+        nest.Simulate(20)   # integrate two spikes
+
+        times = mm.get()["events"]["times"]
+        x_actual = mm.get()["events"]["x"]
+
+        if TEST_PLOTS:
+            fig, ax = plt.subplots(nrows=1)
+            ax.plot(times, x_actual, label="x")
+            ax.grid(which="major", axis="both")
+            ax.grid(which="minor", axis="x", linestyle=":", alpha=.4)
+            ax.legend()
+
+            fig.savefig("/tmp/test_integrate_odes_spikes.png", dpi=300)
+
+        # verify
+        np.testing.assert_allclose(x_actual[-1], 4)
+
     def test_integrate_odes_higher_order(self):
         r"""
         Tests for higher-order ODEs of the form F(x'',x',x)=0, integrate_odes(x) integrates the full dynamics of x.
         """
         resolution = 0.1
         simtime = 15.
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
+        NESTTools.set_nest_verbosity("ALL")
         nest.ResetKernel()
         nest.SetKernelStatus({"resolution": resolution})
         try:
@@ -307,11 +340,8 @@ class TestIntegrateODEs:
                        "tau_syn_ex": 40.0, "tau_syn_in": 20.0}
 
         for model in ["aeif_cond_alpha_alt_neuron_nestml", "aeif_cond_alpha"]:
-            if not NESTTools.detect_nest_version().startswith("main"):
-                nest.set_verbosity("M_ALL")
-            else:
-                nest.verbosity = nest.VerbosityLevel.ALL
             nest.ResetKernel()
+            NESTTools.set_nest_verbosity("ALL")
             nest.SetKernelStatus({"resolution": resolution})
             try:
                 nest.Install("nestmlmodule")

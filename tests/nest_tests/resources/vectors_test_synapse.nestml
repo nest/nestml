@@ -34,16 +34,15 @@ model vectors_test_synapse:
 
     parameters:
         buffer_size integer = 10
-        d ms = 1 ms    # Synaptic transmission delay
 
     input:
         pre_spikes <- spike
 
     output:
-        spike(weight real, delay ms)
+        spike
 
     onReceive(pre_spikes):
         i real = t
         index = i
         ca_buffer[index] = 2
-        emit_spike(w, d)
+        emit_spike(w)

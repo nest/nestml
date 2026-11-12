@@ -19,41 +19,48 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Any, Dict, Optional
+
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
+
 from pynestml.cocos.co_co import CoCo
-from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.utils.messages import Messages
 from pynestml.utils.logger import Logger, LoggingLevel
 
 
-class CoCoVCompDefined(CoCo):
+class CoCoVCompExists(CoCo):
     """
     This class represents a constraint condition which ensures that variable v_comp has been
-    defined if we have compartmental model case.
-    When we start code generation with NEST_COMPARTMENTAL flag the following must exist:
+    defined for compartmental neuron models.
+    When this CoCo is enabled for a target, the following must exist:
         state:
             v_comp real = 0
     """
 
     @classmethod
-    def check_co_co(cls, neuron: ASTModel):
+    @override
+    def check_co_co(cls, node: ASTNode, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
         """
-        Checks if this coco applies for the handed over neuron.
-        Models which are supposed to be compartmental but do not contain
-        state variable called v_comp are not correct.
-        :param neuron: a single neuron instance.
+        Checks that the handed over compartmental neuron defines a state variable called v_comp.
+        :param node: a single model instance.
         """
-        from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
+        assert isinstance(node, ASTModel), "This coco can only be called on ASTModels!"
 
-        if not FrontendConfiguration.get_target_platform().upper() == "NEST_COMPARTMENTAL":
-            return
+        from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
 
         enforced_variable_name = NESTCompartmentalCodeGenerator._default_options["compartmental_variable_name"]
 
-        state_blocks = neuron.get_state_blocks()
+        state_blocks = node.get_state_blocks()
         if state_blocks is None:
-            cls.log_error(neuron, neuron.get_source_position(), enforced_variable_name)
+            cls.log_error(node, node.get_source_position(), enforced_variable_name)
             return False
 
         if isinstance(state_blocks, ASTBlockWithVariables):
@@ -68,7 +75,7 @@ class CoCoVCompDefined(CoCo):
                     if variable_name == enforced_variable_name:
                         return True
 
-        cls.log_error(neuron, state_blocks[0].get_source_position(), enforced_variable_name)
+        cls.log_error(node, state_blocks[0].get_source_position(), enforced_variable_name)
         return False
 
     @classmethod

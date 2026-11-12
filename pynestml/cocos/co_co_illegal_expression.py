@@ -19,9 +19,20 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Any, Dict, Optional
+
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
+
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.utils.ast_source_location import ASTSourceLocation
@@ -38,13 +49,15 @@ class CoCoIllegalExpression(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, neuron):
+    @override
+    def check_co_co(cls, node: ASTNode, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
         """
         Ensures the coco for the handed over neuron.
-        :param neuron: a single neuron instance.
-        :type neuron: ASTModel
+        :param node: a single model instance.
         """
-        neuron.accept(CorrectExpressionVisitor())
+        assert isinstance(node, ASTModel), "This coco can only be called on ASTModels!"
+
+        node.accept(CorrectExpressionVisitor())
 
 
 class CorrectExpressionVisitor(ASTVisitor):
@@ -126,7 +139,7 @@ class CorrectExpressionVisitor(ASTVisitor):
                 return
             return
 
-        if node.is_compound_quotient:
+        if node.is_compound_integer_quotient or node.is_compound_quotient:
             if self.__types_do_not_match(lhs_type_symbol, lhs_type_symbol / rhs_type_symbol):
                 TypeCaster.try_to_recover_or_error(lhs_type_symbol, lhs_type_symbol / rhs_type_symbol,
                                                    node.get_expression())

@@ -21,6 +21,7 @@
 
 from typing import Any, Dict, Mapping, Optional
 
+from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.python_expression_printer import PythonExpressionPrinter
 from pynestml.codegeneration.printers.python_stepping_function_function_call_printer import PythonSteppingFunctionFunctionCallPrinter
@@ -33,6 +34,7 @@ from pynestml.codegeneration.printers.python_standalone_printer import PythonSta
 from pynestml.codegeneration.printers.python_function_call_printer import PythonFunctionCallPrinter
 from pynestml.codegeneration.printers.python_variable_printer import PythonVariablePrinter
 from pynestml.codegeneration.printers.python_simple_expression_printer import PythonSimpleExpressionPrinter
+from pynestml.utils.ast_utils import ASTUtils
 
 
 class PythonStandaloneCodeGenerator(NESTCodeGenerator):
@@ -67,7 +69,6 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
         "solver": "analytic",
         "numeric_solver": "rk45",
         "neuron_synapse_pairs": [],
-        "delay_variable": {},
         "weight_variable": {}
     }
 
@@ -79,8 +80,6 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
             if not k in self._options.keys():
                 self.add_options({k: v})
 
-        self.analytic_solver = {}
-        self.numeric_solver = {}
         self.non_equations_state_variables = {}  # those state variables not defined as an ODE in the equations block
 
         self.setup_template_env()
@@ -124,5 +123,8 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
         namespace = super()._get_model_namespace(astnode, metadata)
         namespace["python_codegen_utils"] = PythonCodeGeneratorUtils
         namespace["gsl_printer"] = self._gsl_printer
+        namespace["NESTUnitConverter"] = NESTUnitConverter
+        namespace["ASTUtils"] = ASTUtils
+        namespace["ASTModel"] = ASTModel
 
         return namespace

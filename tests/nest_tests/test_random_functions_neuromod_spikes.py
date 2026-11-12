@@ -50,13 +50,9 @@ class TestRandomFunctionsWithNeuromodSpikes:
                              codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                            "neuron_parent_class_include": "structural_plasticity_node.h",
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                                     "synapse": "random_functions_neuromod_synapse",
-                                                                     "post_ports": ["post_spikes"],
-                                                                     "vt_ports": ["mod_spikes"]}],
-                                           "delay_variable": {
-                                               "random_functions_neuromod_synapse": "d"},
-                                           "weight_variable": {
-                                               "random_functions_neuromod_synapse": "w"},
+                                                                     "synapses": {"random_functions_neuromod_synapse": {"post_ports": ["post_spikes"],
+                                                                                                                        "vt_ports": ["mod_spikes"]}}}],
+                                           "weight_variable": {"random_functions_neuromod_synapse": "w"},
                                            "strictly_synaptic_vars": {"random_functions_neuromod_synapse": ["x", "y"]}})
 
     def test_random_functions_neuromod_synapse(self):
@@ -103,7 +99,7 @@ class TestRandomFunctionsWithNeuromodSpikes:
                 post_spike_times, initial=0.), np.amax(vt_spike_times, initial=0.)) + 5 * delay
 
         nest.ResetKernel()
-        nest.set_verbosity("M_ERROR")
+        NESTTools.set_nest_verbosity("ERROR")
         nest.SetKernelStatus({"resolution": resolution})
         nest.Install("nestmlmodule")
 
@@ -132,7 +128,7 @@ class TestRandomFunctionsWithNeuromodSpikes:
         # set up custom synapse models
         wr = nest.Create("weight_recorder")
         nest.CopyModel(synapse_model_name, "neuromod_stdp_nestml_rec",
-                       {"weight_recorder": wr[0], "w": 1., "d": delay, "receptor_type": 0,
+                       {"weight_recorder": wr[0], "w": 1., "delay": delay, "receptor_type": 0,
                         "volume_transmitter": vt})
 
         # create parrot neurons and connect spike_generators

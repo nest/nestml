@@ -583,6 +583,7 @@ def setup_template_env():
     template_file = "sbatch_run.sh.jinja2"
     template_dir = os.path.realpath(os.path.join(os.path.dirname(__file__)))
     env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
+    env.globals.update(zip=zip)    # make zip() available in templates
     template = env.get_template(template_file)
     return template
 

@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+import inspect
 import sympy
 from sympy.printing.str import StrPrinter
 
@@ -41,8 +42,7 @@ class ODEToolboxUtils:
         sympy_expr = sympy.parsing.sympy_parser.parse_expr(s, global_dict=_sympy_globals_no_functions)
 
         class MySympyPrinter(StrPrinter):
-            """Resulting expressions will be parsed by NESTML parser. R
-            """
+            """Resulting expressions will be parsed by NESTML parser."""
             def _print_Function(self, expr):
                 if expr.func.__name__ == "Piecewise":
                     assert len(expr.args) == 2, "Can only handle two-part piecewise conditional function"

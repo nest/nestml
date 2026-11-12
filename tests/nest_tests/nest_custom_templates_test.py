@@ -58,20 +58,19 @@ class NestCustomTemplatesTest(unittest.TestCase):
                                       "model_templates": {"neuron": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"],
                                                           "synapse": ["@SYNAPSE_NAME@.h.jinja2"]},
                                       "module_templates": ["setup/CMakeLists.txt.jinja2",
-                                                           "setup/@MODULE_NAME@.h.jinja2", "setup/@MODULE_NAME@.cpp.jinja2"]}}
+                                                           "setup/@MODULE_NAME@.h.jinja2",
+                                                           "setup/@MODULE_NAME@.cpp.jinja2",
+                                                           "setup/vector_ring_buffer.h.jinja2",
+                                                           "setup/vector_ring_buffer.cpp.jinja2"]}}
 
         generate_target(input_path, target_platform, target_path,
                         logging_level=logging_level,
                         module_name=module_name,
                         suffix=suffix,
                         codegen_opts=codegen_opts)
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
-
         nest.ResetKernel()
         nest.Install("nestmlmodule")
+        NESTTools.set_nest_verbosity("ALL")
 
         nrn = nest.Create("iaf_psc_exp_neuron_nestml")
         mm = nest.Create("multimeter")
@@ -115,9 +114,7 @@ class NestCustomTemplatesTest(unittest.TestCase):
             "neuron_parent_class": "StructuralPlasticityNode",
             "neuron_parent_class_include": "structural_plasticity_node.h",
             "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_neuron",
-                                      "synapse": "stdp_triplet_synapse",
-                                      "post_ports": ["post_spikes"]}],
-            "delay_variable": {"stdp_triplet_synapse": "d"},
+                                      "synapses": {"stdp_triplet_synapse": {"post_ports": ["post_spikes"]}}}],
             "weight_variable": {"stdp_triplet_synapse": "w"},
             "templates": {
                 "path": "resources_nest/point_neuron",
@@ -135,7 +132,4 @@ class NestCustomTemplatesTest(unittest.TestCase):
                         module_name=module_name,
                         suffix=suffix,
                         codegen_opts=codegen_opts)
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
+        NESTTools.set_nest_verbosity("ALL")

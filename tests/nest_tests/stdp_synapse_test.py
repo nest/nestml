@@ -58,10 +58,9 @@ class TestNestSTDPSynapse:
         """Generate the model code"""
 
         jit_codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-                                                      "synapse": "stdp_synapse",
-                                                      "post_ports": ["post_spikes"]}],
-                            "delay_variable": {"stdp_synapse": "d"},
+                                                      "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}}],
                             "weight_variable": {"stdp_synapse": "w"}}
+
         if not NESTTools.detect_nest_version().startswith("v2"):
             jit_codegen_opts["neuron_parent_class"] = "StructuralPlasticityNode"
             jit_codegen_opts["neuron_parent_class_include"] = "structural_plasticity_node.h"
@@ -72,8 +71,8 @@ class TestNestSTDPSynapse:
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,
-                             target_path="nestml-stdp-synapse-test-jit",
-                             logging_level="INFO",
+                             target_path="test_stdp_synapse_target_structuralplasticitynode",
+                             logging_level="DEBUG",
                              module_name="nestml_jit_module",
                              suffix="_nestml",
                              codegen_opts=jit_codegen_opts)
@@ -88,8 +87,8 @@ class TestNestSTDPSynapse:
         # generate the "non-jit" model, that relies on ArchivingNode
         generate_nest_target(input_path=os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                       os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))),
-                             target_path="nestml-stdp-synapse-test-non-jit",
-                             logging_level="INFO",
+                             target_path="test_stdp_synapse_target_archivingnode",
+                             logging_level="DEBUG",
                              module_name="nestml_non_jit_module",
                              suffix="_nestml_non_jit",
                              codegen_opts=non_jit_codegen_opts)
@@ -146,10 +145,7 @@ class TestNestSTDPSynapse:
         if sim_time is None:
             sim_time = max(np.amax(pre_spike_times), np.amax(post_spike_times)) + 5 * delay
 
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ALL")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ALL
+        NESTTools.set_nest_verbosity("ALL")
         nest.ResetKernel()
 
         # load the generated modules into NEST
@@ -168,17 +164,14 @@ class TestNestSTDPSynapse:
         print("Pre spike times: " + str(pre_spike_times))
         print("Post spike times: " + str(post_spike_times))
 
-        if not NESTTools.detect_nest_version().startswith("main"):
-            nest.set_verbosity("M_ERROR")
-        else:
-            nest.verbosity = nest.VerbosityLevel.ERROR
+        NESTTools.set_nest_verbosity("ERROR")
 
         nest.SetKernelStatus({"resolution": resolution})
 
         wr = nest.Create("weight_recorder")
         wr_ref = nest.Create("weight_recorder")
         nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
-                       {"weight_recorder": wr[0], "w": 1., "d": 1., "receptor_type": 0})
+                       {"weight_recorder": wr[0], "w": 1., "delay": 1., "receptor_type": 0})
         nest.CopyModel(ref_synapse_model_name, "stdp_ref_rec",
                        {"weight_recorder": wr_ref[0], "weight": 1., "delay": 1., "receptor_type": 0})
 
@@ -313,9 +306,11 @@ class TestNestSTDPSynapse:
             if sim_mdl:
                 post_spike_times_ = nest.GetStatus(spikedet_post, "events")[0]["times"]
                 print("Actual post spike times: " + str(post_spike_times_))
+                assert len(post_spike_times_) > 0, "Postsynaptic neuron didn't spike!"
             if sim_ref:
                 post_ref_spike_times_ = nest.GetStatus(spikedet_post_ref, "events")[0]["times"]
                 print("Actual post ref spike times: " + str(post_ref_spike_times_))
+                assert len(post_spike_times_) > 0, "Postsynaptic neuron didn't spike!"
 
             if sim_ref:
                 n_spikes = len(pre_ref_spike_times_)

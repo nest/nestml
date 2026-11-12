@@ -72,24 +72,31 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "{{ neuronName }}.h"
 
 
-{%- if state_vars_that_need_continuous_buffering | length > 0 %}
-{%-     if continuous_state_buffering_method == "continuous_time_buffer" %}
-continuous_variable_histentry_{{ neuronName }}::continuous_variable_histentry_{{ neuronName }}( double t,
-{%-         for state_var in state_vars_that_need_continuous_buffering %}
-      double {{ state_var }}{% if not loop.last %}, {% endif %}
-{%-         endfor %} )
-: t_( t )
+{%- if neuron_state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
+
+continuous_variable_histentry_{{ neuronName }}::continuous_variable_histentry_{{ neuronName }}()
+: t_( 0 )
 , access_counter_ ( 0 )
-{%-         for state_var in state_vars_that_need_continuous_buffering %}
-, {{ state_var }}( {{ state_var }} )
-{%-         endfor %}
+{%-     for var_name in neuron_state_vars_that_need_continuous_buffering | sort %}
+, {{ var_name }}( 0 )
+{%-     endfor %}
 {
 }
-{%-     endif %}
+
+continuous_variable_histentry_{{ neuronName }}::continuous_variable_histentry_{{ neuronName }}( double t,
+{%-     for var_name in neuron_state_vars_that_need_continuous_buffering | sort %}
+      double {{ var_name }}{% if not loop.last %}, {% endif %}
+{%-     endfor %} )
+: t_( t )
+, access_counter_ ( 0 )
+{%-     for var_name in neuron_state_vars_that_need_continuous_buffering | sort %}
+, {{ var_name }}( {{ var_name }} )
+{%-     endfor %}
+{
+}
 {%- endif %}
 
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
-        or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] >= 3 and nest_version_dict["minor"] > 6) or nest_version_dict["major"] > 3) %}
 void
 register_{{ neuronName }}( const std::string& name )
 {
@@ -105,65 +112,58 @@ nest::RecordablesMap<{{ neuronName }}> {{ neuronName }}::recordablesMap_;
 {%- endif %}
 namespace nest
 {
-
-  // Override the create() method with one call to RecordablesMap::insert_()
-  // for each quantity to be recorded.
+  // Override the create() method with one call to RecordablesMap::insert_() for each quantity to be recorded.
 {%- if has_state_vectors %}
-template <> void DynamicRecordablesMap<{{ neuronName }}>::create({{ neuronName }}& host)
+  template <> void DynamicRecordablesMap<{{ neuronName }}>::create({{ neuronName }}& host)
 {%- else %}
-template <> void RecordablesMap<{{ neuronName }}>::create()
+  template <> void RecordablesMap<{{ neuronName }}>::create()
 {%- endif %}
   {
 
-{%- if recordable_state_variables|length > 0 %}
-{%- if has_state_vectors %}
-{%-   for variable in recordable_state_variables %}
-{%-     if not variable.has_vector_parameter() %}
-    insert("{{variable.get_complete_name()}}", host.get_data_access_functor( {{ neuronName }}::State_::{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable.get_complete_name())).upper() }} ));
-{%-     endif %}
-{%-   endfor %}
-{%- else %}
+{%- if recordable_state_variables | length > 0 %}
     // add state variables to recordables map
-{%-   for variable in recordable_state_variables %}
-   insert_({{names_namespace}}::_{{ variable.get_complete_name() }}, &{{ neuronName }}::get_{{ printer_no_origin.print(variable) }});
-{%-   endfor %}
-{%- endif %}
-{%- endif %}
-
-{%- if recordable_inline_expressions|length > 0 %}
-    // add recordable inline expressions to recordables map
-{%- for variable_symbol in recordable_inline_expressions %}
-{%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-	insert_({{ names_namespace }}::_{{ variable_symbol.get_symbol_name() }}, &{{ neuronName }}::{{ printer_no_origin.print(variable)[:-2] }});
-{%- endfor %}
-{%- endif %}
-
-    // Add vector variables
-{%- filter indent(2,True) %}
-{%- if has_state_vectors %}
-    host.insert_recordables();
-{%- endif %}
-{%- endfilter %}
-  }
-}
-
-{%- if neuron.get_spike_input_ports()|length > 1 or neuron.is_multisynapse_spikes() %}
-std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_idx =
-{
-{%-   for key, ports in utils.get_spike_input_ports_in_pairs(neuron).items() %}
-{%-   set ns = namespace(rport=key) %}
-{%-     if ports[0].has_vector_parameter() %}
-{%-     set size = utils.get_numeric_vector_size(ports[0]) %}
-{%-         for i in range(size) %}
-  {{ rport_to_port_map_entry.RportToBufferIndexEntry(ports, ns.rport, index=i) }}
-{%-         set ns.rport = ns.rport + 1 %}
+{%-     if has_state_vectors %}
+{%-         for variable in recordable_state_variables %}
+{%-             set variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
+{%-             if not variable.has_vector_parameter() and not isinstance(variable_symbol.get_type_symbol(), IntegerTypeSymbol) %}
+    insert("{{variable.get_complete_name()}}", host.get_data_access_functor( {{ neuronName }}::State_::{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable.get_complete_name())).upper() }} ));
+{%-             endif %}
 {%-         endfor %}
 {%-     else %}
-  {{ rport_to_port_map_entry.RportToBufferIndexEntry(ports, ns.rport) }}
+{%-         for variable in recordable_state_variables %}
+
+
+{%-     set variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
+
+{%-    if isinstance(variable_symbol.get_type_symbol(), IntegerTypeSymbol) %}
+    insert_({{names_namespace}}::_{{ variable.get_complete_name() }}, &{{ neuronName }}::integer_get_{{ printer_no_origin.print(variable) }});
+{%- else %}
+    insert_({{names_namespace}}::_{{ variable.get_complete_name() }}, &{{ neuronName }}::get_{{ printer_no_origin.print(variable) }});
 {%-     endif %}
-{%-   endfor %}
-};
+
+{%-         endfor %}
+{%-     endif %}
 {%- endif %}
+
+{%- if recordable_inline_expressions | length > 0 %}
+    // add recordable inline expressions to recordables map
+{%-     for variable_symbol in recordable_inline_expressions %}
+{%-         set variable_name = utils.get_inline_expression_by_name(astnode, variable_symbol.get_symbol_name()).get_variable_name() %}
+{%-         set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-         if has_state_vectors %}
+    insert("{{ variable.get_complete_name() }}", host.get_recordable_inline_data_access_functor( static_cast< double ({{ neuronName }}::*)() const >(&{{ neuronName }}::{{ printer_no_origin.print(variable)[:-2] }}) ));    // static cast to pick the no-argument variant of the method in case it is overloaded due to also needing continuous-time buffering
+{%-         else %}
+    insert_({{ names_namespace }}::_{{ variable_symbol.get_symbol_name() }}, &{{ neuronName }}::{{ printer_no_origin.print(variable)[:-2] }});
+{%-         endif %}
+{%-     endfor %}
+{%- endif %}
+
+{%- if has_state_vectors %}
+    // add vector variables
+    host.insert_recordables();
+{%- endif %}
+  }
+}
 
 {%- if has_state_vectors %}
   std::string {{ neuronName }}::get_var_name(size_t elem, std::string var_name)
@@ -190,6 +190,13 @@ std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_i
   {
     return nest::DataAccessFunctor< {{ neuronName }} >( *this, elem );
   }
+
+  nest::DataAccessFunctorForInlineExpressions_{{ neuronName }}< {{ neuronName }} >
+  {{ neuronName }}::get_recordable_inline_data_access_functor( std::function< void({{ neuronName }}&) > fp )
+  {
+    return nest::DataAccessFunctorForInlineExpressions_{{ neuronName }}< {{ neuronName }} >( *this, fp );
+  }
+
 {%- endif %}
 
 // ---------------------------------------------------------------------------
@@ -212,12 +219,41 @@ std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_i
 
 {{ neuronName }}::Buffers_::Buffers_({{ neuronName }} &n):
   logger_(n)
-{%- if neuron.get_spike_input_ports()|length > 0 %}
-  , spike_inputs_( std::vector< nest::RingBuffer >( NUM_SPIKE_RECEPTORS ) )
-  , spike_inputs_grid_sum_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
-  , spike_input_received_( std::vector< nest::RingBuffer >( NUM_SPIKE_RECEPTORS ) )
-  , spike_input_received_grid_sum_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
-{%- endif %}
+{%- for inputPortSymbol in neuron.get_spike_input_ports() %}
+{%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name) %}
+{%-     if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
+{#-         linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
+{%-         if inputPortSymbol.has_vector_parameter() %}
+{%-             set size = utils.get_numeric_vector_size(inputPortSymbol) %}
+{%-             for i in range(size)  %}
+  , spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_( nest::RingBuffer() )
+  , spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_grid_sum_( 0. )
+{%-             endfor %}
+{%-         else %}
+  , spike_input_{{ inputPort.name }}_( nest::RingBuffer() )
+  , spike_input_{{ inputPort.name }}_grid_sum_( 0. )
+{%-         endif %}
+{%-     else %}
+{#-         generic input port: use lists of spike events for each buffer slot #}
+{%-         if inputPortSymbol.has_vector_parameter() %}
+{%-             set size = utils.get_numeric_vector_size(inputPortSymbol) %}
+{%-             for i in range(size)  %}
+  , spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_( nest::VectorRingBuffer() )
+{%-             endfor %}
+{%-         else %}
+  , spike_input_{{ inputPort.name }}_( nest::VectorRingBuffer() )
+{%-         endif %}
+{%-     endif %}
+
+{%-     if inputPortSymbol.has_vector_parameter() %}
+{%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
+{%-         for i in range(size)  %}
+  , spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_n_spikes_received_( nest::RingBuffer() )
+{%-         endfor %}
+{%-     else %}
+  , spike_input_{{ inputPort.name }}_n_spikes_received_( nest::RingBuffer() )
+{%-     endif %}
+{%- endfor %}
 {%- if has_continuous_input %}
   , continuous_inputs_( std::vector< nest::RingBuffer >( NUM_CONTINUOUS_INPUT_PORTS ) )
   , continuous_inputs_grid_sum_( std::vector< double >( NUM_CONTINUOUS_INPUT_PORTS ) )
@@ -233,11 +269,25 @@ std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_i
 
 {{ neuronName }}::Buffers_::Buffers_(const Buffers_ &, {{ neuronName }} &n):
   logger_(n)
-{%- if neuron.get_spike_input_ports()|length > 0 %}
-  , spike_inputs_( std::vector< nest::RingBuffer >( NUM_SPIKE_RECEPTORS ) )
-  , spike_inputs_grid_sum_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
-  , spike_input_received_( std::vector< nest::RingBuffer >( NUM_SPIKE_RECEPTORS ) )
-  , spike_input_received_grid_sum_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
+{%- if neuron.get_spike_input_ports() | length > 0 %}
+{%-     for inputPortSymbol in neuron.get_spike_input_ports() %}
+{%-         set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name) %}
+{%-         if inputPortSymbol.has_vector_parameter() %}
+{%-             set size = utils.get_numeric_vector_size(inputPortSymbol) %}
+{%-             for i in range(size)  %}
+{%-             endfor %}
+{%-         else %}
+{%-             if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
+{#-                 linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
+  , spike_input_{{ inputPort.name }}_( nest::RingBuffer() )
+  , spike_input_{{ inputPort.name }}_grid_sum_( 0. )
+{%-             else %}
+{#-                 generic input port: use lists of spike events for each buffer slot #}
+  , spike_input_{{ inputPort.name }}_( nest::VectorRingBuffer() )
+{%-             endif %}
+  , spike_input_{{ inputPort.name }}_n_spikes_received_( nest::RingBuffer() )
+{%-         endif %}
+{%-     endfor %}
 {%- endif %}
 {%- if has_continuous_input %}
   , continuous_inputs_( std::vector< nest::RingBuffer >( NUM_CONTINUOUS_INPUT_PORTS ) )
@@ -266,10 +316,10 @@ std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_i
   recordablesMap_.create();
 {%- endif %}
 
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  calibrate();
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
   pre_run_hook();
+{%- else %}
+  calibrate();
 {%- endif %}
 }
 
@@ -303,20 +353,22 @@ std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_i
 {%- if has_state_vectors %}
   recordablesMap_.create(*this);
 {%- endif %}
-{%- if paired_synapse is defined %}
+{%- if paired_synapses is defined %}
   n_incoming_ = __n.n_incoming_;
   max_delay_ = __n.max_delay_;
   last_spike_ = __n.last_spike_;
 
   // cache initial values
-{%- for var_name in syn_to_neuron_state_vars %}
-{%-     set var = utils.get_variable_by_name(astnode, var_name) %}
-{%-     set variable_symbol = syn_to_neuron_state_vars_syms[var_name] %}
-{%-     if not var_name == variable_symbol.get_symbol_name() %}
-{{          raise('Error in resolving variable to symbol') }}
-{%-     endif %}
+{%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
+{%-         for var_name in transferred_variables[paired_synapse_original_model.name] %}
+{%-             set var = utils.get_variable_by_name(astnode, var_name) %}
+{%-             set variable_symbol = transferred_variables_syms[var_name] %}
+{%-             if not var_name == variable_symbol.get_symbol_name() %}
+{{                  raise('Error in resolving variable to symbol') }}
+{%-             endif %}
   {{ var_name }}__iv = {{ printer.print(var) }};
-{%- endfor %}
+{%-         endfor %}
+{%-     endfor %}
 {%- endif %}
 }
 
@@ -352,7 +404,7 @@ std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_i
 //   Node initialization functions
 // ---------------------------------------------------------------------------
 
-{%- if nest_version.startswith("v2") %}
+{%- if nest_version_dict and nest_version_dict["major"] == 2 %}
 void {{ neuronName }}::init_state_(const Node& proto)
 {
   const {{ neuronName }}& pr = downcast<{{ neuronName }}>(proto);
@@ -360,7 +412,7 @@ void {{ neuronName }}::init_state_(const Node& proto)
 }
 {%- endif %}
 
-{%- if not nest_version.startswith("v2") %}
+{%- if nest_version.startswith("main") or nest_version_dict and nest_version_dict["major"] >= 3 %}
 void {{ neuronName }}::calibrate_time( const nest::TimeConverter& tc )
 {
 {%- if (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
@@ -412,21 +464,23 @@ void {{ neuronName }}::init_state_internal_()
 {%- endfilter %}
 {%- endif %}
 
-{%- if paired_synapse is defined %}
+{%- if paired_synapses is defined %}
   // state variables for archiving state for paired synapse
   n_incoming_ = 0;
   max_delay_ = 0;
   last_spike_ = -1.;
 
   // cache initial values
-{%- for var_name in syn_to_neuron_state_vars %}
-{%-     set var = utils.get_variable_by_name(astnode, var_name) %}
-{%-     set variable_symbol = syn_to_neuron_state_vars_syms[var_name] %}
-{%-     if not var_name == variable_symbol.get_symbol_name() %}
-{{ raise('Error in resolving variable to symbol') }}
-{%-     endif %}
+{%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
+{%-         for var_name in transferred_variables[paired_synapse_original_model.name] %}
+{%-             set var = utils.get_variable_by_name(astnode, var_name) %}
+{%-             set variable_symbol = transferred_variables_syms[var_name] %}
+{%-             if not var_name == variable_symbol.get_symbol_name() %}
+{{                  raise('Error in resolving variable to symbol') }}
+{%-             endif %}
   {{var_name}}__iv = {{printer.print(var)}};
-{%- endfor %}
+{%-         endfor %}
+{%-     endfor %}
 {%- endif %}
 }
 
@@ -449,11 +503,22 @@ void {{ neuronName }}::init_buffers_()
 {%- endif %}
 
 {%- if neuron.get_spike_input_ports() | length > 0 %}
-  // spike input buffers
-  get_spike_inputs_().clear();
-  get_spike_inputs_grid_sum_().clear();
-  get_spike_input_received_().clear();
-  get_spike_input_received_grid_sum_().clear();
+  // spike input buffers -- note that .clear() includes a resize
+
+{%- for inputPortSymbol in neuron.get_spike_input_ports() %}
+{%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name) %}
+{%-     if inputPortSymbol.has_vector_parameter() %}
+{%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
+{%-         for i in range(size)  %}
+  B_.spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_.clear();
+  B_.spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_n_spikes_received_.clear();
+{%-         endfor %}
+{%-     else %}
+  B_.spike_input_{{ inputPort.name }}_.clear();
+  B_.spike_input_{{ inputPort.name }}_n_spikes_received_.clear();
+{%-     endif %}
+{%- endfor %}
+
 {%- endif %}
 {%- if has_continuous_input %}
   get_continuous_inputs_().clear();
@@ -561,10 +626,10 @@ void {{ neuronName }}::recompute_internal_variables(bool exclude_timestep)
   }
 }
 
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-void {{ neuronName }}::calibrate()
-{%- else %}
+{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 3) or nest_version_dict["major"] > 3) %}
 void {{ neuronName }}::pre_run_hook()
+{%- else %}
+void {{ neuronName }}::calibrate()
 {%- endif %}
 {
 #ifdef DEBUG
@@ -576,14 +641,6 @@ void {{ neuronName }}::pre_run_hook()
   // parameters might have changed -- recompute internals
   V_.__h = nest::Time::get_resolution().get_ms();
   recompute_internal_variables();
-
-  // buffers B_
-{%- if ((neuron.get_spike_input_ports())|length > 0) %}
-  B_.spike_inputs_.resize(NUM_SPIKE_RECEPTORS);
-  B_.spike_inputs_grid_sum_.resize(NUM_SPIKE_RECEPTORS);
-  B_.spike_input_received_.resize(NUM_SPIKE_RECEPTORS);
-  B_.spike_input_received_grid_sum_.resize(NUM_SPIKE_RECEPTORS);
-{%-   endif %}
 {%- if has_continuous_input %}
   B_.continuous_inputs_.resize(NUM_CONTINUOUS_INPUT_PORTS);
   B_.continuous_inputs_grid_sum_.resize(NUM_CONTINUOUS_INPUT_PORTS);
@@ -610,19 +667,21 @@ void {{ neuronName }}::pre_run_hook()
 // ---------------------------------------------------------------------------
 //   Update and spike handling functions
 // ---------------------------------------------------------------------------
-
 {%  if uses_numeric_solver %}
 {%-     for ast in utils.get_all_integrate_odes_calls_unique(neuron) %}
 {%-         include "directives_cpp/GSLDifferentiationFunction.jinja2" %}
 {%-     endfor %}
 
-{%-     if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
+{%      if paired_synapses is defined %}
+{%-         for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
+{%-             if (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
 {#          for neuron-synapse co-generation: separate integrator for the emulated integrate_odes() calls below in this template #}
-{%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
-{%-         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
-{%-         include "directives_cpp/GSLDifferentiationFunction.jinja2" %}
+{%-                set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%-                set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-                include "directives_cpp/GSLDifferentiationFunction.jinja2" %}
+{%-             endif %}
+{%-         endfor %}
 {%-     endif %}
-
 {%- endif %}
 
 {%- if has_delay_variables %}
@@ -631,23 +690,22 @@ void {{ neuronName }}::update_delay_variables()
 #ifdef DEBUG
   std::cout << "[neuron " << this << "] {{ neuronName }}::update_delay_variables()" << std::endl;
 #endif
-{%-   for variable_symbol in neuron.get_state_symbols() %}
-{%-       if variable_symbol.has_delay_parameter() %}
-{%-           set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-           include "directives_cpp/UpdateDelayVariables.jinja2" %}
-{%-       endif %}
-{%-   endfor %}
+{%-     for variable_symbol in neuron.get_state_symbols() %}
+{%-         if variable_symbol.has_delay_parameter() %}
+{%-             set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-             include "directives_cpp/UpdateDelayVariables.jinja2" %}
+{%-         endif %}
+{%-     endfor %}
 }
 
-{%-   for variable in neuron.get_state_symbols() %}
-{%-     if variable.has_delay_parameter() %}
+{%-     for variable in neuron.get_state_symbols() %}
+{%-         if variable.has_delay_parameter() %}
 double {{ neuronName }}::get_delayed_{{variable.get_symbol_name()}}() const
 {
     return DV_.delayed_{{variable.get_symbol_name()}}[ DV_.delayed_{{variable.get_symbol_name()}}_idx ];
 }
-{%-     endif %}
-{%-   endfor %}
-
+{%-         endif %}
+{%-     endfor %}
 {%- endif %}
 
 {%- if use_gap_junctions %}
@@ -675,9 +733,9 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
   for ( long lag = from ; lag < to ; ++lag )
   {
 {% if propagators_are_state_dependent %}
-  // the propagators are state dependent; update them!
-  V_.__h = nest::Time::get_resolution().get_ms();
-  recompute_internal_variables();
+    // the propagators are state dependent; update them!
+    V_.__h = nest::Time::get_resolution().get_ms();
+    recompute_internal_variables();
 
 {% endif %}
 
@@ -693,32 +751,32 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 
 {%- if not gap_junction_membrane_potential_variable_is_numeric %}
 {#      in case V_m is solved analytically, need to compute __I_gap here so dV_m/dt can be computed below #}
-  // set I_gap depending on interpolation order
-  double __I_gap = 0.0;
+    // set I_gap depending on interpolation order
+    double __I_gap = 0.0;
 
-  const double __t_gap = gap_junction_step / nest::Time::get_resolution().get_ms();
+    const double __t_gap = gap_junction_step / nest::Time::get_resolution().get_ms();
 
-  switch ( nest::kernel().simulation_manager.get_wfr_interpolation_order() )
-  {
-  case 0:
-    __I_gap = -B_.sumj_g_ij_ * {{ gap_junction_membrane_potential_variable_cpp }} + B_.interpolation_coefficients[ B_.lag_ ];
-    break;
+    switch ( nest::kernel().simulation_manager.get_wfr_interpolation_order() )
+    {
+    case 0:
+      __I_gap = -B_.sumj_g_ij_ * {{ gap_junction_membrane_potential_variable_cpp }} + B_.interpolation_coefficients[ B_.lag_ ];
+      break;
 
-  case 1:
-    __I_gap = -B_.sumj_g_ij_ * {{ gap_junction_membrane_potential_variable_cpp }} + B_.interpolation_coefficients[ B_.lag_ * 2 + 0 ]
-      + B_.interpolation_coefficients[ B_.lag_ * 2 + 1 ] * __t_gap;
-    break;
+    case 1:
+      __I_gap = -B_.sumj_g_ij_ * {{ gap_junction_membrane_potential_variable_cpp }} + B_.interpolation_coefficients[ B_.lag_ * 2 + 0 ]
+        + B_.interpolation_coefficients[ B_.lag_ * 2 + 1 ] * __t_gap;
+      break;
 
-  case 3:
-    __I_gap = -B_.sumj_g_ij_ * {{ gap_junction_membrane_potential_variable_cpp }} + B_.interpolation_coefficients[ B_.lag_ * 4 + 0 ]
-      + B_.interpolation_coefficients[ B_.lag_ * 4 + 1 ] * __t_gap
-      + B_.interpolation_coefficients[ B_.lag_ * 4 + 2 ] * __t_gap * __t_gap
-      + B_.interpolation_coefficients[ B_.lag_ * 4 + 3 ] * __t_gap * __t_gap * __t_gap;
-    break;
+    case 3:
+      __I_gap = -B_.sumj_g_ij_ * {{ gap_junction_membrane_potential_variable_cpp }} + B_.interpolation_coefficients[ B_.lag_ * 4 + 0 ]
+        + B_.interpolation_coefficients[ B_.lag_ * 4 + 1 ] * __t_gap
+        + B_.interpolation_coefficients[ B_.lag_ * 4 + 2 ] * __t_gap * __t_gap
+        + B_.interpolation_coefficients[ B_.lag_ * 4 + 3 ] * __t_gap * __t_gap * __t_gap;
+      break;
 
-  default:
-    throw nest::BadProperty( "Interpolation order must be 0, 1, or 3." );
-  }
+    default:
+      throw nest::BadProperty( "Interpolation order must be 0, 1, or 3." );
+    }
 {%- endif %}
 
     if ( called_from_wfr_update )
@@ -749,14 +807,39 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 
 {%- endif %}
     /**
-     * buffer spikes from spiking input ports
+     * buffer spikes from spiking input ports -- in case of convolutions with spiking input ports
     **/
 
-    for (long i = 0; i < NUM_SPIKE_RECEPTORS; ++i)
-    {
-      get_spike_inputs_grid_sum_()[i] = get_spike_inputs_()[i].get_value(lag);
-      get_spike_input_received_grid_sum_()[i] = get_spike_input_received_()[i].get_value(lag);
-    }
+{%- for inputPortSymbol in neuron.get_spike_input_ports() %}
+{%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name) %}
+{%-     if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
+{#-         linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
+{%-         if inputPortSymbol.has_vector_parameter() %}
+{#-             vector input port #}
+{%-             set size = utils.get_numeric_vector_size(inputPortSymbol) %}
+{%-             for i in range(size)  %}
+    B_.spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_grid_sum_ = B_.spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_.get_value(lag);
+    const double __spike_input_{{ inputPort.name }} = B_.spike_input__VEC_IDX__{{ i }}_{{ inputPort.name }}__VEC_IDX__{{ i }}_grid_sum_;
+{%-             endfor %}
+{%-         else %}
+{#-             non-vector input port #}
+    B_.spike_input_{{ inputPort.name }}_grid_sum_ = B_.spike_input_{{ inputPort.name }}_.get_value(lag);
+    const double __spike_input_{{ inputPort.name }} = B_.spike_input_{{ inputPort.name }}_grid_sum_;
+{%-         endif %}
+{%-     else %}
+{#-         generic input port: use lists of spike events for each buffer slot #}
+{%-         if inputPortSymbol.has_vector_parameter() %}
+{#-             vector input port #}
+{%-             set size = utils.get_numeric_vector_size(inputPortSymbol) %}
+{%-             for i in range(size)  %}
+    const double __spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }} = std::accumulate(B_.spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_.get_list(lag).begin(), B_.spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_.get_list(lag).end(), 0.0);
+{%-             endfor %}
+{%-         else %}
+{#-             non-vector input port #}
+    const double __spike_input_{{ inputPort.name }} = std::accumulate(B_.spike_input_{{ inputPort.name }}_.get_list(lag).begin(), B_.spike_input_{{ inputPort.name }}_.get_list(lag).end(), 0.0);
+{%-         endif %}
+{%-      endif %}
+{%- endfor %}
 
 {%- if has_delay_variables %}
     /**
@@ -791,7 +874,7 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
      * Begin NESTML generated code for the update block(s)
     **/
 {%  if neuron.get_update_blocks() %}
-{%-     filter indent(2) %}
+{%-     filter indent(4) %}
 {%-         for block in neuron.get_update_blocks() %}
 {%-             set ast = block.get_stmts_body() %}
 {%-             if ast.print_comment('*')|length > 1 %}
@@ -808,11 +891,14 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
      * Begin NESTML generated code for the onReceive block(s)
     **/
 {%  for blk in neuron.get_on_receive_blocks() %}
-{%-     set inport = blk.get_port_name() %}
-    if (B_.spike_input_received_grid_sum_[{{ inport.upper() }} - MIN_SPIKE_RECEPTOR])
+{%-     set inport = utils.port_name_printer(blk.get_input_port_variable()) %}
     {
-      // B_.spike_input_received_[{{ inport.upper() }} - MIN_SPIKE_RECEPTOR] = false;  // no need to reset the flag -- reading from the RingBuffer into the "grid_sum" variables resets the RingBuffer entries
-      on_receive_block_{{ blk.get_port_name() }}(origin, lag);
+      const size_t n_spikes_received = B_.spike_input_{{ inport }}_n_spikes_received_.get_value(lag);
+      if (n_spikes_received)
+      {
+        // B_.spike_input_{{ inport }} = false;  // no need to reset the flag -- reading from the RingBuffer resets the RingBuffer entries
+        on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}(origin, lag, n_spikes_received);
+      }
     }
 {%- endfor %}
 
@@ -832,30 +918,39 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%-     endfor %}
 {%- endif %}
 
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_buffers_to_zero(False) }}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_cpp_variable_suffix(" ") }}  {# prevent printing origin #}
+{%- for spike_updates_for_port in spike_updates.values() %}
+{%-     for ast in spike_updates_for_port -%}
+{%-         if "__X__" in ast.get_variable().get_name() %}    {#- convolutions only #}
+{%-             include "directives_cpp/Assignment.jinja2" %}
+{%-         endif %}
+{%-     endfor %}
+{%- endfor %}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_cpp_variable_suffix("") }}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_buffers_to_zero(True) }}
 
-{%- if purely_numeric_state_variables_moved %}
+
+{%  if paired_synapses is defined %}
+{%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
+{%-         if uses_numeric_solver and purely_numeric_state_variables_moved %}
   /**
    * numeric state variables moved from synapse to neuron should always be integrated, regardless of calls to integrate_odes() in the neuron
   **/
 
   // restore the original values
-{%-     for variable_name in purely_numeric_state_variables_moved %}
-{%-         set var_ast = utils.get_variable_by_name(astnode, variable_name)%}
+{%-             for variable_name in purely_numeric_state_variables_moved %}
+{%-                 set var_ast = utils.get_variable_by_name(astnode, variable_name)%}
 {{ printer.print(var_ast) }} = {{ variable_name }}__tmp;
+{%-             endfor %}
+
+{#              emulate a call to ``integrate_odes(purely_numeric_state_variables_moved)`` #}
+{%-             set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved) %}
+{%-             set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-             include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%-         endif %}
 {%-     endfor %}
-
-{#          emulate a call to ``integrate_odes(purely_numeric_state_variables_moved)`` #}
-{%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved) %}
-{%-         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
-{%-         include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
 {%- endif %}
-
-    /**
-     * spike updates due to convolutions
-    **/
-{%  filter indent(4) %}
-{%-     include "directives_cpp/ApplySpikesFromBuffers.jinja2" %}
-{%- endfilter %}
 
     /**
      * Begin NESTML generated code for the onCondition block(s)
@@ -902,6 +997,29 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     }
 {%-     endif %}
 {%- endif %}
+
+    /**
+     * clear spike buffers at end of timestep (all spikes have been processed at this point)
+    **/
+
+{%- if neuron.get_spike_input_ports() | length > 0 %}
+{%-     for inputPortSymbol in neuron.get_spike_input_ports() %}
+{%-         set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name) %}
+{%-         if inputPortSymbol.name not in linear_time_invariant_spiking_input_ports %}
+{%-             if inputPortSymbol.has_vector_parameter() %}
+{%-                 set size = utils.get_numeric_vector_size(inputPortSymbol) %}
+{%-                 for i in range(size)  %}
+    std::vector< double >& __spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_list = B_.spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_.get_list(lag);
+    __spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_list.clear();
+{%-                 endfor %}
+{%-             else %}
+    std::vector< double >& __spike_input_{{ inputPort.name }}_list = B_.spike_input_{{ inputPort.name }}_.get_list(lag);
+    __spike_input_{{ inputPort.name }}_list.clear();
+{%-             endif %}
+{%-         endif %}
+{%-     endfor %}
+{%- endif %}
+
 
 {%- if use_gap_junctions %}
     if ( called_from_wfr_update )
@@ -969,23 +1087,21 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
       // voltage logging
       B_.logger_.record_data(origin.get_steps() + lag);
     }
-{%-     else %}
+{%- else %}
     // voltage logging
     B_.logger_.record_data(origin.get_steps() + lag);
-{%-     endif %}
+{%- endif %}
 
-{%- if state_vars_that_need_continuous_buffering | length > 0 %}
-{%-     if continuous_state_buffering_method == "continuous_time_buffer" %}
+{%- if neuron_state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
 #ifdef DEBUG
 std::cout << "[neuron " << this << "] Writing history at time " << nest::Time(nest::Time::step( origin.get_steps() + lag + 1 )).get_ms() << "\n";
 #endif
     write_continuous_variable_history( nest::Time(nest::Time::step( origin.get_steps() + lag + 1 )),
-{%-         for state_var_name in state_vars_that_need_continuous_buffering_transformed %}
-{%-             set state_var = utils.get_variable_by_name(astnode, state_var_name) %}
+{%-     for var_name in neuron_state_vars_that_need_continuous_buffering | sort %}
+{%-         set state_var = utils.get_variable_by_name(astnode, var_name) %}
       {{ printer.print(state_var) }}{% if not loop.last %}, {% endif %}
-{%-         endfor %}
+{%-     endfor %}
     );
-{%-     endif %}
 {%- endif %}
   }
 
@@ -1014,15 +1130,16 @@ std::cout << "[neuron " << this << "] Writing history at time " << nest::Time(ne
 {%- endif %}
 }
 
-{%- if state_vars_that_need_continuous_buffering | length > 0 %}
-{%-     if continuous_state_buffering_method == "continuous_time_buffer" %}
-void {{neuronName}}::get_continuous_variable_history( double t1,
+{%- if paired_synapses is defined
+     and neuron_state_vars_that_need_continuous_buffering | length > 0
+     and continuous_state_buffering_method == "continuous_time_buffer" %}
+void {{ neuronName }}::get_continuous_variable_history( double t1,
   double t2,
   std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* start,
   std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* finish )
 {
 #ifdef DEBUG
-  std::cout << "{{neuronName}}::get_continuous_variable_history()" << std::endl;
+  std::cout << "{{ neuronName }}::get_continuous_variable_history" << std::endl;
 #endif
   *finish = continuous_variable_history_.end();
   if ( continuous_variable_history_.empty() )
@@ -1052,9 +1169,9 @@ void {{neuronName}}::get_continuous_variable_history( double t1,
 }
 
 void {{neuronName}}::write_continuous_variable_history(nest::Time const &t,
-{%-         for state_var in state_vars_that_need_continuous_buffering %}
-      const double {{ state_var }}{% if not loop.last %}, {% endif %}
-{%-         endfor %})
+{%-     for var_name in neuron_state_vars_that_need_continuous_buffering | sort %}
+      const double {{ var_name }}{% if not loop.last %}, {% endif %}
+{%-     endfor %})
 {
 #ifdef DEBUG
   std::cout << "{{neuronName}}::write_continuous_variable_history()" << std::endl;
@@ -1082,65 +1199,73 @@ void {{neuronName}}::write_continuous_variable_history(nest::Time const &t,
 #endif
 
   continuous_variable_history_.push_back( continuous_variable_histentry_{{ neuronName }}( t_ms,
-{%-         for state_var in state_vars_that_need_continuous_buffering %}
-      {{ state_var }}{% if not loop.last %}, {% endif %}
-{%-         endfor %}) );
+{%-     for var_name in neuron_state_vars_that_need_continuous_buffering | sort %}
+      {{ var_name }}{% if not loop.last %}, {% endif %}
+{%-     endfor %}) );
 #ifdef DEBUG
   std::cout << "[neuron " << this << "] \thistory size = " << continuous_variable_history_.size() << std::endl;
 #endif
 }
-{%-     endif %}
 {%- endif %}
 
-// Do not move this function as inline to h-file. It depends on
-// universal_data_logger_impl.h being included here.
+// Do not move this function as inline to h-file. It depends on ``universal_data_logger_impl.h`` being included here.
 void {{ neuronName }}::handle(nest::DataLoggingRequest& e)
 {
   B_.logger_.handle(e);
 }
 
 {% if has_spike_input %}
+
+// -------------------------------------------------------------------------
+//   NEST spike event handler
+// -------------------------------------------------------------------------
+
 void {{ neuronName }}::handle(nest::SpikeEvent &e)
 {
 #ifdef DEBUG
-  std::cout << "[neuron " << this << "] {{ neuronName }}::handle(SpikeEvent)" << std::endl;
+  std::cout << "[neuron " << this << "] {{ neuronName }}::handle(SpikeEvent) on rport " << e.get_rport() << std::endl;
 #endif
 
   assert(e.get_delay_steps() > 0);
-  assert( e.get_rport() < B_.spike_inputs_.size() );
+  assert(e.get_rport() <= {{ utils.nestml_spiking_input_port_to_nest_rport_dict(astnode) | length }});    // the neuron should not receive spike on an rport that does not exist
 
-  double weight = e.get_weight();
-  size_t nestml_buffer_idx = 0;
-{%- if neuron.get_spike_input_ports()|length > 1 or neuron.is_multisynapse_spikes() %}
-  if ( weight >= 0.0 )
+{%-     for input_spikes_name, rport in utils.nestml_spiking_input_port_to_nest_rport_dict(astnode).items() %}
+{%-         set input_spikes = utils.get_input_port_by_name(astnode.get_input_blocks(), input_spikes_name.split("__VEC_IDX__")[0]) %}
+{%-         if astnode.get_body().get_spike_input_ports() | length > 1 or astnode.is_multisynapse_spikes() %}
+  if (e.get_rport() == {{ rport }})
+{%-         endif %}
   {
-    nestml_buffer_idx = std::get<0>(rport_to_nestml_buffer_idx[e.get_rport()]);
+{%-         if input_spikes_name in linear_time_invariant_spiking_input_ports %}
+{#-     linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
+    B_.spike_input_{{ input_spikes_name }}_.add_value(
+      e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
+      e.get_weight() * e.get_multiplicity() );
+{%-         else %}
+{#-             generic input port: use lists of spike events for each buffer slot #}
+    B_.spike_input_{{ input_spikes_name }}_.append_value(
+      e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
+      e.get_weight() * e.get_multiplicity() );
+{%-         endif %}
+
+    // increment the number of spikes received
+    B_.spike_input_{{ input_spikes_name }}_n_spikes_received_.add_value(
+      e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
+      1. );
   }
-  else
-  {
-    nestml_buffer_idx = std::get<1>(rport_to_nestml_buffer_idx[e.get_rport()]);
-    if ( nestml_buffer_idx == {{ neuronName }}::PORT_NOT_AVAILABLE )
-    {
-      nestml_buffer_idx = std::get<0>(rport_to_nestml_buffer_idx[e.get_rport()]);
-    }
-    weight = -weight;
-  }
-{%- endif %}
-  B_.spike_inputs_[ nestml_buffer_idx - MIN_SPIKE_RECEPTOR ].add_value(
-    e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
-    weight * e.get_multiplicity() );
-  B_.spike_input_received_[ nestml_buffer_idx - MIN_SPIKE_RECEPTOR ].add_value(
-    e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
-    1. );
+{%-     endfor %}
 }
 {%- endif %}
 
 {%- if has_continuous_input %}
 
+// -------------------------------------------------------------------------
+//   NEST CurrentEvent handler
+// -------------------------------------------------------------------------
+
 void {{ neuronName }}::handle(nest::CurrentEvent& e)
 {
 #ifdef DEBUG
-  std::cout << "[neuron " << this << "] {{neuronName}}::handle(CurrentEvent)" << std::endl;
+  std::cout << "[neuron " << this << "] {{ neuronName }}::handle(CurrentEvent)" << std::endl;
 #endif
   assert(e.get_delay_steps() > 0);
   assert( e.get_rport() < B_.continuous_inputs_.size() );
@@ -1155,33 +1280,90 @@ void {{ neuronName }}::handle(nest::CurrentEvent& e)
 {%- endif %}
 
 // -------------------------------------------------------------------------
-//   Methods corresponding to event handlers
+//   Methods corresponding to spiking event handlers in the NESTML model
 // -------------------------------------------------------------------------
 
 {%- for blk in neuron.get_on_receive_blocks() %}
+{%-     set inport = utils.port_name_printer(blk.get_input_port_variable()) %}
 {%-     set ast = blk.get_stmts_body() %}
+{%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inport.split(".")[0]) %}
+{%-     set inputPortSymbol = astnode.get_scope().resolve_to_symbol(inputPort.name, SymbolKind.VARIABLE) %}
 void
-{{ neuronName }}::on_receive_block_{{ blk.get_port_name() }}(nest::Time const &origin, const long lag)
+{{ neuronName }}::on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}(nest::Time const &origin, const long lag, const size_t n_spikes_received)
 {
 #ifdef DEBUG
-  std::cout << "[neuron " << this << "] {{ neuronName }}::on_receive_block_{{ blk.get_port_name() }}()" << std::endl;
+  std::cout << "[neuron " << this << "] {{ neuronName }}::on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}(lag=" << lag << ", n_spikes_received = " << n_spikes_received << ")" << std::endl;
 #endif
 
   const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
   auto get_t = [origin, lag](){ return nest::Time( nest::Time::step( origin.get_steps() + lag + 1) ).get_ms(); };
 
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_buffers_to_zero(False) }}
+{%- if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
+{#-     linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
+    /**
+     * Grab the actual spike event data from the buffers (for the current timepoint ``origin + lag``)
+    **/
+{%-     if inputPortSymbol.has_vector_parameter() %}
+{%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
+{%-         for i in range(size)  %}
+    const double __spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }} = B_.spike_input_{{ inputPort.name }}__VEC_IDX__{{ i }}_grid_sum_;
+{%-         endfor %}
+{%-     else %}
+    const double __spike_input_{{ inputPort.name }} = B_.spike_input_{{ inputPort.name }}_grid_sum_;
+{%-     endif %}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_buffers_to_zero(True) }}
+
     /**
      * Begin NESTML generated code for the onReceive() block statements
     **/
 
-{%-     filter indent(2, True) -%}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_buffers_to_zero(False) }}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_cpp_variable_suffix(" ") }}  {# prevent printing origin #}
+
+{%      filter indent(4, True) -%}
 {%-         include "directives_cpp/StmtsBody.jinja2" %}
 {%-     endfilter %}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_buffers_to_zero(True) }}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_cpp_variable_suffix("") }}
+{%- else %}
+{#-     generic input port: use lists of spike events for each buffer slot #}
+  // grab the lists of spike events from the buffers for the current timepoint
+  std::vector< double >& __spike_input_{{ inputPort.name }}_list = B_.spike_input_{{ inputPort.name }}_.get_list(lag);
+  std::vector< double >::iterator __spike_input_{{ inputPort.name }}_list_iterator = __spike_input_{{ inputPort.name }}_list.begin();
+
+  for (size_t spike_idx = 0; spike_idx < n_spikes_received; ++spike_idx)
+  {
+    /**
+     * Grab the actual spike event data from the buffers (for the current timepoint ``origin + lag``)
+    **/
+
+    const double __spike_input_{{ inputPort.name }} = *__spike_input_{{ inputPort.name }}_list_iterator;
+
+    /**
+     * Begin NESTML generated code for the onReceive() block statements
+    **/
+
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_buffers_to_zero(False) }}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_cpp_variable_suffix(" ") }}  {# prevent printing origin #}
+{%      filter indent(4, True) -%}
+{%-         include "directives_cpp/StmtsBody.jinja2" %}
+{%-     endfilter %}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_cpp_variable_suffix("") }}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_buffers_to_zero(True) }}
+
+    /**
+     * Advance the iterators
+    **/
+
+    ++__spike_input_{{ inputPort.name }}_list_iterator;
+  }
+{%- endif %}
 }
 
-{% endfor %}
+{%  endfor %}
 
-{%- if paired_synapse is defined %}
+{%- if paired_synapses is defined %}
 // -------------------------------------------------------------------------
 //   Methods for neuron/synapse co-generation
 // -------------------------------------------------------------------------
@@ -1283,57 +1465,72 @@ void
       }
     }
 
+    /**
+     * Update state variables transferred from all synapses from `last_spike_` to `t_sp_ms`.
+     *
+     * Variables that will be integrated:
+{%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
+     * For synapse {{ paired_synapse.name }} (analytic solver): {{ analytic_state_variables_moved }}
+{%-     if uses_numeric_solver %}
+     * For synapse {{ paired_synapse.name }} (numeric solver): {{ purely_numeric_state_variables_moved }}
+{%-     endif %}
+{%-     endfor %}
+    **/
+
+    // start from the state at the last spike (or initial state if no spike yet)
     if (history_.size() > 0)
     {
       assert(history_.back().t_ == last_spike_);
 
-{%-     for var in purely_numeric_state_variables_moved|sort %}
+{%-         if use_numeric_solver %}
+{%-             for var in purely_numeric_state_variables_moved | sort %}
       {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{ var }}_;
-{%-     endfor %}
-{%-     for var in analytic_state_variables_moved|sort %}
+{%-             endfor %}
+{%-         endif %}
+{%-         for var in analytic_state_variables_moved |sort %}
       {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{ var }}_;
-{%-     endfor %}
+{%-         endfor %}
     }
     else
     {
-{%-     for var in purely_numeric_state_variables_moved|sort %}
+{%-     for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
+{%-         if use_numeric_solver %}
+{%-         for var in purely_numeric_state_variables_moved|sort %}
       {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = {{ utils.initial_value_or_zero(astnode, var) }}; // initial value for convolution is always 0
-{%-     endfor %}
-{%-     for var in analytic_state_variables_moved|sort %}
+{%-         endfor %}
+{%-         endif %}
+{%-         for var in analytic_state_variables_moved | sort %}
       {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = {{ utils.initial_value_or_zero(astnode, var) }}; // initial value for convolution is always 0
+{%-         endfor %}
 {%-     endfor %}
     }
-{%      if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
-    /**
-     * update state variables transferred from synapse from `last_spike_` to `t_sp_ms`
-     *
-     * variables that will be integrated: {{ purely_numeric_state_variables_moved + analytic_state_variables_moved }}
-    **/
 
     const double old___h = V_.__h;
     V_.__h = t_sp_ms - last_spike_;
     if (V_.__h > 1E-12)
     {
       recompute_internal_variables(true);
-{%-         filter indent(6, True) -%}
-{#              emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
-{%-             set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
-{%-             set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
-{%-             include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
-{%-         endfilter %}
+{%          if (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
+{%-             filter indent(6, True) -%}
+{#                  emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
+{%-                 set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%-                 set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-                 include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%-             endfilter %}
+{%-         endif %}
 
       V_.__h = old___h;
       recompute_internal_variables(true);
     }
-{%- endif %}
+
     /**
      * print extra on-emit statements transferred from synapse
     **/
 
 {%-     filter indent(4, True) %}
-{%-     for stmt in extra_on_emit_spike_stmts_from_synapse %}
-{%-         include "directives_cpp/Statement.jinja2" %}
-{%-     endfor %}
+{%-         for stmt in extra_on_emit_spike_stmts_from_synapses %}
+{%-             include "directives_cpp/Statement.jinja2" %}
+{%-         endfor %}
 {%-     endfilter %}
 
     /**
@@ -1351,18 +1548,20 @@ void
     last_spike_ = t_sp_ms;
     history_.push_back( histentry__{{ neuronName }}( last_spike_
         , 0 // access counter
-{%- for var in purely_numeric_state_variables_moved|sort %}
+{%-         for var in purely_numeric_state_variables_moved | sort %}
         , get_{{var}}()
-{%- endfor %}
-{%- for var in analytic_state_variables_moved | sort %}
+{%-         endfor %}
+
+{%-         for var in analytic_state_variables_moved | sort %}
         , get_{{ var }}()
-{%- endfor %}
-{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
-{%-     for var_name_post in state_vars_that_need_continuous_buffering | sort %}
-{%-         set var_name = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name_post) %}
+{%-         endfor %}
+
+{%- if neuron_state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
+{%-     for var_name in neuron_state_vars_that_need_continuous_buffering | sort %}
         , get_{{ var_name }}()
 {%-     endfor %}
 {%- endif %}
+
     ) );
   }
   else
@@ -1380,20 +1579,20 @@ void
 }
 
 
-{#
-	generate getter functions for the transferred variables
-#}
+/**
+ * Getter methods for variables transferred from synapse to neuron
+**/
 
-{%- for var in syn_to_neuron_state_vars %}
-{%- with variable_symbol = syn_to_neuron_state_vars_syms[var] %}
+{%      for paired_synapse, paired_synapse_original_model in zip(paired_synapses, paired_synapse_original_models) %}
+{%-         for var in transferred_variables[paired_synapse_original_model.name] %}
+{%-             with variable_symbol = transferred_variables_syms[var] %}
+{%-                 if not variable_symbol %}
+{%-                     set variable_symbol = astnode.get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE) %}
+{%-                 endif %}
 
-{%- if not variable_symbol %}
-{%-     set variable_symbol = astnode.get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE) %}
-{%- endif %}
-
-{%- if not var == variable_symbol.get_symbol_name() %}
-{{ raise('Error in resolving variable to symbol') }}
-{%- endif %}
+{%-                 if not var == variable_symbol.get_symbol_name() %}
+{{                      raise('Error in resolving variable to symbol') }}
+{%-                 endif %}
 
 double
 {{ neuronName }}::get_{{ var }}( double t, const bool before_increment )
@@ -1428,13 +1627,15 @@ double
       std::cout<<"{{ neuronName }}::get_{{ var }}: \tspike occurred at history[i].t_ = " << history_[i].t_ << std::endl;
 #endif
 
-{%- for var_ in purely_numeric_state_variables_moved %}
+{%-                 for var_ in purely_numeric_state_variables_moved %}
       {{ printer.print(utils.get_variable_by_name(astnode, var_)) }} = history_[ i ].{{var_}}_;
-{%- endfor %}
-{%- for var_ in analytic_state_variables_moved %}
+{%-                 endfor %}
+
+{%-                 for var_ in analytic_state_variables_moved %}
       {{ printer.print(utils.get_variable_by_name(astnode, var_)) }} = history_[ i ].{{var_}}_;
-{%- endfor %}
-{%  if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
+{%-                 endfor %}
+
+{%                  if (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
       /**
        * update state variables transferred from synapse from `history[i].t_` to `t`
        *
@@ -1449,16 +1650,16 @@ double
         recompute_internal_variables(true);
 
 {#      emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
-{%- filter indent(8, True) %}
-{%-     set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
-{%-     set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
-{%-     include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
-{%- endfilter %}
+{%-                     filter indent(8, True) %}
+{%-                         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%-                         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-                         include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%-                     endfilter %}
 
         V_.__h = old___h;
         recompute_internal_variables(true);
       }
-{%- endif %}
+{%-                 endif %}
 #ifdef DEBUG
       std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{var}}: \treturning " << {{ printer.print(utils.get_variable_by_name(astnode, var)) }} << std::endl;
 #endif
@@ -1471,15 +1672,15 @@ double
   // this case occurs when the trace was requested at a time precisely at that of the first spike in the history
   if ( (!before_increment) and t == history_[ 0 ].t_)
   {
-{%- for var_ in purely_numeric_state_variables_moved %}
+{%-                for var_ in purely_numeric_state_variables_moved %}
     {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = history_[ 0 ].{{var_}}_;
-{%- endfor %}
-{%- for var_ in analytic_state_variables_moved %}
+{%-                 endfor %}
+{%-                 for var_ in analytic_state_variables_moved %}
     {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = history_[ 0 ].{{var_}}_;
-{%- endfor %}
+{%-                 endfor %}
 
 #ifdef DEBUG
-    std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{var}}: \ttrace requested at exact time of history entry 0, returning " << {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }} << std::endl;
+    std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{var}}: \tvalue requested at exact time of history entry 0, returning " << {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }} << std::endl;
 #endif
 
     return {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }};
@@ -1498,13 +1699,13 @@ double
   }
 
   // set to initial value
-{%- for var_ in purely_numeric_state_variables_moved %}
+{%-                 for var_ in purely_numeric_state_variables_moved %}
   {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
-{%- endfor %}
-{%- for var_ in analytic_state_variables_moved %}
+{%-                 endfor %}
+{%-                 for var_ in analytic_state_variables_moved %}
   {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
-{%- endfor %}
-{%-     if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
+{%-                 endfor %}
+{%-                 if (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
   /**
    * update state variables transferred from synapse from initial condition to `t`
    *
@@ -1518,25 +1719,29 @@ double
     recompute_internal_variables(true);
 
 {# emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
-{%- filter indent(8, True) %}
-{%-     set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
-{%-     set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
-{%-     include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
-{%- endfilter %}
+{%-                     filter indent(8, True) %}
+{%-                         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%-                         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-                     include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%-                     endfilter %}
 
     V_.__h = old___h;
     recompute_internal_variables(true);
   }
-{%- endif %}
+{%-                 endif %}
   return {{ printer.print(utils.get_variable_by_name(astnode, var)) }};
 }
-{%- endwith -%}
-{%- endfor %}
-
+{%-             endwith %}
+{%-         endfor %}
+{%-     endfor %}
 {%- endif %}
 
 
 {%- if use_gap_junctions %}
+// ---------------------------------------------------------------------------
+//   Gap junction event handler
+// ---------------------------------------------------------------------------
+
 void {{ neuronName }}::handle( nest::GapJunctionEvent& e )
 {
 #ifdef DEBUG

@@ -40,13 +40,12 @@ from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
-from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
-from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
+from pynestml.meta_model.ast_compilation_unit import ASTCompilationUnit
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
@@ -74,11 +73,15 @@ class ASTNodeFactory:
     """
 
     @classmethod
-    def create_ast_arithmetic_operator(cls, is_times_op=False, is_div_op=False, is_modulo_op=False, is_plus_op=False,
-                                       is_minus_op=False, is_pow_op=False, source_position=None):
-        # type:(bool,bool,bool,bool,bool,bool,ASTSourceLocation) -> ASTArithmeticOperator
-        return ASTArithmeticOperator(is_times_op, is_div_op, is_modulo_op, is_plus_op, is_minus_op, is_pow_op,
-                                     source_position=source_position)
+    def create_ast_arithmetic_operator(cls, is_times_op: bool = False,
+                                       is_integer_div_op: bool = False,
+                                       is_div_op: bool = False,
+                                       is_modulo_op: bool = False,
+                                       is_plus_op: bool = False,
+                                       is_minus_op: bool = False,
+                                       is_pow_op: bool = False,
+                                       source_position: Optional[ASTSourceLocation] = None):
+        return ASTArithmeticOperator(is_times_op, is_integer_div_op, is_div_op, is_modulo_op, is_plus_op, is_minus_op, is_pow_op, source_position=source_position)
 
     @classmethod
     def create_ast_assignment(cls, lhs=None,  # type: ASTVariable
@@ -86,12 +89,13 @@ class ASTNodeFactory:
                               is_compound_sum=False,  # type: bool
                               is_compound_minus=False,  # type: bool
                               is_compound_product=False,  # type: bool
+                              is_compound_integer_quotient=False,  # type: bool
                               is_compound_quotient=False,  # type: bool
                               expression=None,  # type: Union(ASTSimpleExpression,ASTExpression)
                               source_position=None  # type: ASTSourceLocation
                               ):  # type: (...) -> ASTAssignment
         return ASTAssignment(lhs, is_direct_assignment, is_compound_sum, is_compound_minus, is_compound_product,
-                             is_compound_quotient, expression, source_position=source_position)
+                             is_compound_integer_quotient, is_compound_quotient, expression, source_position=source_position)
 
     @classmethod
     def create_ast_bit_operator(cls, is_bit_and=False, is_bit_xor=False, is_bit_or=False, is_bit_shift_left=False,
@@ -100,24 +104,21 @@ class ASTNodeFactory:
         return ASTBitOperator(is_bit_and, is_bit_xor, is_bit_or, is_bit_shift_left, is_bit_shift_right, source_position=source_position)
 
     @classmethod
-    def create_ast_stmts_body(cls, stmts, source_position):
-        # type: (list(ASTSmallStmt|ASTCompoundStmt),ASTSourceLocation) -> ASTStmtsBody
+    def create_ast_stmts_body(cls, stmts: List[Union[ASTSmallStmt, ASTCompoundStmt]], source_position: Optional[ASTSourceLocation] = None) -> ASTStmtsBody:
         return ASTStmtsBody(stmts, source_position=source_position)
 
     @classmethod
-    def create_ast_block_with_variables(cls, is_state=False, is_parameters=False, is_internals=False,
-                                        declarations=None, source_position=None):
-        # type: (bool,bool,bool,bool,list(ASTDeclaration),ASTSourceLocation) -> ASTBlockWithVariables
-        return ASTBlockWithVariables(is_state, is_parameters, is_internals, declarations,
-                                     source_position=source_position)
+    def create_ast_block_with_variables(cls, is_state: bool = False, is_parameters: bool = False, is_internals: bool = False,
+                                        declarations: Optional[List[ASTDeclaration]] = None, source_position: Optional[ASTSourceLocation] = None) -> ASTBlockWithVariables:
+        return ASTBlockWithVariables(is_state, is_parameters, is_internals, declarations, source_position=source_position)
 
     @classmethod
     def create_ast_namespace_decorator(cls, namespace=None, name=None, source_position=None):
         return ASTNamespaceDecorator(namespace, name, source_position=source_position)
 
     @classmethod
-    def create_ast_on_receive_block(cls, block=None, port_name=None, const_parameters=None, source_position=None):
-        return ASTOnReceiveBlock(block, port_name, const_parameters, source_position=source_position)
+    def create_ast_on_receive_block(cls, input_port_variable: ASTInputPort, block=None, const_parameters=None, source_position=None):
+        return ASTOnReceiveBlock(input_port_variable, block, const_parameters, source_position=source_position)
 
     @classmethod
     def create_ast_on_condition_block(cls, block=None, cond_expr=None, const_parameters=None, source_position=None):
@@ -192,7 +193,7 @@ class ASTNodeFactory:
                                        binary_operator,
                                        # type: Union(ASTLogicalOperator,ASTBitOperator,ASTComparisonOperator,ASTArithmeticOperator)
                                        rhs,  # type: Union(ASTExpression,ASTSimpleExpression)
-                                       source_position  # type: ASTSourceLocation
+                                       source_position=None  # type: ASTSourceLocation
                                        ):  # type: (...) -> ASTExpression
         """
         The factory method used to create compound expressions, e.g. 10mV + V_m.
@@ -253,15 +254,9 @@ class ASTNodeFactory:
         return ASTInputBlock(input_definitions, source_position=source_position)
 
     @classmethod
-    def create_ast_input_port(cls, name, size_parameter, data_type, input_qualifiers, signal_type, source_position):
-        # type:(str,str,(None|ASTDataType),list(ASTInputQualifier),PortSignalType,ASTSourceLocation) -> ASTInputPort
-        return ASTInputPort(name=name, size_parameter=size_parameter, data_type=data_type, input_qualifiers=input_qualifiers,
+    def create_ast_input_port(cls, name: str, size_parameter: str, data_type: Optional[ASTDataType], signal_type: Optional[PortSignalType], source_position: ASTSourceLocation) -> ASTInputPort:
+        return ASTInputPort(name=name, size_parameter=size_parameter, data_type=data_type,
                             signal_type=signal_type, source_position=source_position)
-
-    @classmethod
-    def create_ast_input_qualifier(cls, is_inhibitory=False, is_excitatory=False, source_position=None):
-        # type: (bool,bool,ASTSourceLocation) -> ASTInputQualifier
-        return ASTInputQualifier(is_inhibitory, is_excitatory, source_position=source_position)
 
     @classmethod
     def create_ast_logical_operator(cls, is_logical_and=False, is_logical_or=False, source_position=None):
@@ -269,8 +264,8 @@ class ASTNodeFactory:
         return ASTLogicalOperator(is_logical_and, is_logical_or, source_position=source_position)
 
     @classmethod
-    def create_ast_nestml_compilation_unit(cls, list_of_models, source_position: ASTSourceLocation, artifact_name: str) -> ASTNestMLCompilationUnit:
-        instance = ASTNestMLCompilationUnit(artifact_name=artifact_name, source_position=source_position)
+    def create_ast_compilation_unit(cls, list_of_models, source_position: ASTSourceLocation, artifact_name: str) -> ASTCompilationUnit:
+        instance = ASTCompilationUnit(artifact_name=artifact_name, source_position=source_position)
         for i in list_of_models:
             instance.add_model(i)
         return instance
@@ -295,8 +290,8 @@ class ASTNodeFactory:
         return ASTKernel(variables, expressions, source_position=source_position)
 
     @classmethod
-    def create_ast_output_block(cls, s_type: PortSignalType, attributes: Optional[List[ASTParameter]] = None, source_position: ASTSourceLocation = None) -> ASTOutputBlock:
-        return ASTOutputBlock(s_type, attributes=attributes, source_position=source_position)
+    def create_ast_output_block(cls, s_type: PortSignalType, source_position: ASTSourceLocation = None) -> ASTOutputBlock:
+        return ASTOutputBlock(s_type, source_position=source_position)
 
     @classmethod
     def create_ast_parameter(cls, name, data_type, source_position):
@@ -312,12 +307,13 @@ class ASTNodeFactory:
     def create_ast_simple_expression(cls, function_call=None,  # type: Union(ASTFunctionCall,None)
                                      boolean_literal=None,  # type: Union(bool,None)
                                      numeric_literal=None,  # type: Union(float,int)
+                                     unitType=None,
                                      is_inf=False,  # type: bool
                                      variable=None,  # type: ASTVariable
                                      string=None,  # type: Union(str,None)
                                      source_position=None  # type: ASTSourceLocation
                                      ):  # type: (...) -> ASTSimpleExpression
-        return ASTSimpleExpression(function_call, boolean_literal, numeric_literal, is_inf, variable, string,
+        return ASTSimpleExpression(function_call, boolean_literal, numeric_literal, unitType, is_inf, variable, string,
                                    source_position=source_position)
 
     @classmethod
@@ -362,6 +358,7 @@ class ASTNodeFactory:
     @classmethod
     def create_ast_variable(cls, name: str, differential_order: int = 0, vector_parameter=None, is_homogeneous=False, source_position: Optional[ASTSourceLocation] = None, scope: Optional[Scope] = None) -> ASTVariable:
         var = ASTVariable(name, differential_order, vector_parameter=vector_parameter, is_homogeneous=is_homogeneous, source_position=source_position)
+
         if scope:
             var.scope = scope
 

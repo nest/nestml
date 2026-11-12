@@ -18,8 +18,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+from typing import Any, Dict, Optional
+
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
+
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
@@ -30,12 +41,15 @@ class CoCoStateVariablesInitialized(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node: ASTModel):
+    @override
+    def check_co_co(cls, node: ASTNode, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
         """
         Checks if the coco applies for the node. All the variables declared in the state block
         must be initialized with a value.
         :param node:
         """
+        assert isinstance(node, ASTModel), "This coco can only be called on ASTModels!"
+
         for variable in node.get_state_symbols():
             if not variable.has_declaring_expression():
                 code, message = Messages.get_state_variables_not_initialized(var_name=variable.get_symbol_name())

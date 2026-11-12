@@ -29,43 +29,22 @@ from pynestml.meta_model.ast_expression import ASTExpression
 class ASTAssignment(ASTNode):
     """
     This class is used to store assignments.
-    Grammar:
-        assignment : lhs_variable=variable
-            (directAssignment="="       |
-            compoundSum="+="     |
-            compoundMinus="-="   |
-            compoundProduct="*=" |
-            compoundQuotient="/=") rhs;
-
-    Attributes:
-        lhs = None
-        is_direct_assignment = False
-        is_compound_sum = False
-        is_compound_minus = False
-        is_compound_product = False
-        is_compound_quotient = False
-        rhs = None
     """
 
     def __init__(self, lhs: Optional[ASTVariable] = None, is_direct_assignment: bool = False, is_compound_sum: bool = False, is_compound_minus: bool = False,
-                 is_compound_product: bool = False, is_compound_quotient: bool = False, rhs: Optional[ASTExpression] = None, *args, **kwargs):
+                 is_compound_product: bool = False, is_compound_integer_quotient: bool = False, is_compound_quotient: bool = False, rhs: Optional[ASTExpression] = None, *args, **kwargs):
         """
         Standard constructor.
 
         Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
 
         :param lhs: the left-hand side variable to which is assigned to
-        :type lhs: Optional[ASTVariable]
         :param is_direct_assignment: is a direct assignment
-        :type is_direct_assignment: bool
         :param is_compound_sum: is a compound sum
-        :type is_compound_sum: bool
         :param is_compound_minus: is a compound minus
-        :type is_compound_minus: bool
         :param is_compound_product: is a compound product
-        :type is_compound_product: bool
+        :param is_compound_integer_quotient: is a compound quotient
         :param is_compound_quotient: is a compound quotient
-        :type is_compound_quotient: bool
         :param rhs: an meta_model-rhs object
         :type rhs: Optional[ASTExpression]
         """
@@ -75,6 +54,7 @@ class ASTAssignment(ASTNode):
         self.is_compound_sum = is_compound_sum
         self.is_compound_minus = is_compound_minus
         self.is_compound_product = is_compound_product
+        self.is_compound_integer_quotient = is_compound_integer_quotient
         self.is_compound_quotient = is_compound_quotient
         self.rhs = rhs
 
@@ -97,6 +77,7 @@ class ASTAssignment(ASTNode):
                             is_compound_sum=self.is_compound_sum,
                             is_compound_minus=self.is_compound_minus,
                             is_compound_product=self.is_compound_product,
+                            is_compound_integer_quotient=self.is_compound_integer_quotient,
                             is_compound_quotient=self.is_compound_quotient,
                             # ASTNode common attriutes:
                             source_position=self.source_position,
@@ -146,6 +127,7 @@ class ASTAssignment(ASTNode):
             return False
 
         return (self.get_variable().equals(other.get_variable())
+                and self.is_compound_integer_quotient == other.is_compound_integer_quotient
                 and self.is_compound_quotient == other.is_compound_quotient
                 and self.is_compound_product == other.is_compound_product
                 and self.is_compound_minus == other.is_compound_minus
@@ -171,6 +153,9 @@ class ASTAssignment(ASTNode):
                                                                    source_position=self.get_source_position())
         elif self.is_compound_product:
             result = ASTNodeFactory.create_ast_arithmetic_operator(is_times_op=True,
+                                                                   source_position=self.get_source_position())
+        elif self.is_compound_integer_quotient:
+            result = ASTNodeFactory.create_ast_arithmetic_operator(is_integer_div_op=True,
                                                                    source_position=self.get_source_position())
         elif self.is_compound_quotient:
             result = ASTNodeFactory.create_ast_arithmetic_operator(is_div_op=True,

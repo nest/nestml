@@ -1,7 +1,7 @@
 Installing NESTML
 =================
 
-Please note that only Python 3.9 (and later versions) are supported. The instructions below assume that ``python`` is aliased to or refers to ``python3``, and ``pip`` to ``pip3``.
+Please note that only Python 3.11 (and later versions) are supported [#PythonVersionPolicy]_. The instructions below assume that ``python`` is aliased to or refers to ``python3``, and ``pip`` to ``pip3``.
 
 Installing the latest release from PyPI
 ---------------------------------------
@@ -96,7 +96,7 @@ Please make sure to have the latest conda version installed and to create a new 
 Alternatively, NEST can also be installed from source in a conda environment. The instructions can be found `here <https://nest-simulator.readthedocs.io/en/stable/installation/condaenv_install.html#condaenv>`_.
 
 After installing NESTML, the neuron and synapse models can be found in the path ``$HOME/miniforge3/envs/<env_name>/models`` and the tutorial notebooks can be found under ``$HOME/miniforge3/envs/<env_name>/doc/tutorials``.
-For more information on how to run NESTML, please refer to `Running NESTML <https://nestml.readthedocs.io/en/latest/running/index.html>`_.
+For more information on how to run NESTML, please refer to :ref:`Running NESTML`.
 
 
 Docker installation
@@ -105,3 +105,9 @@ Docker installation
 NESTML is installed as part of the official NEST Simulator `Docker <https://docker.io/>`_ image.
 
 For detailed instructions, please see https://nest-simulator.readthedocs.io/en/latest/installation/index.html.
+
+
+Footnotes
+---------
+
+.. [#PythonVersionPolicy] It is the NESTML policy regarding which minimum version of Python is supported to track those Python versions that at least have active security support. See the following link for an overview of current support status: https://devguide.python.org/versions/

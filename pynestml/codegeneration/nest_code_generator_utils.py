@@ -25,12 +25,9 @@ import re
 import tempfile
 import uuid
 
-from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
-from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.symbols.variable_symbol import VariableSymbol
-from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.utils.logger import Logger
 
 
@@ -39,10 +36,14 @@ class NESTCodeGeneratorUtils:
     @classmethod
     def print_symbol_origin(cls, variable_symbol: VariableSymbol, variable: ASTVariable) -> str:
         r"""
-        Returns a prefix corresponding to the origin of the variable symbol.
-        :param variable_symbol: a single variable symbol.
-        :return: the corresponding prefix
+        Returns a format string, that takes in one string, and prefixes it corresponding to the origin of the variable symbol.
+        :param variable_symbol: a single variable symbol
+        :return: the corresponding format string
         """
+        if variable_symbol.is_spike_input_port():
+            # spiking input port names always refer to local variables
+            return "%s"
+
         if variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
             if "_is_numeric" in dir(variable) and variable._is_numeric:
                 return "S_.ode_state[State_::%s]"
@@ -58,7 +59,7 @@ class NESTCodeGeneratorUtils:
         if variable_symbol.block_type == BlockType.INTERNALS:
             return "V_.%s"
 
-        return ""
+        return "%s"
 
     @classmethod
     def generate_code_for(cls,
@@ -127,9 +128,8 @@ class NESTCodeGeneratorUtils:
 
             input_fns += [synapse_fn]
             _codegen_opts["neuron_synapse_pairs"] = [{"neuron": neuron_model_name,
-                                                      "synapse": synapse_model_name,
-                                                      "post_ports": post_ports,
-                                                      "vt_ports": mod_ports}]
+                                                      "synapses": {synapse_model_name: {"post_ports": post_ports,
+                                                                                        "vt_ports": mod_ports}}}]
             mangled_neuron_name = neuron_model_name + "_nestml__with_" + synapse_model_name + "_nestml"
             mangled_synapse_name = synapse_model_name + "_nestml__with_" + neuron_model_name + "_nestml"
 
