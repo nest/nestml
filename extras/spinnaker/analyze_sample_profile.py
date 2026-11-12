@@ -30,6 +30,13 @@ Usage:
     python analyze_profiling_data.py <reference.json> <nestml.json>
         Compare two explicitly selected profiles.
 
+If the simulation was run with a ``time_scale_factor`` (read from each profile as
+``hardware_timestep_us / simulation_timestep_us``), it ran that many times slower
+than real time, so the measured mean core active times [%] are that factor too
+small; they are multiplied by it to give the load relative to real-time execution.
+The per-sample min/max active times are not scaled, as a sample in which the core
+was fully busy is 100% busy regardless of the time scale factor.
+
 
 
 To use this script, make sure that
@@ -43,6 +50,7 @@ To use this script, make sure that
 in ``.spynnaker.cfg``.
 """
 
+import argparse
 import csv
 import json
 import sys
@@ -70,6 +78,7 @@ def set_title(ax, title):
 
 BASE_DIR = Path(__file__).resolve().parents[2]
 REPORT_DIR = BASE_DIR / "reports"
+ARCHIVE_DIR = BASE_DIR / "reports_archive"
 PROFILE2_CSV = BASE_DIR / "benchmark_balanced_networks_profiling.csv"
 PROFILE_CSV = BASE_DIR / "balanced_networks_profiling.csv"
 ENERGY_CSV = BASE_DIR / "balanced_networks_energy.csv"
@@ -113,9 +122,19 @@ def load_json(path):
         return json.load(f)
 
 
+def get_timescale_factor(data, source=""):
+    """Time scale factor with which the simulation of a sample profile was run: the hardware timestep divided by the simulation timestep. Defaults to 1 (with a warning) if the profile does not contain the timesteps."""
+    try:
+        return float(data["hardware_timestep_us"]) / float(data["simulation_timestep_us"])
+    except (KeyError, TypeError, ValueError, ZeroDivisionError):
+        print(f"Warning: no timesteps in sample profile {source}; assuming a time scale factor of 1")
+        return 1.
+
+
 def extract_core_activity(data):
-    """Extract core activity values from Andrew's JSON format."""
+    """Extract core activity values from Andrew's JSON format. The mean active time is scaled by the time scale factor of the simulation (see ``get_timescale_factor()``); the per-sample min/max are not."""
     cores = []
+    timescale_factor = get_timescale_factor(data)
 
     for chip_name, chip_data in data.items():
         if not chip_name.startswith("chip_"):
@@ -136,7 +155,8 @@ def extract_core_activity(data):
                 "vertex_label": core_data.get("vertex_label"),
                 "min_percent_active": core_data.get("min_percent_active"),
                 "max_percent_active": core_data.get("max_percent_active"),
-                "mean_percent_active": core_data.get("mean_percent_active")
+                "mean_percent_active": timescale_factor * core_data.get("mean_percent_active"),
+                "timescale_factor": timescale_factor
             })
 
     return cores
@@ -207,14 +227,17 @@ def analyze_profiles(reference_path, nestml_path):
 
 def plot_core_activity_range(cores, title, output_path):
     """Plot per-core min/max active time as a vertical range, with the mean as a marker."""
-    labels = [f"{core['chip']}:{core['core']}" for core in cores]
+    # labels = [f"{core['chip']}:{core['core']}" for core in cores]
+    labels = [str(i) for i in range(1, len(cores) + 1)]  # use simple numeric labels for clarity
     means = np.array([core["mean_percent_active"] for core in cores], dtype=float)
     mins = np.array([core.get("min_percent_active") if core.get("min_percent_active") is not None else core["mean_percent_active"] for core in cores], dtype=float)
     maxs = np.array([core.get("max_percent_active") if core.get("max_percent_active") is not None else core["mean_percent_active"] for core in cores], dtype=float)
     x = np.arange(len(cores))
+    # the means are scaled by the time scale factor, but the per-sample min/max are not (see ``extract_core_activity()``)
+    means_unscaled = all(core.get("timescale_factor", 1.) == 1. for core in cores)
 
     fig, ax = plt.subplots(figsize=figsize(6 / 12))
-    ax.vlines(x, mins, maxs, color="tab:blue", alpha=0.35, linewidth=2, label="Min–max")
+    ax.vlines(x, mins, maxs, color="tab:blue", alpha=0.35, linewidth=2, label="Min–max" if means_unscaled else "Min–max (per sample, not scaled)")
     ax.scatter(x, mins, marker="_", color="tab:blue", s=60)
     ax.scatter(x, maxs, marker="_", color="tab:blue", s=60)
     ax.scatter(x, means, marker="o", color="tab:orange", s=20, zorder=3, label="Mean")
@@ -231,10 +254,10 @@ def plot_core_activity_range(cores, title, output_path):
     plt.close(fig)
 
 
-
 def plot_core_activity_bar(cores, title, output_path, implementation):
     """Plot per-core mean active time as a bar chart."""
-    labels = [f"{core['chip']}:{core['core']}" for core in cores]
+    # labels = [f"{core['chip']}:{core['core']}" for core in cores]
+    labels = [str(i) for i in range(1, len(cores) + 1)]  # use simple numeric labels for clarity
     values = [core["mean_percent_active"] for core in cores]
 
     plt.figure(figsize=figsize(6 / 12))
@@ -246,7 +269,6 @@ def plot_core_activity_bar(cores, title, output_path, implementation):
     plt.tight_layout()
     plt.savefig(output_path, dpi=300)
     plt.close()
-
 
 
 def load_metadata(profile_path):
@@ -590,6 +612,16 @@ def get_experiment_label(row):
     return None
 
 
+def get_row_timescale_factor(row):
+    """Time scale factor of the run belonging to a row of the profiling CSV, read from its archived sample profile."""
+    profile_path = ARCHIVE_DIR / row["timestamp"] / PROFILE_NAME
+    if not profile_path.exists():
+        print(f"Warning: archived sample profile {profile_path} not found; assuming a time scale factor of 1")
+        return 1.
+
+    return get_timescale_factor(load_json(profile_path), source=profile_path)
+
+
 def plot_sum_core_activity(rows):
     """Plot sum of core activity against number of neurons."""
 
@@ -603,7 +635,7 @@ def plot_sum_core_activity(rows):
 
         try:
             neurons = int(row["N"])
-            activity = float(row["sum_core_activity_percent"])
+            activity = get_row_timescale_factor(row) * float(row["sum_core_activity_percent"])
         except (ValueError, TypeError, KeyError):
             continue
 
@@ -816,17 +848,19 @@ def analyze_latest_profiles():
 
 
 def main():
-    if len(sys.argv) == 1:
-        analyze_latest_profiles()
-    elif len(sys.argv) == 3:
-        analyze_profiles(sys.argv[1], sys.argv[2])
-        analyze_energy(sys.argv[1], sys.argv[2])
+    parser = argparse.ArgumentParser(description="Analyze SpiNNaker sample profiling data.")
+    parser.add_argument("profiles", nargs="*", metavar="profile.json",
+                        help="reference and NESTML profiles to compare (default: the two latest profiles)")
+    args = parser.parse_args()
+
+    if len(args.profiles) not in (0, 2):
+        parser.error("pass either no profiles, or a reference and a NESTML profile")
+
+    if args.profiles:
+        analyze_profiles(*args.profiles)
+        analyze_energy(*args.profiles)
     else:
-        raise SystemExit(
-            "Usage:\n"
-            "  python analyze_profiling_data.py\n"
-            "  python analyze_profiling_data.py <reference.json> <nestml.json>"
-        )
+        analyze_latest_profiles()
 
     rows = load_profiling_data()
     plot_sum_core_activity(rows)
