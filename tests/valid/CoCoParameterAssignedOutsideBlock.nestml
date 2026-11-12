@@ -31,4 +31,4 @@
 #
 model CoCoParameterAssignedOutsideBlock:
     parameters: # parameter is not assigned outside the block, thus everything is correct
-        test mV = 10mV
+        test "voltage" = 10mV

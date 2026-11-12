@@ -153,8 +153,8 @@ class ASTExpressionTypeVisitor(ASTVisitor):
                 if bin_op.is_pow_op:
                     self.set_real_self(self.pow_visitor)
                     return
-                # Expr = left=expression (timesOp='*' | divOp='/' | moduloOp='%') right=expression
-                if bin_op.is_times_op or bin_op.is_div_op or bin_op.is_modulo_op:
+                # Expr = left=expression (timesOp='*' | divOp=('/' | '//') | moduloOp='%') right=expression
+                if bin_op.is_times_op or bin_op.is_div_op or bin_op.is_integer_div_op or bin_op.is_modulo_op:
                     self.set_real_self(self.dot_operator_visitor)
                     return
                 # Expr = left=expression (plusOp='+'  | minusOp='-') right=expression

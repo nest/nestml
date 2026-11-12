@@ -32,7 +32,7 @@ model non_linear_synapse:
         x real = 40.
         y real = 9.
         w real = 0.
-        d ms = 1.0 ms
+        d "time" = 1.0 ms
 
     equations:
         x' = (alpha * x - beta * x * y) / 1 ms

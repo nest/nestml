@@ -187,9 +187,6 @@ class NESTVariablePrinter(CppVariablePrinter):
         :param variable: a single variable symbol.
         :return: the corresponding representation as a string
         """
-        if variable.get_implicit_conversion_factor() and not variable.get_implicit_conversion_factor() == 1:
-            return "(" + str(variable.get_implicit_conversion_factor()) + " * (" + self.__print_buffer_value(variable) + "))"
-
         return self.__print_buffer_value(variable)
 
     def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:

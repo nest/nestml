@@ -32,9 +32,9 @@
 #
 model CoCoAssignmentToUnitTypeAlt_neuron:
     state:
-        V mV/C = 250 mV/C    # Coulomb is equivalent to Faraday
+        V "voltage / charge" = 250 mV/C    # Coulomb is equivalent to Faraday
         pA real = 1
-        F C = 1 C
+        F "charge" = 1 C
 
     update:
         V = 1 V * pA * F**-1 * exp(1)

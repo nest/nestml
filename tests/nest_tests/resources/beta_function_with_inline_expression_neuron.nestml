@@ -29,22 +29,22 @@
 model beta_function_with_inline_expression_neuron:
 
   parameters:
-    tau1 ms = 20 ms    # decay time
-    tau2 ms = 10 ms    # rise time
+    tau1 "time" = 20 ms    # decay time
+    tau2 "time" = 10 ms    # rise time
 
   state:
-    x_ pA/ms = 0 pA/ms
-    x pA = 0 pA
+    x_ "current / time" = 0 pA/ms
+    x "current" = 0 pA
 
   internals:
     alpha real = 42.
-    unit_psc pA = 1 pA    # Unitary postsynaptic current amplitude
+    unit_psc "current" = 1 pA    # Unitary postsynaptic current amplitude
 
   equations:
     x' = x_ - x / tau2
     x_' = -x_ / tau1
 
-    recordable inline z pA = x
+    recordable inline z "current" = x
 
   input:
     input_spikes <- spike

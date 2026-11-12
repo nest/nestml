@@ -19,61 +19,30 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List, Mapping
+
 from astropy import units
 
+from pynestml.codegeneration.unit_converter import UnitConverter
 
-class NESTUnitConverter:
+
+class NESTUnitConverter(UnitConverter):
     r"""
-    NEST Simulator uses a set of default physical units internally. This class calculates the factor needed to convert any given physical unit to its NEST counterpart.
+    NEST Simulator stores all physical values as plain numbers, in a fixed set of preferred units: voltage in mV, current in pA, time in ms, and, following from these, conductance in nS, capacitance in pF, resistance in GOhm, rates in 1/ms, and so on. For instance, a literal ``1 V`` is printed as ``1000`` in the generated code.
+
+    Following the convention of NEST, rates (the quantity "1 / time") are exchanged with the user in Hz: when a parameter or state variable is set (e.g. ``neuron.firing_rate = 10.``, meaning 10 Hz), read (with ``get()``) or recorded, the generated code converts between Hz and the 1/ms in which the value is stored.
     """
 
-    @classmethod
-    def get_factor(cls, unit: units.UnitBase) -> float:
-        """
-        Gives a factor for a given unit that transforms it to a "neuroscience" scale. If the given unit is not listed as a neuroscience unit, the factor is 1.
+    #: Preferred units for a set of independent base quantities. Voltage takes the place of the SI base quantity "mass".
+    PREFERRED_UNITS: Mapping[str, units.UnitBase] = {
+        "time": units.ms,
+        "voltage": units.mV,
+        "current": units.pA,
+        "length": units.m,
+        "amount of substance": units.mol,
+        "temperature": units.K,
+        "luminous intensity": units.cd,
+    }
 
-        :param unit: an astropy unit
-        :type unit: IrreducibleUnit or Unit or CompositeUnit
-        :return: a factor to that unit, converting it to "neuroscience" scales.
-        """
-        assert (isinstance(unit, units.IrreducibleUnit) or isinstance(unit, units.CompositeUnit)
-                or isinstance(unit, units.Unit) or isinstance(unit, units.PrefixUnit)), \
-            "UnitConverter: given parameter is not a unit (%s)!" % type(unit)
-
-        # check if it is dimensionless, thus only a prefix
-        if unit.physical_type == "dimensionless":
-            return unit.si
-
-        # otherwise check if it is one of the base units
-        target_unit = None
-        if unit.physical_type == "electrical conductance":
-            target_unit = units.nS
-
-        if unit.physical_type == "electrical resistance":
-            target_unit = units.Gohm
-
-        if unit.physical_type == "time":
-            target_unit = units.ms
-
-        if unit.physical_type == "electrical capacitance":
-            target_unit = units.pF
-
-        if unit.physical_type == "electrical potential":
-            target_unit = units.mV
-
-        if unit.physical_type == "electrical current":
-            target_unit = units.pA
-
-        if target_unit is not None:
-            return (unit / target_unit).si.scale
-
-        if unit == unit.bases[0] and len(unit.bases) == 1:
-            # this case means that we stuck in a recursive definition
-            # just return the factor 1.0
-            return 1.0
-
-        # now if it is not a base unit, it has to be a combined one, e.g. s**2, decompose it
-        factor = 1.0
-        for i in range(0, len(unit.bases)):
-            factor *= cls.get_factor(unit.bases[i]) ** unit.powers[i]
-        return factor
+    #: Rates are set and read in Hz
+    INTERFACE_UNITS: List[units.UnitBase] = [units.Hz]

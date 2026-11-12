@@ -22,14 +22,12 @@
 import os
 import pytest
 
-from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import MessageCode
@@ -46,17 +44,12 @@ class ExpressionTestVisitor(ASTVisitor):
 
         variable_symbol = scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE)
 
-        _equals = variable_symbol.get_type_symbol().equals(_expr.type) \
-            or variable_symbol.get_type_symbol().differs_only_in_magnitude(_expr.type)
+        _equals = variable_symbol.get_type_symbol().equals(_expr.type)
 
         message = "line " + str(_expr.get_source_position()) + " : LHS = " + \
                   variable_symbol.get_type_symbol().get_symbol_name() + \
                   " RHS = " + _expr.type.get_symbol_name() + \
                   " Equal ? " + str(_equals)
-
-        if isinstance(_expr.type, UnitTypeSymbol):
-            message += " Neuroscience Factor: " + \
-                       str(NESTUnitConverter.get_factor(_expr.type.astropy_unit))
 
         Logger.log_message(error_position=node.get_source_position(), code=MessageCode.TYPE_MISMATCH,
                            message=message, log_level=LoggingLevel.INFO)

@@ -215,8 +215,8 @@ class GeNNFunctionCallPrinter(FunctionCallPrinter):
                     ast_var._is_numeric = symbol._is_numeric
 
             # concatenate unit separated by a space with the right part of the string
-            if ASTUtils.get_unit_name(ast_var):
-                right = " " + ASTUtils.get_unit_name(ast_var) + right
+            if ASTUtils.get_unit_name(ast_var, self._unit_converter):
+                right = " " + ASTUtils.get_unit_name(ast_var, self._unit_converter) + right
             return fun_left(left) + self._expression_printer.print(ast_var) + fun_right(right)
 
         return "\"" + stmt + "\""  # format bare string in C++ (add double quotes)

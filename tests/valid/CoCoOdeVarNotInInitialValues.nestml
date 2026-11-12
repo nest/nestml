@@ -31,7 +31,7 @@
 #
 model CoCoOdeVarNotInInitialValues:
     state: # variable is now defined in the initial block, thus everything is correct.
-        V_m mV = 10mV
+        V_m "voltage" = 10mV
 
     equations:
         V_m' = 10 mV / s

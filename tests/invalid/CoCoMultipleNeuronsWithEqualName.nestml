@@ -31,9 +31,9 @@
 #
 model CoCoMultipleNeuronsWithEqualName:
     state:
-        v_m mV = -10 mV
+        v_m "voltage" = -10 mV
 
 #
 model CoCoMultipleNeuronsWithEqualName:
     state:
-        v_m mV = -55 mV
+        v_m "voltage" = -55 mV

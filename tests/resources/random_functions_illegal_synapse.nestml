@@ -29,8 +29,8 @@ model random_functions_illegal_synapse:
 
     parameters:
         lambda real = .01
-        tau_tr_pre ms = random_normal(110 ms, 55 ms)
-        tau_tr_post ms = random_normal(5 ms, 2.5 ms)
+        tau_tr_pre "time" = random_normal(110 ms, 55 ms)
+        tau_tr_post "time" = random_normal(5 ms, 2.5 ms)
         alpha real = 1
         mu_plus real = 1
         mu_minus real = 1

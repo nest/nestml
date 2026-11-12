@@ -37,7 +37,7 @@ model aeif_cond_alpha_implicit:
     # eq pre
     equations: # eq in
         # inline pre
-        inline V_bounded mV = min(0,1) # inline in
+        inline V_bounded "voltage" = min(0,1) # inline in
         # inline post
 
         # ode pre
@@ -47,7 +47,7 @@ model aeif_cond_alpha_implicit:
     # parameters pre
     parameters: # parameters in
         # par decl pre
-        C_m pF = 281.0pF # par decl in
+        C_m "capacitance" = 281.0pF # par decl in
         # par decl post
 
     # int pre

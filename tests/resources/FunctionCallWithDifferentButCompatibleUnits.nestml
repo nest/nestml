@@ -22,7 +22,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
 model BlockTest:
-    function foo(bar mV):
+    function foo(bar "voltage"):
         return
     update:
         foo(10V)

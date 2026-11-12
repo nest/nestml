@@ -23,8 +23,8 @@
 #
 model time_variable_neuron:
   state:
-    x ms = 0. ms
-    y s = 0. s
+    x "time" = 0. ms
+    y "time" = 0. s
 
   update:
     x = t

@@ -30,5 +30,5 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
 model CoCoNestNamespaceCollision:
-    function handle(Tau_1 mV):# <- function 'handle' already in nest namespace
+    function handle(Tau_1 "voltage"):# <- function 'handle' already in nest namespace
         return

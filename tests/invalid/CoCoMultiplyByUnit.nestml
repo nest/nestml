@@ -23,4 +23,4 @@
 #
 model CoCoMultiplyByUnit:
     state:
-        test1 s = 10 * s
+        test1 "time" = 10 * s

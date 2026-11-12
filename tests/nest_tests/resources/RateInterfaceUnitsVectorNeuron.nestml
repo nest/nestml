@@ -1,6 +1,11 @@
-# -*- coding: utf-8 -*-
+# RateInterfaceUnitsVectorNeuron.nestml
+# ######################################
 #
-# implicit_magnitude_cast_exception.py
+# Rates (the quantity "1 / time") are stored in 1/ms in NEST, but set, read and recorded by the user in Hz. This model checks the conversion for vector variables.
+#
+#
+# Copyright statement
+# +++++++++++++++++++
 #
 # This file is part of NEST.
 #
@@ -18,11 +23,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+model rate_interface_units_vector_neuron:
+    state:
+        r_vec[2] "1 / time" = 3 Hz
+        n real = 0    # the expected number of events, given a rate ``r_vec[1]``
 
-
-class ImplicitMagnitudeCastException(Exception):
-
-    def __init__(self, code, message, conversion_factor):
-        self.code = code
-        self.message = message
-        self.conversion_factor = conversion_factor
+    update:
+        n += r_vec[1] * resolution()

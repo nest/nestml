@@ -35,10 +35,6 @@ class LatexExpressionPrinter(ExpressionPrinter):
     """
 
     def print(self, node: ASTExpressionNode) -> str:
-        if node.get_implicit_conversion_factor() is not None \
-           and str(node.get_implicit_conversion_factor()) not in ["1.", "1.0", "1"]:
-            return str(node.get_implicit_conversion_factor()) + " * (" + self.print_expression(node) + ")"
-
         return self.print_expression(node)
 
     def print_expression(self, node: ASTExpressionNode) -> str:
@@ -137,6 +133,9 @@ class LatexExpressionPrinter(ExpressionPrinter):
                 return r"\frac 1 { %(rhs)s } \left( { %(lhs)s } \right) "
 
             return r"\frac{ %(lhs)s } { %(rhs)s }"
+
+        if ast_binary_operator.is_integer_div_op:
+            return r"\operatorname{trunc}\left( \frac{ %(lhs)s } { %(rhs)s } \right)"
 
         if ast_binary_operator.is_times_op:
             return r"%(lhs)s \cdot %(rhs)s"

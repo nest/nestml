@@ -23,7 +23,7 @@
 #
 model CoCoAssignmentToInlineExpression:
     parameters:
-        tau_syn ms = 10 ms
+        tau_syn "time" = 10 ms
 
     equations:
         kernel alpha_kernel = (e / tau_syn) * t * exp(-t / tau_syn)

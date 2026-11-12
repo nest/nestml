@@ -20,8 +20,12 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-rhs : left=rhs (timesOp="*" | divOp="/" | moduloOp="%") right=rhs
+rhs : left=rhs (timesOp="*" | divOp=("/" | "//") | moduloOp="%") right=rhs
 """
+from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
+from pynestml.symbols.predefined_types import PredefinedTypes
+from pynestml.symbols.type_symbol import TypeSymbol
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
@@ -49,6 +53,22 @@ class ASTDotOperatorVisitor(ASTVisitor):
         if arith_op.is_div_op:
             node.type = lhs_type / rhs_type
             return
+        if arith_op.is_integer_div_op:
+            node.type = self.integer_division_type(lhs_type, rhs_type)
+            return
         if arith_op.is_times_op:
             node.type = lhs_type * rhs_type
             return
+
+    @staticmethod
+    def integer_division_type(lhs_type: TypeSymbol, rhs_type: TypeSymbol) -> TypeSymbol:
+        r"""
+        Return the type of the integer division ``lhs // rhs``.
+
+        Integer division truncates the quotient ``lhs / rhs`` to an integer. This is only well-defined if the quotient is dimensionless: the truncation of a physical value depends on the unit in which it is expressed, which differs between target platforms (for instance, 0.5 V truncates to 0 V, but the same voltage, 500 mV, truncates to 500 mV). If the quotient is dimensionless, the result is of type ``integer``. If it is not, the (physical) type of the quotient is returned; the coco CoCoTruncationOperandsDimensionless then reports the error.
+        """
+        quotient_type = lhs_type / rhs_type
+        if isinstance(quotient_type, (ErrorTypeSymbol, UnitTypeSymbol)) or not quotient_type.is_numeric():
+            return quotient_type
+
+        return PredefinedTypes.get_integer_type()

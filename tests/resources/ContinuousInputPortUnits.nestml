@@ -1,0 +1,40 @@
+# ContinuousInputPortUnits.nestml
+# ###############################
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+model ContinuousInputPortUnits:
+    state:
+        V_m "voltage" = 0 mV
+
+    parameters:
+        C_m "capacitance" = 250 pF
+        tau_m "time" = 10 ms
+
+    input:
+        I_stim pA <- continuous
+        I_dimensionless real <- continuous
+
+    equations:
+        V_m' = -V_m / tau_m + I_stim / C_m + I_dimensionless * 1 nA / C_m
+
+    update:
+        integrate_odes()

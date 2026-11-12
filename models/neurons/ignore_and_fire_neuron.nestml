@@ -47,7 +47,7 @@ model ignore_and_fire_neuron:
         phase_steps integer = firing_period_steps / 2   # start halfway through the interval by default
 
     parameters:
-        firing_rate Bq = 10. Bq        # firing rate
+        firing_rate "1 / time" = 10. Bq        # firing rate
 
     internals:
         firing_period_steps integer = steps(1. / firing_rate)    # firing period in steps

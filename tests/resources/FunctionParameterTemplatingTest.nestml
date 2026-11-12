@@ -28,7 +28,7 @@
 #
 model templated_function_parameters_type_test:
     state:
-        force N = 1.5 N
+        force "force" = 1.5 N
         foo real = 10
 
     update:

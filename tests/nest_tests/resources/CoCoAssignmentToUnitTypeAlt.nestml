@@ -31,7 +31,7 @@
 #
 model CoCoAssignmentToUnitTypeAlt_neuron:
     state:
-        V mV = 0 mV
+        V "voltage" = 0 mV
 
     update:
         V = 1 V

@@ -1,0 +1,48 @@
+# PowerAndCompoundProductWithDifferentButCompatibleUnits.nestml
+# #############################################################
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+model BlockTest:
+    state:
+        V_squared "voltage**2" = (2 V)**2
+        V_root "voltage" = (4 V**2)**0.5
+        g "conductance" = (50 MOhm)**-1
+        f "frequency" = (0.1 s)**-1
+        V_param "voltage" = (2 V)**p
+        V_max "voltage" = max(1 V, 2 mV)
+        V_pow "voltage" = pow(2 V, 1 ms * 1 Hz)
+        V_product "voltage" = 1 mV
+        V_quotient "voltage" = 1 mV
+        V_volt "voltage" = 1 V
+        n_floor real = 1
+        V_grid "voltage" = 2.7 mV
+
+    parameters:
+        p real = 1
+
+    update:
+        V_product *= 2 V / (1 mV)
+        V_quotient /= 2 mV / (1 V)
+        V_volt *= 1 mA * 1 Ohm * V**-1
+        V_volt /= 1 mA * 1 Ohm * V**-1
+        n_floor //= 2 mV / (1 V)
+        V_grid = (V_grid // 1 mV) * 1 mV

@@ -61,7 +61,7 @@ class TestODEToolboxprinter:
         # Assert all values are as expected before simulation
         np.testing.assert_allclose(I_syn, 0)
         np.testing.assert_allclose(foo, 4)
-        np.testing.assert_allclose(rate, .1)    # this gets converted from s**-1 to ms**-1 when code is generated for NEST
+        np.testing.assert_allclose(rate, 100.)    # rates are stored in 1/ms by NEST, but set and read in Hz
 
         nest.Simulate(35.)
         I_syn = mm.get("events")["I_syn"]

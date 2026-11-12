@@ -39,21 +39,21 @@
 model stdsp_synapse:
     state:
         permanence real = 1.
-        t_last_pre_spike ms = 0 ms
+        t_last_pre_spike "time" = 0 ms
         pre_trace real = 0.
         w real = 100. [[w >= 0]]    # dummy synaptic weight -- just so weight can be recorded. Actual weight is only ever 0 or Wmax
 
     parameters:
 
-        tau_pre_trace ms = 80 ms
+        tau_pre_trace "time" = 80 ms
         lambda_h real = 1.
-        zt pA = 1 pA
+        zt "current" = 1 pA
         lambda_plus real = .01
         lambda_minus real = 1.
         permanence_max real = 100.
         permanence_min real = 0.
-        dt_min ms = 4 ms
-        dt_max ms = 100 ms
+        dt_min "time" = 4 ms
+        dt_max "time" = 100 ms
 
         permanence_threshold real = 10.
 
@@ -72,7 +72,7 @@ model stdsp_synapse:
         spike
 
     onReceive(post_spikes):
-        time_since_last_spike ms = t - t_last_pre_spike
+        time_since_last_spike "time" = t - t_last_pre_spike
 
         if time_since_last_spike < dt_max and time_since_last_spike > dt_min:
             # facilitation

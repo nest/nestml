@@ -30,8 +30,8 @@ model inhomogeneous_poisson_neuron:
 
     parameters:
         N integer = 1
-        rate_times[N] ms = 0 ms
-        rate_values[N] ms**-1 = 0 s**-1
+        rate_times[N] "time" = 0 ms
+        rate_values[N] "time**-1" = 0 s**-1
 
     output:
         spike
@@ -42,9 +42,9 @@ model inhomogeneous_poisson_neuron:
             while idx < N - 1 and t >= rate_times[idx + 1]:
                 idx += 1
 
-        rate ms**-1 = rate_values[idx]
+        rate "time**-1" = rate_values[idx]
 
-        n_spikes_in_this_timestep integer = random_poisson(rate * resolution() * 1E-3)
+        n_spikes_in_this_timestep integer = random_poisson(rate * resolution())    # expected number of spikes in this timestep
         if n_spikes_in_this_timestep > 0:
             emit_spike()
             # XXX: TODO: support multiplicity in spikes (see https://github.com/nest/nestml/issues/946)

@@ -222,6 +222,9 @@ class NESTMLPrinter(ModelPrinter):
         if node.is_real:
             return "real"
 
+        if node.is_quantity():
+            return "\"" + node.get_quantity() + "\""
+
         if node.is_unit_type():
             return self.print(node.get_unit_type())
 

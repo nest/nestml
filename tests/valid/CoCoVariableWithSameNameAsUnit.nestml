@@ -30,4 +30,4 @@
 #
 model CoCoVariableWithSameNameAsUnit:
     state:
-        m mV = 1 mV # should not conflict with predefined unit m but throw a warning
+        m "voltage" = 1 mV # should not conflict with predefined unit m but throw a warning

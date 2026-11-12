@@ -25,7 +25,6 @@ import copy
 import re
 import sympy
 
-from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.nestml_simple_expression_printer_units_as_factors import NESTMLSimpleExpressionPrinterUnitsAsFactors
@@ -223,6 +222,9 @@ class ASTUtils:
 
         if data_type.is_unit_type():
             return str(data_type)
+
+        if data_type.is_quantity():
+            return "\"" + data_type.get_quantity() + "\""
 
         Logger.log_message(message="Type could not be derived!", log_level=LoggingLevel.ERROR)
 
@@ -2115,12 +2117,13 @@ class ASTUtils:
                     input_spikes_name = input_spikes_name.split("__d")[0]
                     input_spikes = ASTUtils.get_input_port_by_name(model.get_input_blocks(), input_spikes_name)
                     type_str = "real"
+                    expr = "0"    # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is 0 (property of the convolution)
                     if input_spikes:
                         differential_order: int = len(re.findall("__d", var_name))
                         if differential_order:
-                            type_str = "(s**-" + str(differential_order) + ")"
+                            type_str = "\"time**-" + str(differential_order) + "\""
+                            expr = "0 (s**-" + str(differential_order) + ")"
 
-                    expr = "0 " + type_str    # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is 0 (property of the convolution)
                     if not cls.declaration_in_state_block(model, var_name):
                         cls.add_declaration_to_state_block(model, var_name, expr, type_str)
 
@@ -2400,13 +2403,19 @@ class ASTUtils:
         return None
 
     @classmethod
-    def get_unit_name(cls, variable: ASTVariable) -> str:
+    def get_unit_name(cls, variable: ASTVariable, unit_converter) -> str:
+        r"""
+        Returns the unit in which the value of the given variable is stored by the target platform (for instance, ``mV`` for a variable of quantity "voltage" in NEST), or the empty string if the variable is not of a physical type.
+
+        :param variable: the variable
+        :param unit_converter: the system of physical units of the target platform (a subclass of ``UnitConverter``)
+        """
         assert variable.get_scope() is not None, "Undeclared variable: " + variable.get_complete_name()
 
         variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
         symbol = variable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
         if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
-            return symbol.get_type_symbol().unit.unit.to_string()
+            return unit_converter.print_unit(symbol.get_type_symbol())
 
         return ""
 

@@ -126,7 +126,7 @@ model cm_default:
                                 convolve(g_AN_NMDA, spikes_AN) * (e_AN_NMDA - v_comp) / (1. + 0.3 * exp(-.1 * v_comp)) @mechanism::receptor
 
         # external input current
-        inline inp pA = i_stim     @mechanism::continuous_input
+        inline inp "current" = i_stim     @mechanism::continuous_input
 
 
 

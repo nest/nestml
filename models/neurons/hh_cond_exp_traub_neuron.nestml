@@ -69,9 +69,9 @@
 model hh_cond_exp_traub_neuron:
 
     state:
-        V_m mV = E_L        # Membrane potential
-        V_m_old mV = E_L    # Membrane potential at previous timestep
-        refr_t ms = 0 ms    # Refractory period timer
+        V_m "voltage" = E_L        # Membrane potential
+        V_m_old "voltage" = E_L    # Membrane potential at previous timestep
+        refr_t "time" = 0 ms    # Refractory period timer
 
         Act_m real = alpha_m_init / (alpha_m_init + beta_m_init)
         Act_h real = alpha_h_init / (alpha_h_init + beta_h_init)
@@ -83,56 +83,56 @@ model hh_cond_exp_traub_neuron:
         kernel g_exc = exp(-t / tau_syn_exc)
 
         # Add aliases to simplify the equation definition of V_m
-        inline I_Na pA = g_Na * Act_m * Act_m * Act_m * Act_h * (V_m - E_Na)
-        inline I_K pA = g_K * Inact_n * Inact_n * Inact_n * Inact_n * (V_m - E_K)
-        inline I_L pA = g_L * (V_m - E_L)
-        inline I_syn_exc pA = unit_psg * convolve(g_exc, exc_spikes) * (V_m - E_exc)
-        inline I_syn_inh pA = unit_psg * convolve(g_inh, inh_spikes) * (V_m - E_inh)
+        inline I_Na "current" = g_Na * Act_m * Act_m * Act_m * Act_h * (V_m - E_Na)
+        inline I_K "current" = g_K * Inact_n * Inact_n * Inact_n * Inact_n * (V_m - E_K)
+        inline I_L "current" = g_L * (V_m - E_L)
+        inline I_syn_exc "current" = unit_psg * convolve(g_exc, exc_spikes) * (V_m - E_exc)
+        inline I_syn_inh "current" = unit_psg * convolve(g_inh, inh_spikes) * (V_m - E_inh)
 
         V_m' = (-I_Na - I_K - I_L - I_syn_exc - I_syn_inh + I_e + I_stim) / C_m
         refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero, at a rate of one (milli)second per (milli)second
 
         # channel dynamics
-        inline V_rel mV = V_m - V_T
-        inline alpha_n 1/ms = 0.032 ms**-1*mV**-1 * (15 mV - V_rel) / (exp((15 mV - V_rel) / 5 mV) - 1.)
-        inline beta_n 1/ms = 0.5 ms**-1 * exp((10 mV - V_rel) / 40 mV)
-        inline alpha_m 1/ms = 0.32 ms**-1*mV**-1 * (13 mV - V_rel) / (exp((13 mV - V_rel) / 4 mV) - 1.)
-        inline beta_m 1/ms = 0.28 ms**-1*mV**-1 * (V_rel  - 40 mV) / (exp((V_rel - 40 mV) / 5 mV) - 1.)
-        inline alpha_h 1/ms = 0.128 ms**-1 * exp((17 mV - V_rel) / 18 mV)
-        inline beta_h 1/ms = (4. / (1. + exp((40 mV - V_rel) / 5 mV))) / 1 ms
+        inline V_rel "voltage" = V_m - V_T
+        inline alpha_n "1 / time" = 0.032 ms**-1*mV**-1 * (15 mV - V_rel) / (exp((15 mV - V_rel) / 5 mV) - 1.)
+        inline beta_n "1 / time" = 0.5 ms**-1 * exp((10 mV - V_rel) / 40 mV)
+        inline alpha_m "1 / time" = 0.32 ms**-1*mV**-1 * (13 mV - V_rel) / (exp((13 mV - V_rel) / 4 mV) - 1.)
+        inline beta_m "1 / time" = 0.28 ms**-1*mV**-1 * (V_rel  - 40 mV) / (exp((V_rel - 40 mV) / 5 mV) - 1.)
+        inline alpha_h "1 / time" = 0.128 ms**-1 * exp((17 mV - V_rel) / 18 mV)
+        inline beta_h "1 / time" = (4. / (1. + exp((40 mV - V_rel) / 5 mV))) / 1 ms
 
         Act_m' = (alpha_m - (alpha_m + beta_m) * Act_m)
         Act_h' = (alpha_h - (alpha_h + beta_h) * Act_h)
         Inact_n' = (alpha_n - (alpha_n + beta_n) * Inact_n)
 
     parameters:
-        g_Na nS = 20000 nS        # Na conductance
-        g_K nS = 6000 nS          # K conductance
-        g_L nS = 10 nS            # Leak conductance
-        C_m pF = 200 pF           # Membrane capacitance
-        E_Na mV = 50 mV           # Sodium reversal potential
-        E_K mV = -90 mV           # Potassium reversal potential
-        E_L mV = -60 mV           # Leak reversal potential (a.k.a. resting potential)
-        V_T mV = -63 mV           # Voltage offset that controls dynamics. For default
+        g_Na "conductance" = 20000 nS        # Na conductance
+        g_K "conductance" = 6000 nS          # K conductance
+        g_L "conductance" = 10 nS            # Leak conductance
+        C_m "capacitance" = 200 pF           # Membrane capacitance
+        E_Na "voltage" = 50 mV           # Sodium reversal potential
+        E_K "voltage" = -90 mV           # Potassium reversal potential
+        E_L "voltage" = -60 mV           # Leak reversal potential (a.k.a. resting potential)
+        V_T "voltage" = -63 mV           # Voltage offset that controls dynamics. For default
                                   # parameters, V_T = -63 mV results in a threshold around -50 mV.
-        tau_syn_exc ms = 5 ms     # Synaptic time constant of excitatory synapse
-        tau_syn_inh ms = 10 ms    # Synaptic time constant of inhibitory synapse
-        refr_T ms = 2 ms          # Duration of refractory period
-        E_exc mV = 0 mV           # Excitatory synaptic reversal potential
-        E_inh mV = -80 mV         # Inhibitory synaptic reversal potential
+        tau_syn_exc "time" = 5 ms     # Synaptic time constant of excitatory synapse
+        tau_syn_inh "time" = 10 ms    # Synaptic time constant of inhibitory synapse
+        refr_T "time" = 2 ms          # Duration of refractory period
+        E_exc "voltage" = 0 mV           # Excitatory synaptic reversal potential
+        E_inh "voltage" = -80 mV         # Inhibitory synaptic reversal potential
 
-        alpha_n_init 1/ms = 0.032 ms**-1*mV**-1 * (15 mV - E_L) / (exp((15 mV - E_L) / 5 mV) - 1)
-        beta_n_init 1/ms = 0.5 ms**-1 * exp((10 mV - E_L) / 40 mV)
-        alpha_m_init 1/ms = 0.32 ms**-1*mV**-1 * (13 mV - E_L) / (exp((13 mV - E_L) / 4 mV) - 1)
-        beta_m_init 1/ms = 0.28 ms**-1*mV**-1 * (E_L  - 40 mV) / (exp((E_L - 40 mV) / 5 mV) - 1)
-        alpha_h_init 1/ms = 0.128 ms**-1 * exp((17 mV - E_L) / 18 mV)
-        beta_h_init 1/ms = (4 / (1 + exp((40 mV - E_L) / 5 mV))) / 1 ms
+        alpha_n_init "1 / time" = 0.032 ms**-1*mV**-1 * (15 mV - E_L) / (exp((15 mV - E_L) / 5 mV) - 1)
+        beta_n_init "1 / time" = 0.5 ms**-1 * exp((10 mV - E_L) / 40 mV)
+        alpha_m_init "1 / time" = 0.32 ms**-1*mV**-1 * (13 mV - E_L) / (exp((13 mV - E_L) / 4 mV) - 1)
+        beta_m_init "1 / time" = 0.28 ms**-1*mV**-1 * (E_L  - 40 mV) / (exp((E_L - 40 mV) / 5 mV) - 1)
+        alpha_h_init "1 / time" = 0.128 ms**-1 * exp((17 mV - E_L) / 18 mV)
+        beta_h_init "1 / time" = (4 / (1 + exp((40 mV - E_L) / 5 mV))) / 1 ms
 
         # constant external input current
-        I_e pA = 0 pA
+        I_e "current" = 0 pA
 
     internals:
-        unit_psg nS = 1 nS        # Unitary postsynaptic conductance amplitude
+        unit_psg "conductance" = 1 nS        # Unitary postsynaptic conductance amplitude
 
     input:
         inh_spikes <- spike

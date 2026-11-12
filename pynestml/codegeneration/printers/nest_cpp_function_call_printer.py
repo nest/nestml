@@ -29,8 +29,8 @@ class NESTCppFunctionCallPrinter(CppFunctionCallPrinter):
     Printer for ASTFunctionCall in C++ syntax.
     """
 
-    def __init__(self, expression_printer=None, exp_function: str = "std::exp"):
-        super().__init__(expression_printer, exp_function=exp_function)
+    def __init__(self, expression_printer=None, exp_function: str = "std::exp", unit_converter=None):
+        super().__init__(expression_printer, exp_function=exp_function, unit_converter=unit_converter)
 
     def _print_function_call_format_string(self, function_call: ASTFunctionCall) -> str:
         """

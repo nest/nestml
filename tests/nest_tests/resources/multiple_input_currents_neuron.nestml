@@ -28,8 +28,8 @@
 #
 model multiple_input_currents_neuron:
     state:
-        V_m1 mV = 0 mV
-        V_m2 mV = -10 mV
+        V_m1 "voltage" = 0 mV
+        V_m2 "voltage" = -10 mV
 
     input:
         I_1 pA <- continuous

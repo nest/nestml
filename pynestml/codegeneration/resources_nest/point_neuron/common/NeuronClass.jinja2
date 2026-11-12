@@ -137,6 +137,8 @@ namespace nest
 
 {%-    if isinstance(variable_symbol.get_type_symbol(), IntegerTypeSymbol) %}
     insert_({{names_namespace}}::_{{ variable.get_complete_name() }}, &{{ neuronName }}::integer_get_{{ printer_no_origin.print(variable) }});
+{%- elif nest_codegen_utils.needs_interface_conversion(variable_symbol) %}
+    insert_({{names_namespace}}::_{{ variable.get_complete_name() }}, &{{ neuronName }}::get_{{ printer_no_origin.print(variable) }}__interface);    // in the units used by the user
 {%- else %}
     insert_({{names_namespace}}::_{{ variable.get_complete_name() }}, &{{ neuronName }}::get_{{ printer_no_origin.print(variable) }});
 {%-     endif %}
@@ -150,7 +152,13 @@ namespace nest
 {%-     for variable_symbol in recordable_inline_expressions %}
 {%-         set variable_name = utils.get_inline_expression_by_name(astnode, variable_symbol.get_symbol_name()).get_variable_name() %}
 {%-         set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-         if has_state_vectors %}
+{%-         if nest_codegen_utils.needs_interface_conversion(variable_symbol) %}
+{%-             if has_state_vectors %}
+    insert("{{ variable.get_complete_name() }}", host.get_recordable_inline_data_access_functor( &{{ neuronName }}::{{ printer_no_origin.print(variable)[:-2] }}__interface ));    // in the units used by the user
+{%-             else %}
+    insert_({{ names_namespace }}::_{{ variable_symbol.get_symbol_name() }}, &{{ neuronName }}::{{ printer_no_origin.print(variable)[:-2] }}__interface);    // in the units used by the user
+{%-             endif %}
+{%-         elif has_state_vectors %}
     insert("{{ variable.get_complete_name() }}", host.get_recordable_inline_data_access_functor( static_cast< double ({{ neuronName }}::*)() const >(&{{ neuronName }}::{{ printer_no_origin.print(variable)[:-2] }}) ));    // static cast to pick the no-argument variant of the method in case it is overloaded due to also needing continuous-time buffering
 {%-         else %}
     insert_({{ names_namespace }}::_{{ variable_symbol.get_symbol_name() }}, &{{ neuronName }}::{{ printer_no_origin.print(variable)[:-2] }});

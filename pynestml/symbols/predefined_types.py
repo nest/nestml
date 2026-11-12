@@ -21,7 +21,7 @@
 
 from typing import Mapping
 
-from astropy.units.core import CompositeUnit
+from astropy.units.core import CompositeUnit, UnitBase
 from astropy.units.quantity import Quantity
 
 from pynestml.symbols.predefined_units import PredefinedUnits
@@ -163,8 +163,8 @@ class PredefinedTypes:
                 # otherwise its a prefix, store it as such
                 cls.register_unit(name)
                 return cls.get_type(str(name))
-        # this case deals with something like 1.0 if we have (ms/ms)
-        if isinstance(name, CompositeUnit) and len(name.bases) == 0:
+        # this case deals with something like 1.0 if we have (ms/ms), or V/mV: types only represent the physical dimension, so any dimensionless unit is real, irrespective of its magnitude
+        if isinstance(name, CompositeUnit) and (len(name.bases) == 0 or name.physical_type == "dimensionless"):
             return cls.get_real_type()
         if isinstance(name, CompositeUnit):
             cls.register_unit(name)
@@ -172,6 +172,11 @@ class PredefinedTypes:
         if isinstance(name, Quantity):
             cls.register_unit(name.unit)
             return cls.get_type(str(name.unit))
+        if isinstance(name, UnitBase):
+            # a named unit, such as ``u.V``
+            if str(name) not in cls.name2type:
+                cls.register_unit(name)
+            return cls.get_type(str(name))
         if name in cls.name2type:
             return cls.name2type[name]
         else:

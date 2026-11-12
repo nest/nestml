@@ -19,7 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.predefined_units import PredefinedUnits
@@ -87,6 +86,9 @@ class ASTPowerVisitor(ASTVisitor):
                 if op.is_div_op:
                     return self.calculate_numeric_value(lhs) / self.calculate_numeric_value(rhs)
 
+                if op.is_integer_div_op:
+                    return int(self.calculate_numeric_value(lhs) / self.calculate_numeric_value(rhs))    # C-style truncated division
+
                 if op.is_modulo_op:
                     return self.calculate_numeric_value(lhs) % self.calculate_numeric_value(rhs)
 
@@ -111,7 +113,8 @@ class ASTPowerVisitor(ASTVisitor):
             symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
             if symbol is None:
                 if PredefinedUnits.is_unit(variable.get_complete_name()):
-                    return NESTUnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit())
+                    # the magnitude of the unit relative to the coherent SI unit of the same dimension, e.g. 1E-3 for mV
+                    return PredefinedUnits.get_unit(variable.get_complete_name()).get_unit().si.scale
 
                 raise Exception("Declaration for symbol \"" + str(variable) + "\" not found and is not a unit.")
 

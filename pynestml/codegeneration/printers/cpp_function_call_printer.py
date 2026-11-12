@@ -38,8 +38,8 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
     Printer for ASTFunctionCall in C++ syntax.
     """
 
-    def __init__(self, expression_printer=None, exp_function: str = "std::exp"):
-        super().__init__(expression_printer)
+    def __init__(self, expression_printer=None, exp_function: str = "std::exp", unit_converter=None):
+        super().__init__(expression_printer, unit_converter=unit_converter)
         assert exp_function in ["std::exp", "cm_fast_propagator_exp", "bounded_propagator_expf"]
         self._exp_function = exp_function
 
@@ -223,8 +223,8 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
                     ast_var._is_numeric = symbol._is_numeric
 
             # concatenate unit separated by a space with the right part of the string
-            if ASTUtils.get_unit_name(ast_var):
-                right = " " + ASTUtils.get_unit_name(ast_var) + right
+            if ASTUtils.get_unit_name(ast_var, self._unit_converter):
+                right = " " + ASTUtils.get_unit_name(ast_var, self._unit_converter) + right
             return fun_left(left) + self._expression_printer.print(ast_var) + fun_right(right)
 
         return "\"" + stmt + "\""  # format bare string in C++ (add double quotes)

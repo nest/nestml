@@ -28,13 +28,13 @@
 #
 model ode_toolbox_printer_test:
     state:
-        I_syn pA**-1 = 0 pA**-1
-        foo ms**2 = (2 ms)**2
+        I_syn "current**-1" = 0 pA**-1
+        foo "time**2" = (2 ms)**2
 
     parameters:
-        tau_m ms = 42 ms
-        I_e pA**-1 = 0.1 pA**-1
-        rate s**-1 = 100 s**-1
+        tau_m "time" = 42 ms
+        I_e "current**-1" = 0.1 pA**-1
+        rate "time**-1" = 100 s**-1
 
     equations:
         I_syn' = (-I_syn + I_e) / tau_m

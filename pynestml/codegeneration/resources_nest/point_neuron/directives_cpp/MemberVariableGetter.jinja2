@@ -3,11 +3,25 @@ inline {{ declarations.print_variable_type(variable_symbol) }} {{ printer_no_ori
 {
   return {{ printer.print(variable_symbol.get_declaring_expression()) }};
 }
+{%-     if nest_codegen_utils.needs_interface_conversion(variable_symbol) %}
+
+inline double {{ printer_no_origin.print(variable)[:-2] }}__interface() const    // in the units used by the user, for recording
+{
+  return {{ nest_codegen_utils.print_to_interface_units(variable_symbol, printer_no_origin.print(variable), is_vector=false) }};
+}
+{%-     endif %}
 {%- else -%}
 inline {{ declarations.print_variable_type(variable_symbol) }} get_{{ printer_no_origin.print(variable) }}() const
 {
   return {{ nest_codegen_utils.print_symbol_origin(variable_symbol, variable) % printer_no_origin.print(variable) }};
 }
+{%-    if nest_codegen_utils.needs_interface_conversion(variable_symbol) and not variable_symbol.has_vector_parameter() %}
+
+inline double get_{{ printer_no_origin.print(variable) }}__interface() const    // in the units used by the user, for recording
+{
+  return {{ nest_codegen_utils.print_to_interface_units(variable_symbol, nest_codegen_utils.print_symbol_origin(variable_symbol, variable) % printer_no_origin.print(variable)) }};
+}
+{%-    endif %}
 {%-    if isinstance(variable_symbol.get_type_symbol(), IntegerTypeSymbol) %}
 {#-        in case the user wants to record an integer-typed variable using the multimeter/recordablesmap, a getter is required that returns the ``double`` type #}
 inline double integer_get_{{ printer_no_origin.print(variable) }}() const

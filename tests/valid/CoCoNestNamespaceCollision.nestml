@@ -30,5 +30,5 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
 model CoCoNestNamespaceCollision:
-    function handler(Tau_1 mV): # handler is not a NEST specific function, thus everything correct
+    function handler(Tau_1 "voltage"): # handler is not a NEST specific function, thus everything correct
         return
