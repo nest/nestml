@@ -56,6 +56,7 @@ from pynestml.cocos.co_co_ode_functions_have_consistent_units import CoCoOdeFunc
 from pynestml.cocos.co_co_on_receive_vectors_should_be_constant_size import CoCoOnReceiveVectorsShouldBeConstantSize
 from pynestml.cocos.co_co_output_port_defined_if_emit_call import CoCoOutputPortDefinedIfEmitCall
 from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import CoCoParametersAssignedOnlyInParameterBlock
+from pynestml.cocos.co_co_parameters_internals_state_declaration_order import CoCoParametersInternalsStateDeclarationOrder
 from pynestml.cocos.co_co_priorities_correctly_specified import CoCoPrioritiesCorrectlySpecified
 from pynestml.cocos.co_co_random_functions_legally_used import CoCoRandomFunctionsLegallyUsed
 from pynestml.cocos.co_co_resolution_func_legally_used import CoCoResolutionFuncLegallyUsed
@@ -124,6 +125,14 @@ class CoCosManager:
         :param model: a single model instance
         """
         CoCoFunctionCallsConsistent.check_co_co(model)
+
+    @classmethod
+    def check_parameters_internals_state_declaration_order(cls, model: ASTModel):
+        """
+        Checks that definitions in the parameters block do not refer to internals or state variables, and that definitions in the internals block do not refer to state variables.
+        :param model: a single model instance
+        """
+        CoCoParametersInternalsStateDeclarationOrder.check_co_co(model)
 
     @classmethod
     def check_variables_unique_in_scope(cls, model: ASTModel):
@@ -489,6 +498,7 @@ class CoCosManager:
 
         cls.check_co_co_emit_spike_function_arguments(model)
         cls.check_each_block_defined_at_most_once(model)
+        cls.check_parameters_internals_state_declaration_order(model)
         cls.check_function_defined(model)
         cls.check_variables_unique_in_scope(model)
         cls.check_inline_expression_not_assigned_to(model)
