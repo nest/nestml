@@ -24,6 +24,8 @@ import pytest
 
 from pynestml.frontend.pynestml_frontend import generate_spinnaker_target
 
+from spinnaker_test_utils import figsize, plot_analog_signal, plot_spike_raster
+
 
 class TestSpiNNakerIafPscExp:
     """SpiNNaker code generation tests"""
@@ -31,13 +33,8 @@ class TestSpiNNakerIafPscExp:
     @pytest.fixture(autouse=True,
                     scope="module")
     def generate_code(self):
-        # codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
-        #                                           "synapse": "stdp_synapse",
-        #                                           "post_ports": ["post_spikes"]}]}
-
         files = [
             os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
-            # os.path.join("models", "synapses", "stdp_synapse.nestml")
         ]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
@@ -50,12 +47,10 @@ class TestSpiNNakerIafPscExp:
                                   install_path=install_path,
                                   logging_level=logging_level,
                                   suffix=suffix)
-        #                          codegen_opts=codegen_opts)
 
     def test_iaf_psc_exp(self):
         # import spynnaker and plotting stuff
         import pyNN.spiNNaker as p
-        from pyNN.utility.plotting import Figure, Panel
         import matplotlib.pyplot as plt
 
         # import models
@@ -67,13 +62,10 @@ class TestSpiNNakerIafPscExp:
         synapticRsp = "I_syn_exc"
 
         # Set the run time of the execution
-        run_time = 150
+        run_time = 200
 
         # Set the time step of the simulation in milliseconds
-        time_step = 0.1
-
-        # Set the number of neurons to simulate
-        n_neurons = 1
+        time_step = 1
 
         # Set the i_offset current
         i_offset = 0.0
@@ -85,21 +77,18 @@ class TestSpiNNakerIafPscExp:
         spike_times = [1, 5, 100]
 
         p.setup(time_step)
-        p.set_number_of_synapse_cores(iaf_psc_exp_neuron_nestml, 0)    # Fix an issue with new feature in the main code, where sPyNNaker is trying to determine whether to use a split core model where neurons and synapses are on separate cores, or a single core model where they are processed on the same core. In the older code, this was a more manual decision, but in the main code it is happening automatically unless overridden.  This is particularly true when you use the 0.1ms timestep, where it will be attempting to keep to real-time execution by using split cores.
+        #p.set_number_of_synapse_cores(iaf_psc_exp_neuron_nestml, 0)    # Fix an issue with new feature in the main code, where sPyNNaker is trying to determine whether to use a split core model where neurons and synapses are on separate cores, or a single core model where they are processed on the same core. In the older code, this was a more manual decision, but in the main code it is happening automatically unless overridden.  This is particularly true when you use the 0.1ms timestep, where it will be attempting to keep to real-time execution by using split cores.
 
         spikeArray = {"spike_times": spike_times}
-        excitation = p.Population(
-            n_neurons, p.SpikeSourceArray(**spikeArray), label="input")
+        excitation = p.Population(1, p.SpikeSourceArray(**spikeArray), label="input")
 
-        spiking_neuron = p.Population(
-            n_neurons, iaf_psc_exp_neuron_nestml(), label="iaf_psc_exp_neuron_nestml_spiking")
+        spiking_neuron = p.Population(1, iaf_psc_exp_neuron_nestml(), label="iaf_psc_exp_neuron_nestml_spiking")
         p.Projection(
             excitation, spiking_neuron,
             p.OneToOneConnector(), receptor_type=exc_input,
             synapse_type=p.StaticSynapse(weight=weight))
 
-        receiving_neuron = p.Population(
-            n_neurons, iaf_psc_exp_neuron_nestml(), label="iaf_psc_exp_neuron_nestml_receiving")
+        receiving_neuron = p.Population(1, iaf_psc_exp_neuron_nestml(), label="iaf_psc_exp_neuron_nestml_receiving")
         p.Projection(
             spiking_neuron, receiving_neuron,
             p.OneToOneConnector(), receptor_type=exc_input,
@@ -113,9 +102,10 @@ class TestSpiNNakerIafPscExp:
         receiving_neuron.record([membranePot])
         receiving_neuron.record([synapticRsp])
 
+        # run the simulation
         p.run(run_time)
 
-        # get v for each example
+        # grab recorded data
         spikes_spiking_neuron = spiking_neuron.get_data("spikes")
         v_spiking_neuron = spiking_neuron.get_data(membranePot)
         i_syn_exc_spiking_neuron = spiking_neuron.get_data(synapticRsp)
@@ -128,42 +118,18 @@ class TestSpiNNakerIafPscExp:
         for spike in spikes_receiving_neuron.segments[0].spiketrains:
             combined_spikes.append(spike)
 
-        Figure(
-            # pylint: disable=no-member
-            # membrane potentials for each example
-
-            Panel(combined_spikes,
-                  xlabel="Time (ms)",
-                  data_labels=["spikes"],
-                  yticks=True, xlim=(0, run_time), xticks=True),
-
-            Panel(v_spiking_neuron.segments[0].filter(name=membranePot)[0],
-                  xlabel="Time (ms)",
-                  ylabel="Membrane potential (mV)",
-                  data_labels=[spiking_neuron.label],
-                  yticks=True, xlim=(0, run_time), xticks=True),
-
-            Panel(i_syn_exc_spiking_neuron.segments[0].filter(name=synapticRsp)[0],
-                  xlabel="Time (ms)",
-                  ylabel="Synaptic response",
-                  data_labels=[spiking_neuron.label],
-                  yticks=True, xlim=(0, run_time), xticks=True),
-
-            Panel(v_receiving_neuron.segments[0].filter(name=membranePot)[0],
-                  xlabel="Time (ms)",
-                  ylabel="Membrane potential (mV)",
-                  data_labels=[receiving_neuron.label],
-                  yticks=True, xlim=(0, run_time), xticks=True),
-
-            Panel(i_syn_exc_receiving_neuron.segments[0].filter(name=synapticRsp)[0],
-                  xlabel="Time (ms)",
-                  ylabel="Synaptic response",
-                  data_labels=[receiving_neuron.label],
-                  yticks=True, xlim=(0, run_time), xticks=True),
-
-            title="Generated: Two chained neurons",
-            annotations="Simulated with {}".format(p.name())
-        )
-        plt.savefig("spinnaker.png")
+        fig, ax = plt.subplots(5, 1, sharex=True, figsize=figsize(11.2 / 6))
+        plot_spike_raster(ax[0], combined_spikes, label="spikes")
+        plot_analog_signal(ax[1], i_syn_exc_spiking_neuron.segments[0].filter(name=synapticRsp)[0], label=spiking_neuron.label, ylabel=r"$I_\mathrm{syn,exc}$")
+        plot_analog_signal(ax[2], v_spiking_neuron.segments[0].filter(name=membranePot)[0], label=spiking_neuron.label, ylabel=r"$V_m$ [mV]")
+        plot_analog_signal(ax[3], i_syn_exc_receiving_neuron.segments[0].filter(name=synapticRsp)[0], label=receiving_neuron.label, ylabel=r"$I_\mathrm{syn,exc}$")
+        plot_analog_signal(ax[4], v_receiving_neuron.segments[0].filter(name=membranePot)[0], label=receiving_neuron.label, ylabel=r"$V_m$ [mV]")
+        ax[-1].set_xlim(0, run_time)
+        ax[-1].set_xlabel("Time [ms]")
+        fig.suptitle("Generated: Two chained neurons")
+        fig.align_ylabels(ax)
+        fig.tight_layout()
+        fig.savefig("test_spinnaker_iaf_psc_exp.png")
+        plt.close(fig)
 
         p.end()

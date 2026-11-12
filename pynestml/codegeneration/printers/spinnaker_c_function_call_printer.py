@@ -15,10 +15,18 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-#
+
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
+
+from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.codegeneration.printers.function_call_printer import FunctionCallPrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.symbols.predefined_functions import PredefinedFunctions
@@ -27,16 +35,22 @@ from pynestml.utils.ast_utils import ASTUtils
 
 class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
     r"""
-    Printer for ASTFunctionCall in C Spinnaker API  syntax.
+    Printer for ASTFunctionCall in C SpiNNaker API  syntax.
     """
 
+    @override
+    def __init__(self, expression_printer: ExpressionPrinter, use_exp_luts: bool = False):
+        super().__init__(expression_printer)
+        self.use_exp_luts = use_exp_luts
+
+    @override
     def print_function_call(self, node: ASTFunctionCall) -> str:
         r"""
-        Converts a single handed over function call to C Spinnaker API syntax.
+        Converts a single handed over function call to C SpiNNaker API syntax.
 
         Parameters
         ----------
-        function_call
+        node
             The function call node to convert.
 
         Returns
@@ -44,26 +58,47 @@ class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
         s
             The function call string in C syntax.
         """
-        function_name = node.get_name()
 
-        if function_name in [PredefinedFunctions.TIME_RESOLUTION, PredefinedFunctions.TIME_TIMESTEP]:
+
+        assert isinstance(node, ASTFunctionCall)
+
+        if node.get_name() in [PredefinedFunctions.TIME_RESOLUTION, PredefinedFunctions.TIME_TIMESTEP]:
             # context dependent; we assume the template contains the necessary definitions
-            return "parameter->__h"
+            return 'parameter->__h'
 
-        if function_name == PredefinedFunctions.TIME_STEPS:
+        if node.get_name() == PredefinedFunctions.TIME_STEPS:
             raise Exception("time_steps() function not yet implemented")
 
-        if function_name == PredefinedFunctions.RANDOM_NORMAL:
+        if node.get_name() == PredefinedFunctions.RANDOM_NORMAL:
             raise Exception("rng functions not yet implemented")
 
-        if function_name == PredefinedFunctions.RANDOM_UNIFORM:
+        if node.get_name() == PredefinedFunctions.RANDOM_UNIFORM:
             raise Exception("rng functions not yet implemented")
 
-        return super().print_function_call(node)
+        if node.get_name() == PredefinedFunctions.GET_WEIGHT:
+                return "(1E3 * " + self._expression_printer.print(node.get_args()[0]) + ")"
+
+        function_name = self._print_function_call_format_string(node)
+
+        if ASTUtils.needs_arguments(node):
+            if node.get_name() == PredefinedFunctions.PRINT or node.get_name() == PredefinedFunctions.PRINT:
+                return function_name.format(self._print_print_statement(node))
+
+            return function_name.format(*self._print_function_call_argument_list(node))
+
+        return function_name
+
+    def _print_function_call_argument_list(self, function_call: ASTFunctionCall) -> tuple[str, ...]:
+        ret = []
+
+        for arg in function_call.get_args():
+            ret.append(self._expression_printer.print(arg))
+
+        return tuple(ret)
 
     def _print_function_call_format_string(self, function_call: ASTFunctionCall) -> str:
         r"""
-        Converts a single handed over function call to C Spinnaker API syntax.
+        Converts a single handed over function call to C SpiNNaker API syntax.
 
         Parameters
         ----------
@@ -75,6 +110,7 @@ class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
         s
             The function call string in C syntax.
         """
+
         function_name = function_call.get_name()
 
         if function_name == PredefinedFunctions.CLIP:
@@ -88,7 +124,25 @@ class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
             return "MIN({!s}, {!s})"
 
         if function_name == PredefinedFunctions.EXP:
-            return "expk({!s})"
+            if self.use_exp_luts:
+                if len(function_call.get_args()) != 1:
+                    raise Exception("exp() should have exactly one argument!")
+
+                if not function_call.get_args()[0].get_binary_operator():
+                    raise Exception("exp() argument should be of the form -a/b!")
+
+                if not function_call.get_args()[0].get_binary_operator().is_div_op:
+                    raise Exception("exp() argument should be of the form -a/b!")
+
+                if not function_call.get_args()[0].get_lhs().unary_operator.is_unary_minus:
+                    raise Exception("exp() argument should be of the form -a/b!")
+
+                lhs = function_call.get_args()[0].get_lhs().get_expression()
+                lut_name = "lut_" + function_call.get_args()[0].get_rhs().get_variable().name
+
+                return "(TYPECAST_TO_ACCUM(maths_lut_exponential_decay(" + self._expression_printer.print(lhs) + ", " + lut_name + ")) >> 11)"
+            else:
+                return "expk({!s})"
 
         if function_name == PredefinedFunctions.LN:
             return "logk({!s})"
@@ -118,13 +172,13 @@ class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
             return "kdik((expk({!s}) - expk(-{!s})), (expk({!s}) + expk(-{!s})))"
 
         if function_name == PredefinedFunctions.ERF:
-            raise Exception("Erf not defined for spinnaker")
+            raise Exception("erf() not defined for SpiNNaker")
 
         if function_name == PredefinedFunctions.ERFC:
-            raise Exception("Erfc not defined for spinnaker")
+            raise Exception("erfc() not defined for SpiNNaker")
 
         if function_name == PredefinedFunctions.EXPM1:
-            raise Exception("Expm1 not defined for spinnaker")
+            raise Exception("expm1() not defined for SpiNNaker")
 
         if function_name == PredefinedFunctions.PRINT:
             return "printf(\"%s\", {!s})"
