@@ -51,38 +51,11 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-# publication-ready figure style
-plt.rcParams.update({
-    # grid lines for all plots
-    "axes.grid": True,
-    "grid.linestyle": "--",
-    "grid.alpha": 0.7,
-    "grid.linewidth": 0.8,
+# shared figure style, kept with the SpiNNaker tests
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tests" / "spinnaker_tests"))
+from spinnaker_test_utils import apply_publication_style
 
-    # font sizes
-    "font.size": 14,
-    "axes.labelsize": 16,
-    "xtick.labelsize": 14,
-    "ytick.labelsize": 14,
-    "legend.fontsize": 13,
-    "axes.titlesize": 16,
-
-    # lines and markers
-    "lines.linewidth": 2.,
-    "lines.markersize": 8.,
-    "errorbar.capsize": 4.,
-    "axes.linewidth": 1.2,
-    "xtick.major.width": 1.2,
-    "ytick.major.width": 1.2,
-    "xtick.major.size": 5.,
-    "ytick.major.size": 5.,
-
-    # output
-    "savefig.dpi": 300,
-    "savefig.bbox": "tight",
-    "pdf.fonttype": 42,    # embed TrueType fonts (rather than Type 3) in PDF/PS output, as required by many publishers
-    "ps.fonttype": 42,
-})
+apply_publication_style()
 
 # whether to draw titles inside the figures; disabled for publication (the caption takes this role)
 SHOW_TITLES = False
