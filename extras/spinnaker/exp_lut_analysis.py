@@ -35,7 +35,7 @@ from matplotlib.lines import Line2D
 
 # shared figure style, kept with the SpiNNaker tests
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tests" / "spinnaker_tests"))
-from spinnaker_test_utils import apply_publication_style
+from spinnaker_test_utils import apply_publication_style, figsize
 
 apply_publication_style()
 
@@ -213,7 +213,7 @@ def write_table_csvs(tables):
 
 def plot_anatomy(widths=(11,)):
     """Quantisation and truncation up close, in units of each table's LSB."""
-    fig, axes = plt.subplots(2, len(widths), figsize=(6.5 * len(widths) + 1.5, 7.5),
+    fig, axes = plt.subplots(2, len(widths), figsize=figsize(7.5 / (6.5 * len(widths) + 1.5)),
                              squeeze=False, constrained_layout=True)
 
     for col, bits in enumerate(widths):
@@ -272,7 +272,7 @@ def plot_anatomy(widths=(11,)):
 
 def plot_bits_tradeoff(roundings=("round", "floor")):
     """Error and table length against bits per entry, for natural-length tables."""
-    fig, (ax_err, ax_len) = plt.subplots(2, 1, figsize=(8, 5), sharex=True,
+    fig, (ax_err, ax_len) = plt.subplots(2, 1, figsize=figsize(5 / 8), sharex=True,
                                          constrained_layout=True,
                                          gridspec_kw={"height_ratios": [1, 1]})
     bits = np.array(list(SWEEP_BITS))
@@ -310,7 +310,7 @@ def plot_bits_tradeoff(roundings=("round", "floor")):
 
 def plot_natural_summary(tables):
     """Rounding comparison for the natural-length 8/16/32-bit tables."""
-    fig, axes = plt.subplots(2, 2, figsize=(12, 8.5), sharex=True, constrained_layout=True)
+    fig, axes = plt.subplots(2, 2, figsize=figsize(8.5 / 12), sharex=True, constrained_layout=True)
     x = np.arange(len(WORD_SIZES))
     width = 0.36
     by_key = {(t.bits, t.rounding): t for t in tables}

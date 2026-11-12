@@ -24,6 +24,8 @@ import pytest
 
 from pynestml.frontend.pynestml_frontend import generate_spinnaker_target
 
+from spinnaker_test_utils import figsize, plot_analog_signal, plot_spike_raster
+
 
 class TestSpiNNakerIgnoreAndFire:
     """SpiNNaker code generation tests"""
@@ -49,7 +51,6 @@ class TestSpiNNakerIgnoreAndFire:
     def test_ignore_and_fire(self):
         # import spynnaker and plotting stuff
         import pyNN.spiNNaker as p
-        from pyNN.utility.plotting import Figure, Panel
         import matplotlib.pyplot as plt
 
         # import models
@@ -126,41 +127,17 @@ class TestSpiNNakerIgnoreAndFire:
         spikes_receiving_neuron = receiving_neuron.get_data("spikes")
         v_receiving_neuron = receiving_neuron.get_data(membranePot)
 
-        plt.clf()
-
-        Figure(
-            # membrane potentials for each example
-
-            Panel(spikes_spiking_neuron.segments[0].spiketrains,
-                  xlabel="Time (ms)",
-                  data_labels=["spikes sender"],
-                  yticks=True, xlim=(0, run_time), xticks=True),
-
-            Panel(spikes_receiving_neuron.segments[0].spiketrains,
-                  xlabel="Time (ms)",
-                  data_labels=["spikes receiver"],
-                  yticks=True, xlim=(0, run_time), xticks=True),
-
-            #Panel(combined_spikes,
-            #      xlabel="Time (ms)",
-            #      data_labels=["spikes"],
-            #      yticks=True, xlim=(0, run_time), xticks=True),
-
-            Panel(v_spiking_neuron.segments[0].filter(name=membranePot)[0],
-                  xlabel="Time (ms)",
-                  ylabel="Membrane potential (mV)",
-                  data_labels=[spiking_neuron.label],
-                  yticks=True, xlim=(0, run_time), xticks=True),
-
-            Panel(v_receiving_neuron.segments[0].filter(name=membranePot)[0],
-                  xlabel="Time (ms)",
-                  ylabel="Membrane potential (mV)",
-                  data_labels=[receiving_neuron.label],
-                  yticks=True, xlim=(0, run_time), xticks=True),
-
-            title="Ignore-and-fire neuron demo",
-            annotations="Simulated with {}".format(p.name())
-        )
-        plt.savefig("spinnaker_ignore_and_fire.png")
+        fig, ax = plt.subplots(4, 1, sharex=True, figsize=figsize(9.2 / 6))
+        plot_spike_raster(ax[0], spikes_spiking_neuron.segments[0].spiketrains, label="spikes sender")
+        plot_spike_raster(ax[1], spikes_receiving_neuron.segments[0].spiketrains, label="spikes receiver")
+        plot_analog_signal(ax[2], v_spiking_neuron.segments[0].filter(name=membranePot)[0], label=spiking_neuron.label, ylabel="Phase")
+        plot_analog_signal(ax[3], v_receiving_neuron.segments[0].filter(name=membranePot)[0], label=receiving_neuron.label, ylabel="Phase")
+        ax[-1].set_xlim(0, run_time)
+        ax[-1].set_xlabel("Time [ms]")
+        fig.suptitle("Ignore-and-fire neuron demo")
+        fig.align_ylabels(ax)
+        fig.tight_layout()
+        fig.savefig("spinnaker_ignore_and_fire.png")
+        plt.close(fig)
 
         p.end()

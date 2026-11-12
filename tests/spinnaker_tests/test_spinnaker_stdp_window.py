@@ -27,6 +27,7 @@ import pytest
 from pynestml.frontend.pynestml_frontend import generate_spinnaker_target
 
 from tests.test_utils import get_trace_at
+from spinnaker_test_utils import figsize
 
 
 # results of the STDP window test, keyed by ``use_exp_luts`` (or "builtin" for the sPyNNaker built-in models); collected across the parametrized runs so that they can be plotted together
@@ -235,7 +236,7 @@ class TestSpiNNakerSTDPWindow:
                                                              dt_max=np.amax(all_dt),
                                                              initial_weight=initial_weight)
 
-        fig, (ax, ax_err) = plt.subplots(2, 1, sharex=True, figsize=(6.4, 6.), gridspec_kw={"height_ratios": [3, 1]})
+        fig, (ax, ax_err) = plt.subplots(2, 1, sharex=True, figsize=figsize(6. / 6.4), gridspec_kw={"height_ratios": [3, 1]})
 
         ax.plot(dt_cont, dw_cont, '-', color="grey", alpha=.4, zorder=0)
         ax.plot(first_result["spike_time_axis"], first_result["ref_weights"], 'x', color="tab:blue", markersize=8, label="ref")
@@ -383,7 +384,7 @@ class TestSpiNNakerSTDPWindow:
 
         lsb = 2**-15    # LSB of the S16.15 (accum) format in which NESTML weights are stored
 
-        fig, (ax, ax_err) = plt.subplots(2, 1, sharex=True, figsize=(6.4, 6.), gridspec_kw={"height_ratios": [2, 2]})
+        fig, (ax, ax_err) = plt.subplots(2, 1, sharex=True, figsize=figsize(6. / 6.4), gridspec_kw={"height_ratios": [2, 2]})
 
         first_result = next(iter(_stdp_drift_results.values()))
         ax.plot(first_result["n_pairings_applied"], first_result["ref_weights"], 'x-', color="tab:blue", markersize=8, label="ref")

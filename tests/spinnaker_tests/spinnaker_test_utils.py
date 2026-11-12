@@ -50,6 +50,7 @@ from pathlib import Path
 import shutil
 
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 import numpy as np
 
 # publication-ready figure style
@@ -90,6 +91,38 @@ PUBLICATION_RC_PARAMS = {
 def apply_publication_style():
     r"""Set the matplotlib rcParams to the shared publication-ready figure style"""
     plt.rcParams.update(PUBLICATION_RC_PARAMS)
+
+
+# width of all figures [inch], so that they come out at the same scale when placed side by side or one above the other
+FIGURE_WIDTH = 8.
+
+
+def figsize(aspect: float):
+    r"""Figure size with the shared width ``FIGURE_WIDTH`` and the given aspect ratio (height / width)"""
+    return (FIGURE_WIDTH, aspect * FIGURE_WIDTH)
+
+
+def plot_spike_raster(ax, spiketrains, label=None, **kwargs):
+    r"""Raster plot of a list of (neo) spike trains, one row per spike train. Keyword arguments are passed on to ``ax.plot()``; for large populations, pass e.g. ``marker=".", markersize=1, markeredgewidth=0``"""
+    kwargs = {"linestyle": "none", "marker": "|", "color": "black", **kwargs}
+    times = [np.asarray(spiketrain.rescale("ms")) for spiketrain in spiketrains]
+    rows = [i * np.ones(len(t)) for i, t in enumerate(times)]
+    ax.plot(np.concatenate(times) if times else [], np.concatenate(rows) if rows else [], **kwargs)
+    ax.set_ylim(-.5, len(spiketrains) - .5)
+    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+    ax.set_ylabel("Neuron index")
+    if label:
+        ax.text(.98, .95, label, transform=ax.transAxes, ha="right", va="top",
+                bbox=dict(facecolor="white", edgecolor="none", alpha=.8))
+
+
+def plot_analog_signal(ax, signal, label=None, ylabel=None):
+    r"""Plot a (neo) analog signal against its time axis [ms]"""
+    ax.plot(np.asarray(signal.times.rescale("ms")), np.asarray(signal.magnitude), label=label)
+    if ylabel:
+        ax.set_ylabel(ylabel)
+    if label:
+        ax.legend()
 
 
 
@@ -352,7 +385,7 @@ def plot_core_activity_range(cores, title, output_path):
     maxs = np.array([core.get("max_percent_active") if core.get("max_percent_active") is not None else core["mean_percent_active"] for core in cores], dtype=float)
     x = np.arange(len(cores))
 
-    fig, ax = plt.subplots(figsize=(12, 6))
+    fig, ax = plt.subplots(figsize=figsize(6 / 12))
     ax.vlines(x, mins, maxs, color="tab:blue", alpha=0.35, linewidth=2, label="Min–max")
     ax.scatter(x, mins, marker="_", color="tab:blue", s=60)
     ax.scatter(x, maxs, marker="_", color="tab:blue", s=60)

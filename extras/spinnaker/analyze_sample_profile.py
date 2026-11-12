@@ -53,7 +53,7 @@ import numpy as np
 
 # shared figure style, kept with the SpiNNaker tests
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tests" / "spinnaker_tests"))
-from spinnaker_test_utils import apply_publication_style
+from spinnaker_test_utils import apply_publication_style, figsize
 
 apply_publication_style()
 
@@ -213,7 +213,7 @@ def plot_core_activity_range(cores, title, output_path):
     maxs = np.array([core.get("max_percent_active") if core.get("max_percent_active") is not None else core["mean_percent_active"] for core in cores], dtype=float)
     x = np.arange(len(cores))
 
-    fig, ax = plt.subplots(figsize=(12, 6))
+    fig, ax = plt.subplots(figsize=figsize(6 / 12))
     ax.vlines(x, mins, maxs, color="tab:blue", alpha=0.35, linewidth=2, label="Min–max")
     ax.scatter(x, mins, marker="_", color="tab:blue", s=60)
     ax.scatter(x, maxs, marker="_", color="tab:blue", s=60)
@@ -237,7 +237,7 @@ def plot_core_activity_bar(cores, title, output_path, implementation):
     labels = [f"{core['chip']}:{core['core']}" for core in cores]
     values = [core["mean_percent_active"] for core in cores]
 
-    plt.figure(figsize=(12, 6))
+    plt.figure(figsize=figsize(6 / 12))
     plt.bar(labels, values)
     plt.xlabel("Core")
     plt.ylabel("Mean active time [%]")
@@ -299,7 +299,7 @@ def plot_comparison(reference, nestml, profile_path):
     x = np.arange(len(labels))
     width = 0.35
 
-    plt.figure(figsize=(9, 6))
+    plt.figure(figsize=figsize(6 / 9))
     plt.bar(x - width / 2, reference_values, width, label="Reference")
     plt.bar(x + width / 2, nestml_values, width, label="NESTML")
     plt.xlabel("Core activity metric")
@@ -335,7 +335,7 @@ def plot_distribution(reference_cores, nestml_cores, profile_path):
 
     bins = np.linspace(min_value, max_value, bin_count + 1)
 
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=figsize(6 / 8))
     plt.hist(
         reference_values,
         bins=bins,
@@ -625,7 +625,7 @@ def plot_sum_core_activity(rows):
             stats[implementation][neurons_count] = (float(np.mean(activities)),
                                                     float(np.std(activities, ddof=1)) if len(activities) > 1 else 0.0)
 
-    fig, (ax, ax_rel) = plt.subplots(2, 1, sharex=True, figsize=(9, 9), gridspec_kw={"height_ratios": [2, 1]})
+    fig, (ax, ax_rel) = plt.subplots(2, 1, sharex=True, figsize=figsize(9 / 9), gridspec_kw={"height_ratios": [2, 1]})
 
     colors = {}
     for implementation, implementation_stats in stats.items():

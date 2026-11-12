@@ -32,13 +32,12 @@ import time
 import pytest
 
 import pyNN.spiNNaker as p
-from pyNN.utility.plotting import Figure, Panel
 from pyNN.random import RandomDistribution
 from pyNN.random import NumpyRNG
 
 from pynestml.frontend.pynestml_frontend import generate_spinnaker_target
 
-from spinnaker_test_utils import analyze_run
+from spinnaker_test_utils import analyze_run, figsize, plot_analog_signal, plot_spike_raster
 
 
 #
@@ -286,14 +285,14 @@ def plot_membrane_potential(results):
     """
     Plot the membrane potential of a neuron and save the figure.
     """
-    fig, ax = plt.subplots(nrows=1, dpi=300)
+    fig, ax = plt.subplots(nrows=1, figsize=figsize(4.8 / 6.4))
 
     ax.set_xlabel("Time [ms]")
     ax.set_ylabel("Membrane potential [mV]")
     ax.set_title(f"\nBalanced Network - {results['implementation']} | N={results['n_neurons']}, g={results['g']}, neurons/core={results['neurons_per_core']} \n"
                  f"input={results['rate_ext_input']} Hz |\n")
 
-    ax.plot(results['v_neuron'].segments[0].filter(name=results['membranePot'])[0])
+    plot_analog_signal(ax, results['v_neuron'].segments[0].filter(name=results['membranePot'])[0])
 
     plt.savefig(
         f"spinnaker_bal_net_V_m__{results['implementation']}_{results['timestamp']}.png"
@@ -306,29 +305,18 @@ def plot_raster(results):
     Plot the raster of spikes for excitatory and inhibitory populations and save the figure.
     """
 
-    Figure(Panel(results['pop_exc_spikes'].segments[0].spiketrains,
-                 xlabel="Time/ms",
-                 xticks=True,
-                 yticks=True,
-                 markersize=5,
-                 xlim=(0, results["t_sim"])),
-               # raster plot of the presynaptic neuron spike times
-           Panel(results['pop_inh_spikes'].segments[0].spiketrains,
-                 xlabel="Time/ms",
-                 xticks=True,
-                 yticks=True,
-                 markersize=5,
-                 xlim=(0, results["t_sim"])),
-
-                title=(
-                    f"Balanced Network - {results['implementation']} | N={results['n_neurons']}, g={results['g']}, "
-                    f"neurons/core={results['neurons_per_core']}\n"
-                    f"input={results['rate_ext_input']} Hz | "
-                    f"CV={results['cv']:.3f}, "
-                    f"Exc={results['exc_firing_rate']:.2f} Hz, "
-                    f"Inh={results['inh_firing_rate']:.2f} Hz \n"
-                )
-            )
+    fig, ax = plt.subplots(2, 1, sharex=True, figsize=figsize(5.2 / 6))
+    plot_spike_raster(ax[0], results['pop_exc_spikes'].segments[0].spiketrains, label="exc", marker=".", markersize=2, markeredgewidth=0)
+    plot_spike_raster(ax[1], results['pop_inh_spikes'].segments[0].spiketrains, label="inh", marker=".", markersize=2, markeredgewidth=0)
+    ax[-1].set_xlim(0, results["t_sim"])
+    ax[-1].set_xlabel("Time [ms]")
+    fig.suptitle(f"Balanced Network - {results['implementation']} | N={results['n_neurons']}, g={results['g']}, "
+                 f"neurons/core={results['neurons_per_core']}\n"
+                 f"input={results['rate_ext_input']} Hz | "
+                 f"CV={results['cv']:.3f}, "
+                 f"Exc={results['exc_firing_rate']:.2f} Hz, "
+                 f"Inh={results['inh_firing_rate']:.2f} Hz \n")
+    fig.tight_layout()
 
     plt.savefig(
         f"bal_net_N{results['n_neurons']}_g{results['g']}_core{results['neurons_per_core']}_"

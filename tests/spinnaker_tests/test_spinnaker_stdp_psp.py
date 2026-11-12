@@ -27,6 +27,8 @@ import time
 
 from pynestml.frontend.pynestml_frontend import generate_spinnaker_target
 
+from spinnaker_test_utils import figsize
+
 
 class TestSpiNNakerSTDPPSP:
     """SpiNNaker code generation tests"""
@@ -100,7 +102,7 @@ class TestSpiNNakerSTDPPSP:
         pre_spike_times = [10.]
         times, v_post_neuron, i_syn_exc_post_neuron = self.run_sim(pre_spike_times, weight=weight)
 
-        fig, ax = plt.subplots(nrows=2)
+        fig, ax = plt.subplots(nrows=2, figsize=figsize(4.8 / 6.4))
         ax[0].plot(times, v_post_neuron, label="V_m")
         ax[1].plot(times, i_syn_exc_post_neuron, label="I_exc")
         for _ax in ax:
