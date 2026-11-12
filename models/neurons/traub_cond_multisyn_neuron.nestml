@@ -107,7 +107,6 @@ model traub_cond_multisyn_neuron:
                g_GABAB$' = -g_GABAB$ / tau_GABAB_1
 
     parameters:
-        V_m_init mV = -70 mV    # Initial membrane potential
         C_m pF = 100 pF         # Membrane capacitance
         g_Na nS = 10000 nS      # Sodium peak conductance
         g_K nS = 8000 nS        # Potassium peak conductance
@@ -115,6 +114,7 @@ model traub_cond_multisyn_neuron:
         E_Na mV = 50 mV         # Sodium reversal potential
         E_K mV = -100 mV        # Potassium reversal potentia
         E_L mV = -67 mV         # Leak reversal potential (a.k.a. resting potential)
+        V_m_init mV = -70 mV    # Initial membrane potential
         V_Tr mV = -20 mV        # Spike threshold
         refr_T ms = 2 ms        # Duration of refractory period
 
