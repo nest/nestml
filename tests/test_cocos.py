@@ -388,17 +388,29 @@ class TestCoCos:
         model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")), "CoCoVectorInputPortSizeAndType.nestml"))
         assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 1
 
-    def test_parameters_referring_to_internals(self):
-        model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")), "parameters_referring_to_internals_neuron.nestml"))
-        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) > 0
+    def test_invalid_parameters_referring_to_internals(self):
+        model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")), "parameters_referring_to_internals_neuron.nestml"))
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 1
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR, message_code=MessageCode.VARIABLE_DEFINITION_IN_PARAMETERS_BLOCK_NOT_ALLOWED_TO_REFER_TO_INTERNALS_BLOCK)) == 1
 
-    def test_parameters_referring_to_state(self):
-        model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")), "parameters_referring_to_state_neuron.nestml"))
-        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) > 0
+    def test_invalid_parameters_referring_to_state(self):
+        model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")), "parameters_referring_to_state_neuron.nestml"))
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 1
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR, message_code=MessageCode.VARIABLE_DEFINITION_IN_PARAMETERS_BLOCK_NOT_ALLOWED_TO_REFER_TO_STATE_BLOCK)) == 1
 
-    def test_internals_referring_to_state_neuron(self):
-        model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")), "internals_referring_to_state_neuron.nestml"))
-        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) > 0
+    def test_invalid_parameters_referring_to_state_via_inline_expression(self):
+        model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")), "parameters_referring_to_state_via_inline_expression_neuron.nestml"))
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 1
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR, message_code=MessageCode.VARIABLE_DEFINITION_IN_PARAMETERS_BLOCK_NOT_ALLOWED_TO_REFER_TO_STATE_BLOCK)) == 1
+
+    def test_invalid_internals_referring_to_state(self):
+        model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")), "internals_referring_to_state_neuron.nestml"))
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 1
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR, message_code=MessageCode.VARIABLE_DEFINITION_IN_INTERNALS_BLOCK_NOT_ALLOWED_TO_REFER_TO_STATE_BLOCK)) == 1
+
+    def test_valid_parameters_internals_state_declaration_order(self):
+        model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "valid")), "parameters_internals_state_declaration_order_neuron.nestml"))
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 0
 
     def test_assignment_to_unit_type_valid(self):
         model = parse_and_validate_model(

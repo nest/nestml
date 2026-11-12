@@ -19,12 +19,21 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
+from typing import Any, Dict, List, Optional, Set
+
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
 
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_declaration import ASTDeclaration
+from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
@@ -35,119 +44,164 @@ from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-def get_variable_block_type(var: ASTVariable) -> Optional[BlockType]:
+class CoCoParametersInternalsStateDeclarationOrder(CoCo):
     r"""
-    Determines in which block (state, parameters, or internals) a variable was declared.
+    Definitions of variables in the ``state`` block are allowed to refer to variables from the ``parameters`` and ``internals`` blocks; definitions in the ``internals`` block are only allowed to refer to variables from the ``parameters`` block; definitions in the ``parameters`` block may refer to neither ``state`` nor ``internals`` variables, but have to be self-contained.
 
-    :param var: an ASTVariable node
-    :return: the BlockType in which the variable was declared, or None if not found
-    """
-    # Get the symbol from the variable
-    if var.get_scope() is None:
-        return None
-
-    symbol = var.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
-
-    if symbol is None or not isinstance(symbol, VariableSymbol):
-        return None
-
-    # Return the block_type from the symbol
-    return symbol.block_type
-
-
-class CoCoParametersInternalsStateDeclarationOrder:
-    r"""
-    Variables in the state block are only allowed to refer back to internals and parameters, internals are only allowed to refer back to parameters, and parameters can refer back to neither but need to be defined in a self-contained manner.
+    References that go through an inline expression are followed, so that e.g. a parameter cannot indirectly depend on a state variable via an inline expression.
 
     Allowed:
 
-    .. ::
+    .. code-block:: nestml
 
-          parameters:
-              bar real = 123
+       parameters:
+           bar real = 123
 
-          state:
-              foo real = bar
-
-    Not allowed:
-
-    .. ::
-
-          parameters:
-              bar real = foo
-
-          state:
-              foo real = 123
+       state:
+           foo real = bar
 
     Not allowed:
 
-    .. ::
+    .. code-block:: nestml
 
-          state:
-              foo real = 123
+       state:
+           foo real = 123
 
-          parameters:
-              bar real = foo
+       parameters:
+           bar real = foo
 
+    Not allowed:
+
+    .. code-block:: nestml
+
+       state:
+           foo real = 123
+
+       internals:
+           bar real = foo
+
+    Not allowed:
+
+    .. code-block:: nestml
+
+       internals:
+           foo real = 123
+
+       parameters:
+           bar real = foo
     """
 
     @classmethod
-    def check_co_co(cls, node: ASTModel):
+    @override
+    def check_co_co(cls, node: ASTNode, metadata: Optional[Dict[str, Dict[str, Any]]] = None):
         """
-        Ensures the coco for the handed over neuron.
-        :param node: a single neuron instance.
+        Ensures the coco for the handed over model.
+        :param node: a single model instance.
         """
-        node.accept(CoCoParametersDefinedBeforeInternalsDefinedBeforeStateVisitor())
+        assert isinstance(node, ASTModel), "This coco can only be called on ASTModels!"
+
+        node.accept(CoCoParametersInternalsStateDeclarationOrderVisitor())
 
 
-class CoCoParametersDefinedBeforeInternalsDefinedBeforeStateVisitor(ASTVisitor):
+class CoCoParametersInternalsStateDeclarationOrderVisitor(ASTVisitor):
+    r"""
+    Visits all declarations in the ``parameters``, ``internals`` and ``state`` blocks and checks whether their defining expressions only refer to variables from blocks that they are allowed to refer to.
+    """
 
-    def visit_declaration(self, node: ASTDeclaration):
+    # for each type of block, the types of block that its definitions are not allowed to refer to
+    _forbidden_references = {
+        BlockType.PARAMETERS: {BlockType.INTERNALS, BlockType.STATE},
+        BlockType.INTERNALS: {BlockType.STATE},
+        BlockType.STATE: set()
+    }
+
+    def visit_declaration(self, node: ASTDeclaration) -> None:
         """
-        Ensures the coco.
-        :param node: a single equation object.
+        Checks the coco on the current declaration.
+        :param node: a single declaration.
         """
-        if not isinstance(node.get_parent(), ASTBlockWithVariables):
-            # this is a local declaration -- skip
+        block = node.get_parent()
+        if not isinstance(block, ASTBlockWithVariables):
+            # this is a local declaration (for instance, in the update block or in a function) -- skip
             return
 
-        if node.get_parent().is_parameters:
+        if block.is_parameters:
             block_containing_declaration = BlockType.PARAMETERS
-        elif node.get_parent().is_internals:
+        elif block.is_internals:
             block_containing_declaration = BlockType.INTERNALS
-        elif node.get_parent().is_state:
-            block_containing_declaration = BlockType.STATE
         else:
-            # This should not happen, as declarations should only be allowed in parameters, internals, or state blocks
-            raise Exception(f"Declaration is not contained in parameters, internals, or state block.")
+            assert block.is_state
+            block_containing_declaration = BlockType.STATE
 
-        # get defining expression
-        expr = node.get_expression()
-        assert expr is not None, "Could not find defining expression for declaration"
+        forbidden_block_types = self._forbidden_references[block_containing_declaration]
+        if not forbidden_block_types:
+            return
 
-        # grab variables in ``expr``
-        variables = []
+        if node.get_expression() is None:
+            # no defining expression (for instance, ``foo real`` without initial value)
+            return
 
-        def collect_vars(node):
-            if isinstance(node, ASTVariable):
-                variables.append(node)
-
-        expr.accept(ASTHigherOrderVisitor(visit_funcs=collect_vars))
-
-        # for each variable, check where it is declared
-        for var in variables:
-            if var.name in PredefinedVariables.get_variables():
-                # skip predefined variables
+        already_reported: Set[str] = set()
+        for var, symbol in self._collect_referenced_variable_symbols(node.get_expression()):
+            if symbol.block_type not in forbidden_block_types:
                 continue
 
-            block_type = get_variable_block_type(var)
+            if symbol.get_symbol_name() in already_reported:
+                continue
 
-            if block_containing_declaration == BlockType.PARAMETERS and block_type == BlockType.STATE:
-                code, message = Messages.get_variable_definition_in_parameters_block_not_allowed_to_refer_to_state_block(str(var))
-                Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.ERROR)
-            elif block_containing_declaration == BlockType.PARAMETERS and block_type == BlockType.INTERNALS:
-                code, message = Messages.get_variable_definition_in_parameters_block_not_allowed_to_refer_to_internals_block(str(var))
-                Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.ERROR)
-            elif block_containing_declaration == BlockType.INTERNALS and block_type == BlockType.STATE:
-                code, message = Messages.get_variable_definition_in_internals_block_not_allowed_to_refer_to_state_block(str(var))
-                Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.ERROR)
+            already_reported.add(symbol.get_symbol_name())
+
+            if block_containing_declaration == BlockType.PARAMETERS and symbol.block_type == BlockType.STATE:
+                code, message = Messages.get_variable_definition_in_parameters_block_not_allowed_to_refer_to_state_block(symbol.get_symbol_name())
+            elif block_containing_declaration == BlockType.PARAMETERS and symbol.block_type == BlockType.INTERNALS:
+                code, message = Messages.get_variable_definition_in_parameters_block_not_allowed_to_refer_to_internals_block(symbol.get_symbol_name())
+            else:
+                assert block_containing_declaration == BlockType.INTERNALS and symbol.block_type == BlockType.STATE
+                code, message = Messages.get_variable_definition_in_internals_block_not_allowed_to_refer_to_state_block(symbol.get_symbol_name())
+
+            Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.ERROR)
+
+    @classmethod
+    def _collect_referenced_variable_symbols(cls, expr: ASTExpressionNode) -> List:
+        r"""
+        Collect all variables referenced in ``expr``, together with their symbols. References to inline expressions are followed (transitively), and the variables referenced in the inline expression's defining expression are included in the result.
+
+        Variables that cannot be resolved (for instance, physical units, or variables that are not defined, which is reported by a different coco) and predefined variables are skipped.
+
+        :param expr: the expression to search for variable references
+        :return: a list of tuples ``(variable, symbol)``
+        """
+        result = []
+        visited_inline_expressions: Set[str] = set()
+        exprs_to_visit = [expr]
+
+        while exprs_to_visit:
+            variables: List[ASTVariable] = []
+
+            def collect_vars(_node):
+                if isinstance(_node, ASTVariable):
+                    variables.append(_node)
+
+            exprs_to_visit.pop().accept(ASTHigherOrderVisitor(visit_funcs=collect_vars))
+
+            for var in variables:
+                if var.get_name() in PredefinedVariables.get_variables():
+                    continue
+
+                if var.get_scope() is None:
+                    continue
+
+                symbol = var.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
+                if symbol is None or not isinstance(symbol, VariableSymbol):
+                    continue
+
+                if symbol.is_inline_expression:
+                    if symbol.get_symbol_name() not in visited_inline_expressions and symbol.get_declaring_expression() is not None:
+                        visited_inline_expressions.add(symbol.get_symbol_name())
+                        exprs_to_visit.append(symbol.get_declaring_expression())
+
+                    continue
+
+                result.append((var, symbol))
+
+        return result

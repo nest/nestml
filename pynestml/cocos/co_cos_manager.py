@@ -129,7 +129,7 @@ class CoCosManager:
     @classmethod
     def check_parameters_internals_state_declaration_order(cls, model: ASTModel):
         """
-        Checks that all variables have been declared at most once per scope.
+        Checks that definitions in the parameters block do not refer to internals or state variables, and that definitions in the internals block do not refer to state variables.
         :param model: a single model instance
         """
         CoCoParametersInternalsStateDeclarationOrder.check_co_co(model)
