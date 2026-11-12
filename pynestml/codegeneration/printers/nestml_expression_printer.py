@@ -104,6 +104,9 @@ class NESTMLExpressionPrinter(ExpressionPrinter):
         if node.is_div_op:
             return " / "
 
+        if node.is_integer_div_op:
+            return " // "
+
         if node.is_modulo_op:
             return " % "
 

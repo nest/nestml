@@ -86,6 +86,9 @@ class ASTPowerVisitor(ASTVisitor):
                 if op.is_div_op:
                     return self.calculate_numeric_value(lhs) / self.calculate_numeric_value(rhs)
 
+                if op.is_integer_div_op:
+                    return int(self.calculate_numeric_value(lhs) / self.calculate_numeric_value(rhs))    # C-style truncated division
+
                 if op.is_modulo_op:
                     return self.calculate_numeric_value(lhs) % self.calculate_numeric_value(rhs)
 

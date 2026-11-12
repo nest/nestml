@@ -30,6 +30,7 @@ from pynestml.cocos.co_co_convolve_cond_correctly_built import CoCoConvolveCondC
 from pynestml.cocos.co_co_correct_numerator_of_unit import CoCoCorrectNumeratorOfUnit
 from pynestml.cocos.co_co_correct_order_in_equation import CoCoCorrectOrderInEquation
 from pynestml.cocos.co_co_quantities_valid import CoCoQuantitiesValid
+from pynestml.cocos.co_co_truncation_operands_dimensionless import CoCoTruncationOperandsDimensionless
 from pynestml.cocos.co_co_each_block_defined_at_most_once import CoCoEachBlockDefinedAtMostOnce
 from pynestml.cocos.co_co_emit_spike_function_arguments import CoCoEmitSpikeFunctionArguments
 from pynestml.cocos.co_co_equations_only_for_init_values import CoCoEquationsOnlyForInitValues
@@ -231,6 +232,14 @@ class CoCosManager:
         :param model: a single model object.
         """
         CoCoQuantitiesValid.check_co_co(model)
+
+    @classmethod
+    def check_truncation_operands_dimensionless(cls, model: ASTModel):
+        """
+        Checks that integer division (``//``, ``//=``) and the rounding functions (``floor()``, ``ceil()``, ``round()``) are only applied to dimensionless values.
+        :param model: a single model object.
+        """
+        CoCoTruncationOperandsDimensionless.check_co_co(model)
 
     @classmethod
     def check_model_names_unique(cls, compilation_unit: ASTCompilationUnit):
@@ -540,6 +549,7 @@ class CoCosManager:
             cls.check_correct_usage_of_kernels(model)
             cls.check_resolution_func_used(model)    # ``__h = resolution()`` is added after transformations; put this check inside the ``if`` to make sure it's not always triggered
             cls.check_expression_correct(model)
+            cls.check_truncation_operands_dimensionless(model)
             if FrontendConfiguration.get_target_platform().upper() != "NEST_COMPARTMENTAL":
                 cls.check_integrate_odes_called_if_equations_defined(model)
             else:

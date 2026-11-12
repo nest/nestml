@@ -164,7 +164,7 @@ mole      mol     amount of substance
 candela   cd      luminous intensity
 ========  ======  ===================
 
-Any other physical unit can be expressed as a combination of these seven units. For this, the operators ``*`` (multiplication), ``/`` (division of real numbers), ``//`` (integer division), ``**`` (power) and ``()`` (parentheses) can be used (see below for examples).
+Any other physical unit can be expressed as a combination of these seven units. For this, the operators ``*`` (multiplication), ``/`` (division), ``**`` (power) and ``()`` (parentheses) can be used (see below for examples).
 
 NESTML also supports the usage of many named derived units such as Newton, Henry or lux. The following units are defined:
 
@@ -406,6 +406,48 @@ The preferred units of all other quantities follow from these, such that the sys
 A target platform can exchange values of some quantities with the user in a different unit than the one in which it stores them. In NEST, rates (the quantity ``"1 / time"``) are stored in 1/ms, but, following the convention of NEST, are set, read and recorded in Hz. For instance, for a parameter declared as ``firing_rate "1 / time" = 10 Hz``, the generated code stores the value ``0.01``, but the user sets and reads it as ``neuron.firing_rate = 10.``, and the generated code converts between both units. As the conversion only takes place at the interface with the user, it does not affect the coherence of the system of units inside the model: for instance, the product of ``firing_rate`` and a time is computed without any additional conversion factor. For a description of how this is implemented, see :ref:`Physical units and target platforms` in the section :doc:`Extending NESTML <extending>`.
 
 
+Integer division and rounding of physical values
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Most operations on physical values give the same result regardless of the units in which the values are stored, so the choice of preferred units by the target platform (see :ref:`Physical units in the generated code`) does not affect the outcome of a simulation. Truncating or rounding a value to an integer is an exception. For example, consider truncating a voltage of 0.5 V:
+
+- NEST stores the voltage as 500 (mV), which truncates to 500 mV;
+- the Python-standalone target stores the voltage as 0.5 (V), which truncates to 0 V.
+
+Similarly, ``floor(V_m)`` with ``V_m`` equal to -70 mV would give -70 mV when generating code for NEST, but -1 V when generating code for the Python-standalone target.
+
+To make sure that a model behaves in the same way on every target platform, NESTML only allows integer division (``//`` and ``//=``) and the rounding functions ``floor()``, ``ceil()`` and ``round()`` on dimensionless values:
+
+- For integer division ``x // y``, the quotient ``x / y`` has to be dimensionless. The operands themselves may have a physical dimension, as long as it is the same for both: the conversion factors then cancel out, so that the result is the same in any system of units. The result of ``x // y`` is of type ``integer``. For instance, ``1 V // 3 mV`` gives 333, both in NEST (1000 mV // 3 mV) and in the Python-standalone target (1 V // 0.003 V).
+- As ``x //= y`` is equivalent to ``x = x // y``, both ``x`` and ``y`` have to be dimensionless.
+- The argument of ``floor()``, ``ceil()`` and ``round()`` has to be dimensionless.
+
+For example, the following are allowed:
+
+.. code-block:: nestml
+
+   n_steps = t_int // resolution()      # number of time steps in the interval t_int
+   n //= 3                              # n is an integer or real number
+   x //= 2 mV / (1 V)                   # the divisor is dimensionless: x is divided by 0.002 on every target platform
+
+whereas the following are errors:
+
+.. code-block:: nestml
+
+   V_m = V_m // 2                       # error: the quotient is a voltage
+   V_m //= 2                            # error: V_m is a voltage
+   V_m = floor(V_m)                     # error: the argument is a voltage
+
+To truncate or round a physical value, divide it by a unit literal that states the desired resolution explicitly, and multiply the result by the same literal. This makes the resolution part of the model, rather than a consequence of the units used by the target platform:
+
+.. code-block:: nestml
+
+   V_m = (V_m // 1 mV) * 1 mV           # truncate to a resolution of 1 mV: 2.7 mV becomes 2 mV
+   V_m = floor(V_m / 1 mV) * 1 mV       # round down to a resolution of 1 mV: -70.3 mV becomes -71 mV
+
+The modulo operator ``%`` does not truncate its result, and gives the same result in any system of units if both operands have the same dimension: for instance, ``5 mV % 2 mV`` gives 1 mV, which is the same as ``0.005 V % 0.002 V`` = 0.001 V.
+
+
 Basic elements of the embedded programming language
 ---------------------------------------------------
 
@@ -528,7 +570,7 @@ Examples for valid assignments for a numeric variable ``n`` are
 * compound difference: ``n -= 10`` which corresponds to ``n = n - 10``
 * compound product: ``n *= 10`` which corresponds to ``n = n * 10``
 * compound quotient: ``n /= 10`` which corresponds to ``n = n / 10``
-* compound integer quotient: ``n //= 10`` which corresponds to ``n = n // 10``
+* compound integer quotient: ``n //= 10`` which corresponds to ``n = n // 10``, where ``n`` and the right-hand side have to be dimensionless (see :ref:`Integer division and rounding of physical values`)
 
 Vectors
 ~~~~~~~
@@ -663,13 +705,13 @@ The following functions are predefined in NESTML and can be used out of the box.
      - Returns the complementary error function of x. The type of x and the return type are Real.
    * - ``ceil``
      - x
-     - Returns the ceil of x. The type of x and the return type are Real.
+     - Returns the ceil of x. The type of x and the return type are Real; x has to be dimensionless (see :ref:`Integer division and rounding of physical values`).
    * - ``floor``
      - x
-     - Returns the floor of x. The type of x and the return type are Real.
+     - Returns the floor of x. The type of x and the return type are Real; x has to be dimensionless (see :ref:`Integer division and rounding of physical values`).
    * - ``round``
      - x
-     - Returns the rounded value of x. The type of x and the return type are Real.
+     - Returns the rounded value of x. The type of x and the return type are Real; x has to be dimensionless (see :ref:`Integer division and rounding of physical values`).
    * - ``random_normal``
      - mean, std
      - Returns a sample from a normal (Gaussian) distribution with parameters "mean" and "standard deviation"
@@ -939,7 +981,9 @@ For any two valid numeric expressions ``x``, ``y``, boolean expressions ``b``,\ 
 +----------------------------------------------+-------------------------------------------------------------------+--------------------------+
 | ``*``, ``/``, ``%``                          | Multiplication, real number division and modulo operator          | ``x * y``, ``x % y``     |
 +----------------------------------------------+-------------------------------------------------------------------+--------------------------+
-| ``//``                                       | C-style truncated integer division, i.e. -5 // 2 = -2             | ``x // y``               |
+| ``//``                                       | C-style truncated integer division, i.e. -5 // 2 = -2. The result | ``x // y``               |
+|                                              | is an integer; ``x / y`` has to be dimensionless (see             |                          |
+|                                              | :ref:`Integer division and rounding of physical values`)          |                          |
 +----------------------------------------------+-------------------------------------------------------------------+--------------------------+
 | ``+``, ``-``                                 | Addition and subtraction                                          | ``x + y``, ``x - y``     |
 +----------------------------------------------+-------------------------------------------------------------------+--------------------------+

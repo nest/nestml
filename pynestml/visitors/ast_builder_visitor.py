@@ -177,11 +177,14 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_times_op=True,
                                                                             source_position=source_pos)
         elif ctx.divOp is not None:
+            from pynestml.generated.PyNestMLLexer import PyNestMLLexer
             source_pos = ASTSourceLocation.make_ast_source_position(start_line=ctx.divOp.line,
                                                                     start_column=ctx.divOp.column,
                                                                     end_line=ctx.divOp.line,
                                                                     end_column=ctx.divOp.column)
-            binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_div_op=True,
+            is_integer_div_op = ctx.divOp.type == PyNestMLLexer.DOUBLE_FORWARD_SLASH
+            binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_div_op=not is_integer_div_op,
+                                                                            is_integer_div_op=is_integer_div_op,
                                                                             source_position=source_pos)
         elif ctx.moduloOp is not None:
             source_pos = ASTSourceLocation.make_ast_source_position(start_line=ctx.moduloOp.line,

@@ -1,0 +1,42 @@
+# CoCoTruncationOperandsDimensionless.nestml
+# ##########################################
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Integer division (``//``, ``//=``) and the rounding functions (``floor()``, ``ceil()``, ``round()``) are only applied to dimensionless values. Positive case.
+#
+model CoCoTruncationOperandsDimensionless:
+    state:
+        V_m "voltage" = -70.3 mV
+        t_int "time" = 100 ms
+        n integer = 7
+        x real = 3.5
+        n_steps integer = 0
+
+    update:
+        n //= 2
+        x //= 2
+        x //= 2 mV / (1 V)                      # the divisor is dimensionless
+        n_steps = t_int // resolution()           # the quotient of two times is dimensionless
+        n = 1 V // 3 mV                         # the quotient of two voltages is dimensionless
+        V_m = (V_m // 1 mV) * 1 mV              # truncation to an explicitly specified resolution
+        V_m = floor(V_m / 1 mV) * 1 mV
+        x = ceil(x) + round(V_m / 1 mV)

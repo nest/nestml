@@ -73,6 +73,11 @@ class ODEToolboxExpressionPrinter(CppExpressionPrinter):
         if op.is_div_op:
             return lhs + " / " + rhs
 
+        if op.is_integer_div_op:
+            # C-style division, truncated towards zero. Only functions that are known to ODE-toolbox (``max``, ``min``) or that it passes through as undefined functions and that can be parsed back by NESTML (``floor``, ``ceil``) are used.
+            quotient = "(" + lhs + ") / (" + rhs + ")"
+            return "(floor(max(" + quotient + ", 0)) + ceil(min(" + quotient + ", 0)))"
+
         if op.is_modulo_op:
             return "sympy.Mod(" + lhs + ", " + rhs + ")"
 

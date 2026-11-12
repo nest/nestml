@@ -199,6 +199,10 @@ class PythonExpressionPrinter(ExpressionPrinter):
         if op.is_div_op:
             return lhs + " / " + rhs
 
+        if op.is_integer_div_op:
+            # C-style division, truncated towards zero (unlike Python's ``//``, which rounds towards minus infinity); the divisor is parenthesized so that it is evaluated as a whole
+            return "int(" + lhs + " / (" + rhs + "))"
+
         if op.is_modulo_op:
             return lhs + " % " + rhs
 

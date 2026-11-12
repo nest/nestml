@@ -230,6 +230,10 @@ class CppExpressionPrinter(ExpressionPrinter):
 
             return lhs + " / " + rhs
 
+        if op.is_integer_div_op:
+            # C-style division, truncated towards zero; the divisor is parenthesized so that it is evaluated as a whole
+            return "(long)(" + lhs + " / (" + rhs + "))"
+
         if op.is_modulo_op:
             return lhs + " % " + rhs
 

@@ -162,6 +162,7 @@ class MessageCode(Enum):
     NEST_RANDOM_FUNCTIONS_LEGALLY_USED = 135
     UNKNOWN_QUANTITY = 136
     INVALID_QUANTITY = 137
+    TRUNCATION_OF_PHYSICAL_QUANTITY = 138
 
 
 class Messages:
@@ -841,6 +842,19 @@ class Messages:
         """
         message = "Invalid physical quantity \"" + quantity_str + "\": " + reason
         return MessageCode.INVALID_QUANTITY, message
+
+    @classmethod
+    def get_truncation_of_physical_quantity(cls, operation: str, what: str, quantity: str) -> Tuple[MessageCode, str]:
+        """
+        Indicates that a value with a physical dimension is truncated or rounded to an integer (by ``//``, ``//=``, ``floor()``, ``ceil()`` or ``round()``). The result would depend on the units used by the target platform.
+        :param operation: the operation, for instance "Integer division \"//\"" or "Function \"floor()\""
+        :param what: the value that is not dimensionless, for instance "the quotient" or "the argument"
+        :param quantity: the physical quantity of the value, for instance "voltage"
+        """
+        message = operation + " is only defined for dimensionless values, but " + what + " has the physical dimension of " + quantity + ". "
+        message += "The result would depend on the unit in which the target platform stores the value (for instance, 500 mV truncates to 500 mV, but 0.5 V truncates to 0 V). "
+        message += "Divide by a unit literal to state the resolution explicitly; for instance, write \"(V_m // 1 mV) * 1 mV\" or \"floor(V_m / 1 mV) * 1 mV\"."
+        return MessageCode.TRUNCATION_OF_PHYSICAL_QUANTITY, message
 
     @classmethod
     def astdatatype_type_symbol_could_not_be_derived(cls) -> Tuple[MessageCode, str]:

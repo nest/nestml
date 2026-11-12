@@ -65,11 +65,13 @@ class PythonStandalonePrinter(ModelPrinter):
         raise Exception("Could not print node: " + str(node))
 
     def print_assignment(self, node: ASTAssignment) -> str:
+        if node.is_compound_integer_quotient:
+            # ``a //= b`` has the same semantics as ``a /= b``, but the result is truncated to an integer (like the C++ ``(int)`` cast, and unlike Python's ``//``, which rounds towards minus infinity)
+            return self._expression_printer.print(node.lhs) + " = int(" + self._expression_printer.print(node.lhs) + " / (" + self.print(node.rhs) + "))"
+
         ret = self._expression_printer.print(node.lhs)
         ret += " "
-        if node.is_compound_integer_quotient:
-            ret += "//="
-        elif node.is_compound_quotient:
+        if node.is_compound_quotient:
             ret += "/="
         elif node.is_compound_product:
             ret += "*="

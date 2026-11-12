@@ -134,6 +134,9 @@ class LatexExpressionPrinter(ExpressionPrinter):
 
             return r"\frac{ %(lhs)s } { %(rhs)s }"
 
+        if ast_binary_operator.is_integer_div_op:
+            return r"\operatorname{trunc}\left( \frac{ %(lhs)s } { %(rhs)s } \right)"
+
         if ast_binary_operator.is_times_op:
             return r"%(lhs)s \cdot %(rhs)s"
 

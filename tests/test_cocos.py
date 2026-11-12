@@ -132,6 +132,15 @@ class TestCoCos:
         model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "valid")), "CoCoQuantitiesValid.nestml"))
         assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 0
 
+    def test_invalid_truncation_operands_dimensionless(self):
+        model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")), "CoCoTruncationOperandsDimensionless.nestml"))
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 6
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR, message_code=MessageCode.TRUNCATION_OF_PHYSICAL_QUANTITY)) == 6
+
+    def test_valid_truncation_operands_dimensionless(self):
+        model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "valid")), "CoCoTruncationOperandsDimensionless.nestml"))
+        assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 0
+
     def test_invalid_complex_quantities(self):
         model = parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "invalid")), "CoCoComplexQuantities.nestml"))
         assert len(Logger.get_messages(model, LoggingLevel.ERROR)) == 4

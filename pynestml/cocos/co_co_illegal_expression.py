@@ -139,7 +139,21 @@ class CorrectExpressionVisitor(ASTVisitor):
                 return
             return
 
-        if node.is_compound_integer_quotient or node.is_compound_quotient:
+        if node.is_compound_integer_quotient:
+            # ``a //= b`` is equivalent to ``a = a // b``
+            from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+            from pynestml.visitors.ast_dot_operator_visitor import ASTDotOperatorVisitor
+            result_type_symbol = ASTDotOperatorVisitor.integer_division_type(lhs_type_symbol, rhs_type_symbol)
+            if isinstance(lhs_type_symbol, UnitTypeSymbol) or isinstance(result_type_symbol, UnitTypeSymbol):
+                # integer division of a value with a physical dimension; reported by CoCoTruncationOperandsDimensionless
+                return
+
+            if self.__types_do_not_match(lhs_type_symbol, result_type_symbol):
+                TypeCaster.try_to_recover_or_error(lhs_type_symbol, result_type_symbol,
+                                                   node.get_expression())
+            return
+
+        if node.is_compound_quotient:
             if self.__types_do_not_match(lhs_type_symbol, lhs_type_symbol / rhs_type_symbol):
                 TypeCaster.try_to_recover_or_error(lhs_type_symbol, lhs_type_symbol / rhs_type_symbol,
                                                    node.get_expression())
