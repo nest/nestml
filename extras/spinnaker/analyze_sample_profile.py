@@ -35,7 +35,8 @@ If the simulation was run with a ``time_scale_factor`` (read from each profile a
 than real time, so the measured mean core active times [%] are that factor too
 small; they are multiplied by it to give the load relative to real-time execution.
 The per-sample min/max active times are not scaled, as a sample in which the core
-was fully busy is 100% busy regardless of the time scale factor.
+was fully busy is 100% busy regardless of the time scale factor. The per-core activity
+plots (bar and min/max range) show the raw, unscaled wall-clock busy fractions.
 
 
 
@@ -132,7 +133,7 @@ def get_timescale_factor(data, source=""):
 
 
 def extract_core_activity(data):
-    """Extract core activity values from Andrew's JSON format. The mean active time is scaled by the time scale factor of the simulation (see ``get_timescale_factor()``); the per-sample min/max are not."""
+    """Extract core activity values from Andrew's JSON format. The mean active time is scaled by the time scale factor of the simulation (see ``get_timescale_factor()``); the per-sample min/max are not. The unscaled (wall-clock) mean is kept as ``mean_percent_active_wall_clock``."""
     cores = []
     timescale_factor = get_timescale_factor(data)
 
@@ -156,6 +157,7 @@ def extract_core_activity(data):
                 "min_percent_active": core_data.get("min_percent_active"),
                 "max_percent_active": core_data.get("max_percent_active"),
                 "mean_percent_active": timescale_factor * core_data.get("mean_percent_active"),
+                "mean_percent_active_wall_clock": core_data.get("mean_percent_active"),
                 "timescale_factor": timescale_factor
             })
 
@@ -226,18 +228,16 @@ def analyze_profiles(reference_path, nestml_path):
 
 
 def plot_core_activity_range(cores, title, output_path):
-    """Plot per-core min/max active time as a vertical range, with the mean as a marker."""
+    """Plot per-core min/max active time as a vertical range, with the mean as a marker. All values are raw wall-clock busy fractions, not scaled by the time scale factor."""
     # labels = [f"{core['chip']}:{core['core']}" for core in cores]
     labels = [str(i) for i in range(1, len(cores) + 1)]  # use simple numeric labels for clarity
-    means = np.array([core["mean_percent_active"] for core in cores], dtype=float)
-    mins = np.array([core.get("min_percent_active") if core.get("min_percent_active") is not None else core["mean_percent_active"] for core in cores], dtype=float)
-    maxs = np.array([core.get("max_percent_active") if core.get("max_percent_active") is not None else core["mean_percent_active"] for core in cores], dtype=float)
+    means = np.array([core["mean_percent_active_wall_clock"] for core in cores], dtype=float)
+    mins = np.array([core.get("min_percent_active") if core.get("min_percent_active") is not None else core["mean_percent_active_wall_clock"] for core in cores], dtype=float)
+    maxs = np.array([core.get("max_percent_active") if core.get("max_percent_active") is not None else core["mean_percent_active_wall_clock"] for core in cores], dtype=float)
     x = np.arange(len(cores))
-    # the means are scaled by the time scale factor, but the per-sample min/max are not (see ``extract_core_activity()``)
-    means_unscaled = all(core.get("timescale_factor", 1.) == 1. for core in cores)
 
     fig, ax = plt.subplots(figsize=figsize(6 / 12))
-    ax.vlines(x, mins, maxs, color="tab:blue", alpha=0.35, linewidth=2, label="Min–max" if means_unscaled else "Min–max (per sample, not scaled)")
+    ax.vlines(x, mins, maxs, color="tab:blue", alpha=0.35, linewidth=2, label="Min–max")
     ax.scatter(x, mins, marker="_", color="tab:blue", s=60)
     ax.scatter(x, maxs, marker="_", color="tab:blue", s=60)
     ax.scatter(x, means, marker="o", color="tab:orange", s=20, zorder=3, label="Mean")
@@ -255,10 +255,10 @@ def plot_core_activity_range(cores, title, output_path):
 
 
 def plot_core_activity_bar(cores, title, output_path, implementation):
-    """Plot per-core mean active time as a bar chart."""
+    """Plot per-core mean active time as a bar chart. Values are raw wall-clock busy fractions, not scaled by the time scale factor."""
     # labels = [f"{core['chip']}:{core['core']}" for core in cores]
     labels = [str(i) for i in range(1, len(cores) + 1)]  # use simple numeric labels for clarity
-    values = [core["mean_percent_active"] for core in cores]
+    values = [core["mean_percent_active_wall_clock"] for core in cores]
 
     plt.figure(figsize=figsize(6 / 12))
     plt.bar(labels, values)
@@ -296,20 +296,43 @@ def format_metadata_for_title(metadata):
     return f" ({', '.join(parts)})" if parts else ""
 
 
-def plot_core_activity(cores, profile_path, implementation):
+def plot_core_activity(cores, profile_path, implementation, file_label=None):
+    """Plot per-core activity (bar and min/max range) next to the profile. ``implementation`` is used in the title; ``file_label`` (default: ``implementation``) in the file names."""
     if not cores:
         print(f"No core profiling data found for {implementation}.")
         return
 
+    file_label = (file_label or implementation).lower()
     title = f"{implementation} SpiNNaker Core Activity" + format_metadata_for_title(load_metadata(profile_path))
 
-    output_path = Path(profile_path).parent / f"sample_profile_activity_{implementation.lower()}_range.png"
+    output_path = Path(profile_path).parent / f"sample_profile_activity_{file_label}_range.png"
     plot_core_activity_range(cores, title, output_path)
 
-    output_path = Path(profile_path).parent / f"sample_profile_activity_{implementation.lower()}.png"
+    output_path = Path(profile_path).parent / f"sample_profile_activity_{file_label}.png"
     plot_core_activity_bar(cores, title, output_path, implementation)
 
     print(f"{implementation} core activity plot saved to: {output_path}")
+
+
+def plot_all_archived_core_activity():
+    """Make the per-core activity plots (bar and min/max range) for every run in the reports archive."""
+    profile_paths = sorted(ARCHIVE_DIR.glob(f"*/{PROFILE_NAME}"))
+
+    if not profile_paths:
+        print(f"No archived sample profiles found under {ARCHIVE_DIR}")
+        return
+
+    for profile_path in profile_paths:
+        metadata = load_metadata(profile_path)
+        implementation = metadata.get("implementation", "unknown")
+        experiment_label = get_experiment_label({
+            "implementation": implementation,
+            "use_exp_luts": str(metadata.get("use_exp_luts", ""))
+        })
+        display_name = IMPLEMENTATION_LABELS.get(experiment_label, implementation)
+
+        cores = extract_core_activity(load_json(profile_path))
+        plot_core_activity(cores, profile_path, display_name, file_label=implementation)
 
 
 def plot_comparison(reference, nestml, profile_path):
@@ -861,6 +884,8 @@ def main():
         analyze_energy(*args.profiles)
     else:
         analyze_latest_profiles()
+
+    plot_all_archived_core_activity()
 
     rows = load_profiling_data()
     plot_sum_core_activity(rows)

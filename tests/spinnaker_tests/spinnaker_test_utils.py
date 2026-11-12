@@ -297,8 +297,10 @@ def archive_run(profile_path, result):
         }
     }
 
-    with open(run_dir / "metadata.json", "w", encoding="utf-8") as f:
-        json.dump(metadata, f, indent=4)
+    # write the metadata both into the archive and next to the original profile, so that analysis scripts reading from either location can find it
+    for metadata_dir in (run_dir, profile_path.parent):
+        with open(metadata_dir / "metadata.json", "w", encoding="utf-8") as f:
+            json.dump(metadata, f, indent=4)
 
     print(f"Run archived to: {run_dir}")
 
