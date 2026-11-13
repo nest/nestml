@@ -1,0 +1,55 @@
+# stdp - Synapse model for spike-timing dependent plasticity
+# ##########################################################
+#
+# [1] Liu Y, Pan W. Spiking Neural-Networks-Based Data-Driven Control. Electronics. 2023; 12(2):310. https://doi.org/10.3390/electronics12020310 
+#
+model neuromodulated_stdp_synapse:
+    state:
+        w real = 1    # Synaptic weight
+        wtr real = 0
+        pre_trace real = 0.
+        post_trace real = 0.
+
+    parameters:
+        n real = 0.    # Neuromodulator concentration between 0 and 1
+        d ms = 1 ms    # Synaptic transmission delay
+        beta real = 0.01  # Learning rate
+        tau_tr_pre ms = 10 ms
+        tau_tr_post ms = 10 ms
+        pre_trace_increment real = 1.
+        post_trace_increment real = 1.
+        wtr_max real = 0.1
+        wtr_min real = 0
+        tau_wtr ms = 100 ms   # Substantially longer than one cycle time (25 ms)
+
+    equations:
+        pre_trace' = -pre_trace / tau_tr_pre
+        post_trace' = -post_trace / tau_tr_post
+        wtr' = -wtr / tau_wtr
+
+    input:
+        pre_spikes <- spike
+        post_spikes <- spike
+
+    output:
+        spike(weight real, delay ms)
+
+    onReceive(post_spikes):
+        post_trace += 1 #  XXX FIXME!!!! should be ``+= post_trace_increment``
+
+        wtr += pre_trace
+        wtr = max(wtr_min, wtr)
+        wtr = min(wtr_max, wtr)
+
+    onReceive(pre_spikes):
+        pre_trace += pre_trace_increment
+
+        wtr += post_trace
+        wtr = max(wtr_min, wtr)
+        wtr = min(wtr_max, wtr)
+
+        # deliver spike to postsynaptic partner
+        emit_spike(w, d)
+
+    update:
+        integrate_odes()
