@@ -411,11 +411,11 @@ class TestSpiNNakerSTDPWindow:
 
     @pytest.mark.parametrize("generate_code", [True, False], indirect=True)
     def test_stdp_drift_repeated_pairings(self, generate_code):
-        r"""Show the accumulation of weight error over many repeated, identical pre/post spike pairings.
+        r"""Show the accumulation of weight error over many repeated pre/post spike pairings.
 
-        The exp() look-up tables store the decay factor in Q11 fixed-point format. The NESTML-generated LUTs store ``round(exp(-k / tau) * 2048)`` (error up to 0.5/2048 of either sign); the sPyNNaker built-in LUTs store ``floor(exp(-k / tau) * 2048)`` (every lookup underestimates the decay factor by up to 1/2048). As all pairings are identical, each one looks up the same LUT entry, so the error has the same sign for every pairing and accumulates linearly.
+        We add jitter to make sure the LUT is sampled in a reasonable range of spike time differences, and to avoid the result hinging on one particular spike timing. The weight error accumulates over many pairings, and is expected to be proportional to the number of pairings if there is a systematic bias in the table.
 
-        The pairing period is chosen much longer than the LUT length (about 7.6 tau for sPyNNaker's floored LUTs, 8.3 tau for NESTML's rounded LUTs), so that each pairing is isolated: the traces are exactly reset between pairings and the depression term from the previous postsynaptic spike is negligible. Each pairing thus contributes the same potentiation error (``lambda`` times the LUT error at the given spike time difference)."""
+        The between-pairs period is chosen much longer than the LUT length (about 7.6 tau for sPyNNaker's floored LUTs, 8.3 tau for NESTML's rounded LUTs), so that each pairing is isolated: the traces are exactly at 0 between pairings and the depression term from the previous postsynaptic spike is negligible. Each pairing thus contributes the same potentiation error (``lambda`` times the LUT error at the given spike time difference)."""
         use_exp_luts = generate_code
         assert use_exp_luts in [True, False]
 
@@ -435,16 +435,25 @@ class TestSpiNNakerSTDPWindow:
         initial_weight = 1.
         t_start = 50.               # time of the first pairing [ms]
         pairing_period = 250.       # [ms]; should be longer than the LUT (154 entries for sPyNNaker, 168 for NESTML, for tau = 20 ms and 1 ms time step)
-        pairing_dt = 3.             # post minus pre input spike time [ms]; with dendritic delay, this gives a synaptic perspective dt of 4 ms, where the floored (sPyNNaker) LUT error is large (-0.76/2048), and also large at +/- 1 ms; the rounded (NESTML) LUT error there is +0.24/2048
+        pairing_dt = 5.             # post minus pre input spike time [ms]; with dendritic delay, this gives a synaptic perspective dt of 4 ms, where the floored (sPyNNaker) LUT error is large (-0.76/2048), and also large at +/- 1 ms; the rounded (NESTML) LUT error there is +0.24/2048
+        pairing_dt_jitter = 2       # maximum jitter on ``pairing_dt`` [ms]; integer, as spike times are on the 1 ms simulation grid. Should be smaller than ``pairing_dt``, so that the post spike always follows the pre spike
+        pairing_period_jitter = 20  # maximum jitter on ``pairing_period`` [ms]; integer, as spike times are on the 1 ms simulation grid. ``pairing_period - pairing_period_jitter`` should still be longer than the LUT
         n_pairings = 40
         pairings_per_readout = 1    # increase to reduce the number of ``p.run()`` calls (and hence the run time), at the expense of fewer data points
 
-        # one extra presynaptic spike at the end (without a postsynaptic partner) to flush the deferred weight update for the last postsynaptic spike
-        pre_spike_times = t_start + pairing_period * np.arange(n_pairings + 1)
-        post_spike_times = pre_spike_times[:-1] + pairing_dt
+        assert pairing_dt_jitter < pairing_dt
+        assert pairing_period_jitter < pairing_period / 2
 
-        # read out halfway between pairings, so that the last presynaptic spike has been processed
-        readout_times = t_start + pairing_period * (np.arange(0, n_pairings + 1, pairings_per_readout) + .5)
+        rng = np.random.default_rng(seed=123)
+
+        # one extra presynaptic spike at the end (without a postsynaptic partner) to flush the deferred weight update for the last postsynaptic spike
+        pairing_periods = pairing_period + rng.integers(-pairing_period_jitter, pairing_period_jitter + 1, size=n_pairings)
+        pre_spike_times = t_start + np.concatenate([[0.], np.cumsum(pairing_periods)])
+        pairing_dts = pairing_dt + rng.integers(-pairing_dt_jitter, pairing_dt_jitter + 1, size=n_pairings)
+        post_spike_times = pre_spike_times[:-1] + pairing_dts
+
+        # read out (approximately, on the 1 ms grid) halfway between pairings, so that the last presynaptic spike has been processed
+        readout_times = np.floor(pre_spike_times + np.concatenate([pairing_periods, [pairing_period]]) / 2)[::pairings_per_readout]
 
         sim_weights, actual_pre_spike_times, actual_post_spike_times = self.run_sim_with_weight_readout(list(pre_spike_times),
                                                                                                         list(post_spike_times),
