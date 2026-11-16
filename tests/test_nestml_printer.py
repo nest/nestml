@@ -87,7 +87,7 @@ class TestNESTMLPrinter:
 
     def test_function_with_comments(self):
         t_function = "    # pre func\n" \
-                     "    function test(Tau_1 ms) real: # in func\n" \
+                     "    function test(Tau_1 \"time\") real: # in func\n" \
                      "        # decl pre\n" \
                      "        exact_integration_adjustment real = ((1 / Tau_2) - (1 / Tau_1)) * ms # decl in\n" \
                      "        return normalisation_factor\n"
@@ -96,7 +96,7 @@ class TestNESTMLPrinter:
         assert t_function == model_printer.print(model)
 
     def test_function_without_comments(self):
-        t_function = "function test(Tau_1 ms) real:\n" \
+        t_function = "function test(Tau_1 \"time\") real:\n" \
                      "    exact_integration_adjustment real = ((1 / Tau_2) - (1 / Tau_1)) * ms\n" \
                      "    return normalisation_factor\n"
         model = ModelParser.parse_function(t_function)
@@ -138,13 +138,13 @@ class TestNESTMLPrinter:
 
     def test_declaration_with_comments(self):
         declaration = "# pre\n" \
-                      "test mV = 10 mV # in\n"
+                      "test \"voltage\" = 10 mV # in\n"
         model = ModelParser.parse_stmts_body(declaration)
         model_printer = NESTMLPrinter()
         assert declaration == model_printer.print(model)
 
     def test_declaration_without_comments(self):
-        declaration = "test mV = 10 mV\n"
+        declaration = "test \"voltage\" = 10 mV\n"
         model = ModelParser.parse_declaration(declaration)
         model_printer = NESTMLPrinter()
         assert declaration == model_printer.print(model)

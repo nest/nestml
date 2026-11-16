@@ -19,14 +19,16 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
 from pynestml.symbols.type_symbol import TypeSymbol
-from pynestml.utils.logger import Logger, LoggingLevel
-from pynestml.utils.messages import Messages
 from pynestml.utils.unit_type import UnitType
 
 
 class UnitTypeSymbol(TypeSymbol):
+    r"""
+    Type symbol for a physical type.
+
+    The type of a physical quantity is determined only by its dimension: two unit type symbols are equal if and only if their units are dimensionally equivalent. For example, ``mV`` and ``V`` (and the quantity ``"voltage"``) are all the same type, whereas ``mV`` and ``pA`` are not. The magnitude of a unit (the factor 1E-3 in ``mV``) is not part of the type; it belongs to the value of a literal such as ``-70 mV``.
+    """
 
     @property
     def astropy_unit(self):
@@ -49,9 +51,18 @@ class UnitTypeSymbol(TypeSymbol):
     def equals(self, other=None):
         basic_equals = super(UnitTypeSymbol, self).equals(other)
         if basic_equals is True:
-            return self.unit.equals(other.unit)
+            return self.is_dimensionally_equivalent_to(other)
 
         return False
+
+    def is_dimensionally_equivalent_to(self, other: "UnitTypeSymbol") -> bool:
+        r"""
+        Returns True if and only if both units have the same physical dimension, irrespective of their magnitude.
+        """
+        try:
+            return self.astropy_unit.is_equivalent(other.astropy_unit)
+        except BaseException:
+            return False
 
     def __mul__(self, other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
@@ -130,36 +141,10 @@ class UnitTypeSymbol(TypeSymbol):
         return self.binary_operation_not_defined_error("-", other)
 
     def add_or_sub_another_unit(self, other):
-        if self.equals(other):
-            return other
-
-        return self.attempt_magnitude_cast(other)
-
-    def attempt_magnitude_cast(self, other):
-        if self.differs_only_in_magnitude(other):
-            factor = UnitTypeSymbol.get_conversion_factor(other.astropy_unit, self.astropy_unit)
-            other.referenced_object.set_implicit_conversion_factor(factor)
-            code, message = Messages.get_implicit_magnitude_conversion(self, other, factor)
-            Logger.log_message(code=code, message=message,
-                               error_position=self.referenced_object.get_source_position(),
-                               log_level=LoggingLevel.INFO)
-
+        if self.is_dimensionally_equivalent_to(other):
             return self
 
         return self.binary_operation_not_defined_error("+/-", other)
-
-    @classmethod
-    def get_conversion_factor(cls, _from, to) -> Optional[float]:
-        """
-        Calculates the conversion factor from _convertee_unit to target_unit. Behaviour is only well-defined if both units have the same physical base type.
-        """
-        try:
-            factor = (_from / to).si.scale
-        except BaseException:
-            # this can fail in case of e.g. trying to convert from "1/s" to "2/s"
-            return None
-
-        return factor
 
     def is_castable_to(self, _other_type):
         if super(UnitTypeSymbol, self).is_castable_to(_other_type):
@@ -168,10 +153,8 @@ class UnitTypeSymbol(TypeSymbol):
         if _other_type.is_instance_of(RealTypeSymbol):
             # anything can be cast to a real
             return True
-        else:
-            # check unit equivalence with astropy
-            try:
-                self.unit.get_unit().to(_other_type.unit.get_unit())
-                return True
-            except BaseException:
-                return False
+
+        if _other_type.is_instance_of(UnitTypeSymbol):
+            return self.is_dimensionally_equivalent_to(_other_type)
+
+        return False

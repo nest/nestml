@@ -28,25 +28,25 @@
 #
 model recordable_variables:
     state:
-        V_ex mV = -5 mV
-        V_rel mV = 0 mV  # Membrane potential relative to the reset potential
+        V_ex "voltage" = -5 mV
+        V_rel "voltage" = 0 mV  # Membrane potential relative to the reset potential
 
     equations:
         kernel I_kernel = exp(-t / tau_syn)
-        inline I_syn pA = unit_psc * convolve(I_kernel, input_spikes)
-        recordable inline V_m mV = V_rel + V_reset
+        inline I_syn "current" = unit_psc * convolve(I_kernel, input_spikes)
+        recordable inline V_m "voltage" = V_rel + V_reset
         V_rel' = -V_rel / tau_m + (I_syn + I_e + I_stim) / C_m
 
     parameters:
-        tau_m ms = 10 ms
-        tau_syn ms = 2 ms
-        I_e pA = 0 pA
-        C_m pF = 250 pF
-        V_reset mV = -70 mV
-        V_thr mV = -55 mV
+        tau_m "time" = 10 ms
+        tau_syn "time" = 2 ms
+        I_e "current" = 0 pA
+        C_m "capacitance" = 250 pF
+        V_reset "voltage" = -70 mV
+        V_thr "voltage" = -55 mV
 
     internals:
-        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+        unit_psc "current" = 1 pA        # Unitary postsynaptic current amplitude
 
     input:
         input_spikes <- spike

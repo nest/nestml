@@ -43,7 +43,7 @@ model commentTest:  #model in comment ok
 
     #parameters comment ok
     parameters:
-       tau ms = 5 ms
+       tau "time" = 5 ms
 
     #internals comment ok
     internals:

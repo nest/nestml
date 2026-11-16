@@ -31,7 +31,7 @@
 #
 model CoCoVectorParameterSize:
     state:
-        V_m [0] mV = -10. mV
+        V_m [0] "voltage" = -10. mV
 
     parameters:
         N integer = -12

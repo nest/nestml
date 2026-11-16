@@ -31,4 +31,4 @@
 #
 model CoCoInvariantNotBool:
     state:
-        V_notBool mV = 10mV [[V_notBool > V_notBool]]# this should not be detected although on logical level incorrect
+        V_notBool "voltage" = 10mV [[V_notBool > V_notBool]]# this should not be detected although on logical level incorrect

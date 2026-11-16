@@ -38,6 +38,7 @@ from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.transformers.transformer import Transformer
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+from pynestml.visitors.unit_type_fixer_visitor import UnitTypeFixerVisitor
 
 
 class InlineExpressionExpansionTransformer(Transformer):
@@ -65,6 +66,9 @@ class InlineExpressionExpansionTransformer(Transformer):
 
             for equations_block in model.get_equations_blocks():
                 self.replace_inline_expressions_through_defining_expressions(equations_block.get_ode_equations(), equations_block.get_inline_expressions())
+
+            # the expressions have been re-parsed from strings; as when parsing the model (see ``ModelParser.parse_file()``), variables need to be split off from physical units in numeric literals (e.g. ``1 nS * IT_m`` is initially parsed as the number 1 with the unit "nS*IT_m")
+            UnitTypeFixerVisitor.fix_model(model)
 
         return models
 

@@ -30,12 +30,12 @@
 #
 model CoCoConvolveNotCorrectlyProvided:
     state:
-        V_m mV = 10mV
-        g_ex mV = 10mV
+        V_m "voltage" = 10mV
+        g_ex "voltage" = 10mV
 
     equations:
         kernel test = delta(t)
-        inline testB pA = convolve(g_ex, g_ex)
+        inline testB "current" = convolve(g_ex, g_ex)
         V_m' = 20 mV/ms
 
     input:

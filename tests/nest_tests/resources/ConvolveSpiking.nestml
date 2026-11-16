@@ -35,7 +35,7 @@ model convolve_spiking_neuron:
         y' = convolve(K, spikes_in) / 1 s
 
     parameters:
-        tau_syn ms = 2 ms
+        tau_syn "time" = 2 ms
 
     input:
         spikes_in <- spike

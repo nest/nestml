@@ -1139,7 +1139,7 @@ void
 {{ write_in_dictionary.WriteInDictionary("__d", declarations.print_variable_type(variable_symbol), "names::weight", printer.print(variable)) }}    // NEST special case for weight variable
 {{ write_in_dictionary.WriteInDictionary("__d", "double", names_namespace + "::_" + synapse_weight_variable, printer.print(variable)) }}    // NEST special case for weight variable
 {%-         elif not variable_symbol.is_internals() %}
-{{ write_in_dictionary.WriteInDictionary("__d", declarations.print_variable_type(variable_symbol), names_namespace + "::_" + variable_symbol.get_symbol_name(), "get_" + printer_no_origin.print(variable) + "()") }}
+{{ write_in_dictionary.WriteInDictionary("__d", declarations.print_variable_type(variable_symbol), names_namespace + "::_" + variable_symbol.get_symbol_name(), nest_codegen_utils.print_to_interface_units(variable_symbol, "get_" + printer_no_origin.print(variable) + "()")) }}
 {%-         endif %}
 {%-     endif %}
 {%- endfor %}

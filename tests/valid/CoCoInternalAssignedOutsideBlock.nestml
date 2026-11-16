@@ -31,4 +31,4 @@
 #
 model CoCoInternalAssignedOutsideBlock:
     internals: # internal is not assigned outside the block, thus everything is correct
-        test mV = 10 mV
+        test "voltage" = 10 mV

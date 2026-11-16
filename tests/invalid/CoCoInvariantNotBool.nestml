@@ -31,5 +31,5 @@
 #
 model CoCoInvariantNotBool:
     state:
-        V_notBool mV = 10mV [[V_notBool + V_notBool]] # here a non boolean invariant should be detected
-        V_correct mV =  10mV # should not be detected
+        V_notBool "voltage" = 10mV [[V_notBool + V_notBool]] # here a non boolean invariant should be detected
+        V_correct "voltage" =  10mV # should not be detected

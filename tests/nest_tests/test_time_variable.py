@@ -84,7 +84,7 @@ class TestTimeVariable:
         y = mm.get("events")["y"]
 
         np.testing.assert_allclose(x, timevec)
-        np.testing.assert_allclose(1E-3 * x, y)
+        np.testing.assert_allclose(x, y)    # x and y are both of quantity "time", which NEST stores in ms (irrespective of the unit of their initial values)
 
     def test_time_variable_synapse(self):
         """a synapse is only updated when presynaptic spikes arrive"""

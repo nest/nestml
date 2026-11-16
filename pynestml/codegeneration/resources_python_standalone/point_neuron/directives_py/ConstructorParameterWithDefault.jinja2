@@ -12,7 +12,7 @@
 {%-   else %}
 {%-     set variable_initial_value = utils.get_variable_by_name(astnode, variable_symbol.get_initial_value()|string()) %}
 {%-     if not variable_initial_value %}
-{{ printer.print(variable) }} = {{ printer.print_expression(variable_symbol.get_declaring_expression()) }} , # type: {{variable_symbol.get_type_symbol().print_symbol()}}
+{{ printer.print(variable) }} = {{ printer.print_expression(variable_symbol.get_declaring_expression()) }} , # type: {{ unit_converter.print_unit(variable_symbol.get_type_symbol()) }}
 {%-     else %}
 {%-         set variable_symbol = variable_initial_value.resolve_in_own_scope()%}
 {%-         include "directives_py/ConstructorParameterWithDefault.jinja2" %}
@@ -21,8 +21,8 @@
 {%-   endif %}
 {%- else %}
 {%-   if variable_symbol.has_vector_parameter() %}
-{{ printer.print(variable) }} , # type: {{ variable_symbol.get_type_symbol().print_symbol() }}
+{{ printer.print(variable) }} , # type: {{ unit_converter.print_unit(variable_symbol.get_type_symbol()) }}
 {%-   else %}
-{{ printer.print(variable) }} , # type: {{ variable_symbol.get_type_symbol().print_symbol() }}
+{{ printer.print(variable) }} , # type: {{ unit_converter.print_unit(variable_symbol.get_type_symbol()) }}
 {%-   endif -%}
 {%- endif -%}

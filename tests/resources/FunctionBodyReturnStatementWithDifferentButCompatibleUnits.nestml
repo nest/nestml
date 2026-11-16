@@ -22,5 +22,5 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
 model BlockTest:
-    function foo(bar mV) V:
+    function foo(bar "voltage") "voltage":
         return bar

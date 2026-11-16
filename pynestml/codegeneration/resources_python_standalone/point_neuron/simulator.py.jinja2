@@ -60,10 +60,11 @@ class Simulator:
     connection_weights: Mapping[int, Mapping[int, float]] = {}
     connection_ports: Mapping[int, Mapping[int, str]] = {}
     log: Mapping[str, Mapping[str, List]] = {}              # map from id to (map from variable name to list of values over time)
-    timestep: float = .1      # should stay constant (static variable), don't change at runtime!
+    timestep: float = 1E-4      # [s] -- should stay constant (static variable), don't change at runtime!
 
     def __init__(self):
-        self._t = 0.       # time [ms]
+        self._t = 0.       # time [s]
+        self._n_steps = 0  # number of simulation steps taken; the time is computed from this (rather than accumulated) to avoid accumulation of floating-point rounding errors
         self.neurons = []
         self.connections = {}
         self.connection_weights = {}
@@ -102,7 +103,8 @@ class Simulator:
         for neuron in self.neurons:
             neuron.step(origin=self._t,
                         timestep=timestep)
-        self._t += self.timestep
+        self._n_steps += 1
+        self._t = self._n_steps * self.timestep
 
         self.log_step()
 
@@ -153,13 +155,13 @@ class Simulator:
         Parameters
         ----------
         t_stop
-            Stopping time in milliseconds.
+            Stopping time in seconds.
         """
         self._t = 0.
-        while self._t < t_stop:
+        self._n_steps = 0
+        for _ in range(int(round(t_stop / self.timestep))):
             self.step(self.timestep)
             self.deliver_spikes()
-            self._t += self.timestep
 
     def get_log(self):
         return self._log

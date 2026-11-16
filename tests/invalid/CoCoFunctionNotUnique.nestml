@@ -30,15 +30,15 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
 model CoCoFunctionNotUnique:
-    function max(Tau_a ms,Tau_b ms) real: # redeclaration should be detected
+    function max(Tau_a "time",Tau_b "time") real: # redeclaration should be detected
         test real = 1
         return # missing return type should be detected
 
-    function deltaBoolean(Tau_a ms,Tau_b ms) boolean:
+    function deltaBoolean(Tau_a "time",Tau_b "time") boolean:
         test string = "bl"
         return test # here wrong type of return should be detected
 
-    function deltaNoReturn(Tau_a ms,Tau_b ms) boolean:
+    function deltaNoReturn(Tau_a "time",Tau_b "time") boolean:
         test real = 1
         if True == True:
             return True

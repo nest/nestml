@@ -38,9 +38,9 @@
 #
 model traub_psc_alpha_neuron:
     state:
-        V_m mV = V_m_init        # Membrane potential
-        V_m_old mV = V_m_init    # Membrane potential at previous timestep for threshold check
-        refr_t ms = 0 ms         # Refractory period timer
+        V_m "voltage" = V_m_init        # Membrane potential
+        V_m_old "voltage" = V_m_init    # Membrane potential at previous timestep for threshold check
+        refr_t "time" = 0 ms         # Refractory period timer
 
         Act_m real =  alpha_m_init / (alpha_m_init + beta_m_init)     # Activation variable m for Na
         Inact_h real = alpha_h_init / (alpha_h_init + beta_h_init)    # Inactivation variable h for Na
@@ -51,11 +51,11 @@ model traub_psc_alpha_neuron:
         kernel K_syn_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
         kernel K_syn_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
 
-        inline I_syn_exc pA = unit_psc * convolve(K_syn_exc, exc_spikes)
-        inline I_syn_inh pA = unit_psc * convolve(K_syn_inh, inh_spikes)
-        inline I_Na pA = g_Na * Act_m * Act_m * Act_m * Inact_h * (V_m - E_Na)
-        inline I_K pA = g_K * Act_n * Act_n * Act_n * Act_n * (V_m - E_K)
-        inline I_L pA = g_L * (V_m - E_L)
+        inline I_syn_exc "current" = unit_psc * convolve(K_syn_exc, exc_spikes)
+        inline I_syn_inh "current" = unit_psc * convolve(K_syn_inh, inh_spikes)
+        inline I_Na "current" = g_Na * Act_m * Act_m * Act_m * Inact_h * (V_m - E_Na)
+        inline I_K "current" = g_K * Act_n * Act_n * Act_n * Act_n * (V_m - E_K)
+        inline I_L "current" = g_L * (V_m - E_L)
 
         # Act_n
         inline alpha_n real = 0.032 * (V_m / 1 mV + 52.) / (1. - exp(-(V_m / 1 mV + 52.) / 5.))
@@ -76,22 +76,22 @@ model traub_psc_alpha_neuron:
         refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero, at a rate of one (milli)second per (milli)second
 
     parameters:
-        V_m_init mV = -70 mV      # Initial membrane potential
-        C_m pF = 100 pF           # Membrane capacitance
-        g_Na nS = 10000 nS        # Sodium peak conductance
-        g_K nS = 8000 nS          # Potassium peak conductance
-        g_L nS = 10 nS            # Leak conductance
-        E_Na mV = 50 mV           # Sodium reversal potential
-        E_K mV = -100 mV          # Potassium reversal potential
-        E_L mV = -67 mV           # Leak reversal potential (a.k.a. resting potential)
-        V_Tr mV = -20 mV          # Spike threshold
-        refr_T ms = 2 ms          # Duration of refractory period
+        V_m_init "voltage" = -70 mV      # Initial membrane potential
+        C_m "capacitance" = 100 pF           # Membrane capacitance
+        g_Na "conductance" = 10000 nS        # Sodium peak conductance
+        g_K "conductance" = 8000 nS          # Potassium peak conductance
+        g_L "conductance" = 10 nS            # Leak conductance
+        E_Na "voltage" = 50 mV           # Sodium reversal potential
+        E_K "voltage" = -100 mV          # Potassium reversal potential
+        E_L "voltage" = -67 mV           # Leak reversal potential (a.k.a. resting potential)
+        V_Tr "voltage" = -20 mV          # Spike threshold
+        refr_T "time" = 2 ms          # Duration of refractory period
 
-        tau_syn_exc ms = 0.2 ms   # Rise time of the excitatory synaptic alpha function
-        tau_syn_inh ms = 2 ms     # Rise time of the inhibitory synaptic alpha function
+        tau_syn_exc "time" = 0.2 ms   # Rise time of the excitatory synaptic alpha function
+        tau_syn_inh "time" = 2 ms     # Rise time of the inhibitory synaptic alpha function
 
         # constant external input current
-        I_e pA = 0 pA
+        I_e "current" = 0 pA
 
     internals:
         alpha_n_init real = 0.032 * (V_m / 1 mV + 52.) / (1. - exp(-(V_m / 1 mV + 52.) / 5.))
@@ -101,7 +101,7 @@ model traub_psc_alpha_neuron:
         alpha_h_init real = 0.128 * exp(-(V_m / 1 mV + 50.0) / 18.0)
         beta_h_init real = 4.0 / (1.0 + exp(-(V_m / 1 mV + 27.) / 5.))
 
-        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+        unit_psc "current" = 1 pA        # Unitary postsynaptic current amplitude
 
     input:
         exc_spikes <- spike

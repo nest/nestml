@@ -28,15 +28,16 @@ from pynestml.meta_model.ast_unit_type import ASTUnitType
 class ASTDataType(ASTNode):
     """
     A datatype class as used to store a datatype of an element.
-    ASTDataType. Represents predefined datatypes and gives a possibility to use an unit
-    datatype.
+    ASTDataType. Represents predefined datatypes, a physical quantity (in declarations, e.g. ``V_m "voltage" = -70 mV``) or a physical unit (in continuous input ports, e.g. ``I_stim pA <- continuous``).
     @attribute boolean getters for integer, real, ...
-    @attribute unitType a SI datatype
+    @attribute quantity a physical quantity
+    @attribute unitType a physical unit
     datatype : "integer"
                | "real"
                | "string"
                | "boolean"
                | "void"
+               | quantity
                | unitType;
     Attributes:
         is_integer = False
@@ -44,12 +45,13 @@ class ASTDataType(ASTNode):
         is_string = False
         is_boolean = False
         is_void = False
+        quantity = None  # the physical quantity as a string, without the enclosing double quotes, e.g. "conductance / time"
         unit_type = None  # a unit type is not a boolean, but a concrete object
         type_symbol = None  # the corresponding type symbol
     """
 
     def __init__(self, is_integer=False, is_real=False, is_string=False, is_boolean=False, is_void=False,
-                 unit_type: Optional[ASTUnitType] = None, type_symbol=None, *args, **kwargs):
+                 unit_type: Optional[ASTUnitType] = None, type_symbol=None, quantity: Optional[str] = None, *args, **kwargs):
         """
         Standard constructor.
 
@@ -67,6 +69,7 @@ class ASTDataType(ASTNode):
         :type is_void: boolean
         :param unit_type: an object of type ASTUnitType
         :type unit_type: ASTUnitType
+        :param quantity: a physical quantity, without the enclosing double quotes, e.g. "voltage"
         """
         super(ASTDataType, self).__init__(*args, **kwargs)
         self.is_integer = is_integer
@@ -75,6 +78,7 @@ class ASTDataType(ASTNode):
         self.is_boolean = is_boolean
         self.is_void = is_void
         self.unit_type = unit_type
+        self.quantity = quantity
         self.type_symbol = type_symbol
 
     def clone(self):
@@ -93,14 +97,14 @@ class ASTDataType(ASTNode):
                           is_boolean=self.is_boolean,
                           is_void=self.is_void,
                           unit_type=unit_type_dup,
+                          quantity=self.quantity,
                           type_symbol=self.type_symbol,
                           # ASTNode common attributes:
                           source_position=self.source_position,
                           scope=self.scope,
                           comment=self.comment,
                           pre_comments=[s for s in self.pre_comments],
-                          in_comment=self.in_comment,
-                          implicit_conversion_factor=self.implicit_conversion_factor)
+                          in_comment=self.in_comment)
 
         return dup
 
@@ -111,6 +115,20 @@ class ASTDataType(ASTNode):
         :rtype: bool
         """
         return self.unit_type is not None
+
+    def is_quantity(self) -> bool:
+        """
+        Returns whether this is a physical quantity (e.g. "voltage") or not.
+        :return: True if this is a physical quantity, otherwise False.
+        """
+        return self.quantity is not None
+
+    def get_quantity(self) -> Optional[str]:
+        """
+        Returns the physical quantity, without the enclosing double quotes, e.g. "voltage".
+        :return: the physical quantity.
+        """
+        return self.quantity
 
     def get_unit_type(self):
         """
@@ -168,6 +186,9 @@ class ASTDataType(ASTNode):
             return False
 
         if self.is_unit_type() and other.is_unit_type() and not self.get_unit_type().equals(other.get_unit_type()):
+            return False
+
+        if self.quantity != other.quantity:
             return False
 
         return True

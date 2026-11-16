@@ -79,7 +79,7 @@ class OdeConsistentUnitsVisitor(ASTVisitor):
         lhs_type = variable_type * inv_diff_order_unit_type_symbol
         rhs_type = node.get_rhs().type
 
-        if rhs_type.differs_only_in_magnitude(lhs_type):
+        if rhs_type.equals(lhs_type):
             return
 
         if rhs_type.is_castable_to(lhs_type):

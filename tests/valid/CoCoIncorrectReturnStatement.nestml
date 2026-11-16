@@ -30,8 +30,8 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
 model CoCoIncorrectReturnStatement:
-    function foo() mV:# correct return type is given
-        test mV = 10mV
+    function foo() "voltage":# correct return type is given
+        test "voltage" = 10mV
 
         if test == 10mV:
             return test
@@ -42,10 +42,10 @@ model CoCoIncorrectReturnStatement:
     function noReturn():# correct return type is given
         return
 
-    function bar() mV:# correct return type is given
+    function bar() "voltage":# correct return type is given
         return 5mV
 
-    function foobar() mV:# correct return type is given
-        test mV = 10mV
+    function foobar() "voltage":# correct return type is given
+        test "voltage" = 10mV
         test = test*2
         return test

@@ -101,6 +101,7 @@ Data types
 
 - The NESTML data type ``real`` will be rendered as ``double``.
 - The NESTML data type ``integer`` will be rendered as ``long``.
+- Physical quantities (such as ``"voltage"``) will be rendered as ``double``. Values are stored in the units that NEST uses internally: voltages in mV, currents in pA, times in ms, conductances in nS, capacitances in pF, and so on (see :ref:`Physical units in the generated code`). For instance, a parameter declared as ``V_th "voltage" = -0.055 V`` has the default value ``-55`` in NEST. Values of model properties are set and read in these units, and recorded in these units by devices. The exception is rates (the quantity ``"1 / time"``): following the convention of NEST, these are set, read and recorded in Hz, although they are stored in 1/ms, so that they are coherent with times in ms. For instance, ``neuron.firing_rate = 10.`` sets a rate of 10 Hz. The system of units is defined by :class:`pynestml.codegeneration.nest_unit_converter.NESTUnitConverter`.
 
 
 Manually building the extension module
@@ -360,7 +361,7 @@ For example, given the following model:
 
    model my_synapse:
        parameters:
-           d ms = 1 ms
+           d "time" = 1 ms
 
 the variable might be specified as:
 
@@ -453,13 +454,13 @@ For instance, if spikes arriving at the same port are handled differently accord
 .. code:: nestml
 
    internals:
-       unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+       unit_psc "current" = 1 pA        # Unitary postsynaptic current amplitude
 
    input:
        input_spikes <- spike
 
    onReceive(input_spikes):
-       psc pA = unit_psc * get_weight(input_spikes, t)    # compute the magnitude of the postsynaptic response
+       psc "current" = unit_psc * get_weight(input_spikes, t)    # compute the magnitude of the postsynaptic response
 
        # route the incoming spike on the basis of the weight: less than zero means an inhibitory spike; greater than zero means an excitatory spike
        if psc > 0:
@@ -474,7 +475,7 @@ However, if two separate ports are used (and weights are subsequently processed 
 .. code:: nestml
 
    internals:
-       unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+       unit_psc "current" = 1 pA        # Unitary postsynaptic current amplitude
 
    input:
        input_spikes_exc <- spike

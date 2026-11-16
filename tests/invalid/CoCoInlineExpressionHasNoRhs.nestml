@@ -30,4 +30,4 @@
 #
 model CoCoInlineExpressionHasNoRhs:
     equations:
-        inline V_rest mV  # the missing rhs should be detected
+        inline V_rest "voltage"  # the missing rhs should be detected

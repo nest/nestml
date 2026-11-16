@@ -387,7 +387,7 @@ class Neuron_{{neuronName}}(Neuron):
 {%      set ast_input_port = utils.get_input_port_by_name(astnode.get_input_blocks(), port.name) %}
   def on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}(self):
     # first, grab all the buffer values from the buffers
-    B__{{ utils.port_name_printer(blk.get_input_port_variable()) }} = self.B_.{{ utils.port_name_printer(blk.get_input_port_variable()) }}.pop() / {{ NESTUnitConverter.get_factor(ASTUtils.find_parent_node_by_type(blk.get_input_port_variable(), ASTModel).get_scope().resolve_to_symbol(blk.get_input_port_variable().name, SymbolKind.VARIABLE).get_type_symbol().unit.unit) }}
+    B__{{ utils.port_name_printer(blk.get_input_port_variable()) }} = self.B_.{{ utils.port_name_printer(blk.get_input_port_variable()) }}.pop() / {{ unit_converter.get_factor(ASTUtils.find_parent_node_by_type(blk.get_input_port_variable(), ASTModel).get_scope().resolve_to_symbol(blk.get_input_port_variable().name, SymbolKind.VARIABLE).get_type_symbol().unit.unit) }}
 
 {%-     filter indent(4, True) -%}
 {%-         include "directives_py/StmtsBody.jinja2" %}

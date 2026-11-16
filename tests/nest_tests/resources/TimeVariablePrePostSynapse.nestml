@@ -23,9 +23,9 @@
 #
 model time_variable_pre_post_synapse:
   state:
-    x ms = 0 ms
-    y ms = 0 ms
-    z ms = 0 ms
+    x "time" = 0 ms
+    y "time" = 0 ms
+    z "time" = 0 ms
 
   onReceive(pre_spikes):
     y = t
@@ -35,7 +35,7 @@ model time_variable_pre_post_synapse:
 
   parameters:
     w real = 1
-    d ms = 1 ms
+    d "time" = 1 ms
 
   input:
     pre_spikes <- spike

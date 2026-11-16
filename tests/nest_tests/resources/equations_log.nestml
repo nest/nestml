@@ -46,8 +46,8 @@ model equations_log_neuron:
         beta_z real = 0.5
         n_x integer = 2
         n_z integer = 2
-        tau_d ms = 0.4 ms
-        tau_r ms = 20 ms
+        tau_d "time" = 0.4 ms
+        tau_r "time" = 20 ms
 
     update:
         integrate_odes()

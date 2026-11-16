@@ -23,8 +23,6 @@ from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
 
-import astropy
-
 from pynestml.symbols.symbol import Symbol
 
 
@@ -157,42 +155,6 @@ class TypeSymbol(Symbol):
         """
         if isinstance(other, self.__class__) and isinstance(self, other.__class__):
             return self.is_buffer == other.is_buffer
-        return False
-
-    def differs_only_in_magnitude(self, other_type: TypeSymbol) -> bool:
-        """
-        Indicates whether both type represent the same unit but with different magnitudes. This
-        case is still valid, e.g., mV can be assigned to volt.
-        :param other_type: a type
-        :return: True if both elements equal or differ in magnitude, otherwise False.
-        """
-        from astropy import units
-        from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
-        from pynestml.symbols.real_type_symbol import RealTypeSymbol
-        from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
-
-        if self.equals(other_type):
-            return True
-
-        if isinstance(self, UnitTypeSymbol):
-            unit_a = self.astropy_unit
-        elif isinstance(self, RealTypeSymbol) or isinstance(self, IntegerTypeSymbol):
-            unit_a = astropy.units.Unit("1")
-        else:
-            return False
-
-        if isinstance(other_type, UnitTypeSymbol):
-            unit_b = other_type.astropy_unit
-        elif isinstance(other_type, RealTypeSymbol) or isinstance(other_type, IntegerTypeSymbol):
-            unit_b = astropy.units.Unit("1")
-        else:
-            return False
-
-        if (isinstance(unit_a, units.Unit) or isinstance(unit_a, units.PrefixUnit) or isinstance(unit_a, units.CompositeUnit)) \
-            and (isinstance(unit_b, units.Unit) or isinstance(unit_b, units.PrefixUnit)
-                 or isinstance(unit_b, units.CompositeUnit)) and unit_a.physical_type == unit_b.physical_type:
-            return True
-
         return False
 
     @abstractmethod

@@ -30,15 +30,15 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
 model CoCoFunctionNotUnique:
-    function deltaNew(Tau_a ms,Tau_b ms) real: # deltaNew is not predefined, thus everything is correct
+    function deltaNew(Tau_a "time",Tau_b "time") real: # deltaNew is not predefined, thus everything is correct
         test real = 1
         return test # correctly type return type is given
 
-    function deltaBoolean(Tau_a ms,Tau_b ms) boolean:
+    function deltaBoolean(Tau_a "time",Tau_b "time") boolean:
         test real = 1
         return True
 
-    function deltaNoReturn(Tau_a ms,Tau_b ms) boolean:
+    function deltaNoReturn(Tau_a "time",Tau_b "time") boolean:
         test real = 1
         if Tau_a == 1:
             test = True

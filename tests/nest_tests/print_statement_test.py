@@ -42,7 +42,8 @@ class PrintStatementTest(unittest.TestCase):
 
         matches = [s for s in lines if "print:" in s]
         self.assertEqual(matches[0], "print: This is a simple print statement\n")
-        self.assertEqual(matches[1], "print: Membrane voltage: -0.05 V, threshold: -7e-08 MA Ohm, and V_rel: -50 mV\n")
+        # values are printed in the units in which NEST stores them (mV for voltages)
+        self.assertEqual(matches[1], "print: Membrane voltage: -50 mV, threshold: -70 mV, and V_rel: -50 mV\n")
         self.assertEqual(matches[2], "print: Numeric state variable: 0.048731")
 
     def tearDown(self) -> None:

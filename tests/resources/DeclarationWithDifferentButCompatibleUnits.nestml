@@ -23,4 +23,4 @@
 #
 model BlockTest:
     state:
-        V_m mV = (10 pA) / (100 pF) * (1 ms)
+        V_m "voltage" = (10 pA) / (100 pF) * (1 ms)

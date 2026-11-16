@@ -32,9 +32,9 @@
 model CoCoIllegalExpression:
     state:
         test boolean = True
-        test2 mV = 10mV
+        test2 "voltage" = 10mV
         test3 integer = 20
-        test4 pA = 10pA
+        test4 "current" = 10pA
     update:
         # condition is bool, thus correct
         test2 = test2 + test2

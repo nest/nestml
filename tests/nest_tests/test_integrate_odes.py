@@ -39,6 +39,7 @@ import nest
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target, generate_target
 from pynestml.utils.logger import LoggingLevel, Logger
+from pynestml.utils.messages import MessageCode
 
 
 @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
@@ -234,7 +235,8 @@ class TestIntegrateODEs:
             os.path.join(os.path.dirname(__file__), os.path.join("resources", "integrate_odes_test_params2.nestml")))
         generate_target(input_path=fname, target_platform="NONE", logging_level="DEBUG")
 
-        assert len(Logger.get_messages("integrate_odes_test", LoggingLevel.ERROR)) == 2
+        assert len(Logger.get_messages("integrate_odes_test", LoggingLevel.ERROR, message_code=MessageCode.INTEGRATE_ODES_WRONG_ARG)) == 1
+        assert len(Logger.get_messages("integrate_odes_test", LoggingLevel.ERROR)) == 4    # also: variable not defined, symbol could not be resolved, type could not be derived
 
     def test_integrate_odes_spikes(self):
         r"""
@@ -323,7 +325,8 @@ class TestIntegrateODEs:
 
         # verify
         np.testing.assert_allclose(x_actual[-1], 0.10737970490959549)
-        np.testing.assert_allclose(y_actual[-1], 0.6211608596446752)
+        # y' = (-y + 42) / 1E3 s, with y(0) = 0; the last sample is at t = 14.9 ms
+        np.testing.assert_allclose(y_actual[-1], 42 * (1 - np.exp(-14.9E-3 / 1E3)))
 
     def test_integrate_odes_numeric_higher_order(self):
         r"""

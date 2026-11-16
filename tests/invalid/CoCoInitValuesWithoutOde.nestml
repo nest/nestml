@@ -31,4 +31,4 @@
 #
 model CoCoInitValuesWithoutOde:
     state:
-        V_m mV = 10 mV
+        V_m "voltage" = 10 mV

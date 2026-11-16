@@ -43,26 +43,26 @@
 #
 model iaf_psc_delta_neuron:
     state:
-        V_m mV = E_L     # Membrane potential
-        refr_t ms = 0 ms    # Refractory period timer
+        V_m "voltage" = E_L     # Membrane potential
+        refr_t "time" = 0 ms    # Refractory period timer
 
     equations:
         V_m' = -(V_m - E_L) / tau_m + unit_psp * input_spikes + (I_e + I_stim) / C_m
         refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero, at a rate of one (milli)second per (milli)second
 
     parameters:
-        tau_m ms = 10 ms            # Membrane time constant
-        C_m pF = 250 pF             # Capacity of the membrane
-        refr_T ms = 2 ms            # Duration of refractory period
-        E_L mV = -70 mV             # Resting membrane potential
-        V_reset mV = -70 mV         # Reset potential of the membrane
-        V_th mV = -55 mV            # Spike threshold
+        tau_m "time" = 10 ms            # Membrane time constant
+        C_m "capacitance" = 250 pF             # Capacity of the membrane
+        refr_T "time" = 2 ms            # Duration of refractory period
+        E_L "voltage" = -70 mV             # Resting membrane potential
+        V_reset "voltage" = -70 mV         # Reset potential of the membrane
+        V_th "voltage" = -55 mV            # Spike threshold
 
         # constant external input current
-        I_e pA = 0 pA
+        I_e "current" = 0 pA
 
     internals:
-        unit_psp mV = 1 mV        # Unitary postsynaptic potential amplitude
+        unit_psp "voltage" = 1 mV        # Unitary postsynaptic potential amplitude
 
     input:
         input_spikes <- spike

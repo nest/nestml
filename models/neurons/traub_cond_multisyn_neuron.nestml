@@ -44,9 +44,9 @@
 #
 model traub_cond_multisyn_neuron:
     state:
-        V_m mV = -70. mV    # Membrane potential
-        V_m_old mV = E_L    # Membrane potential at previous timestep for threshold check
-        refr_t ms = 0 ms    # Refractory period timer
+        V_m "voltage" = -70. mV    # Membrane potential
+        V_m_old "voltage" = E_L    # Membrane potential at previous timestep for threshold check
+        refr_t "time" = 0 ms    # Refractory period timer
 
         Act_m real = alpha_m_init / (alpha_m_init + beta_m_init)      # Activation variable m for Na
         Inact_h real = alpha_h_init / (alpha_h_init + beta_h_init)    # Inactivation variable h for Na
@@ -62,15 +62,15 @@ model traub_cond_multisyn_neuron:
         g_GABAB$ real = GABA_BInitialValue
 
     equations:
-        recordable inline I_syn_ampa pA = -unit_psg * convolve(g_AMPA, AMPA_spikes) * (V_m - AMPA_E_rev)
-        recordable inline I_syn_nmda pA = -unit_psg * convolve(g_NMDA, NMDA_spikes) * (V_m - NMDA_E_rev) / (1 + exp((NMDA_Vact - V_m) / NMDA_Sact))
-        recordable inline I_syn_gaba_a pA = -unit_psg * convolve(g_GABAA, GABA_A_spikes) * (V_m - GABA_A_E_rev)
-        recordable inline I_syn_gaba_b pA = -unit_psg * convolve(g_GABAB, GABA_B_spikes) * (V_m - GABA_B_E_rev)
-        recordable inline I_syn pA = I_syn_ampa + I_syn_nmda + I_syn_gaba_a + I_syn_gaba_b
+        recordable inline I_syn_ampa "current" = -unit_psg * convolve(g_AMPA, AMPA_spikes) * (V_m - AMPA_E_rev)
+        recordable inline I_syn_nmda "current" = -unit_psg * convolve(g_NMDA, NMDA_spikes) * (V_m - NMDA_E_rev) / (1 + exp((NMDA_Vact - V_m) / NMDA_Sact))
+        recordable inline I_syn_gaba_a "current" = -unit_psg * convolve(g_GABAA, GABA_A_spikes) * (V_m - GABA_A_E_rev)
+        recordable inline I_syn_gaba_b "current" = -unit_psg * convolve(g_GABAB, GABA_B_spikes) * (V_m - GABA_B_E_rev)
+        recordable inline I_syn "current" = I_syn_ampa + I_syn_nmda + I_syn_gaba_a + I_syn_gaba_b
 
-        inline I_Na pA = g_Na * Act_m * Act_m * Act_m * Inact_h * (V_m - E_Na)
-        inline I_K pA = g_K * Act_n * Act_n * Act_n * Act_n * (V_m - E_K)
-        inline I_L pA = g_L * (V_m - E_L)
+        inline I_Na "current" = g_Na * Act_m * Act_m * Act_m * Inact_h * (V_m - E_Na)
+        inline I_K "current" = g_K * Act_n * Act_n * Act_n * Act_n * (V_m - E_K)
+        inline I_L "current" = g_L * (V_m - E_L)
 
         V_m' = (-(I_Na + I_K + I_L) + I_e + I_stim + I_syn) / C_m
         refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero, at a rate of one (milli)second per (milli)second
@@ -107,41 +107,41 @@ model traub_cond_multisyn_neuron:
                g_GABAB$' = -g_GABAB$ / tau_GABAB_1
 
     parameters:
-        C_m pF = 100 pF         # Membrane capacitance
-        g_Na nS = 10000 nS      # Sodium peak conductance
-        g_K nS = 8000 nS        # Potassium peak conductance
-        g_L nS = 10 nS          # Leak conductance
-        E_Na mV = 50 mV         # Sodium reversal potential
-        E_K mV = -100 mV        # Potassium reversal potentia
-        E_L mV = -67 mV         # Leak reversal potential (a.k.a. resting potential)
-        V_Tr mV = -20 mV        # Spike threshold
-        refr_T ms = 2 ms        # Duration of refractory period
+        C_m "capacitance" = 100 pF         # Membrane capacitance
+        g_Na "conductance" = 10000 nS      # Sodium peak conductance
+        g_K "conductance" = 8000 nS        # Potassium peak conductance
+        g_L "conductance" = 10 nS          # Leak conductance
+        E_Na "voltage" = 50 mV         # Sodium reversal potential
+        E_K "voltage" = -100 mV        # Potassium reversal potentia
+        E_L "voltage" = -67 mV         # Leak reversal potential (a.k.a. resting potential)
+        V_Tr "voltage" = -20 mV        # Spike threshold
+        refr_T "time" = 2 ms        # Duration of refractory period
 
         # Parameters for synapse of type AMPA, GABA_A, GABA_B and NMDA
-        AMPA_g_peak nS = 0.1 nS      # peak conductance
-        AMPA_E_rev mV = 0.0 mV       # reversal potential
-        tau_AMPA_1 ms = 0.5 ms       # rise time
-        tau_AMPA_2 ms = 2.4 ms       # decay time, Tau_1 < Tau_2
+        AMPA_g_peak "conductance" = 0.1 nS      # peak conductance
+        AMPA_E_rev "voltage" = 0.0 mV       # reversal potential
+        tau_AMPA_1 "time" = 0.5 ms       # rise time
+        tau_AMPA_2 "time" = 2.4 ms       # decay time, Tau_1 < Tau_2
 
-        NMDA_g_peak nS = 0.075 nS    # peak conductance
-        tau_NMDA_1 ms = 4.0 ms       # rise time
-        tau_NMDA_2 ms = 40.0 ms      # decay time, Tau_1 < Tau_2
-        NMDA_E_rev mV = 0.0 mV       # reversal potential
-        NMDA_Vact mV = -58.0 mV      # inactive for V << Vact, inflection of sigmoid
-        NMDA_Sact mV = 2.5 mV        # scale of inactivation
+        NMDA_g_peak "conductance" = 0.075 nS    # peak conductance
+        tau_NMDA_1 "time" = 4.0 ms       # rise time
+        tau_NMDA_2 "time" = 40.0 ms      # decay time, Tau_1 < Tau_2
+        NMDA_E_rev "voltage" = 0.0 mV       # reversal potential
+        NMDA_Vact "voltage" = -58.0 mV      # inactive for V << Vact, inflection of sigmoid
+        NMDA_Sact "voltage" = 2.5 mV        # scale of inactivation
 
-        GABA_A_g_peak nS = 0.33 nS   # peak conductance
-        tau_GABAA_1 ms = 1.0 ms      # rise time
-        tau_GABAA_2 ms = 7.0 ms      # decay time, Tau_1 < Tau_2
-        GABA_A_E_rev mV = -70.0 mV   # reversal potential
+        GABA_A_g_peak "conductance" = 0.33 nS   # peak conductance
+        tau_GABAA_1 "time" = 1.0 ms      # rise time
+        tau_GABAA_2 "time" = 7.0 ms      # decay time, Tau_1 < Tau_2
+        GABA_A_E_rev "voltage" = -70.0 mV   # reversal potential
 
-        GABA_B_g_peak nS = 0.0132 nS # peak conductance
-        tau_GABAB_1 ms = 60.0 ms     # rise time
-        tau_GABAB_2 ms = 200.0 ms    # decay time, Tau_1 < Tau_2
-        GABA_B_E_rev mV = -90.0 mV   # reversal potential for intrinsic current
+        GABA_B_g_peak "conductance" = 0.0132 nS # peak conductance
+        tau_GABAB_1 "time" = 60.0 ms     # rise time
+        tau_GABAB_2 "time" = 200.0 ms    # decay time, Tau_1 < Tau_2
+        GABA_B_E_rev "voltage" = -90.0 mV   # reversal potential for intrinsic current
 
         # constant external input current
-        I_e pA = 0 pA
+        I_e "current" = 0 pA
 
     internals:
         AMPAInitialValue real = compute_synapse_constant(tau_AMPA_1, tau_AMPA_2, AMPA_g_peak)
@@ -156,7 +156,7 @@ model traub_cond_multisyn_neuron:
         alpha_h_init real = 0.128 * exp(-(V_m / 1 mV + 50.0) / 18.0)
         beta_h_init real = 4.0 / (1.0 + exp(-(V_m / 1 mV + 27.) / 5.))
 
-        unit_psg nS = 1 nS        # Unitary postsynaptic conductance amplitude
+        unit_psg "conductance" = 1 nS        # Unitary postsynaptic conductance amplitude
 
     input:
         AMPA_spikes <- spike
@@ -183,7 +183,7 @@ model traub_cond_multisyn_neuron:
         refr_t = refr_T    # start of the refractory period
         emit_spike()
 
-    function compute_synapse_constant(Tau_1 ms, Tau_2 ms, g_peak real) real:
+    function compute_synapse_constant(Tau_1 "time", Tau_2 "time", g_peak real) real:
         # Factor used to account for the missing 1/((1/Tau_2)-(1/Tau_1)) term
         # in the ht_neuron_dynamics integration of the synapse terms.
         # See: Exact digital simulation of time-invariant linear systems

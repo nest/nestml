@@ -31,7 +31,7 @@
 #
 model CoCoParameterAssignedOutsideBlock:
     parameters:
-        test mV = 10mV
+        test "voltage" = 10mV
 
     update:
         test = 20mV

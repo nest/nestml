@@ -19,37 +19,39 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import astropy
+from typing import Type
 
 from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
+from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
+from pynestml.codegeneration.printers.function_call_printer import FunctionCallPrinter
+from pynestml.codegeneration.printers.variable_printer import VariablePrinter
+from pynestml.codegeneration.unit_converter import UnitConverter
 from pynestml.codegeneration.printers.simple_expression_printer import SimpleExpressionPrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
-from pynestml.symbols.predefined_units import PredefinedUnits
 
 
 class PythonSimpleExpressionPrinter(SimpleExpressionPrinter):
     r"""
     Printer for ASTSimpleExpressions in Python syntax.
+
+    Physical units in literals are converted to the preferred units of the target platform, as given by the ``unit_converter``.
     """
+
+    def __init__(self,
+                 variable_printer: VariablePrinter,
+                 constant_printer: ConstantPrinter,
+                 function_call_printer: FunctionCallPrinter,
+                 unit_converter: Type[UnitConverter] = NESTUnitConverter):
+        super().__init__(variable_printer=variable_printer, constant_printer=constant_printer, function_call_printer=function_call_printer)
+        self._unit_converter = unit_converter
 
     def print_simple_expression(self, node: ASTSimpleExpression) -> str:
         if node.is_numeric_literal_with_unit():
-            factor = 1
-            try:
-                variable = node.get_variable()
-                factor = NESTUnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit())
-            except BaseException:
-                pass
-
-            try:
-                factor = NESTUnitConverter.get_factor(astropy.units.Unit(str(node.unitType)))
-            except BaseException:
-                pass
-
-            return self._constant_printer.print_constant(factor * node.get_numeric_literal())
+            # e.g. "-70 mV": convert to the preferred unit of the target platform
+            return self._constant_printer.print_constant(self._unit_converter.get_factor_of_unit_type(node.unitType) * node.get_numeric_literal())
 
         if isinstance(node, ASTVariable):
             return self._variable_printer.print(node.get_variable())
@@ -87,7 +89,4 @@ class PythonSimpleExpressionPrinter(SimpleExpressionPrinter):
         return self.print_simple_expression(node)
 
     def print(self, node: ASTNode) -> str:
-        if node.get_implicit_conversion_factor() and not node.get_implicit_conversion_factor() == 1:
-            return "(" + str(node.get_implicit_conversion_factor()) + " * (" + self._print(node) + "))"
-
         return self._print(node)

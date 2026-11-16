@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, Type
 
 from abc import ABCMeta, abstractmethod
 
@@ -32,6 +32,7 @@ from pynestml.meta_model.ast_node import ASTNode
 
 if TYPE_CHECKING:
     from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter    # avoided circular import by using ``from __future__ import annotations``
+    from pynestml.codegeneration.unit_converter import UnitConverter
 
 
 class FunctionCallPrinter(ASTPrinter, metaclass=ABCMeta):
@@ -39,10 +40,16 @@ class FunctionCallPrinter(ASTPrinter, metaclass=ABCMeta):
     Converts function calls to the executable platform dependent code.
 
     This class is used to transform only parts of the grammar and not NESTML as a whole.
+
+    The ``unit_converter`` determines the system of physical units of the target platform; it is used, for instance, to print the unit of a variable in a ``print()`` statement. By default, the units used by NEST are assumed.
     """
 
-    def __init__(self, expression_printer: ExpressionPrinter):
+    def __init__(self, expression_printer: ExpressionPrinter, unit_converter: Optional[Type[UnitConverter]] = None):
         self._expression_printer = expression_printer
+        if unit_converter is None:
+            from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
+            unit_converter = NESTUnitConverter
+        self._unit_converter = unit_converter
 
     @abstractmethod
     def print_function_call(self, node: ASTFunctionCall) -> str:

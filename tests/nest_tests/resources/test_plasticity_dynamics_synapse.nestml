@@ -28,10 +28,10 @@
 model test_plasticity_dynamics_synapse:
     state:
         w real = 1.0
-        t_last_pre_spike ms = 0 ms
+        t_last_pre_spike "time" = 0 ms
 
     parameters:
-        d ms = 1.0 ms
+        d "time" = 1.0 ms
         stdp_speed real = 0.01
 
     input:

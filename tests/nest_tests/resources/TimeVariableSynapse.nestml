@@ -23,15 +23,15 @@
 #
 model time_variable_synapse:
   state:
-    x ms = 0. ms
-    y ms = 0. ms
+    x "time" = 0. ms
+    y "time" = 0. ms
 
   onReceive(pre_spikes):
     y = t
 
   parameters:
     w real = 1
-    d ms = 1 ms
+    d "time" = 1 ms
 
   input:
     pre_spikes <- spike

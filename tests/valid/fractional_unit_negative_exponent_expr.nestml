@@ -28,7 +28,7 @@
 #
 model fractional_unit_negative_exponent_neuron:
     parameters:
-        foo ns**-(1/2) = 42 ns**-(1/2)
+        foo "time**-(1/2)" = 42 ns**-(1/2)
 
     state:
-        bar 1/ns = foo**2
+        bar "1 / time" = foo**2

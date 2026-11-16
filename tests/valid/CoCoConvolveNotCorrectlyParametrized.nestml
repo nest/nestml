@@ -30,14 +30,14 @@
 #
 model CoCoConvolveNotCorrectlyParametrized:
     parameters:
-        tau ms = 20 ms
+        tau "time" = 20 ms
 
     state:
         G real = 1.
 
     equations:
         kernel G' = -G / tau
-        inline testB pA = convolve(G, spikeExc) * 1 pA   # convolve is now correctly parametrized
+        inline testB "current" = convolve(G, spikeExc) * 1 pA   # convolve is now correctly parametrized
 
     input:
         spikeExc <- spike

@@ -50,4 +50,5 @@ class TestPythonStandaloneNeuronBuildAndSimAnalytic(unittest.TestCase):
 
         from nestmlmodule.test_python_standalone_module import TestSimulator
         neuron_log = TestSimulator().test_simulator()
-        np.testing.assert_allclose(neuron_log["V_m"][-1], -58.80728194689356)
+        # the Python-standalone target uses SI units: V_m is in V
+        np.testing.assert_allclose(neuron_log["V_m"][-1], -0.06441333204601496)

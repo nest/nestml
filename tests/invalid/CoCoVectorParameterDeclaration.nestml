@@ -32,4 +32,4 @@
 model CoCoVectorParameterDeclaration:
     state:
         size integer = 20
-        v_m [size] mV = -55 mV
+        v_m [size] "voltage" = -55 mV

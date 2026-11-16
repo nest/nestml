@@ -1,0 +1,48 @@
+# CoCoComplexQuantities.nestml
+# ############################
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Physical quantities that are combined using powers (including negative and fractional powers), products and quotients are type-checked correctly. Positive case.
+#
+model CoCoComplexQuantities:
+    state:
+        rate_y "1 / time" = b_sqrt_rate**2                       # (time**-(1/2))**2 = 1 / time
+        t_half "time**(1/2)" = a_2 * (1 mV)**(1/2)               # (time / voltage)**(1/2) * voltage**(1/2)
+        w real = 1
+        s_1 "(voltage / time)**-(1/2)" = a_1
+
+    equations:
+        w' = -w / (a_1**2 * 1 mV)                                # (time / voltage) * voltage = time
+
+    parameters:
+        a_1 "(voltage / time)**-(1/2)" = 2 (V/s)**-(1/2)
+        a_2 "(time / voltage)**(1/2)" = 2 (V/ms)**-(1/2)        # same dimension as a_1, written differently
+        b_sqrt_rate "(conductance / capacitance)**(1/2)" = 4 (nS/uF)**(1/2)
+        f_sqrt "frequency**(1/2)" = b_sqrt_rate                 # conductance / capacitance = frequency
+        c "(current * resistance)**2 / (voltage * time)" = 3 mV/ms
+        conc "1 / (amount of substance / volume)**(3/2)" = 1 (mmol/l)**-(3/2)
+        e_1 "(electrical potential)**-2 * time**-1" = 5 (mV**2 * ms)**-1
+
+    update:
+        integrate_odes()
+        s_1 = a_2 * 3
+        rate_y = 1 / (c * s_1**2 * 1 s)                          # voltage / time * time / voltage = 1

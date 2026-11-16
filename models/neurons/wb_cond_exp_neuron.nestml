@@ -47,9 +47,9 @@
 #
 model wb_cond_exp_neuron:
     state:
-        V_m mV = E_L        # Membrane potential
-        V_m_old mV = E_L    # Membrane potential at previous timestep for threshold check
-        refr_t ms = 0 ms    # Refractory period timer
+        V_m "voltage" = E_L        # Membrane potential
+        V_m_old "voltage" = E_L    # Membrane potential at previous timestep for threshold check
+        refr_t "time" = 0 ms    # Refractory period timer
 
         Inact_h real = alpha_h_init / (alpha_h_init + beta_h_init)
         Act_n real = alpha_n_init / (alpha_n_init + beta_n_init)
@@ -60,12 +60,12 @@ model wb_cond_exp_neuron:
         kernel g_inh = exp(-t / tau_syn_inh)
         kernel g_exc = exp(-t / tau_syn_exc)
 
-        recordable inline I_syn_exc pA = unit_psg * convolve(g_exc, exc_spikes) * (E_exc - V_m)
-        recordable inline I_syn_inh pA = unit_psg * convolve(g_inh, inh_spikes) * (E_inh - V_m)
+        recordable inline I_syn_exc "current" = unit_psg * convolve(g_exc, exc_spikes) * (E_exc - V_m)
+        recordable inline I_syn_inh "current" = unit_psg * convolve(g_inh, inh_spikes) * (E_inh - V_m)
 
-        inline I_Na  pA = g_Na * _subexpr(V_m) * Inact_h * (V_m - E_Na)
-        inline I_K   pA = g_K * Act_n**4 * (V_m - E_K)
-        inline I_L   pA = g_L * (V_m - E_L)
+        inline I_Na  "current" = g_Na * _subexpr(V_m) * Inact_h * (V_m - E_Na)
+        inline I_K   "current" = g_K * Act_n**4 * (V_m - E_K)
+        inline I_L   "current" = g_L * (V_m - E_L)
 
         V_m' = (-(I_Na + I_K + I_L) + I_e + I_stim + I_syn_exc + I_syn_inh) / C_m
         Act_n' = (alpha_n(V_m) * (1 - Act_n) - beta_n(V_m) * Act_n)    # n-variable
@@ -73,31 +73,31 @@ model wb_cond_exp_neuron:
         refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero, at a rate of one (milli)second per (milli)second
 
     parameters:
-        C_m pF = 100 pF           # Membrane capacitance
-        g_Na nS = 3500 nS         # Sodium peak conductance
-        g_K nS = 900 nS           # Potassium peak conductance
-        g_L nS = 10 nS            # Leak conductance
-        E_Na mV = 55 mV           # Sodium reversal potential
-        E_K mV = -90 mV           # Potassium reversal potential
-        E_L mV = -65 mV           # Leak reversal potential (a.k.a. resting potential)
-        V_Tr mV = -55 mV          # Spike threshold
-        refr_T ms = 2 ms          # Duration of refractory period
+        C_m "capacitance" = 100 pF           # Membrane capacitance
+        g_Na "conductance" = 3500 nS         # Sodium peak conductance
+        g_K "conductance" = 900 nS           # Potassium peak conductance
+        g_L "conductance" = 10 nS            # Leak conductance
+        E_Na "voltage" = 55 mV           # Sodium reversal potential
+        E_K "voltage" = -90 mV           # Potassium reversal potential
+        E_L "voltage" = -65 mV           # Leak reversal potential (a.k.a. resting potential)
+        V_Tr "voltage" = -55 mV          # Spike threshold
+        refr_T "time" = 2 ms          # Duration of refractory period
 
-        tau_syn_exc ms = 0.2 ms   # Rise time of the excitatory synaptic alpha function
-        tau_syn_inh ms = 10 ms    # Rise time of the inhibitory synaptic alpha function
-        E_exc mV = 0 mV           # Excitatory synaptic reversal potential
-        E_inh mV = -75 mV         # Inhibitory synaptic reversal potential
+        tau_syn_exc "time" = 0.2 ms   # Rise time of the excitatory synaptic alpha function
+        tau_syn_inh "time" = 10 ms    # Rise time of the inhibitory synaptic alpha function
+        E_exc "voltage" = 0 mV           # Excitatory synaptic reversal potential
+        E_inh "voltage" = -75 mV         # Inhibitory synaptic reversal potential
 
         # constant external input current
-        I_e pA = 0 pA
+        I_e "current" = 0 pA
 
     internals:
-        alpha_n_init 1/ms = -0.05 ms**-1*mV**-1 * (E_L + 34.0 mV) / (exp(-0.1 * (E_L + 34.0 mV)) - 1.0)
-        beta_n_init  1/ms = 0.625 ms**-1 * exp(-(E_L + 44.0 mV) / 80.0 mV)
-        alpha_h_init 1/ms = 0.35 ms**-1 * exp(-(E_L + 58.0 mV) / 20.0 mV)
-        beta_h_init  1/ms = 5.0 / (exp(-0.1 mV**-1 * (E_L + 28.0 mV)) + 1.0) / 1 ms
+        alpha_n_init "1 / time" = -0.05 ms**-1*mV**-1 * (E_L + 34.0 mV) / (exp(-0.1 * (E_L + 34.0 mV)) - 1.0)
+        beta_n_init  "1 / time" = 0.625 ms**-1 * exp(-(E_L + 44.0 mV) / 80.0 mV)
+        alpha_h_init "1 / time" = 0.35 ms**-1 * exp(-(E_L + 58.0 mV) / 20.0 mV)
+        beta_h_init  "1 / time" = 5.0 / (exp(-0.1 mV**-1 * (E_L + 28.0 mV)) + 1.0) / 1 ms
 
-        unit_psg nS = 1 nS    # Unitary postsynaptic conductance amplitude
+        unit_psg "conductance" = 1 nS    # Unitary postsynaptic conductance amplitude
 
     input:
         exc_spikes <- spike
@@ -122,23 +122,23 @@ model wb_cond_exp_neuron:
         refr_t = refr_T    # start of the refractory period
         emit_spike()
 
-    function _subexpr(V_m mV) real:
+    function _subexpr(V_m "voltage") real:
         return alpha_m(V_m)**3 / (alpha_m(V_m) + beta_m(V_m))**3
 
-    function alpha_m(V_m mV) 1/ms:
+    function alpha_m(V_m "voltage") "1 / time":
         return 0.1 ms**-1*mV**-1 * (V_m + 35.0 mV) / (1.0 - exp(-0.1 mV * (V_m + 35.0 mV)))
 
-    function beta_m(V_m mV) 1/ms:
+    function beta_m(V_m "voltage") "1 / time":
         return 4.0 ms**-1 * exp(-(V_m + 60.0 mV) / 18.0 mV)
 
-    function alpha_n(V_m mV) 1/ms:
+    function alpha_n(V_m "voltage") "1 / time":
         return -0.05 ms**-1*mV**-1 * (V_m + 34.0 mV) / (exp(-0.1 * (V_m + 34.0 mV)) - 1.0)
 
-    function beta_n(V_m mV) 1/ms:
+    function beta_n(V_m "voltage") "1 / time":
         return 0.625 ms**-1 * exp(-(V_m + 44.0 mV) / 80.0 mV)
 
-    function alpha_h(V_m mV) 1/ms:
+    function alpha_h(V_m "voltage") "1 / time":
         return 0.35 ms**-1 * exp(-(V_m + 58.0 mV) / 20.0 mV)
 
-    function beta_h(V_m mV) 1/ms:
+    function beta_h(V_m "voltage") "1 / time":
         return 5.0 / (exp(-0.1 / 1 mV * (V_m + 28.0 mV)) + 1.0) / 1 ms

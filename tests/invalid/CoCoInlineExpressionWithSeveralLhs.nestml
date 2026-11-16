@@ -30,4 +30,4 @@
 #
 model CoCoInlineExpressionWithSeveralLhs:
     equations:
-        inline V_rest,V_reset mV  = 10mV  # several lhs's should be detected
+        inline V_rest,V_reset "voltage"  = 10mV  # several lhs's should be detected

@@ -55,12 +55,12 @@
 #
 model hill_tononi_neuron:
     state:
-        potassium_refr_t ms = 0 ms
+        potassium_refr_t "time" = 0 ms
         g_spike boolean = false
 
-        V_m mV = (g_NaL * E_Na + g_KL * E_K) / (g_NaL + g_KL) # membrane potential
-        Theta mV = Theta_eq # Threshold
-        IKNa_D, IT_m, IT_h, Ih_m nS = 0.0 nS
+        V_m "voltage" = (g_NaL * E_Na + g_KL * E_K) / (g_NaL + g_KL) # membrane potential
+        Theta "voltage" = Theta_eq # Threshold
+        IKNa_D, IT_m, IT_h, Ih_m "conductance" = 0.0 nS
 
         g_AMPA real = 0
         g_NMDA real = 0
@@ -76,33 +76,33 @@ model hill_tononi_neuron:
         # V_m
         #############
 
-        inline I_syn_ampa pA = -unit_psg * convolve(g_AMPA, AMPA) * (V_m - AMPA_E_rev)
-        inline I_syn_nmda pA = -unit_psg * convolve(g_NMDA, NMDA) * (V_m - NMDA_E_rev) / (1 + exp((NMDA_Vact - V_m) / NMDA_Sact))
-        inline I_syn_gaba_a pA = -unit_psg * convolve(g_GABAA, GABA_A) * (V_m - GABA_A_E_rev)
-        inline I_syn_gaba_b pA = -unit_psg * convolve(g_GABAB, GABA_B) * (V_m - GABA_B_E_rev)
-        inline I_syn pA = I_syn_ampa + I_syn_nmda + I_syn_gaba_a + I_syn_gaba_b
+        inline I_syn_ampa "current" = -unit_psg * convolve(g_AMPA, AMPA) * (V_m - AMPA_E_rev)
+        inline I_syn_nmda "current" = -unit_psg * convolve(g_NMDA, NMDA) * (V_m - NMDA_E_rev) / (1 + exp((NMDA_Vact - V_m) / NMDA_Sact))
+        inline I_syn_gaba_a "current" = -unit_psg * convolve(g_GABAA, GABA_A) * (V_m - GABA_A_E_rev)
+        inline I_syn_gaba_b "current" = -unit_psg * convolve(g_GABAB, GABA_B) * (V_m - GABA_B_E_rev)
+        inline I_syn "current" = I_syn_ampa + I_syn_nmda + I_syn_gaba_a + I_syn_gaba_b
 
-        inline I_Na pA = -g_NaL * (V_m - E_Na)
-        inline I_K pA = -g_KL * (V_m - E_K)
+        inline I_Na "current" = -g_NaL * (V_m - E_Na)
+        inline I_K "current" = -g_KL * (V_m - E_K)
 
         # I_Na(p), m_inf^3 according to Compte et al, J Neurophysiol 2003 89:2707
-        inline INaP_thresh mV = -55.7 mV
-        inline INaP_slope mV = 7.7 mV
+        inline INaP_thresh "voltage" = -55.7 mV
+        inline INaP_slope "voltage" = 7.7 mV
         inline m_inf_NaP real = 1.0 / (1.0 + exp(-(V_m - INaP_thresh) / INaP_slope))
         # Persistent Na current; member only to allow recording
-        recordable inline I_NaP pA = -NaP_g_peak * m_inf_NaP**3 * (V_m - NaP_E_rev)
+        recordable inline I_NaP "current" = -NaP_g_peak * m_inf_NaP**3 * (V_m - NaP_E_rev)
 
         inline d_half real = 0.25
         inline m_inf_KNa real = 1.0 / (1.0 + (d_half / (IKNa_D / 1 nS))**3.5)
         # Depol act. K current; member only to allow recording
-        recordable inline I_KNa pA = -KNa_g_peak * m_inf_KNa * (V_m - KNa_E_rev)
+        recordable inline I_KNa "current" = -KNa_g_peak * m_inf_KNa * (V_m - KNa_E_rev)
 
         # Low-thresh Ca current; member only to allow recording
-        recordable inline I_T pA = -T_g_peak / 1 nS * IT_m / 1 nS * IT_m / 1 nS * IT_h * (V_m - T_E_rev)
+        recordable inline I_T "current" = -T_g_peak / 1 nS * IT_m / 1 nS * IT_m / 1 nS * IT_h * (V_m - T_E_rev)
 
-        recordable inline I_h pA = -h_g_peak / 1 nS * Ih_m * (V_m - h_E_rev)
+        recordable inline I_h "current" = -h_g_peak / 1 nS * Ih_m * (V_m - h_E_rev)
         # The spike current is only activate immediately after a spike.
-        inline I_spike mV = (g_spike) ? -(V_m - E_K) / Tau_spike * 1 ms : 0 mV
+        inline I_spike "voltage" = (g_spike) ? -(V_m - E_K) / Tau_spike * 1 ms : 0 mV
         V_m' = ((I_Na + I_K + I_syn + I_NaP + I_KNa + I_T + I_h + I_e + I_stim) / Tau_m + I_spike * 1 pA / (1 ms * 1 mV)) * 1 s/nF
         potassium_refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero, at a rate of one (milli)second per (milli)second
 
@@ -116,8 +116,8 @@ model hill_tononi_neuron:
         # I_KNa
         inline D_influx_peak real = 0.025
         inline tau_D real = 1250.0 # yes, 1.25 s
-        inline D_thresh mV = -10.0 mV
-        inline D_slope mV = 5.0 mV
+        inline D_thresh "voltage" = -10.0 mV
+        inline D_slope "voltage" = 5.0 mV
         inline D_influx real = 1.0 / (1.0 + exp(-(V_m - D_thresh) / D_slope))
 
         Theta' = -(Theta - Theta_eq) / Tau_theta
@@ -149,51 +149,51 @@ model hill_tononi_neuron:
                g_GABAB$' = -g_GABAB$ / GABA_B_Tau_1
 
     parameters:
-        E_Na mV = 30.0 mV
-        E_K mV = -90.0 mV
-        g_NaL nS = 0.2 nS
-        g_KL nS = 1.0 nS       # 1.0 - 1.85
-        Tau_m ms = 16.0 ms     # membrane time constant applying to all currents but repolarizing K-current (see [1, p 1677])
-        Theta_eq mV = -51.0 mV # equilibrium value
-        Tau_theta ms = 2.0 ms  # time constant
-        Tau_spike ms = 1.75 ms # membrane time constant applying to repolarizing K-current
-        t_spike ms = 2.0 ms    # duration of re-polarizing potassium current
+        E_Na "voltage" = 30.0 mV
+        E_K "voltage" = -90.0 mV
+        g_NaL "conductance" = 0.2 nS
+        g_KL "conductance" = 1.0 nS       # 1.0 - 1.85
+        Tau_m "time" = 16.0 ms     # membrane time constant applying to all currents but repolarizing K-current (see [1, p 1677])
+        Theta_eq "voltage" = -51.0 mV # equilibrium value
+        Tau_theta "time" = 2.0 ms  # time constant
+        Tau_spike "time" = 1.75 ms # membrane time constant applying to repolarizing K-current
+        t_spike "time" = 2.0 ms    # duration of re-polarizing potassium current
 
         # Parameters for synapse of type AMPA, GABA_A, GABA_B and NMDA
 
-        AMPA_g_peak nS = 0.1 nS      # peak conductance
-        AMPA_E_rev mV = 0.0 mV       # reversal potential
-        AMPA_Tau_1 ms = 0.5 ms       # rise time
-        AMPA_Tau_2 ms = 2.4 ms       # decay time, Tau_1 < Tau_2
-        NMDA_g_peak nS = 0.075 nS    # peak conductance
-        NMDA_Tau_1 ms = 4.0 ms       # rise time
-        NMDA_Tau_2 ms = 40.0 ms      # decay time, Tau_1 < Tau_2
-        NMDA_E_rev mV = 0.0 mV       # reversal potential
-        NMDA_Vact mV = -58.0 mV      # inactive for V << Vact, inflection of sigmoid
-        NMDA_Sact mV = 2.5 mV        # scale of inactivation
-        GABA_A_g_peak nS = 0.33 nS   # peak conductance
-        GABA_A_Tau_1 ms = 1.0 ms     # rise time
-        GABA_A_Tau_2 ms = 7.0 ms     # decay time, Tau_1 < Tau_2
-        GABA_A_E_rev mV = -70.0 mV   # reversal potential
-        GABA_B_g_peak nS = 0.0132 nS # peak conductance
-        GABA_B_Tau_1 ms = 60.0 ms    # rise time
-        GABA_B_Tau_2 ms = 200.0 ms   # decay time, Tau_1 < Tau_2
-        GABA_B_E_rev mV = -90.0 mV   # reversal potential for intrinsic current
+        AMPA_g_peak "conductance" = 0.1 nS      # peak conductance
+        AMPA_E_rev "voltage" = 0.0 mV       # reversal potential
+        AMPA_Tau_1 "time" = 0.5 ms       # rise time
+        AMPA_Tau_2 "time" = 2.4 ms       # decay time, Tau_1 < Tau_2
+        NMDA_g_peak "conductance" = 0.075 nS    # peak conductance
+        NMDA_Tau_1 "time" = 4.0 ms       # rise time
+        NMDA_Tau_2 "time" = 40.0 ms      # decay time, Tau_1 < Tau_2
+        NMDA_E_rev "voltage" = 0.0 mV       # reversal potential
+        NMDA_Vact "voltage" = -58.0 mV      # inactive for V << Vact, inflection of sigmoid
+        NMDA_Sact "voltage" = 2.5 mV        # scale of inactivation
+        GABA_A_g_peak "conductance" = 0.33 nS   # peak conductance
+        GABA_A_Tau_1 "time" = 1.0 ms     # rise time
+        GABA_A_Tau_2 "time" = 7.0 ms     # decay time, Tau_1 < Tau_2
+        GABA_A_E_rev "voltage" = -70.0 mV   # reversal potential
+        GABA_B_g_peak "conductance" = 0.0132 nS # peak conductance
+        GABA_B_Tau_1 "time" = 60.0 ms    # rise time
+        GABA_B_Tau_2 "time" = 200.0 ms   # decay time, Tau_1 < Tau_2
+        GABA_B_E_rev "voltage" = -90.0 mV   # reversal potential for intrinsic current
 
         # parameters for intrinsic currents
 
-        NaP_g_peak nS = 1.0 nS       # peak conductance for intrinsic current
-        NaP_E_rev mV = 30.0 mV       # reversal potential for intrinsic current
-        KNa_g_peak nS = 1.0 nS       # peak conductance for intrinsic current
-        KNa_E_rev mV = -90.0 mV      # reversal potential for intrinsic current
-        T_g_peak nS = 1.0 nS         # peak conductance for intrinsic current
-        T_E_rev mV = 0.0 mV          # reversal potential for intrinsic current
-        h_g_peak nS = 1.0 nS         # peak conductance for intrinsic current
-        h_E_rev mV = -40.0 mV        # reversal potential for intrinsic current
-        KNa_D_EQ pA = 0.001 pA
+        NaP_g_peak "conductance" = 1.0 nS       # peak conductance for intrinsic current
+        NaP_E_rev "voltage" = 30.0 mV       # reversal potential for intrinsic current
+        KNa_g_peak "conductance" = 1.0 nS       # peak conductance for intrinsic current
+        KNa_E_rev "voltage" = -90.0 mV      # reversal potential for intrinsic current
+        T_g_peak "conductance" = 1.0 nS         # peak conductance for intrinsic current
+        T_E_rev "voltage" = 0.0 mV          # reversal potential for intrinsic current
+        h_g_peak "conductance" = 1.0 nS         # peak conductance for intrinsic current
+        h_E_rev "voltage" = -40.0 mV        # reversal potential for intrinsic current
+        KNa_D_EQ "current" = 0.001 pA
 
         # constant external input current
-        I_e pA = 0 pA
+        I_e "current" = 0 pA
 
     internals:
         AMPAInitialValue real = compute_synapse_constant(AMPA_Tau_1, AMPA_Tau_2, AMPA_g_peak)
@@ -202,7 +202,7 @@ model hill_tononi_neuron:
         GABA_AInitialValue real = compute_synapse_constant(GABA_A_Tau_1, GABA_A_Tau_2, GABA_A_g_peak)
         GABA_BInitialValue real = compute_synapse_constant(GABA_B_Tau_1, GABA_B_Tau_2, GABA_B_g_peak)
 
-        unit_psg nS = 1 nS        # Unitary postsynaptic conductance amplitude
+        unit_psg "conductance" = 1 nS        # Unitary postsynaptic conductance amplitude
 
     input:
         AMPA <- spike
@@ -243,7 +243,7 @@ model hill_tononi_neuron:
 
         emit_spike()
 
-    function compute_synapse_constant(Tau_1 ms, Tau_2 ms, g_peak real) real:
+    function compute_synapse_constant(Tau_1 "time", Tau_2 "time", g_peak real) real:
         # Factor used to account for the missing 1/((1/Tau_2)-(1/Tau_1)) term
         # in the ht_neuron_dynamics integration of the synapse terms.
         # See: Exact digital simulation of time-invariant linear systems

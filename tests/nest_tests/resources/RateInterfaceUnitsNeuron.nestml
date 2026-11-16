@@ -1,0 +1,43 @@
+# RateInterfaceUnitsNeuron.nestml
+# ################################
+#
+# Rates (the quantity "1 / time") are stored in 1/ms in NEST, but set, read and recorded by the user in Hz.
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+model rate_interface_units_neuron:
+    state:
+        r "1 / time" = 20 Hz
+        r_decaying "1 / time" = 50 Hz
+        n real = 0    # the expected number of events, given a rate ``r_param``
+
+    parameters:
+        r_param "1 / time" = 5 Hz
+        tau "time" = 100 ms
+
+    equations:
+        recordable inline r_inline "1 / time" = 2 * r
+        r_decaying' = -r_decaying / tau
+
+    update:
+        integrate_odes()
+        n += r_param * resolution()

@@ -32,6 +32,7 @@ model integer_division_test:
         neg1 integer = -5
         neg2 integer = -5
         neg3 integer = -5
+        s integer = 7
 
     update:
         x /= 2
@@ -43,3 +44,4 @@ model integer_division_test:
         neg1 /= 2
         neg2 //= 2
         neg3 //= -2
+        s //= 2 + 1    # the divisor is a sum

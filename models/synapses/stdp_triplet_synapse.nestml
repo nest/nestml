@@ -98,7 +98,7 @@
 #
 model stdp_triplet_synapse:
     state:
-        w nS = 1 nS [[w >= 0 nS]]   # Synaptic weight
+        w "conductance" = 1 nS [[w >= 0 nS]]   # Synaptic weight
 
         tr_r1 real = 0.
         tr_r2 real = 0.
@@ -107,18 +107,18 @@ model stdp_triplet_synapse:
 
     parameters:
 
-        tau_plus ms = 16.8 ms    # time constant for tr_r1
-        tau_x ms = 101 ms    # time constant for tr_r2
-        tau_minus ms = 33.7 ms    # time constant for tr_o1
-        tau_y ms = 125 ms    # time constant for tr_o2
+        tau_plus "time" = 16.8 ms    # time constant for tr_r1
+        tau_x "time" = 101 ms    # time constant for tr_r2
+        tau_minus "time" = 33.7 ms    # time constant for tr_o1
+        tau_y "time" = 125 ms    # time constant for tr_o2
 
         A2_plus real = 7.5e-10
         A3_plus real = 9.3e-3
         A2_minus real = 7e-3
         A3_minus real = 2.3e-4
 
-        Wmax nS = 100 nS [[Wmax >= 0 nS]]
-        Wmin nS = 0 nS [[Wmin >= 0 nS]]
+        Wmax "conductance" = 100 nS [[Wmax >= 0 nS]]
+        Wmin "conductance" = 0 nS [[Wmin >= 0 nS]]
 
     equations:
         tr_r1' = -tr_r1 / tau_plus
@@ -135,7 +135,7 @@ model stdp_triplet_synapse:
 
     onReceive(post_spikes):
         # potentiate synapse
-        w_ nS = w + tr_r1 * (A2_plus + A3_plus * tr_o2)
+        w_ "conductance" = w + tr_r1 * (A2_plus + A3_plus * tr_o2)
         w = min(Wmax, w_)
 
         # increment post trace values
@@ -144,7 +144,7 @@ model stdp_triplet_synapse:
 
     onReceive(pre_spikes):
         # depress synapse
-        w_ nS = w - tr_o1 * (A2_minus + A3_minus * tr_r2)
+        w_ "conductance" = w - tr_o1 * (A2_minus + A3_minus * tr_r2)
         w = max(Wmin, w_)
 
         # increment pre trace values

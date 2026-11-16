@@ -32,7 +32,7 @@
 #
 model CoCoOdeCorrectlyTyped:
     state: # variable is now defined in the initial block, thus everything is correct.
-        V_m mV = 10 mV
+        V_m "voltage" = 10 mV
 
     equations:
         V_m' = (10 pA) / (100 pF)

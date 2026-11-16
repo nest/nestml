@@ -177,7 +177,7 @@ For example, say we have the following inline expressions in our ``equations`` b
 .. code::
 
    inline refr real = G_refr * is_refr * (V_reset - v_comp)    @mechanism::channel
-   inline adapt pA = -g_adapt * w    @mechanism::channel
+   inline adapt "current" = -g_adapt * w    @mechanism::channel
 
 Given the following example ``onReceive()`` block, the toolchain will automatically detect that the first two statements are relevant for the ``refr`` mechanism, and generate code for them only inside this mechanism; and detect that the last statement is relevant only for the ``adapt`` mechanism, and generate code for it only inside this mechanism.
 

@@ -28,7 +28,7 @@
 #
 model float_unit_negative_exponent_neuron:
     parameters:
-        foo ns**-0.5 = 42 ns**-.5
+        foo "time**-0.5" = 42 ns**-.5
 
     state:
-        bar 1/ns = foo**2
+        bar "1 / time" = foo**2

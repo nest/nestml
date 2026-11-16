@@ -77,9 +77,9 @@ class TestIgnoreAndFire:
 
         pre_neuron = nest.Create(self.neuron_model_name)
         post_neuron = nest.Create(self.neuron_model_name)
-        pre_neuron.firing_rate = 10.
+        pre_neuron.firing_rate = 10.    # [Hz]
         pre_neuron.phase_steps = 50
-        post_neuron.firing_rate = 100.
+        post_neuron.firing_rate = 100.    # [Hz]
         post_neuron.phase_steps = 5
         pre_sr = nest.Create("spike_recorder")
         post_sr = nest.Create("spike_recorder")
@@ -95,5 +95,6 @@ class TestIgnoreAndFire:
         n_ev_pre = len(pre_sr.get("events")["times"])
         n_ev_post = len(post_sr.get("events")["times"])
 
+        # the simulation lasts (approximately) one second, so the number of spikes equals the firing rate in Hz
         assert n_ev_pre == pre_neuron.firing_rate
         assert n_ev_post == post_neuron.firing_rate

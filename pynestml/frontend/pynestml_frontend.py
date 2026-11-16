@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Type, Union
 
 import os
 import sys
@@ -27,6 +27,7 @@ import sys
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.builder import Builder
 from pynestml.codegeneration.code_generator import CodeGenerator
+from pynestml.codegeneration.unit_converter import UnitConverter
 from pynestml.exceptions.code_generator_options_exception import CodeGeneratorOptionsException
 from pynestml.frontend.frontend_configuration import FrontendConfiguration, InvalidPathException, \
     qualifier_store_log_arg, qualifier_module_name_arg, qualifier_logging_level_arg, \
@@ -114,6 +115,13 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         transformer = EquationsWithVectorVarsTransformer()
         transformers.append(transformer)
 
+        # convert physical units in expressions to plain numbers in the preferred units of the target platform; this has to happen before the ODE-toolbox analysis, so that ODE-toolbox (and all subsequent processing) works in the same system of units as the generated code. Documentation targets show the model as written, with its physical units.
+        if target_name.upper() not in ["AUTODOC", "PRETTY_RENDER"]:
+            from pynestml.transformers.unit_conversion_transformer import UnitConversionTransformer
+            transformer = UnitConversionTransformer(unit_converter=unit_converter_from_target_name(target_name))
+            options = transformer.set_options(options)
+            transformers.append(transformer)
+
         # ODE-toolbox analysis
         from pynestml.transformers.ode_toolbox_transformer import ODEToolboxTransformer
         transformer = ODEToolboxTransformer()
@@ -124,6 +132,18 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         transformers.append(transformer)
 
     return transformers, options
+
+
+def unit_converter_from_target_name(target_name: str) -> Type[UnitConverter]:
+    r"""Static factory method that returns the system of physical units (a child class of UnitConverter) used by the given target platform"""
+    assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
+
+    if target_name.upper() == "PYTHON_STANDALONE":
+        from pynestml.codegeneration.python_standalone_unit_converter import PythonStandaloneUnitConverter
+        return PythonStandaloneUnitConverter
+
+    from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
+    return NESTUnitConverter
 
 
 def code_generator_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> CodeGenerator:

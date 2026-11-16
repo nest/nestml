@@ -24,7 +24,7 @@
 model delay_test_assigned_delay2_synapse:
   state:
     w real = 1    # Synaptic weight
-    delay ms = 1 ms    # Synaptic transmission delay
+    delay "time" = 1 ms    # Synaptic transmission delay
 
   input:
     pre_spikes <- spike

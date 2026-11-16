@@ -25,13 +25,68 @@ import re
 import tempfile
 import uuid
 
+from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.symbols.type_symbol import TypeSymbol
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.utils.logger import Logger
 
 
 class NESTCodeGeneratorUtils:
+
+    @classmethod
+    def print_nest_unit(cls, type_symbol: TypeSymbol) -> str:
+        r"""
+        Returns the unit in which NEST stores values of the given type; for instance, ``mV`` for the quantity "voltage". For non-physical types, the name of the type is returned (e.g. ``real``).
+        """
+        return NESTUnitConverter.print_unit(type_symbol)
+
+    @classmethod
+    def print_nest_interface_unit(cls, type_symbol: TypeSymbol) -> str:
+        r"""
+        Returns the unit in which values of the given type are set and read by the user of NEST (for instance, through ``nest.SetStatus()``, ``nest.GetStatus()`` or a multimeter); this is the unit in which NEST stores them (see :py:meth:`print_nest_unit`), except for rates, which are set and read in Hz. For non-physical types, the name of the type is returned (e.g. ``real``).
+        """
+        return NESTUnitConverter.print_interface_unit(type_symbol)
+
+    @classmethod
+    def needs_interface_conversion(cls, variable_symbol: VariableSymbol) -> bool:
+        r"""
+        Returns whether values of the given variable need to be converted between the unit in which NEST stores them and the unit in which they are set and read by the user (see :py:meth:`print_nest_interface_unit`).
+        """
+        return NESTUnitConverter.get_interface_factor(variable_symbol.get_type_symbol()) != 1.
+
+    @classmethod
+    def print_to_interface_units(cls, variable_symbol: VariableSymbol, expr: str, is_vector: Optional[bool] = None) -> str:
+        r"""
+        Returns C++ code that converts the value ``expr`` of the given variable from the unit in which NEST stores it to the unit in which it is read by the user (see :py:meth:`print_nest_interface_unit`); for instance, from 1/ms to Hz for a rate.
+
+        :param variable_symbol: the variable
+        :param expr: C++ expression for the value in the stored unit
+        :param is_vector: whether ``expr`` is a ``std::vector`` (by default, if the variable is a vector)
+        :return: C++ expression for the value in the interface unit
+        """
+        return cls._print_scaled(variable_symbol, expr, NESTUnitConverter.get_interface_factor(variable_symbol.get_type_symbol()), is_vector)
+
+    @classmethod
+    def print_from_interface_units(cls, variable_symbol: VariableSymbol, expr: str, is_vector: Optional[bool] = None) -> str:
+        r"""
+        Returns C++ code that converts the value ``expr`` of the given variable from the unit in which it is set by the user to the unit in which NEST stores it (the inverse of :py:meth:`print_to_interface_units`).
+        """
+        return cls._print_scaled(variable_symbol, expr, float("%.15g" % (1. / NESTUnitConverter.get_interface_factor(variable_symbol.get_type_symbol()))), is_vector)
+
+    @classmethod
+    def _print_scaled(cls, variable_symbol: VariableSymbol, expr: str, factor: float, is_vector: Optional[bool] = None) -> str:
+        if factor == 1.:
+            return expr
+
+        if is_vector is None:
+            is_vector = variable_symbol.has_vector_parameter()
+
+        if is_vector:
+            return "[](std::vector< double > __v) { for (auto& __x : __v) { __x *= %.15g; } return __v; }(%s)" % (factor, expr)
+
+        return "(%.15g * %s)" % (factor, expr)
 
     @classmethod
     def print_symbol_origin(cls, variable_symbol: VariableSymbol, variable: ASTVariable) -> str:

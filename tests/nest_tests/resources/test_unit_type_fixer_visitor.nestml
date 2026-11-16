@@ -36,4 +36,4 @@ model test_unit_type_fixer_visitor:
 
     parameters:
         foo real = 42
-        bar pA = 42 pA
+        bar "current" = 42 pA

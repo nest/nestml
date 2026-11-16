@@ -41,7 +41,7 @@ model vectors_with_nonlin_eq:
         y' = -y**2 / tau
 
     parameters:
-        tau ms = 4 ms
+        tau "time" = 4 ms
         buf_len integer = 10
 
     output:

@@ -58,41 +58,41 @@
 #
 model izhikevich_psc_alpha_neuron:
     state:
-        V_m mV = -65 mV # Membrane potential
-        U_m pA = 0 pA   # Membrane potential recovery variable
-        refr_t ms = 0 ms    # Refractory period timer
+        V_m "voltage" = -65 mV # Membrane potential
+        U_m "current" = 0 pA   # Membrane potential recovery variable
+        refr_t "time" = 0 ms    # Refractory period timer
 
     equations:
         # synapses: alpha functions
         kernel K_syn_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
         kernel K_syn_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
 
-        inline I_syn_exc pA = unit_psc * convolve(K_syn_exc, exc_spikes)
-        inline I_syn_inh pA = unit_psc * convolve(K_syn_inh, inh_spikes)
+        inline I_syn_exc "current" = unit_psc * convolve(K_syn_exc, exc_spikes)
+        inline I_syn_inh "current" = unit_psc * convolve(K_syn_inh, inh_spikes)
 
         V_m' = (k * (V_m - V_r) * (V_m - V_t) - U_m + I_e + I_stim + I_syn_exc - I_syn_inh) / C_m
         U_m' = a * (b * (V_m - V_r) - U_m)
         refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero, at a rate of one (milli)second per (milli)second
 
     parameters:
-        C_m pF = 200 pF           # Membrane capacitance
-        k pF/mV/ms = 8 pF/mV/ms   # Spiking slope
-        V_r mV = -65 mV           # Resting potential
-        V_t mV = -45 mV           # Threshold potential
-        a 1/ms = 0.01 ms**-1      # Time scale of recovery variable
-        b nS = 9 nS               # Sensitivity of recovery variable
-        c mV = -65 mV             # After-spike reset value of V_m
-        d pA = 60 pA              # After-spike reset value of U_m
-        V_peak mV = 0 mV          # Spike detection threshold (reset condition)
-        tau_syn_exc ms = 0.2 ms   # Synaptic time constant of excitatory synapse
-        tau_syn_inh ms = 2 ms     # Synaptic time constant of inhibitory synapse
-        refr_T ms = 2 ms          # Duration of refractory period
+        C_m "capacitance" = 200 pF           # Membrane capacitance
+        k "capacitance / voltage / time" = 8 pF/mV/ms   # Spiking slope
+        V_r "voltage" = -65 mV           # Resting potential
+        V_t "voltage" = -45 mV           # Threshold potential
+        a "1 / time" = 0.01 ms**-1      # Time scale of recovery variable
+        b "conductance" = 9 nS               # Sensitivity of recovery variable
+        c "voltage" = -65 mV             # After-spike reset value of V_m
+        d "current" = 60 pA              # After-spike reset value of U_m
+        V_peak "voltage" = 0 mV          # Spike detection threshold (reset condition)
+        tau_syn_exc "time" = 0.2 ms   # Synaptic time constant of excitatory synapse
+        tau_syn_inh "time" = 2 ms     # Synaptic time constant of inhibitory synapse
+        refr_T "time" = 2 ms          # Duration of refractory period
 
         # constant external input current
-        I_e pA = 0 pA
+        I_e "current" = 0 pA
 
     internals:
-        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+        unit_psc "current" = 1 pA        # Unitary postsynaptic current amplitude
 
     input:
         inh_spikes <- spike

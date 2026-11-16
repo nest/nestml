@@ -64,10 +64,10 @@
 model iaf_psc_exp_neuron:
 
     state:
-        V_m mV = E_L    # Membrane potential
-        refr_t ms = 0 ms    # Refractory period timer
-        I_syn_exc pA = 0 pA
-        I_syn_inh pA = 0 pA
+        V_m "voltage" = E_L    # Membrane potential
+        refr_t "time" = 0 ms    # Refractory period timer
+        I_syn_exc "current" = 0 pA
+        I_syn_inh "current" = 0 pA
 
     equations:
         I_syn_exc' = -I_syn_exc / tau_syn_exc
@@ -76,20 +76,20 @@ model iaf_psc_exp_neuron:
         refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero, at a rate of one (milli)second per (milli)second
 
     parameters:
-        C_m pF = 250 pF           # Capacitance of the membrane
-        tau_m ms = 10 ms          # Membrane time constant
-        tau_syn_inh ms = 2 ms     # Time constant of inhibitory synaptic current
-        tau_syn_exc ms = 2 ms     # Time constant of excitatory synaptic current
-        refr_T ms = 2 ms          # Duration of refractory period
-        E_L mV = -70 mV           # Resting potential
-        V_reset mV = -70 mV       # Reset value of the membrane potential
-        V_th mV = -55 mV          # Spike threshold potential
+        C_m "capacitance" = 250 pF           # Capacitance of the membrane
+        tau_m "time" = 10 ms          # Membrane time constant
+        tau_syn_inh "time" = 2 ms     # Time constant of inhibitory synaptic current
+        tau_syn_exc "time" = 2 ms     # Time constant of excitatory synaptic current
+        refr_T "time" = 2 ms          # Duration of refractory period
+        E_L "voltage" = -70 mV           # Resting potential
+        V_reset "voltage" = -70 mV       # Reset value of the membrane potential
+        V_th "voltage" = -55 mV          # Spike threshold potential
 
         # constant external input current
-        I_e pA = 0 pA
+        I_e "current" = 0 pA
 
     internals:
-        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+        unit_psc "current" = 1 pA        # Unitary postsynaptic current amplitude
 
     input:
         input_spikes <- spike
@@ -107,7 +107,7 @@ model iaf_psc_exp_neuron:
             integrate_odes(I_syn_exc, I_syn_inh, V_m)
 
     onReceive(input_spikes):
-        psc pA = unit_psc * get_weight(input_spikes, t)    # compute the magnitude of the postsynaptic response
+        psc "current" = unit_psc * get_weight(input_spikes, t)    # compute the magnitude of the postsynaptic response
 
         # route the incoming spike on the basis of the weight: less than zero means an inhibitory spike; greater than zero means an excitatory spike
         if psc > 0:

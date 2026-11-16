@@ -32,7 +32,7 @@
 #
 model CoCoAssignmentToUnitType:
     state:
-        V mV/F = 250 mV/F
+        V "voltage / capacitance" = 250 mV/F
         pA real = 1
 
     update:

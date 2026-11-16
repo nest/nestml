@@ -35,11 +35,11 @@ model stdp_synapse:
         post_trace real = 0.
 
     parameters:
-        d ms = 1 ms                 # dendritic delay
+        d "time" = 1 ms                 # dendritic delay
         lambda real =  0.01         # (dimensionless) learning rate for causal updates
         alpha real = 1              # relative learning rate for acausal firing
-        tau_tr_pre ms = 20 ms       # time constant of presynaptic trace
-        tau_tr_post ms = 20 ms      # time constant of postsynaptic trace
+        tau_tr_pre "time" = 20 ms       # time constant of presynaptic trace
+        tau_tr_post "time" = 20 ms      # time constant of postsynaptic trace
         mu_plus real = 1            # weight dependence exponent for causal updates
         mu_minus real = 1           # weight dependence exponent for acausal updates
 

@@ -39,30 +39,30 @@
 #
 model expressionType_test:
     state:
-        time s = 2 s
-        resist Ohm = 1 Ohm
-        amps A = 0.1 A
-        volts V = -0.5 V
-        charge C = 0.03 C
-        mass kg = 0.15 kg
-        distance m = 0.33 m
-        force N = 1.5 N
+        time "time" = 2 s
+        resist "resistance" = 1 Ohm
+        amps "current" = 0.1 A
+        volts "voltage" = -0.5 V
+        charge "charge" = 0.03 C
+        mass "mass" = 0.15 kg
+        distance "length" = 0.33 m
+        force "force" = 1.5 N
         testint integer = 8
         testint2 integer = 3
-        timesquared s**2 = 1.44 s**2
-        velocity m/s = 23.5 m/s
+        timesquared "time**2" = 1.44 s**2
+        velocity "length / time" = 23.5 m/s
 
         # power operator
-        bar1 mol**2 = 1.5 mol**2
-        bar2 mol**3 = -22 mol**3
-        bar3 mol**5 = 3.99 mol**5
-        beta mol = 42 mol
+        bar1 "(amount of substance)**2" = 1.5 mol**2
+        bar2 "(amount of substance)**3" = -22 mol**3
+        bar3 "(amount of substance)**5" = 3.99 mol**5
+        beta "amount of substance" = 42 mol
 
     parameters:
         expo1 integer = 3
-        expo2 mmol/pA = 2 mmol/pA
+        expo2 "amount of substance / current" = 2 mmol/pA
 
-    function foo(_mass kg, _dist m, _time s) N :
+    function foo(_mass "mass", _dist "length", _time "time") "force" :
         return _mass * _dist / (_time**2)
 
     update:

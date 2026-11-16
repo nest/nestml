@@ -7,6 +7,7 @@ inline double get_state_element(size_t elem)
   {
 {%- set len = recordable_state_variables | length %}
 {%- for variable in recordable_state_variables %}
+{%-     set variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
 {%-     if loop.index == 1 %}
     if
 {%-     elif loop.index == len %}
@@ -23,24 +24,27 @@ inline double get_state_element(size_t elem)
 {%-             endif -%}
     (elem >= State_::{{ printer_no_origin.print(variable).upper() }} and elem < State_::{{ printer_no_origin.print(variable).upper() }} + {{ size }})
     {
-      return S_.{{ printer_no_origin.print(variable) }}[ elem - State_::{{ printer_no_origin.print(variable).upper() }} ];
+{%- set state_element_expr -%}S_.{{ printer_no_origin.print(variable) }}[ elem - State_::{{ printer_no_origin.print(variable).upper() }} ]{%- endset %}
+      return {{ nest_codegen_utils.print_to_interface_units(variable_symbol, state_element_expr, is_vector=false) }};    // in the units used by the user
     }
 {%-         else %}
     (elem == State_::{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable.get_complete_name())).upper() }})
     {
-      return {{ printer.print(utils.get_state_variable_by_name(astnode, variable.get_complete_name())) }};
+{%- set state_element_expr -%}{{ printer.print(utils.get_state_variable_by_name(astnode, variable.get_complete_name())) }}{%- endset %}
+      return {{ nest_codegen_utils.print_to_interface_units(variable_symbol, state_element_expr, is_vector=false) }};    // in the units used by the user
     }
 {%-         endif %}
 {%-     else %}
 {%-         if variable.has_vector_parameter() %}
-{%-             set variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
 
     {
-      return {{ nest_codegen_utils.print_symbol_origin(variable_symbol, variable) % printer_no_origin.print(variable) }}[ elem - State_::{{ printer_no_origin.print(variable).upper() }} ];
+{%- set state_element_expr -%}{{ nest_codegen_utils.print_symbol_origin(variable_symbol, variable) % printer_no_origin.print(variable) }}[ elem - State_::{{ printer_no_origin.print(variable).upper() }} ]{%- endset %}
+      return {{ nest_codegen_utils.print_to_interface_units(variable_symbol, state_element_expr, is_vector=false) }};    // in the units used by the user
     }
 {%-         else %}
     {
-      return {{ printer.print(variable) }};
+{%- set state_element_expr -%}{{ printer.print(variable) }}{%- endset %}
+      return {{ nest_codegen_utils.print_to_interface_units(variable_symbol, state_element_expr, is_vector=false) }};    // in the units used by the user
     }
 {%-         endif %}
 {%-     endif %}

@@ -23,9 +23,9 @@
 #
 model delay_test_plastic_synapse:
   state:
-    x ms = 0 ms
+    x "time" = 0 ms
     w real = 1    # Synaptic weight
-    d ms = 1 ms    # Synaptic transmission delay
+    d "time" = 1 ms    # Synaptic transmission delay
 
   input:
     pre_spikes <- spike

@@ -35,9 +35,9 @@ model random_functions_neuromod_synapse:
     parameters:
         N integer = 1000
         eta real = 0.01          # learning rate
-        tau_pre ms = 20 ms       # decay of pre-trace
-        tau_post ms = 20 ms      # decay of post-trace
-        tau_mod ms = 100 ms      # decay of modulatory trace
+        tau_pre "time" = 20 ms       # decay of pre-trace
+        tau_post "time" = 20 ms      # decay of post-trace
+        tau_mod "time" = 100 ms      # decay of modulatory trace
 
     equations:
         pre_tr' = -pre_tr / tau_pre

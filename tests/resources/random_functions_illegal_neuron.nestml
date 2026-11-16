@@ -24,10 +24,10 @@
 model random_functions_illegal_neuron:
     state:
         noise real = random_normal(0,sigma_noise)
-        v mV = -15 mV
+        v "voltage" = -15 mV
 
     parameters:
-        rate ms**-1 = 15.5 s**-1
+        rate "time**-1" = 15.5 s**-1
         sigma_noise real = 16.
         u real = random_uniform(0, 1)
 

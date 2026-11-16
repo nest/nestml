@@ -21,7 +21,10 @@
 
 from __future__ import annotations
 
+from typing import Type
+
 from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
+from pynestml.codegeneration.unit_converter import UnitConverter
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.codegeneration.printers.variable_printer import VariablePrinter
 from pynestml.codegeneration.python_code_generator_utils import PythonCodeGeneratorUtils
@@ -41,10 +44,11 @@ class PythonVariablePrinter(VariablePrinter):
     Variable printer for Python syntax.
     """
 
-    def __init__(self, expression_printer: ExpressionPrinter, with_origin: bool = True, with_vector_parameter: bool = True) -> None:
+    def __init__(self, expression_printer: ExpressionPrinter, with_origin: bool = True, with_vector_parameter: bool = True, unit_converter: Type[UnitConverter] = NESTUnitConverter) -> None:
         super().__init__(expression_printer)
         self.with_origin = with_origin
         self.with_vector_parameter = with_vector_parameter
+        self._unit_converter = unit_converter
 
     @classmethod
     def _print_python_name(cls, variable_name: str) -> str:
@@ -98,7 +102,7 @@ class PythonVariablePrinter(VariablePrinter):
 
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
-                units_conversion_factor = NESTUnitConverter.get_factor(symbol.get_type_symbol().unit.unit)
+                units_conversion_factor = self._unit_converter.get_factor(symbol.get_type_symbol().unit.unit)
             else:
                 units_conversion_factor = 1
             s = ""

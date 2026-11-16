@@ -30,4 +30,4 @@
 #
 model CoCoInlineExpressionHasNoRhs:
     equations:
-        inline V_rest mV  = 10mV # a rhs is defined, thus everything is correct
+        inline V_rest "voltage"  = 10mV # a rhs is defined, thus everything is correct

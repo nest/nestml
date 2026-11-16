@@ -31,18 +31,18 @@
 model third_factor_stdp_synapse:
     state:
         w real = 1.   # Synaptic weight
-        I_post_dend pA = 0 pA
-        AMPA pA = 0 pA
-        Ca_HVA pA = 0 pA
-        Ca_LVAst pA = 0 pA
-        NaTa_t pA = 0 pA
-        SK_E2 pA = 0 pA
+        I_post_dend "current" = 0 pA
+        AMPA "current" = 0 pA
+        Ca_HVA "current" = 0 pA
+        Ca_LVAst "current" = 0 pA
+        NaTa_t "current" = 0 pA
+        SK_E2 "current" = 0 pA
 
     parameters:
-        d ms = 1 ms    # Synaptic transmission delay
+        d "time" = 1 ms    # Synaptic transmission delay
         lambda real = .01
-        tau_tr_pre ms = 20 ms
-        tau_tr_post ms = 20 ms
+        tau_tr_pre "time" = 20 ms
+        tau_tr_post "time" = 20 ms
         alpha real = 1.
         mu_plus real = 1.
         mu_minus real = 1.

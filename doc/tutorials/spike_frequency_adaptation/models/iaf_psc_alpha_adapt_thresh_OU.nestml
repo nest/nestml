@@ -64,43 +64,43 @@
 model iaf_psc_alpha_adapt_thresh_OU_neuron:
 
     state:
-        V_m mV = E_L             # Membrane potential
-        Theta mV = Theta_init    # Spiking threshold
-        refr_t ms = 0 ms         # Refractory period timer
-        I_noise pA = I_noise0    # Noise current
+        V_m "voltage" = E_L             # Membrane potential
+        Theta "voltage" = Theta_init    # Spiking threshold
+        refr_t "time" = 0 ms         # Refractory period timer
+        I_noise "current" = I_noise0    # Noise current
 
     equations:
         kernel I_kernel_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
         kernel I_kernel_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
-        inline I pA = unit_psc * (convolve(I_kernel_exc, exc_spikes) - convolve(I_kernel_inh, inh_spikes)) + I_e + I_stim + I_noise
+        inline I "current" = unit_psc * (convolve(I_kernel_exc, exc_spikes) - convolve(I_kernel_inh, inh_spikes)) + I_e + I_stim + I_noise
         V_m' = -(V_m - E_L) / tau_m + I / C_m
         Theta' = -(Theta - Theta_init) / tau_Theta
         refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero at a rate of one second per second
 
     parameters:
-        C_m pF = 250 pF           # Capacitance of the membrane
-        tau_m ms = 10 ms          # Membrane time constant
-        tau_syn_inh ms = 2 ms     # Time constant of synaptic current
-        tau_syn_exc ms = 2 ms     # Time constant of synaptic current
-        refr_T ms = 2 ms          # Duration of refractory period
-        E_L mV = -70 mV           # Resting potential
-        V_reset mV = -70 mV       # Reset potential of the membrane
+        C_m "capacitance" = 250 pF           # Capacitance of the membrane
+        tau_m "time" = 10 ms          # Membrane time constant
+        tau_syn_inh "time" = 2 ms     # Time constant of synaptic current
+        tau_syn_exc "time" = 2 ms     # Time constant of synaptic current
+        refr_T "time" = 2 ms          # Duration of refractory period
+        E_L "voltage" = -70 mV           # Resting potential
+        V_reset "voltage" = -70 mV       # Reset potential of the membrane
 
-        Theta_init mV = -55 mV    # Spike threshold potential
-        tau_Theta ms = 100 ms     # Spike threshold time constant
-        Delta_Theta mV = 2 mV     # Change in spike threshold upon spiking
+        Theta_init "voltage" = -55 mV    # Spike threshold potential
+        tau_Theta "time" = 100 ms     # Spike threshold time constant
+        Delta_Theta "voltage" = 2 mV     # Change in spike threshold upon spiking
 
-        I_noise0 pA = 0 pA        # mean of the noise current
-        sigma_noise pA = 0 pA     # std. dev. of the noise current
+        I_noise0 "current" = 0 pA        # mean of the noise current
+        sigma_noise "current" = 0 pA     # std. dev. of the noise current
 
         # constant external input current
-        I_e pA = 0 pA
+        I_e "current" = 0 pA
 
     internals:
-        D_noise pA**2/ms = 2 * sigma_noise**2 / tau_syn_exc
-        A_noise pA = ((D_noise * tau_syn_exc / 2) * (1 - exp(-2 * resolution() / tau_syn_exc)))**.5
+        D_noise "current**2 / time" = 2 * sigma_noise**2 / tau_syn_exc
+        A_noise "current" = ((D_noise * tau_syn_exc / 2) * (1 - exp(-2 * resolution() / tau_syn_exc)))**.5
 
-        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+        unit_psc "current" = 1 pA        # Unitary postsynaptic current amplitude
 
     input:
         exc_spikes <- spike

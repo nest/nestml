@@ -30,6 +30,6 @@
 #
 model CoCoStateVariablesInitialized:
     state:
-        V_m mV
-        V_abs mV = 10 mV
+        V_m "voltage"
+        V_abs "voltage" = 10 mV
         r integer

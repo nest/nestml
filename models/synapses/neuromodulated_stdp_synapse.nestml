@@ -55,10 +55,10 @@ model neuromodulated_stdp_synapse:
         post_tr real = 0.
 
     parameters:
-        tau_tr_pre ms = 20 ms    # STDP time constant for weight changes caused by pre-before-post spike pairings.
-        tau_tr_post ms = 20 ms    # STDP time constant for weight changes caused by post-before-pre spike pairings.
-        tau_c ms = 1000 ms    # Time constant of eligibility trace
-        tau_n ms = 200 ms   # Time constant of dopaminergic trace
+        tau_tr_pre "time" = 20 ms    # STDP time constant for weight changes caused by pre-before-post spike pairings.
+        tau_tr_post "time" = 20 ms    # STDP time constant for weight changes caused by post-before-pre spike pairings.
+        tau_c "time" = 1000 ms    # Time constant of eligibility trace
+        tau_n "time" = 200 ms   # Time constant of dopaminergic trace
         b real = 0.   # Dopaminergic baseline concentration
         Wmax real = 200. [[Wmax >= 0]]    # Maximal synaptic weight
         Wmin real = 0. [[Wmin >= 0]]    # Minimal synaptic weight
@@ -70,7 +70,7 @@ model neuromodulated_stdp_synapse:
         post_tr' = -post_tr / tau_tr_post
 
     internals:
-        tau_s 1/ms = (tau_c + tau_n) / (tau_c * tau_n)
+        tau_s "1 / time" = (tau_c + tau_n) / (tau_c * tau_n)
 
     input:
         pre_spikes <- spike

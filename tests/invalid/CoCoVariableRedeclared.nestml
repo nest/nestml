@@ -30,8 +30,8 @@
 #
 model CoCoVariableRedeclared:
     state:
-        test1 mV = 20mV # should not be detected as redeclared, since in global scope
+        test1 "voltage" = 20mV # should not be detected as redeclared, since in global scope
 
     update:
-        test1 mV = 10mV
+        test1 "voltage" = 10mV
         test1 boolean = True

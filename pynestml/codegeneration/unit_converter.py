@@ -1,0 +1,277 @@
+# -*- coding: utf-8 -*-
+#
+# unit_converter.py
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+from typing import Dict, List, Mapping
+
+import functools
+from fractions import Fraction
+
+import numpy as np
+from astropy import units
+
+from pynestml.meta_model.ast_unit_type import ASTUnitType
+from pynestml.symbols.type_symbol import TypeSymbol
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+
+
+class UnitConverter:
+    r"""
+    Base class for the system of physical units used by a particular target platform.
+
+    In a NESTML model, variables are typed by physical quantity (e.g. ``V_m "voltage"``) and do not imply any particular unit; physical units only appear in literals (``-70 mV``), in continuous input port declarations (``I_stim pA <- continuous``) and implicitly in spiking input ports (1/s, the unit of a Dirac delta function). Generated code stores all physical values as plain numbers, in a fixed set of preferred units of the target platform; every unit in the model is converted to the preferred unit of the same physical dimension by the factor returned by :py:meth:`get_factor`.
+
+    The preferred units are specified for a set of independent base quantities only (see ``PREFERRED_UNITS``, to be defined by each subclass); the preferred units of all other quantities follow from these, such that the system of units is coherent: a product or quotient of values in preferred units is again a value in preferred units, without any additional factor. For example, if current is in pA and voltage in mV, conductance (current / voltage) is in nS, capacitance (current * time / voltage) in pF, and resistance in GOhm.
+
+    **Preferred units and interface units.** A unit converter defines two sets of units, which serve different purposes:
+
+    - The *preferred units* (``PREFERRED_UNITS``) are the units in which the generated code stores and computes with all values. They are used throughout the model: the :class:`~pynestml.transformers.unit_conversion_transformer.UnitConversionTransformer` converts every literal into a plain number in the preferred unit (for instance, ``10 Hz`` becomes ``0.01`` if time is preferred in ms), ODE-toolbox works in these units, and all arithmetic in the generated code takes place in these units. Because the system of preferred units is coherent, the generated code never needs a conversion factor inside the model; for instance, a rate in 1/ms times a time in ms is a dimensionless number, without a factor :math:`10^{-3}`.
+    - The *interface units* (see ``INTERFACE_UNITS`` and :py:meth:`get_interface_unit`) are the units in which values are exchanged with the user of the target platform: when a parameter or state variable is set or read (in NEST, by ``SetStatus()`` and ``GetStatus()``), or when a variable is recorded. By default, these are equal to the preferred units. A target platform can list units in ``INTERFACE_UNITS`` to follow its own conventions; for instance, NEST lists ``units.Hz``, as rates are conventionally set and read in Hz by NEST users, whereas the preferred unit of rates (following from the preferred unit of time) is 1/ms.
+
+    Interface units do not affect the values stored in, or the computations performed by, the generated code; they only determine the conversion that takes place at the interface with the user. The generated code converts a stored value into the interface unit by multiplying it by the factor given by :py:meth:`get_interface_factor`, and a value set by the user back into the preferred unit by dividing it by the same factor. If the factor is 1 (that is, for all quantities that have no separate interface unit), no conversion code is generated.
+
+    Note that interface units cannot be obtained by changing the preferred units instead: the preferred unit of a derived quantity, such as a rate, follows from those of the base quantities (here, time), and choosing it independently would make the system of units incoherent, so that conversion factors would be required inside the model (for instance, :math:`10^{-3}` in the product of a rate in Hz and a time in ms).
+
+    **Example.** For a parameter ``firing_rate "1 / time" = 10 Hz``, with NEST, the preferred unit is 1/ms and the interface unit is Hz, so the interface factor is 1000. The generated code stores the default value ``0.01`` and computes with it directly (e.g. ``firing_rate * resolution()``). When the user reads the parameter, ``get_status()`` returns ``1000 * 0.01 = 10``; when the user sets ``neuron.firing_rate = 100.``, ``set_status()`` stores ``100 / 1000 = 0.1``. For a parameter ``V_th "voltage"``, the interface unit is the preferred unit mV, and the value is set, read and stored without conversion.
+
+    **Templates.** For the NEST target, conversion code is printed by ``NESTCodeGeneratorUtils.print_to_interface_units()`` and ``NESTCodeGeneratorUtils.print_from_interface_units()``. The templates call these in ``get_status()`` and ``set_status()`` (of neurons and synapses, including synapse common properties), and in the functions that are used for recording (an additional getter ``get_<variable>__interface()`` for state variables, ``<variable>__interface()`` for inline expressions, and ``get_state_element()`` for models with vector state variables). Comments in the generated code print the stored unit (:py:meth:`print_unit`), whereas the documentation of parameters and state variables in the generated code prints the interface unit (:py:meth:`print_interface_unit`). The ``print()`` and ``println()`` functions of NESTML print the stored value, labelled with the preferred unit.
+    """
+
+    #: Preferred units for a set of independent base quantities (the keys are names of physical quantities as known to ``PredefinedQuantities``). Together, the base quantities need to span all seven dimensions of the SI; for instance, voltage can take the place of the SI base quantity "mass". These are the units in which the generated code stores and computes with all values; the preferred units of all other (derived) quantities follow from these (see :py:meth:`get_preferred_unit`). To be defined by subclasses.
+    PREFERRED_UNITS: Mapping[str, units.UnitBase] = {}
+
+    #: Units in which values are exchanged with the user of the target platform (for instance, when setting a parameter or reading out a recorded state variable), where these differ from the preferred units. Unlike ``PREFERRED_UNITS``, this is not a mapping from quantity names, but a list of units, each of which applies to all values of exactly the same physical dimension (all SI exponents equal); for instance, ``units.Hz`` applies to the quantity "1 / time", but not to "voltage / time" or "1 / time**2". With ``units.Hz`` in this list, rates are set and read in Hz, whereas they are stored and computed with in the preferred unit (e.g. 1/ms). For all other dimensions, the interface unit is the preferred unit. Interface units do not enter the computation of the preferred units, and do not affect the coherence of the system of units used inside the generated code (see the class documentation). To be defined by subclasses (optional; by default, empty).
+    INTERFACE_UNITS: List[units.UnitBase] = []
+
+    _SI_BASE_UNITS: List[units.UnitBase] = [units.m, units.kg, units.s, units.A, units.K, units.mol, units.cd]
+
+    _base_matrix_inverse_cache: Dict[type, np.ndarray] = {}
+
+    #: Named derived units that are used to print a preferred unit, if exactly equal (for instance, ``nS`` rather than ``pA / mV``)
+    _NAMED_DERIVED_UNITS: List[str] = ["S", "F", "Ohm", "C", "H", "Wb", "T", "N", "J", "W", "Pa"]
+    _PREFIXES: List[str] = ["", "Y", "Z", "E", "P", "T", "G", "M", "k", "h", "da", "d", "c", "m", "u", "n", "p", "f", "a", "z", "y"]
+
+    @classmethod
+    def get_si_exponents(cls, unit: units.UnitBase) -> np.ndarray:
+        r"""Returns the exponents of the SI base units (in the order of ``_SI_BASE_UNITS``) of the dimension of ``unit``."""
+        si_unit = units.Unit(unit).decompose()
+        exponents = np.zeros(len(cls._SI_BASE_UNITS))
+        for base, power in zip(si_unit.bases, si_unit.powers):
+            for i, si_base in enumerate(cls._SI_BASE_UNITS):
+                if base == si_base:
+                    exponents[i] += float(power)
+                    break
+
+        return exponents
+
+    @classmethod
+    def _non_base_part(cls, unit: units.UnitBase) -> units.UnitBase:
+        r"""Returns the part of the dimension of ``unit`` that is not expressed in SI base units (such as ``rad``); this part is carried over unchanged to the preferred unit."""
+        si_unit = units.Unit(unit).decompose()
+        non_base_part = units.dimensionless_unscaled
+        for base, power in zip(si_unit.bases, si_unit.powers):
+            if not any(base == si_base for si_base in cls._SI_BASE_UNITS):
+                non_base_part = non_base_part * base ** power
+
+        return non_base_part
+
+    @classmethod
+    def get_base_matrix_inverse(cls) -> np.ndarray:
+        r"""
+        Returns the inverse of the matrix :math:`B` whose columns are the physical dimensions of the base quantities in ``PREFERRED_UNITS``, expressed in terms of the SI base dimensions. This matrix is used by :py:meth:`get_preferred_unit` to express any physical dimension in terms of the base quantities.
+
+        **Physical dimensions as vectors.** Any physical dimension can be written as a product of integer (or rational) powers of the seven SI base units, in the order of ``_SI_BASE_UNITS``: metre, kilogram, second, ampere, kelvin, mole and candela,
+
+        .. math::
+
+           \mathrm{m}^{v_1} \, \mathrm{kg}^{v_2} \, \mathrm{s}^{v_3} \, \mathrm{A}^{v_4} \, \mathrm{K}^{v_5} \, \mathrm{mol}^{v_6} \, \mathrm{cd}^{v_7}
+
+        and can thus be represented by the vector of exponents :math:`\mathbf{v} = (v_1, \ldots, v_7)^T \in \mathbb{Q}^7` (see :py:meth:`get_si_exponents`). For example, volt and siemens are
+
+        .. math::
+
+           \mathrm{V} = \mathrm{m}^2 \, \mathrm{kg} \, \mathrm{s}^{-3} \, \mathrm{A}^{-1} \quad\rightarrow\quad \mathbf{v}_\mathrm{V} = (2, 1, -3, -1, 0, 0, 0)^T
+
+           \mathrm{S} = \mathrm{m}^{-2} \, \mathrm{kg}^{-1} \, \mathrm{s}^{3} \, \mathrm{A}^{2} \quad\rightarrow\quad \mathbf{v}_\mathrm{S} = (-2, -1, 3, 2, 0, 0, 0)^T
+
+        In this representation, multiplying two units corresponds to adding their vectors, and raising a unit to a power :math:`p` corresponds to multiplying its vector by :math:`p`. Physical dimensions thus form a vector space, and the magnitude of a unit (for instance, the factor :math:`10^{-3}` in mV compared to V) plays no role in it.
+
+        **A different basis.** The SI base dimensions are only one possible basis of this vector space. The base quantities listed in ``PREFERRED_UNITS`` form another basis: for example, time, voltage, current, length, amount of substance, temperature and luminous intensity, where voltage takes the place of mass. Writing the dimension vectors of these base quantities as the columns :math:`\mathbf{b}_1, \ldots, \mathbf{b}_7` of a matrix (in the order of ``PREFERRED_UNITS``) gives
+
+        .. math::
+
+           B = \begin{pmatrix} \mathbf{b}_1 & \cdots & \mathbf{b}_7 \end{pmatrix} =
+           \begin{pmatrix}
+               0 &  2 & 0 & 1 & 0 & 0 & 0 \\
+               0 &  1 & 0 & 0 & 0 & 0 & 0 \\
+               1 & -3 & 0 & 0 & 0 & 0 & 0 \\
+               0 & -1 & 1 & 0 & 0 & 0 & 0 \\
+               0 &  0 & 0 & 0 & 0 & 1 & 0 \\
+               0 &  0 & 0 & 0 & 1 & 0 & 0 \\
+               0 &  0 & 0 & 0 & 0 & 0 & 1
+           \end{pmatrix}
+
+        where the rows correspond to m, kg, s, A, K, mol and cd, and the columns to time, voltage, current, length, amount of substance, temperature and luminous intensity. Note that :math:`B` only depends on *which* quantities are chosen as base quantities, not on their preferred units: the same matrix results for NEST (ms, mV, pA, ...) as for SI (s, V, A, ...).
+
+        **Change of basis.** Expressing a dimension :math:`\mathbf{v}` in terms of the base quantities means finding exponents :math:`\mathbf{x} = (x_1, \ldots, x_7)^T` such that :math:`\mathbf{v} = \sum_i x_i \mathbf{b}_i`, that is,
+
+        .. math::
+
+           B \mathbf{x} = \mathbf{v} \quad\Leftrightarrow\quad \mathbf{x} = B^{-1} \mathbf{v}
+
+        The preferred unit of dimension :math:`\mathbf{v}` is then the product :math:`\prod_i u_i^{x_i}`, where :math:`u_i` is the preferred unit of the :math:`i`-th base quantity. For conductance, :math:`B^{-1} \mathbf{v}_\mathrm{S} = (0, -1, 1, 0, 0, 0, 0)^T`, that is, conductance is current per voltage, and its preferred unit is :math:`\mathrm{pA}/\mathrm{mV} = \mathrm{nS}` for NEST, and :math:`\mathrm{A}/\mathrm{V} = \mathrm{S}` for SI. Similarly, mass becomes :math:`\mathbf{x} = (3, 1, 1, -2, 0, 0, 0)^T`, that is, :math:`\mathrm{kg} = \mathrm{V} \, \mathrm{A} \, \mathrm{s}^3 \, \mathrm{m}^{-2}`.
+
+        Because every preferred unit is constructed from the same :math:`u_i`, the resulting system of units is coherent: if :math:`\mathbf{x}` and :math:`\mathbf{y}` are the exponents for two dimensions, the exponents for their product are :math:`\mathbf{x} + \mathbf{y}` (by linearity of :math:`B^{-1}`), so the product of two values in preferred units is again a value in the preferred unit of the product, without any additional factor.
+
+        **Requirements.** :math:`B` is invertible if and only if the base quantities are linearly independent and span all seven SI dimensions; in other words, if every physical dimension can be expressed uniquely in terms of them. This is checked with an assertion, which catches an inconsistent ``PREFERRED_UNITS`` table (for instance, one listing both voltage and mass, but not current). As :math:`B` has integer entries and (being a change of basis between dimension systems) typically has determinant :math:`\pm 1`, the entries of :math:`B^{-1}` are integers, and :math:`\mathbf{x}` is integer for integer :math:`\mathbf{v}` and rational for rational :math:`\mathbf{v}` (e.g. for :math:`\mathrm{ns}^{1/2}`). The floating-point result is rounded to a rational number in :py:meth:`get_preferred_unit`.
+
+        **Caching.** :math:`B^{-1}` is computed once per subclass and cached in ``_base_matrix_inverse_cache``, as it only depends on the (constant) keys of ``PREFERRED_UNITS``.
+
+        :return: the matrix :math:`B^{-1}`, of shape (7, 7)
+        """
+        if cls not in UnitConverter._base_matrix_inverse_cache:
+            from pynestml.symbols.predefined_quantities import PredefinedQuantities
+            assert cls.PREFERRED_UNITS, "No preferred units defined for " + cls.__name__
+            base_dimensions = np.array([cls.get_si_exponents(PredefinedQuantities.get_unit(quantity)) for quantity in cls.PREFERRED_UNITS.keys()]).T
+            assert base_dimensions.shape == (len(cls._SI_BASE_UNITS), len(cls._SI_BASE_UNITS)) and np.linalg.matrix_rank(base_dimensions) == len(cls._SI_BASE_UNITS), \
+                "Preferred units of " + cls.__name__ + " must be given for a set of independent base quantities that span all SI dimensions"
+            UnitConverter._base_matrix_inverse_cache[cls] = np.linalg.inv(base_dimensions)
+
+        return UnitConverter._base_matrix_inverse_cache[cls]
+
+    @classmethod
+    def get_preferred_unit(cls, unit: units.UnitBase) -> units.UnitBase:
+        r"""
+        Returns the preferred unit for the physical dimension of the given unit; for instance, with voltage preferred in mV, for both ``V`` and ``mV`` this is ``mV``.
+
+        :param unit: an astropy unit
+        :return: the preferred unit of the same physical dimension
+        """
+        exponents = cls.get_base_matrix_inverse() @ cls.get_si_exponents(unit)
+        preferred_unit = cls._non_base_part(unit)
+        for preferred_base_unit, exponent in zip(cls.PREFERRED_UNITS.values(), exponents):
+            exponent = Fraction(exponent).limit_denominator(1000)
+            if exponent != 0:
+                preferred_unit = preferred_unit * preferred_base_unit ** exponent
+
+        return preferred_unit
+
+    @classmethod
+    def get_factor(cls, unit: units.UnitBase) -> float:
+        """
+        Returns the factor that converts a value in the given unit to the corresponding preferred unit; for instance, with voltage preferred in mV, 1000 for ``V`` and 1 for ``mV``. For dimensionless units, this is the magnitude of the unit; for instance, 1E-3 for ``mV/V``.
+
+        :param unit: an astropy unit
+        :return: the conversion factor
+        """
+        assert (isinstance(unit, units.IrreducibleUnit) or isinstance(unit, units.CompositeUnit)
+                or isinstance(unit, units.Unit) or isinstance(unit, units.PrefixUnit)), \
+            "UnitConverter: given parameter is not a unit (%s)!" % type(unit)
+
+        factor = float(unit.to(cls.get_preferred_unit(unit)))
+
+        # remove floating-point noise from the unit conversion (e.g. 1000000.0000000002 for uS**2/ms)
+        return float("%.15g" % factor)
+
+    @classmethod
+    def get_factor_of_unit_type(cls, unit_type: ASTUnitType) -> float:
+        r"""
+        Returns the conversion factor (see :py:meth:`get_factor`) for the unit of a numeric literal, such as the ``mV`` in ``-70 mV``.
+        """
+        if unit_type.get_type_symbol() is not None and isinstance(unit_type.get_type_symbol(), UnitTypeSymbol):
+            unit = unit_type.get_type_symbol().astropy_unit
+        else:
+            unit = units.Unit(str(unit_type))
+
+        return cls.get_factor(unit)
+
+    @classmethod
+    def print_unit(cls, type_symbol: TypeSymbol) -> str:
+        r"""
+        Returns the unit in which values of the given type are stored by the target platform; for instance, ``mV`` for the quantity "voltage", if voltage is preferred in mV. For non-physical types, the name of the type is returned (e.g. ``real``).
+
+        This can differ from the unit in which values are set and read by the user (see :py:meth:`print_interface_unit`); for instance, for NEST, the quantity "1 / time" is printed as ``1 / ms`` by this method, but as ``Hz`` by :py:meth:`print_interface_unit`.
+        """
+        if isinstance(type_symbol, UnitTypeSymbol):
+            return cls._print_unit(cls.get_preferred_unit(type_symbol.astropy_unit))
+
+        return type_symbol.print_symbol()
+
+    @classmethod
+    def get_interface_unit(cls, unit: units.UnitBase) -> units.UnitBase:
+        r"""
+        Returns the unit in which values of the physical dimension of the given unit are exchanged with the user of the target platform: the matching unit from ``INTERFACE_UNITS`` if there is one, and the preferred unit (see :py:meth:`get_preferred_unit`) otherwise.
+
+        A unit in ``INTERFACE_UNITS`` matches if it is equivalent to the given unit and has exactly the same exponents of the SI base units. The latter excludes matches that only differ in dimensionless units that are not SI base units; for instance, ``units.Hz`` matches ``1/ms`` and ``Bq``, but not ``rad/ms``. For NEST, ``get_interface_unit(units.ms**-1)`` returns ``Hz``, whereas ``get_interface_unit(units.mV / units.s)`` returns the preferred unit ``mV / ms``.
+
+        :param unit: an astropy unit
+        :return: the interface unit of the same physical dimension
+        """
+        for interface_unit in cls.INTERFACE_UNITS:
+            if interface_unit.is_equivalent(unit) and np.all(cls.get_si_exponents(interface_unit) == cls.get_si_exponents(unit)):
+                return interface_unit
+
+        return cls.get_preferred_unit(unit)
+
+    @classmethod
+    def get_interface_factor(cls, type_symbol: TypeSymbol) -> float:
+        r"""
+        Returns the factor that converts a value of the given type from the preferred unit (in which the generated code stores and computes with it) to the interface unit (see :py:meth:`get_interface_unit`); for instance, 1000 for the quantity "1 / time" if rates are preferred in 1/ms but exchanged with the user in Hz. The value in the interface unit is the factor times the stored value. For non-physical types and for physical types without a separate interface unit, the factor is 1.
+
+        The generated code applies this factor when a value is passed to the user (for instance, in ``get_status()`` and when recording), and its inverse when a value is received from the user (for instance, in ``set_status()``); see the class documentation. Code generators may check whether the factor equals 1 to omit the conversion code altogether.
+
+        :param type_symbol: the type of a variable
+        :return: the conversion factor
+        """
+        if not isinstance(type_symbol, UnitTypeSymbol):
+            return 1.
+
+        unit = type_symbol.astropy_unit
+        factor = float(cls.get_preferred_unit(unit).to(cls.get_interface_unit(unit)))
+
+        # remove floating-point noise from the unit conversion
+        return float("%.15g" % factor)
+
+    @classmethod
+    def print_interface_unit(cls, type_symbol: TypeSymbol) -> str:
+        r"""
+        Returns the unit in which values of the given type are exchanged with the user of the target platform (see :py:meth:`get_interface_unit`); for instance, ``Hz`` for the quantity "1 / time" if ``units.Hz`` is listed in ``INTERFACE_UNITS``. For non-physical types, the name of the type is returned (e.g. ``real``).
+
+        This is to be used in user-facing documentation, such as the documentation of parameters and state variables in the generated code; for the unit in which values are stored, see :py:meth:`print_unit`.
+        """
+        if isinstance(type_symbol, UnitTypeSymbol):
+            return cls._print_unit(cls.get_interface_unit(type_symbol.astropy_unit))
+
+        return type_symbol.print_symbol()
+
+    @staticmethod
+    @functools.lru_cache(maxsize=None)
+    def _print_unit(unit: units.UnitBase) -> str:
+        r"""Print a unit, using a single named unit if one exists that is exactly equal (for instance, ``nS`` rather than ``pA / mV``)."""
+        if len(unit.bases) > 1 or (len(unit.bases) == 1 and unit.powers[0] != 1):
+            from pynestml.symbols.predefined_units import PredefinedUnits
+            candidates = [prefix + name for name in UnitConverter._NAMED_DERIVED_UNITS for prefix in UnitConverter._PREFIXES
+                          if PredefinedUnits.is_unit(prefix + name)
+                          and PredefinedUnits.get_unit(prefix + name).get_unit().is_equivalent(unit)
+                          and PredefinedUnits.get_unit(prefix + name).get_unit().to(unit) == 1.]
+            if candidates:
+                return min(candidates, key=lambda name: (len(name), name))
+
+        return str(unit)
