@@ -35,7 +35,7 @@ class TestParrotNeuron:
     @pytest.fixture(scope="module", autouse=True)
     def setUp(self):
         r"""Generate the model code"""
-        files = [os.path.join("tests", "nest_tests", "resources", "parrot_neuron.nestml")]
+        files = [os.path.join("models", "neurons", "parrot_neuron.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,
