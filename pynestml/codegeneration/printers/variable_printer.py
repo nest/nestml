@@ -41,7 +41,8 @@ class VariablePrinter(ASTPrinter, metaclass=ABCMeta):
 
     def print(self, node: ASTNode) -> str:
         assert isinstance(node, ASTVariable)
-
+        if node.name.startswith("__ode_cse_update"):
+            return node.name   # XXX: this is a terrible hack! it's because __ode_cse_update expressions are local variables, not part of internals block
         return self.print_variable(node)
 
     @abstractmethod
