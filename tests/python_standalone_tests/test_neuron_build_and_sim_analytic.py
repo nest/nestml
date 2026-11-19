@@ -30,7 +30,7 @@ class TestPythonStandaloneNeuronBuildAndSimAnalytic(unittest.TestCase):
     """
     Tests the code generation and running a little simulation for the iaf_psc_exp neuron, which uses only the analytic (and not a numeric) solver.
 
-    The test asserts that the numerical membrane voltage at the end of the simulation is close to a hard-coded numeric value.
+    The test asserts that the numerical membrane voltage over the course of the simulation is close to a reference timeseries obtained from NEST Simulator.
     """
 
     def test_python_standalone_neuron_build_and_sim_analytic(self):
@@ -50,4 +50,6 @@ class TestPythonStandaloneNeuronBuildAndSimAnalytic(unittest.TestCase):
 
         from nestmlmodule.test_python_standalone_module import TestSimulator
         neuron_log = TestSimulator().test_simulator()
-        np.testing.assert_allclose(neuron_log["V_m"][-1], -58.80728194689356)
+        # compare against the reference timeseries obtained by running the same model and simulation in NEST Simulator; see ``resources/generate_nest_reference_values.py``
+        ref_V_m = np.loadtxt(os.path.join(os.path.dirname(__file__), "resources", "iaf_psc_exp_neuron.csv"), delimiter=",", skiprows=1, usecols=1)    # column 0: time [ms], column 1: V_m [mV]
+        np.testing.assert_allclose(neuron_log["V_m"], ref_V_m, atol=1E-9)    # [mV]

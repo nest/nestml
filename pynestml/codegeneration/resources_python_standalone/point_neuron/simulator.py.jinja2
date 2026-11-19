@@ -54,6 +54,8 @@ class Simulator:
     A very simple neural network simulator that allows a network to be instantiated and performs time stepping.
 
     Note that multiple connections between neurons are not supported.
+
+    Spikes emitted by a neuron during a timestep are delivered to their targets after all neurons have been updated, and are applied by the targets at the end of the next timestep. This means that all connections have a fixed transmission delay equal to one timestep (this corresponds to a connection with delay equal to the simulation resolution in NEST Simulator). Other delays are not supported.
     """
     neurons: List[Neuron] = []
     connections: Mapping[Neuron, List[Neuron]] = {}       # map from id(source) to list of id(target)
@@ -64,6 +66,7 @@ class Simulator:
 
     def __init__(self):
         self._t = 0.       # time [ms]
+        self._n_steps = 0  # number of simulation steps taken; the time is computed from this (rather than accumulated) to avoid accumulation of floating-point rounding errors
         self.neurons = []
         self.connections = {}
         self.connection_weights = {}
@@ -102,7 +105,8 @@ class Simulator:
         for neuron in self.neurons:
             neuron.step(origin=self._t,
                         timestep=timestep)
-        self._t += self.timestep
+        self._n_steps += 1
+        self._t = self._n_steps * self.timestep
 
         self.log_step()
 
@@ -156,10 +160,10 @@ class Simulator:
             Stopping time in milliseconds.
         """
         self._t = 0.
-        while self._t < t_stop:
-            self.step(self.timestep)
+        self._n_steps = 0
+        for _ in range(int(round(t_stop / self.timestep))):
+            self.step(self.timestep)    # this advances the simulation time by one timestep
             self.deliver_spikes()
-            self._t += self.timestep
 
     def get_log(self):
         return self._log
