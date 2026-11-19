@@ -401,20 +401,7 @@ class NESTCodeGenerator(CodeGenerator):
         ASTUtils.replace_convolution_aliasing_inlines(neuron)
 
         if metadata[neuron.name]["analytic_solver"] is not None:
-            ASTUtils.add_declarations_to_internals(neuron, metadata[neuron.name]["analytic_solver"]["cse"]["propagators"])
-            ASTUtils.add_declarations_to_internals(neuron, metadata[neuron.name]["analytic_solver"]["propagators"])
-            # ASTUtils.add_declarations_to_internals(neuron, metadata[neuron.name]["analytic_solver"]["cse"]["update_expressions"])     # XXX: THESE SHOULD NOT BE ADDED TO INTERNALS. Just put this here to suppress the error message for now!
-
-            metadata[neuron.name]["analytic_solver"]["cse"]["update_expressions_ast"] = {}
-
-            for cse_sym, cse_expr in metadata[neuron.name]["analytic_solver"]["cse"]["update_expressions"].items():
-                cse_expr_ast = ModelParser.parse_expression(cse_expr)
-                # pretend that update expressions are in "equations" block, which should always be present,
-                # as differential equations must have been defined to get here
-                cse_expr_ast.update_scope(neuron.get_equations_blocks()[0].get_scope())
-                cse_expr_ast.accept(ASTSymbolTableVisitor())
-                metadata[neuron.name]["analytic_solver"]["cse"]["update_expressions_ast"][cse_sym] = cse_expr_ast
-
+            self._add_analytic_solver_declarations(neuron, metadata[neuron.name]["analytic_solver"])
             neuron.accept(ASTSymbolTableVisitor())
 
         self.update_symbol_table(neuron)
@@ -425,6 +412,27 @@ class NESTCodeGenerator(CodeGenerator):
         spike_updates, post_spike_updates = self.get_spike_update_expressions(neuron, metadata[neuron.name]["kernel_buffers"], [analytic_solver, numeric_solver], metadata[neuron.name]["delta_factors"], metadata)
 
         return spike_updates, post_spike_updates, metadata[neuron.name]["equations_with_delay_vars"], metadata[neuron.name]["equations_with_vector_vars"]
+
+    def _add_analytic_solver_declarations(self, model: ASTModel, analytic_solver: Dict[str, Any]) -> None:
+        r"""
+        Add the propagators (and their CSE helper expressions) of the analytic solver to the internals block, and parse the CSE helper expressions for the update step into ASTs, stored in ``analytic_solver["cse"]["update_expressions_ast"]``.
+
+        ODE-toolbox only emits the ``"cse"`` key (and its ``"propagators"``/``"update_expressions"`` sub-keys) when CSE found profitable replacements, so all of these are optional.
+        """
+        cse = analytic_solver.setdefault("cse", {})
+
+        # CSE helpers for the propagators are referenced by the propagators, so have to be declared first
+        ASTUtils.add_declarations_to_internals(model, cse.get("propagators", {}))
+        ASTUtils.add_declarations_to_internals(model, analytic_solver["propagators"])
+
+        cse["update_expressions_ast"] = {}
+        for cse_sym, cse_expr in cse.get("update_expressions", {}).items():
+            cse_expr_ast = ModelParser.parse_expression(cse_expr)
+            # pretend that update expressions are in "equations" block, which should always be present,
+            # as differential equations must have been defined to get here
+            cse_expr_ast.update_scope(model.get_equations_blocks()[0].get_scope())
+            cse_expr_ast.accept(ASTSymbolTableVisitor())
+            cse["update_expressions_ast"][cse_sym] = cse_expr_ast
 
     def analyse_synapse(self, synapse: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> None:
         """
@@ -460,9 +468,7 @@ class NESTCodeGenerator(CodeGenerator):
                         pre_spike_updates.extend(spike_updates[port_name])
 
             if not metadata[synapse.get_name()]["analytic_solver"] is None:
-                propagators = metadata[synapse.name]["analytic_solver"]["propagators"]
-                ASTUtils.add_declarations_to_internals(synapse, metadata[synapse.name]["analytic_solver"]["cse"]["propagators"])
-                ASTUtils.add_declarations_to_internals(synapse, propagators)
+                self._add_analytic_solver_declarations(synapse, metadata[synapse.name]["analytic_solver"])
 
         self.update_symbol_table(synapse)
 
