@@ -1,3 +1,4 @@
+{%- set cm_scalar_t = "float" if fp_precision == "single" else "double" -%}
 {%- import 'directives_cpp/WriteInDictionary.jinja2' as write_in_dictionary with context %}
 {%- import 'directives_cpp/ReadFromDictionary.jinja2' as read_from_dictionary with context %}
 {%- import 'directives_cpp/ExistsInDictionary.jinja2' as exists_in_dictionary with context %}
@@ -55,11 +56,15 @@ DynamicRecordablesMap< {{neuronSpecificFileNamesCmSyns["main"]}} >::create( {{ne
 
 nest::{{neuronSpecificFileNamesCmSyns["main"]}}::{{neuronSpecificFileNamesCmSyns["main"]}}()
   : ArchivingNode()
-  , c_tree_()
+  , self_spikes( std::make_unique< bool >() )
+  , g_vals( std::make_unique< std::vector< {{ cm_scalar_t }} > >() )
+  , i_vals( std::make_unique< std::vector< {{ cm_scalar_t }} > >() )
+  , c_tree_(self_spikes.get(), g_vals.get(), i_vals.get())
   , syn_buffers_( 0 )
   , logger_( *this )
   , V_th_( -55.0 )
 {
+  *self_spikes = false;
   recordablesMap_.create( *this );
   recordables_values.resize( 0 );
 }
@@ -70,7 +75,11 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::{{neuronSpecificFileNamesCmSyns
   , syn_buffers_( n.syn_buffers_ )
   , logger_( *this )
   , V_th_( n.V_th_ )
+  , self_spikes( std::make_unique< bool >(*n.self_spikes.get()) )
+  , g_vals( std::make_unique< std::vector< {{ cm_scalar_t }} > >(*n.g_vals.get()) )
+  , i_vals( std::make_unique< std::vector< {{ cm_scalar_t }} > >(*n.i_vals.get()) )
 {
+  c_tree_.init_pointers(self_spikes.get(), g_vals.get(), i_vals.get());
   recordables_values.resize( 0 );
 }
 
@@ -139,10 +148,10 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::set_status( const DictionaryDat
    * explicitly defined in the model or implicitly created during
    * code generation.
    */
-  std::map< Name, double* > recordables = c_tree_.get_recordables();
+  std::map< Name, {{ cm_scalar_t }}* > recordables = c_tree_.get_recordables();
   for(auto recordable : recordables){
       if({{ exists_in_dictionary.ExistsInDictionary("statusdict", "recordable.first", false) }}){
-          *recordable.second = {{ get_value_from_dict.GetValueFromDictionary("statusdict", "double", "recordable.first", false) }};
+          *recordable.second = static_cast< {{ cm_scalar_t }} >({{ get_value_from_dict.GetValueFromDictionary("statusdict", "double", "recordable.first", false) }});
       }
   }
 }
@@ -194,7 +203,7 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::init_recordables_pointers_()
    *     voltage (e.g. "v_comp1") or by the synapse index for receptor currents
    * --> values are pointers to the specific state variables
    */
-  std::map< Name, double* > recordables = c_tree_.get_recordables();
+  std::map< Name, {{ cm_scalar_t }}* > recordables = c_tree_.get_recordables();
 
   for ( auto rec_it = recordables.begin(); rec_it != recordables.end(); rec_it++ )
   {
@@ -228,7 +237,7 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::calibrate()
   logger_.init();
 
   // initialize the pointers within the compartment tree
-  c_tree_.init_pointers();
+  c_tree_.init_pointers(self_spikes.get(), g_vals.get(), i_vals.get());
   // initialize the pointers to the synapse buffers for the receptor currents
   c_tree_.set_syn_buffers( syn_buffers_ );
   // initialize the recordables pointers
@@ -255,22 +264,25 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::update( Time const& origin, con
     c_tree_.construct_matrix( lag );
     c_tree_.solve_matrix();
 
+    *self_spikes = false;
+
     // threshold crossing
     if ( *(c_tree_.get_root()->v_comp) >= V_th_ )
     {
-        if(prev_sub_th)
+        if(!thr_mem)
         {
-          prev_sub_th = false;
           set_spiketime( Time::step( origin.get_steps() + lag + 1 ) );
 
           SpikeEvent se;
           kernel().event_delivery_manager.send( *this, se, lag );
 
-          c_tree_.neuron_currents.postsynaptic_synaptic_processing();
+          c_tree_.neuron_currents.f_self_spike();
+          *self_spikes = true;
+          thr_mem = true;
         }
     }else
     {
-      prev_sub_th = true;
+      thr_mem = false;
     }
 
     logger_.record_data( origin.get_steps() + lag );

@@ -80,7 +80,7 @@ model stdsp_synapse:
             permanence = min(norm_perm * permanence_max, permanence_max)
 
             # homeostasis
-            permanence += lambda_h * (zt - dAP_trace) / pA * permanence_max
+            permanence += lambda_h * (zt - dAP_trace) / 1 pA * permanence_max
             permanence = min(permanence, permanence_max)
             permanence = max(permanence, permanence_min)
 

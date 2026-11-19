@@ -67,15 +67,7 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
             return "REAL_CONST(3.14159)"
 
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
-        if symbol is None:
-            # test if variable name can be resolved to a type
-            if PredefinedUnits.is_unit(variable.get_complete_name()):
-                return str(NESTUnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
-
-            code, message = Messages.get_could_not_resolve(variable.get_name())
-            Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
-                               error_position=variable.get_source_position())
-            return ""
+        assert symbol is not None
 
         vector_param = ""
         if self.with_vector_parameter and symbol.has_vector_parameter():

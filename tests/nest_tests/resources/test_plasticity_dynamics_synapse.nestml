@@ -42,7 +42,7 @@ model test_plasticity_dynamics_synapse:
         spike
 
     onReceive(post_spikes):
-        if t_last_pre_spike < t and t <= (t_last_pre_spike + 1*ms):
+        if t_last_pre_spike < t and t <= (t_last_pre_spike + 1 ms):
             w += stdp_speed
 
     onReceive(pre_spikes):

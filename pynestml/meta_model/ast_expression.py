@@ -247,25 +247,6 @@ class ASTExpression(ASTExpressionNode):
             ret.extend(self.get_if_not().get_variables())
         return ret
 
-    def get_units(self):
-        """
-        Returns a list of all units as use in this rhs.
-        :return: a list of all used units.
-        :rtype: list(ASTVariable)
-        """
-        # TODO: extract this to utils
-        ret = list()
-        if self.is_expression():
-            ret.extend(self.get_expression().get_units())
-        elif self.is_compound_expression():
-            ret.extend(self.get_lhs().get_units())
-            ret.extend(self.get_rhs().get_units())
-        elif self.is_ternary_operator():
-            ret.extend(self.get_condition().get_units())
-            ret.extend(self.get_if_true().get_units())
-            ret.extend(self.get_if_not().get_units())
-        return ret
-
     def get_function_calls(self):
         """
         Returns a list of all function calls as used in this rhs

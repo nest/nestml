@@ -116,13 +116,13 @@ const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}_
      * Begin NESTML generated code for the onReceive block(s)
     **/
 {%  for blk in neuron.get_on_receive_blocks() %}
-{%-     set inport = blk.get_port_name() %}
+{%-     set inport = blk.get_input_port_variable().get_name() %}
     if (var[N_SCAL_VAR + i_{{ inport }}])
     {
 {%-     set ast = blk.get_stmts_body() %}
 {%-     filter indent(6, True) -%}
 {%-         include "directives/StmtsBody.jinja2" %}
-{%-     endfilter %}      
+{%-     endfilter %}
       var[N_SCAL_VAR + i_{{ inport }}] = 0; // reset the value
     }
 {%- endfor %}

@@ -29,7 +29,7 @@ model print_variable:
         x real = 0
 
     equations:
-        x' = alpha_x / ((1 + x**n_x) * ms) - beta_x * x
+        x' = alpha_x / ((1 + x**n_x) * 1 ms) - beta_x * x
 
     parameters:
         alpha_x real = 0.5

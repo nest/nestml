@@ -28,9 +28,9 @@ class SPINNAKERCodeGeneratorUtils:
     @classmethod
     def print_symbol_origin(cls, variable_symbol: VariableSymbol, numerical_state_symbols=None) -> str:
         """
-        Returns a prefix corresponding to the origin of the variable symbol.
-        :param variable_symbol: a single variable symbol.
-        :return: the corresponding prefix
+        Returns a format string, that takes in one string, and prefixes it corresponding to the origin of the variable symbol.
+        :param variable_symbol: a single variable symbol
+        :return: the corresponding format string
         """
         if variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
             if numerical_state_symbols and variable_symbol.get_symbol_name() in numerical_state_symbols:
@@ -50,4 +50,4 @@ class SPINNAKERCodeGeneratorUtils:
         if variable_symbol.block_type == BlockType.INPUT:
             return "input->%s"
 
-        return ""
+        return "%s"

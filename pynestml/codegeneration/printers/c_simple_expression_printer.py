@@ -19,11 +19,15 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+import astropy
+
+from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.codegeneration.printers.simple_expression_printer import SimpleExpressionPrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.symbols.predefined_units import PredefinedUnits
 
 
 class CSimpleExpressionPrinter(SimpleExpressionPrinter):
@@ -32,11 +36,20 @@ class CSimpleExpressionPrinter(SimpleExpressionPrinter):
     """
 
     def print_simple_expression(self, node: ASTSimpleExpression) -> str:
-        if node.has_unit():
-            if self._variable_printer.print(node.get_variable()) in ["1", "1.", "1.0"]:
-                return self._constant_printer.print_constant(node.get_numeric_literal())
+        if node.is_numeric_literal_with_unit():
+            factor = 1
+            try:
+                variable = node.get_variable()
+                factor = NESTUnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit())
+            except BaseException:
+                pass
 
-            return self._constant_printer.print_constant(node.get_numeric_literal()) + " * " + self._variable_printer.print(node.get_variable())
+            try:
+                factor = NESTUnitConverter.get_factor(astropy.units.Unit(str(node.unitType)))
+            except BaseException:
+                pass
+
+            return self._constant_printer.print_constant(factor * node.get_numeric_literal())
 
         if node.is_inf_literal:
             return "INFINITY"

@@ -18,25 +18,23 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from typing import Dict, Sequence, Optional, Mapping, Any, List
-
 import glob
 import os
 import shutil
+from typing import Dict, Sequence, Optional, Mapping, Any, List
 
+from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.codegeneration.nest_gpu_code_generator_utils import NESTGPUCodeGeneratorUtils
 from pynestml.codegeneration.printers.c_simple_expression_printer import CSimpleExpressionPrinter
-from pynestml.codegeneration.printers.cpp_printer import CppPrinter
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
+from pynestml.codegeneration.printers.cpp_printer import CppPrinter
 from pynestml.codegeneration.printers.nest_gpu_function_call_printer import NESTGPUFunctionCallPrinter
 from pynestml.codegeneration.printers.nest_gpu_numeric_function_call_printer import NESTGPUNumericFunctionPrinter
 from pynestml.codegeneration.printers.nest_gpu_numeric_variable_printer import NESTGPUNumericVariablePrinter
 from pynestml.codegeneration.printers.nest_gpu_variable_printer import NESTGPUVariablePrinter
-from pynestml.codegeneration.printers.unitless_c_simple_expression_printer import UnitlessCSimpleExpressionPrinter
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.logger import LoggingLevel, Logger
-from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
-from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
 
 class NESTGPUCodeGenerator(NESTCodeGenerator):
@@ -114,7 +112,7 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         # Printer for numeric solver
         self._gsl_variable_printer = NESTGPUNumericVariablePrinter(None)
         self._gsl_function_call_printer = NESTGPUNumericFunctionPrinter(None)
-        self._gsl_printer = CppExpressionPrinter(simple_expression_printer=UnitlessCSimpleExpressionPrinter(
+        self._gsl_printer = CppExpressionPrinter(simple_expression_printer=CSimpleExpressionPrinter(
             variable_printer=self._gsl_variable_printer,
             constant_printer=self._constant_printer,
             function_call_printer=self._gsl_function_call_printer))

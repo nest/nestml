@@ -44,7 +44,8 @@ model test_plasticity_dynamics_neuron:
     output:
         spike
 
+    onReceive(spikes_parrot):
+        emit_spike()
+
     update:
         integrate_odes()
-        if spikes_parrot * 1 s != 0:
-            emit_spike()

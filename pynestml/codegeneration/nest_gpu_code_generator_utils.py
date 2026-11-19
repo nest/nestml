@@ -29,9 +29,9 @@ class NESTGPUCodeGeneratorUtils:
     @classmethod
     def print_symbol_origin(cls, variable_symbol: VariableSymbol, variable: ASTVariable) -> str:
         """
-        Returns a prefix corresponding to the origin of the variable symbol.
-        :param variable_symbol: a single variable symbol.
-        :return: the corresponding prefix
+        Returns a format string, that takes in one string, and prefixes it corresponding to the origin of the variable symbol.
+        :param variable_symbol: a single variable symbol
+        :return: the corresponding format string
         """
         if variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
             if "_is_numeric" in dir(variable) and variable._is_numeric:
@@ -44,7 +44,7 @@ class NESTGPUCodeGeneratorUtils:
         if variable_symbol.block_type in [BlockType.PARAMETERS, BlockType.INTERNALS] or variable_symbol.is_continuous_input_port():
             return "param[%s]"
 
-        return ""
+        return "%s"
 
     @classmethod
     def replace_text_between_tags(cls, filepath, replace_str, begin_tag="// <<BEGIN_NESTML_GENERATED>>",

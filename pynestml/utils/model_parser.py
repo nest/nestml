@@ -49,7 +49,6 @@ from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
-from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_compilation_unit import ASTCompilationUnit
 from pynestml.meta_model.ast_model import ASTModel
@@ -76,6 +75,7 @@ from pynestml.visitors.ast_builder_visitor import ASTBuilderVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+from pynestml.visitors.unit_type_fixer_visitor import UnitTypeFixerVisitor
 
 
 class ModelParser:
@@ -152,6 +152,7 @@ class ModelParser:
         for model in ast.get_model_list():
             model.accept(ASTSymbolTableVisitor())
             SymbolTable.add_model_scope(model.get_name(), model.get_scope())
+            UnitTypeFixerVisitor.fix_model(model)
             Logger.set_current_node(model)
             model.accept(AssignImplicitConversionFactorsVisitor())
             Logger.set_current_node(None)
@@ -320,14 +321,6 @@ class ModelParser:
         # type: (str) -> ASTInputPort
         (builder, parser) = tokenize(string)
         ret = builder.visit(parser.inputPort())
-        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
-        return ret
-
-    @classmethod
-    def parse_input_qualifier(cls, string):
-        # type: (str) -> ASTInputQualifier
-        (builder, parser) = tokenize(string)
-        ret = builder.visit(parser.inputQualifier())
         ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
 

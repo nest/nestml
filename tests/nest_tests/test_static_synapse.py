@@ -76,7 +76,6 @@ class TestStaticSynapse:
 
         pre_neuron = nest.Create("parrot_neuron")
         post_neuron = nest.Create(neuron_model_name)
-
         nest.Connect(pre_sg, pre_neuron, "one_to_one")
         nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "syn_nestml_rec"})
 

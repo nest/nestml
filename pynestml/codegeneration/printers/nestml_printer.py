@@ -50,7 +50,6 @@ from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
-from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_model import ASTModel
@@ -350,22 +349,13 @@ class NESTMLPrinter(ModelPrinter):
         if node.has_size_parameter():
             ret += "[" + self.print(node.get_size_parameter()) + "]"
         ret += " <- "
-        if node.has_input_qualifiers():
-            for qual in node.get_input_qualifiers():
-                ret += self.print(qual) + " "
         if node.is_spike():
             ret += "spike"
         else:
+            assert node.is_continuous()
             ret += "continuous"
         ret += print_sl_comment(node.in_comment) + "\n"
         return ret
-
-    def print_input_qualifier(self, node: ASTInputQualifier) -> str:
-        if node.is_inhibitory:
-            return "inhibitory"
-        if node.is_excitatory:
-            return "excitatory"
-        return ""
 
     def print_compilation_unit(self, node: ASTCompilationUnit) -> str:
         ret = ""
@@ -410,14 +400,6 @@ class NESTMLPrinter(ModelPrinter):
         ret += print_n_spaces(self.indent) + "output:\n"
         ret += print_n_spaces(self.indent + 4)
         ret += "spike" if node.is_spike() else "continuous"
-        if node.get_attributes():
-            ret += "("
-            for i, attr in enumerate(node.get_attributes()):
-                ret += self.print(attr)
-                if i < len(node.get_attributes()) - 1:
-                    ret += ", "
-
-            ret += ")"
         ret += print_sl_comment(node.in_comment)
         ret += "\n"
         return ret
@@ -452,34 +434,11 @@ class NESTMLPrinter(ModelPrinter):
         return self.print(node.compound_stmt)
 
     def print_unit_type(self, node: ASTUnitType) -> str:
-        if node.is_encapsulated:
-            return "(" + self.print(node.compound_unit) + ")"
-
-        if node.is_pow:
-            s = self.print(node.base) + "**"
-            if node.exponent is not None:
-                # ``node.exponent`` is either a float or an int
-                s += str(node.exponent)
-            else:
-                assert node.exponent_num is not None and node.exponent_den is not None
-                if node.exponent_num < 0:
-                    s += "-"
-                s += "(" + str(int(abs(node.exponent_num))) + "/" + str(int(node.exponent_den)) + ")"
-
-            return s
-
-        if node.is_arithmetic_expression():
-            t_lhs = self.print(node.get_lhs()) if isinstance(node.get_lhs(), ASTUnitType) else str(node.get_lhs())
-            if node.is_times:
-                return t_lhs + "*" + self.print(node.get_rhs())
-
-            return t_lhs + "/" + self.print(node.get_rhs())
-
-        return node.unit
+        return self._simple_expression_printer.print_unit_type(node)
 
     def print_on_receive_block(self, node: ASTOnReceiveBlock) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
-        ret += print_n_spaces(self.indent) + "onReceive(" + node.port_name + "):" + print_sl_comment(node.in_comment) + "\n"
+        ret += print_n_spaces(self.indent) + "onReceive(" + self.print(node.get_input_port_variable()) + "):" + print_sl_comment(node.in_comment) + "\n"
         self.inc_indent()
         ret += self.print(node.get_stmts_body())
         self.dec_indent()

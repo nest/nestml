@@ -27,6 +27,7 @@ import os
 import sys
 import tempfile
 
+from pynestml.exceptions.code_generation_exception import CodeGenerationException
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.frontend.pynestml_frontend import generate_python_standalone_target
 from pynestml.meta_model.ast_model import ASTModel
@@ -54,7 +55,7 @@ class PythonStandaloneTargetTools:
 
         ast_compilation_unit = ModelParser.parse_file(nestml_file_name)
         if ast_compilation_unit is None or len(ast_compilation_unit.get_model_list()) == 0:
-            raise Exception("Error(s) occurred during code generation; please check error messages")
+            raise CodeGenerationException("Error(s) occurred during code generation; please check error messages")
 
         model: ASTModel = ast_compilation_unit.get_model_list()[0]
         model_name = model.get_name()

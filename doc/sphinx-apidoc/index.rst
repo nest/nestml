@@ -5,13 +5,13 @@ The NESTML modeling language
    :width: 324px
    :height: 307px
    :align: right
-   :target: nestml_language/neurons_in_nestml.html
+   :target: models_library/index.html#neuron-models
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/main/doc/fig/synapse_illustration.svg
    :width: 326px
    :height: 203px
    :align: right
-   :target: nestml_language/synapses_in_nestml.html
+   :target: models_library/index.html#synapse-models
 
 NESTML is a domain-specific language for hybrid dynamical systems, in particular neuron and synapse models. The toolchain automatically generates code for these models, allowing them to be used in brain simulations on several platforms (see :ref:`Running NESTML`).
 
@@ -33,7 +33,7 @@ Internally, differential equations are analyzed by the associated `ODE-toolbox <
    :hidden:
    :maxdepth: 1
 
-   nestml_language/index
+   nestml_language
    installation
    running/index
    models_library/index
@@ -50,11 +50,12 @@ Internally, differential equations are analyzed by the associated `ODE-toolbox <
       :align: center
 
 
-Tutorials
-#########
+How to use NESTML
+#################
+
+For examples of how to use NESTML and NESTML models, see the :ref:`Tutorials` below. For further application hints, please also refer to the `NESTML unit tests <https://github.com/nest/nestml/tree/main/tests>`_ and the :ref:`Models library`.
 
 .. include:: tutorials/tutorials_list.rst
-
 
 .. include:: getting_help.rst
 

@@ -38,7 +38,7 @@ from pynestml.utils.messages import Messages
 
 class GeNNCVariablePrinter(CppVariablePrinter):
     r"""
-    Variable printer for C syntax and the Spinnaker API.
+    Variable printer for C syntax and the GeNN API.
     """
 
     def __init__(self, expression_printer: ExpressionPrinter, with_origin: bool = True, with_vector_parameter: bool = True) -> None:
@@ -49,9 +49,9 @@ class GeNNCVariablePrinter(CppVariablePrinter):
 
     def print_variable(self, variable: ASTVariable) -> str:
         """
-        Converts a single variable to Spinnaker processable format.
+        Converts a single variable to GeNN processable format.
         :param variable: a single variable.
-        :return: a Spinnaker processable format.
+        :return: a GeNN processable format.
         """
         assert isinstance(variable, ASTVariable)
 
@@ -65,15 +65,7 @@ class GeNNCVariablePrinter(CppVariablePrinter):
             return "3.14159"
 
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
-        if symbol is None:
-            # test if variable name can be resolved to a type
-            if PredefinedUnits.is_unit(variable.get_complete_name()):
-                return str(NESTUnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
-
-            code, message = Messages.get_could_not_resolve(variable.get_name())
-            Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
-                               error_position=variable.get_source_position())
-            return ""
+        assert symbol is not None
 
         vector_param = ""
         if self.with_vector_parameter and symbol.has_vector_parameter():
@@ -105,7 +97,7 @@ class GeNNCVariablePrinter(CppVariablePrinter):
 
     def _print_delay_variable(self, variable: ASTVariable) -> str:
         """
-        Converts a delay variable to SPINNAKER processable format
+        Converts a delay variable to GeNN processable format
         :param variable:
         :return:
         """
@@ -117,7 +109,7 @@ class GeNNCVariablePrinter(CppVariablePrinter):
 
     def _print_buffer_value(self, variable: ASTVariable) -> str:
         """
-        Converts for a handed over symbol the corresponding name of the buffer to a SPINNAKER processable format.
+        Converts for a handed over symbol the corresponding name of the buffer to a GeNN processable format.
         :param variable: a single variable symbol.
         :return: the corresponding representation as a string
         """

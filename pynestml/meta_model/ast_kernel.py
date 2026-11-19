@@ -113,19 +113,35 @@ class ASTKernel(ASTNode):
             return False
 
         for var in self.get_variables():
-            if not var in other.get_variables():
+            match_found = False
+            for var2 in other.get_variables():
+                if var.equals(var2):
+                    match_found = True
+            if not match_found:
                 return False
 
         for var in other.get_variables():
-            if not var in self.get_variables():
+            match_found = False
+            for var2 in self.get_variables():
+                if var.equals(var2):
+                    match_found = True
+            if not match_found:
                 return False
 
         for expr in self.get_expressions():
-            if not expr in other.get_expressions():
+            match_found = False
+            for expr2 in other.get_expressions():
+                if expr.equals(expr2):
+                    match_found = True
+            if not match_found:
                 return False
 
         for expr in other.get_expressions():
-            if not expr in self.get_expressions():
+            match_found = False
+            for expr2 in self.get_expressions():
+                if expr.equals(expr2):
+                    match_found = True
+            if not match_found:
                 return False
 
         return True

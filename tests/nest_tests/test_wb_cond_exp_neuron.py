@@ -74,9 +74,12 @@ class TestWBCondExpNeuron:
         neuron = nest.Create("wb_cond_exp_neuron_nestml")
         sr = nest.Create("spike_recorder")
 
+        # List of receptor types for the spiking input ports
+        receptor_types = nest.GetStatus(neuron, "receptor_types")[0]
+
         nest.Connect(mm, neuron)
-        nest.Connect(sg_exc, neuron, syn_spec={"weight": 100})
-        nest.Connect(sg_inh, neuron, syn_spec={"weight": -100})
+        nest.Connect(sg_exc, neuron, syn_spec={"receptor_type": receptor_types["EXC_SPIKES"], "weight": 100})
+        nest.Connect(sg_inh, neuron, syn_spec={"receptor_type": receptor_types["INH_SPIKES"], "weight": 100})
         nest.Connect(neuron, sr)
 
         nest.Simulate(sim_time)

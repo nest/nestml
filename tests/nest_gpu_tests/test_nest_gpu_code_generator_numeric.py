@@ -139,7 +139,7 @@ class TestNESTGPUNumericCodeGenerator:
         t_nest = [x[0] for x in data]
         V_m_nest = [x[1] for x in data]
 
-        dV = [V_m[i * 10 + 20] - V_m_nest[i] for i in range(len(t_nest))]
+        dV = [V_m[i * 10] - V_m_nest[i] for i in range(len(t_nest))]
         rmse = np.std(dV) / abs(np.mean(V_m))
         print("rmse : ", rmse, " tolerance: ", tolerance)
         if rmse > tolerance:
@@ -167,7 +167,7 @@ class TestNESTGPUNumericCodeGenerator:
         t_nest = [x[0] for x in data]
         V_m_nest = [x[1] for x in data]
 
-        dV = [V_m[i + 2] - V_m_nest[i] for i in range(len(t_nest))]
+        dV = [V_m[i] - V_m_nest[i] for i in range(len(t_nest))]
         rmse = np.std(dV) / abs(np.mean(V_m))
         print("rmse : ", rmse, " tolerance: ", tolerance)
         if rmse > tolerance:

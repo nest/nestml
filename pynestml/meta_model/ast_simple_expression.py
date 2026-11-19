@@ -30,28 +30,11 @@ from pynestml.utils.cloning_helpers import clone_numeric_literal
 
 class ASTSimpleExpression(ASTExpressionNode):
     """
-    This class is used to store a simple rhs, e.g. +42mV.
-    ASTSimpleExpression, consisting of a single element without combining operator, e.g.,10mV, inf, V_m.
-    Grammar:
-    simpleExpression : functionCall
-                   | BOOLEAN_LITERAL // true & false ;
-                   | (UNSIGNED_INTEGER | FLOAT) (variable)?
-                   | isInf="inf"
-                   | STRING_LITERAL
-                   | variable;
-    Attributes:
-        function_call: A function call reference.
-        numeric_literal: A numeric literal.
-        variable: A variable reference.
-        is_boolean_true (bool): True if this is a boolean true literal.
-        is_boolean_false (bool): True if this is a boolean false literal.
-        is_inf_literal (bool): True if this is a infinity literal.
-        string (str): A string literal.
-
+    ASTSimpleExpression consists of a single element without combining operator, e.g.,10mV, inf, V_m. Corresponds to ``simpleExpression`` rule in the grammar.
     """
 
     def __init__(self, function_call: Optional[ASTFunctionCall] = None, boolean_literal: Optional[bool] = None,
-                 numeric_literal: Optional[Union[int, float]] = None, is_inf: bool = False,
+                 numeric_literal: Optional[Union[int, float]] = None, unitType=None, is_inf: bool = False,
                  variable: ASTVariable = None, string: str = None, has_delay: bool = False, *args, **kwargs):
         """
         Standard constructor.
@@ -88,6 +71,7 @@ class ASTSimpleExpression(ASTExpressionNode):
             else:
                 self.is_boolean_false = True
         self.numeric_literal = numeric_literal
+        self.unitType = unitType
         self.is_inf_literal = is_inf
         self.variable = variable
         self.string = string
@@ -106,6 +90,9 @@ class ASTSimpleExpression(ASTExpressionNode):
         variable_dup = None
         if self.variable:
             variable_dup = self.variable.clone()
+        unitType_dup = None
+        if self.unitType:
+            unitType_dup = self.unitType.clone()
         numeric_literal_dup = clone_numeric_literal(self.numeric_literal)
         boolean_literal = None
         if self.is_boolean_true:
@@ -117,6 +104,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         dup = ASTSimpleExpression(function_call=function_call_dup,
                                   boolean_literal=boolean_literal,
                                   numeric_literal=numeric_literal_dup,
+                                  unitType=unitType_dup,
                                   is_inf=self.is_inf_literal,
                                   variable=variable_dup,
                                   string=self.string,
@@ -158,13 +146,19 @@ class ASTSimpleExpression(ASTExpressionNode):
             ret.append(self.get_function_call())
         return ret
 
-    def is_numeric_literal(self):
+    def is_numeric_literal(self) -> bool:
         """
         Returns whether it is a numeric literal or not.
         :return: True if numeric literal, otherwise False.
-        :rtype: bool
         """
         return self.numeric_literal is not None
+
+    def is_numeric_literal_with_unit(self) -> bool:
+        """
+        Returns whether this is a numeric literal with a defined unit.
+        :return: True if numeric literal with unit, otherwise False.
+        """
+        return self.unitType is not None and self.numeric_literal is not None
 
     def get_boolean_literal(self) -> Optional[bool]:
         """
@@ -173,24 +167,23 @@ class ASTSimpleExpression(ASTExpressionNode):
         """
         if self.is_boolean_true:
             return True
-        elif self.is_boolean_false:
+
+        if self.is_boolean_false:
             return False
-        else:
-            return None
+
+        return None
 
     def get_numeric_literal(self) -> Union[int, float]:
         """
         Returns the value of the numeric literal.
         :return: the value of the numeric literal.
-        :rtype: int/float
         """
         return self.numeric_literal
 
-    def set_numeric_literal(self, numeric_literal):
+    def set_numeric_literal(self, numeric_literal: Union[int, float]):
         """
         Updates the numeric literal attribute of this node.
         :param numeric_literal: a single numeric literal
-        :type numeric_literal: int or float
         """
         self.numeric_literal = numeric_literal
 
@@ -227,25 +220,6 @@ class ASTSimpleExpression(ASTExpressionNode):
         """
         ret = list()
         if self.is_variable():
-            ret.append(self.get_variable())
-        return ret
-
-    def has_unit(self):
-        """
-        Returns whether this is a numeric literal with a defined unit.
-        :return: True if numeric literal with unit, otherwise False.
-        :rtype: bool
-        """
-        return self.variable is not None and self.numeric_literal is not None
-
-    def get_units(self):
-        """
-        This function is used for better interactions with the general rhs meta_model class.
-        :return: returns a single list with unit if such an exists, otherwise an empty list
-        :rtype: list(ASTVariable)
-        """
-        ret = list()
-        if self.has_unit():
             ret.append(self.get_variable())
         return ret
 

@@ -21,6 +21,41 @@ A more detailed description of the internal architecture of NESTML can be found 
   * A condensed online English version is available: :doc:`pynestml_toolchain/index`
 
 
+Transformers
+~~~~~~~~~~~~
+
+After the models have been parsed and validated, and before code is generated, a sequence of *transformers* is applied to them. Each transformer performs a single transformation step on a set of models, for instance, renaming variables that conflict with keywords in the target language, or analysing the differential equations using ODE-toolbox. Besides modifying the models, a transformer can store information about each model in a metadata dictionary, which is available to subsequent transformers and to the code generator. For instance, the ``ODEToolboxTransformer`` stores the solvers computed by ODE-toolbox in this way.
+
+Which transformers are applied, and in which sequence, depends on the target platform. The sequence is defined in the function ``transformers_from_target_name()`` in `pynestml_frontend.py <https://github.com/nest/nestml/blob/main/pynestml/frontend/pynestml_frontend.py>`__. The following transformers are available, listed in the order in which they are applied:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 45 25
+
+   * - Transformer
+     - Description
+     - Applied for target platforms
+   * - :class:`~pynestml.transformers.illegal_variable_name_transformer.IllegalVariableNameTransformer`
+     - Renames variables whose names are keywords in the target language (C++ or Python).
+     - NEST, SpiNNaker, GeNN (C++ keywords); Python-standalone (Python keywords)
+   * - :class:`~pynestml.transformers.inline_expression_expansion_transformer.InlineExpressionExpansionTransformer`
+     - Makes inline expressions self-contained, and substitutes them into the ODEs that refer to them.
+     - NEST, SpiNNaker, GeNN; Python-standalone
+   * - :class:`~pynestml.transformers.synapse_post_neuron_transformer.SynapsePostNeuronTransformer`
+     - For neuron/synapse pairs, moves the synaptic variables that only depend on postsynaptic events into the postsynaptic neuron.
+     - NEST
+   * - :class:`~pynestml.transformers.convolutions_to_buffers_transformer.ConvolutionsToBuffersTransformer`
+     - Replaces convolutions of kernels with spiking input ports by state variables.
+     - NEST, SpiNNaker, GeNN; Python-standalone
+   * - :class:`~pynestml.transformers.ode_toolbox_transformer.ODEToolboxTransformer`
+     - Analyses the differential equations with `ODE-toolbox <https://ode-toolbox.readthedocs.io/>`_, and stores the analytic and/or numeric solvers in the metadata.
+     - NEST, SpiNNaker, GeNN; Python-standalone
+
+Some transformers have options, which can be passed in the same way as the code generator options; see the documentation of each transformer for details.
+
+To add a new transformer, create a subclass of :class:`pynestml.transformers.transformer.Transformer` that implements the ``transform()`` method, and add it to the sequence in ``transformers_from_target_name()``.
+
+
 API documentation
 -----------------
 

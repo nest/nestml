@@ -27,8 +27,8 @@ model CompoundOperatorTest:
 
     update:
         lhs *= 1
-        lhs *= (1 mA) * (1 Ohm) * (1/Volt)
+        lhs *= 1 mA * 1 Ohm * V**-1
         lhs /= 1
-        lhs /= (1 mA) * (1 Ohm) * (1/Volt)
+        lhs /= 1 mA * 1 Ohm * V**-1
         lhs += 1 mV
         lhs -= 1 mV

@@ -255,5 +255,4 @@ class ASTDeclaration(ASTNode):
         if self.has_invariant() and other.has_invariant() and not self.get_invariant().equals(other.get_invariant()):
             return False
 
-        return self.get_data_type().equals(other.get_data_type()) and self.get_expression().equals(
-            other.get_expression())
+        return self.get_data_type().equals(other.get_data_type()) and ((self.get_expression() is None and other.get_expression() is None) or self.get_expression().equals(other.get_expression()))

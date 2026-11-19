@@ -26,4 +26,4 @@ model BlockTest:
         lhs mV = 0 mV
 
     update:
-        lhs = 10V + 5mV +20V + 1kV
+        lhs = 10 V + 5 mV + 20 V + 1 kV

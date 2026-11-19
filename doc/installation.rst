@@ -1,7 +1,7 @@
 Installing NESTML
 =================
 
-Please note that only Python 3.9 (and later versions) are supported. The instructions below assume that ``python`` is aliased to or refers to ``python3``, and ``pip`` to ``pip3``.
+Please note that only Python 3.11 (and later versions) are supported [#PythonVersionPolicy]_. The instructions below assume that ``python`` is aliased to or refers to ``python3``, and ``pip`` to ``pip3``.
 
 Installing the latest release from PyPI
 ---------------------------------------
@@ -105,3 +105,9 @@ Docker installation
 NESTML is installed as part of the official NEST Simulator `Docker <https://docker.io/>`_ image.
 
 For detailed instructions, please see https://nest-simulator.readthedocs.io/en/latest/installation/index.html.
+
+
+Footnotes
+---------
+
+.. [#PythonVersionPolicy] It is the NESTML policy regarding which minimum version of Python is supported to track those Python versions that at least have active security support. See the following link for an overview of current support status: https://devguide.python.org/versions/

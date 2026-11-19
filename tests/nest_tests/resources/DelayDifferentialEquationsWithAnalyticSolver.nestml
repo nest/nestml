@@ -23,7 +23,7 @@
 #
 model dde_analytic:
     state:
-        u_bar_plus real = -70.
+        u_bar_plus real = -70
         foo real = 0
 
     equations:
@@ -32,8 +32,8 @@ model dde_analytic:
 
     parameters:
         tau ms = 1.5 ms
-        delay ms = 5. ms
-        b real = 0.
+        delay ms = 5 ms
+        b real = 0
 
     update:
         integrate_odes()

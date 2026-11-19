@@ -70,7 +70,7 @@ from numpy import exp
 
 {%-         for blk in neuron.get_on_receive_blocks() %}
 {%-             set ast = blk.get_stmts_body() %}
-if ({{ blk.get_port_name() }} != 0) {
+if ({{ blk.get_input_port_variable().get_name() }} != 0) {
 {%-             filter indent(4, True) -%}
 {%-                 include "directives_cpp/StmtsBody.jinja2" %}
 {%-             endfilter %}

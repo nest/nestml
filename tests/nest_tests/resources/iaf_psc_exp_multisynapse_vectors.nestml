@@ -32,8 +32,8 @@
 #
 model iaf_psc_exp_multisynapse_vectors_neuron:
     state:
-        V_m mV = E_L                 # membrane potential
-        refr_t ms = 0 ms    # Refractory period timer
+        V_m mV = E_L           # Membrane potential
+        refr_t ms = 0 ms       # Refractory period timer
         is_refractory boolean = false
 
     equations:
@@ -46,19 +46,19 @@ model iaf_psc_exp_multisynapse_vectors_neuron:
         V_m' = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
 
     parameters:
-        C_m      pF = 250pF    # Capacity of the membrane
-        tau_m    ms = 10ms     # Membrane time constant.
-        tau_syn1 ms = .2ms     # Time constant of synaptic current.
-        tau_syn2 ms = 2ms      # Time constant of synaptic current.
-        tau_syn3 ms = 20ms     # Time constant of synaptic current.
+        C_m pF = 250pF         # Capacitance of the membrane
+        tau_m ms = 10ms        # Membrane time constant
+        tau_syn1 ms = .2ms     # Time constant of synaptic current
+        tau_syn2 ms = 2ms      # Time constant of synaptic current
+        tau_syn3 ms = 20ms     # Time constant of synaptic current
         refr_T ms = 2 ms       # Duration of refractory period
-        E_L      mV = -70mV    # Resting potential.
+        E_L mV = -70mV         # Resting potential
         V_reset mV = -70.0 mV  # Reset value of the membrane potential
-        V_th   mV = -55.0 mV   # Threshold
-        I_e     pA = 0pA       # External current.
+        V_th mV = -55.0 mV     # Threshold
+        I_e pA = 0 pA           # External current
 
     internals:
-        unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
+        unit_psc pA = 1 pA     # Unitary postsynaptic current amplitude
 
     input:
         spikes[3] <- spike
