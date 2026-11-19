@@ -44,7 +44,6 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
 
     _default_options = {
         "preserve_expressions": False,
-        "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "neuron_models": [],
         "synapse_models": [],
         "templates": {
