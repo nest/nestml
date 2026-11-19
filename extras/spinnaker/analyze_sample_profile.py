@@ -54,6 +54,7 @@ in ``.spynnaker.cfg``.
 import argparse
 import csv
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -86,6 +87,7 @@ ENERGY_CSV = BASE_DIR / "balanced_networks_energy.csv"
 
 PROFILE_NAME = "sample_profile.json"
 ENERGY_NAME = "energy_report.rpt"
+SDRAM_NAME = "chip_sdram_usage_by_core.rpt"
 METADATA_NAME = "metadata.json"
 
 
@@ -667,18 +669,29 @@ def plot_sum_core_activity(rows):
     if not data:
         raise Exception("No profiling data available for plotting.")
 
+    output_path = BASE_DIR / "sample_profile_sum_core_activity.png"
+    plot_metric_vs_neurons(data,
+                           ylabel="Sum core activity [percentage-points]",
+                           title="SpiNNaker Core Activity vs Number of Neurons",
+                           output_path=output_path)
+
+    print(f"Sum core activity plot saved to: {output_path}")
+
+
+def plot_metric_vs_neurons(data, ylabel, title, output_path):
+    """Plot a metric against the number of neurons for each implementation, with a bottom panel showing the metric relative to the built-in implementation. ``data`` maps an experiment label (see ``get_experiment_label()``) to a list of ``(number of neurons, value)`` tuples; repeated runs with the same number of neurons are shown as mean and standard deviation."""
     # mean and standard deviation across repeated runs, for each implementation and number of neurons
     stats = {}
     for implementation, values in data.items():
         grouped = {}
-        for neurons, activity in values:
-            grouped.setdefault(neurons, []).append(activity)
+        for neurons, value in values:
+            grouped.setdefault(neurons, []).append(value)
 
         stats[implementation] = {}
         for neurons_count in sorted(grouped):
-            activities = grouped[neurons_count]
-            stats[implementation][neurons_count] = (float(np.mean(activities)),
-                                                    float(np.std(activities, ddof=1)) if len(activities) > 1 else 0.0)
+            group_values = grouped[neurons_count]
+            stats[implementation][neurons_count] = (float(np.mean(group_values)),
+                                                    float(np.std(group_values, ddof=1)) if len(group_values) > 1 else 0.0)
 
     fig, (ax, ax_rel) = plt.subplots(2, 1, sharex=True, figsize=figsize(9 / 9), gridspec_kw={"height_ratios": [2, 1]})
 
@@ -698,12 +711,12 @@ def plot_sum_core_activity(rows):
         )
         colors[implementation] = errorbar[0].get_color()
 
-    ax.set_ylabel("Sum core activity [percentage-points]")
-    set_title(ax, "SpiNNaker Core Activity vs Number of Neurons")
+    ax.set_ylabel(ylabel)
+    set_title(ax, title)
     ax.grid(True)
     ax.legend()
 
-    # relative performance: activity of each implementation as a percentage of the built-in activity, at the numbers of neurons for which both are available
+    # relative performance: value of each implementation as a percentage of the built-in value, at the numbers of neurons for which both are available
     if "builtin" in stats:
         baseline = stats["builtin"]
         # error bars in this panel show the run-to-run standard deviation of each implementation itself, expressed as a percentage of the built-in mean (so the variability of the baseline is shown on the baseline points, and is not also folded into the error bars of the other implementations)
@@ -753,12 +766,115 @@ def plot_sum_core_activity(rows):
     ax_rel.grid(True)
 
     fig.tight_layout()
-
-    output_path = BASE_DIR / "sample_profile_sum_core_activity.png"
     fig.savefig(output_path, dpi=300)
     plt.close(fig)
 
-    print(f"Sum core activity plot saved to: {output_path}")
+
+# SDRAM usage analysis
+
+# matches e.g. "SDRAM reqs for core (0,0,5) is 10 KB (10522 bytes) for Placement(vertex=post_input(0:0), x=0, y=0, p=5)"; the vertex label may itself contain commas (e.g. "ChipPowerMonitor on 0, 0"), so it is matched non-greedily up to ", x="
+SDRAM_CORE_LINE_RE = re.compile(r"SDRAM reqs for core \((\d+),(\d+),(\d+)\) is .*?\((\d+) bytes\) for Placement\(vertex=(.*?), x=\d+")
+
+
+def is_system_vertex(vertex_label):
+    """Whether a vertex label belongs to a SpiNNaker system core (monitors, packet gatherers etc.) rather than to the model."""
+    return vertex_label.startswith("SYSTEM:") or vertex_label.startswith("ChipPowerMonitor")
+
+
+def find_sdram_report(run_dir):
+    """Find the SDRAM usage report belonging to an archived run. Falls back to the original report directory recorded in the run metadata (for runs archived before the SDRAM report was copied into the archive). Returns None if not found."""
+    run_dir = Path(run_dir)
+    sdram_path = run_dir / SDRAM_NAME
+    if sdram_path.exists():
+        return sdram_path
+
+    metadata_path = run_dir / METADATA_NAME
+    if metadata_path.exists():
+        source_dir = load_json(metadata_path).get("source_report_directory")
+        if source_dir:
+            sdram_path = Path(source_dir) / SDRAM_NAME
+            if sdram_path.exists():
+                return sdram_path
+
+    return None
+
+
+def load_sdram_report(sdram_path):
+    """Parse the per-core SDRAM requirements from the "Planned by partitioner" section of a ``chip_sdram_usage_by_core.rpt`` report.
+
+    The "Actual space reserved on the machine" section is ignored: there, the number of timesteps is chosen such that the recording buffers fill up the available SDRAM, so the totals do not reflect the requirements of the model.
+
+    Returns a list of dicts with keys ``x``, ``y``, ``p``, ``bytes`` and ``vertex``."""
+    cores = []
+
+    with open(sdram_path, "r", encoding="utf-8") as f:
+        for line in f:
+            if line.startswith("Actual space reserved"):
+                break
+
+            match = SDRAM_CORE_LINE_RE.search(line)
+            if match is None:
+                continue
+
+            x, y, p, n_bytes, vertex = match.groups()
+            cores.append({
+                "x": int(x),
+                "y": int(y),
+                "p": int(p),
+                "bytes": int(n_bytes),
+                "vertex": vertex
+            })
+
+    return cores
+
+
+def calculate_total_sdram(cores, include_system_cores=True):
+    """Sum the planned SDRAM requirements [bytes] over all cores, optionally excluding SpiNNaker system cores."""
+    return sum(core["bytes"] for core in cores if include_system_cores or not is_system_vertex(core["vertex"]))
+
+
+def plot_sdram_usage(rows, include_system_cores=True):
+    """Plot the total planned SDRAM usage (summed over all cores) against number of neurons. The SDRAM reports are read from the archived run directories, identified by the timestamps in the profiling CSV."""
+    data = {}
+
+    for row in rows:
+        implementation = get_experiment_label(row)
+
+        if implementation not in IMPLEMENTATION_LABELS:
+            continue
+
+        try:
+            neurons = int(row["N"])
+            timestamp = row["timestamp"]
+        except (ValueError, TypeError, KeyError):
+            continue
+
+        sdram_path = find_sdram_report(ARCHIVE_DIR / timestamp)
+        if sdram_path is None:
+            print(f"Warning: no {SDRAM_NAME} found for run {timestamp}; skipping")
+            continue
+
+        cores = load_sdram_report(sdram_path)
+        if not cores:
+            print(f"Warning: no per-core SDRAM requirements found in {sdram_path}; skipping")
+            continue
+
+        total_sdram_MB = calculate_total_sdram(cores, include_system_cores=include_system_cores) / 1024**2
+
+        data.setdefault(implementation, []).append((neurons, total_sdram_MB))
+
+    if not data:
+        print("No SDRAM usage data available for plotting.")
+        return
+
+    suffix = "" if include_system_cores else "_model_cores"
+    output_path = BASE_DIR / f"sdram_usage{suffix}.png"
+    plot_metric_vs_neurons(data,
+                           ylabel="Total SDRAM [MiB]" if include_system_cores else "Total SDRAM, model cores [MiB]",
+                           title="SpiNNaker SDRAM Usage vs Number of Neurons",
+                           output_path=output_path)
+
+    print(f"SDRAM usage plot saved to: {output_path}")
 
 # def plot_core_activity_by_neurons(rows):
 #     """Plot core activity for different neuron counts."""
@@ -889,6 +1005,8 @@ def main():
 
     rows = load_profiling_data()
     plot_sum_core_activity(rows)
+    plot_sdram_usage(rows, include_system_cores=True)
+    plot_sdram_usage(rows, include_system_cores=False)
     # plot_core_activity_by_neurons(rows)
 
 

@@ -130,6 +130,7 @@ REPORT_DIR = Path(__file__).resolve().parents[2] / "reports"
 ARCHIVE_DIR = Path(__file__).resolve().parents[2] / "reports_archive"
 PROFILE_NAME = "sample_profile.json"
 ENERGY_NAME = "energy_report.rpt"
+SDRAM_NAME = "chip_sdram_usage_by_core.rpt"
 BENCHMARK_CSV = Path(__file__).resolve().parents[2] / "benchmark_balanced_networks_results.csv"
 PROFILE_CSV = Path(__file__).resolve().parents[2] / "benchmark_balanced_networks_profiling.csv"
 ENERGY_CSV = Path(__file__).resolve().parents[2] / "benchmark_balanced_networks_energy.csv"
@@ -279,6 +280,12 @@ def archive_run(profile_path, result):
     shutil.copy2(profile_path, run_dir / PROFILE_NAME)
     shutil.copy2(energy_path, run_dir / ENERGY_NAME)
 
+    sdram_path = profile_path.parent / SDRAM_NAME
+    if sdram_path.exists():
+        shutil.copy2(sdram_path, run_dir / SDRAM_NAME)
+    else:
+        print(f"Warning: SDRAM usage report not found: {sdram_path}")
+
     metadata = {
         "timestamp": result["timestamp"],
         "implementation": result["implementation"],
@@ -293,7 +300,8 @@ def archive_run(profile_path, result):
         "source_report_directory": str(profile_path.parent),
         "files": {
             "profile": PROFILE_NAME,
-            "energy": ENERGY_NAME
+            "energy": ENERGY_NAME,
+            "sdram": SDRAM_NAME
         }
     }
 
