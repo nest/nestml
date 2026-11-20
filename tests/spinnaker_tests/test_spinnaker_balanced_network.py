@@ -116,16 +116,21 @@ def load_projection_connections(filename):
     )
 
 
-def make_shared_input_connector(n_sources: int, n_targets: int):
+def make_shared_input_connector(n_targets: int, q: int):
     """
-    Connect each target to exactly one source, distributing the targets as evenly as possible over the sources
-    (target ``i`` receives input from source ``i % n_sources``). For ``n_sources == n_targets`` this is equivalent to
-    a OneToOneConnector.
+    Connect each target to exactly one source, with blocks of ``q`` consecutive targets sharing the same source
+    (target ``i`` receives input from source ``i // q``; there are ``ceil(n_targets / q)`` sources). For ``q == 1`` this
+    is equivalent to a OneToOneConnector.
+
+    Consecutive targets are grouped (rather than e.g. ``i % n_sources``) so that targets sharing a source end up on the
+    same SpiNNaker core: each source spike then arrives as a single packet that delivers a synaptic row of length ``q``,
+    which reduces the number of incoming packets per neuron core by a factor of ``q``. For this to work best, ``q``
+    should divide the number of neurons per core.
     """
-    if n_sources == n_targets:
+    if q == 1:
         return p.OneToOneConnector()
 
-    connections = [[i % n_sources, i] for i in range(n_targets)]
+    connections = [[i // q, i] for i in range(n_targets)]
 
     return p.FromListConnector(connections)
 
@@ -517,9 +522,9 @@ class TestSpiNNakerBalancedNetwork:
         print(f"Using {n_stim_exc} + {n_stim_inh} Poisson generators (reduction factor q = {poisson_reduction_factor})")
 
         pop_stim_exc = p.Population(n_stim_exc, p.SpikeSourcePoisson(rate=rate_ext_input), label="Stim_Exc", additional_parameters={"seed": seed + 2})
-        p.Projection(pop_stim_exc, pop_exc, make_shared_input_connector(n_stim_exc, n_exc), p.StaticSynapse(weight=weights_input, delay=1.), receptor_type=receptor_name_exc)
+        p.Projection(pop_stim_exc, pop_exc, make_shared_input_connector(n_exc, poisson_reduction_factor), p.StaticSynapse(weight=weights_input, delay=1.), receptor_type=receptor_name_exc)
         pop_stim_inh = p.Population(n_stim_inh, p.SpikeSourcePoisson(rate=rate_ext_input), label="Stim_inh", additional_parameters={"seed": seed + 3})
-        p.Projection(pop_stim_inh, pop_inh, make_shared_input_connector(n_stim_inh, n_inh), p.StaticSynapse(weight=weights_input, delay=1.), receptor_type=receptor_name_exc)
+        p.Projection(pop_stim_inh, pop_inh, make_shared_input_connector(n_inh, poisson_reduction_factor), p.StaticSynapse(weight=weights_input, delay=1.), receptor_type=receptor_name_exc)
 
         # recurrent connections
         if (
