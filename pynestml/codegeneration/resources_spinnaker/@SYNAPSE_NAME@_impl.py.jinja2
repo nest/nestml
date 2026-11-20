@@ -394,7 +394,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         n_state_variables = {{ synapse.get_state_symbols() | length }}    # number of state variables per connection (i.e. for a single synapse model)
 
         pp_size_words = n_state_variables * n_connections
-        fp_size_words = n_connections
+        fp_size_words = (n_connections + 1) // 2    # these are 16-bit half-words
         #print("[NESTML synapse] get_n_words_for_plastic_connections(n_connections = " + str(n_connections) + "): returning " + str(n_header_words_per_row + pp_size_words + fp_size_words))
 
         return n_header_words_per_row + pp_size_words + fp_size_words
