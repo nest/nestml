@@ -53,6 +53,13 @@ csv_results_filename = "benchmark_balanced_networks_results.csv"
 
 USE_SAVED_CONNECTIONS = False
 
+
+#
+#   if True, initialise membrane potentials uniformly at random between E_L and V_th (instead of all at -60 mV), to avoid a synchronous volley of spikes at the start of the simulation
+#
+
+RANDOMIZE_INITIAL_V_M = True
+
 CONNECTION_DIR = "."
 
 EE_CONNECTION_FILE = os.path.join(CONNECTION_DIR, "ee.csv")
@@ -350,6 +357,55 @@ def plot_raster(results):
     plt.close("all")
 
 
+def plot_packets_per_timestep(results):
+    """
+    Plot the number of incoming spike packets per timestep for each core of the excitatory population (top), together with the total number of spikes emitted by the network per timestep (bottom), so that bursts of incoming packets can be related to bursts of network activity.
+    """
+    packets = results.get("packets_per_timestep")
+    if packets is None:
+        return
+
+    packets_times = results["packets_times"]
+    n_cores = packets.shape[1]
+
+    # network activity: total number of exc + inh spikes per timestep (1 ms bins)
+    spike_times = np.concatenate([np.asarray(st, dtype=float)
+                                  for block in (results["pop_exc_spikes"], results["pop_inh_spikes"])
+                                  for st in block.segments[0].spiketrains] + [np.zeros(0)])
+    bin_edges = np.arange(0., results["t_sim"] + 1., 1.)
+    spike_counts, _ = np.histogram(spike_times, bins=bin_edges)
+
+    fig, ax = plt.subplots(2, 1, sharex=True, figsize=figsize(5.2 / 6))
+
+    ax[0].plot(packets_times, packets, color="0.7", linewidth=.5)    # one line per core
+    ax[0].plot([], [], color="0.7", linewidth=.5, label="per core")    # single legend entry for all cores
+    ax[0].plot(packets_times, np.max(packets, axis=1), color="C0", linewidth=1., label="max over cores")
+    ax[0].set_ylabel("Packets per timestep")
+    ax[0].legend(loc="upper right")
+
+    ax[1].plot(bin_edges[:-1], spike_counts, color="C0", linewidth=1.)
+    ax[1].set_ylabel("Network spikes\nper timestep")
+    ax[-1].set_xlim(0, results["t_sim"])
+    ax[-1].set_xlabel("Time [ms]")
+
+    for _ax in ax:
+        _ax.set_ylim(bottom=0)
+
+    fig.suptitle(f"Incoming packets (exc. pop.) - {results['implementation']} | N={results['n_neurons']}, "
+                 f"neurons/core={results['neurons_per_core']} ({n_cores} cores), q={results['poisson_reduction_factor']}, "
+                 f"random V_m init={results['randomize_initial_V_m']}\n"
+                 f"packets/timestep/core: mean={np.mean(packets):.1f}, max={np.max(packets):.0f}")
+    fig.tight_layout()
+
+    for ext in ["png", "pdf"]:
+        plt.savefig(
+            f"bal_net_packets_N{results['n_neurons']}_g{results['g']}_core{results['neurons_per_core']}_q{results['poisson_reduction_factor']}_"
+            f"impl_{results['implementation']}_{results['timestamp']}.{ext}"
+        )
+
+    plt.close("all")
+
+
 def plot_results(results):
 
     for name, result in results.items():
@@ -360,6 +416,8 @@ def plot_results(results):
         plot_membrane_potential(result)
 
         plot_raster(result)
+
+        plot_packets_per_timestep(result)
 
 
 class TestSpiNNakerBalancedNetwork:
@@ -394,7 +452,7 @@ class TestSpiNNakerBalancedNetwork:
 
         yield use_exp_luts
 
-    def run_balanced_network(self, n_neurons, neurons_per_core, poisson_generators_per_core, use_nestml_neuron, use_nestml_synapse, use_static_synapses: bool, poisson_reduction_factor: int = 1):
+    def run_balanced_network(self, n_neurons, neurons_per_core, poisson_generators_per_core, use_nestml_neuron, use_nestml_synapse, use_static_synapses: bool, poisson_reduction_factor: int = 1, randomize_initial_V_m: bool = RANDOMIZE_INITIAL_V_M):
         assert int(poisson_reduction_factor) == poisson_reduction_factor and poisson_reduction_factor >= 1, "poisson_reduction_factor must be a positive integer"
         poisson_reduction_factor = int(poisson_reduction_factor)
 
@@ -504,8 +562,11 @@ class TestSpiNNakerBalancedNetwork:
         seed = 123
 
         # excitatory and inhibitory populations
-        pop_exc = p.Population(n_exc, neuron_model, label="Excitatory", seed=seed)
-        pop_inh = p.Population(n_inh, neuron_model, label="Inhibitory", seed=seed + 1)
+        implementation = "nestml" if use_nestml_neuron or use_nestml_synapse else "builtin"
+
+        # include the implementation in the population labels, so that SpiNNaker provenance warnings (dropped/late spikes etc.) can be attributed to the right run
+        pop_exc = p.Population(n_exc, neuron_model, label=f"Excitatory_{implementation}", seed=seed)
+        pop_inh = p.Population(n_inh, neuron_model, label=f"Inhibitory_{implementation}", seed=seed + 1)
 
         pop_exc.set(**neuron_parameters)
         pop_inh.set(**neuron_parameters)
@@ -521,9 +582,9 @@ class TestSpiNNakerBalancedNetwork:
         n_stim_inh = int(np.ceil(n_inh / poisson_reduction_factor))
         print(f"Using {n_stim_exc} + {n_stim_inh} Poisson generators (reduction factor q = {poisson_reduction_factor})")
 
-        pop_stim_exc = p.Population(n_stim_exc, p.SpikeSourcePoisson(rate=rate_ext_input), label="Stim_Exc", additional_parameters={"seed": seed + 2})
+        pop_stim_exc = p.Population(n_stim_exc, p.SpikeSourcePoisson(rate=rate_ext_input), label=f"Stim_Exc_{implementation}", additional_parameters={"seed": seed + 2})
         p.Projection(pop_stim_exc, pop_exc, make_shared_input_connector(n_exc, poisson_reduction_factor), p.StaticSynapse(weight=weights_input, delay=1.), receptor_type=receptor_name_exc)
-        pop_stim_inh = p.Population(n_stim_inh, p.SpikeSourcePoisson(rate=rate_ext_input), label="Stim_inh", additional_parameters={"seed": seed + 3})
+        pop_stim_inh = p.Population(n_stim_inh, p.SpikeSourcePoisson(rate=rate_ext_input), label=f"Stim_Inh_{implementation}", additional_parameters={"seed": seed + 3})
         p.Projection(pop_stim_inh, pop_inh, make_shared_input_connector(n_inh, poisson_reduction_factor), p.StaticSynapse(weight=weights_input, delay=1.), receptor_type=receptor_name_exc)
 
         # recurrent connections
@@ -671,18 +732,23 @@ class TestSpiNNakerBalancedNetwork:
         projection_ie = p.Projection(pop_inh, pop_exc, connector_ie, synapse_type=syn_ie, receptor_type=receptor_name_inh)
 
         # Initial membrane potentials
-        if use_nestml_neuron:
-            pop_exc.initialize(V_m=-60.0)
-            pop_inh.initialize(V_m=-60.0)
-
+        if randomize_initial_V_m:
+            # draw from a uniform distribution between resting potential and threshold, to avoid a synchronous volley of spikes at the start of the simulation. Use a dedicated, seeded RNG, so that the builtin and NESTML runs start from identical initial conditions.
+            V_m_init_rng = np.random.default_rng(seed + 4)
+            V_m_init_exc = V_m_init_rng.uniform(E_L, V_th, size=n_exc)
+            V_m_init_inh = V_m_init_rng.uniform(E_L, V_th, size=n_inh)
         else:
-            pop_exc.initialize(v=-60.0)
-            pop_inh.initialize(v=-60.0)
+            V_m_init_exc = -60.0
+            V_m_init_inh = -60.0
+
+        pop_exc.initialize(**{membranePot: V_m_init_exc})
+        pop_inh.initialize(**{membranePot: V_m_init_inh})
 
         # Recording
         pop_exc[:5].record([membranePot])    # record only from the first 5 neurons
         pop_inh.record("spikes")
         pop_exc.record("spikes")
+        pop_exc.record("packets-per-timestep")    # number of incoming spike packets per timestep, one column per core
 
         pop_stim_exc.record("spikes")
         pop_stim_inh.record("spikes")
@@ -760,6 +826,15 @@ class TestSpiNNakerBalancedNetwork:
 
         v_neuron = pop_exc.get_data(membranePot)
 
+        try:
+            packets_signal = pop_exc.get_data("packets-per-timestep").segments[0].filter(name="packets-per-timestep")[0]
+            packets_per_timestep = np.asarray(packets_signal, dtype=float)    # shape: (n_timesteps, n_cores)
+            packets_times = np.asarray(packets_signal.times.rescale("ms").magnitude, dtype=float)
+        except Exception as e:
+            print(f"Warning: could not retrieve packets-per-timestep data: {e}")
+            packets_per_timestep = None
+            packets_times = None
+
         exc_spike_trains = (pop_exc_spikes.segments[0].spiketrains)
         inh_spike_trains = (pop_inh_spikes.segments[0].spiketrains)
 
@@ -773,8 +848,6 @@ class TestSpiNNakerBalancedNetwork:
         print("Inh spike fingerprint:",spike_fingerprint(pop_inh_spikes.segments[0].spiketrains))
 
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        implementation = "nestml" if use_nestml_neuron or use_nestml_synapse else "builtin"
-
         print(f"Finished {implementation} simulation.")
 
         p.end()
@@ -808,7 +881,11 @@ class TestSpiNNakerBalancedNetwork:
             "pop_inh_spikes": pop_inh_spikes,
 
             "v_neuron": v_neuron,
-            "membranePot": membranePot
+            "membranePot": membranePot,
+
+            "randomize_initial_V_m": randomize_initial_V_m,
+            "packets_per_timestep": packets_per_timestep,
+            "packets_times": packets_times
         }
 
 
