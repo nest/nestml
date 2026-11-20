@@ -499,7 +499,7 @@ static void process_plastic_synapse(synapse_row_plastic_data_t *plastic_region_a
 
 {%- if post_header is defined %}
     /**
-     * update postsynaptic history buffer entries from the time of the last post spike (= `current_time`) to `pre_spike_time`
+     * propagate the postsynaptic trace(s) from the time of the last post spike preceding the pre spike (history entry ``last_post_idx``) to `pre_spike_time`
     **/
 
 
@@ -508,11 +508,16 @@ static void process_plastic_synapse(synapse_row_plastic_data_t *plastic_region_a
     // update variables in the post-history-buffer
 
     post_event_history_t *history = &post_event_history[s.index];
-//    const uint32_t last_post_time = history->times[history->count_minus_one];
 
-    const accum __h = pre_spike_time - current_time;   // XXX: time constants are in ms, so __h should be as well! convert uint32_t to accum type
+    // The postsynaptic trace values are stored in the history at the time of each post spike. The trace to use here is that of the most recent post spike that (after dendritic delay) precedes the presynaptic spike, i.e. the last event inside the window, or, if the window is empty, the event just before the window. Note that this is not necessarily ``history->count_minus_one``, as there may be post spikes after the end of the window, and not necessarily at ``current_time``, which equals ``last_pre_time`` if the window is empty.
+    // After processing the window, ``post_window.next_time`` points one past that event (both if events were processed, see post_events_next(), and if the window was empty, see post_events_get_window_delayed()).
+    const uint32_t last_post_idx = (post_window.next_time - 1) - history->times;
+    const uint32_t last_delayed_post_time = history->times[last_post_idx] + s.delay_dendritic;
 
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_with_origin("synapse_dynamics_process_post_synaptic_event") }}
+    // guard against unsigned underflow (can only happen for the placeholder entry at time 0, when ``pre_spike_time < delay_dendritic``)
+    const accum __h = (pre_spike_time >= last_delayed_post_time) ? (accum) (pre_spike_time - last_delayed_post_time) : 0k;   // XXX: time constants are in ms, so __h should be as well! convert uint32_t to accum type
+
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_with_origin("from_last_post_to_pre") }}
 
 {%-     for sym in metadata[synapse.name]["post_header"].get_internal_symbols() %}
 {%-         if sym.get_symbol_name().startswith("__P") %}
