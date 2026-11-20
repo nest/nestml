@@ -452,7 +452,7 @@ class TestSpiNNakerBalancedNetwork:
 
         yield use_exp_luts
 
-    def run_balanced_network(self, n_neurons, neurons_per_core, poisson_generators_per_core, use_nestml_neuron, use_nestml_synapse, use_static_synapses: bool, poisson_reduction_factor: int = 1, randomize_initial_V_m: bool = RANDOMIZE_INITIAL_V_M):
+    def run_balanced_network(self, n_neurons, neurons_per_core, poisson_generators_per_core, use_nestml_neuron, use_nestml_synapse, use_static_synapses: bool, poisson_reduction_factor: int = 1, randomize_initial_V_m: bool = RANDOMIZE_INITIAL_V_M, use_exp_luts: bool = False):
         assert int(poisson_reduction_factor) == poisson_reduction_factor and poisson_reduction_factor >= 1, "poisson_reduction_factor must be a positive integer"
         poisson_reduction_factor = int(poisson_reduction_factor)
 
@@ -563,10 +563,13 @@ class TestSpiNNakerBalancedNetwork:
 
         # excitatory and inhibitory populations
         implementation = "nestml" if use_nestml_neuron or use_nestml_synapse else "builtin"
+        label_suffix = implementation
+        if implementation == "nestml" and use_exp_luts:
+            label_suffix += "_lut"    # exp LUTs only affect NESTML-generated code
 
         # include the implementation in the population labels, so that SpiNNaker provenance warnings (dropped/late spikes etc.) can be attributed to the right run
-        pop_exc = p.Population(n_exc, neuron_model, label=f"Excitatory_{implementation}", seed=seed)
-        pop_inh = p.Population(n_inh, neuron_model, label=f"Inhibitory_{implementation}", seed=seed + 1)
+        pop_exc = p.Population(n_exc, neuron_model, label=f"Excitatory_{label_suffix}", seed=seed)
+        pop_inh = p.Population(n_inh, neuron_model, label=f"Inhibitory_{label_suffix}", seed=seed + 1)
 
         pop_exc.set(**neuron_parameters)
         pop_inh.set(**neuron_parameters)
@@ -582,9 +585,9 @@ class TestSpiNNakerBalancedNetwork:
         n_stim_inh = int(np.ceil(n_inh / poisson_reduction_factor))
         print(f"Using {n_stim_exc} + {n_stim_inh} Poisson generators (reduction factor q = {poisson_reduction_factor})")
 
-        pop_stim_exc = p.Population(n_stim_exc, p.SpikeSourcePoisson(rate=rate_ext_input), label=f"Stim_Exc_{implementation}", additional_parameters={"seed": seed + 2})
+        pop_stim_exc = p.Population(n_stim_exc, p.SpikeSourcePoisson(rate=rate_ext_input), label=f"Stim_Exc_{label_suffix}", additional_parameters={"seed": seed + 2})
         p.Projection(pop_stim_exc, pop_exc, make_shared_input_connector(n_exc, poisson_reduction_factor), p.StaticSynapse(weight=weights_input, delay=1.), receptor_type=receptor_name_exc)
-        pop_stim_inh = p.Population(n_stim_inh, p.SpikeSourcePoisson(rate=rate_ext_input), label=f"Stim_Inh_{implementation}", additional_parameters={"seed": seed + 3})
+        pop_stim_inh = p.Population(n_stim_inh, p.SpikeSourcePoisson(rate=rate_ext_input), label=f"Stim_Inh_{label_suffix}", additional_parameters={"seed": seed + 3})
         p.Projection(pop_stim_inh, pop_inh, make_shared_input_connector(n_inh, poisson_reduction_factor), p.StaticSynapse(weight=weights_input, delay=1.), receptor_type=receptor_name_exc)
 
         # recurrent connections
@@ -920,7 +923,8 @@ class TestSpiNNakerBalancedNetwork:
                     use_nestml_neuron=True,
                     use_nestml_synapse=True,
                     use_static_synapses=use_static_synapses,
-                    poisson_reduction_factor=poisson_reduction_factor)
+                    poisson_reduction_factor=poisson_reduction_factor,
+                    use_exp_luts=use_exp_luts)
                 results[implementation]["use_exp_luts"] = use_exp_luts
                 analyze_run(results["nestml"])
 
