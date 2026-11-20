@@ -51,6 +51,7 @@ from pynestml.codegeneration.printers.python_stepping_function_function_call_pri
 from pynestml.codegeneration.printers.python_stepping_function_variable_printer import PythonSteppingFunctionVariablePrinter
 from pynestml.codegeneration.printers.python_variable_printer import PythonVariablePrinter
 from pynestml.codegeneration.printers.spinnaker_python_variable_printer import SpiNNakerPythonVariablePrinter
+from pynestml.codegeneration.printers.spinnaker_c_constant_printer import SpinnakerCConstantPrinter
 from pynestml.codegeneration.printers.spinnaker_c_function_call_printer import SpinnakerCFunctionCallPrinter
 from pynestml.codegeneration.printers.spinnaker_c_type_symbol_printer import SpinnakerCTypeSymbolPrinter
 from pynestml.codegeneration.printers.spinnaker_c_variable_printer import SpinnakerCVariablePrinter
@@ -77,7 +78,7 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         super().__init__(options)
 
     def setup_printers(self, for_neuron: bool = True):
-        self._constant_printer = ConstantPrinter()
+        self._constant_printer = SpinnakerCConstantPrinter()    # print floating-point constants as ``accum`` literals where possible, to avoid software floating-point arithmetic
 
         # C/Spinnaker API printers
         self._type_symbol_printer = SpinnakerCTypeSymbolPrinter()
@@ -156,7 +157,7 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         self._ode_toolbox_printer = ODEToolboxExpressionPrinter(
             simple_expression_printer=CSimpleExpressionPrinter(
                 variable_printer=self._ode_toolbox_variable_printer,
-                constant_printer=self._constant_printer,
+                constant_printer=ConstantPrinter(),    # output is parsed by ODE-toolbox (sympy), so no ``k`` suffixes
                 function_call_printer=self._ode_toolbox_function_call_printer))
         self._ode_toolbox_variable_printer._expression_printer = self._ode_toolbox_printer
         self._ode_toolbox_function_call_printer._expression_printer = self._ode_toolbox_printer

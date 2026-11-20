@@ -76,7 +76,7 @@ class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
             raise Exception("rng functions not yet implemented")
 
         if node.get_name() == PredefinedFunctions.GET_WEIGHT:
-                return "(1E3 * " + self._expression_printer.print(node.get_args()[0]) + ")"
+                return "(1000 * " + self._expression_printer.print(node.get_args()[0]) + ")"
 
         function_name = self._print_function_call_format_string(node)
 
