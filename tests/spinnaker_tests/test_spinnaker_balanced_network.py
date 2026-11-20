@@ -116,6 +116,20 @@ def load_projection_connections(filename):
     )
 
 
+def make_shared_input_connector(n_sources: int, n_targets: int):
+    """
+    Connect each target to exactly one source, distributing the targets as evenly as possible over the sources
+    (target ``i`` receives input from source ``i % n_sources``). For ``n_sources == n_targets`` this is equivalent to
+    a OneToOneConnector.
+    """
+    if n_sources == n_targets:
+        return p.OneToOneConnector()
+
+    connections = [[i % n_sources, i] for i in range(n_targets)]
+
+    return p.FromListConnector(connections)
+
+
 def compute_cv(spike_train):
     """
     Compute the coefficient of variation (CV) for a single spike train.
@@ -244,7 +258,7 @@ def print_results(results, comparisons):
 def save_results_to_csv(results, filename):
 
     fieldnames = ["timestamp", "implementation", "seed", "use_static_synapses", "use_exp_luts","N", "g", "rate_ext_input", "neurons_per_core", "poisson_generators_per_core", "t_sim",
-        "exc_firing_rate", "inh_firing_rate", "cv", "execution_time"]
+        "exc_firing_rate", "inh_firing_rate", "cv", "execution_time", "poisson_reduction_factor", "n_poisson_generators"]
 
     file_exists = os.path.isfile(filename)
 
@@ -275,7 +289,8 @@ def save_results_to_csv(results, filename):
                 "inh_firing_rate": result["inh_firing_rate"],
                 "cv": result["cv"],
                 "execution_time": result["execution_time"],
-
+                "poisson_reduction_factor": result["poisson_reduction_factor"],
+                "n_poisson_generators": result["n_poisson_generators"],
             }
 
             writer.writerow(row)
@@ -290,7 +305,7 @@ def plot_membrane_potential(results):
     ax.set_xlabel("Time [ms]")
     ax.set_ylabel("Membrane potential [mV]")
     ax.set_title(f"\nBalanced Network - {results['implementation']} | N={results['n_neurons']}, g={results['g']}, neurons/core={results['neurons_per_core']} \n"
-                 f"input={results['rate_ext_input']} Hz |\n")
+                 f"input={results['rate_ext_input']} Hz, q={results['poisson_reduction_factor']} |\n")
 
     plot_analog_signal(ax, results['v_neuron'].segments[0].filter(name=results['membranePot'])[0])
 
@@ -312,19 +327,19 @@ def plot_raster(results):
     ax[-1].set_xlabel("Time [ms]")
     fig.suptitle(f"Balanced Network - {results['implementation']} | N={results['n_neurons']}, g={results['g']}, "
                  f"neurons/core={results['neurons_per_core']}\n"
-                 f"input={results['rate_ext_input']} Hz | "
+                 f"input={results['rate_ext_input']} Hz, q={results['poisson_reduction_factor']} | "
                  f"CV={results['cv']:.3f}, "
                  f"Exc={results['exc_firing_rate']:.2f} Hz, "
                  f"Inh={results['inh_firing_rate']:.2f} Hz \n")
     fig.tight_layout()
 
     plt.savefig(
-        f"bal_net_N{results['n_neurons']}_g{results['g']}_core{results['neurons_per_core']}_"
+        f"bal_net_N{results['n_neurons']}_g{results['g']}_core{results['neurons_per_core']}_q{results['poisson_reduction_factor']}_"
         f"impl_{results['implementation']}_{results['timestamp']}.png"
     )
 
     plt.savefig(
-        f"bal_net_N{results['n_neurons']}_g{results['g']}_core{results['neurons_per_core']}_"
+        f"bal_net_N{results['n_neurons']}_g{results['g']}_core{results['neurons_per_core']}_q{results['poisson_reduction_factor']}_"
         f"impl_{results['implementation']}_{results['timestamp']}.pdf"
     )
     plt.close("all")
@@ -374,7 +389,10 @@ class TestSpiNNakerBalancedNetwork:
 
         yield use_exp_luts
 
-    def run_balanced_network(self, n_neurons, neurons_per_core, poisson_generators_per_core, use_nestml_neuron, use_nestml_synapse, use_static_synapses: bool):
+    def run_balanced_network(self, n_neurons, neurons_per_core, poisson_generators_per_core, use_nestml_neuron, use_nestml_synapse, use_static_synapses: bool, poisson_reduction_factor: int = 1):
+        assert int(poisson_reduction_factor) == poisson_reduction_factor and poisson_reduction_factor >= 1, "poisson_reduction_factor must be a positive integer"
+        poisson_reduction_factor = int(poisson_reduction_factor)
+
         from python_models8.neuron.implementations.stdp_synapse_nestml_impl import stdp_synapse_nestmlDynamics as stdp_synapse_nestml
         from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml
 
@@ -488,10 +506,20 @@ class TestSpiNNakerBalancedNetwork:
         pop_inh.set(**neuron_parameters)
 
         # external stimulus to exc and inh populations
-        pop_stim_exc = p.Population(n_exc, p.SpikeSourcePoisson(rate=rate_ext_input), label="Stim_Exc", additional_parameters={"seed": seed + 2})
-        p.Projection(pop_stim_exc, pop_exc, p.OneToOneConnector(), p.StaticSynapse(weight=weights_input, delay=1.), receptor_type=receptor_name_exc)
-        pop_stim_inh = p.Population(n_inh, p.SpikeSourcePoisson(rate=rate_ext_input), label="Stim_inh", additional_parameters={"seed": seed + 3})
-        p.Projection(pop_stim_inh, pop_inh, p.OneToOneConnector(), p.StaticSynapse(weight=weights_input, delay=1.), receptor_type=receptor_name_exc)
+        #
+        # Each neuron receives input from exactly one Poisson generator with rate ``rate_ext_input`` and weight
+        # ``weights_input``, independent of ``poisson_reduction_factor`` (q). For q > 1, only ceil(n / q) generators
+        # are instantiated per population and each generator drives (up to) q neurons, so that the total external
+        # input per neuron (rate x weight x in-degree) is unchanged; only the out-degree of the generators changes.
+        # Neurons that share a generator receive identical (fully correlated) external input.
+        n_stim_exc = int(np.ceil(n_exc / poisson_reduction_factor))
+        n_stim_inh = int(np.ceil(n_inh / poisson_reduction_factor))
+        print(f"Using {n_stim_exc} + {n_stim_inh} Poisson generators (reduction factor q = {poisson_reduction_factor})")
+
+        pop_stim_exc = p.Population(n_stim_exc, p.SpikeSourcePoisson(rate=rate_ext_input), label="Stim_Exc", additional_parameters={"seed": seed + 2})
+        p.Projection(pop_stim_exc, pop_exc, make_shared_input_connector(n_stim_exc, n_exc), p.StaticSynapse(weight=weights_input, delay=1.), receptor_type=receptor_name_exc)
+        pop_stim_inh = p.Population(n_stim_inh, p.SpikeSourcePoisson(rate=rate_ext_input), label="Stim_inh", additional_parameters={"seed": seed + 3})
+        p.Projection(pop_stim_inh, pop_inh, make_shared_input_connector(n_stim_inh, n_inh), p.StaticSynapse(weight=weights_input, delay=1.), receptor_type=receptor_name_exc)
 
         # recurrent connections
         if (
@@ -762,6 +790,8 @@ class TestSpiNNakerBalancedNetwork:
             "rate_ext_input": rate_ext_input,
             "neurons_per_core": neurons_per_core,
             "poisson_generators_per_core": poisson_generators_per_core,
+            "poisson_reduction_factor": poisson_reduction_factor,
+            "n_poisson_generators": n_stim_exc + n_stim_inh,
 
             "exc_firing_rate": exc_firing_rate,
             "inh_firing_rate": inh_firing_rate,
@@ -777,7 +807,7 @@ class TestSpiNNakerBalancedNetwork:
         }
 
 
-    def run_experiment(self, implementations: List[str], n_neurons: int, neurons_per_core: int, poisson_generators_per_core: int, use_exp_luts: bool):
+    def run_experiment(self, implementations: List[str], n_neurons: int, neurons_per_core: int, poisson_generators_per_core: int, use_exp_luts: bool, poisson_reduction_factor: int = 1):
         """
         Run reference and NESTML, compare their results,
         save results and generate plots.
@@ -795,7 +825,8 @@ class TestSpiNNakerBalancedNetwork:
                     poisson_generators_per_core=poisson_generators_per_core,
                     use_nestml_neuron=False,
                     use_nestml_synapse=False,
-                    use_static_synapses=use_static_synapses)
+                    use_static_synapses=use_static_synapses,
+                    poisson_reduction_factor=poisson_reduction_factor)
 
                 analyze_run(results["builtin"])
 
@@ -806,7 +837,8 @@ class TestSpiNNakerBalancedNetwork:
                     poisson_generators_per_core=poisson_generators_per_core,
                     use_nestml_neuron=True,
                     use_nestml_synapse=True,
-                    use_static_synapses=use_static_synapses)
+                    use_static_synapses=use_static_synapses,
+                    poisson_reduction_factor=poisson_reduction_factor)
                 results[implementation]["use_exp_luts"] = use_exp_luts
                 analyze_run(results["nestml"])
 
@@ -829,11 +861,12 @@ class TestSpiNNakerBalancedNetwork:
     @pytest.mark.parametrize("n_neurons", [256, 512, 1024, 2048])
     @pytest.mark.parametrize("neurons_per_core", [128])
     @pytest.mark.parametrize("poisson_generators_per_core", [128])  # was: 64
-    def test_spinnaker_balanced_network(self, generate_code, n_neurons, neurons_per_core, poisson_generators_per_core):
+    @pytest.mark.parametrize("poisson_reduction_factor", [1])    # use 1/q times the number of Poisson generators (each generator drives q neurons)
+    def test_spinnaker_balanced_network(self, generate_code, n_neurons, neurons_per_core, poisson_generators_per_core, poisson_reduction_factor):
         use_exp_luts = generate_code
         assert use_exp_luts in [True, False]
 
-        results, comparisons = self.run_experiment(["builtin", "nestml"], n_neurons=n_neurons, neurons_per_core=neurons_per_core, poisson_generators_per_core=poisson_generators_per_core, use_exp_luts=use_exp_luts)
+        results, comparisons = self.run_experiment(["builtin", "nestml"], n_neurons=n_neurons, neurons_per_core=neurons_per_core, poisson_generators_per_core=poisson_generators_per_core, use_exp_luts=use_exp_luts, poisson_reduction_factor=poisson_reduction_factor)
 
         print_results(results, comparisons)
         save_results_to_csv(results, csv_results_filename)

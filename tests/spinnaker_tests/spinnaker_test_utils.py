@@ -296,6 +296,7 @@ def archive_run(profile_path, result):
         "rate_ext_input": result["rate_ext_input"],
         "neurons_per_core": result["neurons_per_core"],
         "poisson_generators_per_core": result["poisson_generators_per_core"],
+        "poisson_reduction_factor": result.get("poisson_reduction_factor", 1),
         "t_sim": result["t_sim"],
         "source_report_directory": str(profile_path.parent),
         "files": {
