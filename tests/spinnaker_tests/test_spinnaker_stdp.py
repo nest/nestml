@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# test_spinnaker_stdp_window.py
+# test_spinnaker_stdp.py
 #
 # This file is part of NEST.
 #
@@ -23,6 +23,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
+import time
 
 from pynestml.frontend.pynestml_frontend import generate_spinnaker_target
 
@@ -51,8 +52,8 @@ def builtin_weight_resolution():
     return 2.**(ring_buffer_shift + 1 - 16)
 
 
-class TestSpiNNakerSTDPWindow:
-    """Test that STDP synapse produces correct STDP window"""
+class TestSpiNNakerSTDP:
+    """Tests for the NESTML STDP synapse on SpiNNaker: postsynaptic potentials, STDP window, weight drift over repeated pairings, and sequences of spikes with multiple pre- and postsynaptic neurons"""
 
     @pytest.fixture
     def generate_code(self, request):
@@ -265,13 +266,13 @@ class TestSpiNNakerSTDPWindow:
         use_exp_luts = generate_code
         assert use_exp_luts in [True, False]
 
-        self._run_stdp_window(results_key=use_exp_luts, use_builtin=False)
+        self._run_stdp_window(results_key=use_exp_luts, use_builtin=False, use_exp_luts=use_exp_luts)
 
     def test_stdp_window_builtin(self):
-        r"""Run the STDP window test with the sPyNNaker built-in ``IF_curr_exp`` neuron and ``STDPMechanism``, for comparison"""
-        self._run_stdp_window(results_key="builtin", use_builtin=True)
+        r"""Run the STDP window test with the sPyNNaker built-in ``IF_curr_exp`` neuron and ``STDPMechanism``, for comparison. Note that the built-in synapse always uses exp() LUTs."""
+        self._run_stdp_window(results_key="builtin", use_builtin=True, use_exp_luts=True)
 
-    def _run_stdp_window(self, results_key, use_builtin: bool):
+    def _run_stdp_window(self, results_key, use_builtin: bool, use_exp_luts: bool):
         syn_opts = {
             "delay": 1.,  # dendritic delay [ms]
             "tau_pre_trace": 20.,
@@ -330,8 +331,13 @@ class TestSpiNNakerSTDPWindow:
             # the built-in synapse truncates the weight to its (coarser) resolution after each presynaptic spike, and uses Q11 LUTs and Q11 traces
             atol = len(pre_spike_times) * builtin_weight_resolution() + 3 * syn_opts["lambda"] / 2048
         else:
-            atol = 2**-15    # one LSB of the S16.15 (accum) format in which NESTML weights are stored
-        np.testing.assert_allclose(sim_weights, ref_weights, atol=atol, rtol=np.inf)
+            # allow for one LSB of the S16.15 (accum) format in which NESTML weights are stored per weight update (one per pre and one per post spike), plus (if LUTs are used) the worst-case LUT error per update
+            n_weight_updates = len(pre_spike_times) + 1
+            atol_per_update = 2**-15
+            if use_exp_luts:
+                atol_per_update += 2 * syn_opts["lambda"] / 2048
+            atol = n_weight_updates * atol_per_update
+        np.testing.assert_allclose(sim_weights, ref_weights, atol=atol, rtol=0.)
 
     def run_sim_with_weight_readout(self, pre_spike_times, post_spike_times, syn_opts, readout_times, initial_weight=1., use_builtin=False):
         r"""Run a single pre/post neuron pair, and read out the weight of the STDP synapse at each of the times in ``readout_times`` by running the simulation in chunks"""
@@ -500,50 +506,15 @@ class TestSpiNNakerSTDPWindow:
         atol = lsb + n_pairings_processed * atol_per_pairing
         assert np.all(np.abs(sim_weights - ref_weights) <= atol)
 
+    def compute_weight_from_spike_trains(self, syn_opts, pre_spike_times, post_spike_times, initial_weight=1.):
+        r"""Compute the reference weight change for the given pre- and postsynaptic spike times (both as emitted by the neurons, i.e. without dendritic delay)"""
+        return self.run_reference_simulation(syn_opts,
+                                             times_spikes_pre=pre_spike_times,
+                                             times_spikes_post_syn_persp=np.array(post_spike_times) + syn_opts["delay"],
+                                             initial_weight=initial_weight)
 
-    """def run_reference_simulation(self,syn_opts,
-                                 times_spikes_pre=None,
-                                 times_spikes_post=None,
-                                 fname_snip=""):
-
-        log = {}
-        weight = syn_opts["w_init"]
-
-        last_t_sp = 0.
-        log[0.] = {"weight": weight}
-
-        for spk_time in np.unique(times_spikes_syn_persp):
-            if spk_time in times_spikes_post_syn_persp:
-                pre_tr = get_trace_at(spk_time, times_spikes_pre,
-                                   syn_opts["tau_plus"], before_increment=False, extra_debug=True)
-                old_weight = weight
-                weight = weight + pre_tr * syn_opts["lambda"]
-                print("[REF] t = " + str(spk_time) + ": facilitating from " + str(old_weight) + " to " + str(weight) + " with pre tr = " + str(pre_tr))
-
-            if spk_time in times_spikes_pre:
-                post_tr = get_trace_at(spk_time, times_spikes_post_syn_persp,
-                                  syn_opts["tau_minus"], before_increment=False, extra_debug=True)
-                old_weight = weight
-                weight = weight - post_tr * syn_opts["lambda"]
-                print("[REF] t = " + str(spk_time) + ": depressing from " + str(old_weight) + " to " + str(weight) + " with post tr = " + str(post_tr))
-
-            log[spk_time] = {"weight": weight}
-
-            last_t_sp = spk_time
-
-        timevec = np.sort(list(log.keys()))
-        weight_reference = np.array([log[k]["weight"] for k in timevec])
-
-        return timevec, weight_reference"""
-
-    def compute_weight_from_spike_trains(self, syn_opts, pre_spike_times, post_spike_times):
-        dw = self.run_reference_simulation(syn_opts,
-                                                                  times_spikes_pre=pre_spike_times,
-                                                                  times_spikes_post_syn_persp=np.array(post_spike_times) + syn_opts["delay"],
-                                                                  initial_weight=1.)
-        return dw
-
-    '''def test_multiple_stdp_synapses(self):
+    @pytest.mark.parametrize("generate_code", [True, False], indirect=True)
+    def test_multiple_stdp_synapses(self, generate_code):
         r"""Check that multiple STDP synapses onto the same postsynaptic neuron do not influence one another."""
 
         # XXX: TODO: add static synapses too!!!!!! and check that they don´t change or change anything else!
@@ -557,19 +528,36 @@ class TestSpiNNakerSTDPWindow:
             "tau_post_trace": 20.,
             "lambda": .01}
 
-        sim_weights = []
-        spike_time_axis = []
         initial_weight = 1.
 
-        #pre_spike_times = [250, 1000]
         n_pre_spike_times = 10
         n_post_spike_times = 10
-        pre_spike_times = [list(10. + np.cumsum(np.random.randint(low=2, high=50, size=n_pre_spike_times))) for _ in range(n_pre_neurons)]
-        post_spike_times = [list(10. + np.cumsum(np.random.randint(low=2, high=50, size=n_post_spike_times))) for _ in range(n_post_neurons)]
-        assert len([t_sp for t_sp in pre_spike_times + post_spike_times if t_sp in pre_spike_times and t_sp in post_spike_times]) == 0
+
+        rng = np.random.default_rng(seed=123)
+
+        def draw_spike_times(n_spike_times):
+            return list(10. + np.cumsum(rng.integers(low=2, high=50, size=n_spike_times)))
+
+        def has_coincidences(pre_spike_times, post_spike_times_):
+            r"""Check whether any pre spike (of any presynaptic neuron) coincides with a spike of the given postsynaptic spike train, either at the input (``t_pre == t_post``) or in the synaptic perspective (``t_pre == t_post + delay``). In the latter case, the order in which the pre and post spike are processed (and hence the weight change) is ambiguous."""
+            all_pre_spike_times = np.hstack(pre_spike_times)
+            return np.intersect1d(all_pre_spike_times, post_spike_times_).size > 0 \
+                or np.intersect1d(all_pre_spike_times, np.array(post_spike_times_) + syn_opts["delay"]).size > 0
+
+        # draw the spike train of each postsynaptic neuron anew until it has no coincidences with the pre spike times. Each draw succeeds with a probability of roughly 10% for the parameters used here, so 1000 attempts are plenty. Deterministic, because the random number generator is seeded.
+        pre_spike_times = [draw_spike_times(n_pre_spike_times) for _ in range(n_pre_neurons)]
+        post_spike_times = []
+        for _ in range(n_post_neurons):
+            for _ in range(1000):
+                post_spike_times_ = draw_spike_times(n_post_spike_times)
+                if not has_coincidences(pre_spike_times, post_spike_times_):
+                    break
+            assert not has_coincidences(pre_spike_times, post_spike_times_), "Could not generate post spike times without coincidences with the pre spike times"
+            post_spike_times.append(post_spike_times_)
 
         sim_time = max(np.max(pre_spike_times), np.max(post_spike_times))
 
+        # one extra presynaptic spike at the end to flush the deferred weight updates for the last postsynaptic spikes
         for pre_spike_times_ in pre_spike_times:
             pre_spike_times_.append(sim_time + 10)
 
@@ -577,16 +565,85 @@ class TestSpiNNakerSTDPWindow:
 
         w, actual_pre_spike_times, actual_post_spike_times = self.run_sim(pre_spike_times,
                                                                           post_spike_times,
+                                                                          syn_opts=syn_opts,
+                                                                          initial_weight=initial_weight,
                                                                           n_pre_neurons=n_pre_neurons,
                                                                           n_post_neurons=n_post_neurons,
                                                                           sim_time=sim_time)
 
-        atol = 2**-15    # one LSB of the S16.15 (accum) format in which NESTML weights are stored
+        # allow for one LSB of the S16.15 (accum) format in which NESTML weights are stored per weight update (one per pre and one per post spike), plus (if LUTs are used) the worst-case LUT error per update
+        use_exp_luts = generate_code
+        atol_per_update = 2**-15
+        if use_exp_luts:
+            atol_per_update += 2 * syn_opts["lambda"] / 2048
+
         for pre_idx in range(n_pre_neurons):
             assert len(actual_pre_spike_times[pre_idx]) > n_pre_spike_times // 2
             for post_idx in range(n_post_neurons):
                 assert len(actual_post_spike_times[post_idx]) > n_post_spike_times // 2
+                n_weight_updates = len(actual_pre_spike_times[pre_idx]) + len(actual_post_spike_times[post_idx])
                 np.testing.assert_allclose(w[pre_idx, post_idx],
-                                           initial_weight + self.compute_weight_from_spike_trains(syn_opts, np.array(actual_pre_spike_times[pre_idx]), np.array(actual_post_spike_times[post_idx])),
-                                           atol=atol, rtol=np.inf)
-'''
+                                           initial_weight + self.compute_weight_from_spike_trains(syn_opts, np.array(actual_pre_spike_times[pre_idx]), np.array(actual_post_spike_times[post_idx]), initial_weight=initial_weight),
+                                           atol=n_weight_updates * atol_per_update, rtol=0.)
+
+    def run_psp_sim(self, pre_spike_times, weight=123, simtime=50):
+        r"""Run a single spike source, connected to a single NESTML neuron by a NESTML STDP synapse, and record the postsynaptic membrane potential and synaptic current"""
+        import pyNN.spiNNaker as p
+
+        from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml as iaf_psc_exp_neuron_nestml
+        from python_models8.neuron.implementations.stdp_synapse_nestml_impl import stdp_synapse_nestmlDynamics as stdp_synapse_nestml
+
+        p.setup(timestep=1.0)
+        exc_input = "exc_spikes"
+
+        #inputs for presynaptic neuron
+        pre_input = p.Population(1, p.SpikeSourceArray(spike_times=[0]), label="pre_input")
+        post_neuron = p.Population(1, iaf_psc_exp_neuron_nestml(), label="post_neuron")
+
+        stdp_model = stdp_synapse_nestml(weight=weight)
+        stdp_projection = p.Projection(pre_input, post_neuron, p.OneToOneConnector(), receptor_type=exc_input, synapse_type=stdp_model)
+
+        #record spikes
+        pre_input.record(["spikes"])
+        post_neuron.record(["spikes"])
+        post_neuron.record(["V_m"])
+        post_neuron.record(["I_syn_exc"])
+
+        pre_input.set(spike_times=pre_spike_times)
+
+        p.run(simtime)
+
+        v_post_neuron = post_neuron.get_data("V_m")
+        times = v_post_neuron.segments[0].analogsignals[0].times
+        v_post_neuron = np.array(v_post_neuron.segments[0].filter(name="V_m")[0])
+        i_syn_exc_post_neuron = post_neuron.get_data("I_syn_exc")
+        i_syn_exc_post_neuron = np.array(i_syn_exc_post_neuron.segments[0].filter(name="I_syn_exc")[0])
+
+        p.end()
+
+        return times, v_post_neuron, i_syn_exc_post_neuron
+
+    @pytest.mark.parametrize("generate_code", [True, False], indirect=True)
+    @pytest.mark.parametrize("weight", [1234])
+    #@pytest.mark.parametrize("weight", [123, 1234])
+    def test_stdp_psp(self, generate_code, weight):
+        r"""Check that a spike transmitted through the STDP synapse elicits a postsynaptic current of the size of the synaptic weight"""
+        pre_spike_times = [10.]
+        times, v_post_neuron, i_syn_exc_post_neuron = self.run_psp_sim(pre_spike_times, weight=weight)
+
+        fig, ax = plt.subplots(nrows=2, figsize=figsize(4.8 / 6.4))
+        ax[0].plot(times, v_post_neuron, label="V_m")
+        ax[1].plot(times, i_syn_exc_post_neuron, label="I_exc")
+        for _ax in ax:
+            _ax.grid(True)
+            _ax.legend()
+            _ax.set_xlim(np.amin(times), np.amax(times))
+
+        ax[0].get_xticklabels([])
+        ax[-1].set_xlabel("Time [ms]")
+
+        fig.savefig("test_spinnaker_stdp_psp_" + str(time.strftime("%Y-%m-%d %H:%M:%S")) + ".png")
+        plt.close(fig)
+
+        assert len(np.unique(v_post_neuron)) > 1, "No PSPs detected in postsynaptic membrane potential"
+        np.testing.assert_allclose(np.amax(i_syn_exc_post_neuron), weight)
