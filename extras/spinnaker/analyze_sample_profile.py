@@ -60,6 +60,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.ticker import FormatStrFormatter, LogLocator, NullFormatter
 
 # shared figure style, kept with the SpiNNaker tests
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tests" / "spinnaker_tests"))
@@ -678,6 +679,111 @@ def plot_sum_core_activity(rows):
     print(f"Sum core activity plot saved to: {output_path}")
 
 
+def plot_strong_scaling(rows):
+    """Make strong-scaling plots: for each fixed network size N, the number of cores is the "compute resource". On SpiNNaker the number of cores is not set in advance; it follows from the mapping of the network (for a fixed N, it is set indirectly by sweeping ``neurons_per_core``). This function reads the number of cores that the mapping actually allocated (``core_count`` in the profiling CSV).
+
+    The SpiNNaker simulation always runs in (scaled) real time, so wall-clock time is not useful as "time to solution". Instead, the mean per-core activity (the summed core activity divided by the number of cores, scaled by the time scale factor) is used as a proxy. It is the fraction of each timestep that a core needs to do its share of the work. Perfect strong scaling means this falls as 1/cores, i.e. the summed core activity (the total work) stays the same.
+
+    Top panel: mean per-core activity vs number of cores, log-log, with the ideal 1/cores line (dashed) starting from the smallest core count of each implementation.
+
+    Bottom panel: parallel efficiency, i.e. summed core activity at the smallest core count divided by summed core activity at ``n`` cores, as a percentage (100% = ideal).
+
+    Repeated runs with the same number of cores are shown as mean and standard deviation. One figure is made for each N for which at least one implementation was run with two or more different core counts."""
+    # data[N][implementation] = list of (core count, summed core activity [%], scaled by the time scale factor)
+    data = {}
+
+    for row in rows:
+        implementation = get_experiment_label(row)
+
+        if implementation not in IMPLEMENTATION_LABELS:
+            continue
+
+        try:
+            neurons = int(row["N"])
+            core_count = int(row["core_count"])
+            sum_activity = get_row_timescale_factor(row) * float(row["sum_core_activity_percent"])
+        except (ValueError, TypeError, KeyError):
+            continue
+
+        if core_count <= 0:
+            continue
+
+        data.setdefault(neurons, {}).setdefault(implementation, []).append((core_count, sum_activity))
+
+    scalable_sizes = [neurons for neurons, per_implementation in data.items()
+                      if any(len({core_count for core_count, _ in values}) > 1 for values in per_implementation.values())]
+
+    if not scalable_sizes:
+        print("No strong-scaling data: for each N, every implementation ran with only one core count. To get a strong-scaling plot, sweep neurons_per_core with N held fixed.")
+        return
+
+    for neurons in sorted(scalable_sizes):
+        fig, (ax, ax_eff) = plt.subplots(2, 1, sharex=True, figsize=figsize(9 / 9), gridspec_kw={"height_ratios": [2, 1]})
+        all_core_counts = set()
+
+        for implementation in IMPLEMENTATION_LABELS:   # fixed order, so that colours are consistent between figures
+            values = data[neurons].get(implementation)
+            if not values:
+                continue
+
+            grouped = {}
+            for core_count, sum_activity in values:
+                grouped.setdefault(core_count, []).append(sum_activity)
+
+            core_counts = np.array(sorted(grouped), dtype=float)
+            all_core_counts.update(grouped)
+            sum_means = np.array([np.mean(grouped[n]) for n in sorted(grouped)])
+            sum_stds = np.array([np.std(grouped[n], ddof=1) if len(grouped[n]) > 1 else 0. for n in sorted(grouped)])
+
+            # mean per-core activity ("time to solution" proxy)
+            per_core_means = sum_means / core_counts
+            per_core_stds = sum_stds / core_counts
+
+            errorbar = ax.errorbar(core_counts, per_core_means, yerr=per_core_stds, fmt="o-", capsize=4, label=IMPLEMENTATION_LABELS[implementation])
+            color = errorbar[0].get_color()
+
+            if len(core_counts) < 2:
+                continue
+
+            # ideal strong scaling: total work stays the same as at the smallest core count
+            ideal = sum_means[0] / core_counts
+            ax.plot(core_counts, ideal, "--", color=color, alpha=0.6)
+
+            # parallel efficiency: E(n) = (T(n_0) * n_0) / (T(n) * n) = sum activity(n_0) / sum activity(n)
+            efficiency = 100. * sum_means[0] / sum_means
+            efficiency_std = efficiency * sum_stds / sum_means
+            ax_eff.errorbar(core_counts, efficiency, yerr=efficiency_std, fmt="o-", capsize=4, color=color)
+
+        ax.plot([], [], "--", color="gray", alpha=0.6, label="Ideal")   # legend entry for the ideal-scaling lines
+        ax.set_xscale("log", base=2)
+        ax.set_yscale("log")
+        ax.yaxis.set_major_locator(LogLocator(base=10, subs=(1., 2., 5.)))
+        ax.yaxis.set_major_formatter(FormatStrFormatter("%g"))
+        ax.yaxis.set_minor_formatter(NullFormatter())
+        ax.set_ylabel("Mean core activity [%]")
+        set_title(ax, f"SpiNNaker Strong Scaling (N = {neurons})")
+        ax.grid(True, which="both", alpha=0.3)
+        ax.legend()
+
+        ax_eff.axhline(100., color="gray", linestyle="--", alpha=0.6)
+        ax_eff.set_xlabel("Number of cores")
+        ax_eff.set_ylabel("Parallel efficiency [%]")
+        ax_eff.grid(True, which="both", alpha=0.3)
+
+        # label the core counts that were actually used, instead of powers of two
+        ticks = sorted(all_core_counts)
+        ax_eff.set_xticks(ticks)
+        ax_eff.set_xticklabels([str(n) for n in ticks])
+        ax_eff.xaxis.set_minor_locator(plt.NullLocator())
+
+        fig.tight_layout()
+        output_path = BASE_DIR / f"sample_profile_strong_scaling_N{neurons}.png"
+        fig.savefig(output_path, dpi=300)
+        plt.close(fig)
+
+        print(f"Strong scaling plot saved to: {output_path}")
+
+
 def plot_metric_vs_neurons(data, ylabel, title, output_path):
     """Plot a metric against the number of neurons for each implementation, with a bottom panel showing the metric relative to the built-in implementation. ``data`` maps an experiment label (see ``get_experiment_label()``) to a list of ``(number of neurons, value)`` tuples; repeated runs with the same number of neurons are shown as mean and standard deviation."""
     # mean and standard deviation across repeated runs, for each implementation and number of neurons
@@ -1005,6 +1111,7 @@ def main():
 
     rows = load_profiling_data()
     plot_sum_core_activity(rows)
+    plot_strong_scaling(rows)
     plot_sdram_usage(rows, include_system_cores=True)
     plot_sdram_usage(rows, include_system_cores=False)
     # plot_core_activity_by_neurons(rows)

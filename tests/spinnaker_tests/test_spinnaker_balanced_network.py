@@ -954,10 +954,11 @@ class TestSpiNNakerBalancedNetwork:
 
 
     @pytest.mark.parametrize("generate_code", [True, False], indirect=True)
-    @pytest.mark.parametrize("n_neurons", [256, 512, 1024, 2048])
-    @pytest.mark.parametrize("neurons_per_core", [128])
-    @pytest.mark.parametrize("poisson_generators_per_core", [128])  # was: 64
-    @pytest.mark.parametrize("poisson_reduction_factor", [1])    # use 1/q times the number of Poisson generators (each generator drives q neurons)
+    @pytest.mark.parametrize("n_neurons", [256])
+    # @pytest.mark.parametrize("neurons_per_core", [32])
+    @pytest.mark.parametrize("neurons_per_core", [16, 32, 64])
+    @pytest.mark.parametrize("poisson_generators_per_core", [32])
+    @pytest.mark.parametrize("poisson_reduction_factor", [4])    # use 1/q times the number of Poisson generators (each generator drives q neurons)
     def test_spinnaker_balanced_network(self, generate_code, n_neurons, neurons_per_core, poisson_generators_per_core, poisson_reduction_factor):
         use_exp_luts = generate_code
         assert use_exp_luts in [True, False]
