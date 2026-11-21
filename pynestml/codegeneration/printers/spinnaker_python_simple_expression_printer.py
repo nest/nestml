@@ -19,8 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from spinn_front_end_common.interface.ds import DataType
-
 from pynestml.codegeneration.printers.simple_expression_printer import SimpleExpressionPrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_node import ASTNode
@@ -35,11 +33,19 @@ class SpinnakerPythonSimpleExpressionPrinter(SimpleExpressionPrinter):
 
     def print_simple_expression(self, node: ASTSimpleExpression) -> str:
         if node.is_numeric_literal_with_unit():
-            if self._variable_printer.print(node.get_variable()) in ["1", "1.", "1.0"]:
-                return str(node.get_numeric_literal())
+            factor = 1
+            try:
+                variable = node.get_variable()
+                factor = NESTUnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit())
+            except BaseException:
+                pass
 
-            return str(node.get_numeric_literal()) + " * " + \
-                self._variable_printer.print(node.get_variable())
+            try:
+                factor = NESTUnitConverter.get_factor(astropy.units.Unit(str(node.unitType)))
+            except BaseException:
+                pass
+
+            return self._constant_printer.print_constant(factor * node.get_numeric_literal())
 
         if isinstance(node, ASTVariable):
             return self._variable_printer.print(node.get_variable())
@@ -48,6 +54,7 @@ class SpinnakerPythonSimpleExpressionPrinter(SimpleExpressionPrinter):
             return str(node.get_numeric_literal())
 
         if node.is_inf_literal:
+            from spinn_front_end_common.interface.ds import DataType
             return str(DataType.S1615.max)  # Max value of s1615 datatype
 
         if node.is_string():
