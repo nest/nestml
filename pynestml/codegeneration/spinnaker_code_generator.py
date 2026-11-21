@@ -67,6 +67,8 @@ from pynestml.meta_model.ast_model import ASTModel
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.string_utils import removesuffix
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 
@@ -322,6 +324,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
       - ``"round_stochastic"``: ``MULT_ROUND_STOCHASTIC_ACCUM()`` from spinn_common's ``round.h``; stochastic rounding, unbiased in expectation even when the same product is computed repeatedly.
 
       The rounding variants are more expensive (in terms of CPU cycles) than the regular ``*`` operator.
+    - **precompute_reciprocals**: If True (default), divisions by constants (expressions that only depend on parameters) in the synaptic propagators, such as the ``tau`` in ``exp(-__h / tau)``, are replaced by multiplications with reciprocals that are precomputed on the host, as SpiNNaker does not have a hardware divider. The reciprocals are added to the synapse model as internals. If ``use_exp_luts`` is True, the arguments of ``exp()`` are left as they are, because the look-up tables rely on them being of the form ``-a / b``. See :py:class:`~pynestml.transformers.precompute_reciprocals_transformer.PrecomputeReciprocalsTransformer`.
     """
 
     codegen_cpp: Optional[NESTCodeGenerator] = None
@@ -329,6 +332,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
     _default_options = {
         "use_exp_luts": False,
         "fixed_point_multiplication": "gcc",
+        "precompute_reciprocals": True,
 
         "delay_variable": {},
         "weight_variable": {},
@@ -400,6 +404,11 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         import copy
         options_copy = copy.deepcopy(options)
         options_copy2 = copy.deepcopy(options)
+
+        # reciprocals are precomputed by this class, for the synapse headers only; do not pass the option on to the NEST code generator, which would otherwise (only on the C side) also rewrite the propagators of the synapse model itself
+        options_copy.pop("precompute_reciprocals", None)
+        options_copy2.pop("precompute_reciprocals", None)
+
         ret = super().set_options(options)
         self.codegen_cpp.set_options(options_copy)
         self.codegen_py.set_options(options_copy2)
@@ -453,6 +462,10 @@ class SpiNNakerCodeGenerator(CodeGenerator):
 
                 model.accept(symbol_table_visitor)
 
+        if self.get_option("precompute_reciprocals"):
+            for synapse in synapses:
+                self._precompute_reciprocals_for_synapse_headers(synapse, metadata)
+
         for model in models:
             print("SpiNNakerCodeGenerator::generate_code(): model = " + str(model.name))
             if "header_for__" in model.name:
@@ -476,3 +489,45 @@ class SpiNNakerCodeGenerator(CodeGenerator):
                 assert model in synapses
                 self.codegen_py.setup_printers(for_neuron=False)
             self.codegen_py.generate_code([cloned_model], metadata=metadata)
+
+    def _precompute_reciprocals_for_synapse_headers(self, synapse: ASTModel, metadata: Dict[str, Dict[str, Any]]) -> None:
+        r"""Replace divisions by constants in the propagators of the pre- and postsynaptic headers of the synapse by multiplications with precomputed reciprocals.
+
+        The propagators of the headers are evaluated on the SpiNNaker core, for a variable timestep ``__h`` (the time since the last spike), so the reciprocals are added as internals to the header model. The header parameters are copies of synapse parameters (with the suffix ``__for__<synapse name>``), and they are printed as references to the synapse parameters in ``plasticity_weight_region_data``; in the same way, each reciprocal is also added as an internal to the synapse model itself, so that it is computed on the host and written to SDRAM, and the header internal is printed as a reference to it (see :py:class:`SpinnakerSynapseCVariablePrinter`).
+        """
+        from pynestml.transformers.precompute_reciprocals_transformer import PrecomputeReciprocalsTransformer
+
+        if synapse.name not in metadata.keys():
+            return
+
+        suffix = "__for__" + synapse.get_name()
+        synapse_parameter_names = set([var.get_name() for var in synapse.get_parameter_variables()])
+        existing_internals = {sym.get_symbol_name(): str(sym.get_declaring_expression()) for sym in synapse.get_internal_symbols()}
+
+        for header_key, prefix in [("pre_header", "__inv_pre_"), ("post_header", "__inv_post_")]:
+            if header_key not in metadata[synapse.name].keys() or metadata[synapse.name][header_key] is None:
+                continue
+
+            header = metadata[synapse.name][header_key]
+            transformer = PrecomputeReciprocalsTransformer({"skip_exp_arguments": self.get_option("use_exp_luts"),
+                                                            "prefix": prefix})
+            transformer.transform([header], metadata)
+
+            for header_name, header_denominator in metadata[header.name]["precomputed_reciprocals"].items():
+                name = removesuffix(header_name, suffix)
+                denominator = PrecomputeReciprocalsTransformer.strip_suffix_from_variable_names(header_denominator, suffix)
+                for var in denominator.get_variables():
+                    assert var.get_name() in synapse_parameter_names, "Reciprocal \"" + header_name + "\" depends on variable \"" + var.get_name() + "\", which is not a parameter of the synapse \"" + synapse.get_name() + "\""
+
+                decl_expr = "1.0 / (" + str(denominator) + ")"
+                if name in existing_internals.keys():
+                    assert existing_internals[name].replace(" ", "") == decl_expr.replace(" ", ""), "Synapse \"" + synapse.get_name() + "\" already has an internal named \"" + name + "\""
+                    continue
+
+                ASTUtils.add_declaration_to_internals(synapse, name, decl_expr, run_symboltable_visitor=False)
+                existing_internals[name] = decl_expr
+
+                Logger.log_message(synapse, None, "Precomputing reciprocal " + name + " = " + decl_expr + " on the host for use in " + header.get_name(), None, LoggingLevel.INFO)
+
+        synapse.accept(ASTParentVisitor())
+        synapse.accept(ASTSymbolTableVisitor())

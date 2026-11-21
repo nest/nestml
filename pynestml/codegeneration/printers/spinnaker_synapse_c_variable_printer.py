@@ -72,6 +72,10 @@ class SpinnakerSynapseCVariablePrinter(SpinnakerCVariablePrinter):
             if variable.name in [var.name for var in model.get_parameter_variables()]:
                 # this is a parameter
                 return SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols, for_synapse=True) % variable_name.split("__for_")[0]
+
+            if not variable.name.startswith("__P") and variable.name in [var.name for block in model.get_internals_blocks() for decl in block.get_declarations() for var in decl.get_variables()]:
+                # this is an internal (for instance, a precomputed reciprocal, see PrecomputeReciprocalsTransformer); like the parameters, the internals of a synapse header are stored in the synapse under their name without the suffix
+                return SPINNAKERCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols, for_synapse=True) % variable_name.split("__for_")[0]
         except:
             pass
 

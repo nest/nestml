@@ -66,6 +66,7 @@ from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.transformers.precompute_reciprocals_transformer import PrecomputeReciprocalsTransformer
 from pynestml.transformers.synapse_post_neuron_transformer import SynapsePostNeuronTransformer
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
@@ -116,6 +117,7 @@ class NESTCodeGenerator(CodeGenerator):
     - **linear_time_invariant_spiking_input_ports**: A list of spiking input ports which can be treated as linear and time-invariant; this implies that, for the given port(s), the weight of all spikes received within a timestep can be added together, improving memory consumption and runtime performance. Use with caution; for example, this is not compatible with using a single input port for, depending on the sign of the weight of the spike event, processing both inhibitory vs. excitatory spikes.
     - **redirect_build_output**: An optional boolean key for redirecting the build output. Setting the key to ``True``, two files will be created for redirecting the ``stdout`` and the ``stderr`. The ``target_path`` will be used as the default location for creating the two files.
     - **build_output_dir**: An optional string key representing the new path where the files corresponding to the output of the build phase will be created. This key requires that the ``redirect_build_output`` is set to ``True``.
+    - **precompute_reciprocals**: If True, rewrite divisions by constants (expressions that depend only on parameters) in the propagators into multiplications by precomputed reciprocals, which are added to the model as internals. See :py:class:`~pynestml.transformers.precompute_reciprocals_transformer.PrecomputeReciprocalsTransformer`. (Default: False.)
     """
 
     _default_options = {
@@ -142,7 +144,8 @@ class NESTCodeGenerator(CodeGenerator):
         "continuous_state_buffering_method": "continuous_time_buffer",
         "delay_variable": {},
         "weight_variable": {},
-        "linear_time_invariant_spiking_input_ports": []
+        "linear_time_invariant_spiking_input_ports": [],
+        "precompute_reciprocals": False
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
@@ -421,6 +424,9 @@ class NESTCodeGenerator(CodeGenerator):
 
             ASTUtils.add_declarations_to_internals(neuron, propagators)
 
+            if self.get_option("precompute_reciprocals"):
+                PrecomputeReciprocalsTransformer().transform([neuron], metadata)
+
         self.update_symbol_table(neuron)
 
         # Update the delay parameter parameters after symbol table update
@@ -467,6 +473,9 @@ class NESTCodeGenerator(CodeGenerator):
                 propagators = metadata[synapse.name]["analytic_solver"]["propagators"]
 
                 ASTUtils.add_declarations_to_internals(synapse, propagators)
+
+                if self.get_option("precompute_reciprocals"):
+                    PrecomputeReciprocalsTransformer().transform([synapse], metadata)
 
         self.update_symbol_table(synapse)
 

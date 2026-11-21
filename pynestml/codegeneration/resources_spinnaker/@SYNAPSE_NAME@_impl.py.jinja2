@@ -333,7 +333,14 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
         :param int n_synapse_types:
         :rtype: int
         """
-        n_parameters = {{ synapse.get_parameter_symbols() | length }}
+        # number of words in ``plasticity_weight_region_data_t`` (per synapse type): parameters and internals, except for the timestep and propagators, which are computed on the fly on the SpiNNaker core
+{%- set n_parameters = namespace(n=0) %}
+{%- for sym in synapse.get_parameter_symbols() + synapse.get_internal_symbols() %}
+{%-     if (not sym.get_symbol_name() == "__h") and (not sym.get_symbol_name().startswith("__P")) %}
+{%-         set n_parameters.n = n_parameters.n + 1 %}
+{%-     endif %}
+{%- endfor %}
+        n_parameters = {{ n_parameters.n }}
         size = n_parameters * BYTES_PER_WORD * n_synapse_types
 
         if self.__neuromodulation:
@@ -364,7 +371,7 @@ class {{ synapseName }}Dynamics(AbstractPlasticSynapseDynamics):
 
         for syn_type_idx in range(len(synapse_weight_scales)):
 {%- for sym in synapse.get_parameter_symbols() + synapse.get_internal_symbols() %}
-{%-     if sym.get_symbol_name() != "__h" %}
+{%-     if (not sym.get_symbol_name() == "__h") and (not sym.get_symbol_name().startswith("__P")) %}
         # write value for parameter "{{ sym.get_symbol_name() }}"
             #print("[NESTML synapse] synapse type = " + str(syn_type_idx) + ": writing value for parameter {{ sym.get_symbol_name() }}: " + str(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]) + " ==== encoded --> " + str(hex(float_to_s16_15(self._nestml_model_variables["{{ sym.get_symbol_name() }}"]))))
             spec.write_value(
