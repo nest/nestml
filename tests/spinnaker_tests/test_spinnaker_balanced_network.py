@@ -567,9 +567,19 @@ class TestSpiNNakerBalancedNetwork:
         if implementation == "nestml" and use_exp_luts:
             label_suffix += "_lut"    # exp LUTs only affect NESTML-generated code
 
+        # XXX: workaround for the NESTML STDP synapse returning ``max(w_max, 9999)`` from ``get_weight_maximum()``: sPyNNaker would then compute a ring buffer shift of 19 for the excitatory receptor (9999 pA x K_exc connections), i.e. a weight resolution of 2**(19 - 15) = 16 pA, so that all excitatory weights (recurrent and external) of 100 pA are truncated to 96 pA. Instead, set the maximum expected summed weight per timestep for each receptor explicitly.
+        pop_additional_parameters = {}
+        if use_nestml_neuron:
+            max_ext_spikes_per_step = 10    # generous upper bound on the number of spikes per timestep from the (single) external Poisson generator per neuron
+            max_expected_summed_weight = {"exc_spikes": K_exc * max(Wmax_exc, weights_exc) + max_ext_spikes_per_step * weights_input,
+                                          "ignore_spikes": 1.,
+                                          "inh_spikes": K_inh * max(Wmax_inh, abs(weights_inh))}
+            pop_additional_parameters["max_expected_summed_weight"] = [max_expected_summed_weight[receptor] for receptor in ["exc_spikes", "ignore_spikes", "inh_spikes"]]    # in the order of the synapse types of the generated neuron
+            print("Max. expected summed weight per receptor: " + str(max_expected_summed_weight))
+
         # include the implementation in the population labels, so that SpiNNaker provenance warnings (dropped/late spikes etc.) can be attributed to the right run
-        pop_exc = p.Population(n_exc, neuron_model, label=f"Excitatory_{label_suffix}", seed=seed)
-        pop_inh = p.Population(n_inh, neuron_model, label=f"Inhibitory_{label_suffix}", seed=seed + 1)
+        pop_exc = p.Population(n_exc, neuron_model, label=f"Excitatory_{label_suffix}", seed=seed, additional_parameters=pop_additional_parameters)
+        pop_inh = p.Population(n_inh, neuron_model, label=f"Inhibitory_{label_suffix}", seed=seed + 1, additional_parameters=pop_additional_parameters)
 
         pop_exc.set(**neuron_parameters)
         pop_inh.set(**neuron_parameters)
