@@ -402,6 +402,9 @@ public:
 {% if has_spike_input %}
   void handle(nest::SpikeEvent &) override;        //! accept spikes
 {%- endif %}
+{%- if has_spike_input and neuron_supports_axonal_delay_corrections %}
+  void handle(nest::WeightCorrectionEvent &) override;        //! accept retrospective corrections of the weight of spikes that were already received (for synapses with predominantly axonal delays)
+{%- endif %}
 
 {%- if has_continuous_input %}
   void handle(nest::CurrentEvent &) override;      //! accept input current
@@ -411,6 +414,18 @@ public:
 
 {%- if has_spike_input %}
   nest_port_t handles_test_event(nest::SpikeEvent&, nest_port_t) override;
+{%- endif %}
+{%- if has_spike_input and neuron_supports_axonal_delay_corrections %}
+  nest_port_t handles_test_event(nest::WeightCorrectionEvent&, nest_port_t) override;
+
+  /**
+   * This neuron can be the target of synapses with predominantly axonal delays, i.e. with an axonal delay of at least the dendritic delay, as it can trigger and handle retrospective weight corrections.
+  **/
+  bool
+  supports_axonal_delay_corrections() const override
+  {
+    return true;
+  }
 {%- endif %}
 
 {%- if has_continuous_input %}
@@ -441,11 +456,14 @@ public:
    * Return the spike times (in steps) of spikes which occurred in the range (t1,t2].
    *
    * Two underscores in the name to differentiate it from nest::Node::get_history().
+   *
+   * If ``increment_access_counter`` is true, the returned entries are marked as having been read by one more synapse.
    */
   void get_history__( double t1,
     double t2,
     std::deque< histentry__{{neuronName}} >::iterator* start,
-    std::deque< histentry__{{neuronName}} >::iterator* finish );
+    std::deque< histentry__{{neuronName}} >::iterator* finish,
+    const bool increment_access_counter = true );
 
   /**
    * Register a new incoming STDP connection.
@@ -453,7 +471,11 @@ public:
    * t_first_read: The newly registered synapse will read the history entries
    * with t > t_first_read.
    */
+{%- if nest_has_axonal_delays %}
+  void register_stdp_connection( double t_first_read, double dendritic_delay, double axonal_delay ) override;
+{%- else %}
   void register_stdp_connection( double t_first_read, double delay );
+{%- endif %}
 
 {%- if neuron_state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
 
@@ -1072,6 +1094,15 @@ inline nest_port_t {{neuronName}}::send_test_event(nest::Node& target, nest_rpor
   return target.handles_test_event(e, receptor_type);
 }
 {%- if has_spike_input %}
+
+{%- if neuron_supports_axonal_delay_corrections %}
+
+inline nest_port_t {{neuronName}}::handles_test_event(nest::WeightCorrectionEvent& e, nest_port_t receptor_type)
+{
+  // weight corrections are received on the same ports as the spikes they correct
+  return handles_test_event( static_cast< nest::SpikeEvent& >( e ), receptor_type );
+}
+{%- endif %}
 
 inline nest_port_t {{neuronName}}::handles_test_event(nest::SpikeEvent&, nest_port_t receptor_type)
 {

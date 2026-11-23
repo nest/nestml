@@ -1,0 +1,57 @@
+# axonal_delay_test_neuron.nestml
+# ###############################
+#
+#
+# Description
+# +++++++++++
+#
+# Neuron model to test axonal delays. The neuron emits a spike for every spike received on the ``drive_spikes`` port, like a parrot neuron. Spikes received on the other ports are not repeated; instead, the weights of the spikes received in each timestep are recorded in the state variables ``w_received`` (for the generic port ``plastic_spikes``) and ``w_received_lti`` (for the port ``plastic_spikes_lti``, which is intended to be treated as a linear time-invariant port).
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+model axonal_delay_test_neuron:
+    state:
+        w_received real = 0.        # total weight of the spikes received on port ``plastic_spikes`` in the current timestep
+        w_received_lti real = 0.    # total weight of the spikes received on port ``plastic_spikes_lti`` in the current timestep
+
+    input:
+        drive_spikes <- spike          # receptor type 1: every spike received on this port is repeated
+        plastic_spikes <- spike        # receptor type 2: weights are recorded
+        plastic_spikes_lti <- spike    # receptor type 3: weights are recorded
+
+    output:
+        spike
+
+    onReceive(drive_spikes):
+        emit_spike()
+
+    onReceive(plastic_spikes):
+        w_received += get_weight(plastic_spikes, t)
+
+    onReceive(plastic_spikes_lti):
+        w_received_lti += get_weight(plastic_spikes_lti, t)
+
+    update:
+        # the recorded weights are reset at the start of every timestep
+        w_received = 0.
+        w_received_lti = 0.

@@ -134,6 +134,24 @@ print(nest_version, file=sys.stderr)
         return version_dict
 
     @classmethod
+    def nest_version_has_axonal_delays(cls, version_string: str) -> bool:
+        r"""Return whether the given NEST Simulator version supports axonal delays (https://github.com/nest/nest-simulator/pull/2989).
+
+        This determines the C++ API that generated code has to use: the ``Connection`` class is templated on the type of delay it stores, ``check_connection()`` takes the synapse ID and ``register_stdp_connection()`` takes the dendritic and the axonal delay. The feature is not part of NEST 3.10, so it is assumed to be present on ``main`` and from NEST 3.11 onwards.
+        """
+        if not version_string:
+            return False
+
+        if version_string.startswith("main"):
+            return True
+
+        version_dict = cls.get_version_dict_from_version_string(version_string)
+        if not version_dict:
+            return False
+
+        return version_dict["major"] > 3 or (version_dict["major"] == 3 and version_dict["minor"] >= 11)
+
+    @classmethod
     def set_nest_verbosity(cls, verbosity: str) -> None:
         r"""Set NEST verbosity level; compatible with different versions of NEST.
 

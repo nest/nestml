@@ -99,6 +99,17 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 typedef Dictionary DictionaryDatum;
 {%- endif %}
 
+{#- NEST Connection base class: if NEST supports axonal delays, the class is templated on the container that stores the delay #}
+{%- if nest_has_axonal_delays %}
+{%-     if axonal_delay %}
+{%-         set connection_base_class = "Connection< targetidentifierT, AxonalDendriticDelay >" %}
+{%-     else %}
+{%-         set connection_base_class = "Connection< targetidentifierT, TotalDelay >" %}
+{%-     endif %}
+{%- else %}
+{%-     set connection_base_class = "Connection< targetidentifierT >" %}
+{%- endif %}
+
 /** @BeginDocumentation
 {{ synapse.print_comment() }}
 **/
@@ -372,7 +383,7 @@ public:
 
 
 template < typename targetidentifierT >
-class {{synapseName}} : public Connection< targetidentifierT >
+class {{synapseName}} : public {{ connection_base_class }}
 {
 {%- if paired_neuron_name | length > 0 %}
   typedef {{ paired_neuron_name }} post_neuron_t;
@@ -387,6 +398,43 @@ public:
 {%- endif %}
 private:
   double t_lastspike_;
+{%- if axonal_delay_corrections %}
+
+  /**
+   * Framework for STDP with predominantly axonal delays: the state of the synapse before it processed a presynaptic spike, which is needed to retrospectively correct the synapse and the transmitted weight in case a postsynaptic spike occurs that should have been processed before the presynaptic spike.
+  **/
+  struct AxDelaySnapshot_
+  {
+    double t_spike;        //!< time of the presynaptic spike [ms]
+    double t_lastspike;    //!< value of ``t_lastspike_`` before the presynaptic spike was processed [ms]
+    State_ S;              //!< state of the synapse before the presynaptic spike was processed
+    size_t multiplicity;   //!< multiplicity of the presynaptic spike event
+    bool spike_emitted;    //!< whether a spike was transmitted to the postsynaptic neuron
+    double weight;         //!< the weight that was transmitted to the postsynaptic neuron (after the most recent correction)
+
+    AxDelaySnapshot_( const double t_spike, const double t_lastspike, const State_& S, const size_t multiplicity )
+      : t_spike( t_spike )
+      , t_lastspike( t_lastspike )
+      , S( S )
+      , multiplicity( multiplicity )
+      , spike_emitted( false )
+      , weight( 0. )
+    {
+    }
+  };
+
+  /**
+   * Snapshots for the presynaptic spikes that can still require a correction, ordered by spike time.
+  **/
+  std::vector< AxDelaySnapshot_ > ax_delay_snapshots_;
+
+  /**
+   * Remove the snapshots of presynaptic spikes that can no longer require a correction, because the time interval during which a postsynaptic spike could reach the synapse before the presynaptic spike ended before time ``t``.
+   *
+   * While a presynaptic spike can still be corrected, the postsynaptic spike history that was read when processing the spike is still needed to replay its processing. The history entries are therefore only marked as read by this synapse (allowing the postsynaptic neuron to remove them from its history) once the snapshot is removed.
+  **/
+  void prune_ax_delay_snapshots_( const double t, {{ paired_neuron_name }}* __target );
+{%- endif %}
 {%- if vt_ports is defined and vt_ports|length > 0  %}
   // time of last update, which is either time of last presyn. spike or time-driven update
   double t_last_update_;
@@ -508,7 +556,7 @@ public:
   // this line determines which common properties to use
   typedef {{ synapseName }}CommonSynapseProperties CommonPropertiesType;
 
-  typedef Connection< targetidentifierT > ConnectionBase;
+  typedef {{ connection_base_class }} ConnectionBase;
 
 {%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] > 4) or  nest_version_dict["major"] > 3) %}
   static constexpr ConnectionModelProperties properties = ConnectionModelProperties::HAS_DELAY
@@ -548,10 +596,47 @@ public:
   // they are not automatically found in the base class.
   using ConnectionBase::get_delay_steps;
   using ConnectionBase::set_delay_steps;
+{%- if nest_has_axonal_delays %}
+  using ConnectionBase::get_delay_ms;
+  using ConnectionBase::set_delay_ms;
+{%-     if axonal_delay %}
+  using ConnectionBase::get_dendritic_delay_ms;
+  using ConnectionBase::get_dendritic_delay_steps;
+  using ConnectionBase::get_axonal_delay_ms;
+  using ConnectionBase::get_axonal_delay_steps;
+{%-     endif %}
+{%- else %}
   using ConnectionBase::get_delay;
   using ConnectionBase::set_delay;
+{%- endif %}
   using ConnectionBase::get_rport;
   using ConnectionBase::get_target;
+
+  /**
+   * Dendritic part of the transmission delay in ms. For synapses that store only a single (total) delay, the delay is considered to be purely dendritic.
+  **/
+  inline double get_dendritic_delay_() const
+  {
+{%- if axonal_delay %}
+    return get_dendritic_delay_ms();
+{%- elif nest_has_axonal_delays %}
+    return get_delay_ms();
+{%- else %}
+    return get_delay();
+{%- endif %}
+  }
+
+  /**
+   * Axonal part of the transmission delay in ms.
+  **/
+  inline double get_axonal_delay_() const
+  {
+{%- if axonal_delay %}
+    return get_axonal_delay_ms();
+{%- else %}
+    return 0.;
+{%- endif %}
+  }
 
 
   class ConnTestDummyNode : public ConnTestDummyNodeBase
@@ -643,10 +728,17 @@ public:
   check_connection( Node& s,
     Node& t,
     nest_rport_t receptor_type,
+{%- if nest_has_axonal_delays %}
+    const synindex syn_id,
+{%- endif %}
     const CommonPropertiesType& cp )
   {
     ConnTestDummyNode dummy_target;
+{%- if nest_has_axonal_delays %}
+    ConnectionBase::check_connection_( dummy_target, s, t, syn_id, receptor_type );
+{%- else %}
     ConnectionBase::check_connection_( dummy_target, s, t, receptor_type );
+{%- endif %}
 
 {%- if paired_neuron_name is defined %}
     try {
@@ -665,7 +757,48 @@ public:
     }
 {%- endif %}
 
+{%- if axonal_delay %}
+
+    if ( get_axonal_delay_ms() + get_dendritic_delay_ms() < kernel().connection_manager.get_stdp_eps() )
+    {
+      throw BadProperty( "Combination of axonal and dendritic delay has to be more than 0." );
+    }
+{%-     if axonal_delay_corrections %}
+
+    if ( get_axonal_delay_steps() >= get_dendritic_delay_steps() )
+    {
+      // Predominantly axonal delay: post-synaptic spikes can reach the synapse before a pre-synaptic spike that has already been delivered. The synapse and the transmitted weight then have to be corrected retrospectively, which requires support from the target neuron.
+      if ( kernel().sp_manager.is_structural_plasticity_enabled() )
+      {
+        throw IllegalConnection( "Structural plasticity is not supported in combination with predominantly axonal delays." );
+      }
+
+      if ( not t.supports_axonal_delay_corrections() )
+      {
+        throw IllegalConnection( "Target model does not support synapses with predominantly axonal delay, i.e., with an axonal delay of at least the dendritic delay." );
+      }
+
+      WeightCorrectionEvent e;
+      t.handles_test_event( e, receptor_type );
+    }
+{%-     elif paired_neuron_name is defined and paired_neuron_name | length > 0 %}
+
+    if ( get_axonal_delay_steps() >= get_dendritic_delay_steps() )
+    {
+      // Spike-timing dependent updates would require retrospective corrections, which are not supported for this synapse (because it is neuromodulated, buffers continuous-time postsynaptic state, or because the postsynaptic neuron model does not derive from AxonalDelayArchivingNode).
+      throw IllegalConnection( "Synapse model {{ synapseName }} does not support predominantly axonal delays, i.e., an axonal delay of at least the dendritic delay." );
+    }
+{%-     endif %}
+{%- endif %}
+
+{%- if nest_has_axonal_delays %}
+
+    // the synapse will read the postsynaptic spike history for spikes that reach it after the time of the last presynaptic spike
+    t.register_stdp_connection( t_lastspike_ - get_dendritic_delay_() + get_axonal_delay_(), get_dendritic_delay_(), get_axonal_delay_() );
+{%- else %}
+
     t.register_stdp_connection( t_lastspike_ - get_delay(), get_delay() );
+{%- endif %}
   }
 
 {%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and state_vars_that_need_continuous_buffering | length > 0 %}
@@ -710,7 +843,12 @@ void get_entry_from_continuous_variable_history(double t,
 {%- else %}
   void
 {%- endif %}
-  send( Event& e, const nest_thread_t tid, const {{synapseName}}CommonSynapseProperties& cp )
+  send( Event& e,
+    const nest_thread_t tid,
+    const {{synapseName}}CommonSynapseProperties& cp
+{%- if axonal_delay_corrections %},
+    const bool __ax_delay_correction_replay = false    /* if true, the processing of an earlier presynaptic spike is replayed to correct it, and no spike is sent */
+{%- endif %} )
   {
     const double __t_spike = e.get_stamp().get_ms();    // time of the presynaptic spike [ms]
 
@@ -746,8 +884,35 @@ void get_entry_from_continuous_variable_history(double t,
 {%- else %}
     Node* __target = get_target( tid );
 {%- endif %}
-    const double __dendritic_delay = get_delay();
+
+    /**
+     * The internal state of the synapse is expressed with respect to the time of emission of the presynaptic spikes. A presynaptic spike emitted at time t_pre reaches the synapse after the axonal delay, at t_pre + d_axonal, and a postsynaptic spike emitted at time t_post reaches the synapse after the dendritic delay, at t_post + d_dendritic. Relative to the presynaptic spike times, postsynaptic spikes are thus processed by the synapse at time t_post + __post_delay, with __post_delay = d_dendritic - d_axonal.
+    **/
+    const double __post_delay = get_dendritic_delay_() - get_axonal_delay_();
     const bool pre_before_post_update = {{pre_before_post_update}};
+{%- if axonal_delay_corrections %}
+
+    bool __spike_emitted = false;    // set to true by emit_spike()
+
+    /**
+     * Framework for STDP with predominantly axonal delays: if the axonal delay is at least as large as the dendritic delay, postsynaptic spikes that occur after the presynaptic spike has been delivered can still reach the synapse before the presynaptic spike does. The state of the synapse before processing the presynaptic spike is stored, so that the synapse and the transmitted weight can be corrected retrospectively (see ``correct_weight_stdp_ax_delay()``).
+    **/
+    long __time_while_critical = 0;    // number of time steps (relative to the start of the current slice) during which a postsynaptic spike could still require a correction
+    if ( not __ax_delay_correction_replay )
+    {
+      // discard stored states of earlier presynaptic spikes, which can no longer be corrected
+      prune_ax_delay_snapshots_( kernel().simulation_manager.get_slice_origin().get_ms() + 0.5 * Time::get_resolution().get_ms(), __target );
+
+      if ( get_axonal_delay_steps() >= get_dendritic_delay_steps() )
+      {
+        __time_while_critical = e.get_stamp().get_steps() + get_axonal_delay_steps() - get_dendritic_delay_steps() - kernel().simulation_manager.get_slice_origin().get_steps();
+        if ( __time_while_critical > 0 )
+        {
+          ax_delay_snapshots_.emplace_back( __t_spike, t_lastspike_, S_, static_cast< SpikeEvent& >( e ).get_multiplicity() );
+        }
+      }
+    }
+{%- endif %}
     bool pre_before_post_flag = false;
 
     if (t_lastspike_ < 0.)
@@ -764,7 +929,7 @@ void get_entry_from_continuous_variable_history(double t,
       /**
        * Updates due to post-synaptic spikes since last pre-synaptic spike.
        *
-       * t_lastspike_ contains the point in time of the last spike. So we read the history (t_last_spike - dendritic_delay, ..., __t_spike - dendritic_delay]
+       * t_lastspike_ contains the point in time of the last spike. So we read the history (t_last_spike - __post_delay, ..., __t_spike - __post_delay]
        *
        * Note that this also increases the access counter for these entries which is used to prune the history.
       **/
@@ -785,18 +950,21 @@ void get_entry_from_continuous_variable_history(double t,
 {%- endif %}
 
       // get spike history entries in relevant range (t1, t2] from post-synaptic neuron
-      __target->get_history__( t_lastspike_ - __dendritic_delay,
-        __t_spike - __dendritic_delay,
+      __target->get_history__( t_lastspike_ - __post_delay,
+        __t_spike - __post_delay,
         &start,
-        &finish );
+        &finish
+{%- if axonal_delay_corrections %},
+        not __ax_delay_correction_replay and __time_while_critical <= 0    /* if the presynaptic spike can still be corrected, the history entries are only marked as read once this is no longer possible (see prune_ax_delay_snapshots_()) */
+{%- endif %} );
       while ( start != finish )
       {
 #ifdef DEBUG
-        std::cout << "\tprocessing post spike at t = " << start->t_ + __dendritic_delay << std::endl;
+        std::cout << "\tprocessing post spike at t = " << start->t_ + __post_delay << std::endl;
 #endif
 
-        const double minus_dt = t_lastspike_ - ( start->t_ + __dendritic_delay );
-        // get_history() should make sure that ``start->t_ > t_lastspike_ - dendritic_delay``, i.e. minus_dt < 0
+        const double minus_dt = t_lastspike_ - ( start->t_ + __post_delay );
+        // get_history() should make sure that ``start->t_ > t_lastspike_ - __post_delay``, i.e. minus_dt < 0
         assert( minus_dt < -kernel().connection_manager.get_stdp_eps() );
 
 {%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and state_vars_that_need_continuous_buffering | length > 0 %}
@@ -814,10 +982,10 @@ void get_entry_from_continuous_variable_history(double t,
 {#- continuous time based: grab the entry from the postsynaptic continuous time history buffer #}
 {%-     if continuous_state_buffering_method == "continuous_time_buffer" %}
 #ifdef DEBUG
-      std::cout << "Grabbing continuous_variable_history at t = " << start->t_ + __dendritic_delay << "\n";
+      std::cout << "Grabbing continuous_variable_history at t = " << start->t_ + __post_delay << "\n";
 #endif
         continuous_variable_histentry_{{ paired_neuron_name }} histentry;
-        get_entry_from_continuous_variable_history(start->t_ + __dendritic_delay, continuous_history_start, continuous_history_finish, histentry);
+        get_entry_from_continuous_variable_history(start->t_ + __post_delay, continuous_history_start, continuous_history_finish, histentry);
 
 {%-         for syn_port_name, post_neuron_var_name in zip(state_vars_that_need_continuous_buffering, state_vars_that_need_continuous_buffering_transformed) %}
         const double __{{ syn_port_name }} = histentry.{{ post_neuron_var_name }};
@@ -827,15 +995,15 @@ void get_entry_from_continuous_variable_history(double t,
 
 {%  if vt_ports is defined and vt_ports|length > 0  %}
 {%-     set vt_port = vt_ports[0] %}
-        process_{{vt_port}}_spikes_( vt_spikes, t0, start->t_ + __dendritic_delay, cp );
-        t0 = start->t_ + __dendritic_delay;
+        process_{{vt_port}}_spikes_( vt_spikes, t0, start->t_ + __post_delay, cp );
+        t0 = start->t_ + __post_delay;
 {%- endif %}
 
         /**
          * pre before post update and t_post == t_pre?
         **/
 
-        if (pre_before_post_update and start->t_ == __t_spike - __dendritic_delay)
+        if (pre_before_post_update and std::fabs( start->t_ - ( __t_spike - __post_delay ) ) < kernel().connection_manager.get_stdp_eps())
         {
           pre_before_post_flag = true;
           break;  // this would in any case have been the last post spike to be processed
@@ -849,9 +1017,9 @@ void get_entry_from_continuous_variable_history(double t,
          * update synapse internal state from `t_lastspike_` to `start->t_`
         **/
 
-        update_internal_state_(t_lastspike_, (start->t_ + __dendritic_delay) - t_lastspike_, cp);
+        update_internal_state_(t_lastspike_, (start->t_ + __post_delay) - t_lastspike_, cp);
 
-        timestep += (start->t_ + __dendritic_delay) - t_lastspike_;
+        timestep += (start->t_ + __post_delay) - t_lastspike_;
 
         const double t_hist_entry_ms = start->t_;
         auto get_t = [t_hist_entry_ms](){ return t_hist_entry_ms; };   // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
@@ -882,10 +1050,10 @@ void get_entry_from_continuous_variable_history(double t,
 
 
         /**
-         * internal state has now been fully updated to `start->t_ + __dendritic_delay`
+         * internal state has now been fully updated to `start->t_ + __post_delay`
         **/
 
-        t_lastspike_ = start->t_ + __dendritic_delay;
+        t_lastspike_ = start->t_ + __post_delay;
         ++start;
       }
     }
@@ -901,7 +1069,7 @@ void get_entry_from_continuous_variable_history(double t,
 
     update_internal_state_(t_lastspike_, __t_spike - t_lastspike_, cp);
 
-    const double _tr_t = __t_spike - __dendritic_delay;
+    const double _tr_t = __t_spike - __post_delay;    // the time (from the perspective of the postsynaptic neuron) at which the presynaptic spike reaches the synapse
 
     {
       auto get_t = [__t_spike](){ return __t_spike; };    // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
@@ -983,11 +1151,41 @@ void get_entry_from_continuous_variable_history(double t,
     **/
 
     t_lastspike_ = __t_spike;
+{%- if axonal_delay_corrections %}
 
-{%- if nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] >= 3 and nest_version_dict["minor"] > 6) or nest_version_dict["major"] > 3) %}
+    if ( __time_while_critical > 0 )
+    {
+      // store the weight that was transmitted, and let the postsynaptic neuron buffer the spike for a potential retrospective correction
+      AxDelaySnapshot_& __snapshot = ax_delay_snapshots_.back();
+      __snapshot.spike_emitted = __spike_emitted;
+      __snapshot.weight = __spike_emitted ? e.get_weight() : 0.;
+
+      // time of the previous presynaptic spike that can still be corrected (used by NEST to link correction entries of the same connection)
+      const double __t_previous_pre_spike = ax_delay_snapshots_.size() > 1 ? ax_delay_snapshots_[ ax_delay_snapshots_.size() - 2 ].t_spike : __t_spike;
+
+      // N.B. the "weight to revert to" and "pre-synaptic trace to revert to" values in the correction entry are specific to the built-in NEST synapses; the complete state is stored in ``ax_delay_snapshots_`` instead
+      __target->add_correction_entry_stdp_ax_delay( static_cast< SpikeEvent& >( e ), __t_previous_pre_spike, 0., __snapshot.weight, 0., __time_while_critical );
+    }
+
+    return __spike_emitted;
+{%- elif nest_version.startswith("main") or nest_version_dict and ((nest_version_dict["major"] >= 3 and nest_version_dict["minor"] > 6) or nest_version_dict["major"] > 3) %}
     return true;
 {%- endif %}
   }
+
+{%- if axonal_delay_corrections %}
+
+  /**
+   * Framework for STDP with predominantly axonal delays: called by the kernel when the postsynaptic neuron emits a spike at time ``t_post_spike`` that should have been processed by the synapse before the presynaptic spike to which the correction entry ``entry`` belongs. The synapse is reverted to its state before that presynaptic spike, the processing of the presynaptic spike is replayed (now taking the new postsynaptic spike into account), and the weight of the spike that was already transmitted to the postsynaptic neuron is corrected.
+   *
+   * @param t_spike_critical_interval_end The end of the time interval during which a postsynaptic spike requires a correction of the presynaptic spike, i.e. t_pre + axonal delay - dendritic delay.
+  **/
+  void correct_weight_stdp_ax_delay( const size_t tid,
+    CorrectionEntrySTDPAxDelay& entry,
+    const double t_spike_critical_interval_end,
+    const double t_post_spike,
+    const CommonPropertiesType& cp );
+{%- endif %}
 
   void get_status( DictionaryDatum& d ) const;
 
@@ -1188,8 +1386,18 @@ void
 {%-     if not isHomogeneous and not is_delta_kernel(synapse.get_kernel_by_name(variable_symbol.name)) and not variable_symbol.is_inline_expression %}
 {%-         if variable.get_name() == nest_codegen_opt_delay_variable %}
 // special treatment of NEST delay
+{%-             if axonal_delay %}
+if ({{ exists_in_dictionary.ExistsInDictionary("__d", synapseName + "_names::_" + nest_codegen_opt_delay_variable) }})
+{
+  throw BadProperty( "The delay variable '{{ nest_codegen_opt_delay_variable }}' corresponds to the total transmission delay, which cannot be set for synapses with axonal delays because of ambiguity. Please set 'dendritic_delay' and 'axonal_delay' instead." );
+}
+{%-             elif nest_has_axonal_delays %}
+double tmp_{{ nest_codegen_opt_delay_variable }} = get_delay_ms();
+{{ read_from_dictionary.ReadFromDictionary("__d", "double", synapseName + "_names::_" + nest_codegen_opt_delay_variable, "tmp_" + nest_codegen_opt_delay_variable, "", false) }};
+{%-             else %}
 double tmp_{{ nest_codegen_opt_delay_variable }} = get_delay();
 {{ read_from_dictionary.ReadFromDictionary("__d", "double", synapseName + "_names::_" + nest_codegen_opt_delay_variable, "tmp_" + nest_codegen_opt_delay_variable, "", false) }};
+{%-             endif %}
 {%-         elif variable.get_name() == synapse_weight_variable %}
 // special treatment of NEST weight
 double tmp_{{ synapse_weight_variable }} = get_weight();
@@ -1223,8 +1431,14 @@ if ({{ exists_in_dictionary.ExistsInDictionary("__d", "names::weight") }})
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
 {%-     if not isHomogeneous and not is_delta_kernel(synapse.get_kernel_by_name(variable_symbol.name)) %}
 {%-         if variable.get_name() == nest_codegen_opt_delay_variable %}
+{%-             if not axonal_delay %}
 // special treatment of NEST delay
+{%-                 if nest_has_axonal_delays %}
+set_delay_ms(tmp_{{ nest_codegen_opt_delay_variable }});
+{%-                 else %}
 set_delay(tmp_{{ nest_codegen_opt_delay_variable }});
+{%-                 endif %}
+{%-             endif %}
 {%-         else %}
 {%-             include "directives_cpp/AssignTmpDictionaryValue.jinja2" %}
 {%-         endif %}
@@ -1432,6 +1646,9 @@ template < typename targetidentifierT >
   t_last_update_ = rhs.t_last_update_;
 {%- endif %}
   t_lastspike_ = rhs.t_lastspike_;
+{%- if axonal_delay_corrections %}
+  ax_delay_snapshots_ = rhs.ax_delay_snapshots_;
+{%- endif %}
 
 {%- if uses_numeric_solver and numeric_solver == "rk45" %}
   // Numeric solver variables
@@ -1443,8 +1660,10 @@ template < typename targetidentifierT >
   __integration_step = rhs.__integration_step;
 {%- endif %}
 
+{%- if not nest_has_axonal_delays %}
   // special treatment of NEST delay
   set_delay(rhs.get_delay());
+{%- endif %}
 {%- if synapse_weight_variable | length > 0 %}
 {%-     set variable_symbol = synapse.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
@@ -1576,13 +1795,13 @@ inline void
 
   auto get_t = [t_trig](){ return t_trig; };    // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
-  // purely dendritic delay
-  double dendritic_delay = get_delay();
+  // postsynaptic spikes are processed by the synapse at t_post + __post_delay, see send()
+  const double __post_delay = get_dendritic_delay_() - get_axonal_delay_();
 
   // get spike history in relevant range (t_last_update, t_trig] from postsyn. neuron
   std::deque< histentry__{{ paired_neuron_name }} >::iterator start;
   std::deque< histentry__{{ paired_neuron_name }} >::iterator finish;
-  static_cast<{{ paired_neuron_name }}*>(get_target(t))->get_history__( t_last_update_ - dendritic_delay, t_trig - dendritic_delay, &start, &finish );
+  static_cast<{{ paired_neuron_name }}*>(get_target(t))->get_history__( t_last_update_ - __post_delay, t_trig - __post_delay, &start, &finish );
 
   // facilitation due to postsyn. spikes since last update
   double t0 = t_last_update_;
@@ -1593,15 +1812,15 @@ inline void
   {
 {%- for vt_port in vt_ports %}
 {%-     set vt_port = vt_ports[0] %}
-    process_{{vt_port}}_spikes_( vt_spikes, t0, start->t_ + dendritic_delay, cp );
+    process_{{vt_port}}_spikes_( vt_spikes, t0, start->t_ + __post_delay, cp );
 {%- endfor %}
 
 #ifdef DEBUG
-    std::cout << "[synapse " << this << "] {{ synapseName }}: processing post spike from " << t_last_update_ << " to " << start->t_ + dendritic_delay << std::endl;
+    std::cout << "[synapse " << this << "] {{ synapseName }}: processing post spike from " << t_last_update_ << " to " << start->t_ + __post_delay << std::endl;
 #endif
 
     /**
-     * update synapse internal state from `t_last_update_` to `start->t_ + dendritic_delay`
+     * update synapse internal state from `t_last_update_` to `start->t_ + __post_delay`
     **/
 
 {%- if paired_neuron_name is not none and paired_neuron_name | length > 0 and state_vars_that_need_continuous_buffering | length > 0 %}
@@ -1618,7 +1837,7 @@ inline void
 {%- endif %}
 
     update_internal_state_(t_last_update_,
-                           (start->t_ + dendritic_delay) - t_last_update_,
+                           (start->t_ + __post_delay) - t_last_update_,
                            cp);
 
     const double _tr_t = start->t_;
@@ -1640,12 +1859,12 @@ inline void
 {%- endfilter %}
 
     /**
-     * internal state has now been fully updated to `start->t_ + dendritic_delay`
+     * internal state has now been fully updated to `start->t_ + __post_delay`
     **/
 
-    t0 = start->t_ + dendritic_delay;
+    t0 = start->t_ + __post_delay;
     // minus_dt = t_last_update_ - t0;
-    t_lastspike_ = start->t_ + dendritic_delay;
+    t_lastspike_ = start->t_ + __post_delay;
     ++start;
   }
 
@@ -1658,7 +1877,7 @@ inline void
   process_{{vt_port}}_spikes_( vt_spikes, t_lastspike_, t_trig, cp );
 {%- endfor %}
 #ifdef DEBUG
-  std::cout << "[synapse " << this << "] {{ synapseName }}::trigger_update_weight(): \tupdating from " << t_lastspike_ << " to " << t_trig + dendritic_delay << std::endl;
+  std::cout << "[synapse " << this << "] {{ synapseName }}::trigger_update_weight(): \tupdating from " << t_lastspike_ << " to " << t_trig + __post_delay << std::endl;
 #endif
 
   // N.B. call to update_internal state is not needed; this is already taken care of by ``process_{{vt_port}}_spikes_()``
@@ -1670,6 +1889,105 @@ inline void
   t_lastspike_ = t_trig;
 }
 
+{%- endif %}
+
+{%- if axonal_delay_corrections %}
+
+/**
+ * Framework for STDP with predominantly axonal delays
+**/
+template < typename targetidentifierT >
+void
+{{synapseName}}< targetidentifierT >::prune_ax_delay_snapshots_( const double t, {{ paired_neuron_name }}* __target )
+{
+  const double eps = kernel().connection_manager.get_stdp_eps();
+  const double __post_delay = get_dendritic_delay_() - get_axonal_delay_();    // see send(); a presynaptic spike at t_pre can be corrected by postsynaptic spikes up to time t_pre - __post_delay
+
+  auto it = ax_delay_snapshots_.begin();
+  while ( it != ax_delay_snapshots_.end() and it->t_spike - __post_delay < t - eps )
+  {
+    // mark the postsynaptic spikes that were (or would have been) read when processing the presynaptic spike as read
+    std::deque< histentry__{{ paired_neuron_name }} >::iterator start;
+    std::deque< histentry__{{ paired_neuron_name }} >::iterator finish;
+    __target->get_history__( it->t_lastspike - __post_delay, it->t_spike - __post_delay, &start, &finish, true );
+
+    ++it;
+  }
+  ax_delay_snapshots_.erase( ax_delay_snapshots_.begin(), it );
+}
+
+template < typename targetidentifierT >
+void
+{{synapseName}}< targetidentifierT >::correct_weight_stdp_ax_delay( const size_t tid,
+  CorrectionEntrySTDPAxDelay& entry,
+  const double t_spike_critical_interval_end,
+  const double t_post_spike,
+  const CommonPropertiesType& cp )
+{
+  const double eps = kernel().connection_manager.get_stdp_eps();
+  const double __post_delay = get_dendritic_delay_() - get_axonal_delay_();    // see send()
+
+  // time of the presynaptic spike that needs to be corrected
+  const double t_spike = t_spike_critical_interval_end + __post_delay;
+
+#ifdef DEBUG
+  std::cout << "[synapse " << this << "] {{ synapseName }}::correct_weight_stdp_ax_delay(): correcting pre spike at t = " << t_spike << " for post spike at t = " << t_post_spike << std::endl;
+#endif
+
+  auto it = ax_delay_snapshots_.begin();
+  while ( it != ax_delay_snapshots_.end() and std::fabs( it->t_spike - t_spike ) > eps )
+  {
+    ++it;
+  }
+
+  if ( it == ax_delay_snapshots_.end() )
+  {
+    throw KernelException( "{{ synapseName }}: no stored state found for the presynaptic spike at t = " + std::to_string( t_spike ) + " ms that requires a correction." );
+  }
+
+  {{ paired_neuron_name }}* __target = static_cast< {{ paired_neuron_name }}* >( get_target( tid ) );
+  assert( __target );
+
+  // N.B. the history entries that are read during the replay (including the new postsynaptic spike) are marked as read only once the presynaptic spike can no longer be corrected (see prune_ax_delay_snapshots_())
+
+  // revert the synapse to its state before the presynaptic spike was processed
+  S_ = it->S;
+  t_lastspike_ = it->t_lastspike;
+
+  // replay the processing of the presynaptic spike; this time, the new postsynaptic spike is taken into account
+  SpikeEvent __e;
+  __e.set_stamp( Time::ms_stamp( it->t_spike ) );
+  __e.set_multiplicity( it->multiplicity );
+  const bool __spike_emitted = send( __e, tid, cp, true );
+  const double __new_weight = __spike_emitted ? __e.get_weight() : 0.;
+
+  if ( it->spike_emitted )
+  {
+    // correct the spike that was already transmitted to the postsynaptic neuron
+    WeightCorrectionEvent __ce;
+    __ce.set_receiver( *__target );
+    __ce.set_weight( it->weight );
+    __ce.set_new_weight( __new_weight );
+    __ce.set_delay_steps( get_delay_steps() );
+    __ce.set_rport( get_rport() );
+    __ce.set_stamp( Time::ms_stamp( it->t_spike ) );
+    __ce.set_multiplicity( it->multiplicity );
+    __ce();
+
+    it->weight = __new_weight;
+  }
+  // N.B. if no spike was transmitted originally, but the replay emits a spike, this spike cannot be delivered retrospectively
+
+  entry.set_new_weight( it->weight );
+
+  // The corrected state is the starting point for processing the next presynaptic spike of this synapse. If there is one, it can still be corrected as well, and the kernel will request this correction subsequently (in the order of the spike times), as it is caused by the same postsynaptic spike.
+  ++it;
+  if ( it != ax_delay_snapshots_.end() )
+  {
+    it->S = S_;
+    it->t_lastspike = t_lastspike_;
+  }
+}
 {%- endif %}
 
 } // namespace {{ synapseName }};

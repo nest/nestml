@@ -25,6 +25,7 @@ import re
 import tempfile
 import uuid
 
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.symbols.variable_symbol import VariableSymbol
@@ -104,8 +105,17 @@ class NESTCodeGeneratorUtils:
                 print(nestml_neuron_model, file=f)
 
         input_fns = [neuron_fn]
-        _codegen_opts = {"neuron_parent_class": "StructuralPlasticityNode",
-                         "neuron_parent_class_include": "structural_plasticity_node.h"}
+
+        # the generated neuron maintains its own spike history, so the NEST spike history in ``ArchivingNode`` is not needed. If NEST supports axonal delays, derive from ``AxonalDelayArchivingNode`` (a ``StructuralPlasticityNode`` with the machinery for retrospective weight corrections), so that the neuron can be the target of synapses with predominantly axonal delays.
+        nest_version = codegen_opts["nest_version"] if codegen_opts and "nest_version" in codegen_opts.keys() else NESTTools.detect_nest_version()
+        if NESTTools.nest_version_has_axonal_delays(nest_version):
+            _codegen_opts = {"neuron_parent_class": "AxonalDelayArchivingNode",
+                             "neuron_parent_class_include": "axonal_delay_archiving_node.h"}
+        else:
+            _codegen_opts = {"neuron_parent_class": "StructuralPlasticityNode",
+                             "neuron_parent_class_include": "structural_plasticity_node.h"}
+
+        _codegen_opts["nest_version"] = nest_version
         mangled_neuron_name = neuron_model_name + "_nestml"
 
         if nestml_synapse_model:

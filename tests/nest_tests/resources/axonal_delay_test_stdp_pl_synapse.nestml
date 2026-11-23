@@ -1,0 +1,71 @@
+# axonal_delay_test_stdp_pl_synapse.nestml
+# ########################################
+#
+#
+# Description
+# +++++++++++
+#
+# Spike-timing dependent plasticity with a power-law dependence of facilitation on the weight; this is equivalent to the NEST built-in models ``stdp_pl_synapse_hom`` and ``stdp_pl_synapse_hom_ax_delay``, with the presynaptic trace time constant ``tau_plus`` and the postsynaptic trace time constant ``tau_minus`` (in NEST, the latter is a parameter of the postsynaptic neuron).
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+model axonal_delay_test_stdp_pl_synapse:
+    state:
+        w real = 1.             # synaptic weight
+        pre_trace real = 0.
+        post_trace real = 0.
+
+    parameters:
+        lambda real = 0.1       # learning rate
+        alpha real = 1.         # relative learning rate for depression
+        mu real = 0.4           # weight dependence exponent for facilitation
+        tau_plus ms = 20 ms     # time constant of the presynaptic trace
+        tau_minus ms = 30 ms    # time constant of the postsynaptic trace
+
+    equations:
+        pre_trace' = -pre_trace / tau_plus
+        post_trace' = -post_trace / tau_minus
+
+    input:
+        pre_spikes <- spike
+        post_spikes <- spike
+
+    output:
+        spike
+
+    onReceive(post_spikes):
+        post_trace += 1
+
+        # facilitation
+        w += lambda * w**mu * pre_trace
+
+    onReceive(pre_spikes):
+        pre_trace += 1
+
+        # depression
+        w = max(0., w - lambda * alpha * w * post_trace)
+
+        emit_spike(w)
+
+    update:
+        integrate_odes()

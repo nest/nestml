@@ -637,6 +637,11 @@ void {{ neuronName }}::calibrate()
 #endif
 
   B_.logger_.init();
+{%- if neuron_supports_axonal_delay_corrections %}
+
+  // allocate the buffer for retrospective weight corrections in case of incoming synapses with predominantly axonal delays
+  nest::AxonalDelayArchivingNode::pre_run_hook_();
+{%- endif %}
 
   // parameters might have changed -- recompute internals
   V_.__h = nest::Time::get_resolution().get_ms();
@@ -1103,6 +1108,18 @@ std::cout << "[neuron " << this << "] Writing history at time " << nest::Time(ne
 {%-     endfor %}
     );
 {%- endif %}
+{%- if neuron_supports_axonal_delay_corrections %}
+
+    // incoming spikes that could have been corrected until the end of this timestep can no longer be corrected
+{%-     if use_gap_junctions %}
+    if ( not called_from_wfr_update )
+    {
+      clear_expired_correction_entries_stdp_ax_delay_( lag );
+    }
+{%-     else %}
+    clear_expired_correction_entries_stdp_ax_delay_( lag );
+{%-     endif %}
+{%- endif %}
   }
 
 {%- if use_gap_junctions %}
@@ -1254,6 +1271,46 @@ void {{ neuronName }}::handle(nest::SpikeEvent &e)
   }
 {%-     endfor %}
 }
+{%-     if neuron_supports_axonal_delay_corrections %}
+
+// -------------------------------------------------------------------------
+//   NEST weight correction event handler
+// -------------------------------------------------------------------------
+
+void {{ neuronName }}::handle(nest::WeightCorrectionEvent &e)
+{
+#ifdef DEBUG
+  std::cout << "[neuron " << this << "] {{ neuronName }}::handle(WeightCorrectionEvent) on rport " << e.get_rport() << ": correcting weight from " << e.get_weight() << " to " << e.get_new_weight() << std::endl;
+#endif
+
+  /**
+   * A spike that was previously received through a synapse with a predominantly axonal delay is retrospectively corrected: the spike was buffered with weight e.get_weight(), but should have had weight e.get_new_weight(). The spike has not been processed yet: it is still in the buffer slot for its delivery time.
+  **/
+
+  assert(e.get_delay_steps() > 0);
+  assert(e.get_rport() <= {{ utils.nestml_spiking_input_port_to_nest_rport_dict(astnode) | length }});    // the neuron should not receive spike on an rport that does not exist
+
+  const long __delivery_steps = e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() );
+  const double __old_weight = e.get_weight() * e.get_multiplicity();
+  const double __new_weight = e.get_new_weight() * e.get_multiplicity();
+
+{%-         for input_spikes_name, rport in utils.nestml_spiking_input_port_to_nest_rport_dict(astnode).items() %}
+{%-             if astnode.get_body().get_spike_input_ports() | length > 1 or astnode.is_multisynapse_spikes() %}
+  if (e.get_rport() == {{ rport }})
+{%-             endif %}
+  {
+{%-             if input_spikes_name in linear_time_invariant_spiking_input_ports %}
+{#-                 linear, time-invariant input port: all spike events for a specific buffer slot are added together into a single number, so only the difference has to be added #}
+    B_.spike_input_{{ input_spikes_name }}_.add_value( __delivery_steps, __new_weight - __old_weight );
+{%-             else %}
+{#-                 generic input port: each spike event is stored individually in the list for its buffer slot #}
+    // replace the weight of the spike in the list; if a spike with the old weight cannot be found, the total weight received in the buffer slot is corrected instead
+    B_.spike_input_{{ input_spikes_name }}_.correct_value( __delivery_steps, __old_weight, __new_weight );
+{%-             endif %}
+  }
+{%-         endfor %}
+}
+{%-     endif %}
 {%- endif %}
 
 {%- if has_continuous_input %}
@@ -1375,7 +1432,11 @@ inline double
 }
 
 void
+{%- if nest_has_axonal_delays %}
+{{ neuronName }}::register_stdp_connection( double t_first_read, double dendritic_delay, double axonal_delay )
+{%- else %}
 {{ neuronName }}::register_stdp_connection( double t_first_read, double delay )
+{%- endif %}
 {
 #ifdef DEBUG
   std::cout << "[neuron " << this << "] {{ neuronName }}::register_stdp_connection()" << std::endl;
@@ -1395,7 +1456,18 @@ void
 
   n_incoming_++;
 
+{%- if nest_has_axonal_delays %}
+{%-     if neuron_supports_axonal_delay_corrections %}
+
+  // keep track of whether retrospective corrections can be required
+  register_axonal_delay_connection( dendritic_delay, axonal_delay );
+{%-     endif %}
+
+  max_delay_ = std::max( dendritic_delay + axonal_delay, max_delay_ );
+{%- else %}
+
   max_delay_ = std::max( delay, max_delay_ );
+{%- endif %}
 }
 
 
@@ -1403,10 +1475,11 @@ void
 {{ neuronName }}::get_history__( double t1,
   double t2,
   std::deque< histentry__{{ neuronName }} >::iterator* start,
-  std::deque< histentry__{{ neuronName }} >::iterator* finish )
+  std::deque< histentry__{{ neuronName }} >::iterator* finish,
+  const bool increment_access_counter )
 {
 #ifdef DEBUG
-  std::cout << "[neuron " << this << "] {{ neuronName }}::register_stdp_connection()" << std::endl;
+  std::cout << "[neuron " << this << "] {{ neuronName }}::get_history__()" << std::endl;
 #endif
 
   *finish = history_.end();
@@ -1425,7 +1498,10 @@ void
   *finish = runner.base();
   while ( runner != history_.rend() and runner->t_ >= t1_lim )
   {
-    runner->access_counter_++;
+    if ( increment_access_counter )
+    {
+      runner->access_counter_++;
+    }
     ++runner;
   }
   *start = runner.base();
@@ -1563,6 +1639,20 @@ void
 {%- endif %}
 
     ) );
+{%- if neuron_supports_axonal_delay_corrections %}
+
+    /**
+     * Retrospectively correct incoming synapses with predominantly axonal delays, for which this spike should have been processed before a presynaptic spike that was already delivered. The synapses read state variables from the history, which temporarily overwrites the values of the variables transferred from the synapses; restore them afterwards.
+    **/
+{%-     for var in (purely_numeric_state_variables_moved + analytic_state_variables_moved) | sort %}
+    const double {{ var }}__before_correction = {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }};
+{%-     endfor %}
+
+    correct_synapses_stdp_ax_delay_( t_sp );
+{%      for var in (purely_numeric_state_variables_moved + analytic_state_variables_moved) | sort %}
+    {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = {{ var }}__before_correction;
+{%-     endfor %}
+{%- endif %}
   }
   else
   {
