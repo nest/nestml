@@ -20,12 +20,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import pytest
 
 import nest
 
 from pynestml.frontend.pynestml_frontend import generate_nest_target
-from pynestml.codegeneration.nest_tools import NESTTools
 
 
 class TestConvolve:
@@ -33,8 +31,6 @@ class TestConvolve:
     Test convolution with delta kernels.
     """
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     def test_convolve(self):
         input_path = os.path.join(os.path.realpath(os.path.join(
             os.path.dirname(__file__), "resources", "ConvolveSpiking.nestml")))

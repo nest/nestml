@@ -21,7 +21,6 @@
 
 import numpy as np
 import os
-import pytest
 
 # try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
@@ -38,8 +37,6 @@ from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
-@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                    reason="This test does not support NEST 2")
 class TestDeltaKernel:
     r"""Test delta responses"""
     def test_delta_kernel(self):

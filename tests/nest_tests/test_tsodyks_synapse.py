@@ -27,7 +27,6 @@ import pytest
 
 import nest
 
-from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
@@ -40,8 +39,6 @@ except Exception:
     TEST_PLOTS = False
 
 
-@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                    reason="This test does not support NEST 2")
 class TestNESTTsodyksSynapse:
 
     neuron_model_name = "iaf_psc_exp_neuron_nestml__with_tsodyks_synapse_nestml"

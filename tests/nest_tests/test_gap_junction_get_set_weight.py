@@ -34,12 +34,9 @@ except BaseException:
 
 import nest
 
-from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
-@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                    reason="This test does not support NEST 2")
 class TestGapJunctionGetSetWeight:
     r"""Test that getting and setting the gap junction weight works correctly"""
 

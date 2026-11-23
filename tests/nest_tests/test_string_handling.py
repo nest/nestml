@@ -38,8 +38,6 @@ class TestStringHandling:
         module_name = "nestmlmodule"
         suffix = "_nestml"
 
-        nest_version = NESTTools.detect_nest_version()
-
         NESTTools.set_nest_verbosity("ALL")
         generate_nest_target(input_path,
                              target_path=target_path,

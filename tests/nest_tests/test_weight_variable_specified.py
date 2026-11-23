@@ -46,8 +46,6 @@ class TestWeightVariableSpecified:
                                                                      "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}}]})
 
 
-@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                    reason="This test does not support NEST 2")
 class TestSynapseWeightGetSet:
     """Check that we can get and set the weight parameter of a synapse"""
 

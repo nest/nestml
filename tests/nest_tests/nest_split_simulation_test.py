@@ -21,7 +21,6 @@
 
 import numpy as np
 import os
-import pytest
 import unittest
 
 # try to import matplotlib; set the result in the flag TEST_PLOTS
@@ -36,7 +35,6 @@ except BaseException:
 import nest
 
 from pynestml.frontend.pynestml_frontend import generate_nest_target
-from pynestml.codegeneration.nest_tools import NESTTools
 
 
 class NestSplitSimulationTest(unittest.TestCase):
@@ -96,8 +94,6 @@ class NestSplitSimulationTest(unittest.TestCase):
 
         return ts, Vms
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     def test_nest_split_simulation(self):
         ts, Vms = self.run_simulation(T_sim=100., split=False)
         ts_split, Vms_split = self.run_simulation(T_sim=100., split=True)

@@ -21,7 +21,6 @@
 
 import numpy as np
 import os
-import pytest
 import unittest
 
 # try to import matplotlib; set the result in the flag TEST_PLOTS
@@ -44,8 +43,6 @@ class NestNonLinearDendriteTest(unittest.TestCase):
     Test for proper reset of synaptic integration after condition is triggered (here, dendritic spike).
     """
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     def test_non_linear_dendrite(self):
         I_dend_name = "I_dend"  # synaptic current
 

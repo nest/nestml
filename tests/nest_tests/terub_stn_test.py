@@ -34,7 +34,6 @@ except BaseException:
 
 import nest
 
-from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
@@ -70,10 +69,7 @@ class NestSTNExpTest(unittest.TestCase):
         multimeter = nest.Create("multimeter")
         nest.SetStatus(multimeter, {"record_from": ["V_m"],
                                     "interval": dt})
-        if NESTTools.detect_nest_version().startswith("v2"):
-            spike_recorder = nest.Create("spike_detector")
-        else:
-            spike_recorder = nest.Create("spike_recorder")
+        spike_recorder = nest.Create("spike_recorder")
         nest.Connect(multimeter, neuron)
         nest.Connect(neuron, spike_recorder)
         nest.Simulate(t_simulation)

@@ -21,7 +21,6 @@
 
 import numpy as np
 import os
-import pytest
 import scipy
 import scipy.signal
 import scipy.stats
@@ -47,8 +46,6 @@ class NestFirFilterTest(unittest.TestCase):
     Tests the working of FIR filter model in NEST
     """
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     def test_fir_filter(self):
         nestml_model_file = "FIR_filter.nestml"
         nestml_model_name = "fir_filter_nestml"

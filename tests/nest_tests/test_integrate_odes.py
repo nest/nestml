@@ -41,8 +41,6 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target, generate_t
 from pynestml.utils.logger import LoggingLevel, Logger
 
 
-@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                    reason="This test does not support NEST 2")
 class TestIntegrateODEs:
 
     @pytest.fixture(scope="module", autouse=True)

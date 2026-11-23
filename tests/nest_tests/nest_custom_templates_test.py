@@ -21,7 +21,6 @@
 
 import os
 import unittest
-import pytest
 
 # try to import matplotlib; set the result in the flag TEST_PLOTS
 try:
@@ -43,8 +42,6 @@ class NestCustomTemplatesTest(unittest.TestCase):
     Tests the code generation and installation with custom NESTML templates for NEST
     """
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     def test_custom_templates(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))))
@@ -98,8 +95,6 @@ class NestCustomTemplatesTest(unittest.TestCase):
             _ax.legend()
         fig.savefig("/tmp/custom_template_test" + "_V_m.png", dpi=300)
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     def test_custom_templates_with_synapse(self):
         models = ["neurons/iaf_psc_delta_neuron.nestml", "synapses/stdp_triplet_synapse.nestml"]
         input_paths = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(

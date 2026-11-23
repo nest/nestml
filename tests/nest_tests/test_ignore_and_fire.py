@@ -60,8 +60,6 @@ class TestIgnoreAndFire:
                              suffix="_nestml",
                              codegen_opts=codegen_opts)
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     @pytest.mark.parametrize("resolution", [1., .1])
     def test_ignore_and_fire_with_stdp(self, resolution: float):
         sim_time = 1001.   # [ms]

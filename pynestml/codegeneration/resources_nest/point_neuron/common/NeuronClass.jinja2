@@ -404,15 +404,6 @@ namespace nest
 //   Node initialization functions
 // ---------------------------------------------------------------------------
 
-{%- if nest_version_dict and nest_version_dict["major"] == 2 %}
-void {{ neuronName }}::init_state_(const Node& proto)
-{
-  const {{ neuronName }}& pr = downcast<{{ neuronName }}>(proto);
-  S_ = pr.S_;
-}
-{%- endif %}
-
-{%- if nest_version.startswith("main") or nest_version_dict and nest_version_dict["major"] >= 3 %}
 void {{ neuronName }}::calibrate_time( const nest::TimeConverter& tc )
 {
 {%- if (nest_version.startswith("main") or (nest_version_dict and ((nest_version_dict["major"] == 3 and nest_version_dict["minor"] >= 10) or nest_version_dict["major"] > 3))) %}
@@ -426,7 +417,6 @@ void {{ neuronName }}::calibrate_time( const nest::TimeConverter& tc )
   init_state_internal_();
 }
 
-{%- endif %}
 void {{ neuronName }}::init_state_internal_()
 {
 #ifdef DEBUG

@@ -61,8 +61,6 @@ class TestSynapsePriority:
                                            "weight_variable": {"event_priority_test_synapse": "w",
                                                                "event_inv_priority_test_synapse": "w"}})
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     def test_synapse_event_priority(self):
 
         fname_snip = ""

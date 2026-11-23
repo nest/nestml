@@ -51,9 +51,7 @@ from pynestml.codegeneration.printers.gsl_variable_printer import GSLVariablePri
 from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
 from pynestml.codegeneration.printers.nest_cpp_function_call_printer import NESTCppFunctionCallPrinter
 from pynestml.codegeneration.printers.nest_variable_printer import NESTVariablePrinter
-from pynestml.codegeneration.printers.nest2_cpp_function_call_printer import NEST2CppFunctionCallPrinter
 from pynestml.codegeneration.printers.nest_gsl_function_call_printer import NESTGSLFunctionCallPrinter
-from pynestml.codegeneration.printers.nest2_gsl_function_call_printer import NEST2GSLFunctionCallPrinter
 from pynestml.exceptions.code_generation_exception import CodeGenerationException
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
@@ -106,7 +104,7 @@ class NESTCodeGenerator(CodeGenerator):
             - **neuron**: A list of neuron model jinja templates.
             - **synapse**: A list of synapse model jinja templates.
         - **module_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to generating the NEST module.
-    - **nest_version**: A string identifying the version of NEST Simulator to generate code for. The string corresponds to the NEST Simulator git repository tag or git branch name, for instance, ``"v2.20.2"`` or ``"main"``. The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
+    - **nest_version**: A string identifying the version of NEST Simulator to generate code for. The string corresponds to the NEST Simulator git repository tag or git branch name, for instance, ``"v3.9"`` or ``"main"``. The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
     - **gsl_adaptive_step_size_controller**: For the numeric (GSL) solver: how to interpret the absolute and relative tolerance values. Can be changed to trade off integration accuracy with numerical stability. The default value is ``"with_respect_to_solution"``. Can also be set to ``"with_respect_to_derivative"``. (Tolerance values can be specified at runtime as parameters of the model instance.) For further details, see https://www.gnu.org/software/gsl/doc/html/ode-initval.html#adaptive-step-size-control.
     - **numeric_solver**: A string identifying the preferred numeric ODE solver. Supported are ``"rk45"`` and ``"forward-Euler"``.
     - **continuous_state_buffering_method**: Which method to use for buffering state variables between neuron and synapse pairs. When a synapse has a "continuous" input port, connected to a postsynaptic neuron, either the value is obtained taking the synaptic (dendritic, that is, synapse-soma) delay into account, requiring a buffer to store the value at each timepoint (``continuous_state_buffering_method = "continuous_time_buffer"``); or the value is obtained at the times of the somatic spikes of the postsynaptic neuron, ignoring the synaptic delay (``continuous_state_buffering_method == "post_spike_based"``). The former is more physically accurate but requires a large buffer and can require a long time to simulate. The latter ignores the dendritic delay but is much more computationally efficient.
@@ -154,11 +152,6 @@ class NESTCodeGenerator(CodeGenerator):
             nest_version = NESTTools.detect_nest_version()
             self.set_options({"nest_version": nest_version})
 
-        # insist on using the old Archiving_Node class for NEST 2
-        if self.get_option("nest_version").startswith("v2"):
-            self.set_options({"neuron_parent_class": "Archiving_Node",
-                              "neuron_parent_class_include": "archiving_node.h"})
-
         self.non_equations_state_variables = {}  # those state variables not defined as an ODE in the equations block
 
         self.setup_template_env()
@@ -194,12 +187,8 @@ class NESTCodeGenerator(CodeGenerator):
         # C++/NEST API printers
         self._type_symbol_printer = NESTCppTypeSymbolPrinter()
         self._nest_variable_printer = NESTVariablePrinter(expression_printer=None, with_origin=True, with_vector_parameter=True)
-        if self.option_exists("nest_version") and (self.get_option("nest_version").startswith("2") or self.get_option("nest_version").startswith("v2")):
-            self._nest_function_call_printer = NEST2CppFunctionCallPrinter(None)
-            self._nest_function_call_printer_no_origin = NEST2CppFunctionCallPrinter(None)
-        else:
-            self._nest_function_call_printer = NESTCppFunctionCallPrinter(None)
-            self._nest_function_call_printer_no_origin = NESTCppFunctionCallPrinter(None)
+        self._nest_function_call_printer = NESTCppFunctionCallPrinter(None)
+        self._nest_function_call_printer_no_origin = NESTCppFunctionCallPrinter(None)
 
         self._printer = CppExpressionPrinter(simple_expression_printer=CppSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
                                                                                                   constant_printer=self._constant_printer,
@@ -217,12 +206,8 @@ class NESTCodeGenerator(CodeGenerator):
 
         # GSL printers
         self._gsl_variable_printer = GSLVariablePrinter(None)
-        if self.option_exists("nest_version") and (self.get_option("nest_version").startswith("2") or self.get_option("nest_version").startswith("v2")):
-            self._gsl_function_call_printer = NEST2GSLFunctionCallPrinter(None)
-            self._gsl_function_call_printer_no_origin = NEST2GSLFunctionCallPrinter(None)
-        else:
-            self._gsl_function_call_printer = NESTGSLFunctionCallPrinter(None)
-            self._gsl_function_call_printer_no_origin = NEST2GSLFunctionCallPrinter(None)
+        self._gsl_function_call_printer = NESTGSLFunctionCallPrinter(None)
+        self._gsl_function_call_printer_no_origin = NESTGSLFunctionCallPrinter(None)
 
         self._gsl_printer = CppExpressionPrinter(simple_expression_printer=CppSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
                                                                                                       constant_printer=self._constant_printer,
@@ -237,12 +222,6 @@ class NESTCodeGenerator(CodeGenerator):
         self._gsl_function_call_printer_no_origin._expression_printer = self._gsl_printer_no_origin
 
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
-        # insist on using the old Archiving_Node class for NEST 2
-        if self.option_exists("nest_version") and self.get_option("nest_version").startswith("v2"):
-            Logger.log_message(None, -1, "Overriding parent class for NEST 2 compatibility", None, LoggingLevel.WARNING)
-            options["neuron_parent_class"] = "Archiving_Node"
-            options["neuron_parent_class_include"] = "archiving_node.h"
-
         ret = super().set_options(options)
         self.setup_template_env()
 

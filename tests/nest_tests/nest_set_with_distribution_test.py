@@ -53,8 +53,6 @@ class TestNestSetWithDistribution:
                              suffix="_nestml",
                              codegen_opts=codegen_opts)
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     def test_nest_set_with_distribution(self):
         nest.ResetKernel()
         NESTTools.set_nest_verbosity("ALL")

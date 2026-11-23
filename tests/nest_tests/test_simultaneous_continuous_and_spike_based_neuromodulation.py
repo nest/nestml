@@ -38,8 +38,6 @@ from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
-@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                    reason="This test does not support NEST 2")
 class TestSimultaneousContinuousAndSpikeBasedNeuromodulation:
     r"""
     Test that a combination of continuous-time-based and spike-based neuromodulation in a synapse compiles.

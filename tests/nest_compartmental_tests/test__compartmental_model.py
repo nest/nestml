@@ -22,11 +22,9 @@
 import numpy as np
 import os
 import copy
-import pytest
 
 import nest
 
-from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_compartmental_target
 
 # set to `True` to plot simulation traces
@@ -258,8 +256,6 @@ class TestCM:
 
         return res_act, res_pas
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     def test_compartmental_model(self):
         """We numerically compare the output of the standard nest compartmental model to the equivalent nestml
         compartmental model"""

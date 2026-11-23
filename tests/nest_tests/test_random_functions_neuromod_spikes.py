@@ -29,8 +29,6 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 from pynestml.codegeneration.nest_tools import NESTTools
 
 
-@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                    reason="This test does not support NEST 2")
 class TestRandomFunctionsWithNeuromodSpikes:
     """Tests for random functions like ``random_uniform`` and ``random_normal`` with neuromodulated spikes
     """

@@ -34,7 +34,6 @@ except BaseException:
 
 import nest
 
-from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
@@ -63,8 +62,6 @@ class TestDopaSecondOrder:
                                                                      "synapses": {"dopa_second_order_synapse": {"vt_ports": ["dopa_spikes"]}}}],
                                            "weight_variable": {"dopa_second_order_synapse": "w"}})
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     def test_synapse(self):
         resolution = .25   # [ms]
         delay = 1.    # [ms]

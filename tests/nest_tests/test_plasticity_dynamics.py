@@ -35,7 +35,6 @@ except BaseException:
 
 import nest
 
-from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
@@ -55,8 +54,6 @@ def nestml_generate_target():
                                        "weight_variable": {"test_plasticity_dynamics_synapse": "w"}})
 
 
-@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                    reason="This test does not support NEST 2")
 def test_plasticity_dynamics():
     r"""Test that the time interval-based plasticity rule in ``test_plasticity_dynamics_synapse`` is implemented correctly on a simple sequences of spikes"""
     nest.ResetKernel()

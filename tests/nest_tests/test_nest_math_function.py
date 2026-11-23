@@ -38,8 +38,6 @@ class TestNestMathFunction:
         module_name = "nestmlmodule"
         suffix = "_nestml"
 
-        nest_version = NESTTools.detect_nest_version()
-
         NESTTools.set_nest_verbosity("ALL")
         generate_nest_target(input_path,
                              target_path=target_path,
@@ -58,32 +56,18 @@ class TestNestMathFunction:
 
         nest.Simulate(100.)
 
-        if nest_version.startswith("v2"):
-            timevec = nest.GetStatus(mm, "events")[0]["x"]
-            ln_state_ts = nest.GetStatus(mm, "events")[0]["ln_state"]
-            log10_state_ts = nest.GetStatus(mm, "events")[0]["log10_state"]
-            erf_state_ts = nest.GetStatus(mm, "events")[0]["erf_state"]
-            erfc_state_ts = nest.GetStatus(mm, "events")[0]["erfc_state"]
-            ceil_state_ts = nest.GetStatus(mm, "events")[0]["ceil_state"]
-            floor_state_ts = nest.GetStatus(mm, "events")[0]["floor_state"]
-            round_state_ts = nest.GetStatus(mm, "events")[0]["round_state"]
-            abs_state_ts = nest.GetStatus(mm, "events")[0]["abs_state"]
-            cos_state_ts = nest.GetStatus(mm, "events")[0]["cos_state"]
-            sin_state_ts = nest.GetStatus(mm, "events")[0]["sin_state"]
-            tan_state_ts = nest.GetStatus(mm, "events")[0]["tan_state"]
-        else:
-            timevec = mm.get("events")["x"]
-            ln_state_ts = mm.get("events")["ln_state"]
-            log10_state_ts = mm.get("events")["log10_state"]
-            erf_state_ts = mm.get("events")["erf_state"]
-            erfc_state_ts = mm.get("events")["erfc_state"]
-            ceil_state_ts = mm.get("events")["ceil_state"]
-            floor_state_ts = mm.get("events")["floor_state"]
-            round_state_ts = mm.get("events")["round_state"]
-            abs_state_ts = mm.get("events")["abs_state"]
-            cos_state_ts = mm.get("events")["cos_state"]
-            sin_state_ts = mm.get("events")["sin_state"]
-            tan_state_ts = mm.get("events")["tan_state"]
+        timevec = mm.get("events")["x"]
+        ln_state_ts = mm.get("events")["ln_state"]
+        log10_state_ts = mm.get("events")["log10_state"]
+        erf_state_ts = mm.get("events")["erf_state"]
+        erfc_state_ts = mm.get("events")["erfc_state"]
+        ceil_state_ts = mm.get("events")["ceil_state"]
+        floor_state_ts = mm.get("events")["floor_state"]
+        round_state_ts = mm.get("events")["round_state"]
+        abs_state_ts = mm.get("events")["abs_state"]
+        cos_state_ts = mm.get("events")["cos_state"]
+        sin_state_ts = mm.get("events")["sin_state"]
+        tan_state_ts = mm.get("events")["tan_state"]
 
         ref_ln_state_ts = np.log(timevec - 1)
         ref_log10_state_ts = np.log10(timevec - 1)

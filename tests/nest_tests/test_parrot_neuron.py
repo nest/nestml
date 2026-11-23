@@ -42,8 +42,6 @@ class TestParrotNeuron:
                              logging_level="DEBUG",
                              suffix="_nestml")
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     def test_neuron_event_priority(self):
         nest.ResetKernel()
         NESTTools.set_nest_verbosity("ALL")

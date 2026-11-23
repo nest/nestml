@@ -26,7 +26,6 @@ import pytest
 
 import nest
 
-from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_compartmental_target
 
 
@@ -203,8 +202,6 @@ class TestBasicIntegration:
         print("v_expected:", v_expected)
         np.testing.assert_allclose(v_neuron, v_expected, err_msg=f"Neuron voltages {v_neuron} do not match expected values {v_expected}.")
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     @pytest.mark.parametrize(
         "primitive_fn",
         [
@@ -221,8 +218,6 @@ class TestBasicIntegration:
         i_in = 0.1 * np.arange(1, n_comp + 1)
         self._run_and_compare(compartments, dt=dt, injected_currents=i_in, sample_index=-1)
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     def test_inversion_heterogeneous_primitive_no_input(self):
         dt = 0.1
         compartments = primitive_2tdend_4comp()

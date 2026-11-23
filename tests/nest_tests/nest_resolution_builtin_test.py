@@ -21,7 +21,6 @@
 
 import numpy as np
 import os
-import pytest
 import unittest
 
 import nest
@@ -49,8 +48,6 @@ class NestResolutionBuiltinTest(unittest.TestCase):
                                                                      "synapses": {"resolution_legally_used_synapse": {}}}],
                                            "weight_variable": {"resolution_legally_used_synapse": "w"}})
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     def test_resolution_function(self):
         nest.ResetKernel()
         NESTTools.set_nest_verbosity("ALL")

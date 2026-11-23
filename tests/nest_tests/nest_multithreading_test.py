@@ -25,7 +25,6 @@ import pytest
 
 import nest
 
-from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
@@ -69,8 +68,6 @@ class TestNestMultithreading:
                              codegen_opts={"neuron_parent_class": "ArchivingNode",
                                            "neuron_parent_class_include": "archiving_node.h"})
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     def test_neuron_multithreading(self, number_of_threads: int) -> None:
         nest.ResetKernel()
         nest.resolution = 0.1
@@ -104,8 +101,6 @@ class TestNestMultithreading:
         v_m_sender = v_m[senders == gid_post]
         np.testing.assert_almost_equal(v_m_sender[-1], -69.97074345103812)
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     def test_neuron_synapse_multithreading(self, number_of_threads: int) -> None:
         pre_spike_times = np.array([2., 4., 7., 8., 12., 13., 19., 23., 24., 28., 29., 30., 33., 34.,
                                     35., 36., 38., 40., 42., 46., 51., 53., 54., 55., 56., 59., 63., 64.,

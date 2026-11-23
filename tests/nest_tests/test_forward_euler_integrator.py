@@ -21,11 +21,9 @@
 
 import numpy as np
 import os
-import pytest
 
 import nest
 
-from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
@@ -48,8 +46,6 @@ class TestForwardEulerIntegrator:
 
         return "nestml" + numeric_solver.replace("-", "_") + "module"
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     def test_forward_euler_integrator(self):
         forward_euler_module_name = self.generate_target("forward-Euler")
         rk45_module_name = self.generate_target("rk45")
