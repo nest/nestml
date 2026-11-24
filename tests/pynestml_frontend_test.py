@@ -128,6 +128,24 @@ class PyNestMLFrontendTest(unittest.TestCase):
 
         assert len(FrontendConfiguration.paths_to_compilation_units) == 2
 
+    def test_install_path_not_carried_over_between_calls(self):
+        r"""An installation path given in one call should not be used for a subsequent call that does not specify one (which should use the default installation path)."""
+        path = tempfile.mkdtemp(prefix="nestml-")
+        fd, fpath = tempfile.mkstemp(dir=path, suffix=".nestml")
+        with open(fpath, "w") as f:
+            f.write("neuron foo:\n")
+            os.close(fd)
+
+        target_path = tempfile.mkdtemp(prefix="nestml-target-")
+        install_path = tempfile.mkdtemp(prefix="nestml-install-")
+        params = ["--input_path", path, "--target_path", target_path, "--logging_level", "INFO"]
+
+        FrontendConfiguration.parse_config(params + ["--install_path", install_path])
+        assert FrontendConfiguration.get_install_path() == install_path
+
+        FrontendConfiguration.parse_config(params)
+        assert FrontendConfiguration.get_install_path() is None
+
     def tearDown(self):
         # clean up
         import shutil
