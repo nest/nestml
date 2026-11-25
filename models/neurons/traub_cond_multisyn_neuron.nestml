@@ -44,7 +44,7 @@
 #
 model traub_cond_multisyn_neuron:
     state:
-        V_m mV = -70. mV    # Membrane potential
+        V_m mV = V_m_init   # Membrane potential
         V_m_old mV = E_L    # Membrane potential at previous timestep for threshold check
         refr_t ms = 0 ms    # Refractory period timer
 
@@ -114,6 +114,7 @@ model traub_cond_multisyn_neuron:
         E_Na mV = 50 mV         # Sodium reversal potential
         E_K mV = -100 mV        # Potassium reversal potentia
         E_L mV = -67 mV         # Leak reversal potential (a.k.a. resting potential)
+        V_m_init mV = -70 mV    # Initial membrane potential
         V_Tr mV = -20 mV        # Spike threshold
         refr_T ms = 2 ms        # Duration of refractory period
 
@@ -149,12 +150,12 @@ model traub_cond_multisyn_neuron:
         GABA_AInitialValue real = compute_synapse_constant(tau_GABAA_1, tau_GABAA_2, GABA_A_g_peak)
         GABA_BInitialValue real = compute_synapse_constant(tau_GABAB_1, tau_GABAB_2, GABA_B_g_peak)
 
-        alpha_n_init real = 0.032 * (V_m / 1 mV + 52.) / (1. - exp(-(V_m / 1 mV + 52.) / 5.))
-        beta_n_init real = 0.5 * exp(-(V_m / 1 mV + 57.) / 40.)
-        alpha_m_init real = 0.32 * (V_m / 1 mV + 54.) / (1.0 - exp(-(V_m / 1 mV + 54.) / 4.))
-        beta_m_init real = 0.28 * (V_m / 1 mV + 27.) / (exp((V_m / 1 mV + 27.) / 5.) - 1.)
-        alpha_h_init real = 0.128 * exp(-(V_m / 1 mV + 50.0) / 18.0)
-        beta_h_init real = 4.0 / (1.0 + exp(-(V_m / 1 mV + 27.) / 5.))
+        alpha_n_init real = 0.032 * (V_m_init / 1 mV + 52.) / (1. - exp(-(V_m_init / 1 mV + 52.) / 5.))
+        beta_n_init real = 0.5 * exp(-(V_m_init / 1 mV + 57.) / 40.)
+        alpha_m_init real = 0.32 * (V_m_init / 1 mV + 54.) / (1.0 - exp(-(V_m_init / 1 mV + 54.) / 4.))
+        beta_m_init real = 0.28 * (V_m_init / 1 mV + 27.) / (exp((V_m_init / 1 mV + 27.) / 5.) - 1.)
+        alpha_h_init real = 0.128 * exp(-(V_m_init / 1 mV + 50.0) / 18.0)
+        beta_h_init real = 4.0 / (1.0 + exp(-(V_m_init / 1 mV + 27.) / 5.))
 
         unit_psg nS = 1 nS        # Unitary postsynaptic conductance amplitude
 

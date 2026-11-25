@@ -160,6 +160,9 @@ class MessageCode(Enum):
     NO_SOLITARY_PHYSICAL_UNITS = 133
     SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED = 134
     NEST_RANDOM_FUNCTIONS_LEGALLY_USED = 135
+    VARIABLE_DEFINITION_IN_PARAMETERS_BLOCK_NOT_ALLOWED_TO_REFER_TO_STATE_BLOCK = 136
+    VARIABLE_DEFINITION_IN_PARAMETERS_BLOCK_NOT_ALLOWED_TO_REFER_TO_INTERNALS_BLOCK = 137
+    VARIABLE_DEFINITION_IN_INTERNALS_BLOCK_NOT_ALLOWED_TO_REFER_TO_STATE_BLOCK = 138
 
 
 class Messages:
@@ -1264,3 +1267,21 @@ class Messages:
     def get_vector_input_ports_should_be_of_constant_size(cls):
         message = "Vector input ports should be of constant size (this is a limitation of NEST Simulator)"
         return MessageCode.VECTOR_INPUT_PORTS_SHOULD_BE_OF_CONSTANT_SIZE, message
+
+    @classmethod
+    def get_variable_definition_in_parameters_block_not_allowed_to_refer_to_state_block(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "Definition of variable \"" + variable_name + "\" in ``parameters`` block is not allowed to refer to variables defined in the ``state`` block."
+
+        return MessageCode.VARIABLE_DEFINITION_IN_PARAMETERS_BLOCK_NOT_ALLOWED_TO_REFER_TO_STATE_BLOCK, message
+
+    @classmethod
+    def get_variable_definition_in_parameters_block_not_allowed_to_refer_to_internals_block(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "Definition of variable \"" + variable_name + "\" in ``parameters`` block is not allowed to refer to variables defined in the ``internals`` block."
+
+        return MessageCode.VARIABLE_DEFINITION_IN_PARAMETERS_BLOCK_NOT_ALLOWED_TO_REFER_TO_INTERNALS_BLOCK, message
+
+    @classmethod
+    def get_variable_definition_in_internals_block_not_allowed_to_refer_to_state_block(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "Definition of variable \"" + variable_name + "\" in ``internals`` block is not allowed to refer to variables defined in the ``state`` block."
+
+        return MessageCode.VARIABLE_DEFINITION_IN_INTERNALS_BLOCK_NOT_ALLOWED_TO_REFER_TO_STATE_BLOCK, message

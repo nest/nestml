@@ -1,0 +1,40 @@
+# parameters_internals_state_declaration_order_neuron
+# ###################################################
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+model parameters_internals_state_declaration_order_neuron:
+    # blocks are deliberately given in "reverse" order: the order in which the blocks appear in the model does not matter, only which blocks the definitions refer to
+    state:
+        V_m mV = E_L + V_offset                    # state referring to a parameter and an internal
+        refr_t ms = refr_T                         # state referring to a parameter
+        g real = 0                                 # state not referring to anything
+
+    internals:
+        V_offset mV = V_offset_factor * E_L        # internal referring to parameters
+        RefractoryCounts integer = steps(refr_T)   # internal referring to a parameter
+        two_V_offset mV = 2 * V_offset             # internal referring to another internal
+
+    parameters:
+        E_L mV = -70 mV                            # parameter not referring to anything
+        V_offset_factor real = 0.1
+        refr_T ms = 2 * resolution()               # parameter referring to a predefined function
+        E_L_shifted mV = E_L + 10 mV               # parameter referring to another parameter

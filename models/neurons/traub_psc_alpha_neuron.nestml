@@ -76,7 +76,6 @@ model traub_psc_alpha_neuron:
         refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero, at a rate of one (milli)second per (milli)second
 
     parameters:
-        V_m_init mV = -70 mV      # Initial membrane potential
         C_m pF = 100 pF           # Membrane capacitance
         g_Na nS = 10000 nS        # Sodium peak conductance
         g_K nS = 8000 nS          # Potassium peak conductance
@@ -84,6 +83,7 @@ model traub_psc_alpha_neuron:
         E_Na mV = 50 mV           # Sodium reversal potential
         E_K mV = -100 mV          # Potassium reversal potential
         E_L mV = -67 mV           # Leak reversal potential (a.k.a. resting potential)
+        V_m_init mV = E_L         # Initial membrane potential (default: leakage potential)
         V_Tr mV = -20 mV          # Spike threshold
         refr_T ms = 2 ms          # Duration of refractory period
 
@@ -94,12 +94,12 @@ model traub_psc_alpha_neuron:
         I_e pA = 0 pA
 
     internals:
-        alpha_n_init real = 0.032 * (V_m / 1 mV + 52.) / (1. - exp(-(V_m / 1 mV + 52.) / 5.))
-        beta_n_init real = 0.5 * exp(-(V_m / 1 mV + 57.) / 40.)
-        alpha_m_init real = 0.32 * (V_m / 1 mV + 54.) / (1.0 - exp(-(V_m / 1 mV + 54.) / 4.))
-        beta_m_init real = 0.28 * (V_m / 1 mV + 27.) / (exp((V_m / 1 mV + 27.) / 5.) - 1.)
-        alpha_h_init real = 0.128 * exp(-(V_m / 1 mV + 50.0) / 18.0)
-        beta_h_init real = 4.0 / (1.0 + exp(-(V_m / 1 mV + 27.) / 5.))
+        alpha_n_init real = 0.032 * (V_m_init / 1 mV + 52.) / (1. - exp(-(V_m_init / 1 mV + 52.) / 5.))
+        beta_n_init real = 0.5 * exp(-(V_m_init / 1 mV + 57.) / 40.)
+        alpha_m_init real = 0.32 * (V_m_init / 1 mV + 54.) / (1.0 - exp(-(V_m_init / 1 mV + 54.) / 4.))
+        beta_m_init real = 0.28 * (V_m_init / 1 mV + 27.) / (exp((V_m_init / 1 mV + 27.) / 5.) - 1.)
+        alpha_h_init real = 0.128 * exp(-(V_m_init / 1 mV + 50.0) / 18.0)
+        beta_h_init real = 4.0 / (1.0 + exp(-(V_m_init / 1 mV + 27.) / 5.))
 
         unit_psc pA = 1 pA        # Unitary postsynaptic current amplitude
 

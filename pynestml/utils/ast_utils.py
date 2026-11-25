@@ -616,7 +616,7 @@ class ASTUtils:
                 return
 
             if not suffix in var.get_name() \
-               and var.get_name() not in PredefinedVariables.get_variables().keys() \
+               and var.get_name() not in PredefinedVariables.get_variables() \
                and (var_name is None or var.get_name() == var_name):
                 symbol = scope.resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
                 if symbol:    # make sure it is not a unit (like "ms")
@@ -674,7 +674,7 @@ class ASTUtils:
                 return
 
             if (variable_names is None or var.get_name() in variable_names) \
-               and var.get_name() not in PredefinedVariables.get_variables().keys() \
+               and var.get_name() not in PredefinedVariables.get_variables() \
                and not var.get_name().endswith(suffix):
                 symbol = scope.resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
                 if symbol:    # make sure it is not a unit (like "ms")
@@ -699,7 +699,7 @@ class ASTUtils:
             else:
                 return
 
-            if not var.get_name() in PredefinedVariables.get_variables().keys():
+            if not var.get_name() in PredefinedVariables.get_variables():
                 symbol = new_scope.resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
                 if symbol:    # make sure it is not a unit (like "ms")
                     var.update_scope(new_scope)

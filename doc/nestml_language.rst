@@ -826,9 +826,9 @@ Block types
 
 ``model <name>`` - The top-level block of a model called ``<name>``. The model can either be a neuron or a synapse model. Within the top-level block, the following blocks may be defined:
 
--  ``parameters`` - This block is composed of a list of variable declarations that are supposed to contain all parameters which remain constant during the simulation, but can vary among different simulations or instantiations of the same model. Parameters cannot be changed from within the model itself; for this, use state variables instead.
+-  ``parameters`` - This block is composed of a list of variable declarations that are supposed to contain all parameters which remain constant during the simulation, but can vary among different simulations or instantiations of the same model. Parameters cannot be changed from within the model itself; for this, use state variables instead. The initialization expression of a parameter can only reference other parameters (and not internals or state variables).
 -  ``internals`` - This block is composed of a list of implementation-dependent helper variables that are supposed to be constant during the simulation run and are derived from parameters. Therefore, their initialization expression can only reference parameters or other internal variables.
--  ``state`` - This block is composed of a list of variable declarations that describe parts of the model which may change over time. All the variables declared in this block must be initialized with a value.
+-  ``state`` - This block is composed of a list of variable declarations that describe parts of the model which may change over time. All the variables declared in this block must be initialized with a value. The initialization expression of a state variable can reference parameters, internals, and other state variables.
 -  ``equations`` - This block contains kernel definitions and differential equations. It will be explained in further detail `later on in the manual <#equations>`__.
 -  ``input`` - This block is composed of one or more input ports. It will be explained in further detail `later on in the manual <#input>`__.
 -  ``output`` - Defines which type of event the model can send.

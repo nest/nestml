@@ -125,4 +125,13 @@ class PredefinedVariables:
         :return: a list of variable symbols.
         :rtype: list(VariableSymbol)
         """
+        return cls.name2variable.keys()
+
+    @classmethod
+    def get_variables_to_symbols_dict(cls):
+        """
+        Returns the list of all defined variables.
+        :return: a list of variable symbols.
+        :rtype: list(VariableSymbol)
+        """
         return cls.name2variable
