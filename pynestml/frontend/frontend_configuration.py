@@ -293,6 +293,8 @@ appropriate numeric solver otherwise.
 
         Create the installation path directory if it is specified as a string, but does not exist. Its parent directory has to exist already. The path will not be created if ``path`` is None."""
         if path is None:
+            # reset, so that an installation path given in a previous call is not carried over
+            cls.install_path = None
             return
 
         if os.path.isabs(path):
