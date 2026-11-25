@@ -21,7 +21,6 @@
 
 import numpy as np
 import os
-import pytest
 import unittest
 
 # try to import matplotlib; set the result in the flag TEST_PLOTS
@@ -80,8 +79,6 @@ class NestSTDPNNSynapseTest(unittest.TestCase):
                              codegen_opts={"neuron_parent_class": "ArchivingNode",
                                            "neuron_parent_class_include": "archiving_node.h"})
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     def test_stdp_nn_synapse(self):
 
         fname_snip = ""

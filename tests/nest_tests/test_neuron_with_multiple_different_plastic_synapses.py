@@ -42,8 +42,6 @@ sim_mdl = True
 sim_ref = True
 
 
-@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                    reason="This test does not support NEST 2")
 class TestNeuronWithMultipleDifferentSynapsesVt:
     r"""Test that code can be generated when a postsynaptic neuron is connected to by several different synapse models, as well as a volume transmitter connecting to the synapses, and each different synapse has a different continuous-time input port that is connected to a "third factor" variable in the postsynaptic neuron (in this case, we just use the existing I_syn_exc and I_syn_inh in the neuron)."""
     neuron_model_name = "iaf_psc_exp_neuron_nestml__with_stdp_nn_symm_synapse_nestml_and_stdp_nn_restr_symm_synapse_nestml"

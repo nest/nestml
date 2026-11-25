@@ -32,7 +32,6 @@ except BaseException:
 
 import nest
 
-from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
@@ -72,20 +71,12 @@ class TestTraubCondMultiSyn:
                                  "AMPA_g_peak": 0.1})
 
         multimeter = nest.Create("multimeter", 2)
-        if NESTTools.detect_nest_version().startswith("v2"):
-            nest.SetStatus([multimeter[0]], {"record_from": ["V_m"],
-                                             "interval": dt})
-        else:
-            nest.SetStatus(multimeter[0], {"record_from": ["V_m"],
-                                           "interval": dt})
+        nest.SetStatus(multimeter[0], {"record_from": ["V_m"],
+                                       "interval": dt})
         record_from = ["V_m", "I_syn_ampa",
                        "I_syn_nmda", "I_syn_gaba_a", "I_syn_gaba_b"]
-        if NESTTools.detect_nest_version().startswith("v2"):
-            nest.SetStatus([multimeter[1]], {"record_from": record_from,
-                                             "interval": dt})
-        else:
-            nest.SetStatus(multimeter[1], {"record_from": record_from,
-                                           "interval": dt})
+        nest.SetStatus(multimeter[1], {"record_from": record_from,
+                                       "interval": dt})
 
         receptor_types = nest.GetStatus(neuron2, "receptor_types")[0]
         nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": receptor_types["AMPA_SPIKES"]})
@@ -93,14 +84,9 @@ class TestTraubCondMultiSyn:
         nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": receptor_types["GABA_A_SPIKES"]})
         nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": receptor_types["GABA_B_SPIKES"]})
 
-        if NESTTools.detect_nest_version().startswith("v2"):
-            nest.Connect([multimeter[0]], neuron1, "one_to_one")
-            nest.Connect([multimeter[1]], neuron2)
-            spike_recorder = nest.Create("spike_detector")
-        else:
-            nest.Connect(multimeter[0], neuron1, "one_to_one")
-            nest.Connect(multimeter[1], neuron2)
-            spike_recorder = nest.Create("spike_recorder")
+        nest.Connect(multimeter[0], neuron1, "one_to_one")
+        nest.Connect(multimeter[1], neuron2)
+        spike_recorder = nest.Create("spike_recorder")
         nest.Connect(neuron1, spike_recorder)
         nest.Simulate(t_simulation)
 

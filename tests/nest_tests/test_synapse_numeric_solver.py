@@ -21,7 +21,6 @@
 
 import numpy as np
 import os
-import pytest
 from scipy.integrate import solve_ivp
 
 # try to import matplotlib; set the result in the flag TEST_PLOTS
@@ -39,8 +38,6 @@ from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
-@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                    reason="This test does not support NEST 2")
 class TestSynapseNumericSolver:
     """
     Tests a synapse with non-linear dynamics requiring a numeric solver for ODEs.

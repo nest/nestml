@@ -25,7 +25,6 @@ import pytest
 
 import nest
 
-from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_compartmental_target
 
 # set to `True` to plot simulation traces

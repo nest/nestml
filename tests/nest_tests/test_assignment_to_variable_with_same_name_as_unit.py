@@ -25,7 +25,6 @@ import scipy as sp
 import os
 
 from pynestml.frontend.pynestml_frontend import generate_nest_target
-from pynestml.codegeneration.nest_tools import NESTTools
 
 
 class TestAssignmentToVariableWithSameNameAsUnit:
@@ -37,8 +36,6 @@ class TestAssignmentToVariableWithSameNameAsUnit:
         logging_level = "DEBUG"
         module_name = "nestmlmodule"
         suffix = "_nestml"
-
-        nest_version = NESTTools.detect_nest_version()
 
         nest.set_verbosity("M_ALL")
         generate_nest_target(input_path,

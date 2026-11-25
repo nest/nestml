@@ -21,7 +21,6 @@
 
 import numpy as np
 import os
-import pytest
 import unittest
 
 # try to import matplotlib; set the result in the flag TEST_PLOTS
@@ -55,8 +54,6 @@ class NoisySynapseTest(unittest.TestCase):
                              suffix="_nestml",
                              codegen_opts={"weight_variable": {"noisy_synapse": "w"}})
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     def test_noisy_noisy_synapse_synapse(self):
 
         fname_snip = "noisy_synapse_test"

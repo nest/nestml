@@ -38,8 +38,6 @@ from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
-@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                    reason="This test does not support NEST 2")
 class TestSynapseContinuousThirdFactorIsPostsynapticInlineExpression:
     r"""Test that synapses with a third-factor continuous-time input port can successfully grab the values from the postsynaptic neuron if the port is connected to a postsynaptic inline expression (n.b. as apart from a postsynaptic state variable)"""
 

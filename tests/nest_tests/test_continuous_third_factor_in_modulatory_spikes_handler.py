@@ -25,12 +25,9 @@ import re
 
 import nest
 
-from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
-@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                    reason="This test does not support NEST 2")
 class TestContinuousThirdFactorInModulatorySpikesHandler:
     r"""Test that continuous third factors can be accessed in the modulatory spikes handler in a synapse model."""
 

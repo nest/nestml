@@ -20,7 +20,6 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import numpy as np
-import pytest
 import re
 
 import nest
@@ -44,8 +43,6 @@ def get_model_doc_title(model_fname: str):
         return re.compile(r"[^#]*###").search(model).group()[3:-3].strip()
 
 
-@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                    reason="This test does not support NEST 2")
 class TestNESTNeuronModelEquivalence:
 
     def generate_all_models(self):
@@ -227,12 +224,8 @@ class TestNESTNeuronModelEquivalence:
             nest.Connect(multimeter1, nest_neuron)
             nest.Connect(multimeter2, nestml_neuron)
 
-            if NESTTools.detect_nest_version().startswith("v2"):
-                sd_reference = nest.Create("spike_detector")
-                sd_testant = nest.Create("spike_detector")
-            else:
-                sd_reference = nest.Create("spike_recorder")
-                sd_testant = nest.Create("spike_recorder")
+            sd_reference = nest.Create("spike_recorder")
+            sd_testant = nest.Create("spike_recorder")
 
             nest.Connect(nest_neuron, sd_reference)
             nest.Connect(nestml_neuron, sd_testant)
@@ -308,12 +301,8 @@ class TestNESTNeuronModelEquivalence:
             nest.Connect(multimeter1, nest_neuron)
             nest.Connect(multimeter2, nestml_neuron)
 
-            if NESTTools.detect_nest_version().startswith("v2"):
-                sd_reference = nest.Create("spike_detector")
-                sd_testant = nest.Create("spike_detector")
-            else:
-                sd_reference = nest.Create("spike_recorder")
-                sd_testant = nest.Create("spike_recorder")
+            sd_reference = nest.Create("spike_recorder")
+            sd_testant = nest.Create("spike_recorder")
 
             nest.Connect(nest_neuron, sd_reference)
             nest.Connect(nestml_neuron, sd_testant)

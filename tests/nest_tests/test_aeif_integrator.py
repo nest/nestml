@@ -29,8 +29,6 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 from pynestml.codegeneration.nest_tools import NESTTools
 
 
-@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                    reason="This test does not support NEST 2")
 class TestAEIFIntegrator_with_respect_to_solution:
     r"""Check that the integrator default tolerances are set such that the adaptive exponential models do not cause trouble for the numerical integrator"""
 

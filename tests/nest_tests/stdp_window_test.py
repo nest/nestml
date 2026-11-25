@@ -100,19 +100,12 @@ def run_stdp_network(pre_spike_time, post_spike_time,
     pre_neuron = nest.Create("parrot_neuron")
     post_neuron = nest.Create(neuron_model_name)
 
-    if NESTTools.detect_nest_version().startswith("v2"):
-        spikedet_pre = nest.Create("spike_detector")
-        spikedet_post = nest.Create("spike_detector")
-    else:
-        spikedet_pre = nest.Create("spike_recorder")
-        spikedet_post = nest.Create("spike_recorder")
+    spikedet_pre = nest.Create("spike_recorder")
+    spikedet_post = nest.Create("spike_recorder")
 
     nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
     nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
-    if NESTTools.detect_nest_version().startswith("v2"):
-        nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"model": "stdp_nestml_rec"})
-    else:
-        nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "stdp_nestml_rec"})
+    nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "stdp_nestml_rec"})
 
     nest.Connect(pre_neuron, spikedet_pre)
     nest.Connect(post_neuron, spikedet_post)

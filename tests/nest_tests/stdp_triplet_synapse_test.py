@@ -164,10 +164,7 @@ def run_nest_simulation(neuron_model_name,
     external_input = nest.Create("spike_generator", params={"spike_times": pre_spike_times_req})
     external_input1 = nest.Create("spike_generator", params={"spike_times": post_spike_times_req})
 
-    if NESTTools.detect_nest_version().startswith("v2"):
-        spikes = nest.Create("spike_detector")
-    else:
-        spikes = nest.Create("spike_recorder")
+    spikes = nest.Create("spike_recorder")
     weight_recorder_E = nest.Create("weight_recorder")
 
     # Set models default -------------------------------------------
@@ -188,14 +185,9 @@ def run_nest_simulation(neuron_model_name,
 
     # Connect nodes ------------------------------------------------
 
-    if NESTTools.detect_nest_version().startswith("v2"):
-        nest.Connect([neurons[0]], [neurons[1]], syn_spec={"model": synapse_model_name + "_rec"})
-        nest.Connect(external_input, [neurons[0]], syn_spec="excitatory_noise")
-        nest.Connect(external_input1, [neurons[1]], syn_spec="excitatory_noise")
-    else:
-        nest.Connect(neurons[0], neurons[1], syn_spec={"synapse_model": synapse_model_name + "_rec"})
-        nest.Connect(external_input, neurons[0], syn_spec="excitatory_noise")
-        nest.Connect(external_input1, neurons[1], syn_spec="excitatory_noise")
+    nest.Connect(neurons[0], neurons[1], syn_spec={"synapse_model": synapse_model_name + "_rec"})
+    nest.Connect(external_input, neurons[0], syn_spec="excitatory_noise")
+    nest.Connect(external_input1, neurons[1], syn_spec="excitatory_noise")
     # spike_recorder ignores connection delay; recorded times are times of spike creation rather than spike arrival
     nest.Connect(neurons, spikes)
 

@@ -22,7 +22,6 @@ import json
 import os
 import pytest
 
-from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_target
 
 

@@ -61,12 +61,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 {%- if norm_rng %}
 // Includes for random number generator
-{%-   if nest_version_dict and nest_version_dict["major"] == 2 %}
-#include "normal_randomdev.h"
-#include "uniform_randomdev.h"
-{%-   else %}
 #include <random>
-{%-   endif %}
 {%- endif %}
 
 {%- if vt_ports is defined and vt_ports|length > 0  %}
@@ -226,11 +221,7 @@ public:
       if( {{ read_from_dictionary.ReadFromDictionary("d", "NodeCollectionDatum", "names::volume_transmitter", "vt_ptr", "", false) }})
       {
         const nest_thread_t tid = kernel().vp_manager.get_thread_id();
-{%- if nest_version_dict and nest_version_dict["major"] == 2 %}
-        Node* vt = kernel().node_manager.get_node( ( *vt_ptr )[ 0 ], tid );
-{%- else %}
         Node* vt = kernel().node_manager.get_node_or_proxy( ( *vt_ptr )[ 0 ], tid );
-{%- endif %}
         vt_ = dynamic_cast< volume_transmitter* >( vt );
         if ( vt_ == nullptr )
         {
@@ -258,11 +249,7 @@ public:
     {
       if ( vt_ != nullptr )
       {
-{%- if nest_version_dict and nest_version_dict["major"] == 2 %}
-        return vt_->get_gid();
-{%- else %}
         return vt_->get_node_id();
-{%- endif %}
       }
       else
       {
@@ -994,11 +981,7 @@ void get_entry_from_continuous_variable_history(double t,
   void set_status( const DictionaryDatum& d, ConnectorModel& cm );
 
 {%- if norm_rng %}
-{%- if nest_version_dict and nest_version_dict["major"] == 2 %}
-  librandom::NormalRandomDev normal_dev_; //!< random deviate generator
-{%- else %}
   normal_distribution normal_dev_; //!< random deviate generator
-{%- endif %}
 {%- endif %}
 };
 

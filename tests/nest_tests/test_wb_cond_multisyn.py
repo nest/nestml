@@ -33,7 +33,6 @@ except BaseException:
 
 import nest
 
-from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
@@ -49,8 +48,6 @@ class TestNestWBCondExp:
         target_path = "target"
         module_name = "nestmlmodule"
         suffix = "_nestml"
-        nest_version = NESTTools.detect_nest_version()
-
         generate_nest_target(input_path,
                              target_path=target_path,
                              logging_level="INFO",
@@ -70,10 +67,7 @@ class TestNestWBCondExp:
         multimeter = nest.Create("multimeter")
         nest.SetStatus(multimeter, {"record_from": ["V_m"],
                                     "interval": dt})
-        if nest_version.startswith("v2"):
-            spike_recorder = nest.Create("spike_detector")
-        else:
-            spike_recorder = nest.Create("spike_recorder")
+        spike_recorder = nest.Create("spike_recorder")
         nest.Connect(multimeter, neuron)
         nest.Connect(neuron, spike_recorder)
         nest.Simulate(t_simulation)

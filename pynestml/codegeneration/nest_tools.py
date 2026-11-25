@@ -77,9 +77,7 @@ try:
             nest_version = "v" + nest_version
 
     except (AttributeError, ValueError):
-        if "DataConnect" in dir(nest):
-            nest_version = "v2.20.2"
-        elif "kernel_status" not in dir(nest):  # added in v3.1
+        if "kernel_status" not in dir(nest):  # added in v3.1
             nest_version = "v3.0.0"
         elif "prepared" in nest.GetKernelStatus().keys():  # "prepared" key was added after v3.3 release
             nest_version = "v3.4.0"
