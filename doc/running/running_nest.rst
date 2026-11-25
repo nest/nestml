@@ -387,6 +387,37 @@ and subsequently read out from NESTML:
 This will print the string ``dendritic_delay = 2.5``.
 
 
+Axonal delays
+~~~~~~~~~~~~~
+
+Recent versions of NEST Simulator (see `nest-simulator#2989 <https://github.com/nest/nest-simulator/pull/2989>`_) can split the transmission delay of a synapse into a dendritic and an axonal part. A presynaptic spike emitted at time :math:`t_\text{pre}` reaches the synapse after the axonal delay, at :math:`t_\text{pre} + d_\text{axonal}`, and the postsynaptic neuron after the total delay :math:`d_\text{axonal} + d_\text{dendritic}`; a postsynaptic spike emitted at time :math:`t_\text{post}` reaches the synapse after the dendritic delay, at :math:`t_\text{post} + d_\text{dendritic}`. For spike-timing dependent plasticity, what matters is the order in which pre- and postsynaptic spikes reach the synapse.
+
+By default, generated synapses store a single delay (set using the ``delay`` parameter in NEST), which is interpreted as purely dendritic. To generate a synapse with separate dendritic and axonal delays, list it in the code generator option ``axonal_delay_synapses``:
+
+.. code-block:: python
+
+   generate_target(...,
+                   codegen_opts={...,
+                                 "axonal_delay_synapses": ["my_synapse"]})
+
+Such synapses take the parameters ``dendritic_delay`` and ``axonal_delay`` *instead of* ``delay``; passing ``delay`` raises an error, because it is ambiguous how the total delay should be split. The total delay can still be read out as ``delay``. If a ``delay_variable`` is specified, it corresponds to the total delay and can only be read.
+
+.. code-block:: python
+
+   nest.Connect(pre, post, syn_spec={"synapse_model": "my_synapse_nestml",
+                                     "dendritic_delay": 1.,
+                                     "axonal_delay": 5.})
+
+For synapses that are co-generated with a postsynaptic neuron (see :ref:`Generating code for plastic synapses`), the processing of pre- and postsynaptic spikes takes both delays into account. If the axonal delay is at least as large as the dendritic delay, a postsynaptic spike can occur after a presynaptic spike has already been delivered (and processed by the synapse), and yet reach the synapse before the presynaptic spike does. In this case, the synapse is retrospectively corrected: it is reverted to its state before the presynaptic spike, the processing of the presynaptic spike is repeated (taking the postsynaptic spike into account), and the weight of the spike that was already sent to the postsynaptic neuron is corrected. Some limitations apply to synapses with predominantly axonal delays (an axonal delay of at least the dendritic delay):
+
+- The postsynaptic neuron needs to be derived from ``ArchivingNode`` (the default) or ``AxonalDelayArchivingNode`` (see the ``neuron_parent_class`` code generator option).
+- Neuromodulated synapses (with ``vt_ports``) and synapses that buffer continuous-time postsynaptic state variables (``continuous_state_buffering_method = "continuous_time_buffer"``) are not supported.
+- Structural plasticity is not supported, and connections cannot be changed after the simulation has started.
+- If the synapse draws random numbers when processing a presynaptic spike, these will be drawn again when the processing is repeated, and the outcome can differ from the original one. If a spike was not emitted originally, it cannot be added retrospectively.
+
+Generated neuron models (derived from ``ArchivingNode`` or ``AxonalDelayArchivingNode``) can be the target of synapses with predominantly axonal delays, including the NEST built-in synapse ``stdp_pl_synapse_hom_ax_delay``.
+
+
 Synaptic weights
 ~~~~~~~~~~~~~~~~~
 

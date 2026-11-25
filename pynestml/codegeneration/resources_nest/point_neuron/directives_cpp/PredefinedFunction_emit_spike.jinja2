@@ -17,11 +17,16 @@ nest::kernel().event_delivery_manager.send(*this, se, lag);
 {#-     emit_spike() called from within synapse #}
 e.set_receiver( *__target );
 
-{%-     if nest_codegen_opt_delay_variable %}
+{%-     if nest_codegen_opt_delay_variable and not axonal_delay %}
 {#      synaptic delay variable was explicitly set in code generator options #}
 {%-         set var = utils.get_variable_by_name(astnode, nest_codegen_opt_delay_variable) %}
+{%-         if nest_has_axonal_delays %}
+set_delay_ms( {{ printer.print(var) }} );
+const long __delay_steps = nest::Time::delay_ms_to_steps( get_delay_ms() );
+{%-         else %}
 set_delay( {{ printer.print(var) }} );
 const long __delay_steps = nest::Time::delay_ms_to_steps( get_delay() );
+{%-         endif %}
 set_delay_steps(__delay_steps);
 {%-     endif %}
 
@@ -35,6 +40,15 @@ e.set_weight( 1. );
 // use accessor functions (inherited from Connection< >) to obtain delay in steps and rport
 e.set_delay_steps( get_delay_steps() );
 e.set_rport( get_rport() );
+{%-     if axonal_delay_corrections %}
+__spike_emitted = true;
+if ( not __ax_delay_correction_replay )
+{
+  // when replaying the processing of a presynaptic spike for a retrospective correction, the spike was already sent
+  e();
+}
+{%-     else %}
 e();
+{%-     endif %}
 {%- endif %}
 // end generated code for emit_spike() function

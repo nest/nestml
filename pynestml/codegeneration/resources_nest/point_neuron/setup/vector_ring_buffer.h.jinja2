@@ -70,6 +70,15 @@ public:
    */
   void append_value( const long offs, const double );
 
+  /**
+   * Correct a value that was previously appended to the ring buffer list: the first occurrence of ``old_value`` is replaced by ``new_value``. If ``old_value`` is not found, the difference ``new_value - old_value`` is added to the last value in the list, so that the sum of the values in the list is corrected.
+   *
+   * @param  offs     Arrival time relative to beginning of slice.
+   * @param  old_value Value to correct.
+   * @param  new_value Corrected value.
+   */
+  void correct_value( const long offs, const double old_value, const double new_value );
+
   std::vector< double >& get_list( const long offs );
 
   /**
@@ -113,6 +122,25 @@ inline void
 VectorRingBuffer::append_value( const long offs, const double v )
 {
   buffer_[ get_index_( offs ) ].push_back( v );
+}
+
+inline void
+VectorRingBuffer::correct_value( const long offs, const double old_value, const double new_value )
+{
+  std::vector< double >& values = buffer_[ get_index_( offs ) ];
+  for ( double& value : values )
+  {
+    if ( value == old_value )
+    {
+      value = new_value;
+      return;
+    }
+  }
+
+  if ( not values.empty() )
+  {
+    values.back() += new_value - old_value;
+  }
 }
 
 inline std::vector< double >&

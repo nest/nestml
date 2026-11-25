@@ -112,11 +112,15 @@ class NESTCodeGenerator(CodeGenerator):
     - **continuous_state_buffering_method**: Which method to use for buffering state variables between neuron and synapse pairs. When a synapse has a "continuous" input port, connected to a postsynaptic neuron, either the value is obtained taking the synaptic (dendritic, that is, synapse-soma) delay into account, requiring a buffer to store the value at each timepoint (``continuous_state_buffering_method = "continuous_time_buffer"``); or the value is obtained at the times of the somatic spikes of the postsynaptic neuron, ignoring the synaptic delay (``continuous_state_buffering_method == "post_spike_based"``). The former is more physically accurate but requires a large buffer and can require a long time to simulate. The latter ignores the dendritic delay but is much more computationally efficient.
     - **delay_variable**: A mapping identifying, for each synapse (the name of which is given as a key), the variable or parameter in the model that corresponds with the NEST ``Connection`` class delay property. (Optional.)
     - **weight_variable**: Like ``delay_variable``, but for synaptic weight. (Required.)
+    - **axonal_delay_synapses**: A list of synapse model names (as given in the model file, without suffix) for which the generated NEST synapse stores separate axonal and dendritic delays (requires a NEST Simulator version that supports axonal delays, see https://github.com/nest/nest-simulator/pull/2989). Such synapses take the ``dendritic_delay`` and ``axonal_delay`` parameters *instead of* the total ``delay``. For synapses that are co-generated with a postsynaptic neuron model (see **neuron_synapse_pairs**), spike-timing dependent updates take both delays into account, and synaptic weights are retrospectively corrected whenever the axonal delay is at least as large as the dendritic delay. All other synapses use a single, purely dendritic ``delay``. Default: ``[]``.
     - **linear_time_invariant_spiking_input_ports**: A list of spiking input ports which can be treated as linear and time-invariant; this implies that, for the given port(s), the weight of all spikes received within a timestep can be added together, improving memory consumption and runtime performance. Use with caution; for example, this is not compatible with using a single input port for, depending on the sign of the weight of the spike event, processing both inhibitory vs. excitatory spikes.
     - **redirect_build_output**: An optional boolean key for redirecting the build output. Setting the key to ``True``, two files will be created for redirecting the ``stdout`` and the ``stderr`. The ``target_path`` will be used as the default location for creating the two files.
     - **build_output_dir**: An optional string key representing the new path where the files corresponding to the output of the build phase will be created. This key requires that the ``redirect_build_output`` is set to ``True``.
 
     """
+
+    # NEST neuron base classes which provide the machinery for retrospective weight corrections in case of predominantly axonal delays
+    _axonal_delay_archiving_node_classes = ["ArchivingNode", "AxonalDelayArchivingNode"]
 
     _default_options = {
         "neuron_parent_class": "ArchivingNode",
@@ -142,6 +146,7 @@ class NESTCodeGenerator(CodeGenerator):
         "continuous_state_buffering_method": "continuous_time_buffer",
         "delay_variable": {},
         "weight_variable": {},
+        "axonal_delay_synapses": [],
         "linear_time_invariant_spiking_input_ports": []
     }
 
@@ -257,7 +262,11 @@ class NESTCodeGenerator(CodeGenerator):
 
         variables_special_cases = {}
         if self.get_option("delay_variable"):
-            variables_special_cases[self.get_option("delay_variable")[synapse_name_stripped]] = "get_delay()"
+            if NESTTools.nest_version_has_axonal_delays(self.get_option("nest_version")):
+                # the total transmission delay (for synapses with axonal delays: the sum of the dendritic and axonal delay)
+                variables_special_cases[self.get_option("delay_variable")[synapse_name_stripped]] = "get_delay_ms()"
+            else:
+                variables_special_cases[self.get_option("delay_variable")[synapse_name_stripped]] = "get_delay()"
 
         self._nest_variable_printer.variables_special_cases = variables_special_cases
         self._nest_variable_printer_no_origin.variables_special_cases = variables_special_cases
@@ -498,6 +507,14 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["nest_version"] = self.get_option("nest_version")
             namespace["nest_version_dict"] = NESTTools.get_version_dict_from_version_string(self.get_option("nest_version"))
 
+        # whether NEST supports axonal delays; this determines the C++ API to use for delays and STDP connections
+        namespace["nest_has_axonal_delays"] = self.option_exists("nest_version") and NESTTools.nest_version_has_axonal_delays(self.get_option("nest_version"))
+
+        # whether generated neurons can be the target of synapses with predominantly axonal delays (and can trigger the retrospective correction of their weights). This requires the neuron to be derived from the NEST ``AxonalDelayArchivingNode`` class.
+        namespace["neuron_supports_axonal_delay_corrections"] = namespace["nest_has_axonal_delays"] \
+            and self.option_exists("neuron_parent_class") \
+            and self.get_option("neuron_parent_class") in self._axonal_delay_archiving_node_classes
+
         # helper functions
         namespace["ast_node_factory"] = ASTNodeFactory
         namespace["assignments"] = NestAssignmentsHelper()
@@ -694,6 +711,18 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["synapse_weight_variable"] = self.get_option("weight_variable")[synapse_name_stripped]
         else:
             namespace["synapse_weight_variable"] = ""
+
+        # axonal delays
+        namespace["axonal_delay"] = synapse_name_stripped in self.get_option("axonal_delay_synapses")
+        if namespace["axonal_delay"] and not namespace["nest_has_axonal_delays"]:
+            raise CodeGenerationException("Synapse \"" + synapse_name_stripped + "\" was specified in the \"axonal_delay_synapses\" code generator option, but the targeted NEST Simulator version (" + str(self.get_option("nest_version")) + ") does not support axonal delays")
+
+        # whether retrospective weight corrections for predominantly axonal delays are generated (only for synapses that depend on postsynaptic spikes or state, that is, for synapses co-generated with a postsynaptic neuron)
+        namespace["axonal_delay_corrections"] = namespace["axonal_delay"] \
+            and "paired_neuron_name" in namespace.keys() \
+            and namespace["neuron_supports_axonal_delay_corrections"] \
+            and not namespace["vt_ports"] \
+            and not (namespace["state_vars_that_need_continuous_buffering"] and namespace["continuous_state_buffering_method"] == "continuous_time_buffer")
 
         return namespace
 
