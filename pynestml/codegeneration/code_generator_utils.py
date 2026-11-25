@@ -60,31 +60,36 @@ class CodeGeneratorUtils:
         Check if a port by the given name is specified as connecting to the postsynaptic neuron. Only makes sense
         for synapses.
         """
-        assert special_type in ["post", "vt"]
+        assert special_type in ["pre", "post", "vt"]
+
+        if special_type == "pre":
+            return not (CodeGeneratorUtils.is_post_port(port_name, neuron_name, synapse_name, neuron_synapse_pairs) or CodeGeneratorUtils.is_vt_port(port_name, neuron_name, synapse_name, neuron_synapse_pairs))
 
         for neuron_synapse_pair in neuron_synapse_pairs:
-            if not neuron_name in [neuron_synapse_pair["neuron"], neuron_synapse_pair["neuron"] + FrontendConfiguration.suffix]:
-                continue
-
-            for synapse_name in neuron_synapse_pair["synapses"].keys():
-                if not (synapse_name in neuron_synapse_pair["synapses"].keys() or synapse_name in [s + FrontendConfiguration.suffix for s in neuron_synapse_pair["synapses"].keys()]):
+            for paired_synapse_name in neuron_synapse_pair["synapses"]:
+                if not (neuron_name.split("__with_")[0] in [neuron_synapse_pair["neuron"], neuron_synapse_pair["neuron"] + FrontendConfiguration.suffix]
+                        and synapse_name.split("__with_")[0] in [paired_synapse_name, paired_synapse_name + FrontendConfiguration.suffix]):
                     continue
 
-                if not special_type + "_ports" in neuron_synapse_pair["synapses"][synapse_name].keys():
-                    return False
+                for synapse_name in neuron_synapse_pair["synapses"].keys():
+                    if not (synapse_name in neuron_synapse_pair["synapses"].keys() or synapse_name in [s + FrontendConfiguration.suffix for s in neuron_synapse_pair["synapses"].keys()]):
+                        continue
 
-                post_ports = neuron_synapse_pair["synapses"][synapse_name][special_type + "_ports"]
-                if not isinstance(post_ports, list):
-                    # only one port name given, not a list
-                    return port_name == post_ports
+                    if not special_type + "_ports" in neuron_synapse_pair["synapses"][synapse_name].keys():
+                        return False
 
-                for post_port in post_ports:
-                    if type(post_port) is not str and len(post_port) == 2:  # (syn_port_name, neuron_port_name) tuple
-                        post_port = post_port[0]
-                    if type(post_port) is not str and len(post_port) == 1:  # (syn_port_name)
-                        return post_port[0] == port_name
-                    if port_name == post_port:
-                        return True
+                    post_ports = neuron_synapse_pair["synapses"][synapse_name][special_type + "_ports"]
+                    if not isinstance(post_ports, list):
+                        # only one port name given, not a list
+                        return port_name == post_ports
+
+                    for post_port in post_ports:
+                        if type(post_port) is not str and len(post_port) == 2:  # (syn_port_name, neuron_port_name) tuple
+                            post_port = post_port[0]
+                        if type(post_port) is not str and len(post_port) == 1:  # (syn_port_name)
+                            return post_port[0] == port_name
+                        if port_name == post_port:
+                            return True
 
         return False
 
@@ -102,6 +107,10 @@ class CodeGeneratorUtils:
         return CodeGeneratorUtils.is_special_port("post", port_name, neuron_name, synapse_name, neuron_synapse_pairs=neuron_synapse_pairs)
 
     @classmethod
+    def is_pre_port(cls, port_name: str, neuron_name: str, synapse_name: str, neuron_synapse_pairs) -> bool:
+        return CodeGeneratorUtils.is_special_port("pre", port_name, neuron_name, synapse_name, neuron_synapse_pairs=neuron_synapse_pairs)
+
+    @classmethod
     def is_vt_port(cls, port_name: str, neuron_name: str, synapse_name: str, neuron_synapse_pairs) -> bool:
         return CodeGeneratorUtils.is_special_port("vt", port_name, neuron_name, synapse_name, neuron_synapse_pairs=neuron_synapse_pairs)
 
@@ -116,6 +125,16 @@ class CodeGeneratorUtils:
         return post_port_names
 
     @classmethod
+    def get_spiking_pre_port_names(cls, synapse: ASTModel, neuron_name: str, synapse_name: str, neuron_synapse_pairs):
+        pre_port_names = []
+        for input_block in synapse.get_input_blocks():
+            for port in input_block.get_input_ports():
+                if CodeGeneratorUtils.is_pre_port(port.name, neuron_name, synapse_name, neuron_synapse_pairs) and port.is_spike():
+                    pre_port_names.append(port.get_name())
+
+        return pre_port_names
+
+    @classmethod
     def get_post_port_names(cls, synapse: ASTModel, neuron_name: str, synapse_name: str, neuron_synapse_pairs):
         post_port_names = []
         for input_block in synapse.get_input_blocks():
@@ -124,6 +143,16 @@ class CodeGeneratorUtils:
                     post_port_names.append(port.get_name())
 
         return post_port_names
+
+    @classmethod
+    def get_pre_port_names(cls, synapse: ASTModel, neuron_name: str, synapse_name: str, neuron_synapse_pairs):
+        pre_port_names = []
+        for input_block in synapse.get_input_blocks():
+            for port in input_block.get_input_ports():
+                if CodeGeneratorUtils.is_pre_port(port.name, neuron_name, synapse_name, neuron_synapse_pairs=neuron_synapse_pairs):
+                    pre_port_names.append(port.get_name())
+
+        return pre_port_names
 
     @classmethod
     def get_vt_port_names(cls, synapse: ASTModel, neuron_name: str, synapse_name: str, neuron_synapse_pairs):

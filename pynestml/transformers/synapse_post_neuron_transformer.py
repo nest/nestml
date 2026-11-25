@@ -449,6 +449,7 @@ class SynapsePostNeuronTransformer(Transformer):
             metadata[new_neuron.name]["paired_synapses"].append(new_synapse)
             metadata[new_neuron.name]["paired_synapse_original_models"].append(synapse)
 
+            metadata[new_synapse.name]["pre_port_names"] = CodeGeneratorUtils.get_pre_port_names(synapse, base_neuron_name, base_synapse_name, self.get_option("neuron_synapse_pairs"))
             metadata[new_synapse.name]["post_port_names"] = CodeGeneratorUtils.get_post_port_names(synapse, base_neuron_name, base_synapse_name, self.get_option("neuron_synapse_pairs"))
             metadata[new_synapse.name]["spiking_post_port_names"] = CodeGeneratorUtils.get_spiking_post_port_names(synapse, base_neuron_name, base_synapse_name, self.get_option("neuron_synapse_pairs"))
             metadata[new_synapse.name]["vt_port_names"] = CodeGeneratorUtils.get_vt_port_names(synapse, base_neuron_name, base_synapse_name, self.get_option("neuron_synapse_pairs"))

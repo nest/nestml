@@ -250,6 +250,15 @@ class SpiNNakerBuilder(Builder):
             except subprocess.CalledProcessError:
                 pass
 
+            # Copy the extra_synapse.mk file
+            try:
+                subprocess.check_call(["cp", "-v", "extra_synapse.mk", os.path.join(install_path, "c_models", "makefiles")],
+                                      stderr=subprocess.STDOUT,
+                                      shell=shell,
+                                      cwd=target_path)
+            except subprocess.CalledProcessError:
+                pass
+
             # Copy the model Makefile
             for fn in generated_file_names_makefiles:
                 neuron_subdir = fn[len("Makefile_"):]
@@ -296,19 +305,6 @@ class SpiNNakerBuilder(Builder):
             except subprocess.CalledProcessError:
                 raise GeneratedCodeBuildException(
                     "Error occurred during \"make\"! More detailed error messages can be found in stdout.")
-
-            # # rename the aplx file so sPyNNaker can find it
-            # generated_file_names_aplx = [fn for fn in os.listdir(os.path.join(install_path, "python_models8", "model_binaries")) if fnmatch.fnmatch(fn, "*.aplx")]
-            # assert len(generated_file_names_aplx) == 1
-            # generated_file_name_aplx = generated_file_names_aplx[0]
-            # try:
-            #     subprocess.check_call(["mv", "-v", generated_file_name_aplx, os.path.splitext(generated_file_name_aplx)[0] + "_neuron.aplx"],
-            #                           stderr=subprocess.STDOUT,
-            #                           shell=shell,
-            #                           cwd=os.path.join(install_path, "python_models8", "model_binaries"))
-            # except subprocess.CalledProcessError:
-            #     raise GeneratedCodeBuildException(
-            #         'Error occurred during renaming aplx file! More detailed error messages can be found in stdout.')
 
         finally:
             os.chdir(old_cwd)

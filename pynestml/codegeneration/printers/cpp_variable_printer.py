@@ -19,6 +19,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+try:
+    # Available in the standard library starting with Python 3.12
+    from typing import override
+except ImportError:
+    # Fallback for Python 3.8 - 3.11
+    from typing_extensions import override
+
 from pynestml.codegeneration.printers.variable_printer import VariablePrinter
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_variables import PredefinedVariables
@@ -40,6 +47,7 @@ class CppVariablePrinter(VariablePrinter):
 
         return variable_name.replace("$", "__DOLLAR")
 
+    @override
     def print_variable(self, node: ASTVariable) -> str:
         """
         Print a variable.
