@@ -102,18 +102,18 @@ model hh_psc_alpha_neuron:
         refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero, at a rate of one (milli)second per (milli)second
 
     parameters:
-        V_m_init mV = -65 mV     # Initial membrane potential
-        C_m pF = 100 pF          # Membrane capacitance
-        g_Na nS = 12000 nS       # Sodium peak conductance
-        g_K nS = 3600 nS         # Potassium peak conductance
-        g_L nS = 30 nS           # Leak conductance
-        E_Na mV = 50 mV          # Sodium reversal potential
-        E_K mV = -77 mV          # Potassium reversal potential
-        E_L mV = -54.402 mV      # Leak reversal potential (a.k.a. resting potential)
-        refr_T ms = 2 ms         # Duration of refractory period
+        V_m_init mV = -65 mV                              # Initial membrane potential
+        C_m pF = 100 pF [[C_m > 0 pF]]                    # Membrane capacitance
+        g_Na nS = 12000 nS                                # Sodium peak conductance
+        g_K nS = 3600 nS                                  # Potassium peak conductance
+        g_L nS = 30 nS                                    # Leak conductance
+        E_Na mV = 50 mV                                   # Sodium reversal potential
+        E_K mV = -77 mV                                   # Potassium reversal potential
+        E_L mV = -54.402 mV                               # Leak reversal potential (a.k.a. resting potential)
+        refr_T ms = 2 ms [[refr_T >= 0 ms]]               # Duration of refractory period
 
-        tau_syn_exc ms = 0.2 ms  # Rise time of the excitatory synaptic alpha function
-        tau_syn_inh ms = 2 ms    # Rise time of the inhibitory synaptic alpha function
+        tau_syn_exc ms = 0.2 ms [[tau_syn_exc > 0 ms]]    # Rise time of the excitatory synaptic alpha function
+        tau_syn_inh ms = 2 ms [[tau_syn_inh > 0 ms]]      # Rise time of the inhibitory synaptic alpha function
 
         # constant external input current
         I_e pA = 0 pA

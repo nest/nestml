@@ -106,20 +106,20 @@ model hh_cond_exp_traub_neuron:
         Inact_n' = (alpha_n - (alpha_n + beta_n) * Inact_n)
 
     parameters:
-        g_Na nS = 20000 nS        # Na conductance
-        g_K nS = 6000 nS          # K conductance
-        g_L nS = 10 nS            # Leak conductance
-        C_m pF = 200 pF           # Membrane capacitance
-        E_Na mV = 50 mV           # Sodium reversal potential
-        E_K mV = -90 mV           # Potassium reversal potential
-        E_L mV = -60 mV           # Leak reversal potential (a.k.a. resting potential)
-        V_T mV = -63 mV           # Voltage offset that controls dynamics. For default
+        g_Na nS = 20000 nS                               # Na conductance
+        g_K nS = 6000 nS                                 # K conductance
+        g_L nS = 10 nS                                   # Leak conductance
+        C_m pF = 200 pF [[C_m > 0 pF]]                   # Membrane capacitance
+        E_Na mV = 50 mV                                  # Sodium reversal potential
+        E_K mV = -90 mV                                  # Potassium reversal potential
+        E_L mV = -60 mV                                  # Leak reversal potential (a.k.a. resting potential)
+        V_T mV = -63 mV                                  # Voltage offset that controls dynamics. For default
                                   # parameters, V_T = -63 mV results in a threshold around -50 mV.
-        tau_syn_exc ms = 5 ms     # Synaptic time constant of excitatory synapse
-        tau_syn_inh ms = 10 ms    # Synaptic time constant of inhibitory synapse
-        refr_T ms = 2 ms          # Duration of refractory period
-        E_exc mV = 0 mV           # Excitatory synaptic reversal potential
-        E_inh mV = -80 mV         # Inhibitory synaptic reversal potential
+        tau_syn_exc ms = 5 ms [[tau_syn_exc > 0 ms]]     # Synaptic time constant of excitatory synapse
+        tau_syn_inh ms = 10 ms [[tau_syn_inh > 0 ms]]    # Synaptic time constant of inhibitory synapse
+        refr_T ms = 2 ms [[refr_T >= 0 ms]]              # Duration of refractory period
+        E_exc mV = 0 mV                                  # Excitatory synaptic reversal potential
+        E_inh mV = -80 mV                                # Inhibitory synaptic reversal potential
 
         alpha_n_init 1/ms = 0.032 ms**-1*mV**-1 * (15 mV - E_L) / (exp((15 mV - E_L) / 5 mV) - 1)
         beta_n_init 1/ms = 0.5 ms**-1 * exp((10 mV - E_L) / 40 mV)

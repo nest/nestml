@@ -74,18 +74,18 @@ model iaf_chxk_2008_neuron:
         V_m' = (-I_leak - I_syn_exc - I_syn_inh - I_ahp + I_e + I_stim) / C_m
 
     parameters:
-        V_th mV = -45.0 mV        # Threshold potential
-        E_exc mV = 20 mV          # Excitatory reversal potential
-        E_inh mV = -90 mV         # Inhibitory reversal potential
-        g_L nS = 100 nS           # Leak conductance
-        C_m pF = 1000.0 pF        # Membrane capacitance
-        E_L mV = -60.0 mV         # Leak reversal potential (a.k.a. resting potential)
-        tau_syn_exc ms = 1 ms     # Synaptic time constant of excitatory synapse
-        tau_syn_inh ms = 1 ms     # Synaptic time constant of inhibitory synapse
-        tau_ahp ms = 0.5 ms       # Afterhyperpolarization (AHP) time constant
-        G_ahp nS = 443.8 nS       # AHP conductance
-        E_ahp mV = -95 mV         # AHP potential
-        ahp_bug boolean = false   # If true, discard AHP conductance value from previous spikes
+        V_th mV = -45.0 mV                              # Threshold potential
+        E_exc mV = 20 mV                                # Excitatory reversal potential
+        E_inh mV = -90 mV                               # Inhibitory reversal potential
+        g_L nS = 100 nS                                 # Leak conductance
+        C_m pF = 1000.0 pF [[C_m > 0 pF]]               # Membrane capacitance
+        E_L mV = -60.0 mV                               # Leak reversal potential (a.k.a. resting potential)
+        tau_syn_exc ms = 1 ms [[tau_syn_exc > 0 ms]]    # Synaptic time constant of excitatory synapse
+        tau_syn_inh ms = 1 ms [[tau_syn_inh > 0 ms]]    # Synaptic time constant of inhibitory synapse
+        tau_ahp ms = 0.5 ms [[tau_ahp > 0 ms]]          # Afterhyperpolarization (AHP) time constant
+        G_ahp nS = 443.8 nS                             # AHP conductance
+        E_ahp mV = -95 mV                               # AHP potential
+        ahp_bug boolean = false                         # If true, discard AHP conductance value from previous spikes
 
         # constant external input current
         I_e pA = 0 pA

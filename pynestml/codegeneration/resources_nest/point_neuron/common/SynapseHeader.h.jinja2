@@ -1177,11 +1177,18 @@ void
   }
 {%- endif %}
 
-  // call parent class method
-  ConnectionBase::set_status( __d, cm );
+  // Keep a copy of the current parameters, state and delay. If any of the new values turns out to be invalid (that is, if an exception is thrown below), the old values are restored, so that either all or none of the new values are set.
+  const Parameters_ P_old = P_;
+  const State_ S_old = S_;
+  const long delay_steps_old = get_delay_steps();
 
-  // state variables and parameters
-{%- filter indent(2,True) %}
+  try
+  {
+    // call parent class method
+    ConnectionBase::set_status( __d, cm );
+
+    // state variables and parameters
+{%- filter indent(4,True) %}
 {%- for variable_symbol in synapse.get_parameter_symbols() + synapse.get_state_symbols() %}
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
 {%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
@@ -1208,16 +1215,10 @@ if ({{ exists_in_dictionary.ExistsInDictionary("__d", "names::weight") }})
 {%- endfor %}
 {%- endfilter %}
 
-  // We now know that (ptmp, stmp) are consistent. We do not
-  // write them back to (P_, S_) before we are also sure that
-  // the properties to be set in the parent class are internally
-  // consistent.
-  ConnectionBase::set_status( __d, cm );
+    ConnectionBase::set_status( __d, cm );
 
-  // if we get here, temporaries contain consistent set of properties
-
-  // set state and parameters
-{%- filter indent(2,True) %}
+    // set state and parameters
+{%- filter indent(4,True) %}
 {%- for variable_symbol in synapse.get_state_symbols() + synapse.get_parameter_symbols() %}
 {%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
@@ -1233,27 +1234,41 @@ set_delay(tmp_{{ nest_codegen_opt_delay_variable }});
 {%- endfilter %}
 
 {%- if synapse.get_parameter_invariants() | length > 0 %}
-  // check invariants
-{% for invariant in synapse.get_parameter_invariants() %}
-  if ( !({{printer.print(invariant)}}) )
-  {
-    throw BadProperty("The constraint '{{nestml_printer.print(invariant)}}' is violated!");
-  }
-{%- endfor %}
+
+    // check invariants
+{%-     for invariant in synapse.get_parameter_invariants() %}
+    if ( !({{printer.print(invariant)}}) )
+    {
+      throw BadProperty("The constraint '{{nestml_printer.print(invariant)}}' is violated!");
+    }
+{%-     endfor %}
 {%- endif %}
 
-{% if uses_numeric_solver %}
+{%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
-  {{ read_from_dictionary.ReadFromDictionary("__d", "double", synapseName + "_names::gsl_abs_error_tol", "P_.__gsl_abs_error_tol", "", false) }};
-  if ( P_.__gsl_abs_error_tol <= 0. )
-  {
-    throw nest::BadProperty( "The gsl_abs_error_tol must be strictly positive." );
+
+    {{ read_from_dictionary.ReadFromDictionary("__d", "double", synapseName + "_names::gsl_abs_error_tol", "P_.__gsl_abs_error_tol", "", false) }};
+    if ( P_.__gsl_abs_error_tol <= 0. )
+    {
+      throw nest::BadProperty( "The gsl_abs_error_tol must be strictly positive." );
+    }
+    {{ read_from_dictionary.ReadFromDictionary("__d", "double", synapseName + "_names::gsl_rel_error_tol", "P_.__gsl_rel_error_tol", "", false) }};
+    if ( P_.__gsl_rel_error_tol < 0. )
+    {
+      throw nest::BadProperty( "The gsl_rel_error_tol must be zero or positive." );
+    }
+{%-     endif %}
+{%- endif %}
   }
-  {{ read_from_dictionary.ReadFromDictionary("__d", "double", synapseName + "_names::gsl_rel_error_tol", "P_.__gsl_rel_error_tol", "", false) }};
-  if ( P_.__gsl_rel_error_tol < 0. )
+  catch ( ... )
   {
-    throw nest::BadProperty( "The gsl_rel_error_tol must be zero or positive." );
+    P_ = P_old;
+    S_ = S_old;
+    set_delay_steps( delay_steps_old );
+    throw;
   }
+{%- if uses_numeric_solver %}
+{%-     if numeric_solver == "rk45" %}
 
   // Reinitialize the control function of the solver with new values of tolerance
   if ( not __c )

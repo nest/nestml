@@ -160,6 +160,7 @@ class MessageCode(Enum):
     NO_SOLITARY_PHYSICAL_UNITS = 133
     SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED = 134
     NEST_RANDOM_FUNCTIONS_LEGALLY_USED = 135
+    NEST_T_SPIKE_VARIABLE = 136
 
 
 class Messages:
@@ -1201,6 +1202,11 @@ class Messages:
     def get_nest_random_functions_legally_used(cls, name: str) -> Tuple[MessageCode, str]:
         message = "When generating code for NEST Simulator, the function \"" + name + "\" can only be used in the update, onReceive, or onCondition blocks."
         return MessageCode.NEST_RANDOM_FUNCTIONS_LEGALLY_USED, message
+
+    @classmethod
+    def get_nest_t_spike_variable(cls, name: str) -> Tuple[MessageCode, str]:
+        message = "When generating code for NEST Simulator, variables in neuron models may not be named \"" + name + "\", as this name is reserved by NEST (it holds the time of the last spike emitted by a neuron). Please rename the variable."
+        return MessageCode.NEST_T_SPIKE_VARIABLE, message
 
     @classmethod
     def get_continuous_output_port_cannot_have_attributes(cls) -> Tuple[MessageCode, str]:

@@ -75,18 +75,18 @@ model izhikevich_psc_alpha_neuron:
         refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero, at a rate of one (milli)second per (milli)second
 
     parameters:
-        C_m pF = 200 pF           # Membrane capacitance
-        k pF/mV/ms = 8 pF/mV/ms   # Spiking slope
-        V_r mV = -65 mV           # Resting potential
-        V_t mV = -45 mV           # Threshold potential
-        a 1/ms = 0.01 ms**-1      # Time scale of recovery variable
-        b nS = 9 nS               # Sensitivity of recovery variable
-        c mV = -65 mV             # After-spike reset value of V_m
-        d pA = 60 pA              # After-spike reset value of U_m
-        V_peak mV = 0 mV          # Spike detection threshold (reset condition)
-        tau_syn_exc ms = 0.2 ms   # Synaptic time constant of excitatory synapse
-        tau_syn_inh ms = 2 ms     # Synaptic time constant of inhibitory synapse
-        refr_T ms = 2 ms          # Duration of refractory period
+        C_m pF = 200 pF [[C_m > 0 pF]]                    # Membrane capacitance
+        k pF/mV/ms = 8 pF/mV/ms                           # Spiking slope
+        V_r mV = -65 mV                                   # Resting potential
+        V_t mV = -45 mV                                   # Threshold potential
+        a 1/ms = 0.01 ms**-1                              # Time scale of recovery variable
+        b nS = 9 nS                                       # Sensitivity of recovery variable
+        c mV = -65 mV                                     # After-spike reset value of V_m
+        d pA = 60 pA                                      # After-spike reset value of U_m
+        V_peak mV = 0 mV                                  # Spike detection threshold (reset condition)
+        tau_syn_exc ms = 0.2 ms [[tau_syn_exc > 0 ms]]    # Synaptic time constant of excitatory synapse
+        tau_syn_inh ms = 2 ms [[tau_syn_inh > 0 ms]]      # Synaptic time constant of inhibitory synapse
+        refr_T ms = 2 ms [[refr_T >= 0 ms]]               # Duration of refractory period
 
         # constant external input current
         I_e pA = 0 pA
