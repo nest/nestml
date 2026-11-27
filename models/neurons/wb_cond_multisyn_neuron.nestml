@@ -97,39 +97,39 @@ model wb_cond_multisyn_neuron:
                g_GABAB$' = -g_GABAB$ / GABA_B_Tau_1
 
     parameters:
-        g_Na nS = 3500.0 nS    # Sodium peak conductance
-        g_K nS = 900.0 nS      # Potassium peak conductance
-        g_L nS = 10 nS         # Leak conductance
-        C_m pF = 100.0 pF      # Membrane capacitance
-        E_Na mV = 55.0 mV      # Sodium reversal potential
-        E_K mV = -90.0 mV      # Potassium reversal potential
-        E_L mV = -65.0 mV      # Leak reversal potential (a.k.a. resting potential)
-        V_Tr mV = -55.0 mV     # Spike threshold
-        refr_T ms = 2 ms       # Duration of refractory period
+        g_Na nS = 3500.0 nS                                   # Sodium peak conductance
+        g_K nS = 900.0 nS                                     # Potassium peak conductance
+        g_L nS = 10 nS                                        # Leak conductance
+        C_m pF = 100.0 pF [[C_m > 0 pF]]                      # Membrane capacitance
+        E_Na mV = 55.0 mV                                     # Sodium reversal potential
+        E_K mV = -90.0 mV                                     # Potassium reversal potential
+        E_L mV = -65.0 mV                                     # Leak reversal potential (a.k.a. resting potential)
+        V_Tr mV = -55.0 mV                                    # Spike threshold
+        refr_T ms = 2 ms [[refr_T >= 0 ms]]                   # Duration of refractory period
 
         # Parameters for synapse of type AMPA, GABA_A, GABA_B and NMDA
 
-        AMPA_g_peak nS = 0.1 nS      # peak conductance
-        AMPA_E_rev mV = 0.0 mV       # reversal potential
-        AMPA_Tau_1 ms = 0.5 ms       # rise time
-        AMPA_Tau_2 ms = 2.4 ms       # decay time, Tau_1 < Tau_2
+        AMPA_g_peak nS = 0.1 nS                               # peak conductance
+        AMPA_E_rev mV = 0.0 mV                                # reversal potential
+        AMPA_Tau_1 ms = 0.5 ms [[AMPA_Tau_1 > 0 ms]]          # rise time
+        AMPA_Tau_2 ms = 2.4 ms [[AMPA_Tau_2 > 0 ms]]          # decay time, Tau_1 < Tau_2
 
-        NMDA_g_peak nS = 0.075 nS    # peak conductance
-        NMDA_Tau_1 ms = 4.0 ms       # rise time
-        NMDA_Tau_2 ms = 40.0 ms      # decay time, Tau_1 < Tau_2
-        NMDA_E_rev mV = 0.0 mV       # reversal potential
-        NMDA_Vact mV = -58.0 mV      # inactive for V << Vact, inflection of sigmoid
-        NMDA_Sact mV = 2.5 mV        # scale of inactivation
+        NMDA_g_peak nS = 0.075 nS                             # peak conductance
+        NMDA_Tau_1 ms = 4.0 ms [[NMDA_Tau_1 > 0 ms]]          # rise time
+        NMDA_Tau_2 ms = 40.0 ms [[NMDA_Tau_2 > 0 ms]]         # decay time, Tau_1 < Tau_2
+        NMDA_E_rev mV = 0.0 mV                                # reversal potential
+        NMDA_Vact mV = -58.0 mV                               # inactive for V << Vact, inflection of sigmoid
+        NMDA_Sact mV = 2.5 mV                                 # scale of inactivation
 
-        GABA_A_g_peak nS = 0.33 nS   # peak conductance
-        GABA_A_Tau_1 ms = 1.0 ms     # rise time
-        GABA_A_Tau_2 ms = 7.0 ms     # decay time, Tau_1 < Tau_2
-        GABA_A_E_rev mV = -70.0 mV   # reversal potential
+        GABA_A_g_peak nS = 0.33 nS                            # peak conductance
+        GABA_A_Tau_1 ms = 1.0 ms [[GABA_A_Tau_1 > 0 ms]]      # rise time
+        GABA_A_Tau_2 ms = 7.0 ms [[GABA_A_Tau_2 > 0 ms]]      # decay time, Tau_1 < Tau_2
+        GABA_A_E_rev mV = -70.0 mV                            # reversal potential
 
-        GABA_B_g_peak nS = 0.0132 nS # peak conductance
-        GABA_B_Tau_1 ms = 60.0 ms    # rise time
-        GABA_B_Tau_2 ms = 200.0 ms   # decay time, Tau_1 < Tau_2
-        GABA_B_E_rev mV = -90.0 mV   # reversal potential for intrinsic current
+        GABA_B_g_peak nS = 0.0132 nS                          # peak conductance
+        GABA_B_Tau_1 ms = 60.0 ms [[GABA_B_Tau_1 > 0 ms]]     # rise time
+        GABA_B_Tau_2 ms = 200.0 ms [[GABA_B_Tau_2 > 0 ms]]    # decay time, Tau_1 < Tau_2
+        GABA_B_E_rev mV = -90.0 mV                            # reversal potential for intrinsic current
 
         # constant external input current
         I_e pA = 0 pA

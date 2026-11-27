@@ -73,20 +73,20 @@ model wb_cond_exp_neuron:
         refr_t' = -1    # refractoriness is implemented as an ODE, representing a timer counting back down to zero, at a rate of one (milli)second per (milli)second
 
     parameters:
-        C_m pF = 100 pF           # Membrane capacitance
-        g_Na nS = 3500 nS         # Sodium peak conductance
-        g_K nS = 900 nS           # Potassium peak conductance
-        g_L nS = 10 nS            # Leak conductance
-        E_Na mV = 55 mV           # Sodium reversal potential
-        E_K mV = -90 mV           # Potassium reversal potential
-        E_L mV = -65 mV           # Leak reversal potential (a.k.a. resting potential)
-        V_Tr mV = -55 mV          # Spike threshold
-        refr_T ms = 2 ms          # Duration of refractory period
+        C_m pF = 100 pF [[C_m > 0 pF]]                    # Membrane capacitance
+        g_Na nS = 3500 nS                                 # Sodium peak conductance
+        g_K nS = 900 nS                                   # Potassium peak conductance
+        g_L nS = 10 nS                                    # Leak conductance
+        E_Na mV = 55 mV                                   # Sodium reversal potential
+        E_K mV = -90 mV                                   # Potassium reversal potential
+        E_L mV = -65 mV                                   # Leak reversal potential (a.k.a. resting potential)
+        V_Tr mV = -55 mV                                  # Spike threshold
+        refr_T ms = 2 ms [[refr_T >= 0 ms]]               # Duration of refractory period
 
-        tau_syn_exc ms = 0.2 ms   # Rise time of the excitatory synaptic alpha function
-        tau_syn_inh ms = 10 ms    # Rise time of the inhibitory synaptic alpha function
-        E_exc mV = 0 mV           # Excitatory synaptic reversal potential
-        E_inh mV = -75 mV         # Inhibitory synaptic reversal potential
+        tau_syn_exc ms = 0.2 ms [[tau_syn_exc > 0 ms]]    # Rise time of the excitatory synaptic alpha function
+        tau_syn_inh ms = 10 ms [[tau_syn_inh > 0 ms]]     # Rise time of the inhibitory synaptic alpha function
+        E_exc mV = 0 mV                                   # Excitatory synaptic reversal potential
+        E_inh mV = -75 mV                                 # Inhibitory synaptic reversal potential
 
         # constant external input current
         I_e pA = 0 pA

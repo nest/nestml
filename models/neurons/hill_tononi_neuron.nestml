@@ -152,44 +152,44 @@ model hill_tononi_neuron:
         E_Na mV = 30.0 mV
         E_K mV = -90.0 mV
         g_NaL nS = 0.2 nS
-        g_KL nS = 1.0 nS       # 1.0 - 1.85
-        Tau_m ms = 16.0 ms     # membrane time constant applying to all currents but repolarizing K-current (see [1, p 1677])
-        Theta_eq mV = -51.0 mV # equilibrium value
-        Tau_theta ms = 2.0 ms  # time constant
-        Tau_spike ms = 1.75 ms # membrane time constant applying to repolarizing K-current
-        t_spike ms = 2.0 ms    # duration of re-polarizing potassium current
+        g_KL nS = 1.0 nS                                      # 1.0 - 1.85
+        Tau_m ms = 16.0 ms [[Tau_m > 0 ms]]                   # membrane time constant applying to all currents but repolarizing K-current (see [1, p 1677])
+        Theta_eq mV = -51.0 mV                                # equilibrium value
+        Tau_theta ms = 2.0 ms [[Tau_theta > 0 ms]]            # time constant
+        Tau_spike ms = 1.75 ms [[Tau_spike > 0 ms]]           # membrane time constant applying to repolarizing K-current
+        t_ref ms = 2.0 ms [[t_ref >= 0 ms]]                   # refractory time and duration of re-polarizing potassium current (called t_spike in [1])
 
         # Parameters for synapse of type AMPA, GABA_A, GABA_B and NMDA
 
-        AMPA_g_peak nS = 0.1 nS      # peak conductance
-        AMPA_E_rev mV = 0.0 mV       # reversal potential
-        AMPA_Tau_1 ms = 0.5 ms       # rise time
-        AMPA_Tau_2 ms = 2.4 ms       # decay time, Tau_1 < Tau_2
-        NMDA_g_peak nS = 0.075 nS    # peak conductance
-        NMDA_Tau_1 ms = 4.0 ms       # rise time
-        NMDA_Tau_2 ms = 40.0 ms      # decay time, Tau_1 < Tau_2
-        NMDA_E_rev mV = 0.0 mV       # reversal potential
-        NMDA_Vact mV = -58.0 mV      # inactive for V << Vact, inflection of sigmoid
-        NMDA_Sact mV = 2.5 mV        # scale of inactivation
-        GABA_A_g_peak nS = 0.33 nS   # peak conductance
-        GABA_A_Tau_1 ms = 1.0 ms     # rise time
-        GABA_A_Tau_2 ms = 7.0 ms     # decay time, Tau_1 < Tau_2
-        GABA_A_E_rev mV = -70.0 mV   # reversal potential
-        GABA_B_g_peak nS = 0.0132 nS # peak conductance
-        GABA_B_Tau_1 ms = 60.0 ms    # rise time
-        GABA_B_Tau_2 ms = 200.0 ms   # decay time, Tau_1 < Tau_2
-        GABA_B_E_rev mV = -90.0 mV   # reversal potential for intrinsic current
+        AMPA_g_peak nS = 0.1 nS                               # peak conductance
+        AMPA_E_rev mV = 0.0 mV                                # reversal potential
+        AMPA_Tau_1 ms = 0.5 ms [[AMPA_Tau_1 > 0 ms]]          # rise time
+        AMPA_Tau_2 ms = 2.4 ms [[AMPA_Tau_2 > 0 ms]]          # decay time, Tau_1 < Tau_2
+        NMDA_g_peak nS = 0.075 nS                             # peak conductance
+        NMDA_Tau_1 ms = 4.0 ms [[NMDA_Tau_1 > 0 ms]]          # rise time
+        NMDA_Tau_2 ms = 40.0 ms [[NMDA_Tau_2 > 0 ms]]         # decay time, Tau_1 < Tau_2
+        NMDA_E_rev mV = 0.0 mV                                # reversal potential
+        NMDA_Vact mV = -58.0 mV                               # inactive for V << Vact, inflection of sigmoid
+        NMDA_Sact mV = 2.5 mV                                 # scale of inactivation
+        GABA_A_g_peak nS = 0.33 nS                            # peak conductance
+        GABA_A_Tau_1 ms = 1.0 ms [[GABA_A_Tau_1 > 0 ms]]      # rise time
+        GABA_A_Tau_2 ms = 7.0 ms [[GABA_A_Tau_2 > 0 ms]]      # decay time, Tau_1 < Tau_2
+        GABA_A_E_rev mV = -70.0 mV                            # reversal potential
+        GABA_B_g_peak nS = 0.0132 nS                          # peak conductance
+        GABA_B_Tau_1 ms = 60.0 ms [[GABA_B_Tau_1 > 0 ms]]     # rise time
+        GABA_B_Tau_2 ms = 200.0 ms [[GABA_B_Tau_2 > 0 ms]]    # decay time, Tau_1 < Tau_2
+        GABA_B_E_rev mV = -90.0 mV                            # reversal potential for intrinsic current
 
         # parameters for intrinsic currents
 
-        NaP_g_peak nS = 1.0 nS       # peak conductance for intrinsic current
-        NaP_E_rev mV = 30.0 mV       # reversal potential for intrinsic current
-        KNa_g_peak nS = 1.0 nS       # peak conductance for intrinsic current
-        KNa_E_rev mV = -90.0 mV      # reversal potential for intrinsic current
-        T_g_peak nS = 1.0 nS         # peak conductance for intrinsic current
-        T_E_rev mV = 0.0 mV          # reversal potential for intrinsic current
-        h_g_peak nS = 1.0 nS         # peak conductance for intrinsic current
-        h_E_rev mV = -40.0 mV        # reversal potential for intrinsic current
+        NaP_g_peak nS = 1.0 nS                                # peak conductance for intrinsic current
+        NaP_E_rev mV = 30.0 mV                                # reversal potential for intrinsic current
+        KNa_g_peak nS = 1.0 nS                                # peak conductance for intrinsic current
+        KNa_E_rev mV = -90.0 mV                               # reversal potential for intrinsic current
+        T_g_peak nS = 1.0 nS                                  # peak conductance for intrinsic current
+        T_E_rev mV = 0.0 mV                                   # reversal potential for intrinsic current
+        h_g_peak nS = 1.0 nS                                  # peak conductance for intrinsic current
+        h_E_rev mV = -40.0 mV                                 # reversal potential for intrinsic current
         KNa_D_EQ pA = 0.001 pA
 
         # constant external input current
@@ -239,7 +239,7 @@ model hill_tononi_neuron:
         else:
             g_spike = false
 
-        potassium_refr_t = t_spike
+        potassium_refr_t = t_ref
 
         emit_spike()
 

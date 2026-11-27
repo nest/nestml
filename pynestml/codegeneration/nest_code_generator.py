@@ -33,6 +33,7 @@ import re
 
 import pynestml
 
+from pynestml.cocos.co_co_nest_no_t_spike_variable import CoCoNESTNoTSpikeVariable
 from pynestml.cocos.co_co_nest_random_functions_legally_used import CoCoNestRandomFunctionsLegallyUsed
 from pynestml.cocos.co_co_nest_synapse_delay_not_assigned_to import CoCoNESTSynapseDelayNotAssignedTo
 from pynestml.cocos.co_cos_manager import CoCosManager
@@ -168,6 +169,9 @@ class NESTCodeGenerator(CodeGenerator):
         for model in neurons + synapses:
             CoCosManager.check_on_receive_vectors_should_be_constant_size(model)
             CoCoNestRandomFunctionsLegallyUsed.check_co_co(model)
+
+        for model in neurons:
+            CoCoNESTNoTSpikeVariable.check_co_co(model)
 
         for model in neurons + synapses:
             if Logger.has_errors(model.name):
